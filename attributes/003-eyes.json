@@ -1,0 +1,223 @@
+[
+  {
+    "id": "eyes.001",
+    "category": "eyes",
+    "label": "Almond-shaped eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "almond-shaped eyes",
+      "gpt-image": "almond-shaped eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.002",
+    "category": "eyes",
+    "label": "Monolid eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "monolid eyes",
+      "gpt-image": "monolid eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.003",
+    "category": "eyes",
+    "label": "Double eyelids",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "double eyelids",
+      "gpt-image": "double eyelids"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.004",
+    "category": "eyes",
+    "label": "Round eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "round eyes",
+      "gpt-image": "round eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.005",
+    "category": "eyes",
+    "label": "Phoenix eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "phoenix eyes",
+      "gpt-image": "phoenix eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.006",
+    "category": "eyes",
+    "label": "Doe eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "doe eyes",
+      "gpt-image": "doe eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.007",
+    "category": "eyes",
+    "label": "Puppy eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "puppy eyes",
+      "gpt-image": "puppy eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.008",
+    "category": "eyes",
+    "label": "Hooded eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "hooded eyes",
+      "gpt-image": "hooded eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.009",
+    "category": "eyes",
+    "label": "Soft gaze",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "soft gaze",
+      "gpt-image": "soft gaze"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.010",
+    "category": "eyes",
+    "label": "Direct eye contact",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "direct eye contact",
+      "gpt-image": "direct eye contact"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.011",
+    "category": "eyes",
+    "label": "Looking at camera",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "looking at camera",
+      "gpt-image": "looking at camera"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.012",
+    "category": "eyes",
+    "label": "Looking away",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "looking away",
+      "gpt-image": "looking away"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyes.013",
+    "category": "eyes",
+    "label": "Bright eyes",
+    "ui": {
+      "control": "select",
+      "group": "Eyes"
+    },
+    "prompt": {
+      "default": "bright eyes",
+      "gpt-image": "bright eyes"
+    },
+    "tags": [
+      "eyes"
+    ],
+    "enabled": true
+  }
+]

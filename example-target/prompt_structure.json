@@ -1,0 +1,198 @@
+{
+  "prompt_metadata": {
+    "description": "Create a realistic portrait of a woman from the original file, matching facial structure 100% under nightclub neon lighting.",
+    "target_model": "ChatGPT / DALL-E 3",
+    "aspect_ratio": "6:8"
+  },
+  "attributes": {
+    "character": {
+      "gender": {
+        "value": "woman",
+        "label": "Female",
+        "description": "The subject is a woman."
+      },
+      "age": {
+        "value": "young",
+        "label": "Young adult",
+        "description": "A young adult subject."
+      },
+      "ethnicity": {
+        "value": "thai",
+        "label": "Thai",
+        "description": "Thai ethnicity."
+      },
+      "beauty": {
+        "value": "beautiful",
+        "label": "Beautiful",
+        "description": "The subject is described as beautiful."
+      },
+      "identity_reference": {
+        "value": "original file reference",
+        "description": "Mouth, nose, eyebrows, eyes, and facial structure must match the original file 100% without any distortion."
+      }
+    },
+    "face": {
+      "eyes": {
+        "value": "match original file 100%",
+        "description": "Eyes match the reference file exactly with no distortion."
+      },
+      "eyebrows": {
+        "value": "match original file 100%",
+        "description": "Eyebrows match the reference file exactly with no distortion."
+      },
+      "nose": {
+        "value": "match original file 100%",
+        "description": "Nose matches the reference file exactly with no distortion."
+      },
+      "lips": {
+        "value": "match original file 100% and wearing red lipstick",
+        "description": "Mouth/lips match reference file exactly with no distortion; wearing red lipstick."
+      },
+      "smile": {
+        "value": "gentle smile",
+        "description": "A gentle smile on the subject's face."
+      },
+      "expression": {
+        "value": "cute expression",
+        "description": "Looking directly at the camera with a cute expression."
+      }
+    },
+    "skin": {
+      "tone": {
+        "value": "fair skin",
+        "label": "Fair skin",
+        "description": "Fair, bright skin tone."
+      },
+      "texture": {
+        "value": "smooth and radiant",
+        "description": "Fair and smooth skin; skin appears radiant, smooth, and bright under lighting, with realistic skin texture."
+      },
+      "makeup": {
+        "value": "red lipstick",
+        "description": "Red lipstick applied to the lips."
+      }
+    },
+    "hair": {
+      "length": {
+        "value": "long",
+        "description": "Long hair."
+      },
+      "style": {
+        "value": "straight",
+        "description": "Straight hair."
+      },
+      "color": {
+        "value": "reddish-orange",
+        "description": "Reddish-orange hair."
+      },
+      "lighting_effects": {
+        "value": "illuminated brightly by the red light, strong neon highlights on her hair",
+        "description": "Hair is illuminated brightly by red ambient/neon light."
+      }
+    },
+    "clothing": {
+      "top": {
+        "value": "white off-shoulder one-shoulder top",
+        "description": "A white off-shoulder one-shoulder top that drapes elegantly over her shoulders."
+      },
+      "bottom": {
+        "value": "light-colored bottoms",
+        "description": "Light-colored pants or skirt."
+      },
+      "fabric": {
+        "value": "realistic fabric details",
+        "description": "High detail of fabric texture and folds."
+      }
+    },
+    "pose": {
+      "sitting": {
+        "value": "sitting at a table",
+        "description": "Subject sits at a table."
+      },
+      "hand_position": {
+        "value": "left hand touching face near cheek/ear, right hand on table near a drink",
+        "description": "Left hand raised to gently touch the side of her face near cheek and ear; right hand rests on table near a drink."
+      },
+      "eye_contact": {
+        "value": "looking directly at the camera",
+        "description": "Direct eye contact with the viewer/camera."
+      }
+    },
+    "environment": {
+      "location": {
+        "value": "inside a vibrant crowded bar or nightclub",
+        "description": "The setting is indoor, in a lively bar or nightclub."
+      },
+      "indoor_outdoor": {
+        "value": "indoor",
+        "description": "Interior environment."
+      },
+      "props": {
+        "value": "green glass bottle, glass with a purple straw, smartphone, table, drink",
+        "description": "Foreground items on the table: green glass bottle, glass with purple straw, smartphone, and other items."
+      },
+      "background": {
+        "value": "blurred figures of other people in the club",
+        "description": "Background shows blurred silhouettes of other clubgoers under red ambient lighting."
+      },
+      "time_of_day": {
+        "value": "nighttime",
+        "description": "Nighttime setting."
+      }
+    },
+    "lighting": {
+      "key_light": {
+        "value": "strong flash lighting",
+        "description": "Strong flash lighting used to make the skin appear radiant, smooth, and bright."
+      },
+      "neon": {
+        "value": "strong dramatic red and pink neon lighting",
+        "description": "Red and pink neon casting a warm glow across the scene."
+      },
+      "ambient": {
+        "value": "warm red-pink color tone, rich saturated red environment",
+        "description": "Warm red-pink ambient lighting with soft lighting on the subject."
+      },
+      "highlights": {
+        "value": "strong neon highlights on her hair and skin",
+        "description": "Neon highlights reflecting off the subject's hair and skin."
+      }
+    },
+    "camera": {
+      "brand": {
+        "value": "modern mirrorless camera",
+        "description": "Shot on a modern mirrorless camera."
+      },
+      "lens": {
+        "value": "50mm lens",
+        "description": "Shot with a 50mm lens."
+      },
+      "perspective": {
+        "value": "slightly low angle",
+        "description": "Shot taken from a slightly low angle."
+      },
+      "composition": {
+        "value": "medium close-up",
+        "description": "Medium close-up composition."
+      },
+      "aperture": {
+        "value": "shallow depth of field",
+        "description": "Shallow depth of field creating soft bokeh blur in the foreground and background."
+      }
+    },
+    "quality": {
+      "photorealism": {
+        "value": "photorealistic",
+        "description": "Highly realistic candid nighttime photograph."
+      },
+      "details": {
+        "value": "high detail, realistic skin texture and fabric details",
+        "description": "Very high detail in skin and clothing fabric."
+      },
+      "atmosphere": {
+        "value": "natural candid atmosphere",
+        "description": "Atmosphere feels natural and candid."
+      }
+    }
+  }
+}

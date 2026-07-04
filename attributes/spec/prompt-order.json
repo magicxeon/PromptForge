@@ -1,0 +1,22 @@
+{
+  "order": [
+    "subject",
+    "face_shape",
+    "eyes",
+    "eyebrows",
+    "nose",
+    "lips",
+    "skin",
+    "hair_style",
+    "body",
+    "clothing_fit",
+    "fabric",
+    "tops",
+    "bottoms",
+    "pose_body",
+    "environment",
+    "lighting",
+    "camera",
+    "quality"
+  ]
+}

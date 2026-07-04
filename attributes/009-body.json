@@ -1,0 +1,185 @@
+[
+  {
+    "id": "body.001",
+    "category": "body",
+    "label": "Curvy figure",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "curvy figure",
+      "gpt-image": "curvy figure with defined lines and proportions"
+    },
+    "tags": [
+      "body",
+      "curves"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.002",
+    "category": "body",
+    "label": "Hourglass silhouette",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "hourglass silhouette",
+      "gpt-image": "curvy hourglass silhouette with a narrow waist and balanced proportions"
+    },
+    "tags": [
+      "body",
+      "curves",
+      "hourglass"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.003",
+    "category": "body",
+    "label": "Voluptuous figure",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "voluptuous figure",
+      "gpt-image": "voluptuous figure with soft, natural curves and defined silhouette"
+    },
+    "tags": [
+      "body",
+      "curves"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.004",
+    "category": "body",
+    "label": "Shapely body",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "shapely body",
+      "gpt-image": "shapely body highlighting well-proportioned athletic contours"
+    },
+    "tags": [
+      "body"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.005",
+    "category": "body",
+    "label": "Full-figured shape",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "full-figured shape",
+      "gpt-image": "full-figured shape with natural, full-bodied curves"
+    },
+    "tags": [
+      "body"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.006",
+    "category": "body",
+    "label": "Pear-shaped silhouette",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "pear-shaped silhouette",
+      "gpt-image": "pear-shaped silhouette, showcasing curves with a defined waist and full hips"
+    },
+    "tags": [
+      "body",
+      "hips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.007",
+    "category": "body",
+    "label": "Ample bust",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "ample bust",
+      "gpt-image": "ample bust, conforming to natural proportions and curves"
+    },
+    "tags": [
+      "body",
+      "bust",
+      "safe-sexy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.008",
+    "category": "body",
+    "label": "Well-endowed figure",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "well-endowed figure",
+      "gpt-image": "well-endowed figure with natural S-curve proportions"
+    },
+    "tags": [
+      "body",
+      "bust",
+      "safe-sexy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.009",
+    "category": "body",
+    "label": "Heavy chest definition",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "heavy chest definition",
+      "gpt-image": "heavy chest definition, styled naturally within high-fashion garments"
+    },
+    "tags": [
+      "body",
+      "bust",
+      "safe-sexy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.010",
+    "category": "body",
+    "label": "Voluminous chest lines",
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "voluminous chest lines",
+      "gpt-image": "voluminous chest lines matching a curvy silhouette under close-fitting clothes"
+    },
+    "tags": [
+      "body",
+      "bust",
+      "safe-sexy"
+    ],
+    "enabled": true
+  }
+]

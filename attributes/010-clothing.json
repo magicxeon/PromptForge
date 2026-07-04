@@ -1,0 +1,362 @@
+[
+  {
+    "id": "clothing.001",
+    "category": "clothing",
+    "label": "Tight-fitting fit",
+    "ui": {
+      "control": "select",
+      "group": "Clothing Fit"
+    },
+    "prompt": {
+      "default": "tight-fitting clothing",
+      "gpt-image": "tight-fitting clothing showcasing precise silhouette details and fabric tension lines"
+    },
+    "tags": [
+      "clothing",
+      "fit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.002",
+    "category": "clothing",
+    "label": "Skin-tight dress",
+    "ui": {
+      "control": "select",
+      "group": "Clothing Fit"
+    },
+    "prompt": {
+      "default": "skin-tight clothing",
+      "gpt-image": "skin-tight dress showing realistic cloth stretching and snug seams"
+    },
+    "tags": [
+      "clothing",
+      "fit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.003",
+    "category": "clothing",
+    "label": "Body-con style",
+    "ui": {
+      "control": "select",
+      "group": "Clothing Fit"
+    },
+    "prompt": {
+      "default": "body-con style clothing",
+      "gpt-image": "body-con style fashion dress outlining curves beautifully with natural folds"
+    },
+    "tags": [
+      "clothing",
+      "fit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.004",
+    "category": "clothing",
+    "label": "Compression fit",
+    "ui": {
+      "control": "select",
+      "group": "Clothing Fit"
+    },
+    "prompt": {
+      "default": "compression fit garment",
+      "gpt-image": "snug compression athletic wear defining muscle structures and torso curves"
+    },
+    "tags": [
+      "clothing",
+      "fit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.005",
+    "category": "clothing",
+    "label": "Second-skin overlay",
+    "ui": {
+      "control": "select",
+      "group": "Clothing Fit"
+    },
+    "prompt": {
+      "default": "second-skin fit clothing",
+      "gpt-image": "clothing with a second-skin fit, clinging perfectly to the body's natural contours"
+    },
+    "tags": [
+      "clothing",
+      "fit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.006",
+    "category": "clothing",
+    "label": "Latex fabric",
+    "ui": {
+      "control": "select",
+      "group": "Fabric"
+    },
+    "prompt": {
+      "default": "latex fabric",
+      "gpt-image": "latex fabric with high-gloss sheen and tight clinging properties, reflecting light sources"
+    },
+    "tags": [
+      "clothing",
+      "fabric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.007",
+    "category": "clothing",
+    "label": "Patent leather",
+    "ui": {
+      "control": "select",
+      "group": "Fabric"
+    },
+    "prompt": {
+      "default": "patent leather",
+      "gpt-image": "patent leather fabric showing extreme gloss, sharp reflections, and deep black surface texture"
+    },
+    "tags": [
+      "clothing",
+      "fabric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.008",
+    "category": "clothing",
+    "label": "Silk and Satin",
+    "ui": {
+      "control": "select",
+      "group": "Fabric"
+    },
+    "prompt": {
+      "default": "silk satin fabric",
+      "gpt-image": "luxurious silk and satin fabric, soft draped folds with a subtle elegant pearlescent sheen"
+    },
+    "tags": [
+      "clothing",
+      "fabric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.009",
+    "category": "clothing",
+    "label": "Wet-look fabric",
+    "ui": {
+      "control": "select",
+      "group": "Fabric"
+    },
+    "prompt": {
+      "default": "wet-look fabric",
+      "gpt-image": "wet-look styled fabric with high-reflection sheen as if glistening with water drops"
+    },
+    "tags": [
+      "clothing",
+      "fabric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.010",
+    "category": "clothing",
+    "label": "Corset style top",
+    "ui": {
+      "control": "select",
+      "group": "Tops"
+    },
+    "prompt": {
+      "default": "corset top",
+      "gpt-image": "corset-style crop top highlighting waist contours and structure details"
+    },
+    "tags": [
+      "clothing",
+      "tops"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.011",
+    "category": "clothing",
+    "label": "Bustier top",
+    "ui": {
+      "control": "select",
+      "group": "Tops"
+    },
+    "prompt": {
+      "default": "bustier top",
+      "gpt-image": "fitted bustier top with defined cup lines and tight seams"
+    },
+    "tags": [
+      "clothing",
+      "tops"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.012",
+    "category": "clothing",
+    "label": "Deep V-neckline",
+    "ui": {
+      "control": "select",
+      "group": "Tops"
+    },
+    "prompt": {
+      "default": "deep V-neckline top",
+      "gpt-image": "deep V-neckline crop top accentuating the collarbone area and chest geometry"
+    },
+    "tags": [
+      "clothing",
+      "tops"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.013",
+    "category": "clothing",
+    "label": "Plunging neckline",
+    "ui": {
+      "control": "select",
+      "group": "Tops"
+    },
+    "prompt": {
+      "default": "plunging neckline top",
+      "gpt-image": "top with a plunging neckline showing a hint of cleavage and realistic fabric drapes"
+    },
+    "tags": [
+      "clothing",
+      "tops"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.014",
+    "category": "clothing",
+    "label": "Off-the-shoulder top",
+    "ui": {
+      "control": "select",
+      "group": "Tops"
+    },
+    "prompt": {
+      "default": "off-the-shoulder top",
+      "gpt-image": "white off-shoulder top that drapes elegantly over the shoulders and arms"
+    },
+    "tags": [
+      "clothing",
+      "tops"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.015",
+    "category": "clothing",
+    "label": "Skirt with thigh-high slit",
+    "ui": {
+      "control": "select",
+      "group": "Bottoms"
+    },
+    "prompt": {
+      "default": "skirt with a thigh-high slit",
+      "gpt-image": "skirt featuring a dramatic thigh-high slit on one side, showcasing leg contours"
+    },
+    "tags": [
+      "clothing",
+      "bottoms"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.016",
+    "category": "clothing",
+    "label": "Low-back dress",
+    "ui": {
+      "control": "select",
+      "group": "Bottoms"
+    },
+    "prompt": {
+      "default": "low-back dress",
+      "gpt-image": "elegant low-back dress exposing the back down to the lower spine area"
+    },
+    "tags": [
+      "clothing",
+      "bottoms"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.017",
+    "category": "clothing",
+    "label": "Tight leggings",
+    "ui": {
+      "control": "select",
+      "group": "Bottoms"
+    },
+    "prompt": {
+      "default": "tight leggings",
+      "gpt-image": "tight form-fitting leggings highlighting leg lines and curves"
+    },
+    "tags": [
+      "clothing",
+      "bottoms"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.018",
+    "category": "clothing",
+    "label": "Fashion harness",
+    "ui": {
+      "control": "select",
+      "group": "Accessories"
+    },
+    "prompt": {
+      "default": "fashion harness over clothing",
+      "gpt-image": "sleek black leather fashion harness worn tightly over the top, adding structural contrast"
+    },
+    "tags": [
+      "clothing",
+      "accessories"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.019",
+    "category": "clothing",
+    "label": "Thigh-high boots",
+    "ui": {
+      "control": "select",
+      "group": "Accessories"
+    },
+    "prompt": {
+      "default": "thigh-high boots",
+      "gpt-image": "high-heeled thigh-high leather boots clinging closely to the thighs and legs"
+    },
+    "tags": [
+      "clothing",
+      "accessories"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.020",
+    "category": "clothing",
+    "label": "High-waist stockings",
+    "ui": {
+      "control": "select",
+      "group": "Accessories"
+    },
+    "prompt": {
+      "default": "high-waist stockings",
+      "gpt-image": "delicate high-waist black stockings emerging subtly from the skirt hem"
+    },
+    "tags": [
+      "clothing",
+      "accessories"
+    ],
+    "enabled": true
+  }
+]

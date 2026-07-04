@@ -1,0 +1,670 @@
+/* --- ModelPromptForge Premium Design System --- */
+
+:root {
+  --bg-color: #0d0d0f;
+  --panel-bg: rgba(20, 20, 24, 0.6);
+  --border-color: rgba(139, 92, 246, 0.15);
+  --border-active: rgba(139, 92, 246, 0.5);
+  
+  /* Neon Accents */
+  --neon-purple: #8b5cf6;
+  --neon-pink: #ec4899;
+  --neon-cyan: #06b6d4;
+  --neon-orange: #f97316;
+  --neon-green: #10b981;
+  --neon-gold: #fbbf24;
+  
+  /* Text Colors */
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-dark: #18181b;
+  
+  /* Glow Effects */
+  --glow-pink: 0 0 10px rgba(236, 72, 153, 0.3);
+  --glow-purple: 0 0 12px rgba(139, 92, 246, 0.4);
+  --glow-cyan: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+/* --- Layout Reset & Base Style --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.6);
+}
+
+/* App Container */
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* --- Header Styling --- */
+.app-header {
+  margin-bottom: 2.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 2.2rem;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff 30%, var(--neon-purple) 70%, var(--neon-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 800px;
+}
+
+/* --- Badges & Neon Highlights --- */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.neon-glow-pink {
+  border: 1px solid var(--neon-pink);
+  color: var(--neon-pink);
+  box-shadow: var(--glow-pink);
+}
+
+/* --- Main Grid Workspace --- */
+.app-workspace {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+.panel-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 1rem;
+}
+
+.panel-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.sub-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* --- Collapsible Accordions (Left Column) --- */
+.accordions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.accordion {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.accordion.active {
+  border-color: var(--border-active);
+  background: rgba(139, 92, 246, 0.03);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.accordion-header:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.accordion-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Accordion Summary Badges */
+.accordion-badge {
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.accordion-arrow {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.accordion.active .accordion-arrow {
+  transform: rotate(180deg);
+  color: var(--neon-purple);
+}
+
+/* Accordion Content Panel */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top: 1px solid transparent;
+}
+
+.accordion.active .accordion-content {
+  max-height: 600px; /* High enough value to accommodate all inputs */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.accordion-inner {
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+/* --- Form Fields & Styled Elements --- */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Dropdown select wrappers */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+  appearance: none;
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Styled select custom arrow */
+.select-wrapper::after {
+  content: '▼';
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Custom override text inputs */
+.custom-writein-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--neon-purple);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  margin-top: 0.5rem;
+  animation: slideDown 0.25s ease-out;
+}
+
+.custom-writein-input:focus {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-style: solid;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+}
+
+/* Spinner for dynamic loading state */
+.loading-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  gap: 1rem;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(139, 92, 246, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--neon-purple);
+  animation: spin 0.8s linear infinite;
+}
+
+/* --- Control Panel (Right Column) --- */
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.control-section h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.section-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: -0.25rem;
+}
+
+/* Visual Option Chips (Segmented Buttons) */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.option-chip {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-chip:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.option-chip.active {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--neon-purple);
+  color: var(--text-main);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+}
+
+/* Custom Checkboxes */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 2rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  user-select: none;
+  color: var(--text-main);
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  height: 1.2rem;
+  width: 1.2rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  background-color: var(--neon-purple);
+  border-color: var(--neon-purple);
+  box-shadow: var(--glow-purple);
+}
+
+.checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--text-main);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark::after {
+  display: block;
+}
+
+/* --- Real-Time Output Preview Box --- */
+.preview-section {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: border-color 0.3s ease;
+}
+
+.preview-section:focus-within {
+  border-color: var(--neon-purple);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.prompt-preview-box {
+  width: 100%;
+  min-height: 120px;
+  background-color: rgba(10, 10, 12, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  overflow-y: auto;
+  max-height: 250px;
+  word-break: break-word;
+}
+
+.placeholder-text {
+  color: rgba(255, 255, 255, 0.2);
+  font-style: italic;
+}
+
+/* Token Highlights (Dynamic spans in prompt assembly) */
+.token-subject {
+  color: var(--neon-green);
+  font-weight: 500;
+}
+.token-appearance {
+  color: var(--neon-pink);
+  font-weight: 500;
+}
+.token-clothing {
+  color: var(--neon-purple);
+  font-weight: 500;
+}
+.token-pose {
+  color: var(--neon-cyan);
+  font-weight: 500;
+}
+.token-lighting {
+  color: var(--neon-orange);
+  font-weight: 500;
+}
+.token-reference {
+  color: var(--neon-gold);
+  font-weight: 500;
+  border-bottom: 1px dotted var(--neon-gold);
+}
+
+/* Hover-sync state to highlight selector */
+.interactive-highlight {
+  outline: 2px solid var(--neon-purple) !important;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Form Field Disabled State (for Face Match Lockout) */
+.form-field.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: grayscale(1);
+  transition: all 0.3s ease;
+}
+
+/* --- Action Buttons & File upload --- */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 0.75rem;
+}
+
+button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neon-cyan {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.btn-neon-cyan {
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.btn-neon-cyan:hover {
+  background: var(--neon-cyan);
+  color: var(--text-dark);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-1px);
+}
+
+.btn-neon {
+  background: var(--neon-purple);
+  border: 1px solid var(--neon-purple);
+  color: var(--text-main);
+}
+.btn-neon:hover {
+  background: #7c3aed;
+  box-shadow: var(--glow-purple);
+  transform: translateY(-1px);
+}
+
+.btn-neon-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+}
+.btn-neon-outline:hover {
+  border-color: var(--neon-purple);
+  color: var(--text-main);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+}
+
+.btn-neon-action {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: var(--neon-purple);
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 6px !important;
+}
+.btn-neon-action:hover {
+  background: var(--neon-purple);
+  color: var(--text-main);
+  box-shadow: var(--glow-purple);
+}
+
+/* File import button design */
+.import-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 1.25rem;
+}
+
+.file-upload-label {
+  display: block;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-upload-label:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--neon-purple);
+  color: var(--text-main);
+}
+
+/* --- Keyframe Animations --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Responsive Layout (Mobile / Tablet) --- */
+@media (max-width: 1024px) {
+  .app-workspace {
+    grid-template-columns: 1fr;
+  }
+  
+  .control-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 1rem;
+  }
+  
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+}

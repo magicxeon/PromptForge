@@ -1,0 +1,53 @@
+[
+  {
+    "id": "quality.001",
+    "category": "quality",
+    "label": "Photorealistic",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "prompt": {
+      "default": "photorealistic",
+      "gpt-image": "highly realistic candid photograph, photorealistic"
+    },
+    "tags": [
+      "quality"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.002",
+    "category": "quality",
+    "label": "High detail",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "prompt": {
+      "default": "high detail",
+      "gpt-image": "high detail rendering of fabric weaves, skin pores, and specular light reflections"
+    },
+    "tags": [
+      "quality"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.003",
+    "category": "quality",
+    "label": "Natural candid atmosphere",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "prompt": {
+      "default": "natural candid atmosphere",
+      "gpt-image": "candid and unposed look, giving a natural cinematic environment feel"
+    },
+    "tags": [
+      "quality"
+    ],
+    "enabled": true
+  }
+]

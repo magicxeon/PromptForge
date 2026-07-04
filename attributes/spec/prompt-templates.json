@@ -1,0 +1,6 @@
+{
+  "portrait": "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}",
+  "nightclub": "{subject}, inside a vibrant crowded nightclub, {lighting}, {camera}, {quality}",
+  "street": "{subject}, urban street, {lighting}, {camera}, {quality}",
+  "studio": "{subject}, photography studio, {lighting}, {camera}, {quality}"
+}

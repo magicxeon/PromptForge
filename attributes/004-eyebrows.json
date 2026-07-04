@@ -1,0 +1,121 @@
+[
+  {
+    "id": "eyebrows.001",
+    "category": "eyebrows",
+    "label": "Straight eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "straight eyebrows",
+      "gpt-image": "straight eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.002",
+    "category": "eyebrows",
+    "label": "Soft arched eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "soft arched eyebrows",
+      "gpt-image": "soft arched eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.003",
+    "category": "eyebrows",
+    "label": "Natural thick brows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "natural thick brows",
+      "gpt-image": "natural thick brows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.004",
+    "category": "eyebrows",
+    "label": "Thin eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "thin eyebrows",
+      "gpt-image": "thin eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.005",
+    "category": "eyebrows",
+    "label": "Defined eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "defined eyebrows",
+      "gpt-image": "defined eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.006",
+    "category": "eyebrows",
+    "label": "Well-groomed eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "well-groomed eyebrows",
+      "gpt-image": "well-groomed eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.007",
+    "category": "eyebrows",
+    "label": "Natural eyebrows",
+    "ui": {
+      "control": "select",
+      "group": "Eyebrows"
+    },
+    "prompt": {
+      "default": "natural eyebrows",
+      "gpt-image": "natural eyebrows"
+    },
+    "tags": [
+      "eyebrows"
+    ],
+    "enabled": true
+  }
+]

@@ -1,0 +1,292 @@
+[
+  {
+    "id": "skin.001",
+    "category": "skin",
+    "label": "Fair skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "fair skin",
+      "gpt-image": "fair skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.002",
+    "category": "skin",
+    "label": "Porcelain skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "porcelain skin",
+      "gpt-image": "porcelain skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.003",
+    "category": "skin",
+    "label": "Glass skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "glass skin",
+      "gpt-image": "glass skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.004",
+    "category": "skin",
+    "label": "Honey skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "honey skin",
+      "gpt-image": "honey skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.005",
+    "category": "skin",
+    "label": "Warm olive skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "warm olive skin",
+      "gpt-image": "warm olive skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.006",
+    "category": "skin",
+    "label": "Dewy complexion",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "dewy complexion",
+      "gpt-image": "dewy complexion"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.007",
+    "category": "skin",
+    "label": "Natural skin texture",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "natural skin texture with visible skin pores and fine details",
+      "gpt-image": "highly realistic natural skin texture, visible fine skin pores, natural skin sheen"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.008",
+    "category": "skin",
+    "label": "Healthy complexion",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "healthy complexion",
+      "gpt-image": "healthy complexion"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.009",
+    "category": "skin",
+    "label": "Even skin tone",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "even skin tone",
+      "gpt-image": "even skin tone"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.010",
+    "category": "skin",
+    "label": "Soft skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "soft skin",
+      "gpt-image": "soft skin"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.011",
+    "category": "skin",
+    "label": "Radiant smooth skin (under flash)",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "radiant smooth skin, bright and glowing under flash lighting",
+      "gpt-image": "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash"
+    },
+    "tags": [
+      "skin",
+      "lighting"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.012",
+    "category": "skin",
+    "label": "Dewy glass skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "dewy glass skin, translucent and hydrated",
+      "gpt-image": "dewy glass skin, translucent and hydrated complexion reflecting soft glowing light"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.013",
+    "category": "skin",
+    "label": "Rosy Fair skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "rosy fair skin",
+      "gpt-image": "rosy fair skin, glowing white complexion with natural soft pinkish undertones"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.014",
+    "category": "skin",
+    "label": "Translucent Glass skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "translucent glass skin",
+      "gpt-image": "translucent glass skin, highly reflective fair skin with a clear glassy sheen"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.015",
+    "category": "skin",
+    "label": "Milky White skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "milky white skin",
+      "gpt-image": "milky white skin, smooth porcelain skin with soft cream undertones"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.016",
+    "category": "skin",
+    "label": "Ivory White skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "ivory white skin",
+      "gpt-image": "ivory white skin, smooth fair ivory complexion"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "skin.017",
+    "category": "skin",
+    "label": "Aura Glowing White skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "aura glowing white skin",
+      "gpt-image": "aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity"
+    },
+    "tags": [
+      "skin"
+    ],
+    "enabled": true
+  }
+]

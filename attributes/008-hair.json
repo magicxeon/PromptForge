@@ -1,0 +1,1000 @@
+{
+  "meta": {
+    "category": "hair",
+    "version": "0.1",
+    "entries": 20
+  },
+  "entries": [
+    {
+      "id": "hair_001",
+      "category": "hair",
+      "subcategory": "Length",
+      "label": "Buzz Cut",
+      "aliases": [],
+      "description": "Buzz Cut hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "buzz cut",
+        "gpt-image": "buzz cut",
+        "flux": "buzz cut",
+        "sdxl": "buzz cut",
+        "midjourney": "buzz cut"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Long Hair"
+      ],
+      "tags": [
+        "length"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_002",
+      "category": "hair",
+      "subcategory": "Length",
+      "label": "Short Hair",
+      "aliases": [],
+      "description": "Short Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "short hair",
+        "gpt-image": "short hair",
+        "flux": "short hair",
+        "sdxl": "short hair",
+        "midjourney": "short hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Extra Long Hair"
+      ],
+      "tags": [
+        "length"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_003",
+      "category": "hair",
+      "subcategory": "Length",
+      "label": "Long Hair",
+      "aliases": [],
+      "description": "Long Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "long hair",
+        "gpt-image": "long hair",
+        "flux": "long hair",
+        "sdxl": "long hair",
+        "midjourney": "long hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Buzz Cut"
+      ],
+      "tags": [
+        "length"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_004",
+      "category": "hair",
+      "subcategory": "Length",
+      "label": "Extra Long Hair",
+      "aliases": [],
+      "description": "Extra Long Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "extra long hair",
+        "gpt-image": "extra long hair",
+        "flux": "extra long hair",
+        "sdxl": "extra long hair",
+        "midjourney": "extra long hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Short Hair"
+      ],
+      "tags": [
+        "length"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_005",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Straight Hair",
+      "aliases": [],
+      "description": "Straight Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "straight hair",
+        "gpt-image": "straight hair",
+        "flux": "straight hair",
+        "sdxl": "straight hair",
+        "midjourney": "straight hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Tight Curls"
+      ],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_006",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Wavy Hair",
+      "aliases": [],
+      "description": "Wavy Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "wavy hair",
+        "gpt-image": "wavy hair",
+        "flux": "wavy hair",
+        "sdxl": "wavy hair",
+        "midjourney": "wavy hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_007",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Curly Hair",
+      "aliases": [],
+      "description": "Curly Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "curly hair",
+        "gpt-image": "curly hair",
+        "flux": "curly hair",
+        "sdxl": "curly hair",
+        "midjourney": "curly hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Straight Hair"
+      ],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_008",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Ponytail",
+      "aliases": [],
+      "description": "Ponytail hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "high ponytail",
+        "gpt-image": "high ponytail",
+        "flux": "high ponytail",
+        "sdxl": "high ponytail",
+        "midjourney": "high ponytail"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Pixie Cut"
+      ],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_009",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Messy Bun",
+      "aliases": [],
+      "description": "Messy Bun hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "messy bun",
+        "gpt-image": "messy bun",
+        "flux": "messy bun",
+        "sdxl": "messy bun",
+        "midjourney": "messy bun"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_010",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "French Braid",
+      "aliases": [],
+      "description": "French Braid hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "French braid",
+        "gpt-image": "French braid",
+        "flux": "French braid",
+        "sdxl": "French braid",
+        "midjourney": "French braid"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "style"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_011",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "Curtain Bangs",
+      "aliases": [],
+      "description": "Curtain Bangs hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "curtain bangs",
+        "gpt-image": "curtain bangs",
+        "flux": "curtain bangs",
+        "sdxl": "curtain bangs",
+        "midjourney": "curtain bangs"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Blunt Bangs"
+      ],
+      "tags": [
+        "bangs"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_012",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "Blunt Bangs",
+      "aliases": [],
+      "description": "Blunt Bangs hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "blunt bangs",
+        "gpt-image": "blunt bangs",
+        "flux": "blunt bangs",
+        "sdxl": "blunt bangs",
+        "midjourney": "blunt bangs"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Curtain Bangs"
+      ],
+      "tags": [
+        "bangs"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_013",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Jet Black",
+      "aliases": [],
+      "description": "Jet Black hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "jet black hair",
+        "gpt-image": "jet black hair",
+        "flux": "jet black hair",
+        "sdxl": "jet black hair",
+        "midjourney": "jet black hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Platinum Blonde"
+      ],
+      "tags": [
+        "color"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_014",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Dark Brown",
+      "aliases": [],
+      "description": "Dark Brown hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "dark brown hair",
+        "gpt-image": "dark brown hair",
+        "flux": "dark brown hair",
+        "sdxl": "dark brown hair",
+        "midjourney": "dark brown hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "color"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_015",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Platinum Blonde",
+      "aliases": [],
+      "description": "Platinum Blonde hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "platinum blonde hair",
+        "gpt-image": "platinum blonde hair",
+        "flux": "platinum blonde hair",
+        "sdxl": "platinum blonde hair",
+        "midjourney": "platinum blonde hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Jet Black"
+      ],
+      "tags": [
+        "color"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_016",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Copper",
+      "aliases": [],
+      "description": "Copper hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "copper hair",
+        "gpt-image": "copper hair",
+        "flux": "copper hair",
+        "sdxl": "copper hair",
+        "midjourney": "copper hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "color"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_017",
+      "category": "hair",
+      "subcategory": "Finish",
+      "label": "Glossy",
+      "aliases": [],
+      "description": "Glossy hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "glossy healthy hair",
+        "gpt-image": "glossy healthy hair",
+        "flux": "glossy healthy hair",
+        "sdxl": "glossy healthy hair",
+        "midjourney": "glossy healthy hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Dry Hair"
+      ],
+      "tags": [
+        "finish"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_018",
+      "category": "hair",
+      "subcategory": "Finish",
+      "label": "Windblown",
+      "aliases": [],
+      "description": "Windblown hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "windblown hair",
+        "gpt-image": "windblown hair",
+        "flux": "windblown hair",
+        "sdxl": "windblown hair",
+        "midjourney": "windblown hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [],
+      "tags": [
+        "finish"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_019",
+      "category": "hair",
+      "subcategory": "Finish",
+      "label": "Wet Hair",
+      "aliases": [],
+      "description": "Wet Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "wet hair",
+        "gpt-image": "wet hair",
+        "flux": "wet hair",
+        "sdxl": "wet hair",
+        "midjourney": "wet hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Dry Hair"
+      ],
+      "tags": [
+        "finish"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_020",
+      "category": "hair",
+      "subcategory": "Finish",
+      "label": "Dry Hair",
+      "aliases": [],
+      "description": "Dry Hair hairstyle attribute.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "dry hair",
+        "gpt-image": "dry hair",
+        "flux": "dry hair",
+        "sdxl": "dry hair",
+        "midjourney": "dry hair"
+      },
+      "compatible": [
+        "portrait",
+        "fashion",
+        "beauty",
+        "editorial",
+        "studio",
+        "indoor",
+        "outdoor"
+      ],
+      "conflicts": [
+        "Wet Hair"
+      ],
+      "tags": [
+        "finish"
+      ],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_021",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Reddish-orange",
+      "aliases": [],
+      "description": "Reddish-orange hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "reddish-orange hair",
+        "gpt-image": "reddish-orange hair",
+        "flux": "reddish-orange hair",
+        "sdxl": "reddish-orange hair",
+        "midjourney": "reddish-orange hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_022",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Layered Hush Cut",
+      "aliases": [],
+      "description": "Layered hush cut hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "layered hush cut hairstyle",
+        "gpt-image": "layered hush cut hairstyle",
+        "flux": "layered hush cut hairstyle",
+        "sdxl": "layered hush cut hairstyle",
+        "midjourney": "layered hush cut hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_023",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Long Loose Waves",
+      "aliases": [],
+      "description": "Long loose waves / beach waves.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "long loose wavy hair",
+        "gpt-image": "long loose waves, beach waves hair, flowing naturally",
+        "flux": "long loose wavy hair",
+        "sdxl": "long loose wavy hair",
+        "midjourney": "long loose waves"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_024",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Side-swept Hair",
+      "aliases": [],
+      "description": "Side-swept hair exposing one shoulder.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "side-swept hair",
+        "gpt-image": "side-swept hair draped elegantly over one shoulder, exposing the neckline and shoulder",
+        "flux": "side-swept hair",
+        "sdxl": "side-swept hair",
+        "midjourney": "side-swept hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_025",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Wet Look Hair",
+      "aliases": [],
+      "description": "Sleek wet-look hair style.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "wet look hair",
+        "gpt-image": "sleek wet-look styled hair, damp and glistening",
+        "flux": "wet look hair",
+        "sdxl": "wet look hair",
+        "midjourney": "wet look hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_026",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Wolf Cut",
+      "aliases": [],
+      "description": "Edgy wolf cut style.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "wolf cut hairstyle",
+        "gpt-image": "wolf cut hairstyle, layered shaggy hair with volume",
+        "flux": "wolf cut hairstyle",
+        "sdxl": "wolf cut hairstyle",
+        "midjourney": "wolf cut hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_027",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "See-through Bangs",
+      "aliases": [],
+      "description": "See-through bangs.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "see-through bangs",
+        "gpt-image": "delicate see-through bangs framing the forehead",
+        "flux": "see-through bangs",
+        "sdxl": "see-through bangs",
+        "midjourney": "see-through bangs"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["bangs"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_028",
+      "category": "hair",
+      "subcategory": "Finish",
+      "label": "Neon Strand Highlights",
+      "aliases": [],
+      "description": "Neon color reflections on hair strands.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "neon highlights on hair",
+        "gpt-image": "vibrant neon highlights reflecting off individual hair strands and soft flyaways, creating a colorful edge rim glow",
+        "flux": "neon highlights on hair",
+        "sdxl": "neon highlights on hair",
+        "midjourney": "neon highlights on hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["finish"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    }
+  ],
+  "examples": [
+    {
+      "name": "Studio Beauty Portrait",
+      "scene": {
+        "hair": "Long Hair",
+        "color": "Jet Black",
+        "finish": "Glossy"
+      },
+      "generatedPrompt": "Beautiful studio portrait, long jet black glossy hair, soft lighting, photorealistic.",
+      "tags": [
+        "portrait",
+        "studio",
+        "beauty"
+      ],
+      "useCases": [
+        "Beauty",
+        "Headshot"
+      ]
+    },
+    {
+      "name": "Street Fashion",
+      "scene": {
+        "hair": "Messy Bun",
+        "color": "Copper"
+      },
+      "generatedPrompt": "Street fashion portrait with messy bun and copper hair.",
+      "tags": [
+        "street",
+        "fashion"
+      ],
+      "useCases": [
+        "Editorial"
+      ]
+    }
+  ]
+}

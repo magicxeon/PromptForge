@@ -1,0 +1,179 @@
+[
+  {
+    "id": "pose.001",
+    "category": "pose",
+    "label": "Crossing legs",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "crossing legs",
+      "gpt-image": "sitting crossing legs, showing hip curvature and clean body lines"
+    },
+    "tags": [
+      "pose",
+      "sitting"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.002",
+    "category": "pose",
+    "label": "Leaning forward",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "leaning forward subtly",
+      "gpt-image": "leaning forward subtly towards the camera, accentuating the chest lines and neckline"
+    },
+    "tags": [
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.003",
+    "category": "pose",
+    "label": "Arching back",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "arching back slightly",
+      "gpt-image": "arching back slightly to define S-curve posture and waist shape"
+    },
+    "tags": [
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.004",
+    "category": "pose",
+    "label": "Laying down side view",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "laying down side view",
+      "gpt-image": "laying down on her side, side-view showcasing full body curves and silhouette lines"
+    },
+    "tags": [
+      "pose",
+      "laying"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.005",
+    "category": "pose",
+    "label": "Looking over shoulder",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking over shoulder",
+      "gpt-image": "looking over her shoulder towards the camera, showing back silhouette"
+    },
+    "tags": [
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.006",
+    "category": "pose",
+    "label": "Hand near mouth",
+    "ui": {
+      "control": "select",
+      "group": "Hand Gestures"
+    },
+    "prompt": {
+      "default": "hand near mouth",
+      "gpt-image": "hand placed gently near her mouth with soft slender fingers"
+    },
+    "tags": [
+      "pose",
+      "hands"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.007",
+    "category": "pose",
+    "label": "Resting chin on hand",
+    "ui": {
+      "control": "select",
+      "group": "Hand Gestures"
+    },
+    "prompt": {
+      "default": "resting chin on hand",
+      "gpt-image": "sitting resting chin on hand with elbow on table, looking directly at the camera"
+    },
+    "tags": [
+      "pose",
+      "hands"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.008",
+    "category": "pose",
+    "label": "Touching collarbone",
+    "ui": {
+      "control": "select",
+      "group": "Hand Gestures"
+    },
+    "prompt": {
+      "default": "touching collarbone",
+      "gpt-image": "gently touching her collarbone, highlighting neckline details"
+    },
+    "tags": [
+      "pose",
+      "hands"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.009",
+    "category": "pose",
+    "label": "Hand on hip",
+    "ui": {
+      "control": "select",
+      "group": "Hand Gestures"
+    },
+    "prompt": {
+      "default": "hand on hip",
+      "gpt-image": "standing confidently with one hand placed on her hip, showcasing waist curves"
+    },
+    "tags": [
+      "pose",
+      "hands"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "pose.010",
+    "category": "pose",
+    "label": "Touching cheek / face",
+    "ui": {
+      "control": "select",
+      "group": "Hand Gestures"
+    },
+    "prompt": {
+      "default": "hand touching the side of her face near cheek and ear",
+      "gpt-image": "left hand raised to gently touch the side of her face near her cheek and ear, candid gaze"
+    },
+    "tags": [
+      "pose",
+      "hands"
+    ],
+    "enabled": true
+  }
+]

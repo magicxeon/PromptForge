@@ -1,0 +1,374 @@
+[
+  {
+    "id": "environment.001",
+    "category": "environment",
+    "label": "Crowded nightclub / bar",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "inside a vibrant crowded bar or nightclub",
+      "gpt-image": "inside a vibrant crowded bar or nightclub, with soft bokeh blur showing silhouettes of other people in the background"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "nightclub",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.002",
+    "category": "environment",
+    "label": "Urban street",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "on an urban street",
+      "gpt-image": "on a bustling urban street, with streetlights and dynamic background depth"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "street",
+      "outdoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.003",
+    "category": "environment",
+    "label": "Photography studio",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "in a photography studio",
+      "gpt-image": "in a professional photography studio with a clean solid color backdrop"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "studio",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.004",
+    "category": "environment",
+    "label": "Luxury penthouse",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "inside a luxurious high-rise penthouse",
+      "gpt-image": "inside a luxurious high-rise penthouse with floor-to-ceiling glass windows overlooking a glowing city skyline at night"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.005",
+    "category": "environment",
+    "label": "Cozy modern cafe",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "in a cozy modern cafe",
+      "gpt-image": "in a cozy modern cafe with warm wooden decors and soft background chatter"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "cafe",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.006",
+    "category": "environment",
+    "label": "Modern minimalist",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Architecture",
+    "prompt": {
+      "default": "modern minimalist architecture backdrop",
+      "gpt-image": "modern minimalist architecture with clean lines and large glass facades in the background"
+    },
+    "tags": [
+      "environment",
+      "architecture"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.007",
+    "category": "environment",
+    "label": "Cyberpunk neon streets",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Architecture",
+    "prompt": {
+      "default": "futuristic cyberpunk city streets",
+      "gpt-image": "futuristic cyberpunk city streets filled with glowing neon signs, holographic displays, and sleek structures"
+    },
+    "tags": [
+      "environment",
+      "architecture",
+      "cyberpunk"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.008",
+    "category": "environment",
+    "label": "Traditional Asian / Thai style",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Architecture",
+    "prompt": {
+      "default": "traditional Asian architecture backdrop",
+      "gpt-image": "traditional Thai architecture with ornate teak wooden structures and soft warm lighting"
+    },
+    "tags": [
+      "environment",
+      "architecture",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.009",
+    "category": "environment",
+    "label": "Nightclub Table Items",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Props",
+    "prompt": {
+      "default": "green glass bottle, drink glass with a purple straw, smartphone, table items",
+      "gpt-image": "foreground elements on a table including a green glass bottle, a drink glass with a purple straw, a smartphone, and other items slightly out of focus"
+    },
+    "tags": [
+      "environment",
+      "props"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.010",
+    "category": "environment",
+    "label": "Handheld coffee cup",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Props",
+    "prompt": {
+      "default": "holding a hot paper coffee cup",
+      "gpt-image": "holding a hot paper coffee cup with soft steam rising gently from the lid"
+    },
+    "tags": [
+      "environment",
+      "props"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.011",
+    "category": "environment",
+    "label": "Luxury designer handbag",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Props",
+    "prompt": {
+      "default": "carrying a designer leather handbag",
+      "gpt-image": "carrying a designer leather luxury handbag on her arm with detailed gold chain straps"
+    },
+    "tags": [
+      "environment",
+      "props"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.012",
+    "category": "environment",
+    "label": "Clear night sky",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Weather",
+    "prompt": {
+      "default": "clear night sky",
+      "gpt-image": "clear night sky with distant soft starlight and glowing moon highlights"
+    },
+    "tags": [
+      "environment",
+      "weather"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.013",
+    "category": "environment",
+    "label": "Rainy weather & wet asphalt",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Weather",
+    "prompt": {
+      "default": "light rain, wet asphalt ground with glowing reflections",
+      "gpt-image": "light rain weather, with wet asphalt and water puddles reflecting the colorful neon signs and streetlights"
+    },
+    "tags": [
+      "environment",
+      "weather"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.014",
+    "category": "environment",
+    "label": "Soft morning mist",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Weather",
+    "prompt": {
+      "default": "soft mist and fog in the background",
+      "gpt-image": "soft morning mist and fog creating a cinematic moody atmosphere and soft focus depth"
+    },
+    "tags": [
+      "environment",
+      "weather"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.015",
+    "category": "environment",
+    "label": "Late night",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Time of Day",
+    "prompt": {
+      "default": "late night atmosphere",
+      "gpt-image": "late night setting with deep shadows and glowing electric street lamps"
+    },
+    "tags": [
+      "environment",
+      "time"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.016",
+    "category": "environment",
+    "label": "Golden hour sunset",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Time of Day",
+    "prompt": {
+      "default": "golden hour sunset",
+      "gpt-image": "golden hour sunset time, casting warm golden illumination across the scene"
+    },
+    "tags": [
+      "environment",
+      "time"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.017",
+    "category": "environment",
+    "label": "Blue hour twilight",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Time of Day",
+    "prompt": {
+      "default": "blue hour twilight",
+      "gpt-image": "blue hour twilight atmosphere with deep cobalt sky colors and early glowing street lamps"
+    },
+    "tags": [
+      "environment",
+      "time"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.018",
+    "category": "environment",
+    "label": "Autumn season",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Season",
+    "prompt": {
+      "default": "autumn season setting",
+      "gpt-image": "autumn season setting with warm-colored golden leaves falling softly in the background"
+    },
+    "tags": [
+      "environment",
+      "season"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.019",
+    "category": "environment",
+    "label": "Spring with cherry blossoms",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Season",
+    "prompt": {
+      "default": "spring season with blooming cherry blossoms",
+      "gpt-image": "spring season setting with soft pink blooming cherry blossoms on branches in the background"
+    },
+    "tags": [
+      "environment",
+      "season"
+    ],
+    "enabled": true
+  }
+]

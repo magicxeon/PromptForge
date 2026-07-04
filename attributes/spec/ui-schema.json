@@ -1,0 +1,316 @@
+[
+  {
+    "group": "Character",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Gender",
+        "control": "select"
+      },
+      {
+        "name": "Age",
+        "control": "select"
+      },
+      {
+        "name": "Ethnicity",
+        "control": "select"
+      },
+      {
+        "name": "Beauty",
+        "control": "select"
+      },
+      {
+        "name": "Reference Image",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Face",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Face Shape",
+        "control": "select"
+      },
+      {
+        "name": "Eyes",
+        "control": "select"
+      },
+      {
+        "name": "Eyebrows",
+        "control": "select"
+      },
+      {
+        "name": "Nose",
+        "control": "select"
+      },
+      {
+        "name": "Lips",
+        "control": "select"
+      },
+      {
+        "name": "Smile",
+        "control": "select"
+      },
+      {
+        "name": "Expression",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Hair",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Length",
+        "control": "select"
+      },
+      {
+        "name": "Style",
+        "control": "select"
+      },
+      {
+        "name": "Texture",
+        "control": "select"
+      },
+      {
+        "name": "Color",
+        "control": "select"
+      },
+      {
+        "name": "Bangs",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Skin",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Tone",
+        "control": "select"
+      },
+      {
+        "name": "Texture",
+        "control": "select"
+      },
+      {
+        "name": "Makeup",
+        "control": "select"
+      },
+      {
+        "name": "Freckles",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Body",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Height",
+        "control": "select"
+      },
+      {
+        "name": "Body Shape",
+        "control": "select"
+      },
+      {
+        "name": "Build",
+        "control": "select"
+      },
+      {
+        "name": "Hands",
+        "control": "select"
+      },
+      {
+        "name": "Legs",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Clothing",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Top",
+        "control": "select"
+      },
+      {
+        "name": "Bottom",
+        "control": "select"
+      },
+      {
+        "name": "Dress",
+        "control": "select"
+      },
+      {
+        "name": "Shoes",
+        "control": "select"
+      },
+      {
+        "name": "Accessories",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Pose",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Standing",
+        "control": "select"
+      },
+      {
+        "name": "Sitting",
+        "control": "select"
+      },
+      {
+        "name": "Walking",
+        "control": "select"
+      },
+      {
+        "name": "Hand Position",
+        "control": "select"
+      },
+      {
+        "name": "Eye Contact",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Environment",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Location",
+        "control": "select"
+      },
+      {
+        "name": "Architecture",
+        "control": "select"
+      },
+      {
+        "name": "Props",
+        "control": "select"
+      },
+      {
+        "name": "Weather",
+        "control": "select"
+      },
+      {
+        "name": "Time of Day",
+        "control": "select"
+      },
+      {
+        "name": "Season",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Lighting",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Key Light",
+        "control": "select"
+      },
+      {
+        "name": "Fill Light",
+        "control": "select"
+      },
+      {
+        "name": "Back Light",
+        "control": "select"
+      },
+      {
+        "name": "Flash",
+        "control": "select"
+      },
+      {
+        "name": "Neon",
+        "control": "select"
+      },
+      {
+        "name": "Ambient",
+        "control": "select"
+      },
+      {
+        "name": "Golden Hour",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Camera",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Brand",
+        "control": "select"
+      },
+      {
+        "name": "Lens",
+        "control": "select"
+      },
+      {
+        "name": "Focal Length",
+        "control": "select"
+      },
+      {
+        "name": "Aperture",
+        "control": "select"
+      },
+      {
+        "name": "ISO",
+        "control": "select"
+      },
+      {
+        "name": "White Balance",
+        "control": "select"
+      },
+      {
+        "name": "Perspective",
+        "control": "select"
+      },
+      {
+        "name": "Composition",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Quality",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Resolution",
+        "control": "select"
+      },
+      {
+        "name": "Sharpness",
+        "control": "select"
+      },
+      {
+        "name": "Photorealism",
+        "control": "select"
+      },
+      {
+        "name": "Color Grading",
+        "control": "select"
+      },
+      {
+        "name": "Film Look",
+        "control": "select"
+      }
+    ]
+  }
+]

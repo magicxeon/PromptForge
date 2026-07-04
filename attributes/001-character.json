@@ -1,0 +1,395 @@
+[
+  {
+    "id": "character.001",
+    "category": "character",
+    "label": "Female",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "female",
+      "gpt-image": "female"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.002",
+    "category": "character",
+    "label": "Male",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "male",
+      "gpt-image": "male"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.003",
+    "category": "character",
+    "label": "Child",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "child",
+      "gpt-image": "child"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.004",
+    "category": "character",
+    "label": "Young adult",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "young adult",
+      "gpt-image": "young adult"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.005",
+    "category": "character",
+    "label": "Adult",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "adult",
+      "gpt-image": "adult"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.006",
+    "category": "character",
+    "label": "Senior",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "senior",
+      "gpt-image": "senior"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.007",
+    "category": "character",
+    "label": "Thai",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "thai",
+      "gpt-image": "thai"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.008",
+    "category": "character",
+    "label": "Japanese",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "japanese",
+      "gpt-image": "japanese"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.009",
+    "category": "character",
+    "label": "Korean",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "korean",
+      "gpt-image": "korean"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.010",
+    "category": "character",
+    "label": "Chinese",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "chinese",
+      "gpt-image": "chinese"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.011",
+    "category": "character",
+    "label": "Vietnamese",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "vietnamese",
+      "gpt-image": "vietnamese"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.012",
+    "category": "character",
+    "label": "European",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "european",
+      "gpt-image": "european"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.013",
+    "category": "character",
+    "label": "African",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "african",
+      "gpt-image": "african"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.014",
+    "category": "character",
+    "label": "Middle Eastern",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "middle eastern",
+      "gpt-image": "middle eastern"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.015",
+    "category": "character",
+    "label": "South Asian",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "south asian",
+      "gpt-image": "south asian"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.016",
+    "category": "character",
+    "label": "Southeast Asian",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "southeast asian",
+      "gpt-image": "southeast asian"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.017",
+    "category": "character",
+    "label": "Confident",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "confident",
+      "gpt-image": "confident"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.018",
+    "category": "character",
+    "label": "Friendly",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "friendly",
+      "gpt-image": "friendly"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.019",
+    "category": "character",
+    "label": "Elegant",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "elegant",
+      "gpt-image": "elegant"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.020",
+    "category": "character",
+    "label": "Professional",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "professional",
+      "gpt-image": "professional"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.021",
+    "category": "character",
+    "label": "Casual",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "casual",
+      "gpt-image": "casual"
+    },
+    "tags": [
+      "character"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.022",
+    "category": "character",
+    "label": "Beautiful young Asian",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "beautiful young Asian woman",
+      "gpt-image": "beautiful young Asian woman with delicate features"
+    },
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "character.023",
+    "category": "character",
+    "label": "Cute doll-like Asian",
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
+    "prompt": {
+      "default": "cute doll-like Asian woman",
+      "gpt-image": "cute doll-like Asian woman, extremely adorable and pretty"
+    },
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
+  }
+]

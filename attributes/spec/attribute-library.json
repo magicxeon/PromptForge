@@ -1,0 +1,872 @@
+[
+  {
+    "group": "face_shape",
+    "label": "V-line face",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "face_shape",
+    "label": "Oval face",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "face_shape",
+    "label": "Round baby face",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "face_shape",
+    "label": "Heart-shaped face",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "face_shape",
+    "label": "Soft jawline",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "face_shape",
+    "label": "High cheekbones",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Almond-shaped eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Monolid eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Double eyelid",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Phoenix eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Puppy eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Doe eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyes",
+    "label": "Hooded eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "nose",
+    "label": "Small button nose",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "nose",
+    "label": "High nose bridge",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "nose",
+    "label": "Delicate narrow nose",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "nose",
+    "label": "Soft rounded tip",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lips",
+    "label": "Cherry lips",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lips",
+    "label": "Cupid's bow lips",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lips",
+    "label": "Plump lips",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lips",
+    "label": "Thin natural lips",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyebrows",
+    "label": "Straight eyebrows",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyebrows",
+    "label": "Soft arched eyebrows",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "eyebrows",
+    "label": "Natural thick brows",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Glass skin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Porcelain skin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Fair skin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Honey skin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Warm olive skin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "skin",
+    "label": "Dewy complexion",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Long straight natural hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Shoulder-length bob",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Layered hush cut",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Low messy bun",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Half-up half-down",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Neat braided hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Long loose waves",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Beach waves",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Side-swept hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Wet look hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Sleek high ponytail",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Messy bedhead style",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Wolf cut",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "hair_style",
+    "label": "Shag cut",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bangs",
+    "label": "See-through bangs",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bangs",
+    "label": "Curtain bangs",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bangs",
+    "label": "Blunt bangs",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bangs",
+    "label": "No bangs",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bangs",
+    "label": "Swept-back hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Curvy figure",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Hourglass silhouette",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Voluptuous",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Shapely",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Full-figured",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "body",
+    "label": "Pear-shaped",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Tight-fitting",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Body-con style",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Compression garment",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Form-fitting",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Clinging fabric",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "clothing_fit",
+    "label": "Second-skin fit",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Latex",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Vinyl",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Faux leather",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Patent leather",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Silk",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Satin",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Velvet",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Wet-look fabric",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Spandex",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "fabric",
+    "label": "Lycra",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Corset top",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Bustier top",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Deep V-neck",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Plunging neckline",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Low-cut tank top",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Off-the-shoulder",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Halter neck",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Shoulder cut-out",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "tops",
+    "label": "Waist cut-out",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Mini skirt",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Short dress",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Thigh-high slit skirt",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Low-back dress",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Body-con cocktail dress",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Tight leggings",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "bottoms",
+    "label": "Form-fitting trousers",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "accessories",
+    "label": "Fashion harness",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "accessories",
+    "label": "Thigh-high boots",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "accessories",
+    "label": "High-waist stockings",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "accessories",
+    "label": "Long gloves",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "accessories",
+    "label": "Leather gloves",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Seductive gaze",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Smoldering eyes",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Head tilt",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Sidelong glance",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Playful wink",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Kissy face",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Subtle biting lip",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Hair flip",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_head",
+    "label": "Run hands through hair",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_hands",
+    "label": "Hand near mouth",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_hands",
+    "label": "Resting chin on hand",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_hands",
+    "label": "Touching collarbone",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_hands",
+    "label": "Hand on hip",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_hands",
+    "label": "Crossing arms subtly",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Crossing legs",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Leaning forward subtly",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Arching back slightly",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Laying down side view",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Crouching pose",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Kneeling pose",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "pose_body",
+    "label": "Looking over shoulder",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Natural light",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Flash",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Studio softbox",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Golden hour",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Blue hour",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Red neon",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Pink neon",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Window light",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Rim light",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Back light",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "lighting",
+    "label": "Ambient light",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "35mm lens",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "50mm lens",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "85mm lens",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "135mm lens",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "f/1.4",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "f/1.8",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "f/2.8",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "Shallow depth of field",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "Eye level",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "Low angle",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "High angle",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "camera",
+    "label": "Mirrorless camera",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Photorealistic",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Highly detailed",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Natural skin texture",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Realistic fabric folds",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Professional photography",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "8K detail",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Sharp focus",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "Soft bokeh",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  },
+  {
+    "group": "quality",
+    "label": "HDR",
+    "type": "select",
+    "safe_for_general_image_generation": true
+  }
+]

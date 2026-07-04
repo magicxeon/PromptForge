@@ -1,0 +1,73 @@
+[
+  {
+    "id": "camera.001",
+    "category": "camera",
+    "label": "Modern mirrorless camera",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a modern mirrorless camera",
+      "gpt-image": "shot on a modern high-resolution mirrorless camera, sharp focus"
+    },
+    "tags": [
+      "camera"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.002",
+    "category": "camera",
+    "label": "50mm f/1.4 lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "50mm lens",
+      "gpt-image": "shot on a 50mm prime lens at f/1.4 for natural proportions"
+    },
+    "tags": [
+      "camera",
+      "lens"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.003",
+    "category": "camera",
+    "label": "Shallow depth of field (bokeh)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shallow depth of field, creating soft bokeh blur",
+      "gpt-image": "shallow depth of field creating soft bokeh blur in the foreground and background"
+    },
+    "tags": [
+      "camera",
+      "bokeh"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.004",
+    "category": "camera",
+    "label": "Slightly low angle",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "medium close-up from a slightly low angle",
+      "gpt-image": "medium close-up shot captured from a slightly low camera angle"
+    },
+    "tags": [
+      "camera",
+      "angle"
+    ],
+    "enabled": true
+  }
+]

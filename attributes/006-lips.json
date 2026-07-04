@@ -1,0 +1,155 @@
+[
+  {
+    "id": "lips.001",
+    "category": "lips",
+    "label": "Natural lips",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "natural lips",
+      "gpt-image": "natural lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.002",
+    "category": "lips",
+    "label": "Cherry lips",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "cherry lips",
+      "gpt-image": "cherry lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.003",
+    "category": "lips",
+    "label": "Cupid's bow lips",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "cupid's bow lips",
+      "gpt-image": "cupid's bow lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.004",
+    "category": "lips",
+    "label": "Plump lips",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "plump lips",
+      "gpt-image": "plump lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.005",
+    "category": "lips",
+    "label": "Thin lips",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "thin lips",
+      "gpt-image": "thin lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.006",
+    "category": "lips",
+    "label": "Soft smile",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "soft smile",
+      "gpt-image": "soft smile"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.007",
+    "category": "lips",
+    "label": "Closed-mouth smile",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "closed-mouth smile",
+      "gpt-image": "closed-mouth smile"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.008",
+    "category": "lips",
+    "label": "Gentle smile",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "gentle smile",
+      "gpt-image": "gentle smile"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.009",
+    "category": "lips",
+    "label": "Neutral expression",
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "neutral expression",
+      "gpt-image": "neutral expression"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  }
+]

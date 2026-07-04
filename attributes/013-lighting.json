@@ -1,0 +1,74 @@
+[
+  {
+    "id": "lighting.001",
+    "category": "lighting",
+    "label": "Strong flash lighting",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "strong flash lighting",
+      "gpt-image": "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright"
+    },
+    "tags": [
+      "lighting",
+      "flash"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.002",
+    "category": "lighting",
+    "label": "Red and pink neon",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "strong dramatic red and pink neon lighting",
+      "gpt-image": "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene"
+    },
+    "tags": [
+      "lighting",
+      "neon"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.003",
+    "category": "lighting",
+    "label": "Soft ambient glow",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft lighting on the subject in rich saturated environment",
+      "gpt-image": "soft highlights on the subject's skin and hair, with rich saturated ambient red environment"
+    },
+    "tags": [
+      "lighting",
+      "ambient"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.004",
+    "category": "lighting",
+    "label": "Golden hour sunlight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "golden hour lighting",
+      "gpt-image": "warm golden hour sunlight casting soft long shadows and brilliant warm highlights"
+    },
+    "tags": [
+      "lighting",
+      "natural"
+    ],
+    "enabled": true
+  }
+]

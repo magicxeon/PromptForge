@@ -1,0 +1,293 @@
+[
+  {
+    "id": "face.001",
+    "category": "face",
+    "label": "V-line face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "v-line face",
+      "gpt-image": "v-line face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.002",
+    "category": "face",
+    "label": "Oval face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "oval face",
+      "gpt-image": "oval face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.003",
+    "category": "face",
+    "label": "Round face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "round face",
+      "gpt-image": "round face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.004",
+    "category": "face",
+    "label": "Heart-shaped face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "heart-shaped face",
+      "gpt-image": "heart-shaped face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.005",
+    "category": "face",
+    "label": "Square face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "square face",
+      "gpt-image": "square face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.006",
+    "category": "face",
+    "label": "Diamond face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "diamond face",
+      "gpt-image": "diamond face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.007",
+    "category": "face",
+    "label": "Soft jawline",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "soft jawline",
+      "gpt-image": "soft jawline"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.008",
+    "category": "face",
+    "label": "High cheekbones",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "high cheekbones",
+      "gpt-image": "high cheekbones"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.009",
+    "category": "face",
+    "label": "Youthful face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "youthful face",
+      "gpt-image": "youthful face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.010",
+    "category": "face",
+    "label": "Defined jaw",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "defined jaw",
+      "gpt-image": "defined jaw"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.011",
+    "category": "face",
+    "label": "Balanced facial proportions",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "balanced facial proportions",
+      "gpt-image": "balanced facial proportions"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.012",
+    "category": "face",
+    "label": "Natural facial features",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "natural facial features",
+      "gpt-image": "natural facial features"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.013",
+    "category": "face",
+    "label": "Symmetrical face",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "symmetrical face",
+      "gpt-image": "symmetrical face"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.014",
+    "category": "face",
+    "label": "Gentle expression",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "gentle expression",
+      "gpt-image": "gentle expression"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.015",
+    "category": "face",
+    "label": "Locked Facial Match",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "facial structure, eyes, eyebrows, nose, and mouth matching reference image 100% without any distortion",
+      "gpt-image": "facial structure, eyes, eyebrows, nose, and mouth matching reference image 100% without any distortion"
+    },
+    "tags": [
+      "face",
+      "identity"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.016",
+    "category": "face",
+    "label": "Doll-like face structure",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "doll-like face shape",
+      "gpt-image": "delicate doll-like face structure, highly symmetrical and refined"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.017",
+    "category": "face",
+    "label": "Cute doll-like details",
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "cute doll-like facial features",
+      "gpt-image": "cute doll-like facial features, adorable big eyes, small nose, and delicate lips"
+    },
+    "tags": [
+      "face",
+      "beauty"
+    ],
+    "enabled": true
+  }
+]

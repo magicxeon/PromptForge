@@ -1,0 +1,104 @@
+[
+  {
+    "id": "nose.001",
+    "category": "nose",
+    "label": "Small button nose",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "small button nose",
+      "gpt-image": "small button nose"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nose.002",
+    "category": "nose",
+    "label": "High nose bridge",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "high nose bridge",
+      "gpt-image": "high nose bridge"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nose.003",
+    "category": "nose",
+    "label": "Delicate narrow nose",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "delicate narrow nose",
+      "gpt-image": "delicate narrow nose"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nose.004",
+    "category": "nose",
+    "label": "Soft rounded tip",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "soft rounded tip",
+      "gpt-image": "soft rounded tip"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nose.005",
+    "category": "nose",
+    "label": "Straight nose",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "straight nose",
+      "gpt-image": "straight nose"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nose.006",
+    "category": "nose",
+    "label": "Natural nose",
+    "ui": {
+      "control": "select",
+      "group": "Nose"
+    },
+    "prompt": {
+      "default": "natural nose",
+      "gpt-image": "natural nose"
+    },
+    "tags": [
+      "nose"
+    ],
+    "enabled": true
+  }
+]
