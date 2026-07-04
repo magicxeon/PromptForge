@@ -1096,7 +1096,14 @@ function randomizeSelections() {
     // 65% probability to select an option (to make it a natural, non-overloaded prompt)
     if (Math.random() > 0.65) return;
 
-    const options = Array.from(select.options).filter(opt => opt.value !== "" && opt.value !== "__custom__");
+    let options = Array.from(select.options).filter(opt => opt.value !== "" && opt.value !== "__custom__");
+    
+    // Filter to only Asian ethnicities if the field is Ethnicity
+    if (fieldName === "Ethnicity") {
+      const asianIds = ["character.007", "character.008", "character.009", "character.010", "character.011"];
+      options = options.filter(opt => asianIds.includes(opt.value));
+    }
+
     if (options.length === 0) return;
 
     // Pick a random option
