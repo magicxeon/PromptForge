@@ -9,7 +9,7 @@
     },
     "prompt": {
       "default": "crossing legs",
-      "gpt-image": "sitting crossing legs, showing hip curvature and clean body lines"
+      "gpt-image": "sitting crossing legs, showing neat and elegant body alignment"
     },
     "tags": [
       "pose",
@@ -27,7 +27,7 @@
     },
     "prompt": {
       "default": "leaning forward subtly",
-      "gpt-image": "leaning forward subtly towards the camera, accentuating the chest lines and neckline"
+      "gpt-image": "leaning forward subtly towards the camera, highlighting collarbone details"
     },
     "tags": [
       "pose"
@@ -44,7 +44,7 @@
     },
     "prompt": {
       "default": "arching back slightly",
-      "gpt-image": "arching back slightly to define S-curve posture and waist shape"
+      "gpt-image": "subtle arching back posture to show elegant silhouette alignment"
     },
     "tags": [
       "pose"
@@ -61,7 +61,7 @@
     },
     "prompt": {
       "default": "laying down side view",
-      "gpt-image": "laying down on her side, side-view showcasing full body curves and silhouette lines"
+      "gpt-image": "laying down on her side, side-view showcasing clean silhouette lines"
     },
     "tags": [
       "pose",
@@ -150,7 +150,7 @@
     },
     "prompt": {
       "default": "hand on hip",
-      "gpt-image": "standing confidently with one hand placed on her hip, showcasing waist curves"
+      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette"
     },
     "tags": [
       "pose",

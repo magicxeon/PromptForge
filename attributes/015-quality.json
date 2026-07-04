@@ -7,29 +7,33 @@
       "control": "select",
       "group": "Quality"
     },
+    "subcategory": "Photorealism",
     "prompt": {
       "default": "photorealistic",
       "gpt-image": "highly realistic candid photograph, photorealistic"
     },
     "tags": [
-      "quality"
+      "quality",
+      "realism"
     ],
     "enabled": true
   },
   {
     "id": "quality.002",
     "category": "quality",
-    "label": "High detail",
+    "label": "High detail rendering",
     "ui": {
       "control": "select",
       "group": "Quality"
     },
+    "subcategory": "Sharpness",
     "prompt": {
       "default": "high detail",
       "gpt-image": "high detail rendering of fabric weaves, skin pores, and specular light reflections"
     },
     "tags": [
-      "quality"
+      "quality",
+      "sharpness"
     ],
     "enabled": true
   },
@@ -41,12 +45,171 @@
       "control": "select",
       "group": "Quality"
     },
+    "subcategory": "Photorealism",
     "prompt": {
       "default": "natural candid atmosphere",
       "gpt-image": "candid and unposed look, giving a natural cinematic environment feel"
     },
     "tags": [
-      "quality"
+      "quality",
+      "realism"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.004",
+    "category": "quality",
+    "label": "Kodak Portra 400 style",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Film Look",
+    "prompt": {
+      "default": "Kodak Portra 400 film style",
+      "gpt-image": "shot on Kodak Portra 400 film, warm skin tones, fine film grain, natural analog colors"
+    },
+    "tags": [
+      "quality",
+      "film",
+      "vintage"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.005",
+    "category": "quality",
+    "label": "Fujifilm Astia look",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Film Look",
+    "prompt": {
+      "default": "Fujifilm Astia film look",
+      "gpt-image": "shot on Fujifilm Astia film, classic soft color rendering, rich green tones, gentle highlight roll-off"
+    },
+    "tags": [
+      "quality",
+      "film",
+      "fuji"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.006",
+    "category": "quality",
+    "label": "35mm vintage film grain",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Film Look",
+    "prompt": {
+      "default": "35mm film grain, vintage look",
+      "gpt-image": "shot on a vintage 35mm camera, realistic organic film grain texture, soft nostalgic colors"
+    },
+    "tags": [
+      "quality",
+      "film",
+      "grain"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.007",
+    "category": "quality",
+    "label": "Polaroid instant aesthetic",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Film Look",
+    "prompt": {
+      "default": "Polaroid style",
+      "gpt-image": "instant Polaroid snapshot look, slightly faded colors, soft highlight roll-off, warm vintage tone"
+    },
+    "tags": [
+      "quality",
+      "film",
+      "polaroid"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.008",
+    "category": "quality",
+    "label": "Analog 90s snapshot",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Film Look",
+    "prompt": {
+      "default": "1990s analog photo look",
+      "gpt-image": "candid 1990s analog photo aesthetic, soft flash reflection, organic warm vintage colors"
+    },
+    "tags": [
+      "quality",
+      "film",
+      "vintage"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.009",
+    "category": "quality",
+    "label": "Cinematic warm grading",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Color Grading",
+    "prompt": {
+      "default": "warm cinematic color grading",
+      "gpt-image": "cinematic color grading with rich warm amber undertones and soft dark shadows"
+    },
+    "tags": [
+      "quality",
+      "grading"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.010",
+    "category": "quality",
+    "label": "Cinematic teal & orange",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Color Grading",
+    "prompt": {
+      "default": "teal and orange cinematic grading",
+      "gpt-image": "cinematic teal and orange color grading, dramatic contrast, movie-like aesthetic"
+    },
+    "tags": [
+      "quality",
+      "grading"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "quality.011",
+    "category": "quality",
+    "label": "8K UHD Resolution",
+    "ui": {
+      "control": "select",
+      "group": "Quality"
+    },
+    "subcategory": "Resolution",
+    "prompt": {
+      "default": "8k resolution, highly detailed",
+      "gpt-image": "8k ultra-high-definition resolution, crisp textures"
+    },
+    "tags": [
+      "quality",
+      "resolution"
     ],
     "enabled": true
   }

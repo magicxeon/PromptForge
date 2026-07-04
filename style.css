@@ -668,3 +668,10 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
     grid-template-columns: 1fr;
   }
 }
+
+/* Asian specific dropdown options */
+.asian-option {
+  color: var(--neon-cyan) !important;
+  font-weight: 600 !important;
+  background-color: #121214 !important; /* ensure readability in browser menus */
+}

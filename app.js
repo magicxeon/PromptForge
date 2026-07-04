@@ -201,6 +201,69 @@ const PRESETS = {
       "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
       "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
     }
+  },
+  thaiSilk: {
+    template: "thaiTraditional",
+    aspectRatio: "6:8",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
+      "Eyes": { id: "eyes.001", value: "almond-shaped eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.002", value: "soft arched eyebrows", isCustom: false },
+      "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
+      "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
+      "Top": { id: "clothing.021", value: "modern one-shoulder Thai sabai top woven in vibrant emerald green and shimmering metallic gold threads", isCustom: false },
+      "Bottom": { id: "clothing.023", value: "modern high-waist Thai wrap skirt in royal blue and gold brocade silk fabric, showing detailed traditional patterns", isCustom: false },
+      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
+      "Golden Hour": { id: "lighting.004", value: "golden hour lighting", isCustom: false },
+      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
+      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+    }
+  },
+  cheongsam: {
+    template: "vintageFilm",
+    aspectRatio: "1:1",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.010", value: "chinese", isCustom: false },
+      "Beauty": { id: "character.023", value: "cute doll-like Asian woman", isCustom: false },
+      "Face Shape": { id: "face.003", value: "round baby face", isCustom: false },
+      "Eyes": { id: "eyes.005", value: "puppy eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.001", value: "straight eyebrows", isCustom: false },
+      "Lips": { id: "lips.001", value: "cherry lips", isCustom: false },
+      "Dress": { id: "clothing.026", value: "modern high-collar Qipao dress with a high side slit, styled in soft pastel lavender with delicate emerald green floral patterns", isCustom: false },
+      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
+      "Film Look": { id: "quality.004", value: "shot on Kodak Portra 400 film, warm skin tones, fine film grain, natural analog colors", isCustom: false },
+      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
+      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+    }
+  },
+  minimalistCafe: {
+    template: "cafeMinimalist",
+    aspectRatio: "6:8",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.009", value: "korean", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
+      "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
+      "Tone": { id: "skin.015", value: "milky white skin", isCustom: false },
+      "Texture": { id: "skin.012", value: "dewy glass skin, translucent and hydrated", isCustom: false },
+      "Dress": { id: "clothing.028", value: "Seoul style oversized minimalist shirt-dress in soft pastel mint green and cream tones", isCustom: false },
+      "Location": { id: "environment.005", value: "in a cozy modern cafe with warm wooden decors and soft background chatter", isCustom: false },
+      "Props": { id: "environment.010", value: "holding a hot paper coffee cup with soft steam rising gently from the lid", isCustom: false },
+      "Natural": { id: "quality.003", value: "candid and unposed look, giving a natural cinematic environment feel", isCustom: false },
+      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
+      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+    }
   }
 };
 
@@ -370,7 +433,23 @@ function renderForm() {
         optionNode.value = opt.id;
         // Check if there is a custom prompt mapping or fall back to label
         optionNode.setAttribute("data-prompt", opt.prompt ? (opt.prompt["gpt-image"] || opt.prompt.default) : opt.label);
-        optionNode.textContent = opt.label;
+
+        // Check if this is an Asian-style option
+        const optLabel = opt.label.toLowerCase();
+        const optTags = (opt.tags || []).map(t => t.toLowerCase());
+        const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") || optTags.includes("vietnamese") ||
+                        optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") || optLabel.includes("vietnamese") ||
+                        optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
+
+        if (isAsian) {
+          optionNode.textContent = `🏮 ${opt.label}`;
+          optionNode.style.color = "#06b6d4"; // var(--neon-cyan)
+          optionNode.style.fontWeight = "600";
+          optionNode.className = "asian-option";
+        } else {
+          optionNode.textContent = opt.label;
+        }
+
         select.appendChild(optionNode);
       });
 
@@ -589,6 +668,11 @@ function bindEvents() {
     copyPromptToClipboard();
   });
 
+  // Copy Prompt as JSON Button
+  document.getElementById("btn-copy-json").addEventListener("click", () => {
+    copyPromptAsJSON();
+  });
+
   // Random / Surprise Me Button
   document.getElementById("btn-random").addEventListener("click", () => {
     randomizeSelections();
@@ -644,6 +728,26 @@ function generatePromptText(cleanTextOnly = false) {
 
   // Helper to compile a category group
   const compileGroupSegment = (groupName, tokenClass) => {
+    // Check if overridden by Image Reference Options first
+    if (groupName.toLowerCase() === "face") {
+      if (state.imageReferences.faceMatch) {
+        const txt = "facial structure, mouth, nose, eyes, and eyebrows must match the original uploaded file 100% without any distortion";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+    if (groupName.toLowerCase() === "clothing") {
+      if (state.imageReferences.styleMatch) {
+        const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+    if (groupName.toLowerCase() === "pose") {
+      if (state.imageReferences.poseMatch) {
+        const txt = "with the identical posing and image composition as the original uploaded file";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+
     let segmentValues = [];
 
     // Get order mappings for attributes within this segment
@@ -670,25 +774,8 @@ function generatePromptText(cleanTextOnly = false) {
         .filter(val => val && val.trim() !== "");
     }
 
-    // Apply specific Image Reference inserts
-    if (groupName.toLowerCase() === "face" || groupName.toLowerCase() === "appearance") {
-      if (state.imageReferences.faceMatch) {
-        const txt = "facial structure, mouth, nose, eyes, and eyebrows must match the original uploaded file 100% without any distortion";
-        segmentValues.push(cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`);
-      }
-    }
-    if (groupName.toLowerCase() === "clothing") {
-      if (state.imageReferences.styleMatch) {
-        const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
-        segmentValues.push(cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`);
-      }
-    }
-    if (groupName.toLowerCase() === "pose") {
-      if (state.imageReferences.poseMatch) {
-        const txt = "with the identical posing and image composition as the original uploaded file";
-        segmentValues.push(cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`);
-      }
-    }
+    // Deduplicate values
+    segmentValues = [...new Set(segmentValues)];
 
     if (segmentValues.length === 0) return "";
 
@@ -700,8 +787,20 @@ function generatePromptText(cleanTextOnly = false) {
   // Compile individual templates
   let subject = compileGroupSegment("Character", "token-subject");
   let appearance = compileGroupSegment("Face", "token-appearance");
-  let hair = compileGroupSegment("Hair", "token-appearance"); // Hair maps under appearance in layout
-  let skin = compileGroupSegment("Skin", "token-appearance"); // Skin maps under appearance in layout
+  
+  // Distinguish Hair and Skin explicitly using selection key search to prevent overlap
+  const getSelectionsForGroup = (grp) => {
+    return Object.keys(state.selections)
+      .filter(key => state.selections[key].group.toLowerCase() === grp.toLowerCase())
+      .map(key => state.selections[key].value)
+      .filter(val => val && val.trim() !== "");
+  };
+
+  let hairList = getSelectionsForGroup("Hair");
+  let hair = hairList.length > 0 ? (cleanTextOnly ? hairList.join(", ") : `<span class="token-appearance">${hairList.join(", ")}</span>`) : "";
+
+  let skinList = getSelectionsForGroup("Skin");
+  let skin = skinList.length > 0 ? (cleanTextOnly ? skinList.join(", ") : `<span class="token-appearance">${skinList.join(", ")}</span>`) : "";
   
   // Combine appearance, hair, and skin under the main appearance segment
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
@@ -964,10 +1063,26 @@ function applyFaceMatchLockout() {
 
 // Randomize active options in all selectors inside form-container
 function randomizeSelections() {
-  // Clear form selections first
-  resetForm();
+  // Clear only left panel selections
+  state.selections = {};
 
-  // Face Match status might lock out face attributes, check it
+  // Reset all left panel select controls and custom inputs
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    select.value = "";
+    const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+    if (customInput) {
+      customInput.value = "";
+      customInput.style.display = "none";
+    }
+  });
+
+  // Hide all accordion header badges
+  document.querySelectorAll(".accordion-badge").forEach(badge => {
+    badge.textContent = "";
+    badge.style.display = "none";
+  });
+
+  // Check current Face Match status to apply lockout on random selections
   const isFaceLocked = state.imageReferences.faceMatch;
   const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
 
@@ -994,21 +1109,61 @@ function randomizeSelections() {
     updateAccordionSummaryBadges(groupName);
   });
 
-  // Randomize template selection
-  const templateSelect = document.getElementById("template-select");
-  if (templateSelect && templateSelect.options.length > 0) {
-    const randTplIdx = Math.floor(Math.random() * templateSelect.options.length);
-    templateSelect.selectedIndex = randTplIdx;
-  }
-
-  // Randomize Aspect Ratio selection
-  const chips = document.querySelectorAll("#aspect-ratio-group .option-chip");
-  if (chips.length > 0) {
-    const randChip = chips[Math.floor(Math.random() * chips.length)];
-    chips.forEach(c => c.classList.remove("active"));
-    randChip.classList.add("active");
-    state.aspectRatio = randChip.getAttribute("data-ratio");
-  }
-
   updatePromptPreview();
+}
+
+// Copy prompt and selections split into attributes grouped by category in JSON format to clipboard
+function copyPromptAsJSON() {
+  const textVal = generatePromptText(true);
+  if (textVal === "") return;
+
+  const currentTemplateName = document.getElementById("template-select").value || "portrait";
+
+  // Build structured selected attributes grouped by category
+  const structuredAttrs = {};
+  
+  Object.keys(state.selections).forEach(fieldName => {
+    const selection = state.selections[fieldName];
+    const group = selection.group; // e.g., "Character", "Face", "Hair", "Skin"
+    
+    if (!structuredAttrs[group]) {
+      structuredAttrs[group] = {};
+    }
+    
+    // Map field name directly to selection value and ID
+    structuredAttrs[group][fieldName] = {
+      id: selection.id,
+      prompt_value: selection.value
+    };
+  });
+
+  // Include image references status if active
+  const refAttrs = {};
+  if (state.imageReferences.faceMatch) refAttrs["Face Match"] = "100% Identity Lock Active";
+  if (state.imageReferences.styleMatch) refAttrs["Style Match"] = "Style & Outfit Match Active";
+  if (state.imageReferences.poseMatch) refAttrs["Pose Match"] = "Pose & Composition Match Active";
+  if (Object.keys(refAttrs).length > 0) {
+    structuredAttrs["Image Reference Options"] = refAttrs;
+  }
+
+  const jsonPayload = JSON.stringify({
+    prompt: textVal,
+    template: currentTemplateName,
+    aspect_ratio: state.aspectRatio,
+    attributes: structuredAttrs
+  }, null, 2);
+
+  navigator.clipboard.writeText(jsonPayload).then(() => {
+    const copyJsonBtn = document.getElementById("btn-copy-json");
+    const originalText = copyJsonBtn.textContent;
+    copyJsonBtn.textContent = "Copied JSON!";
+    copyJsonBtn.classList.add("neon-glow-pink");
+
+    setTimeout(() => {
+      copyJsonBtn.textContent = originalText;
+      copyJsonBtn.classList.remove("neon-glow-pink");
+    }, 1500);
+  }).catch(err => {
+    console.error("JSON clipboard copy failed:", err);
+  });
 }

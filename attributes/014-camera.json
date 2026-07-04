@@ -2,6 +2,7 @@
   {
     "id": "camera.001",
     "category": "camera",
+    "subcategory": "Brand",
     "label": "Modern mirrorless camera",
     "ui": {
       "control": "select",
@@ -12,13 +13,15 @@
       "gpt-image": "shot on a modern high-resolution mirrorless camera, sharp focus"
     },
     "tags": [
-      "camera"
+      "camera",
+      "digital"
     ],
     "enabled": true
   },
   {
     "id": "camera.002",
     "category": "camera",
+    "subcategory": "Lens",
     "label": "50mm f/1.4 lens",
     "ui": {
       "control": "select",
@@ -37,6 +40,7 @@
   {
     "id": "camera.003",
     "category": "camera",
+    "subcategory": "Aperture",
     "label": "Shallow depth of field (bokeh)",
     "ui": {
       "control": "select",
@@ -55,6 +59,7 @@
   {
     "id": "camera.004",
     "category": "camera",
+    "subcategory": "Perspective",
     "label": "Slightly low angle",
     "ui": {
       "control": "select",
@@ -63,6 +68,222 @@
     "prompt": {
       "default": "medium close-up from a slightly low angle",
       "gpt-image": "medium close-up shot captured from a slightly low camera angle"
+    },
+    "tags": [
+      "camera",
+      "angle"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.005",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Disposable Film Camera",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "disposable film camera look",
+      "gpt-image": "shot on a Fujifilm disposable point-and-shoot film camera, harsh direct built-in flash, vintage colors"
+    },
+    "tags": [
+      "camera",
+      "film",
+      "instagram"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.006",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Polaroid Instant Film",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "Polaroid style photo",
+      "gpt-image": "captured as a classic Polaroid instant film photograph, soft faded colors, nostalgic warm borders, retro instant print look"
+    },
+    "tags": [
+      "camera",
+      "polaroid",
+      "film",
+      "instagram"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.007",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Leica 35mm Rangefinder",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Leica camera",
+      "gpt-image": "shot on a vintage Leica M6 rangefinder film camera with a Summicron 35mm lens, high contrast, classic street photography style"
+    },
+    "tags": [
+      "camera",
+      "film"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.008",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Hasselblad Medium Format Film",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "medium format film camera",
+      "gpt-image": "shot on a professional Hasselblad medium format film camera, rich tonality, smooth color transitions, soft analog depth"
+    },
+    "tags": [
+      "camera",
+      "film"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.009",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Mobile Phone Selfie Flash",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "smartphone front camera flash",
+      "gpt-image": "candid snapshot captured on a smartphone front-facing camera with bright screen flash, typical Instagram story style, raw lighting"
+    },
+    "tags": [
+      "camera",
+      "instagram",
+      "mobile"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.010",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Fujifilm Instax Mini",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "Instax mini film look",
+      "gpt-image": "shot on a Fujifilm Instax Mini instant camera, high flash contrast, cool-toned retro instant print aesthetic"
+    },
+    "tags": [
+      "camera",
+      "polaroid",
+      "instagram"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.011",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "90s VHS Camcorder",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "VHS camcorder look",
+      "gpt-image": "lo-fi screen capture from a 1990s VHS camcorder, scanlines, soft glow, warm retro colors, analog video aesthetic"
+    },
+    "tags": [
+      "camera",
+      "vintage",
+      "instagram"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.012",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Lomo Vignette Camera",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "Lomography camera style",
+      "gpt-image": "shot on a Lomo LC-A camera, highly saturated colors, high contrast, heavy vignette borders, vintage lomography style"
+    },
+    "tags": [
+      "camera",
+      "film",
+      "instagram"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.013",
+    "category": "camera",
+    "subcategory": "Lens",
+    "label": "85mm f/1.2 portrait lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "85mm lens",
+      "gpt-image": "shot on an 85mm prime lens at f/1.2 for compression and extreme bokeh background blur"
+    },
+    "tags": [
+      "camera",
+      "lens"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.014",
+    "category": "camera",
+    "subcategory": "Lens",
+    "label": "35mm f/1.8 wide-angle lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "35mm lens",
+      "gpt-image": "shot on a 35mm wide-angle lens at f/1.8 to capture more of the environmental backdrop"
+    },
+    "tags": [
+      "camera",
+      "lens"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.015",
+    "category": "camera",
+    "subcategory": "Perspective",
+    "label": "Eye-level natural view",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "eye-level shot",
+      "gpt-image": "shot at eye-level, natural candid portrait perspective, balanced proportions"
     },
     "tags": [
       "camera",

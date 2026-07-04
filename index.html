@@ -48,6 +48,9 @@
             <button class="option-chip" data-preset="nightclub">Nightclub Aura Red</button>
             <button class="option-chip" data-preset="studio">Studio Porcelain</button>
             <button class="option-chip" data-preset="street">Street Dewy Waves</button>
+            <button class="option-chip" data-preset="thaiSilk">Thai Silk Elegance</button>
+            <button class="option-chip" data-preset="cheongsam">Cheongsam Vintage</button>
+            <button class="option-chip" data-preset="minimalistCafe">Minimalist Cafe</button>
           </div>
         </div>
 
@@ -100,7 +103,10 @@
         <div class="control-section preview-section">
           <div class="preview-header">
             <h3>Live Prompt Preview</h3>
-            <button id="btn-copy" class="btn-neon-action">Copy Text</button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="btn-copy" class="btn-neon-action">Copy Text</button>
+              <button id="btn-copy-json" class="btn-neon-action">Copy JSON</button>
+            </div>
           </div>
           <div id="prompt-preview" class="prompt-preview-box">
             <!-- Assembled prompt segments colored dynamically -->

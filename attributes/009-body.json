@@ -109,76 +109,68 @@
   {
     "id": "body.007",
     "category": "body",
-    "label": "Ample bust",
+    "label": "Graceful posture",
     "ui": {
       "control": "select",
       "group": "Body"
     },
     "prompt": {
-      "default": "ample bust",
-      "gpt-image": "ample bust, conforming to natural proportions and curves"
+      "default": "graceful posture",
+      "gpt-image": "graceful posture with natural shoulder and collarbone definition"
     },
     "tags": [
-      "body",
-      "bust",
-      "safe-sexy"
+      "body"
     ],
     "enabled": true
   },
   {
     "id": "body.008",
     "category": "body",
-    "label": "Well-endowed figure",
+    "label": "Well-proportioned torso",
     "ui": {
       "control": "select",
       "group": "Body"
     },
     "prompt": {
-      "default": "well-endowed figure",
-      "gpt-image": "well-endowed figure with natural S-curve proportions"
+      "default": "well-proportioned torso",
+      "gpt-image": "well-proportioned torso with an elegant and defined silhouette"
     },
     "tags": [
-      "body",
-      "bust",
-      "safe-sexy"
+      "body"
     ],
     "enabled": true
   },
   {
     "id": "body.009",
     "category": "body",
-    "label": "Heavy chest definition",
+    "label": "Defined collarbone and neckline",
     "ui": {
       "control": "select",
       "group": "Body"
     },
     "prompt": {
-      "default": "heavy chest definition",
-      "gpt-image": "heavy chest definition, styled naturally within high-fashion garments"
+      "default": "defined collarbone and neckline",
+      "gpt-image": "defined collarbone and elegant neckline highlighted by clothing fit"
     },
     "tags": [
-      "body",
-      "bust",
-      "safe-sexy"
+      "body"
     ],
     "enabled": true
   },
   {
     "id": "body.010",
     "category": "body",
-    "label": "Voluminous chest lines",
+    "label": "S-curve body alignment",
     "ui": {
       "control": "select",
       "group": "Body"
     },
     "prompt": {
-      "default": "voluminous chest lines",
-      "gpt-image": "voluminous chest lines matching a curvy silhouette under close-fitting clothes"
+      "default": "subtle S-curve body alignment",
+      "gpt-image": "subtle S-curve body alignment outlining natural curves in a high-fashion pose"
     },
     "tags": [
-      "body",
-      "bust",
-      "safe-sexy"
+      "body"
     ],
     "enabled": true
   }

@@ -2,10 +2,11 @@
   {
     "id": "clothing.001",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Tight-fitting fit",
     "ui": {
       "control": "select",
-      "group": "Clothing Fit"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "tight-fitting clothing",
@@ -20,10 +21,11 @@
   {
     "id": "clothing.002",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Skin-tight dress",
     "ui": {
       "control": "select",
-      "group": "Clothing Fit"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "skin-tight clothing",
@@ -38,10 +40,11 @@
   {
     "id": "clothing.003",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Body-con style",
     "ui": {
       "control": "select",
-      "group": "Clothing Fit"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "body-con style clothing",
@@ -56,10 +59,11 @@
   {
     "id": "clothing.004",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Compression fit",
     "ui": {
       "control": "select",
-      "group": "Clothing Fit"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "compression fit garment",
@@ -74,14 +78,15 @@
   {
     "id": "clothing.005",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Second-skin overlay",
     "ui": {
       "control": "select",
-      "group": "Clothing Fit"
+      "group": "Clothing"
     },
     "prompt": {
-      "default": "second-skin fit clothing",
-      "gpt-image": "clothing with a second-skin fit, clinging perfectly to the body's natural contours"
+      "default": "snug tailored clothing",
+      "gpt-image": "clothing with a snug tailored fit, outlining a neat fashion silhouette"
     },
     "tags": [
       "clothing",
@@ -92,10 +97,11 @@
   {
     "id": "clothing.006",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Latex fabric",
     "ui": {
       "control": "select",
-      "group": "Fabric"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "latex fabric",
@@ -110,10 +116,11 @@
   {
     "id": "clothing.007",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Patent leather",
     "ui": {
       "control": "select",
-      "group": "Fabric"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "patent leather",
@@ -128,10 +135,11 @@
   {
     "id": "clothing.008",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Silk and Satin",
     "ui": {
       "control": "select",
-      "group": "Fabric"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "silk satin fabric",
@@ -146,10 +154,11 @@
   {
     "id": "clothing.009",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Wet-look fabric",
     "ui": {
       "control": "select",
-      "group": "Fabric"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "wet-look fabric",
@@ -164,10 +173,11 @@
   {
     "id": "clothing.010",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Corset style top",
     "ui": {
       "control": "select",
-      "group": "Tops"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "corset top",
@@ -182,10 +192,11 @@
   {
     "id": "clothing.011",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Bustier top",
     "ui": {
       "control": "select",
-      "group": "Tops"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "bustier top",
@@ -200,10 +211,11 @@
   {
     "id": "clothing.012",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Deep V-neckline",
     "ui": {
       "control": "select",
-      "group": "Tops"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "deep V-neckline top",
@@ -218,10 +230,11 @@
   {
     "id": "clothing.013",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Plunging neckline",
     "ui": {
       "control": "select",
-      "group": "Tops"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "plunging neckline top",
@@ -236,10 +249,11 @@
   {
     "id": "clothing.014",
     "category": "clothing",
+    "subcategory": "Top",
     "label": "Off-the-shoulder top",
     "ui": {
       "control": "select",
-      "group": "Tops"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "off-the-shoulder top",
@@ -254,10 +268,11 @@
   {
     "id": "clothing.015",
     "category": "clothing",
+    "subcategory": "Bottom",
     "label": "Skirt with thigh-high slit",
     "ui": {
       "control": "select",
-      "group": "Bottoms"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "skirt with a thigh-high slit",
@@ -272,14 +287,15 @@
   {
     "id": "clothing.016",
     "category": "clothing",
+    "subcategory": "Dress",
     "label": "Low-back dress",
     "ui": {
       "control": "select",
-      "group": "Bottoms"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "low-back dress",
-      "gpt-image": "elegant low-back dress exposing the back down to the lower spine area"
+      "gpt-image": "elegant open-back fashion dress with a clean, tasteful low-cut back design"
     },
     "tags": [
       "clothing",
@@ -290,14 +306,15 @@
   {
     "id": "clothing.017",
     "category": "clothing",
+    "subcategory": "Bottom",
     "label": "Tight leggings",
     "ui": {
       "control": "select",
-      "group": "Bottoms"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "tight leggings",
-      "gpt-image": "tight form-fitting leggings highlighting leg lines and curves"
+      "gpt-image": "tight form-fitting leggings highlighting clean lines and fashion aesthetics"
     },
     "tags": [
       "clothing",
@@ -308,14 +325,15 @@
   {
     "id": "clothing.018",
     "category": "clothing",
+    "subcategory": "Accessories",
     "label": "Fashion harness",
     "ui": {
       "control": "select",
-      "group": "Accessories"
+      "group": "Clothing"
     },
     "prompt": {
-      "default": "fashion harness over clothing",
-      "gpt-image": "sleek black leather fashion harness worn tightly over the top, adding structural contrast"
+      "default": "fashion strap layout over clothing",
+      "gpt-image": "sleek black fashion strap layout worn over the clothing for structural geometric contrast"
     },
     "tags": [
       "clothing",
@@ -326,10 +344,11 @@
   {
     "id": "clothing.019",
     "category": "clothing",
+    "subcategory": "Shoes",
     "label": "Thigh-high boots",
     "ui": {
       "control": "select",
-      "group": "Accessories"
+      "group": "Clothing"
     },
     "prompt": {
       "default": "thigh-high boots",
@@ -344,18 +363,219 @@
   {
     "id": "clothing.020",
     "category": "clothing",
-    "label": "High-waist stockings",
+    "subcategory": "Accessories",
+    "label": "Opaque tights",
     "ui": {
       "control": "select",
-      "group": "Accessories"
+      "group": "Clothing"
     },
     "prompt": {
-      "default": "high-waist stockings",
-      "gpt-image": "delicate high-waist black stockings emerging subtly from the skirt hem"
+      "default": "opaque black tights",
+      "gpt-image": "neatly worn opaque black tights beneath her clothing, providing complete coverage"
     },
     "tags": [
       "clothing",
       "accessories"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.021",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Modern Thai Sabai (Emerald)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "modern Thai sabai top",
+      "gpt-image": "modern one-shoulder Thai sabai top woven in vibrant emerald green and shimmering metallic gold threads"
+    },
+    "tags": [
+      "clothing",
+      "tops",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.022",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Asymmetric Seoul crop-top (Lilac)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "asymmetric Seoul crop-top",
+      "gpt-image": "asymmetric Seoul style long-sleeve crop top in soft pastel lilac and cream color blocks"
+    },
+    "tags": [
+      "clothing",
+      "tops",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.023",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Thai Wrap Skirt (Royal Blue)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "modern Thai wrap skirt",
+      "gpt-image": "modern high-waist Thai wrap skirt in royal blue and gold brocade silk fabric, showing detailed traditional patterns"
+    },
+    "tags": [
+      "clothing",
+      "bottoms",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.024",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Harajuku Pleated Skirt (Silver)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "metallic silver pleated skirt",
+      "gpt-image": "high-waist Harajuku style pleated skirt in glossy metallic silver fabric"
+    },
+    "tags": [
+      "clothing",
+      "bottoms",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.025",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Modern Thai Silk Dress (Opal)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "modern Thai silk dress",
+      "gpt-image": "modern style Thai silk dress woven in iridescent opal fabric with subtle pink, gold, and blue color shifts"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.026",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Modern Qipao (Lavender)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "modern style Qipao",
+      "gpt-image": "modern high-collar Qipao dress with a high side slit, styled in soft pastel lavender with delicate emerald green floral patterns"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.027",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Harajuku Layered Dress (Magenta)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "Harajuku style layered dress",
+      "gpt-image": "Harajuku fashion layered tulle dress in vibrant cyberpunk magenta with neon cyan lace accents"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.028",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Seoul Oversized Dress (Mint)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "Seoul style oversized shirt-dress",
+      "gpt-image": "Seoul style oversized minimalist shirt-dress in soft pastel mint green and cream tones"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.029",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Modern Yukata (Royal Indigo)",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "modern light Yukata",
+      "gpt-image": "modern Japanese Yukata in deep royal indigo blue, detailed with delicate golden cherry blossom prints"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.030",
+    "category": "clothing",
+    "subcategory": "Shoes",
+    "label": "Harajuku Platform Boots",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "Harajuku platform boots",
+      "gpt-image": "thick platform fashion boots in high-gloss patent black with neon pink laces and soles"
+    },
+    "tags": [
+      "clothing",
+      "shoes",
+      "asian"
     ],
     "enabled": true
   }
