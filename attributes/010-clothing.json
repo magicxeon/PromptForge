@@ -10,7 +10,8 @@
     },
     "prompt": {
       "default": "tight-fitting clothing",
-      "gpt-image": "tight-fitting clothing showcasing precise silhouette details and fabric tension lines"
+      "gpt-image": "tight-fitting clothing showcasing precise silhouette details and fabric tension lines",
+      "gpt-image-safe": "tailored fitted clothing showcasing precise silhouette details and fabric tension lines"
     },
     "tags": [
       "clothing",
@@ -29,7 +30,8 @@
     },
     "prompt": {
       "default": "skin-tight clothing",
-      "gpt-image": "skin-tight dress showing realistic cloth stretching and snug seams"
+      "gpt-image": "skin-tight dress showing realistic cloth stretching and snug seams",
+      "gpt-image-safe": "tailored close-fitting dress showing realistic cloth stretching and snug seams"
     },
     "tags": [
       "clothing",
@@ -48,7 +50,8 @@
     },
     "prompt": {
       "default": "body-con style clothing",
-      "gpt-image": "body-con style fashion dress outlining curves beautifully with natural folds"
+      "gpt-image": "body-con style fashion dress outlining curves beautifully with natural folds",
+      "gpt-image-safe": "tailored silhouette style fashion dress outlining curves beautifully with natural folds"
     },
     "tags": [
       "clothing",
@@ -67,7 +70,8 @@
     },
     "prompt": {
       "default": "compression fit garment",
-      "gpt-image": "snug compression athletic wear defining muscle structures and torso curves"
+      "gpt-image": "snug compression athletic wear defining muscle structures and torso curves",
+      "gpt-image-safe": "snug compression athletic wear with ergonomic tailoring"
     },
     "tags": [
       "clothing",
@@ -105,7 +109,8 @@
     },
     "prompt": {
       "default": "latex fabric",
-      "gpt-image": "latex fabric with high-gloss sheen and tight clinging properties, reflecting light sources"
+      "gpt-image": "latex fabric with high-gloss sheen and tight clinging properties, reflecting light sources",
+      "gpt-image-safe": "high-gloss performance fabric with reflective finish"
     },
     "tags": [
       "clothing",
@@ -162,7 +167,8 @@
     },
     "prompt": {
       "default": "wet-look fabric",
-      "gpt-image": "wet-look styled fabric with high-reflection sheen as if glistening with water drops"
+      "gpt-image": "wet-look styled fabric with high-reflection sheen as if glistening with water drops",
+      "gpt-image-safe": "satin-inspired fabric with a soft reflective sheen"
     },
     "tags": [
       "clothing",
@@ -181,7 +187,8 @@
     },
     "prompt": {
       "default": "corset top",
-      "gpt-image": "corset-style crop top highlighting waist contours and structure details"
+      "gpt-image": "corset-style crop top highlighting waist contours and structure details",
+      "gpt-image-safe": "structured tailored top with elegant panel construction"
     },
     "tags": [
       "clothing",
@@ -200,7 +207,8 @@
     },
     "prompt": {
       "default": "bustier top",
-      "gpt-image": "fitted bustier top with defined cup lines and tight seams"
+      "gpt-image": "fitted bustier top with defined cup lines and tight seams",
+      "gpt-image-safe": "structured fitted top with refined tailoring"
     },
     "tags": [
       "clothing",
@@ -219,7 +227,8 @@
     },
     "prompt": {
       "default": "deep V-neckline top",
-      "gpt-image": "deep V-neckline crop top accentuating the collarbone area and chest geometry"
+      "gpt-image": "deep V-neckline crop top accentuating the collarbone area and chest geometry",
+      "gpt-image-safe": "elegant V-neck top highlighting the neckline"
     },
     "tags": [
       "clothing",
@@ -238,7 +247,8 @@
     },
     "prompt": {
       "default": "plunging neckline top",
-      "gpt-image": "top with a plunging neckline showing a hint of cleavage and realistic fabric drapes"
+      "gpt-image": "top with a plunging neckline showing a hint of cleavage and realistic fabric drapes",
+      "gpt-image-safe": "top with an elegant neckline and realistic fabric drapes"
     },
     "tags": [
       "clothing",
@@ -257,7 +267,8 @@
     },
     "prompt": {
       "default": "off-the-shoulder top",
-      "gpt-image": "white off-shoulder top that drapes elegantly over the shoulders and arms"
+      "gpt-image": "white off-shoulder top that drapes elegantly over the shoulders and arms",
+      "gpt-image-safe": "white off-the-shoulder blouse with elegant draping"
     },
     "tags": [
       "clothing",
@@ -276,7 +287,8 @@
     },
     "prompt": {
       "default": "skirt with a thigh-high slit",
-      "gpt-image": "skirt featuring a dramatic thigh-high slit on one side, showcasing leg contours"
+      "gpt-image": "skirt featuring a dramatic thigh-high slit on one side, showcasing leg contours",
+      "gpt-image-safe": "skirt with an elegant side slit allowing graceful movement"
     },
     "tags": [
       "clothing",
@@ -295,7 +307,8 @@
     },
     "prompt": {
       "default": "low-back dress",
-      "gpt-image": "elegant open-back fashion dress with a clean, tasteful low-cut back design"
+      "gpt-image": "elegant open-back fashion dress with a clean, tasteful low-cut back design",
+      "gpt-image-safe": "elegant open-back dress with refined tailoring"
     },
     "tags": [
       "clothing",
@@ -314,7 +327,8 @@
     },
     "prompt": {
       "default": "tight leggings",
-      "gpt-image": "tight form-fitting leggings highlighting clean lines and fashion aesthetics"
+      "gpt-image": "tight form-fitting leggings highlighting clean lines and fashion aesthetics",
+      "gpt-image-safe": "tailored leggings with clean modern lines"
     },
     "tags": [
       "clothing",
@@ -352,7 +366,8 @@
     },
     "prompt": {
       "default": "thigh-high boots",
-      "gpt-image": "high-heeled thigh-high leather boots clinging closely to the thighs and legs"
+      "gpt-image": "high-heeled thigh-high leather boots clinging closely to the thighs and legs",
+      "gpt-image-safe": "knee-high leather boots with a tailored fit"
     },
     "tags": [
       "clothing",

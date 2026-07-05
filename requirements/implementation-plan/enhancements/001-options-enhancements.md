@@ -52,6 +52,19 @@ Add popular background environments matching popular portrait photography themes
 * **Botanical Greenhouse** (Subcategory: `Location`): `"inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants"`
 * **Rooftop Infinity Pool** (Subcategory: `Location`): `"at a luxury rooftop infinity pool side overlooking a glowing modern city skyline in the background"`
 
+### E. Conflict Prevention & Mutual Exclusions
+To ensure prompt coherence, prevent illogical background/theme conflicts (e.g., selecting both "Bustling Japanese Arcade" and "Traditional Thai architecture" simultaneously):
+* **Data-driven Exclusions**: Introduce an optional `"exclusions"` array of string IDs on option items in JSON files (e.g. `012-environment.json`).
+* **Example Rule**:
+  * Option `"environment.pop_06"` (Bustling Japanese Arcade) has `"exclusions": ["environment.008"]`.
+  * Option `"environment.008"` (Traditional Thai architecture) has `"exclusions": ["environment.pop_06"]`.
+* **Execution Logic**:
+  * In the dropdown change listener in `app.js`, after a user selects an option:
+    1. Check if the newly selected option contains an `"exclusions"` array.
+    2. Loop through all excluded IDs and check if they are currently active in `state.selections`.
+    3. If an excluded ID is active, dynamically clear its selection from `state.selections`, reset its dropdown `<select>` element to the default empty value, hide its custom input field, and refresh its group's summary badge.
+    4. Recompile the live prompt preview.
+
 ---
 
 ## 3. Proposed Changes

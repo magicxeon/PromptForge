@@ -712,6 +712,18 @@ function bindEvents() {
 
   toggleNsfw.addEventListener("change", updateNsfwState);
 
+  // GPT-Safe Toggle Checkbox
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  if (toggleGptSafe) {
+    toggleGptSafe.addEventListener("change", () => {
+      // Refresh accordion summary badges for all categories since their wording might have updated
+      state.schema.forEach(groupObj => {
+        updateAccordionSummaryBadges(groupObj.group);
+      });
+      updatePromptPreview();
+    });
+  }
+
   // Copy Prompt Button
   document.getElementById("btn-copy").addEventListener("click", () => {
     copyPromptToClipboard();
@@ -751,6 +763,30 @@ function bindEvents() {
   });
 }
 
+// Resolves the active prompt value for a selection, checking for GPT-Safe Mode
+function getPromptValueForSelection(selection) {
+  if (!selection) return "";
+  if (selection.isCustom) {
+    return selection.value; // Custom write-in values are always returned as-is
+  }
+
+  // Find the attribute details in the library by ID
+  const item = state.library.find(libItem => libItem.id === selection.id);
+  if (!item || !item.prompt) {
+    return selection.value; // Fallback to pre-evaluated value
+  }
+
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+
+  if (isGptSafe) {
+    // Return gpt-image-safe if it exists, otherwise fall back to gpt-image or default
+    return item.prompt["gpt-image-safe"] || item.prompt["gpt-image"] || item.prompt.default;
+  } else {
+    return item.prompt["gpt-image"] || item.prompt.default;
+  }
+}
+
 // Update accordion header summary badge to show selected items at a glance
 function updateAccordionSummaryBadges(groupName) {
   const badgeId = `badge-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
@@ -759,7 +795,7 @@ function updateAccordionSummaryBadges(groupName) {
 
   const selectedInGroup = Object.keys(state.selections)
     .filter(key => state.selections[key].group === groupName)
-    .map(key => state.selections[key].value)
+    .map(key => getPromptValueForSelection(state.selections[key]))
     .filter(val => val && val.trim() !== "");
 
   if (selectedInGroup.length > 0) {
@@ -809,8 +845,9 @@ function generatePromptText(cleanTextOnly = false) {
       });
       
       if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
-        if (selection.value && selection.value.trim() !== "") {
-          segmentValues.push(selection.value);
+        const val = getPromptValueForSelection(selection);
+        if (val && val.trim() !== "") {
+          segmentValues.push(val);
         }
       }
     });
@@ -819,7 +856,7 @@ function generatePromptText(cleanTextOnly = false) {
     if (segmentValues.length === 0) {
       segmentValues = Object.keys(state.selections)
         .filter(key => state.selections[key].group.toLowerCase() === groupName.toLowerCase())
-        .map(key => state.selections[key].value)
+        .map(key => getPromptValueForSelection(state.selections[key]))
         .filter(val => val && val.trim() !== "");
     }
 
@@ -841,7 +878,7 @@ function generatePromptText(cleanTextOnly = false) {
   const getSelectionsForGroup = (grp) => {
     return Object.keys(state.selections)
       .filter(key => state.selections[key].group.toLowerCase() === grp.toLowerCase())
-      .map(key => state.selections[key].value)
+      .map(key => getPromptValueForSelection(state.selections[key]))
       .filter(val => val && val.trim() !== "");
   };
 
@@ -951,6 +988,9 @@ function resetForm() {
   if (toggleNsfw) toggleNsfw.checked = false;
   const nsfwAccordion = document.getElementById("accordion-nsfw");
   if (nsfwAccordion) nsfwAccordion.style.display = "none";
+  
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  if (toggleGptSafe) toggleGptSafe.checked = false;
 
   // Reset state
   state.selections = {};
@@ -996,7 +1036,7 @@ function exportConfigJSON() {
   Object.keys(state.selections).forEach(field => {
     payload.selections[field] = {
       id: state.selections[field].id,
-      value: state.selections[field].value,
+      value: getPromptValueForSelection(state.selections[field]),
       isCustom: state.selections[field].isCustom
     };
   });
@@ -1209,7 +1249,7 @@ function copyPromptAsJSON() {
     // Map field name directly to selection value and ID
     structuredAttrs[group][fieldName] = {
       id: selection.id,
-      prompt_value: selection.value
+      prompt_value: getPromptValueForSelection(selection)
     };
   });
 

@@ -61,7 +61,8 @@
     },
     "prompt": {
       "default": "laying down side view",
-      "gpt-image": "laying down on her side, side-view showcasing clean silhouette lines"
+      "gpt-image": "laying down on her side, side-view showcasing clean silhouette lines",
+      "gpt-image-safe": "reclining naturally on her side with elegant body alignment"
     },
     "tags": [
       "pose",
@@ -79,7 +80,8 @@
     },
     "prompt": {
       "default": "looking over shoulder",
-      "gpt-image": "looking over her shoulder towards the camera, showing back silhouette"
+      "gpt-image": "looking over her shoulder towards the camera, showing back silhouette",
+      "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile"
     },
     "tags": [
       "pose"
@@ -96,7 +98,8 @@
     },
     "prompt": {
       "default": "hand near mouth",
-      "gpt-image": "hand placed gently near her mouth with soft slender fingers"
+      "gpt-image": "hand placed gently near her mouth with soft slender fingers",
+      "gpt-image-safe": "hand resting naturally near her face"
     },
     "tags": [
       "pose",
@@ -132,7 +135,8 @@
     },
     "prompt": {
       "default": "touching collarbone",
-      "gpt-image": "gently touching her collarbone, highlighting neckline details"
+      "gpt-image": "gently touching her collarbone, highlighting neckline details",
+      "gpt-image-safe": "gently resting a hand near her neckline"
     },
     "tags": [
       "pose",
