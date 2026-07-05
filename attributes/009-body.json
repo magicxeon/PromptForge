@@ -10,7 +10,8 @@
     "prompt": {
       "default": "curvy figure",
       "gpt-image": "curvy figure with defined lines and proportions",
-      "gpt-image-safe": "well-balanced figure with natural proportions"
+      "gpt-image-safe": "well-balanced figure with natural proportions",
+      "gpt-image-positive": "editorial fashion photography, tasteful styling, elegant tailoring, balanced proportions"
     },
     "tags": [
       "body",
@@ -29,7 +30,8 @@
     "prompt": {
       "default": "hourglass silhouette",
       "gpt-image": "curvy hourglass silhouette with a narrow waist and balanced proportions",
-      "gpt-image-safe": "balanced hourglass-inspired silhouette with natural proportions"
+      "gpt-image-safe": "balanced hourglass-inspired silhouette with natural proportions",
+      "gpt-image-positive": "refined silhouette, structured garment construction, editorial fashion photography, tasteful composition"
     },
     "tags": [
       "body",
@@ -49,7 +51,8 @@
     "prompt": {
       "default": "voluptuous figure",
       "gpt-image": "voluptuous figure with soft, natural curves and defined silhouette",
-      "gpt-image-safe": "natural figure with balanced proportions"
+      "gpt-image-safe": "natural figure with balanced proportions",
+      "gpt-image-positive": "editorial fashion photography, elegant tailoring, tasteful styling, natural beauty, refined composition"
     },
     "tags": [
       "body",
@@ -67,7 +70,9 @@
     },
     "prompt": {
       "default": "shapely body",
-      "gpt-image": "shapely body highlighting well-proportioned athletic contours"
+      "gpt-image": "shapely body highlighting well-proportioned athletic contours",
+      "gpt-image-safe": "athletic well-proportioned body with elegant posture",
+      "gpt-image-positive": "professional portrait photography, lifestyle portrait, tasteful composition, balanced proportions"
     },
     "tags": [
       "body"
@@ -85,7 +90,8 @@
     "prompt": {
       "default": "full-figured shape",
       "gpt-image": "full-figured shape with natural, full-bodied curves",
-      "gpt-image-safe": "full-figured shape with balanced proportions"
+      "gpt-image-safe": "full-figured shape with balanced proportions",
+      "gpt-image-positive": "editorial fashion photography, tasteful styling, natural beauty, refined composition, elegant visual storytelling"
     },
     "tags": [
       "body"
@@ -103,7 +109,8 @@
     "prompt": {
       "default": "pear-shaped silhouette",
       "gpt-image": "pear-shaped silhouette, showcasing curves with a defined waist and full hips",
-      "gpt-image-safe": "pear-shaped silhouette with balanced natural proportions"
+      "gpt-image-safe": "pear-shaped silhouette with balanced natural proportions",
+      "gpt-image-positive": "editorial fashion photography, structured silhouette, tasteful composition, balanced proportions"
     },
     "tags": [
       "body",
@@ -121,7 +128,9 @@
     },
     "prompt": {
       "default": "graceful posture",
-      "gpt-image": "graceful posture with natural shoulder and collarbone definition"
+      "gpt-image": "graceful posture with natural shoulder and collarbone definition",
+      "gpt-image-safe": "graceful natural posture with elegant stance",
+      "gpt-image-positive": "graceful posture, professional portrait photography, refined artistic direction, elegant visual storytelling"
     },
     "tags": [
       "body"
@@ -138,7 +147,9 @@
     },
     "prompt": {
       "default": "well-proportioned torso",
-      "gpt-image": "well-proportioned torso with an elegant and defined silhouette"
+      "gpt-image": "well-proportioned torso with an elegant and defined silhouette",
+      "gpt-image-safe": "well-proportioned natural torso with elegant stance",
+      "gpt-image-positive": "well-balanced proportions, editorial fashion photography, tasteful composition, structured garment construction"
     },
     "tags": [
       "body"
@@ -155,7 +166,9 @@
     },
     "prompt": {
       "default": "defined collarbone and neckline",
-      "gpt-image": "defined collarbone and elegant neckline highlighted by clothing fit"
+      "gpt-image": "defined collarbone and elegant neckline highlighted by clothing fit",
+      "gpt-image-safe": "elegant neckline and natural collarbone definition",
+      "gpt-image-positive": "editorial fashion photography, refined styling, elegant tailoring, natural beauty"
     },
     "tags": [
       "body"
@@ -173,7 +186,8 @@
     "prompt": {
       "default": "subtle S-curve body alignment",
       "gpt-image": "subtle S-curve body alignment outlining natural curves in a high-fashion pose",
-      "gpt-image-safe": "subtle S-curve posture creating an elegant high-fashion pose"
+      "gpt-image-safe": "subtle S-curve posture creating an elegant high-fashion pose",
+      "gpt-image-positive": "high-fashion editorial, elegant tailoring, tasteful fashion styling, contemporary fashion, refined composition"
     },
     "tags": [
       "body"

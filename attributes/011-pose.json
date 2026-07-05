@@ -9,7 +9,9 @@
     },
     "prompt": {
       "default": "crossing legs",
-      "gpt-image": "sitting crossing legs, showing neat and elegant body alignment"
+      "gpt-image": "sitting crossing legs, showing neat and elegant body alignment",
+      "gpt-image-safe": "seated with legs crossed naturally in a composed elegant pose",
+      "gpt-image-positive": "relaxed posture, natural stance, editorial standing pose, balanced composition, graceful posture"
     },
     "tags": [
       "pose",
@@ -27,7 +29,9 @@
     },
     "prompt": {
       "default": "leaning forward subtly",
-      "gpt-image": "leaning forward subtly towards the camera, highlighting collarbone details"
+      "gpt-image": "leaning forward subtly towards the camera, highlighting collarbone details",
+      "gpt-image-safe": "leaning gently forward in a natural composed editorial pose",
+      "gpt-image-positive": "confident posture, editorial standing pose, graceful posture, professional portrait photography"
     },
     "tags": [
       "pose"
@@ -44,7 +48,9 @@
     },
     "prompt": {
       "default": "arching back slightly",
-      "gpt-image": "subtle arching back posture to show elegant silhouette alignment"
+      "gpt-image": "subtle arching back posture to show elegant silhouette alignment",
+      "gpt-image-safe": "subtle natural back arch creating an elegant high-fashion editorial stance",
+      "gpt-image-positive": "editorial fashion photography, graceful posture, tasteful fashion styling, elegant visual storytelling, balanced composition"
     },
     "tags": [
       "pose"
@@ -62,7 +68,8 @@
     "prompt": {
       "default": "laying down side view",
       "gpt-image": "laying down on her side, side-view showcasing clean silhouette lines",
-      "gpt-image-safe": "reclining naturally on her side with elegant body alignment"
+      "gpt-image-safe": "reclining naturally on her side with elegant body alignment",
+      "gpt-image-positive": "editorial fashion photography, comfortable seated pose, natural candid portrait, refined artistic direction, tasteful composition"
     },
     "tags": [
       "pose",
@@ -81,7 +88,8 @@
     "prompt": {
       "default": "looking over shoulder",
       "gpt-image": "looking over her shoulder towards the camera, showing back silhouette",
-      "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile"
+      "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile",
+      "gpt-image-positive": "editorial standing pose, graceful posture, natural candid portrait, lifestyle portrait, professional portrait photography"
     },
     "tags": [
       "pose"
@@ -94,12 +102,13 @@
     "label": "Hand near mouth",
     "ui": {
       "control": "select",
-      "group": "Hand Gestures"
+      "group": "Pose"
     },
     "prompt": {
       "default": "hand near mouth",
       "gpt-image": "hand placed gently near her mouth with soft slender fingers",
-      "gpt-image-safe": "hand resting naturally near her face"
+      "gpt-image-safe": "hand resting naturally near her face",
+      "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance"
     },
     "tags": [
       "pose",
@@ -113,11 +122,13 @@
     "label": "Resting chin on hand",
     "ui": {
       "control": "select",
-      "group": "Hand Gestures"
+      "group": "Pose"
     },
     "prompt": {
       "default": "resting chin on hand",
-      "gpt-image": "sitting resting chin on hand with elbow on table, looking directly at the camera"
+      "gpt-image": "sitting resting chin on hand with elbow on table, looking directly at the camera",
+      "gpt-image-safe": "resting chin on hand in a natural thoughtful editorial pose",
+      "gpt-image-positive": "comfortable seated pose, natural candid portrait, casual body language, lifestyle portrait"
     },
     "tags": [
       "pose",
@@ -131,12 +142,13 @@
     "label": "Touching collarbone",
     "ui": {
       "control": "select",
-      "group": "Hand Gestures"
+      "group": "Pose"
     },
     "prompt": {
       "default": "touching collarbone",
       "gpt-image": "gently touching her collarbone, highlighting neckline details",
-      "gpt-image-safe": "gently resting a hand near her neckline"
+      "gpt-image-safe": "gently resting a hand near her neckline",
+      "gpt-image-positive": "editorial fashion photography, graceful posture, elegant tailoring, natural beauty, refined styling"
     },
     "tags": [
       "pose",
@@ -150,11 +162,13 @@
     "label": "Hand on hip",
     "ui": {
       "control": "select",
-      "group": "Hand Gestures"
+      "group": "Pose"
     },
     "prompt": {
       "default": "hand on hip",
-      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette"
+      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette",
+      "gpt-image-safe": "standing confidently with one hand on hip in an editorial pose",
+      "gpt-image-positive": "confident posture, editorial standing pose, professional portrait photography, fashion magazine photography, lifestyle portrait"
     },
     "tags": [
       "pose",
@@ -168,11 +182,13 @@
     "label": "Touching cheek / face",
     "ui": {
       "control": "select",
-      "group": "Hand Gestures"
+      "group": "Pose"
     },
     "prompt": {
       "default": "hand touching the side of her face near cheek and ear",
-      "gpt-image": "left hand raised to gently touch the side of her face near her cheek and ear, candid gaze"
+      "gpt-image": "left hand raised to gently touch the side of her face near her cheek and ear, candid gaze",
+      "gpt-image-safe": "gently resting hand near her cheek in a natural candid editorial pose",
+      "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance, lifestyle portrait"
     },
     "tags": [
       "pose",

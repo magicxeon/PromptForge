@@ -11,7 +11,8 @@
     "prompt": {
       "default": "tight-fitting clothing",
       "gpt-image": "tight-fitting clothing showcasing precise silhouette details and fabric tension lines",
-      "gpt-image-safe": "tailored fitted clothing showcasing precise silhouette details and fabric tension lines"
+      "gpt-image-safe": "tailored fitted clothing showcasing precise silhouette details and fabric tension lines",
+      "gpt-image-positive": "tailored silhouette, structured garment construction, editorial fashion photography, premium textile craftsmanship"
     },
     "tags": [
       "clothing",
@@ -31,7 +32,8 @@
     "prompt": {
       "default": "skin-tight clothing",
       "gpt-image": "skin-tight dress showing realistic cloth stretching and snug seams",
-      "gpt-image-safe": "tailored close-fitting dress showing realistic cloth stretching and snug seams"
+      "gpt-image-safe": "tailored close-fitting dress showing realistic cloth stretching and snug seams",
+      "gpt-image-positive": "structured silhouette, elegant draping, editorial fashion photography, refined garment construction, fashion-forward styling"
     },
     "tags": [
       "clothing",
@@ -51,7 +53,8 @@
     "prompt": {
       "default": "body-con style clothing",
       "gpt-image": "body-con style fashion dress outlining curves beautifully with natural folds",
-      "gpt-image-safe": "tailored silhouette style fashion dress outlining curves beautifully with natural folds"
+      "gpt-image-safe": "tailored silhouette style fashion dress outlining curves beautifully with natural folds",
+      "gpt-image-positive": "couture-inspired styling, editorial fashion photography, tasteful fashion styling, elegant draping, luxury fashion campaign"
     },
     "tags": [
       "clothing",
@@ -71,7 +74,8 @@
     "prompt": {
       "default": "compression fit garment",
       "gpt-image": "snug compression athletic wear defining muscle structures and torso curves",
-      "gpt-image-safe": "snug compression athletic wear with ergonomic tailoring"
+      "gpt-image-safe": "snug compression athletic wear with ergonomic tailoring",
+      "gpt-image-positive": "commercial fashion shoot, contemporary fashion, tasteful composition, professional wardrobe photography, athletic lifestyle"
     },
     "tags": [
       "clothing",
@@ -188,7 +192,8 @@
     "prompt": {
       "default": "corset top",
       "gpt-image": "corset-style crop top highlighting waist contours and structure details",
-      "gpt-image-safe": "structured tailored top with elegant panel construction"
+      "gpt-image-safe": "structured tailored top with elegant panel construction",
+      "gpt-image-positive": "couture-inspired styling, elegant tailoring, editorial fashion photography, luxury fashion campaign, structured garment construction"
     },
     "tags": [
       "clothing",

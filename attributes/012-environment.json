@@ -12,6 +12,7 @@
       "default": "inside a vibrant crowded bar or nightclub",
       "gpt-image": "inside a vibrant crowded bar or nightclub, with soft bokeh blur showing silhouettes of other people in the background"
     },
+    "exclusions": ["environment.pop_07", "environment.pop_03", "environment.018", "environment.019", "environment.pop_04"],
     "tags": [
       "environment",
       "location",
@@ -33,6 +34,7 @@
       "default": "on an urban street",
       "gpt-image": "on a bustling urban street, with streetlights and dynamic background depth"
     },
+    "exclusions": ["environment.pop_04", "environment.008"],
     "tags": [
       "environment",
       "location",
@@ -75,6 +77,7 @@
       "default": "inside a luxurious high-rise penthouse",
       "gpt-image": "inside a luxurious high-rise penthouse with floor-to-ceiling glass windows overlooking a glowing city skyline at night"
     },
+    "exclusions": ["environment.pop_01", "environment.pop_07", "environment.pop_04", "environment.008"],
     "tags": [
       "environment",
       "location",
@@ -95,6 +98,7 @@
       "default": "in a cozy modern cafe",
       "gpt-image": "in a cozy modern cafe with warm wooden decors and soft background chatter"
     },
+    "exclusions": ["environment.001", "environment.007", "environment.pop_01", "environment.pop_02", "environment.pop_06"],
     "tags": [
       "environment",
       "location",
@@ -116,6 +120,7 @@
       "default": "modern minimalist architecture backdrop",
       "gpt-image": "modern minimalist architecture with clean lines and large glass facades in the background"
     },
+    "exclusions": ["environment.008", "environment.pop_04"],
     "tags": [
       "environment",
       "architecture"
@@ -135,6 +140,7 @@
       "default": "futuristic cyberpunk city streets",
       "gpt-image": "futuristic cyberpunk city streets filled with glowing neon signs, holographic displays, and sleek structures"
     },
+    "exclusions": ["environment.008", "environment.pop_04", "environment.005", "environment.pop_07", "environment.018", "environment.019"],
     "tags": [
       "environment",
       "architecture",
@@ -155,6 +161,7 @@
       "default": "traditional Asian architecture backdrop",
       "gpt-image": "traditional Thai architecture with ornate teak wooden structures and soft warm lighting"
     },
+    "exclusions": ["environment.006", "environment.007", "environment.pop_06", "environment.001", "environment.002", "environment.004"],
     "tags": [
       "environment",
       "architecture",
@@ -346,6 +353,7 @@
       "default": "autumn season setting",
       "gpt-image": "autumn season setting with warm-colored golden leaves falling softly in the background"
     },
+    "exclusions": ["environment.007", "environment.001"],
     "tags": [
       "environment",
       "season"
@@ -365,6 +373,7 @@
       "default": "spring season with blooming cherry blossoms",
       "gpt-image": "spring season setting with soft pink blooming cherry blossoms on branches in the background"
     },
+    "exclusions": ["environment.007", "environment.001"],
     "tags": [
       "environment",
       "season"
@@ -384,6 +393,7 @@
       "default": "on a scenic tropical beach with fine white sand",
       "gpt-image": "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water"
     },
+    "exclusions": ["environment.001", "environment.003", "environment.004", "environment.005", "environment.pop_02", "environment.pop_03", "environment.pop_05", "environment.pop_06"],
     "tags": [
       "environment",
       "location",
@@ -405,6 +415,7 @@
       "default": "inside a modern minimalist fitness gym",
       "gpt-image": "inside a modern minimalist fitness gym with clean metallic equipment and bright LED panel lighting"
     },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.008", "environment.pop_07"],
     "tags": [
       "environment",
       "location",
@@ -426,6 +437,7 @@
       "default": "in a quiet cozy library surrounded by dark wood bookshelves",
       "gpt-image": "in a quiet cozy library surrounded by towering dark wood bookshelves packed with vintage books"
     },
+    "exclusions": ["environment.001", "environment.007", "environment.pop_01", "environment.pop_02", "environment.pop_06"],
     "tags": [
       "environment",
       "location",
@@ -447,6 +459,7 @@
       "default": "within the grounds of an ornate traditional temple",
       "gpt-image": "within the peaceful grounds of an ornate traditional temple, featuring detailed gold and red architecture"
     },
+    "exclusions": ["environment.006", "environment.007", "environment.001", "environment.002", "environment.004", "environment.pop_02", "environment.pop_06"],
     "tags": [
       "environment",
       "location",
@@ -469,6 +482,7 @@
       "default": "inside a high-end luxury fashion boutique",
       "gpt-image": "inside a high-end luxury fashion boutique with warm spotlighting and minimalist designer clothing displays"
     },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.007"],
     "tags": [
       "environment",
       "location",
@@ -490,6 +504,7 @@
       "default": "in a bustling Japanese game center and arcade",
       "gpt-image": "in a vibrant bustling Japanese game center and arcade, filled with glowing screens and colorful neon signs"
     },
+    "exclusions": ["environment.008", "environment.pop_04", "environment.005", "environment.pop_03", "environment.pop_07", "environment.018", "environment.019"],
     "tags": [
       "environment",
       "location",
@@ -512,6 +527,7 @@
       "default": "inside a lush botanical garden greenhouse",
       "gpt-image": "inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants"
     },
+    "exclusions": ["environment.001", "environment.007", "environment.pop_02", "environment.pop_06"],
     "tags": [
       "environment",
       "location",
@@ -533,6 +549,7 @@
       "default": "at a luxury rooftop infinity pool side",
       "gpt-image": "at a luxury rooftop infinity pool side overlooking a glowing modern city skyline in the background"
     },
+    "exclusions": ["environment.008", "environment.pop_04", "environment.pop_07"],
     "tags": [
       "environment",
       "location",

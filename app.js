@@ -332,7 +332,7 @@ async function initApp() {
 
     // 2. Fetch all individual attributes JSON files in parallel
     const attributesData = await Promise.all(
-      ATTRIBUTE_FILES.map(file => 
+      ATTRIBUTE_FILES.map(file =>
         fetch(`attributes/${file}`)
           .then(r => r.json())
           .catch(err => {
@@ -377,17 +377,23 @@ function renderForm() {
 
   state.schema.forEach((groupObj, groupIdx) => {
     const groupName = groupObj.group;
-    
+    const isNsfwGroup = groupName.toLowerCase() === "nsfw";
+
     // Create Accordion Panel Element
     const accordion = document.createElement("div");
     accordion.className = "accordion";
     accordion.id = `accordion-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
     if (groupIdx === 0) accordion.classList.add("active"); // Open the first group by default
+    // NSFW accordion: hidden by default via CSS and guarded by JS
+    if (isNsfwGroup) {
+      accordion.style.display = "none";
+      accordion.setAttribute("data-nsfw-controlled", "true");
+    }
 
     // Accordion Header
     const header = document.createElement("div");
     header.className = "accordion-header";
-    
+
     const titleArea = document.createElement("div");
     titleArea.className = "accordion-title";
     titleArea.innerHTML = `<span>${groupName}</span>`;
@@ -418,7 +424,7 @@ function renderForm() {
     groupObj.fields.forEach(field => {
       const fieldDiv = document.createElement("div");
       fieldDiv.className = "form-field";
-      
+
       const label = document.createElement("label");
       label.textContent = field.name;
       fieldDiv.appendChild(label);
@@ -447,7 +453,7 @@ function renderForm() {
       filteredOptions.forEach(opt => {
         // Skip disabled options
         if (opt.enabled === false) return;
-        
+
         const optionNode = document.createElement("option");
         optionNode.value = opt.id;
         // Check if there is a custom prompt mapping or fall back to label
@@ -457,8 +463,8 @@ function renderForm() {
         const optLabel = opt.label.toLowerCase();
         const optTags = (opt.tags || []).map(t => t.toLowerCase());
         const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") || optTags.includes("vietnamese") ||
-                        optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") || optLabel.includes("vietnamese") ||
-                        optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
+          optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") || optLabel.includes("vietnamese") ||
+          optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
 
         if (isAsian) {
           optionNode.textContent = `🏮 ${opt.label}`;
@@ -501,28 +507,36 @@ function renderForm() {
 
 // Logic Helper: Filter attributes library by field specific criteria
 function getOptionsForField(fieldName, category, allItems) {
-  const items = allItems.filter(item => item.category === category);
+  // SAFETY: Never allow nsfw-category items to bleed into non-nsfw fields
+  const items = allItems.filter(item => {
+    if (item.category === "nsfw" && category !== "nsfw") return false;
+    return item.category === category;
+  });
   const lowerField = fieldName.toLowerCase();
 
   // 1. If items have subcategories, filter strictly by subcategory match
-  const hasSubcategory = items.some(item => item.subcategory);
+  // But only when the majority of items have subcategories (prevents one stray subcategory from hijacking the whole list)
+  const itemsWithSubcat = items.filter(item => item.subcategory);
+  const hasSubcategory = itemsWithSubcat.length > 0 && (itemsWithSubcat.length / items.length) > 0.5;
   if (hasSubcategory) {
-    return items.filter(item => item.subcategory && item.subcategory.toLowerCase() === lowerField);
+    const matched = items.filter(item => item.subcategory && item.subcategory.toLowerCase() === lowerField);
+    // If subcategory filtering yields results, use them; otherwise fall through to heuristics
+    if (matched.length > 0) return matched;
   }
 
   // 2. Otherwise apply heuristics for flat structures
   if (category === "face") {
     if (lowerField === "face shape") {
       // Exclude expressions and special match options
-      return items.filter(item => 
-        !item.label.toLowerCase().includes("expression") && 
-        !item.label.toLowerCase().includes("details") && 
+      return items.filter(item =>
+        !item.label.toLowerCase().includes("expression") &&
+        !item.label.toLowerCase().includes("details") &&
         !item.label.toLowerCase().includes("match")
       );
     }
     if (lowerField === "expression") {
-      return items.filter(item => 
-        item.label.toLowerCase().includes("expression") || 
+      return items.filter(item =>
+        item.label.toLowerCase().includes("expression") ||
         item.label.toLowerCase().includes("details") ||
         item.label.toLowerCase().includes("gaze")
       );
@@ -533,15 +547,15 @@ function getOptionsForField(fieldName, category, allItems) {
   if (category === "skin") {
     if (lowerField === "tone") {
       // Return fair/white skins and basic tones
-      return items.filter(item => 
-        item.label.toLowerCase().includes("skin") && 
+      return items.filter(item =>
+        item.label.toLowerCase().includes("skin") &&
         !item.label.toLowerCase().includes("texture")
       );
     }
     if (lowerField === "texture") {
-      return items.filter(item => 
-        item.label.toLowerCase().includes("texture") || 
-        item.label.toLowerCase().includes("complexion") || 
+      return items.filter(item =>
+        item.label.toLowerCase().includes("texture") ||
+        item.label.toLowerCase().includes("complexion") ||
         item.label.toLowerCase().includes("smooth")
       );
     }
@@ -583,7 +597,7 @@ function bindEvents() {
 
       // Close all accordions
       document.querySelectorAll(".accordion").forEach(acc => acc.classList.remove("active"));
-      
+
       // Toggle current accordion
       if (!isActive) {
         accordion.classList.add("active");
@@ -600,7 +614,7 @@ function bindEvents() {
     // Change event
     select.addEventListener("change", (e) => {
       const val = e.target.value;
-      
+
       if (val === "__custom__") {
         // Show custom write-in field
         customInput.style.display = "block";
@@ -609,16 +623,18 @@ function bindEvents() {
       } else {
         // Hide custom field
         customInput.style.display = "none";
-        
+
         if (val === "") {
           delete state.selections[fieldName];
         } else {
           const selectedOption = e.target.options[e.target.selectedIndex];
           const promptVal = selectedOption.getAttribute("data-prompt");
           state.selections[fieldName] = { id: val, value: promptVal, isCustom: false, group: groupName };
+          // Enforce mutual exclusions — auto-clear any conflicting selections
+          enforceExclusionRules(val);
         }
       }
-      
+
       updateAccordionSummaryBadges(groupName);
       updatePromptPreview();
     });
@@ -652,11 +668,11 @@ function bindEvents() {
   document.querySelectorAll("#presets-group .option-chip").forEach(chip => {
     chip.addEventListener("click", () => {
       const presetName = chip.getAttribute("data-preset");
-      
+
       // Visual active class handling
       document.querySelectorAll("#presets-group .option-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
-      
+
       // Load preset
       const preset = PRESETS[presetName];
       if (preset) {
@@ -691,7 +707,7 @@ function bindEvents() {
     if (nsfwAccordion) {
       nsfwAccordion.style.display = isNsfwEnabled ? "block" : "none";
     }
-    
+
     if (!isNsfwEnabled) {
       // Clear NSFW selections from state and UI
       const nsfwSelects = document.querySelectorAll("#accordion-nsfw .custom-select");
@@ -787,6 +803,56 @@ function getPromptValueForSelection(selection) {
   }
 }
 
+// Enforce mutual exclusion rules: when a selection is made, auto-clear any conflicting options
+function enforceExclusionRules(selectedId) {
+  // Find the item that was just selected in the library
+  const selectedItem = state.library.find(item => item.id === selectedId);
+  if (!selectedItem || !selectedItem.exclusions || selectedItem.exclusions.length === 0) return;
+
+  selectedItem.exclusions.forEach(excludedId => {
+    // Check if the excluded ID is currently active anywhere in selections
+    const conflictingField = Object.keys(state.selections).find(
+      fieldName => state.selections[fieldName].id === excludedId
+    );
+
+    if (!conflictingField) return; // Not currently selected — nothing to clear
+
+    const conflictingGroup = state.selections[conflictingField].group;
+
+    // 1. Remove from state
+    delete state.selections[conflictingField];
+
+    // 2. Reset the dropdown UI to the empty placeholder
+    const conflictingSelect = document.querySelector(
+      `#form-container .custom-select[data-field="${conflictingField}"]`
+    );
+    if (conflictingSelect) {
+      conflictingSelect.value = "";
+
+      // Hide custom write-in input if visible
+      const customInput = conflictingSelect.parentElement.parentElement.querySelector(".custom-writein-input");
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
+
+      // 3. Trigger visual flash animation on the parent form-field div
+      const formField = conflictingSelect.closest(".form-field");
+      if (formField) {
+        formField.classList.remove("conflict-cleared"); // reset if already animating
+        void formField.offsetWidth; // force reflow to restart animation
+        formField.classList.add("conflict-cleared");
+        formField.addEventListener("animationend", () => {
+          formField.classList.remove("conflict-cleared");
+        }, { once: true });
+      }
+    }
+
+    // 4. Refresh badge for the cleared group
+    updateAccordionSummaryBadges(conflictingGroup);
+  });
+}
+
 // Update accordion header summary badge to show selected items at a glance
 function updateAccordionSummaryBadges(groupName) {
   const badgeId = `badge-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
@@ -843,7 +909,7 @@ function generatePromptText(cleanTextOnly = false) {
         // Match approximate category IDs in order rules
         return category.replace("_", "") === fieldId.replace("_", "") || s.group.toLowerCase() === fieldId.toLowerCase();
       });
-      
+
       if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
         const val = getPromptValueForSelection(selection);
         if (val && val.trim() !== "") {
@@ -873,7 +939,7 @@ function generatePromptText(cleanTextOnly = false) {
   // Compile individual templates
   let subject = compileGroupSegment("Character", "token-subject");
   let appearance = compileGroupSegment("Face", "token-appearance");
-  
+
   // Distinguish Hair and Skin explicitly using selection key search to prevent overlap
   const getSelectionsForGroup = (grp) => {
     return Object.keys(state.selections)
@@ -887,13 +953,13 @@ function generatePromptText(cleanTextOnly = false) {
 
   let skinList = getSelectionsForGroup("Skin");
   let skin = skinList.length > 0 ? (cleanTextOnly ? skinList.join(", ") : `<span class="token-appearance">${skinList.join(", ")}</span>`) : "";
-  
+
   // Combine appearance, hair, and skin under the main appearance segment
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
 
   let clothing = compileGroupSegment("Clothing", "token-clothing");
   let pose = compileGroupSegment("Pose", "token-pose");
-  
+
   // Body properties also merge with pose/subject contextually
   let body = compileGroupSegment("Body", "token-subject");
   let fullSubject = [subject, body].filter(s => s !== "").join(", ");
@@ -921,6 +987,32 @@ function generatePromptText(cleanTextOnly = false) {
   prompt = prompt.replace(/^\s*,\s*/, "");     // Clean leading comma
   prompt = prompt.replace(/\s*,\s*$/, "");     // Clean trailing comma
   prompt = prompt.trim();
+
+  // GPT-Safe Positive Words — collect and append when GPT-Safe Mode is active
+  const toggleGptSafeEl = document.getElementById("toggle-gpt-safe");
+  const isGptSafeActive = toggleGptSafeEl ? toggleGptSafeEl.checked : false;
+  if (isGptSafeActive && prompt !== "") {
+    let positiveWordsList = [];
+    Object.values(state.selections).forEach(selection => {
+      if (selection.isCustom) return;
+      const libItem = state.library.find(li => li.id === selection.id);
+      if (libItem && libItem.prompt && libItem.prompt["gpt-image-positive"]) {
+        positiveWordsList.push(
+          ...libItem.prompt["gpt-image-positive"].split(",").map(w => w.trim()).filter(w => w !== "")
+        );
+      }
+    });
+    // Deduplicate
+    positiveWordsList = [...new Set(positiveWordsList)];
+    if (positiveWordsList.length > 0) {
+      const posStr = positiveWordsList.join(", ");
+      if (cleanTextOnly) {
+        prompt += `, ${posStr}`;
+      } else {
+        prompt += `, <span class="token-positive">${posStr}</span>`;
+      }
+    }
+  }
 
   // Postfix Aspect Ratio
   if (state.aspectRatio && prompt !== "") {
@@ -983,12 +1075,12 @@ function resetForm() {
   document.getElementById("ref-face-match").checked = false;
   document.getElementById("ref-style-match").checked = false;
   document.getElementById("ref-pose-match").checked = false;
-  
+
   const toggleNsfw = document.getElementById("toggle-nsfw");
   if (toggleNsfw) toggleNsfw.checked = false;
   const nsfwAccordion = document.getElementById("accordion-nsfw");
   if (nsfwAccordion) nsfwAccordion.style.display = "none";
-  
+
   const toggleGptSafe = document.getElementById("toggle-gpt-safe");
   if (toggleGptSafe) toggleGptSafe.checked = false;
 
@@ -1044,13 +1136,13 @@ function exportConfigJSON() {
   const jsonStr = JSON.stringify(payload, null, 2);
   const blob = new Blob([jsonStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  
+
   const a = document.createElement("a");
   a.href = url;
   a.download = "model-prompt-config.json";
   document.body.appendChild(a);
   a.click();
-  
+
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
@@ -1094,7 +1186,7 @@ function importConfigJSON(jsonString) {
     if (payload.selections) {
       Object.keys(payload.selections).forEach(field => {
         const item = payload.selections[field];
-        
+
         // Find select control that matches field name
         const select = document.querySelector(`.custom-select[data-field="${field}"]`);
         if (!select) return;
@@ -1142,20 +1234,20 @@ function importConfigJSON(jsonString) {
 function applyFaceMatchLockout() {
   const isLocked = state.imageReferences.faceMatch;
   const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
-  
+
   faceFields.forEach(field => {
     const select = document.querySelector(`.custom-select[data-field="${field}"]`);
     if (!select) return;
-    
+
     const formField = select.closest(".form-field");
     if (isLocked) {
       select.disabled = true;
       if (formField) formField.classList.add("disabled");
-      
+
       // Remove selections from active state
       delete state.selections[field];
       select.value = "";
-      
+
       const customInput = formField.querySelector(".custom-writein-input");
       if (customInput) {
         customInput.value = "";
@@ -1166,7 +1258,7 @@ function applyFaceMatchLockout() {
       if (formField) formField.classList.remove("disabled");
     }
   });
-  
+
   updateAccordionSummaryBadges("Face");
 }
 
@@ -1198,7 +1290,7 @@ function randomizeSelections() {
   document.querySelectorAll("#form-container .custom-select").forEach(select => {
     const fieldName = select.getAttribute("data-field");
     const groupName = select.getAttribute("data-group");
-    
+
     // Skip if field is locked by face match
     if (isFaceLocked && faceFields.includes(fieldName)) return;
 
@@ -1206,7 +1298,7 @@ function randomizeSelections() {
     if (Math.random() > 0.65) return;
 
     let options = Array.from(select.options).filter(opt => opt.value !== "" && opt.value !== "__custom__");
-    
+
     // Filter to only Asian ethnicities if the field is Ethnicity
     if (fieldName === "Ethnicity") {
       const asianIds = ["character.007", "character.008", "character.009", "character.010", "character.011"];
@@ -1218,10 +1310,10 @@ function randomizeSelections() {
     // Pick a random option
     const randomOpt = options[Math.floor(Math.random() * options.length)];
     select.value = randomOpt.value;
-    
+
     const promptVal = randomOpt.getAttribute("data-prompt");
     state.selections[fieldName] = { id: randomOpt.value, value: promptVal, isCustom: false, group: groupName };
-    
+
     updateAccordionSummaryBadges(groupName);
   });
 
@@ -1237,15 +1329,15 @@ function copyPromptAsJSON() {
 
   // Build structured selected attributes grouped by category
   const structuredAttrs = {};
-  
+
   Object.keys(state.selections).forEach(fieldName => {
     const selection = state.selections[fieldName];
     const group = selection.group; // e.g., "Character", "Face", "Hair", "Skin"
-    
+
     if (!structuredAttrs[group]) {
       structuredAttrs[group] = {};
     }
-    
+
     // Map field name directly to selection value and ID
     structuredAttrs[group][fieldName] = {
       id: selection.id,
@@ -1263,7 +1355,7 @@ function copyPromptAsJSON() {
   }
 
   const jsonPayload = JSON.stringify({
-    prompt: textVal,
+    // prompt: textVal,
     template: currentTemplateName,
     aspect_ratio: state.aspectRatio,
     attributes: structuredAttrs
