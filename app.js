@@ -301,6 +301,7 @@ const state = {
   order: null,        // prompt-order.json
   library: [],        // Consolidated options loaded from /attributes/
   selections: {},     // User selections: { fieldName: { id, value, isCustom } }
+  lockedFields: new Set(), // Lock field when surprise me
   imageReferences: {
     faceMatch: false,
     styleMatch: false,
@@ -437,6 +438,9 @@ function renderForm() {
       label.textContent = field.name;
       fieldDiv.appendChild(label);
 
+      const inputRow = document.createElement("div");
+      inputRow.className = "field-input-row";
+
       // Create dropdown select wrapper
       const selectWrapper = document.createElement("div");
       selectWrapper.className = "select-wrapper";
@@ -496,7 +500,38 @@ function renderForm() {
       select.appendChild(customOpt);
 
       selectWrapper.appendChild(select);
-      fieldDiv.appendChild(selectWrapper);
+
+      const lockLabel = document.createElement("label");
+      lockLabel.className = "lock-checkbox-btn";
+      lockLabel.title = "Lock this attribute";
+
+      const lockInput = document.createElement("input");
+      lockInput.type = "checkbox";
+      lockInput.className = "lock-input";
+      lockInput.setAttribute("data-field", field.name);
+
+      // Event ดักจับเมื่อกดปุ่ม Lock / Unlock
+      lockInput.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          state.lockedFields.add(field.name);
+          fieldDiv.classList.add("is-locked");
+        } else {
+          state.lockedFields.delete(field.name);
+          fieldDiv.classList.remove("is-locked");
+        }
+      });
+
+      const lockIcon = document.createElement("span");
+      lockIcon.className = "lock-icon";
+      lockIcon.textContent = "🔓"; // ตั้งต้นเป็นไอคอนปลดล็อก
+
+      lockLabel.appendChild(lockInput);
+      lockLabel.appendChild(lockIcon);
+
+      // 👈 [3. นำ Dropdown และปุ่ม Lock ใส่เข้าแถว แล้วใส่ลงใน fieldDiv]
+      inputRow.appendChild(selectWrapper);
+      inputRow.appendChild(lockLabel);
+      fieldDiv.appendChild(inputRow);
 
       // Hidden custom text input field
       const customInput = document.createElement("input");
@@ -603,7 +638,7 @@ function bindEvents() {
   document.querySelectorAll("#form-container .custom-select").forEach(select => {
     const fieldName = select.getAttribute("data-field");
     const groupName = select.getAttribute("data-group");
-    const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+    const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
 
     // Change event
     select.addEventListener("change", (e) => {
@@ -709,7 +744,7 @@ function bindEvents() {
         const fieldName = select.getAttribute("data-field");
         select.value = "";
         delete state.selections[fieldName];
-        const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+        const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
         if (customInput) {
           customInput.value = "";
           customInput.style.display = "none";
@@ -840,7 +875,7 @@ function enforceExclusionRules(selectedId) {
       conflictingSelect.value = "";
 
       // Hide custom write-in input if visible
-      const customInput = conflictingSelect.parentElement.parentElement.querySelector(".custom-writein-input");
+      const customInput = conflictingselect.closest(".form-field").querySelector(".custom-writein-input");
       if (customInput) {
         customInput.value = "";
         customInput.style.display = "none";
@@ -1131,7 +1166,7 @@ function resetForm() {
   // Clear select elements
   document.querySelectorAll(".custom-select").forEach(select => {
     select.value = "";
-    const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+    const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
     if (customInput) {
       customInput.value = "";
       customInput.style.display = "none";
@@ -1265,7 +1300,7 @@ function importConfigJSON(jsonString) {
 
         if (item.isCustom) {
           select.value = "__custom__";
-          const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+          const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
           if (customInput) {
             customInput.value = item.value;
             customInput.style.display = "block";
@@ -1330,17 +1365,25 @@ function applyFaceMatchLockout() {
 }
 
 // Randomize active options in all selectors inside form-container
+// Randomize active options in all selectors inside form-container
 function randomizeSelections() {
-  // Clear only left panel selections
-  state.selections = {};
+  // 1. เคลียร์ค่าเฉพาะรายการที่ไม่ได้ล็อกไว้ใน state.selections
+  Object.keys(state.selections).forEach(field => {
+    if (!state.lockedFields.has(field)) {
+      delete state.selections[field];
+    }
+  });
 
-  // Reset all left panel select controls and custom inputs
+  // 2. รีเซ็ตหน้า UI เฉพาะ Dropdown ที่ไม่ได้ล็อก
   document.querySelectorAll("#form-container .custom-select").forEach(select => {
-    select.value = "";
-    const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
-    if (customInput) {
-      customInput.value = "";
-      customInput.style.display = "none";
+    const fieldName = select.getAttribute("data-field");
+    if (!state.lockedFields.has(fieldName)) { // 👈 เช็กว่าไม่ได้ล็อกถึงจะเคลียร์ค่า
+      select.value = "";
+      const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
     }
   });
 
@@ -1350,7 +1393,6 @@ function randomizeSelections() {
     badge.style.display = "none";
   });
 
-  // Check current Face Match status to apply lockout on random selections
   const isFaceLocked = state.imageReferences.faceMatch;
   const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
 
@@ -1361,12 +1403,14 @@ function randomizeSelections() {
     // Skip if field is locked by face match
     if (isFaceLocked && faceFields.includes(fieldName)) return;
 
-    // 65% probability to select an option (to make it a natural, non-overloaded prompt)
+    // 👈 [หัวใจสำคัญ!] ข้ามการสุ่มทันทีถ้า Attribute นี้ถูกกด Lock ไว้
+    if (state.lockedFields.has(fieldName)) return;
+
+    // 65% probability to select an option...
     if (Math.random() > 0.65) return;
 
     let options = Array.from(select.options).filter(opt => opt.value !== "" && opt.value !== "__custom__");
 
-    // Filter to only Asian ethnicities if the field is Ethnicity
     if (fieldName === "Ethnicity") {
       const asianIds = ["character.007", "character.008", "character.009", "character.010", "character.011"];
       options = options.filter(opt => asianIds.includes(opt.value));

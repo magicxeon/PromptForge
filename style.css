@@ -5,7 +5,7 @@
   --panel-bg: rgba(20, 20, 24, 0.6);
   --border-color: rgba(139, 92, 246, 0.15);
   --border-active: rgba(139, 92, 246, 0.5);
-  
+
   /* Neon Accents */
   --neon-purple: #8b5cf6;
   --neon-pink: #ec4899;
@@ -13,12 +13,12 @@
   --neon-orange: #f97316;
   --neon-green: #10b981;
   --neon-gold: #fbbf24;
-  
+
   /* Text Colors */
   --text-main: #f4f4f5;
   --text-muted: #a1a1aa;
   --text-dark: #18181b;
-  
+
   /* Glow Effects */
   --glow-pink: 0 0 10px rgba(236, 72, 153, 0.3);
   --glow-purple: 0 0 12px rgba(139, 92, 246, 0.4);
@@ -45,13 +45,16 @@ body {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(139, 92, 246, 0.3);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(139, 92, 246, 0.6);
 }
@@ -229,7 +232,8 @@ body {
 }
 
 .accordion.active .accordion-content {
-  max-height: 600px; /* High enough value to accommodate all inputs */
+  max-height: 600px;
+  /* High enough value to accommodate all inputs */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -434,11 +438,11 @@ body {
   transition: all 0.2s ease;
 }
 
-.checkbox-container:hover input ~ .checkmark {
+.checkbox-container:hover input~.checkmark {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.checkbox-container input:checked ~ .checkmark {
+.checkbox-container input:checked~.checkmark {
   background-color: var(--neon-purple);
   border-color: var(--neon-purple);
   box-shadow: var(--glow-purple);
@@ -457,7 +461,7 @@ body {
   transform: rotate(45deg);
 }
 
-.checkbox-container input:checked ~ .checkmark::after {
+.checkbox-container input:checked~.checkmark::after {
   display: block;
 }
 
@@ -507,22 +511,27 @@ body {
   color: var(--neon-green);
   font-weight: 500;
 }
+
 .token-appearance {
   color: var(--neon-pink);
   font-weight: 500;
 }
+
 .token-clothing {
   color: var(--neon-purple);
   font-weight: 500;
 }
+
 .token-pose {
   color: var(--neon-cyan);
   font-weight: 500;
 }
+
 .token-lighting {
   color: var(--neon-orange);
   font-weight: 500;
 }
+
 .token-reference {
   color: var(--neon-gold);
   font-weight: 500;
@@ -550,7 +559,10 @@ body {
   gap: 0.75rem;
 }
 
-button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neon-cyan {
+button.btn-neon,
+button.btn-neon-outline,
+button.btn-neon-action,
+button.btn-neon-cyan {
   font-family: inherit;
   font-weight: 600;
   font-size: 0.85rem;
@@ -567,6 +579,7 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   border: 1px solid var(--neon-cyan);
   color: var(--neon-cyan);
 }
+
 .btn-neon-cyan:hover {
   background: var(--neon-cyan);
   color: var(--text-dark);
@@ -579,6 +592,7 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   border: 1px solid var(--neon-purple);
   color: var(--text-main);
 }
+
 .btn-neon:hover {
   background: #7c3aed;
   box-shadow: var(--glow-purple);
@@ -590,6 +604,7 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   border: 1px solid var(--border-color);
   color: var(--text-muted);
 }
+
 .btn-neon-outline:hover {
   border-color: var(--neon-purple);
   color: var(--text-main);
@@ -603,6 +618,7 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   padding: 0.35rem 0.75rem !important;
   border-radius: 6px !important;
 }
+
 .btn-neon-action:hover {
   background: var(--neon-purple);
   color: var(--text-main);
@@ -636,12 +652,21 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
 
 /* --- Keyframe Animations --- */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- Responsive Layout (Mobile / Tablet) --- */
@@ -649,7 +674,7 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   .app-workspace {
     grid-template-columns: 1fr;
   }
-  
+
   .control-panel {
     position: static;
   }
@@ -659,11 +684,11 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   .app-container {
     padding: 1rem;
   }
-  
+
   .app-header h1 {
     font-size: 1.8rem;
   }
-  
+
   .action-grid {
     grid-template-columns: 1fr;
   }
@@ -673,17 +698,20 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
 .asian-option {
   color: var(--neon-cyan) !important;
   font-weight: 600 !important;
-  background-color: #121214 !important; /* ensure readability in browser menus */
+  background-color: #121214 !important;
+  /* ensure readability in browser menus */
 }
 
 /* NSFW specific styling */
 .token-nsfw {
-  color: #fb7185; /* soft rose */
+  color: #fb7185;
+  /* soft rose */
   font-weight: 500;
 }
 
 #accordion-nsfw {
-  display: none; /* hidden by default */
+  display: none;
+  /* hidden by default */
 }
 
 /* GPT-Safe Positive Words token */
@@ -695,9 +723,20 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
 
 /* Conflict auto-cleared warning flash */
 @keyframes conflictFlash {
-  0%   { background: rgba(251, 113, 133, 0.25); border-color: rgba(251, 113, 133, 0.6); }
-  50%  { background: rgba(251, 113, 133, 0.08); border-color: rgba(251, 113, 133, 0.2); }
-  100% { background: transparent; border-color: transparent; }
+  0% {
+    background: rgba(251, 113, 133, 0.25);
+    border-color: rgba(251, 113, 133, 0.6);
+  }
+
+  50% {
+    background: rgba(251, 113, 133, 0.08);
+    border-color: rgba(251, 113, 133, 0.2);
+  }
+
+  100% {
+    background: transparent;
+    border-color: transparent;
+  }
 }
 
 .conflict-cleared {
@@ -712,4 +751,79 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
 .custom-select option.option-conflicted {
   color: #6b7280;
   font-style: italic;
+}
+
+/* ==========================================================================
+   ModelPromptForge - Attribute Locking System Styles
+   ========================================================================== */
+
+/* จัดเรียงให้ Dropdown และปุ่ม Lock อยู่ในแถวแนวนอนเดียวกัน */
+.field-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.field-input-row .select-wrapper {
+  flex: 1;
+  /* ให้ Dropdown ขยายกินพื้นที่ส่วนใหญ่ */
+}
+
+/* ปรับแต่งดีไซน์ปุ่มกุญแจ Lock */
+.lock-checkbox-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s ease;
+}
+
+/* Effect ตอนเอาเมาส์ไปชี้ปุ่ม Lock */
+.lock-checkbox-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--neon-purple);
+}
+
+/* ซ่อน Checkbox ตัวจริงที่เป็น Default ของเบราว์เซอร์ */
+.lock-checkbox-btn .lock-input {
+  display: none;
+}
+
+.lock-checkbox-btn .lock-icon {
+  font-size: 1rem;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* สลับไอคอนจาก 🔓 เป็น 🔒 เมื่อมีการกด Lock (Checked) */
+.lock-checkbox-btn .lock-input:checked+.lock-icon {
+  font-size: 0;
+  /* ซ่อนกุญแจเปิด 🔓 ของเดิม */
+  transform: scale(1.1);
+}
+
+.lock-checkbox-btn .lock-input:checked+.lock-icon::after {
+  content: "🔒";
+  /* แสดงกุญแจปิด แทนที่ */
+  font-size: 1rem;
+}
+
+/* สไตล์ของปุ่ม Lock เมื่อถูกเปิดใช้งาน (จะเปลี่ยนเป็นสีชมพู Neon Pink พร้อมเอฟเฟกต์เรืองแสง) */
+.lock-checkbox-btn:has(.lock-input:checked) {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: var(--neon-pink);
+  box-shadow: var(--glow-pink);
+}
+
+/* ทำให้กรอบของ Dropdown ที่ถูกล็อก เปลี่ยนเป็นสีชมพูจางๆ เพื่อให้สังเกตง่าย */
+.form-field.is-locked .custom-select {
+  border-color: rgba(236, 72, 153, 0.4);
+  background-color: rgba(236, 72, 153, 0.03);
 }
