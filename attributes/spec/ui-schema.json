@@ -312,5 +312,19 @@
         "control": "select"
       }
     ]
+  },
+  {
+    "group": "NSFW",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Nudity Level",
+        "control": "select"
+      },
+      {
+        "name": "Sensual Pose",
+        "control": "select"
+      }
+    ]
   }
 ]

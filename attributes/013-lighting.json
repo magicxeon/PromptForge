@@ -70,5 +70,138 @@
       "natural"
     ],
     "enabled": true
+  },
+  {
+    "id": "lighting.nat_01",
+    "category": "lighting",
+    "label": "Dappled leaf shadows",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "dappled sunlight through leaves",
+      "gpt-image": "dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "shadows"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_02",
+    "category": "lighting",
+    "label": "Overcast diffused daylight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft overcast daylight",
+      "gpt-image": "soft diffused overcast natural daylight, eliminating harsh shadows for a clean skin complexion"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "soft"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_03",
+    "category": "lighting",
+    "label": "Sunrise warm glow",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "warm morning sunrise light",
+      "gpt-image": "warm morning sunrise light casting long gentle shadows and a soft pinkish-golden glow"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "sunrise"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_04",
+    "category": "lighting",
+    "label": "Sunset golden rays",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "dramatic sunset rays",
+      "gpt-image": "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "sunset"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_05",
+    "category": "lighting",
+    "label": "Blue hour twilight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "blue hour twilight lighting",
+      "gpt-image": "cool moody blue hour twilight atmosphere with deep cobalt sky tones"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "twilight"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_06",
+    "category": "lighting",
+    "label": "Silver moonlight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft silver moonlight",
+      "gpt-image": "soft silver moonlight casting cool pale highlights and mystical shadows"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "night"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lighting.nat_07",
+    "category": "lighting",
+    "label": "Harsh midday sun",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "direct harsh afternoon sun",
+      "gpt-image": "direct harsh afternoon sun casting sharp contrast highlights and dark defined shadows"
+    },
+    "tags": [
+      "lighting",
+      "natural",
+      "harsh"
+    ],
+    "enabled": true
   }
 ]

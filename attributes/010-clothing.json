@@ -578,5 +578,215 @@
       "asian"
     ],
     "enabled": true
+  },
+  {
+    "id": "clothing.casual_01",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Oversized Cotton Hoodie",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "cozy oversized soft cotton hoodie",
+      "gpt-image": "cozy oversized soft cotton hoodie, loose-fitting style with soft folds"
+    },
+    "tags": [
+      "clothing",
+      "tops",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_02",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Loose Linen Shirt",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "relaxed loose-fit linen shirt",
+      "gpt-image": "relaxed loose-fit breathable linen shirt with rolled-up sleeves"
+    },
+    "tags": [
+      "clothing",
+      "tops",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_03",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Comfortable Crewneck T-Shirt",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "plain casual crewneck t-shirt",
+      "gpt-image": "plain casual organic cotton crewneck t-shirt in soft neutral tones"
+    },
+    "tags": [
+      "clothing",
+      "tops",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_04",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Casual Denim Shorts",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "comfy high-waisted denim shorts",
+      "gpt-image": "comfy high-waisted frayed denim shorts"
+    },
+    "tags": [
+      "clothing",
+      "bottoms",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_05",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Wide-Leg Lounge Pants",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "flowy wide-leg lounge pants",
+      "gpt-image": "flowy wide-leg lounge pants made of soft modal fabric"
+    },
+    "tags": [
+      "clothing",
+      "bottoms",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_06",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "High-Waist Joggers",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "casual comfy fleece joggers",
+      "gpt-image": "casual comfy fleece jogger pants with elastic cuffs"
+    },
+    "tags": [
+      "clothing",
+      "bottoms",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_07",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Loose Sundress",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "flowy casual cotton sundress",
+      "gpt-image": "flowy casual cotton sundress with a simple line silhouette"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_08",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Loose Knit Sweater Dress",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "cozy oversized cable-knit sweater dress",
+      "gpt-image": "cozy oversized cable-knit sweater dress in cream white"
+    },
+    "tags": [
+      "clothing",
+      "dress",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_09",
+    "category": "clothing",
+    "subcategory": "Shoes",
+    "label": "Running Sneakers",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "comfortable running sneakers",
+      "gpt-image": "comfortable athletic running sneakers with thick soft soles"
+    },
+    "tags": [
+      "clothing",
+      "shoes",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_10",
+    "category": "clothing",
+    "subcategory": "Shoes",
+    "label": "Canvas Slip-Ons",
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "casual classic canvas slip-on shoes",
+      "gpt-image": "casual classic canvas slip-on shoes"
+    },
+    "tags": [
+      "clothing",
+      "shoes",
+      "casual",
+      "comfortable"
+    ],
+    "enabled": true
   }
 ]

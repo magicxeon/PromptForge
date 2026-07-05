@@ -1,0 +1,175 @@
+[
+  {
+    "id": "nsfw.001",
+    "category": "nsfw",
+    "subcategory": "Nudity Level",
+    "label": "Implied Nudity",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "tastefully implied nudity",
+      "gpt-image": "tastefully implied nudity, camera angle and lighting concealing details"
+    },
+    "tags": [
+      "nsfw",
+      "implied"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw.002",
+    "category": "nsfw",
+    "subcategory": "Nudity Level",
+    "label": "Semi-nude / Bikini",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "semi-nude, wearing a tiny matching bikini",
+      "gpt-image": "semi-nude, wearing a tiny matching bikini, showing attractive curves"
+    },
+    "tags": [
+      "nsfw",
+      "bikini",
+      "semi-nude"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw.003",
+    "category": "nsfw",
+    "subcategory": "Nudity Level",
+    "label": "Sensual Lingerie",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "dressed in intricate black lace sensual lingerie",
+      "gpt-image": "dressed in intricate black lace sensual lingerie, highlighting curves"
+    },
+    "tags": [
+      "nsfw",
+      "lingerie",
+      "sensual"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw.004",
+    "category": "nsfw",
+    "subcategory": "Nudity Level",
+    "label": "Topless",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "topless, covering chest with hands",
+      "gpt-image": "topless, covering her chest with her hands, artistic shadows"
+    },
+    "tags": [
+      "nsfw",
+      "topless"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw.005",
+    "category": "nsfw",
+    "subcategory": "Nudity Level",
+    "label": "Full Nudity",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "complete natural nudity",
+      "gpt-image": "complete natural nudity, pure photorealistic skin texture, artful aesthetic"
+    },
+    "tags": [
+      "nsfw",
+      "nude"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw_pose.001",
+    "category": "nsfw",
+    "subcategory": "Sensual Pose",
+    "label": "Leaning back seductively",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "leaning back seductively on a sofa",
+      "gpt-image": "leaning back seductively on a plush velvet sofa, legs crossed"
+    },
+    "tags": [
+      "nsfw",
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw_pose.002",
+    "category": "nsfw",
+    "subcategory": "Sensual Pose",
+    "label": "Sensual over-the-shoulder gaze",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "looking back with a sensual gaze",
+      "gpt-image": "looking back over her bare shoulder with a deep sensual gaze"
+    },
+    "tags": [
+      "nsfw",
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw_pose.003",
+    "category": "nsfw",
+    "subcategory": "Sensual Pose",
+    "label": "Arching back gently",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "arching back gently",
+      "gpt-image": "arching her back gently, showcasing collarbone and neck contours"
+    },
+    "tags": [
+      "nsfw",
+      "pose"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "nsfw_pose.004",
+    "category": "nsfw",
+    "subcategory": "Sensual Pose",
+    "label": "Lying on bed, looking at camera",
+    "ui": {
+      "control": "select",
+      "group": "NSFW"
+    },
+    "prompt": {
+      "default": "lying on bed, looking at camera",
+      "gpt-image": "lying on a white bed, looking up directly at the camera with an alluring expression"
+    },
+    "tags": [
+      "nsfw",
+      "pose"
+    ],
+    "enabled": true
+  }
+]

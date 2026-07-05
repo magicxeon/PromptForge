@@ -19,7 +19,8 @@ const ATTRIBUTE_FILES = [
   '012-environment.json',
   '013-lighting.json',
   '014-camera.json',
-  '015-quality.json'
+  '015-quality.json',
+  '016-nsfw.json'
 ];
 
 // Mapping ui-schema fields to attribute categories
@@ -106,7 +107,11 @@ const FIELD_TO_CATEGORY_MAP = {
   "Sharpness": "quality",
   "Photorealism": "quality",
   "Color Grading": "quality",
-  "Film Look": "quality"
+  "Film Look": "quality",
+
+  // NSFW Group
+  "Nudity Level": "nsfw",
+  "Sensual Pose": "nsfw"
 };
 
 // Presets definitions
@@ -263,6 +268,20 @@ const PRESETS = {
       "Natural": { id: "quality.003", value: "candid and unposed look, giving a natural cinematic environment feel", isCustom: false },
       "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
       "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+    }
+  },
+  beachCasual: {
+    template: "portrait",
+    aspectRatio: "16:9",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
+      "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
+      "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
+      "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
+      "Key Light": { id: "lighting.nat_04", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
     }
   }
 };
@@ -663,6 +682,36 @@ function bindEvents() {
   refStyle.addEventListener("change", updateRefState);
   refPose.addEventListener("change", updateRefState);
 
+  // NSFW Toggle Checkbox
+  const toggleNsfw = document.getElementById("toggle-nsfw");
+  const nsfwAccordion = document.getElementById("accordion-nsfw");
+
+  const updateNsfwState = () => {
+    const isNsfwEnabled = toggleNsfw.checked;
+    if (nsfwAccordion) {
+      nsfwAccordion.style.display = isNsfwEnabled ? "block" : "none";
+    }
+    
+    if (!isNsfwEnabled) {
+      // Clear NSFW selections from state and UI
+      const nsfwSelects = document.querySelectorAll("#accordion-nsfw .custom-select");
+      nsfwSelects.forEach(select => {
+        const fieldName = select.getAttribute("data-field");
+        select.value = "";
+        delete state.selections[fieldName];
+        const customInput = select.parentElement.parentElement.querySelector(".custom-writein-input");
+        if (customInput) {
+          customInput.value = "";
+          customInput.style.display = "none";
+        }
+      });
+      updateAccordionSummaryBadges("NSFW");
+    }
+    updatePromptPreview();
+  };
+
+  toggleNsfw.addEventListener("change", updateNsfwState);
+
   // Copy Prompt Button
   document.getElementById("btn-copy").addEventListener("click", () => {
     copyPromptToClipboard();
@@ -816,12 +865,14 @@ function generatePromptText(cleanTextOnly = false) {
   let lighting = compileGroupSegment("Lighting", "token-lighting");
   let camera = compileGroupSegment("Camera", "token-pose"); // Camera tags
   let quality = compileGroupSegment("Quality", "token-lighting"); // Quality keywords
+  let nsfw = compileGroupSegment("NSFW", "token-nsfw");
 
   // Format replacements
   let prompt = templateStr
     .replace("{subject}", fullSubject)
     .replace("{appearance}", fullAppearance)
     .replace("{clothing}", clothing)
+    .replace("{nsfw}", nsfw)
     .replace("{pose}", pose)
     .replace("{environment}", environment)
     .replace("{lighting}", lighting)
@@ -895,6 +946,11 @@ function resetForm() {
   document.getElementById("ref-face-match").checked = false;
   document.getElementById("ref-style-match").checked = false;
   document.getElementById("ref-pose-match").checked = false;
+  
+  const toggleNsfw = document.getElementById("toggle-nsfw");
+  if (toggleNsfw) toggleNsfw.checked = false;
+  const nsfwAccordion = document.getElementById("accordion-nsfw");
+  if (nsfwAccordion) nsfwAccordion.style.display = "none";
 
   // Reset state
   state.selections = {};
@@ -994,6 +1050,7 @@ function importConfigJSON(jsonString) {
     }
 
     // 4. Restore Select dropdowns & custom fields
+    let hasNsfwSelection = false;
     if (payload.selections) {
       Object.keys(payload.selections).forEach(field => {
         const item = payload.selections[field];
@@ -1003,6 +1060,9 @@ function importConfigJSON(jsonString) {
         if (!select) return;
 
         const groupName = select.getAttribute("data-group");
+        if (groupName === "NSFW") {
+          hasNsfwSelection = true;
+        }
 
         if (item.isCustom) {
           select.value = "__custom__";
@@ -1019,6 +1079,15 @@ function importConfigJSON(jsonString) {
 
         updateAccordionSummaryBadges(groupName);
       });
+    }
+
+    const toggleNsfw = document.getElementById("toggle-nsfw");
+    if (toggleNsfw) {
+      toggleNsfw.checked = hasNsfwSelection;
+    }
+    const nsfwAccordion = document.getElementById("accordion-nsfw");
+    if (nsfwAccordion) {
+      nsfwAccordion.style.display = hasNsfwSelection ? "block" : "none";
     }
 
     applyFaceMatchLockout();

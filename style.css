@@ -675,3 +675,13 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   font-weight: 600 !important;
   background-color: #121214 !important; /* ensure readability in browser menus */
 }
+
+/* NSFW specific styling */
+.token-nsfw {
+  color: #fb7185; /* soft rose */
+  font-weight: 500;
+}
+
+#accordion-nsfw {
+  display: none; /* hidden by default */
+}

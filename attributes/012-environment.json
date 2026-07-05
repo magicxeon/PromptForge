@@ -370,5 +370,175 @@
       "season"
     ],
     "enabled": true
+  },
+  {
+    "id": "environment.pop_01",
+    "category": "environment",
+    "label": "Scenic Tropical Beach",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "on a scenic tropical beach with fine white sand",
+      "gpt-image": "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "beach",
+      "outdoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_02",
+    "category": "environment",
+    "label": "Minimalist Fitness Gym",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "inside a modern minimalist fitness gym",
+      "gpt-image": "inside a modern minimalist fitness gym with clean metallic equipment and bright LED panel lighting"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "gym",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_03",
+    "category": "environment",
+    "label": "Cozy Library",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "in a quiet cozy library surrounded by dark wood bookshelves",
+      "gpt-image": "in a quiet cozy library surrounded by towering dark wood bookshelves packed with vintage books"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "library",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_04",
+    "category": "environment",
+    "label": "Ornate Traditional Temple",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "within the grounds of an ornate traditional temple",
+      "gpt-image": "within the peaceful grounds of an ornate traditional temple, featuring detailed gold and red architecture"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "temple",
+      "outdoor",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_05",
+    "category": "environment",
+    "label": "Luxury Fashion Boutique",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "inside a high-end luxury fashion boutique",
+      "gpt-image": "inside a high-end luxury fashion boutique with warm spotlighting and minimalist designer clothing displays"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "boutique",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_06",
+    "category": "environment",
+    "label": "Bustling Japanese Arcade",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "in a bustling Japanese game center and arcade",
+      "gpt-image": "in a vibrant bustling Japanese game center and arcade, filled with glowing screens and colorful neon signs"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "arcade",
+      "indoor",
+      "asian"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_07",
+    "category": "environment",
+    "label": "Botanical Greenhouse",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "inside a lush botanical garden greenhouse",
+      "gpt-image": "inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "greenhouse",
+      "indoor"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "environment.pop_08",
+    "category": "environment",
+    "label": "Rooftop Infinity Pool",
+    "ui": {
+      "control": "select",
+      "group": "Environment"
+    },
+    "subcategory": "Location",
+    "prompt": {
+      "default": "at a luxury rooftop infinity pool side",
+      "gpt-image": "at a luxury rooftop infinity pool side overlooking a glowing modern city skyline in the background"
+    },
+    "tags": [
+      "environment",
+      "location",
+      "pool",
+      "outdoor"
+    ],
+    "enabled": true
   }
 ]

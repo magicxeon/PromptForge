@@ -1,9 +1,9 @@
 {
-  "portrait": "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}",
-  "nightclub": "{subject}, inside a vibrant crowded nightclub, {lighting}, {camera}, {quality}",
-  "street": "{subject}, urban street, {lighting}, {camera}, {quality}",
-  "studio": "{subject}, photography studio, {lighting}, {camera}, {quality}",
-  "thaiTraditional": "{subject}, wearing {clothing}, {appearance}, standing at {environment}, under soft {lighting}, shot on {camera}, producing {quality}",
-  "vintageFilm": "vintage analog photo of {subject}, {appearance}, dressed in {clothing}, {pose}, located at {environment}, illuminated by {lighting}, {camera}, {quality}",
-  "cafeMinimalist": "minimalist aesthetic photo of {subject}, {appearance}, {clothing}, {pose}, inside {environment}, with {lighting}, captured by {camera}, {quality}"
+  "portrait": "{subject}, {appearance}, {clothing}, {nsfw}, {pose}, {environment}, {lighting}, {camera}, {quality}",
+  "nightclub": "{subject}, {nsfw}, inside a vibrant crowded nightclub, {lighting}, {camera}, {quality}",
+  "street": "{subject}, {nsfw}, urban street, {lighting}, {camera}, {quality}",
+  "studio": "{subject}, {nsfw}, photography studio, {lighting}, {camera}, {quality}",
+  "thaiTraditional": "{subject}, wearing {clothing}, {nsfw}, {appearance}, standing at {environment}, under soft {lighting}, shot on {camera}, producing {quality}",
+  "vintageFilm": "vintage analog photo of {subject}, {appearance}, dressed in {clothing}, {nsfw}, {pose}, located at {environment}, illuminated by {lighting}, {camera}, {quality}",
+  "cafeMinimalist": "minimalist aesthetic photo of {subject}, {appearance}, {clothing}, {nsfw}, {pose}, inside {environment}, with {lighting}, captured by {camera}, {quality}"
 }
