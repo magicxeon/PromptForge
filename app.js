@@ -797,13 +797,29 @@ function getPromptValueForSelection(selection) {
   }
 }
 
-// Enforce mutual exclusion rules: when a selection is made, auto-clear any conflicting options
+// Enforce mutual exclusion rules: when a selection is made, auto-clear any conflicting options.
+// Works BIDIRECTIONALLY: checks both the selected item's own exclusions AND any library items
+// that list the selected item in their exclusions — so JSON only needs one-directional declarations.
 function enforceExclusionRules(selectedId) {
-  // Find the item that was just selected in the library
-  const selectedItem = state.library.find(item => item.id === selectedId);
-  if (!selectedItem || !selectedItem.exclusions || selectedItem.exclusions.length === 0) return;
+  // Build a unified set of IDs to clear (forward + reverse direction)
+  const idsToExclude = new Set();
 
-  selectedItem.exclusions.forEach(excludedId => {
+  // Forward direction: what the selected item itself declares as exclusions
+  const selectedItem = state.library.find(item => item.id === selectedId);
+  if (selectedItem && selectedItem.exclusions) {
+    selectedItem.exclusions.forEach(id => idsToExclude.add(id));
+  }
+
+  // Reverse direction: any library item that lists selectedId in ITS OWN exclusions
+  state.library.forEach(libItem => {
+    if (libItem.id !== selectedId && libItem.exclusions && libItem.exclusions.includes(selectedId)) {
+      idsToExclude.add(libItem.id);
+    }
+  });
+
+  if (idsToExclude.size === 0) return;
+
+  idsToExclude.forEach(excludedId => {
     // Check if the excluded ID is currently active anywhere in selections
     const conflictingField = Object.keys(state.selections).find(
       fieldName => state.selections[fieldName].id === excludedId
@@ -848,19 +864,38 @@ function enforceExclusionRules(selectedId) {
 }
 
 // Preventive UI (Layer 1): Disable/grey-out conflicting options across all dropdowns based on active selections.
-// This works alongside enforceExclusionRules (Layer 2) which clears already-selected conflicts reactively.
+// Works BIDIRECTIONALLY: if item A lists item B in exclusions, selecting either A or B will
+// disable the other — no need to maintain exclusions on both sides in JSON.
 function updateDropdownExclusions() {
-  // 1. Collect all IDs that are currently excluded by active selections
-  const activeExclusions = new Set();
+  // Collect all currently selected IDs (non-custom)
+  const selectedIds = new Set();
   Object.values(state.selections).forEach(sel => {
-    if (sel.isCustom) return;
-    const item = state.library.find(li => li.id === sel.id);
+    if (!sel.isCustom) selectedIds.add(sel.id);
+  });
+
+  // Build activeExclusions set using BOTH directions
+  const activeExclusions = new Set();
+
+  selectedIds.forEach(selId => {
+    const item = state.library.find(li => li.id === selId);
+    // Forward: what the selected item directly excludes
     if (item && item.exclusions) {
       item.exclusions.forEach(exId => activeExclusions.add(exId));
     }
   });
 
-  // 2. Update every dropdown option's disabled state and label
+  // Reverse: any library item that lists a selected ID in its own exclusions
+  state.library.forEach(libItem => {
+    if (libItem.exclusions && libItem.exclusions.some(exId => selectedIds.has(exId))) {
+      // This library item wants to be mutually exclusive with something we've selected
+      activeExclusions.add(libItem.id);
+    }
+  });
+
+  // Never mark currently-selected items themselves as conflicted
+  selectedIds.forEach(id => activeExclusions.delete(id));
+
+  // Update every dropdown option's disabled state and label
   document.querySelectorAll("#form-container .custom-select").forEach(select => {
     Array.from(select.options).forEach(option => {
       // Skip the blank placeholder and the custom write-in sentinel

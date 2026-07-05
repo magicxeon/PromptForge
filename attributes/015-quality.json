@@ -242,7 +242,26 @@
       "gpt-image-safe": "subject on a pure white background with no border or frame",
       "gpt-image-positive": "clean studio photography, pure white background, commercial product shot, professional model card"
     },
-    "exclusions": ["quality.frame_03", "quality.frame_04"],
+    "exclusions": [
+      "quality.frame_03", "quality.frame_04",
+      "environment.001", "environment.002", "environment.003", "environment.004", "environment.005",
+      "environment.006", "environment.007", "environment.008",
+      "environment.012", "environment.013", "environment.014",
+      "environment.015", "environment.016", "environment.017",
+      "environment.018", "environment.019",
+      "environment.pop_01", "environment.pop_02", "environment.pop_03", "environment.pop_04",
+      "environment.pop_05", "environment.pop_06", "environment.pop_07", "environment.pop_08",
+      "environment.loc_01", "environment.loc_02", "environment.loc_03", "environment.loc_04",
+      "environment.loc_05", "environment.loc_06",
+      "environment.arch_01", "environment.arch_02", "environment.arch_03", "environment.arch_04",
+      "environment.arch_05", "environment.arch_06",
+      "environment.wx_01", "environment.wx_02", "environment.wx_03", "environment.wx_04",
+      "environment.wx_05", "environment.wx_06",
+      "environment.tod_01", "environment.tod_02", "environment.tod_03", "environment.tod_04",
+      "environment.tod_05",
+      "environment.sea_01", "environment.sea_02", "environment.sea_03", "environment.sea_04",
+      "environment.sea_05", "environment.sea_06"
+    ],
     "tags": ["quality", "frame", "white background"],
     "enabled": true
   },
