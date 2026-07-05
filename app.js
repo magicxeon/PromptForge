@@ -101,6 +101,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "White Balance": "camera",
   "Perspective": "camera",
   "Composition": "camera",
+  "Motion Blur": "camera",
 
   // Quality Group
   "Resolution": "quality",
@@ -108,6 +109,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Photorealism": "quality",
   "Color Grading": "quality",
   "Film Look": "quality",
+  "Output Frame": "quality",
 
   // NSFW Group
   "Nudity Level": "nsfw",

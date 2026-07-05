@@ -212,5 +212,87 @@
       "resolution"
     ],
     "enabled": true
+  },
+
+  {
+    "id": "quality.frame_01",
+    "category": "quality",
+    "subcategory": "Output Frame",
+    "label": "No Frame (Pure Image Content Only)",
+    "ui": { "control": "select", "group": "Quality" },
+    "prompt": {
+      "default": "no border no frame, full bleed image content only",
+      "gpt-image": "no border, no frame, no decorative edge, no vignette border, full bleed image content only, image fills the entire canvas edge-to-edge",
+      "gpt-image-safe": "no border, no frame, full bleed image content only filling the entire canvas",
+      "gpt-image-positive": "clean full bleed photograph, professional digital photography, no decorative elements"
+    },
+    "exclusions": ["quality.frame_03", "quality.frame_04"],
+    "tags": ["quality", "frame", "no border"],
+    "enabled": true
+  },
+  {
+    "id": "quality.frame_02",
+    "category": "quality",
+    "subcategory": "Output Frame",
+    "label": "Pure White Isolated Background",
+    "ui": { "control": "select", "group": "Quality" },
+    "prompt": {
+      "default": "subject on a pure white background, no border",
+      "gpt-image": "subject isolated on a pure clean white background with no shadows, no border, no frame, product-style clean cutout presentation",
+      "gpt-image-safe": "subject on a pure white background with no border or frame",
+      "gpt-image-positive": "clean studio photography, pure white background, commercial product shot, professional model card"
+    },
+    "exclusions": ["quality.frame_03", "quality.frame_04"],
+    "tags": ["quality", "frame", "white background"],
+    "enabled": true
+  },
+  {
+    "id": "quality.frame_03",
+    "category": "quality",
+    "subcategory": "Output Frame",
+    "label": "Polaroid White Border Frame",
+    "ui": { "control": "select", "group": "Quality" },
+    "prompt": {
+      "default": "classic Polaroid white border frame",
+      "gpt-image": "classic Polaroid white border frame with a thick white bottom margin and thinner white sides, giving the appearance of an authentic Polaroid print",
+      "gpt-image-safe": "classic Polaroid white border frame with thick white bottom margin",
+      "gpt-image-positive": "retro instant print, nostalgic aesthetic, polaroid photograph, vintage snapshot"
+    },
+    "exclusions": ["quality.frame_01", "quality.frame_02", "quality.frame_04"],
+    "tags": ["quality", "frame", "polaroid", "border"],
+    "enabled": true
+  },
+  {
+    "id": "quality.frame_04",
+    "category": "quality",
+    "subcategory": "Output Frame",
+    "label": "Cinema Letterbox Black Bars",
+    "ui": { "control": "select", "group": "Quality" },
+    "prompt": {
+      "default": "cinematic letterbox black bars at top and bottom",
+      "gpt-image": "cinematic widescreen letterbox format with solid black bars at the top and bottom of the frame, creating a 2.39:1 anamorphic movie aspect ratio presentation",
+      "gpt-image-safe": "cinematic letterbox black bars at top and bottom of frame",
+      "gpt-image-positive": "cinematic movie still, Hollywood production quality, anamorphic widescreen photography"
+    },
+    "exclusions": ["quality.frame_01", "quality.frame_02", "quality.frame_03"],
+    "tags": ["quality", "frame", "cinema", "letterbox"],
+    "enabled": true
+  },
+  {
+    "id": "quality.frame_05",
+    "category": "quality",
+    "subcategory": "Output Frame",
+    "label": "Soft Vignette Edge (No Hard Border)",
+    "ui": { "control": "select", "group": "Quality" },
+    "prompt": {
+      "default": "soft darkened vignette on image edges, no hard border",
+      "gpt-image": "gentle soft darkened vignette fading at the outer edges of the image, no hard border frame, organically drawing the eye toward the center subject",
+      "gpt-image-safe": "soft darkened vignette on outer edges with no hard border",
+      "gpt-image-positive": "editorial portrait, focus drawing, cinematic vignette, classic photography"
+    },
+    "exclusions": ["quality.frame_03", "quality.frame_04"],
+    "tags": ["quality", "frame", "vignette"],
+    "enabled": true
   }
 ]
+

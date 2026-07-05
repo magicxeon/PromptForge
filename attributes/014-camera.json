@@ -556,5 +556,157 @@
     },
     "tags": ["camera", "composition", "close up"],
     "enabled": true
+  },
+
+  {
+    "id": "camera.blur_01",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "No Blur (Sharp & Frozen)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "sharp frozen motion, no motion blur",
+      "gpt-image": "sharp crisp frozen moment with zero motion blur, all details in focus",
+      "gpt-image-safe": "sharp crisp frozen moment with zero motion blur",
+      "gpt-image-positive": "sharp focus, clean photography, professional digital photography"
+    },
+    "tags": ["camera", "motion blur", "sharp"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_02",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Soft Edge Vignette Blur",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "subtle blur on image edges with sharp center subject",
+      "gpt-image": "soft vignette blur on the outer edges of the frame while the central subject remains tack sharp, drawing focus inward",
+      "gpt-image-safe": "soft blur on image edges with sharp center subject",
+      "gpt-image-positive": "editorial portrait, focus drawing, cinematic vignette"
+    },
+    "tags": ["camera", "motion blur", "vignette"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_03",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Camera Shake / Handheld Wobble",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "slight camera shake blur from handheld shooting",
+      "gpt-image": "subtle handheld camera shake motion blur applied uniformly across the image, simulating a quick moving candid snapshot at a lower shutter speed",
+      "gpt-image-safe": "subtle camera shake from handheld shooting, slightly blurred",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, documentary style portrait"
+    },
+    "tags": ["camera", "motion blur", "shake", "handheld"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_04",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Subject Motion Blur (Body in Motion)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "subject motion blur from body movement",
+      "gpt-image": "motion blur on the subject's moving limbs and hair while the background remains stationary, conveying dynamic movement and energy",
+      "gpt-image-safe": "motion blur on the subject's body from movement, suggesting dynamic energy",
+      "gpt-image-positive": "dynamic action portrait, kinetic energy, editorial motion photography"
+    },
+    "tags": ["camera", "motion blur", "subject", "action"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_05",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Panning Blur (Sharp Subject, Streaked Background)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "panning motion blur — sharp subject, streaked background",
+      "gpt-image": "panning technique motion blur where the subject is sharp and in focus while the background becomes horizontal motion streaks, emphasising speed and movement",
+      "gpt-image-safe": "panning blur with sharp subject and streaked background suggesting speed",
+      "gpt-image-positive": "dynamic action shot, motion photography, kinetic energy"
+    },
+    "tags": ["camera", "motion blur", "panning"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_06",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Radial Spin Blur (Circular)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "radial circular spin blur effect",
+      "gpt-image": "radial spin blur effect emanating from the center of the frame, creating a spinning circular motion trail around the subject",
+      "gpt-image-safe": "radial circular spin blur radiating from the center of the frame",
+      "gpt-image-positive": "surreal editorial, cinematic special effect, creative photography"
+    },
+    "tags": ["camera", "motion blur", "radial", "spin"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_07",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Zoom Burst Blur (Explosive Radial Pull)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "zoom burst motion blur — explosive radial pull from center",
+      "gpt-image": "zoom burst blur effect with radial lines pulling outward from the sharp center subject, as if the camera zoomed during exposure, creating an explosive energetic feel",
+      "gpt-image-safe": "zoom burst radial blur pulling outward from the subject in the center",
+      "gpt-image-positive": "dynamic editorial fashion, explosive energy, creative photography"
+    },
+    "tags": ["camera", "motion blur", "zoom", "radial"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_08",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Light Trail Blur (Long Exposure Streaks)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "long exposure light trail motion blur",
+      "gpt-image": "long exposure light trail blur with glowing streaks of car headlights, neon signs, and passing lights creating painterly light paths across the frame while the subject remains still",
+      "gpt-image-safe": "long exposure light trail blur with glowing streaks of ambient lights across the frame",
+      "gpt-image-positive": "long exposure photography, light painting, nighttime cityscape photography"
+    },
+    "tags": ["camera", "motion blur", "light trail", "long exposure"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_09",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Tilt-Shift Selective Blur",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "tilt-shift selective blur with narrow plane of focus",
+      "gpt-image": "tilt-shift lens effect with a narrow horizontal plane of sharp focus and strong progressive blur above and below, making the scene look like a miniature scale model",
+      "gpt-image-safe": "tilt-shift selective blur with sharp narrow horizontal band of focus",
+      "gpt-image-positive": "editorial fashion photography, miniature effect, selective focus photography"
+    },
+    "tags": ["camera", "motion blur", "tilt-shift", "selective"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_10",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Full Frame Motion Blur (All-Over Blur)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "full frame motion blur across the entire image",
+      "gpt-image": "strong motion blur applied uniformly across the entire image creating a dreamy abstract impression of movement, with all elements blurred in a consistent direction",
+      "gpt-image-safe": "full frame motion blur uniformly across the entire image",
+      "gpt-image-positive": "abstract editorial, dreamy impression, experimental motion photography"
+    },
+    "tags": ["camera", "motion blur", "full frame"],
+    "enabled": true
   }
 ]
+

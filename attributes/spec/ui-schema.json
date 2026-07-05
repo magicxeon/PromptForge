@@ -284,6 +284,10 @@
       {
         "name": "Composition",
         "control": "select"
+      },
+      {
+        "name": "Motion Blur",
+        "control": "select"
       }
     ]
   },
@@ -309,6 +313,10 @@
       },
       {
         "name": "Film Look",
+        "control": "select"
+      },
+      {
+        "name": "Output Frame",
         "control": "select"
       }
     ]
