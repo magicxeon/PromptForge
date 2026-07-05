@@ -705,3 +705,11 @@ button.btn-neon, button.btn-neon-outline, button.btn-neon-action, button.btn-neo
   border-radius: 6px;
   border: 1px solid transparent;
 }
+
+/* Conflicted (mutually exclusive) option in dropdown lists — best-effort styling
+   Note: Chrome/Edge have limited support for coloring <option> elements directly.
+   The 🚫 prefix in the label text is the primary visual indicator. */
+.custom-select option.option-conflicted {
+  color: #6b7280;
+  font-style: italic;
+}

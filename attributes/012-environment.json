@@ -540,22 +540,172 @@
     "id": "environment.pop_08",
     "category": "environment",
     "label": "Rooftop Infinity Pool",
-    "ui": {
-      "control": "select",
-      "group": "Environment"
-    },
+    "ui": { "control": "select", "group": "Environment" },
     "subcategory": "Location",
     "prompt": {
       "default": "at a luxury rooftop infinity pool side",
       "gpt-image": "at a luxury rooftop infinity pool side overlooking a glowing modern city skyline in the background"
     },
     "exclusions": ["environment.008", "environment.pop_04", "environment.pop_07"],
-    "tags": [
-      "environment",
-      "location",
-      "pool",
-      "outdoor"
-    ],
+    "tags": ["environment", "location", "pool", "outdoor"],
     "enabled": true
-  }
+  },
+
+  { "id": "environment.loc_01", "category": "environment", "label": "Tokyo Alley Ramen Shop", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "inside a narrow Tokyo alley ramen shop", "gpt-image": "inside a cozy narrow Tokyo alley ramen shop with steaming bowls, warm lantern light and rustic wooden counter" },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.007"],
+    "tags": ["environment", "location", "ramen", "indoor", "asian", "japanese"], "enabled": true },
+
+  { "id": "environment.loc_02", "category": "environment", "label": "Seoul Night Market", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "at a vibrant Seoul night market street", "gpt-image": "at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background" },
+    "exclusions": ["environment.pop_01", "environment.pop_03", "environment.008", "environment.pop_07"],
+    "tags": ["environment", "location", "night market", "outdoor", "asian", "korean"], "enabled": true },
+
+  { "id": "environment.loc_03", "category": "environment", "label": "High-End Rooftop Restaurant", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "on a high-end rooftop restaurant terrace", "gpt-image": "on a high-end rooftop restaurant terrace with ambient candle lighting and blurred city skyline at dusk" },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.pop_07"],
+    "tags": ["environment", "location", "restaurant", "outdoor"], "enabled": true },
+
+  { "id": "environment.loc_04", "category": "environment", "label": "Pink Flower Field", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "standing in a vast open pink flower field", "gpt-image": "standing in a vast open pink cosmos flower field under soft blue sky with gentle breeze blowing petals" },
+    "exclusions": ["environment.001", "environment.007", "environment.pop_02", "environment.pop_06"],
+    "tags": ["environment", "location", "flower", "outdoor"], "enabled": true },
+
+  { "id": "environment.loc_05", "category": "environment", "label": "Luxury Hotel Lobby", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "inside a grand luxury hotel lobby", "gpt-image": "inside a grand luxury hotel lobby with marble floors, tall floral arrangements and warm golden chandelier lighting" },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.007"],
+    "tags": ["environment", "location", "hotel", "indoor"], "enabled": true },
+
+  { "id": "environment.loc_06", "category": "environment", "label": "Underground Subway Platform", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "on an underground subway platform", "gpt-image": "on a moody underground subway platform with fluorescent lighting, tile walls and motion blur trains passing in background" },
+    "exclusions": ["environment.pop_01", "environment.pop_04", "environment.pop_07"],
+    "tags": ["environment", "location", "subway", "indoor"], "enabled": true },
+
+  { "id": "environment.arch_01", "category": "environment", "label": "Brutalist Concrete Structure", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "raw concrete brutalist architecture backdrop", "gpt-image": "raw concrete brutalist architecture with heavy geometric forms, exposed grey surfaces and dramatic harsh shadows" },
+    "exclusions": ["environment.008", "environment.pop_04", "environment.019"],
+    "tags": ["environment", "architecture", "brutalist"], "enabled": true },
+
+  { "id": "environment.arch_02", "category": "environment", "label": "Art Deco Glamour Interior", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "glamorous art deco interior architecture", "gpt-image": "glamorous art deco interior with geometric gold trim, mirrored surfaces and rich jewel-tone upholstery" },
+    "exclusions": ["environment.007", "environment.008"],
+    "tags": ["environment", "architecture", "art deco"], "enabled": true },
+
+  { "id": "environment.arch_03", "category": "environment", "label": "Japanese Zen Garden", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "serene Japanese Zen rock garden backdrop", "gpt-image": "serene Japanese zen rock garden with raked gravel patterns, moss covered stones and bamboo fence in soft diffused daylight" },
+    "exclusions": ["environment.007", "environment.006", "environment.pop_06"],
+    "tags": ["environment", "architecture", "zen", "japanese", "asian"], "enabled": true },
+
+  { "id": "environment.arch_04", "category": "environment", "label": "Neon-Lit Korean K-Beauty Alley", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "narrow Korean beauty alley with bright signage", "gpt-image": "narrow Korean beauty district alley lined with bright pink and pastel shop signs, neon-lit storefronts and busy foot traffic depth" },
+    "exclusions": ["environment.008", "environment.pop_04"],
+    "tags": ["environment", "architecture", "korean", "asian"], "enabled": true },
+
+  { "id": "environment.arch_05", "category": "environment", "label": "Glass & Steel Skyscraper Lobby", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "ultra-modern glass and steel skyscraper lobby", "gpt-image": "ultra-modern glass and steel skyscraper lobby with soaring ceilings, reflective floors and cascading natural light from full-height windows" },
+    "exclusions": ["environment.008", "environment.pop_04"],
+    "tags": ["environment", "architecture"], "enabled": true },
+
+  { "id": "environment.arch_06", "category": "environment", "label": "Vine-Covered Rustic Stone Wall", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Architecture",
+    "prompt": { "default": "rustic old stone wall covered in green vines", "gpt-image": "rustic old stone wall thickly covered in lush green vines and ivy, dappled sunlight filtering through" },
+    "exclusions": ["environment.007"],
+    "tags": ["environment", "architecture", "rustic"], "enabled": true },
+
+  { "id": "environment.props_01", "category": "environment", "label": "Acoustic Guitar", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "holding an acoustic guitar", "gpt-image": "holding a glossy acoustic guitar, fingers resting gently on the strings" },
+    "tags": ["environment", "props", "music"], "enabled": true },
+
+  { "id": "environment.props_02", "category": "environment", "label": "Bouquet of Fresh Roses", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "holding a beautiful bouquet of fresh roses", "gpt-image": "holding a lush bouquet of fresh soft pink roses with delicate water droplets on the petals" },
+    "tags": ["environment", "props", "flowers"], "enabled": true },
+
+  { "id": "environment.props_03", "category": "environment", "label": "Vintage Film Camera", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "holding a vintage film camera", "gpt-image": "holding a classic vintage film camera up to eye level with a candid shooting gesture" },
+    "tags": ["environment", "props", "camera"], "enabled": true },
+
+  { "id": "environment.props_04", "category": "environment", "label": "Clear Cocktail Glass", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "holding a clear cocktail glass with garnish", "gpt-image": "holding a clear crystal cocktail glass with an ice sphere, citrus garnish and condensation droplets on the outside" },
+    "tags": ["environment", "props", "drink"], "enabled": true },
+
+  { "id": "environment.props_05", "category": "environment", "label": "Smartphone in Hand", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "holding a smartphone", "gpt-image": "holding a modern smartphone with a glowing screen, looking at it with a subtle expression" },
+    "tags": ["environment", "props", "phone"], "enabled": true },
+
+  { "id": "environment.props_06", "category": "environment", "label": "Shopping Bags", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Props",
+    "prompt": { "default": "carrying luxury paper shopping bags", "gpt-image": "carrying several upscale paper shopping bags with ribbon handles from high-end fashion stores" },
+    "tags": ["environment", "props", "shopping"], "enabled": true },
+
+  { "id": "environment.wx_01", "category": "environment", "label": "Heavy Snowfall", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "heavy snowfall", "gpt-image": "heavy snowfall with large soft snowflakes falling gently in the foreground, everything lightly dusted in white" },
+    "tags": ["environment", "weather", "snow"], "enabled": true },
+
+  { "id": "environment.wx_02", "category": "environment", "label": "Overcast Cloudy Daylight", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "overcast cloudy daylight", "gpt-image": "overcast cloudy daylight providing soft diffused even natural illumination with minimal harsh shadows" },
+    "tags": ["environment", "weather"], "enabled": true },
+
+  { "id": "environment.wx_03", "category": "environment", "label": "Dramatic Storm Clouds", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "dramatic dark storm clouds in the sky", "gpt-image": "dramatic dark churning storm clouds rolling across the sky creating a moody cinematic atmosphere with low contrast ground light" },
+    "tags": ["environment", "weather", "storm"], "enabled": true },
+
+  { "id": "environment.wx_04", "category": "environment", "label": "Fog & Low Visibility", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "thick fog and low visibility atmosphere", "gpt-image": "thick ground-level fog creating a mysterious low visibility atmospheric scene with objects fading into white in the background" },
+    "tags": ["environment", "weather", "fog"], "enabled": true },
+
+  { "id": "environment.wx_05", "category": "environment", "label": "Bright Sunny Day", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "bright clear sunny day", "gpt-image": "bright clear sunny day with crisp blue sky, strong directional sunlight creating clean sharp shadows and vivid color saturation" },
+    "tags": ["environment", "weather", "sunny"], "enabled": true },
+
+  { "id": "environment.wx_06", "category": "environment", "label": "Cherry Blossom Snowfall (Petals)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Weather",
+    "prompt": { "default": "pink cherry blossom petals falling like snow", "gpt-image": "soft pink cherry blossom petals drifting gently down like snow in the air, bokeh light flares in background" },
+    "tags": ["environment", "weather", "cherry blossom", "asian"], "enabled": true },
+
+  { "id": "environment.tod_01", "category": "environment", "label": "Early Morning Sunrise", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Time of Day",
+    "prompt": { "default": "early morning sunrise", "gpt-image": "early morning sunrise with soft peach and lavender sky tones and long gentle shadows across the ground" },
+    "tags": ["environment", "time"], "enabled": true },
+
+  { "id": "environment.tod_02", "category": "environment", "label": "Bright Midday Sun", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Time of Day",
+    "prompt": { "default": "bright midday sun at noon", "gpt-image": "bright midday sun directly overhead creating high-key even lighting with minimal shadows and full colour vibrancy" },
+    "tags": ["environment", "time"], "enabled": true },
+
+  { "id": "environment.tod_03", "category": "environment", "label": "Dusk After Sunset", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Time of Day",
+    "prompt": { "default": "atmospheric dusk just after sunset", "gpt-image": "atmospheric dusk just after sunset with fading orange and purple horizon glow, first streetlights starting to illuminate" },
+    "tags": ["environment", "time"], "enabled": true },
+
+  { "id": "environment.tod_04", "category": "environment", "label": "Deep Midnight", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Time of Day",
+    "prompt": { "default": "deep midnight atmosphere", "gpt-image": "deep midnight atmosphere with near-total darkness punctuated only by electric artificial light sources and distant moonlight" },
+    "tags": ["environment", "time"], "enabled": true },
+
+  { "id": "environment.tod_05", "category": "environment", "label": "Late Afternoon Warm Light", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Time of Day",
+    "prompt": { "default": "late afternoon warm daylight", "gpt-image": "late afternoon warm daylight casting long low-angle amber shadows and rich warm tone across the whole scene" },
+    "tags": ["environment", "time"], "enabled": true },
+
+  { "id": "environment.sea_01", "category": "environment", "label": "Summer Heat", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "vibrant summer heat season", "gpt-image": "vibrant summer setting with lush green foliage, intense bright sunlight and the full heat of peak summer" },
+    "tags": ["environment", "season", "summer"], "enabled": true },
+
+  { "id": "environment.sea_02", "category": "environment", "label": "Winter Snow Season", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "winter snow season", "gpt-image": "winter snow season with frost-covered ground, bare trees and a cool desaturated colour palette with pure white snow" },
+    "exclusions": ["environment.007", "environment.001"],
+    "tags": ["environment", "season", "winter"], "enabled": true },
+
+  { "id": "environment.sea_03", "category": "environment", "label": "Monsoon Rainy Season", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "southeast Asian monsoon rainy season", "gpt-image": "southeast Asian monsoon rainy season with heavy rainfall, dense green foliage dripping with water and overcast moody sky" },
+    "exclusions": ["environment.001"],
+    "tags": ["environment", "season", "rain", "asian"], "enabled": true },
+
+  { "id": "environment.sea_04", "category": "environment", "label": "Autumn Red Maple Leaves", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "Japanese autumn with vibrant red maple leaves", "gpt-image": "Japanese autumn season with vibrant crimson and deep orange maple leaves covering tree branches and scattered across the ground" },
+    "exclusions": ["environment.007", "environment.001"],
+    "tags": ["environment", "season", "autumn", "japanese", "asian"], "enabled": true },
+
+  { "id": "environment.sea_05", "category": "environment", "label": "Rainy Spring Bloom", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "spring bloom with light drizzle rain", "gpt-image": "spring blooming season with fresh green sprouts, colourful wildflowers and gentle light drizzle on petals creating glistening water droplets" },
+    "exclusions": ["environment.007", "environment.001"],
+    "tags": ["environment", "season", "spring"], "enabled": true },
+
+  { "id": "environment.sea_06", "category": "environment", "label": "Dry Season Golden Savanna", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
+    "prompt": { "default": "dry season golden savanna landscape", "gpt-image": "dry season golden savanna landscape with tall amber grass, dust haze in the background and dramatic wide-open sky" },
+    "exclusions": ["environment.001", "environment.007", "environment.pop_06"],
+    "tags": ["environment", "season", "dry"], "enabled": true }
 ]
+

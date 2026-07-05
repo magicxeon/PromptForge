@@ -481,6 +481,9 @@ function renderForm() {
           optionNode.textContent = opt.label;
         }
 
+        // Save original label text for conflict-prevention label toggling
+        optionNode.setAttribute("data-original-text", optionNode.textContent);
+
         select.appendChild(optionNode);
       });
 
@@ -842,6 +845,41 @@ function enforceExclusionRules(selectedId) {
   });
 }
 
+// Preventive UI (Layer 1): Disable/grey-out conflicting options across all dropdowns based on active selections.
+// This works alongside enforceExclusionRules (Layer 2) which clears already-selected conflicts reactively.
+function updateDropdownExclusions() {
+  // 1. Collect all IDs that are currently excluded by active selections
+  const activeExclusions = new Set();
+  Object.values(state.selections).forEach(sel => {
+    if (sel.isCustom) return;
+    const item = state.library.find(li => li.id === sel.id);
+    if (item && item.exclusions) {
+      item.exclusions.forEach(exId => activeExclusions.add(exId));
+    }
+  });
+
+  // 2. Update every dropdown option's disabled state and label
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    Array.from(select.options).forEach(option => {
+      // Skip the blank placeholder and the custom write-in sentinel
+      if (option.value === "" || option.value === "__custom__") return;
+
+      // Always read from data-original-text to avoid double-prefixing
+      const originalText = option.getAttribute("data-original-text") || option.textContent;
+
+      if (activeExclusions.has(option.value)) {
+        option.disabled = true;
+        option.textContent = `🚫 ${originalText}`;
+        option.classList.add("option-conflicted");
+      } else {
+        option.disabled = false;
+        option.textContent = originalText;
+        option.classList.remove("option-conflicted");
+      }
+    });
+  });
+}
+
 // Update accordion header summary badge to show selected items at a glance
 function updateAccordionSummaryBadges(groupName) {
   const badgeId = `badge-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
@@ -1026,6 +1064,9 @@ function updatePromptPreview() {
   } else {
     previewBox.innerHTML = htmlContent;
   }
+
+  // Layer 1: Preventive — disable conflicting options in dropdowns in real-time
+  updateDropdownExclusions();
 }
 
 // Copy prompt clean string to clipboard
