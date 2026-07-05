@@ -1,82 +1,24 @@
 [
   {
-    "id": "camera.001",
+    "id": "camera.brand_01",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Modern mirrorless camera",
+    "label": "Modern Mirrorless Camera",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
       "default": "shot on a modern mirrorless camera",
-      "gpt-image": "shot on a modern high-resolution mirrorless camera, sharp focus"
+      "gpt-image": "shot on a modern high-resolution mirrorless camera, sharp focus",
+      "gpt-image-safe": "shot on a modern mirrorless camera with crisp details",
+      "gpt-image-positive": "professional digital photography, sharp focus, clean image output"
     },
-    "tags": [
-      "camera",
-      "digital"
-    ],
+    "tags": ["camera", "brand", "mirrorless"],
     "enabled": true
   },
   {
-    "id": "camera.002",
-    "category": "camera",
-    "subcategory": "Lens",
-    "label": "50mm f/1.4 lens",
-    "ui": {
-      "control": "select",
-      "group": "Camera"
-    },
-    "prompt": {
-      "default": "50mm lens",
-      "gpt-image": "shot on a 50mm prime lens at f/1.4 for natural proportions"
-    },
-    "tags": [
-      "camera",
-      "lens"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "camera.003",
-    "category": "camera",
-    "subcategory": "Aperture",
-    "label": "Shallow depth of field (bokeh)",
-    "ui": {
-      "control": "select",
-      "group": "Camera"
-    },
-    "prompt": {
-      "default": "shallow depth of field, creating soft bokeh blur",
-      "gpt-image": "shallow depth of field creating soft bokeh blur in the foreground and background"
-    },
-    "tags": [
-      "camera",
-      "bokeh"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "camera.004",
-    "category": "camera",
-    "subcategory": "Perspective",
-    "label": "Slightly low angle",
-    "ui": {
-      "control": "select",
-      "group": "Camera"
-    },
-    "prompt": {
-      "default": "medium close-up from a slightly low angle",
-      "gpt-image": "medium close-up shot captured from a slightly low camera angle"
-    },
-    "tags": [
-      "camera",
-      "angle"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "camera.005",
+    "id": "camera.brand_02",
     "category": "camera",
     "subcategory": "Brand",
     "label": "Disposable Film Camera",
@@ -86,17 +28,15 @@
     },
     "prompt": {
       "default": "disposable film camera look",
-      "gpt-image": "shot on a Fujifilm disposable point-and-shoot film camera, harsh direct built-in flash, vintage colors"
+      "gpt-image": "shot on a Fujifilm disposable point-and-shoot film camera, harsh direct built-in flash, vintage colors",
+      "gpt-image-safe": "captured on a disposable film camera with built-in flash, vintage colors",
+      "gpt-image-positive": "analog snapshot, retro aesthetic, nostalgia, casual lifestyle photograph"
     },
-    "tags": [
-      "camera",
-      "film",
-      "instagram"
-    ],
+    "tags": ["camera", "brand", "film", "disposable"],
     "enabled": true
   },
   {
-    "id": "camera.006",
+    "id": "camera.brand_03",
     "category": "camera",
     "subcategory": "Brand",
     "label": "Polaroid Instant Film",
@@ -106,18 +46,15 @@
     },
     "prompt": {
       "default": "Polaroid style photo",
-      "gpt-image": "captured as a classic Polaroid instant film photograph, soft faded colors, nostalgic warm borders, retro instant print look"
+      "gpt-image": "captured as a classic Polaroid instant film photograph, soft faded colors, nostalgic warm borders, retro instant print look",
+      "gpt-image-safe": "Polaroid instant photograph with soft faded colors and warm borders",
+      "gpt-image-positive": "retro instant print, soft color rendering, nostalgic mood, polaroid border"
     },
-    "tags": [
-      "camera",
-      "polaroid",
-      "film",
-      "instagram"
-    ],
+    "tags": ["camera", "brand", "polaroid", "film"],
     "enabled": true
   },
   {
-    "id": "camera.007",
+    "id": "camera.brand_04",
     "category": "camera",
     "subcategory": "Brand",
     "label": "Leica 35mm Rangefinder",
@@ -126,36 +63,34 @@
       "group": "Camera"
     },
     "prompt": {
-      "default": "shot on a Leica camera",
-      "gpt-image": "shot on a vintage Leica M6 rangefinder film camera with a Summicron 35mm lens, high contrast, classic street photography style"
+      "default": "shot on a Leica rangefinder camera",
+      "gpt-image": "shot on a vintage Leica M6 rangefinder film camera with a Summicron 35mm lens, high contrast, classic street photography style",
+      "gpt-image-safe": "shot on a Leica rangefinder camera with summicron lens, classic street photography style",
+      "gpt-image-positive": "award-winning street photography, high contrast, classic photojournalism look"
     },
-    "tags": [
-      "camera",
-      "film"
-    ],
+    "tags": ["camera", "brand", "leica", "film"],
     "enabled": true
   },
   {
-    "id": "camera.008",
+    "id": "camera.brand_05",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Hasselblad Medium Format Film",
+    "label": "Hasselblad Medium Format",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
       "default": "medium format film camera",
-      "gpt-image": "shot on a professional Hasselblad medium format film camera, rich tonality, smooth color transitions, soft analog depth"
+      "gpt-image": "shot on a professional Hasselblad medium format film camera, rich tonality, smooth color transitions, soft analog depth",
+      "gpt-image-safe": "shot on a medium format camera, rich tonality, smooth color transitions, soft analog depth",
+      "gpt-image-positive": "medium format quality, professional portraiture, rich color depth, clean resolution"
     },
-    "tags": [
-      "camera",
-      "film"
-    ],
+    "tags": ["camera", "brand", "hasselblad", "medium format"],
     "enabled": true
   },
   {
-    "id": "camera.009",
+    "id": "camera.brand_06",
     "category": "camera",
     "subcategory": "Brand",
     "label": "Mobile Phone Selfie Flash",
@@ -165,37 +100,15 @@
     },
     "prompt": {
       "default": "smartphone front camera flash",
-      "gpt-image": "candid snapshot captured on a smartphone front-facing camera with bright screen flash, typical Instagram story style, raw lighting"
+      "gpt-image": "candid snapshot captured on a smartphone front-facing camera with bright screen flash, typical Instagram story style, raw lighting",
+      "gpt-image-safe": "candid selfie captured on a smartphone front-facing camera, typical social media story style",
+      "gpt-image-positive": "candid snapshot, raw casual look, lifestyle smartphone photo, social media print"
     },
-    "tags": [
-      "camera",
-      "instagram",
-      "mobile"
-    ],
+    "tags": ["camera", "brand", "mobile", "selfie"],
     "enabled": true
   },
   {
-    "id": "camera.010",
-    "category": "camera",
-    "subcategory": "Brand",
-    "label": "Fujifilm Instax Mini",
-    "ui": {
-      "control": "select",
-      "group": "Camera"
-    },
-    "prompt": {
-      "default": "Instax mini film look",
-      "gpt-image": "shot on a Fujifilm Instax Mini instant camera, high flash contrast, cool-toned retro instant print aesthetic"
-    },
-    "tags": [
-      "camera",
-      "polaroid",
-      "instagram"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "camera.011",
+    "id": "camera.brand_07",
     "category": "camera",
     "subcategory": "Brand",
     "label": "90s VHS Camcorder",
@@ -205,90 +118,443 @@
     },
     "prompt": {
       "default": "VHS camcorder look",
-      "gpt-image": "lo-fi screen capture from a 1990s VHS camcorder, scanlines, soft glow, warm retro colors, analog video aesthetic"
+      "gpt-image": "lo-fi screen capture from a 1990s VHS camcorder, scanlines, soft glow, warm retro colors, analog video aesthetic",
+      "gpt-image-safe": "screen capture from a VHS camcorder, soft glow, retro colors, analog aesthetic",
+      "gpt-image-positive": "VHS effect, retro video frame, nostalgic scanlines, 90s aesthetic"
     },
-    "tags": [
-      "camera",
-      "vintage",
-      "instagram"
-    ],
+    "tags": ["camera", "brand", "vhs", "camcorder"],
     "enabled": true
   },
   {
-    "id": "camera.012",
+    "id": "camera.lens_01",
     "category": "camera",
-    "subcategory": "Brand",
-    "label": "Lomo Vignette Camera",
+    "subcategory": "Lens",
+    "label": "Sharp Prime Lens",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "Lomography camera style",
-      "gpt-image": "shot on a Lomo LC-A camera, highly saturated colors, high contrast, heavy vignette borders, vintage lomography style"
+      "default": "sharp prime lens",
+      "gpt-image": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+      "gpt-image-safe": "shot on a sharp prime lens with clear optical glass",
+      "gpt-image-positive": "sharp details, professional lens quality, clear eye reflection, high-fidelity resolution"
     },
-    "tags": [
-      "camera",
-      "film",
-      "instagram"
-    ],
+    "tags": ["camera", "lens", "prime"],
     "enabled": true
   },
   {
-    "id": "camera.013",
+    "id": "camera.lens_02",
     "category": "camera",
     "subcategory": "Lens",
-    "label": "85mm f/1.2 portrait lens",
+    "label": "Versatile Zoom Lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "versatile zoom lens",
+      "gpt-image": "zoom lens capture, versatile framing, sharp details across the focus range, realistic optical rendering",
+      "gpt-image-safe": "zoom lens capture with sharp details across the focus range",
+      "gpt-image-positive": "balanced composition, sharp rendering, professional camera optics"
+    },
+    "tags": ["camera", "lens", "zoom"],
+    "enabled": true
+  },
+  {
+    "id": "camera.lens_03",
+    "category": "camera",
+    "subcategory": "Lens",
+    "label": "Anamorphic Cinematic Lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "anamorphic lens",
+      "gpt-image": "anamorphic lens capture, cinematic oval bokeh, subtle horizontal blue lens flares, wide screen cinematic aspect",
+      "gpt-image-safe": "anamorphic lens capture with cinematic oval bokeh and subtle horizontal lens flares",
+      "gpt-image-positive": "cinematic look, movie quality frame, anamorphic blue flare, high production value"
+    },
+    "tags": ["camera", "lens", "anamorphic"],
+    "enabled": true
+  },
+  {
+    "id": "camera.lens_04",
+    "category": "camera",
+    "subcategory": "Lens",
+    "label": "Vintage Character Lens",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "vintage manual lens",
+      "gpt-image": "vintage manual focus lens, organic light leaks, soft edge contrast, warm analog optical character",
+      "gpt-image-safe": "vintage manual focus lens with soft edge contrast and warm color rendering",
+      "gpt-image-positive": "vintage glass, organic lens flares, soft retro aesthetics, warm highlights"
+    },
+    "tags": ["camera", "lens", "vintage"],
+    "enabled": true
+  },
+  {
+    "id": "camera.focal_01",
+    "category": "camera",
+    "subcategory": "Focal Length",
+    "label": "50mm (Natural View)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "50mm lens",
+      "gpt-image": "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion",
+      "gpt-image-safe": "shot on a 50mm lens, natural perspective, zero distortion",
+      "gpt-image-positive": "50mm prime, natural distortion-free rendering, professional portrait setup"
+    },
+    "tags": ["camera", "focal length", "50mm"],
+    "enabled": true
+  },
+  {
+    "id": "camera.focal_02",
+    "category": "camera",
+    "subcategory": "Focal Length",
+    "label": "85mm (Classic Portrait)",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
       "default": "85mm lens",
-      "gpt-image": "shot on an 85mm prime lens at f/1.2 for compression and extreme bokeh background blur"
+      "gpt-image": "shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective",
+      "gpt-image-safe": "shot on an 85mm lens, gentle facial compression, flattering portrait perspective",
+      "gpt-image-positive": "85mm prime, classic beauty portrait, flattering lens compression"
     },
-    "tags": [
-      "camera",
-      "lens"
-    ],
+    "tags": ["camera", "focal length", "85mm"],
     "enabled": true
   },
   {
-    "id": "camera.014",
+    "id": "camera.focal_03",
     "category": "camera",
-    "subcategory": "Lens",
-    "label": "35mm f/1.8 wide-angle lens",
+    "subcategory": "Focal Length",
+    "label": "35mm (Environmental Portrait)",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
       "default": "35mm lens",
-      "gpt-image": "shot on a 35mm wide-angle lens at f/1.8 to capture more of the environmental backdrop"
+      "gpt-image": "shot on a 35mm focal length, wide environmental portrait perspective, capturing subject and background details in balance",
+      "gpt-image-safe": "shot on a 35mm lens, wide environmental portrait perspective, capturing subject and background details",
+      "gpt-image-positive": "35mm focal length, street lifestyle photography, environmental composition"
     },
-    "tags": [
-      "camera",
-      "lens"
-    ],
+    "tags": ["camera", "focal length", "35mm"],
     "enabled": true
   },
   {
-    "id": "camera.015",
+    "id": "camera.focal_04",
+    "category": "camera",
+    "subcategory": "Focal Length",
+    "label": "135mm (Isolated Telephoto)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "135mm lens",
+      "gpt-image": "shot on a 135mm telephoto lens, intense background compression, isolating the subject beautifully with compressed background details",
+      "gpt-image-safe": "shot on a 135mm lens, background compression, isolating the subject",
+      "gpt-image-positive": "telephoto portraiture, dramatic backdrop compression, isolated subject, clean focus separation"
+    },
+    "tags": ["camera", "focal length", "135mm"],
+    "enabled": true
+  },
+  {
+    "id": "camera.aperture_01",
+    "category": "camera",
+    "subcategory": "Aperture",
+    "label": "Shallow f/1.4 (Extreme Bokeh)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shallow depth of field f/1.4",
+      "gpt-image": "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background",
+      "gpt-image-safe": "shallow depth of field creating soft bokeh blur in the background",
+      "gpt-image-positive": "creamy bokeh, shallow depth of field, soft background falloff, round light highlights"
+    },
+    "tags": ["camera", "aperture", "shallow", "bokeh"],
+    "enabled": true
+  },
+  {
+    "id": "camera.aperture_02",
+    "category": "camera",
+    "subcategory": "Aperture",
+    "label": "Dreamy f/0.95 (Ultra-Blur)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "ultra-shallow f/0.95",
+      "gpt-image": "ultra-shallow f/0.95 aperture, razor-thin depth of field, dreamlike background melt and soft focus roll-off",
+      "gpt-image-safe": "ultra-shallow f/0.95 aperture, thin depth of field, soft background melt",
+      "gpt-image-positive": "ultra-shallow focus, dreamlike background blur, soft portrait aesthetics"
+    },
+    "tags": ["camera", "aperture", "ultra shallow", "bokeh"],
+    "enabled": true
+  },
+  {
+    "id": "camera.aperture_03",
+    "category": "camera",
+    "subcategory": "Aperture",
+    "label": "Moderate f/2.8 (Balanced Sharpness)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "moderate f/2.8 aperture",
+      "gpt-image": "moderate f/2.8 aperture, keeping the subject fully sharp while maintaining natural background separation",
+      "gpt-image-safe": "moderate f/2.8 aperture, keeping the subject sharp while maintaining background separation",
+      "gpt-image-positive": "balanced depth of field, sharp subject contours, realistic environment detail"
+    },
+    "tags": ["camera", "aperture", "moderate"],
+    "enabled": true
+  },
+  {
+    "id": "camera.aperture_04",
+    "category": "camera",
+    "subcategory": "Aperture",
+    "label": "Deep f/8.0 (Maximum Detail)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "deep f/8.0 aperture",
+      "gpt-image": "deep f/8.0 aperture, maximum sharpness from foreground to background, rendering all environmental details crisp",
+      "gpt-image-safe": "deep f/8.0 aperture, sharpness from foreground to background, rendering environmental details crisp",
+      "gpt-image-positive": "sharp focus throughout, detailed background, crisp textures, deep depth of field"
+    },
+    "tags": ["camera", "aperture", "deep"],
+    "enabled": true
+  },
+  {
+    "id": "camera.iso_01",
+    "category": "camera",
+    "subcategory": "ISO",
+    "label": "Clean ISO 100",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "ISO 100",
+      "gpt-image": "shot at clean ISO 100, zero digital noise, maximum color fidelity and clean shadow details",
+      "gpt-image-safe": "shot at ISO 100, zero digital noise, clean details",
+      "gpt-image-positive": "pristine quality, noise-free image, rich color accuracy, clean shadows"
+    },
+    "tags": ["camera", "iso", "clean"],
+    "enabled": true
+  },
+  {
+    "id": "camera.iso_02",
+    "category": "camera",
+    "subcategory": "ISO",
+    "label": "Low Light ISO 800",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "ISO 800",
+      "gpt-image": "shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth",
+      "gpt-image-safe": "shot at ISO 800, subtle organic film grain with natural warmth",
+      "gpt-image-positive": "organic film grain, low light photography, analog texture, warm color balance"
+    },
+    "tags": ["camera", "iso", "grain"],
+    "enabled": true
+  },
+  {
+    "id": "camera.iso_03",
+    "category": "camera",
+    "subcategory": "ISO",
+    "label": "Gritty Grain ISO 3200",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "ISO 3200",
+      "gpt-image": "shot at ISO 3200, pronounced organic high-ISO film grain, gritty texture and raw retro aesthetic",
+      "gpt-image-safe": "shot at ISO 3200, pronounced organic high-ISO grain, gritty texture and raw retro aesthetic",
+      "gpt-image-positive": "gritty film grain, retro snapshot texture, raw contrast, night snapshot vibe"
+    },
+    "tags": ["camera", "iso", "gritty"],
+    "enabled": true
+  },
+  {
+    "id": "camera.wb_01",
+    "category": "camera",
+    "subcategory": "White Balance",
+    "label": "Warm Daylight (5600K)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "daylight white balance 5600K",
+      "gpt-image": "warm daylight white balance, rendering natural golden sunlit tones on skin and clothing",
+      "gpt-image-safe": "daylight white balance rendering natural golden sunlit tones",
+      "gpt-image-positive": "warm color temperature, natural daylight, lifelike skin tone rendering"
+    },
+    "tags": ["camera", "white balance", "daylight"],
+    "enabled": true
+  },
+  {
+    "id": "camera.wb_02",
+    "category": "camera",
+    "subcategory": "White Balance",
+    "label": "Cool Tungsten (3200K)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "tungsten white balance 3200K",
+      "gpt-image": "cool tungsten white balance, creating atmospheric blue and cobalt tones, cinematic night aesthetic",
+      "gpt-image-safe": "tungsten white balance creating atmospheric blue and cobalt tones",
+      "gpt-image-positive": "cool twilight colors, blue-hour lighting cast, cinematic color balance"
+    },
+    "tags": ["camera", "white balance", "cool", "tungsten"],
+    "enabled": true
+  },
+  {
+    "id": "camera.wb_03",
+    "category": "camera",
+    "subcategory": "White Balance",
+    "label": "Golden hour (4500K)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "golden hour white balance",
+      "gpt-image": "golden hour white balance, deep honey and amber tones reflecting the evening sun",
+      "gpt-image-safe": "golden hour white balance reflecting deep honey and amber tones",
+      "gpt-image-positive": "warm honey highlights, sunset color cast, rich golden tones"
+    },
+    "tags": ["camera", "white balance", "golden hour"],
+    "enabled": true
+  },
+  {
+    "id": "camera.perspective_01",
     "category": "camera",
     "subcategory": "Perspective",
-    "label": "Eye-level natural view",
+    "label": "Eye-level Natural View",
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
       "default": "eye-level shot",
-      "gpt-image": "shot at eye-level, natural candid portrait perspective, balanced proportions"
+      "gpt-image": "shot at eye-level, natural candid portrait perspective, balanced proportions",
+      "gpt-image-safe": "shot at eye-level, natural candid portrait perspective",
+      "gpt-image-positive": "eye-level angle, balanced proportions, natural view, realistic perspective"
     },
-    "tags": [
-      "camera",
-      "angle"
-    ],
+    "tags": ["camera", "perspective", "eye level"],
+    "enabled": true
+  },
+  {
+    "id": "camera.perspective_02",
+    "category": "camera",
+    "subcategory": "Perspective",
+    "label": "Slightly Low Angle",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "slightly low angle",
+      "gpt-image": "medium close-up shot captured from a slightly low camera angle, highlighting posture",
+      "gpt-image-safe": "shot captured from a slightly low camera angle highlighting posture",
+      "gpt-image-positive": "low-angle portrait, majestic posture, high-fashion framing"
+    },
+    "tags": ["camera", "perspective", "low angle"],
+    "enabled": true
+  },
+  {
+    "id": "camera.perspective_03",
+    "category": "camera",
+    "subcategory": "Perspective",
+    "label": "Slightly High Angle",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "slightly high angle",
+      "gpt-image": "captured from a slightly high camera angle, looking down gently, highlighting facial symmetry",
+      "gpt-image-safe": "captured from a slightly high camera angle looking down gently",
+      "gpt-image-positive": "high-angle gaze, soft perspective, delicate facial proportions"
+    },
+    "tags": ["camera", "perspective", "high angle"],
+    "enabled": true
+  },
+  {
+    "id": "camera.composition_01",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": "Rule of Thirds",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "rule-of-thirds composition",
+      "gpt-image": "rule-of-thirds composition, off-center placement creating a dynamic and balanced visual flow",
+      "gpt-image-safe": "rule-of-thirds composition, off-center placement creating balanced visual flow",
+      "gpt-image-positive": "dynamic framing, balanced off-center composition, professional photography rules"
+    },
+    "tags": ["camera", "composition", "thirds"],
+    "enabled": true
+  },
+  {
+    "id": "camera.composition_02",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": "Centered Symmetry",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "centered symmetry composition",
+      "gpt-image": "centered symmetrical composition, subject framed perfectly in the middle, creating a powerful presence",
+      "gpt-image-safe": "centered symmetrical composition, subject framed in the middle",
+      "gpt-image-positive": "symmetrical portrait, clean centered framing, impactful composition"
+    },
+    "tags": ["camera", "composition", "symmetrical"],
+    "enabled": true
+  },
+  {
+    "id": "camera.composition_03",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": "Medium Close-up Framing",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "medium close-up shot",
+      "gpt-image": "medium close-up framing, focusing on the bust and face, detailed facial expression and collarbone details",
+      "gpt-image-safe": "medium close-up framing focusing on the bust and face",
+      "gpt-image-positive": "close-up portraiture, detailed facial feature rendering, high-fashion framing style"
+    },
+    "tags": ["camera", "composition", "close up"],
     "enabled": true
   }
 ]

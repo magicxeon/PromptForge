@@ -1,7 +1,8 @@
 [
   {
-    "id": "skin.001",
+    "id": "skin.tone_01",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Fair skin",
     "ui": {
       "control": "select",
@@ -9,16 +10,17 @@
     },
     "prompt": {
       "default": "fair skin",
-      "gpt-image": "fair skin"
+      "gpt-image": "fair skin",
+      "gpt-image-safe": "balanced fair skin",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, clean skin complexion"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "fair"],
     "enabled": true
   },
   {
-    "id": "skin.002",
+    "id": "skin.tone_02",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Porcelain skin",
     "ui": {
       "control": "select",
@@ -26,33 +28,17 @@
     },
     "prompt": {
       "default": "porcelain skin",
-      "gpt-image": "porcelain skin"
+      "gpt-image": "porcelain skin",
+      "gpt-image-safe": "smooth porcelain-like skin",
+      "gpt-image-positive": "professional studio lighting, smooth skin details, refined complexion"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "porcelain"],
     "enabled": true
   },
   {
-    "id": "skin.003",
+    "id": "skin.tone_03",
     "category": "skin",
-    "label": "Glass skin",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "glass skin",
-      "gpt-image": "glass skin"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.004",
-    "category": "skin",
+    "subcategory": "Tone",
     "label": "Honey skin",
     "ui": {
       "control": "select",
@@ -60,153 +46,35 @@
     },
     "prompt": {
       "default": "honey skin",
-      "gpt-image": "honey skin"
+      "gpt-image": "honey skin tone with warm golden highlights",
+      "gpt-image-safe": "honey skin tone with warm natural highlights",
+      "gpt-image-positive": "lifestyle photography, golden hour sunlight, warm skin tones"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "honey"],
     "enabled": true
   },
   {
-    "id": "skin.005",
+    "id": "skin.tone_04",
     "category": "skin",
-    "label": "Warm olive skin",
+    "subcategory": "Tone",
+    "label": "Warm Olive skin",
     "ui": {
       "control": "select",
       "group": "Skin"
     },
     "prompt": {
       "default": "warm olive skin",
-      "gpt-image": "warm olive skin"
+      "gpt-image": "warm olive skin tone, rich warm undertones",
+      "gpt-image-safe": "warm olive skin tone, balanced warm undertones",
+      "gpt-image-positive": "natural ambient lighting, realistic color rendering, rich skin details"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "olive"],
     "enabled": true
   },
   {
-    "id": "skin.006",
+    "id": "skin.tone_05",
     "category": "skin",
-    "label": "Dewy complexion",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "dewy complexion",
-      "gpt-image": "dewy complexion"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.007",
-    "category": "skin",
-    "label": "Natural skin texture",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "natural skin texture with visible skin pores and fine details",
-      "gpt-image": "highly realistic natural skin texture, visible fine skin pores, natural skin sheen"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.008",
-    "category": "skin",
-    "label": "Healthy complexion",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "healthy complexion",
-      "gpt-image": "healthy complexion"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.009",
-    "category": "skin",
-    "label": "Even skin tone",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "even skin tone",
-      "gpt-image": "even skin tone"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.010",
-    "category": "skin",
-    "label": "Soft skin",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "soft skin",
-      "gpt-image": "soft skin"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.011",
-    "category": "skin",
-    "label": "Radiant smooth skin (under flash)",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "radiant smooth skin, bright and glowing under flash lighting",
-      "gpt-image": "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash"
-    },
-    "tags": [
-      "skin",
-      "lighting"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.012",
-    "category": "skin",
-    "label": "Dewy glass skin",
-    "ui": {
-      "control": "select",
-      "group": "Skin"
-    },
-    "prompt": {
-      "default": "dewy glass skin, translucent and hydrated",
-      "gpt-image": "dewy glass skin, translucent and hydrated complexion reflecting soft glowing light"
-    },
-    "tags": [
-      "skin"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "skin.013",
-    "category": "skin",
+    "subcategory": "Tone",
     "label": "Rosy Fair skin",
     "ui": {
       "control": "select",
@@ -214,16 +82,17 @@
     },
     "prompt": {
       "default": "rosy fair skin",
-      "gpt-image": "rosy fair skin, glowing white complexion with natural soft pinkish undertones"
+      "gpt-image": "rosy fair skin, glowing white complexion with natural soft pinkish undertones",
+      "gpt-image-safe": "rosy fair skin, white complexion with soft pinkish undertones",
+      "gpt-image-positive": "clean skin complexion, soft facial harmony, natural candid portrait"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "rosy", "asian"],
     "enabled": true
   },
   {
-    "id": "skin.014",
+    "id": "skin.tone_06",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Translucent Glass skin",
     "ui": {
       "control": "select",
@@ -231,16 +100,17 @@
     },
     "prompt": {
       "default": "translucent glass skin",
-      "gpt-image": "translucent glass skin, highly reflective fair skin with a clear glassy sheen"
+      "gpt-image": "translucent glass skin, highly reflective fair skin with a clear glassy sheen",
+      "gpt-image-safe": "translucent glass skin with a clear hydrated skin sheen",
+      "gpt-image-positive": "dewy glass skin, translucent and hydrated, beauty editorial shoot"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "glass", "asian"],
     "enabled": true
   },
   {
-    "id": "skin.015",
+    "id": "skin.tone_07",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Milky White skin",
     "ui": {
       "control": "select",
@@ -248,16 +118,17 @@
     },
     "prompt": {
       "default": "milky white skin",
-      "gpt-image": "milky white skin, smooth porcelain skin with soft cream undertones"
+      "gpt-image": "milky white skin, smooth porcelain skin with soft cream undertones",
+      "gpt-image-safe": "milky white skin, smooth fair skin with cream undertones",
+      "gpt-image-positive": "milky white skin, professional makeup light, commercial fashion photography"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "milky", "asian"],
     "enabled": true
   },
   {
-    "id": "skin.016",
+    "id": "skin.tone_08",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Ivory White skin",
     "ui": {
       "control": "select",
@@ -265,16 +136,17 @@
     },
     "prompt": {
       "default": "ivory white skin",
-      "gpt-image": "ivory white skin, smooth fair ivory complexion"
+      "gpt-image": "ivory white skin, smooth fair ivory complexion",
+      "gpt-image-safe": "ivory white skin, smooth fair ivory complexion",
+      "gpt-image-positive": "editorial portrait, classic lighting, structured visual tone"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "ivory", "asian"],
     "enabled": true
   },
   {
-    "id": "skin.017",
+    "id": "skin.tone_09",
     "category": "skin",
+    "subcategory": "Tone",
     "label": "Aura Glowing White skin",
     "ui": {
       "control": "select",
@@ -282,11 +154,245 @@
     },
     "prompt": {
       "default": "aura glowing white skin",
-      "gpt-image": "aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity"
+      "gpt-image": "aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity",
+      "gpt-image-safe": "aura glowing white skin, brilliant radiant fair complexion reflecting ambient light",
+      "gpt-image-positive": "high-fashion editorial, beauty magazine quality, glowing highlights"
     },
-    "tags": [
-      "skin"
-    ],
+    "tags": ["skin", "tone", "glowing", "asian"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_01",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Natural Skin Texture",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "natural skin texture with visible skin pores and fine details",
+      "gpt-image": "highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines",
+      "gpt-image-safe": "realistic natural skin texture with visible pores and fine details",
+      "gpt-image-positive": "highly detailed, natural skin texture, photorealistic, premium portrait quality"
+    },
+    "tags": ["skin", "texture", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_02",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Dewy Complexion",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "dewy complexion",
+      "gpt-image": "dewy complexion reflecting soft ambient lights, hydrated skin look",
+      "gpt-image-safe": "dewy complexion with soft ambient light reflections",
+      "gpt-image-positive": "dewy glass skin, translucent and hydrated, beauty editorial shoot"
+    },
+    "tags": ["skin", "texture", "dewy"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_03",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Healthy Complexion",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "healthy complexion",
+      "gpt-image": "healthy skin complexion, natural facial blood flow color, organic skin details",
+      "gpt-image-safe": "healthy skin complexion with natural organic skin details",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, authentic appearance"
+    },
+    "tags": ["skin", "texture", "healthy"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_04",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Even Skin Tone",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "even skin tone",
+      "gpt-image": "even skin tone, smooth facial skin with balanced pigmentation, flawless complexion details",
+      "gpt-image-safe": "even skin tone, smooth facial skin with balanced pigmentation",
+      "gpt-image-positive": "professional makeup, studio portrait quality, clean facial skin"
+    },
+    "tags": ["skin", "texture", "even"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_05",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Soft Smooth Skin",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "soft skin",
+      "gpt-image": "soft smooth skin with a fine peach fuzz texture, delicate specular highlights",
+      "gpt-image-safe": "soft smooth skin with delicate specular highlights",
+      "gpt-image-positive": "close-up portraiture, detailed facial feature rendering, soft facial harmony"
+    },
+    "tags": ["skin", "texture", "soft"],
+    "enabled": true
+  },
+  {
+    "id": "skin.text_06",
+    "category": "skin",
+    "subcategory": "Texture",
+    "label": "Radiant Smooth Skin (under flash)",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "radiant smooth skin under flash lighting",
+      "gpt-image": "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash",
+      "gpt-image-safe": "radiant, smooth, and bright skin with natural highlights from direct lighting",
+      "gpt-image-positive": "direct flash photography, party snapshot look, clean skin texture, vibrant highlights"
+    },
+    "tags": ["skin", "texture", "radiant", "flash"],
+    "enabled": true
+  },
+  {
+    "id": "skin.makeup_01",
+    "category": "skin",
+    "subcategory": "Makeup",
+    "label": "Natural Look (No Makeup)",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "natural look no makeup",
+      "gpt-image": "natural look, no makeup, clean skin bare face, authentic facial details",
+      "gpt-image-safe": "natural look, no makeup, clean skin bare face, authentic facial details",
+      "gpt-image-positive": "natural candid portrait, authentic appearance, lifestyle portrait, raw skin details"
+    },
+    "tags": ["skin", "makeup", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "skin.makeup_02",
+    "category": "skin",
+    "subcategory": "Makeup",
+    "label": "Soft K-Beauty Makeup",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "soft peach makeup style",
+      "gpt-image": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+      "gpt-image-safe": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner",
+      "gpt-image-positive": "tasteful styling, refined styling, beauty editorial shoot, soft facial harmony"
+    },
+    "tags": ["skin", "makeup", "k-beauty", "asian"],
+    "enabled": true
+  },
+  {
+    "id": "skin.makeup_03",
+    "category": "skin",
+    "subcategory": "Makeup",
+    "label": "Editorial Bold Red Lips",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "classic red lips makeup",
+      "gpt-image": "elegant editorial makeup, bold classic red lips, clean winged eyeliner, subtle matte foundation",
+      "gpt-image-safe": "elegant makeup, classic red lips, clean eyeliner, subtle matte foundation",
+      "gpt-image-positive": "editorial fashion photography, high-fashion editorial, tasteful fashion styling, contemporary fashion"
+    },
+    "tags": ["skin", "makeup", "editorial", "red lips"],
+    "enabled": true
+  },
+  {
+    "id": "skin.makeup_04",
+    "category": "skin",
+    "subcategory": "Makeup",
+    "label": "Gilded Shimmer Eyeshadow",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "shimmer gold eyeshadow makeup",
+      "gpt-image": "luxury fashion makeup, subtle shimmering gold eyeshadow, soft nude lips, defined lash line",
+      "gpt-image-safe": "luxury makeup, subtle shimmering gold eyeshadow, soft nude lips, defined lash line",
+      "gpt-image-positive": "luxury fashion campaign, couture-inspired styling, premium textile craftsmanship, elegant tailoring"
+    },
+    "tags": ["skin", "makeup", "gold", "luxury"],
+    "enabled": true
+  },
+  {
+    "id": "skin.freckles_01",
+    "category": "skin",
+    "subcategory": "Freckles",
+    "label": "No Freckles",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "even skin with no freckles",
+      "gpt-image": "smooth even skin tone with no freckles or blemishes",
+      "gpt-image-safe": "smooth even skin tone with no freckles",
+      "gpt-image-positive": "clean facial skin, smooth skin details, professional portrait quality"
+    },
+    "tags": ["skin", "freckles", "none"],
+    "enabled": true
+  },
+  {
+    "id": "skin.freckles_02",
+    "category": "skin",
+    "subcategory": "Freckles",
+    "label": "Subtle Light Freckles",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "subtle light freckles",
+      "gpt-image": "subtle light freckles dusted naturally across the bridge of her nose and cheeks",
+      "gpt-image-safe": "subtle light freckles dusted naturally across the nose and cheeks",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, authentic appearance, cute charm"
+    },
+    "tags": ["skin", "freckles", "subtle"],
+    "enabled": true
+  },
+  {
+    "id": "skin.freckles_03",
+    "category": "skin",
+    "subcategory": "Freckles",
+    "label": "Prominent Youthful Freckles",
+    "ui": {
+      "control": "select",
+      "group": "Skin"
+    },
+    "prompt": {
+      "default": "prominent freckles",
+      "gpt-image": "prominent cute freckles scattered across the bridge of her nose and upper cheeks, adding a youthful charm",
+      "gpt-image-safe": "prominent freckles scattered across the bridge of the nose and upper cheeks, adding a youthful charm",
+      "gpt-image-positive": "youthful charm, candid portrait, detailed skin rendering, natural look"
+    },
+    "tags": ["skin", "freckles", "prominent"],
     "enabled": true
   }
 ]

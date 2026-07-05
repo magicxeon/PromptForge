@@ -136,8 +136,8 @@ const PRESETS = {
       "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
       "Color": { id: "hair_021", value: "reddish-orange hair color", isCustom: false },
       "Bangs": { id: "hair_027", value: "see-through bangs", isCustom: false },
-      "Tone": { id: "skin.013", value: "rosy fair skin", isCustom: false },
-      "Texture": { id: "skin.011", value: "radiant smooth skin, bright and glowing under flash lighting", isCustom: false },
+      "Tone": { id: "skin.tone_05", value: "rosy fair skin, glowing white complexion with natural soft pinkish undertones", isCustom: false },
+      "Texture": { id: "skin.text_06", value: "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash", isCustom: false },
       "Top": { id: "clothing.014", value: "off-the-shoulder top", isCustom: false },
       "Bottom": { id: "clothing.015", value: "skirt with a thigh-high slit", isCustom: false },
       "Fit": { id: "clothing.003", value: "body-con style clothing", isCustom: false },
@@ -146,13 +146,14 @@ const PRESETS = {
       "Hand Position": { id: "pose.010", value: "hand touching the side of her face near cheek and ear", isCustom: false },
       "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
       "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
-      "Flash": { id: "lighting.001", value: "strong flash lighting", isCustom: false },
-      "Neon": { id: "lighting.002", value: "strong dramatic red and pink neon lighting", isCustom: false },
-      "Ambient": { id: "lighting.003", value: "soft lighting on the subject in rich saturated environment", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false },
-      "Perspective": { id: "camera.004", value: "medium close-up from a slightly low angle", isCustom: false },
-      "Aperture": { id: "camera.003", value: "shallow depth of field, creating soft bokeh blur", isCustom: false }
+      "Flash": { id: "lighting.flash_01", value: "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright", isCustom: false },
+      "Neon": { id: "lighting.neon_01", value: "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene", isCustom: false },
+      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
+      "Perspective": { id: "camera.perspective_02", value: "medium close-up shot captured from a slightly low camera angle, highlighting posture", isCustom: false },
+      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
     }
   },
   studio: {
@@ -170,16 +171,17 @@ const PRESETS = {
       "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
       "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
       "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
-      "Tone": { id: "skin.015", value: "milky white skin", isCustom: false },
-      "Texture": { id: "skin.012", value: "dewy glass skin, translucent and hydrated", isCustom: false },
+      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
       "Top": { id: "clothing.010", value: "corset top", isCustom: false },
       "Bottom": { id: "clothing.017", value: "tight leggings", isCustom: false },
       "Hand Position": { id: "pose.009", value: "hand on hip", isCustom: false },
       "Location": { id: "environment.003", value: "in a photography studio", isCustom: false },
-      "Ambient": { id: "lighting.003", value: "soft lighting on the subject in rich saturated environment", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false },
-      "Aperture": { id: "camera.003", value: "shallow depth of field, creating soft bokeh blur", isCustom: false }
+      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
+      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
     }
   },
   street: {
@@ -197,14 +199,15 @@ const PRESETS = {
       "Nose": { id: "nose.004", value: "soft rounded tip", isCustom: false },
       "Lips": { id: "lips.002", value: "cupid's bow lips", isCustom: false },
       "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
-      "Tone": { id: "skin.014", value: "translucent glass skin", isCustom: false },
-      "Texture": { id: "skin.012", value: "dewy glass skin, translucent and hydrated", isCustom: false },
+      "Tone": { id: "skin.tone_06", value: "translucent glass skin, highly reflective fair skin with a clear glassy sheen", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
       "Top": { id: "clothing.012", value: "deep V-neckline top", isCustom: false },
       "Standing": { id: "pose.005", value: "looking over shoulder", isCustom: false },
       "Location": { id: "environment.002", value: "on an urban street at night", isCustom: false },
-      "Golden Hour": { id: "lighting.004", value: "golden hour lighting", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
     }
   },
   thaiSilk: {
@@ -224,9 +227,10 @@ const PRESETS = {
       "Top": { id: "clothing.021", value: "modern one-shoulder Thai sabai top woven in vibrant emerald green and shimmering metallic gold threads", isCustom: false },
       "Bottom": { id: "clothing.023", value: "modern high-waist Thai wrap skirt in royal blue and gold brocade silk fabric, showing detailed traditional patterns", isCustom: false },
       "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
-      "Golden Hour": { id: "lighting.004", value: "golden hour lighting", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
     }
   },
   cheongsam: {
@@ -245,8 +249,9 @@ const PRESETS = {
       "Dress": { id: "clothing.026", value: "modern high-collar Qipao dress with a high side slit, styled in soft pastel lavender with delicate emerald green floral patterns", isCustom: false },
       "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
       "Film Look": { id: "quality.004", value: "shot on Kodak Portra 400 film, warm skin tones, fine film grain, natural analog colors", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
     }
   },
   minimalistCafe: {
@@ -260,14 +265,15 @@ const PRESETS = {
       "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
       "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
       "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
-      "Tone": { id: "skin.015", value: "milky white skin", isCustom: false },
-      "Texture": { id: "skin.012", value: "dewy glass skin, translucent and hydrated", isCustom: false },
+      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
       "Dress": { id: "clothing.028", value: "Seoul style oversized minimalist shirt-dress in soft pastel mint green and cream tones", isCustom: false },
       "Location": { id: "environment.005", value: "in a cozy modern cafe with warm wooden decors and soft background chatter", isCustom: false },
       "Props": { id: "environment.010", value: "holding a hot paper coffee cup with soft steam rising gently from the lid", isCustom: false },
       "Natural": { id: "quality.003", value: "candid and unposed look, giving a natural cinematic environment feel", isCustom: false },
-      "Brand": { id: "camera.001", value: "shot on a modern mirrorless camera", isCustom: false },
-      "Lens": { id: "camera.002", value: "50mm lens", isCustom: false }
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
     }
   },
   beachCasual: {
@@ -281,7 +287,7 @@ const PRESETS = {
       "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
       "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
       "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
-      "Key Light": { id: "lighting.nat_04", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
+      "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
     }
   }
 };
@@ -544,23 +550,6 @@ function getOptionsForField(fieldName, category, allItems) {
     return items;
   }
 
-  if (category === "skin") {
-    if (lowerField === "tone") {
-      // Return fair/white skins and basic tones
-      return items.filter(item =>
-        item.label.toLowerCase().includes("skin") &&
-        !item.label.toLowerCase().includes("texture")
-      );
-    }
-    if (lowerField === "texture") {
-      return items.filter(item =>
-        item.label.toLowerCase().includes("texture") ||
-        item.label.toLowerCase().includes("complexion") ||
-        item.label.toLowerCase().includes("smooth")
-      );
-    }
-    return items;
-  }
 
   if (category === "lips") {
     if (lowerField === "smile") {
@@ -1355,7 +1344,6 @@ function copyPromptAsJSON() {
   }
 
   const jsonPayload = JSON.stringify({
-    // prompt: textVal,
     template: currentTemplateName,
     aspect_ratio: state.aspectRatio,
     attributes: structuredAttrs

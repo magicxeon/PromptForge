@@ -1,47 +1,63 @@
 [
   {
-    "id": "pose.001",
+    "id": "pose.standing_01",
     "category": "pose",
-    "label": "Crossing legs",
+    "subcategory": "Standing",
+    "label": "Hand on Hip",
     "ui": {
       "control": "select",
       "group": "Pose"
     },
     "prompt": {
-      "default": "crossing legs",
-      "gpt-image": "sitting crossing legs, showing neat and elegant body alignment",
-      "gpt-image-safe": "seated with legs crossed naturally in a composed elegant pose",
-      "gpt-image-positive": "relaxed posture, natural stance, editorial standing pose, balanced composition, graceful posture"
+      "default": "standing confidently with one hand on hip",
+      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette",
+      "gpt-image-safe": "standing confidently with one hand on hip in an editorial pose",
+      "gpt-image-positive": "confident posture, editorial standing pose, professional portrait photography, fashion magazine photography, lifestyle portrait"
     },
-    "tags": [
-      "pose",
-      "sitting"
-    ],
+    "tags": ["pose", "standing", "hand on hip"],
     "enabled": true
   },
   {
-    "id": "pose.002",
+    "id": "pose.standing_02",
     "category": "pose",
-    "label": "Leaning forward",
+    "subcategory": "Standing",
+    "label": "Leaning Against Wall",
     "ui": {
       "control": "select",
       "group": "Pose"
     },
     "prompt": {
-      "default": "leaning forward subtly",
-      "gpt-image": "leaning forward subtly towards the camera, highlighting collarbone details",
-      "gpt-image-safe": "leaning gently forward in a natural composed editorial pose",
-      "gpt-image-positive": "confident posture, editorial standing pose, graceful posture, professional portrait photography"
+      "default": "leaning casually against a wall",
+      "gpt-image": "leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders",
+      "gpt-image-safe": "leaning casually against a modern wall in a relaxed standing stance",
+      "gpt-image-positive": "contemporary fashion, lifestyle portrait, relaxed posture, balanced composition"
     },
-    "tags": [
-      "pose"
-    ],
+    "tags": ["pose", "standing", "leaning"],
     "enabled": true
   },
   {
-    "id": "pose.003",
+    "id": "pose.standing_03",
     "category": "pose",
-    "label": "Arching back",
+    "subcategory": "Standing",
+    "label": "Looking Over Shoulder",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking over shoulder",
+      "gpt-image": "looking over her shoulder towards the camera, showing back silhouette details",
+      "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile",
+      "gpt-image-positive": "editorial standing pose, graceful posture, natural candid portrait, lifestyle portrait, professional portrait photography"
+    },
+    "tags": ["pose", "standing", "over shoulder"],
+    "enabled": true
+  },
+  {
+    "id": "pose.standing_04",
+    "category": "pose",
+    "subcategory": "Standing",
+    "label": "Arching Back Subtly",
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -52,15 +68,50 @@
       "gpt-image-safe": "subtle natural back arch creating an elegant high-fashion editorial stance",
       "gpt-image-positive": "editorial fashion photography, graceful posture, tasteful fashion styling, elegant visual storytelling, balanced composition"
     },
-    "tags": [
-      "pose"
-    ],
+    "tags": ["pose", "standing", "back arch"],
     "enabled": true
   },
   {
-    "id": "pose.004",
+    "id": "pose.standing_05",
     "category": "pose",
-    "label": "Laying down side view",
+    "subcategory": "Standing",
+    "label": "Classical Contrapposto",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "standing in a contrapposto posture",
+      "gpt-image": "standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line",
+      "gpt-image-safe": "standing in a contrapposto posture shifting weight naturally for a graceful line",
+      "gpt-image-positive": "graceful posture, elegant tailoring, tasteful styling, editorial fashion photography"
+    },
+    "tags": ["pose", "standing", "contrapposto"],
+    "enabled": true
+  },
+  {
+    "id": "pose.sitting_01",
+    "category": "pose",
+    "subcategory": "Sitting",
+    "label": "Crossing Legs",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "crossing legs",
+      "gpt-image": "sitting crossing legs, showing neat and elegant body alignment",
+      "gpt-image-safe": "seated with legs crossed naturally in a composed elegant pose",
+      "gpt-image-positive": "relaxed posture, natural stance, editorial standing pose, balanced composition, graceful posture"
+    },
+    "tags": ["pose", "sitting", "crossing legs"],
+    "enabled": true
+  },
+  {
+    "id": "pose.sitting_02",
+    "category": "pose",
+    "subcategory": "Sitting",
+    "label": "Laying Down Side View",
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -71,55 +122,14 @@
       "gpt-image-safe": "reclining naturally on her side with elegant body alignment",
       "gpt-image-positive": "editorial fashion photography, comfortable seated pose, natural candid portrait, refined artistic direction, tasteful composition"
     },
-    "tags": [
-      "pose",
-      "laying"
-    ],
+    "tags": ["pose", "sitting", "laying down"],
     "enabled": true
   },
   {
-    "id": "pose.005",
+    "id": "pose.sitting_03",
     "category": "pose",
-    "label": "Looking over shoulder",
-    "ui": {
-      "control": "select",
-      "group": "Pose"
-    },
-    "prompt": {
-      "default": "looking over shoulder",
-      "gpt-image": "looking over her shoulder towards the camera, showing back silhouette",
-      "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile",
-      "gpt-image-positive": "editorial standing pose, graceful posture, natural candid portrait, lifestyle portrait, professional portrait photography"
-    },
-    "tags": [
-      "pose"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "pose.006",
-    "category": "pose",
-    "label": "Hand near mouth",
-    "ui": {
-      "control": "select",
-      "group": "Pose"
-    },
-    "prompt": {
-      "default": "hand near mouth",
-      "gpt-image": "hand placed gently near her mouth with soft slender fingers",
-      "gpt-image-safe": "hand resting naturally near her face",
-      "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance"
-    },
-    "tags": [
-      "pose",
-      "hands"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "pose.007",
-    "category": "pose",
-    "label": "Resting chin on hand",
+    "subcategory": "Sitting",
+    "label": "Resting Chin on Hand",
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -130,16 +140,158 @@
       "gpt-image-safe": "resting chin on hand in a natural thoughtful editorial pose",
       "gpt-image-positive": "comfortable seated pose, natural candid portrait, casual body language, lifestyle portrait"
     },
-    "tags": [
-      "pose",
-      "hands"
-    ],
+    "tags": ["pose", "sitting", "resting chin"],
     "enabled": true
   },
   {
-    "id": "pose.008",
+    "id": "pose.sitting_04",
     "category": "pose",
-    "label": "Touching collarbone",
+    "subcategory": "Sitting",
+    "label": "Sitting on Bar Stool",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "sitting on a bar stool",
+      "gpt-image": "sitting comfortably on a high sleek bar stool, one foot resting on the stool rung, relaxed posture",
+      "gpt-image-safe": "sitting comfortably on a high bar stool in a relaxed posture",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, casual styling, contemporary fashion"
+    },
+    "tags": ["pose", "sitting", "bar stool"],
+    "enabled": true
+  },
+  {
+    "id": "pose.sitting_05",
+    "category": "pose",
+    "subcategory": "Sitting",
+    "label": "Cozy Floor Sitting",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "sitting on the floor",
+      "gpt-image": "sitting cross-legged on a plush textured rug, leaning back slightly with hands supporting her behind",
+      "gpt-image-safe": "sitting cross-legged on a rug in a comfortable relaxed posture",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, cozy ambiance, casual wardrobe"
+    },
+    "tags": ["pose", "sitting", "floor"],
+    "enabled": true
+  },
+  {
+    "id": "pose.walking_01",
+    "category": "pose",
+    "subcategory": "Walking",
+    "label": "Mid-Stride Forward",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "walking mid-stride",
+      "gpt-image": "walking and mid-stride forward, hair and clothing folds gently catching the wind",
+      "gpt-image-safe": "walking forward mid-stride with natural movement in her clothing and hair",
+      "gpt-image-positive": "dynamic composition, contemporary fashion, editorial fashion photography, lifestyle portrait"
+    },
+    "tags": ["pose", "walking", "mid-stride"],
+    "enabled": true
+  },
+  {
+    "id": "pose.walking_02",
+    "category": "pose",
+    "subcategory": "Walking",
+    "label": "Turning Back While Walking",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "walking and turning back",
+      "gpt-image": "walking away from the camera and turning her head back with a pleasant warm smile",
+      "gpt-image-safe": "walking away from the camera and looking back with a gentle smile",
+      "gpt-image-positive": "natural candid portrait, lifestyle portrait, friendly expression, authentic appearance"
+    },
+    "tags": ["pose", "walking", "look back"],
+    "enabled": true
+  },
+  {
+    "id": "pose.walking_03",
+    "category": "pose",
+    "subcategory": "Walking",
+    "label": "Casual Stroll",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "strolling casually",
+      "gpt-image": "strolling casually, natural walking posture, one hand swinging gently with relaxed strides",
+      "gpt-image-safe": "strolling casually in a natural relaxed walking posture",
+      "gpt-image-positive": "lifestyle portrait, casual styling, natural candid portrait, relaxed posture"
+    },
+    "tags": ["pose", "walking", "stroll"],
+    "enabled": true
+  },
+  {
+    "id": "pose.walking_04",
+    "category": "pose",
+    "subcategory": "Walking",
+    "label": "Walking Down Stairs",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "walking down stairs",
+      "gpt-image": "stepping down a flight of elegant marble stairs, looking downwards with refined composure",
+      "gpt-image-safe": "stepping down a flight of stairs with elegant composure",
+      "gpt-image-positive": "editorial fashion photography, structured garment construction, refined styling, luxury fashion campaign"
+    },
+    "tags": ["pose", "walking", "stairs"],
+    "enabled": true
+  },
+  {
+    "id": "pose.walking_05",
+    "category": "pose",
+    "subcategory": "Walking",
+    "label": "Walking Against Breeze",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "walking into a soft breeze",
+      "gpt-image": "walking forward into a soft breeze, holding onto her bag strap, dynamic wind-blown hair",
+      "gpt-image-safe": "walking forward into a gentle breeze with natural wind-swept hair",
+      "gpt-image-positive": "lifestyle portrait, dynamic composition, contemporary fashion, professional portrait photography"
+    },
+    "tags": ["pose", "walking", "breeze"],
+    "enabled": true
+  },
+  {
+    "id": "pose.hand_01",
+    "category": "pose",
+    "subcategory": "Hand Position",
+    "label": "Hand Near Mouth",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "hand near mouth",
+      "gpt-image": "hand placed gently near her mouth with soft slender fingers",
+      "gpt-image-safe": "hand resting naturally near her face",
+      "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance"
+    },
+    "tags": ["pose", "hand position", "hand near mouth"],
+    "enabled": true
+  },
+  {
+    "id": "pose.hand_02",
+    "category": "pose",
+    "subcategory": "Hand Position",
+    "label": "Touching Collarbone",
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -150,50 +302,151 @@
       "gpt-image-safe": "gently resting a hand near her neckline",
       "gpt-image-positive": "editorial fashion photography, graceful posture, elegant tailoring, natural beauty, refined styling"
     },
-    "tags": [
-      "pose",
-      "hands"
-    ],
+    "tags": ["pose", "hand position", "collarbone"],
     "enabled": true
   },
   {
-    "id": "pose.009",
+    "id": "pose.hand_03",
     "category": "pose",
-    "label": "Hand on hip",
+    "subcategory": "Hand Position",
+    "label": "Touching Cheek / Face",
     "ui": {
       "control": "select",
       "group": "Pose"
     },
     "prompt": {
-      "default": "hand on hip",
-      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette",
-      "gpt-image-safe": "standing confidently with one hand on hip in an editorial pose",
-      "gpt-image-positive": "confident posture, editorial standing pose, professional portrait photography, fashion magazine photography, lifestyle portrait"
-    },
-    "tags": [
-      "pose",
-      "hands"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "pose.010",
-    "category": "pose",
-    "label": "Touching cheek / face",
-    "ui": {
-      "control": "select",
-      "group": "Pose"
-    },
-    "prompt": {
-      "default": "hand touching the side of her face near cheek and ear",
+      "default": "hand touching cheek",
       "gpt-image": "left hand raised to gently touch the side of her face near her cheek and ear, candid gaze",
       "gpt-image-safe": "gently resting hand near her cheek in a natural candid editorial pose",
       "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance, lifestyle portrait"
     },
-    "tags": [
-      "pose",
-      "hands"
-    ],
+    "tags": ["pose", "hand position", "touch cheek"],
+    "enabled": true
+  },
+  {
+    "id": "pose.hand_04",
+    "category": "pose",
+    "subcategory": "Hand Position",
+    "label": "Adjusting Hair",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "adjusting hair",
+      "gpt-image": "raising one hand to gently tuck a strand of hair behind her ear in a natural motion",
+      "gpt-image-safe": "raising a hand to adjust her hair in a natural candid gesture",
+      "gpt-image-positive": "lifestyle portrait, natural candid portrait, casual body language, soft lighting"
+    },
+    "tags": ["pose", "hand position", "adjust hair"],
+    "enabled": true
+  },
+  {
+    "id": "pose.hand_05",
+    "category": "pose",
+    "subcategory": "Hand Position",
+    "label": "Holding Sunglasses Frame",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "holding sunglasses",
+      "gpt-image": "gently holding the frame of her designer sunglasses with slender fingers, elegant style",
+      "gpt-image-safe": "gently holding the frame of her sunglasses with refined styling",
+      "gpt-image-positive": "editorial fashion photography, contemporary fashion, luxury fashion campaign, tasteful fashion styling"
+    },
+    "tags": ["pose", "hand position", "sunglasses"],
+    "enabled": true
+  },
+  {
+    "id": "pose.eye_01",
+    "category": "pose",
+    "subcategory": "Eye Contact",
+    "label": "Looking Directly at Camera",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking directly at camera",
+      "gpt-image": "looking directly into the camera lens with a captivating, warm gaze",
+      "gpt-image-safe": "looking directly into the camera lens with a warm pleasant gaze",
+      "gpt-image-positive": "professional portrait photography, natural candid portrait, lifestyle portrait, authentic appearance"
+    },
+    "tags": ["pose", "eye contact", "direct gaze"],
+    "enabled": true
+  },
+  {
+    "id": "pose.eye_02",
+    "category": "pose",
+    "subcategory": "Eye Contact",
+    "label": "Looking Away Candidly",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking away candidly",
+      "gpt-image": "candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment",
+      "gpt-image-safe": "candid gaze looking slightly off-camera in a natural thoughtful moment",
+      "gpt-image-positive": "natural candid portrait, lifestyle portrait, candid composition, soft emotional tone"
+    },
+    "tags": ["pose", "eye contact", "look away"],
+    "enabled": true
+  },
+  {
+    "id": "pose.eye_03",
+    "category": "pose",
+    "subcategory": "Eye Contact",
+    "label": "Looking Down Thoughtfully",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking down thoughtfully",
+      "gpt-image": "gaze directed downwards with a soft, gentle, and thoughtful expression",
+      "gpt-image-safe": "gaze directed downwards in a soft thoughtful expression",
+      "gpt-image-positive": "natural candid portrait, soft facial harmony, gentle atmosphere, quiet emotional tone"
+    },
+    "tags": ["pose", "eye contact", "look down"],
+    "enabled": true
+  },
+  {
+    "id": "pose.eye_04",
+    "category": "pose",
+    "subcategory": "Eye Contact",
+    "label": "Intense Seductive Gaze",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "intense direct gaze",
+      "gpt-image": "intense and captivating direct gaze, locking eyes with the viewer",
+      "gpt-image-safe": "focused and captivating direct gaze, locking eyes with the viewer",
+      "gpt-image-positive": "high-fashion editorial, editorial fashion photography, professional portrait photography, refined composition"
+    },
+    "tags": ["pose", "eye contact", "seductive gaze"],
+    "enabled": true
+  },
+  {
+    "id": "pose.eye_05",
+    "category": "pose",
+    "subcategory": "Eye Contact",
+    "label": "Dreamy Skyward Look",
+    "ui": {
+      "control": "select",
+      "group": "Pose"
+    },
+    "prompt": {
+      "default": "looking up and away",
+      "gpt-image": "looking up and away with a dreamy, soft gaze, catching natural light highlights in the eyes",
+      "gpt-image-safe": "looking up and away with a soft dreamy gaze catching subtle light highlights in her eyes",
+      "gpt-image-positive": "professional portrait photography, natural candid portrait, cinematic natural lighting, soft mood"
+    },
+    "tags": ["pose", "eye contact", "dreamy gaze"],
     "enabled": true
   }
 ]

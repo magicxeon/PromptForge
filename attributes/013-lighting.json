@@ -1,207 +1,506 @@
 [
   {
-    "id": "lighting.001",
+    "id": "lighting.key_01",
     "category": "lighting",
-    "label": "Strong flash lighting",
+    "subcategory": "Key Light",
+    "label": "Rembrandt Lighting",
     "ui": {
       "control": "select",
       "group": "Lighting"
     },
     "prompt": {
-      "default": "strong flash lighting",
-      "gpt-image": "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright"
+      "default": "Rembrandt lighting style",
+      "gpt-image": "Rembrandt lighting style with a strong key light casting a distinct triangle of light on her cheek",
+      "gpt-image-safe": "Rembrandt lighting style with soft key illumination defining facial contours",
+      "gpt-image-positive": "professional studio lighting, refined composition, elegant portrait photography"
     },
-    "tags": [
-      "lighting",
-      "flash"
-    ],
+    "tags": ["lighting", "key light", "rembrandt"],
     "enabled": true
   },
   {
-    "id": "lighting.002",
+    "id": "lighting.key_02",
     "category": "lighting",
-    "label": "Red and pink neon",
+    "subcategory": "Key Light",
+    "label": "Soft Studio Key Light",
     "ui": {
       "control": "select",
       "group": "Lighting"
     },
     "prompt": {
-      "default": "strong dramatic red and pink neon lighting",
-      "gpt-image": "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene"
+      "default": "soft studio key light",
+      "gpt-image": "soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions",
+      "gpt-image-safe": "soft professional studio key light defining facial contours with smooth transitions",
+      "gpt-image-positive": "studio photography, award-winning portrait, professional lighting setup"
     },
-    "tags": [
-      "lighting",
-      "neon"
-    ],
+    "tags": ["lighting", "key light", "soft"],
     "enabled": true
   },
   {
-    "id": "lighting.003",
+    "id": "lighting.key_03",
     "category": "lighting",
-    "label": "Soft ambient glow",
+    "subcategory": "Key Light",
+    "label": "Dramatic Side Light",
     "ui": {
       "control": "select",
       "group": "Lighting"
     },
     "prompt": {
-      "default": "soft lighting on the subject in rich saturated environment",
-      "gpt-image": "soft highlights on the subject's skin and hair, with rich saturated ambient red environment"
+      "default": "dramatic side lighting",
+      "gpt-image": "dramatic high-contrast side lighting, illuminating one side of her face while leaving the other in deep artistic shadow",
+      "gpt-image-safe": "side lighting defining facial profile with gentle contrast",
+      "gpt-image-positive": "fine-art portrait, dramatic contrast, elegant shadows, refined visual composition"
     },
-    "tags": [
-      "lighting",
-      "ambient"
-    ],
+    "tags": ["lighting", "key light", "side light"],
     "enabled": true
   },
   {
-    "id": "lighting.004",
+    "id": "lighting.key_04",
     "category": "lighting",
-    "label": "Golden hour sunlight",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "golden hour lighting",
-      "gpt-image": "warm golden hour sunlight casting soft long shadows and brilliant warm highlights"
-    },
-    "tags": [
-      "lighting",
-      "natural"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_01",
-    "category": "lighting",
-    "label": "Dappled leaf shadows",
+    "subcategory": "Key Light",
+    "label": "Dappled Leaf Shadows",
     "ui": {
       "control": "select",
       "group": "Lighting"
     },
     "prompt": {
       "default": "dappled sunlight through leaves",
-      "gpt-image": "dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject"
+      "gpt-image": "dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject",
+      "gpt-image-safe": "soft natural light with dappled shadow patterns on the subject",
+      "gpt-image-positive": "cinematic natural lighting, outdoor portraiture, lifestyle photography"
     },
-    "tags": [
-      "lighting",
-      "natural",
-      "shadows"
-    ],
+    "tags": ["lighting", "key light", "natural", "dappled"],
     "enabled": true
   },
   {
-    "id": "lighting.nat_02",
+    "id": "lighting.key_05",
     "category": "lighting",
-    "label": "Overcast diffused daylight",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "soft overcast daylight",
-      "gpt-image": "soft diffused overcast natural daylight, eliminating harsh shadows for a clean skin complexion"
-    },
-    "tags": [
-      "lighting",
-      "natural",
-      "soft"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_03",
-    "category": "lighting",
-    "label": "Sunrise warm glow",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "warm morning sunrise light",
-      "gpt-image": "warm morning sunrise light casting long gentle shadows and a soft pinkish-golden glow"
-    },
-    "tags": [
-      "lighting",
-      "natural",
-      "sunrise"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_04",
-    "category": "lighting",
-    "label": "Sunset golden rays",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "dramatic sunset rays",
-      "gpt-image": "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights"
-    },
-    "tags": [
-      "lighting",
-      "natural",
-      "sunset"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_05",
-    "category": "lighting",
-    "label": "Blue hour twilight",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "blue hour twilight lighting",
-      "gpt-image": "cool moody blue hour twilight atmosphere with deep cobalt sky tones"
-    },
-    "tags": [
-      "lighting",
-      "natural",
-      "twilight"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_06",
-    "category": "lighting",
-    "label": "Silver moonlight",
-    "ui": {
-      "control": "select",
-      "group": "Lighting"
-    },
-    "prompt": {
-      "default": "soft silver moonlight",
-      "gpt-image": "soft silver moonlight casting cool pale highlights and mystical shadows"
-    },
-    "tags": [
-      "lighting",
-      "natural",
-      "night"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "lighting.nat_07",
-    "category": "lighting",
-    "label": "Harsh midday sun",
+    "subcategory": "Key Light",
+    "label": "Harsh Midday Sun",
     "ui": {
       "control": "select",
       "group": "Lighting"
     },
     "prompt": {
       "default": "direct harsh afternoon sun",
-      "gpt-image": "direct harsh afternoon sun casting sharp contrast highlights and dark defined shadows"
+      "gpt-image": "direct harsh afternoon sun casting sharp contrast highlights and dark defined shadows",
+      "gpt-image-safe": "bright direct sunlight casting natural highlights and defined shadows",
+      "gpt-image-positive": "sunny day photography, sharp contrast highlights, lifestyle outdoor portrait"
     },
-    "tags": [
-      "lighting",
-      "natural",
-      "harsh"
-    ],
+    "tags": ["lighting", "key light", "sunlight", "harsh"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.fill_01",
+    "category": "lighting",
+    "subcategory": "Fill Light",
+    "label": "Soft Diffused Fill",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft diffused fill light",
+      "gpt-image": "soft diffused fill light to gently soften shadows without losing facial definition",
+      "gpt-image-safe": "soft diffused fill light to gently soften shadows",
+      "gpt-image-positive": "balanced studio lighting, clean skin complexion, professional photography"
+    },
+    "tags": ["lighting", "fill light", "soft"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.fill_02",
+    "category": "lighting",
+    "subcategory": "Fill Light",
+    "label": "Reflector Board Bounce",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "reflector bounce light",
+      "gpt-image": "subtle warm reflector bounce light filling in shadow details under the chin and eyes, making the gaze appear bright",
+      "gpt-image-safe": "warm reflector bounce light filling in shadow details on the face",
+      "gpt-image-positive": "natural reflector board bounce, professional makeup light, clean portrait"
+    },
+    "tags": ["lighting", "fill light", "bounce"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.fill_03",
+    "category": "lighting",
+    "subcategory": "Fill Light",
+    "label": "Cool-Toned Shadow Fill",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "cool shadow fill light",
+      "gpt-image": "cool-toned subtle fill light, rendering shadows with soft blue and slate undertones for a modern film aesthetic",
+      "gpt-image-safe": "cool-toned subtle fill light rendering soft shadows with blue undertones",
+      "gpt-image-positive": "cinematic lighting color grading, teal and orange harmony, cool shadow details"
+    },
+    "tags": ["lighting", "fill light", "cool"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.fill_04",
+    "category": "lighting",
+    "subcategory": "Fill Light",
+    "label": "High Contrast (No Fill)",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "high-contrast lighting with no fill",
+      "gpt-image": "no fill light, creating deep high-contrast shadows for a moody low-key aesthetic",
+      "gpt-image-safe": "high-contrast lighting with deep natural shadows for a moody look",
+      "gpt-image-positive": "low-key photography, artistic shadows, dramatic composition"
+    },
+    "tags": ["lighting", "fill light", "high contrast", "no fill"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.back_01",
+    "category": "lighting",
+    "subcategory": "Back Light",
+    "label": "Brilliant Rim Light",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "brilliant rim lighting",
+      "gpt-image": "brilliant rim lighting along the contours of her shoulders and hair, separating the subject from the dark background",
+      "gpt-image-safe": "rim lighting along the contours of her silhouette, separating her from the background",
+      "gpt-image-positive": "separating rim light, high-fashion styling, professional studio lighting"
+    },
+    "tags": ["lighting", "back light", "rim light"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.back_02",
+    "category": "lighting",
+    "subcategory": "Back Light",
+    "label": "Golden Sun Halo",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "golden sun halo backlighting",
+      "gpt-image": "bright golden backlighting from the sun, creating a glowing lens flare and warm halo effect around her hair",
+      "gpt-image-safe": "warm golden backlighting from the sun creating a soft halo effect around her hair",
+      "gpt-image-positive": "golden lens flare, sun halo, outdoor lifestyle portrait, warm glow"
+    },
+    "tags": ["lighting", "back light", "halo", "sunlight"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.back_03",
+    "category": "lighting",
+    "subcategory": "Back Light",
+    "label": "Neon Rim Light",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "neon rim lighting",
+      "gpt-image": "dramatic cyan and pink neon backlight casting a sharp colorful outline along her silhouette",
+      "gpt-image-safe": "neon backlight casting a sharp colorful outline along her silhouette",
+      "gpt-image-positive": "cyberpunk neon lights, high-contrast rim lighting, urban night theme"
+    },
+    "tags": ["lighting", "back light", "neon", "rim"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.back_04",
+    "category": "lighting",
+    "subcategory": "Back Light",
+    "label": "Soft Hair Light",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft hair light",
+      "gpt-image": "subtle overhead hair light to bring out detailed texture, fine strands, and a healthy sheen in her hair",
+      "gpt-image-safe": "subtle overhead hair light to bring out texture and sheen in her hair",
+      "gpt-image-positive": "professional studio hair light, detailed hair styling, commercial quality"
+    },
+    "tags": ["lighting", "back light", "hair light"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.flash_01",
+    "category": "lighting",
+    "subcategory": "Flash",
+    "label": "Strong Flash Lighting",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "strong flash lighting",
+      "gpt-image": "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright",
+      "gpt-image-safe": "camera flash lighting illuminating the subject directly, highlighting radiant and smooth skin",
+      "gpt-image-positive": "direct flash photography, party snapshot look, high contrast, clean skin texture"
+    },
+    "tags": ["lighting", "flash", "strong"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.flash_02",
+    "category": "lighting",
+    "subcategory": "Flash",
+    "label": "Ring Flash",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "ring flash lighting",
+      "gpt-image": "ring flash lighting creating circular catchlights in the eyes and uniform, shadowless skin details with soft background falloff",
+      "gpt-image-safe": "ring flash lighting creating catchlights in the eyes and uniform shadowless skin details",
+      "gpt-image-positive": "beauty editorial shoot, uniform lighting, shadowless portrait, commercial fashion photography"
+    },
+    "tags": ["lighting", "flash", "ring flash"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.flash_03",
+    "category": "lighting",
+    "subcategory": "Flash",
+    "label": "Slow Sync Flash",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "slow sync flash",
+      "gpt-image": "slow sync flash combining sharp subject details with soft ambient motion blur and light trails in the background",
+      "gpt-image-safe": "slow sync flash combining sharp subject details with soft ambient light trail background",
+      "gpt-image-positive": "creative photography, night life snapshot, motion blur contrast, dynamic composition"
+    },
+    "tags": ["lighting", "flash", "slow sync"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.neon_01",
+    "category": "lighting",
+    "subcategory": "Neon",
+    "label": "Red and Pink Neon",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "strong dramatic red and pink neon lighting",
+      "gpt-image": "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene",
+      "gpt-image-safe": "dramatic red and pink neon lighting casting a warm atmospheric glow across the scene",
+      "gpt-image-positive": "vibrant neon colors, night scene aesthetics, atmospheric city glow"
+    },
+    "tags": ["lighting", "neon", "red pink"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.neon_02",
+    "category": "lighting",
+    "subcategory": "Neon",
+    "label": "Cyberpunk Cyan and Purple",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "cyberpunk cyan and purple neon lighting",
+      "gpt-image": "glowing cyberpunk cyan and purple neon light tubes casting vibrant cybernetic hues across the face and wardrobe",
+      "gpt-image-safe": "cyan and purple neon lighting casting vibrant cybernetic hues across the scene",
+      "gpt-image-positive": "cyberpunk city vibes, colorful neon reflections, high-tech aesthetic"
+    },
+    "tags": ["lighting", "neon", "cyan purple"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.neon_03",
+    "category": "lighting",
+    "subcategory": "Neon",
+    "label": "Cozy Warm Amber Neon",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "warm amber neon lighting",
+      "gpt-image": "warm amber and orange neon signs glowing in the background, casting a cozy retro reflection on her skin and eyes",
+      "gpt-image-safe": "warm amber and orange neon signs casting a cozy retro reflection",
+      "gpt-image-positive": "retro cafe styling, warm neon lights, cozy evening mood"
+    },
+    "tags": ["lighting", "neon", "amber orange"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.ambient_01",
+    "category": "lighting",
+    "subcategory": "Ambient",
+    "label": "Soft Ambient Glow",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft lighting on the subject in rich saturated environment",
+      "gpt-image": "soft highlights on the subject's skin and hair, with rich saturated ambient red environment",
+      "gpt-image-safe": "soft ambient lighting on the subject's skin and hair in a rich saturated environment",
+      "gpt-image-positive": "soft ambient glow, rich saturated background color, gentle highlight falloff"
+    },
+    "tags": ["lighting", "ambient", "soft glow"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.ambient_02",
+    "category": "lighting",
+    "subcategory": "Ambient",
+    "label": "Cozy Candlelight Glow",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "warm cozy candlelight glow",
+      "gpt-image": "warm cozy candlelight glow casting soft, flickering golden-orange highlights on the face and nearby surfaces",
+      "gpt-image-safe": "warm cozy candlelight glow casting soft golden highlights on the face",
+      "gpt-image-positive": "cozy candlelight, intimate portrait mood, warm flickering shadows"
+    },
+    "tags": ["lighting", "ambient", "candlelight"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.ambient_03",
+    "category": "lighting",
+    "subcategory": "Ambient",
+    "label": "Greenhouse Sunbeams",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "sunbeams filtering through panels",
+      "gpt-image": "dreamy sunbeams filtering through glass panel greenhouse roofs, illuminating soft ambient air and creating glowing outlines",
+      "gpt-image-safe": "dreamy sunbeams filtering through glass panels creating soft ambient highlights",
+      "gpt-image-positive": "natural light shafts, botanic garden setting, dreamy glowing highlights"
+    },
+    "tags": ["lighting", "ambient", "sunbeams"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.ambient_04",
+    "category": "lighting",
+    "subcategory": "Ambient",
+    "label": "Soft Diffused Overcast",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft diffused overcast daylight",
+      "gpt-image": "soft diffused overcast natural daylight, eliminating harsh shadows for a clean skin complexion",
+      "gpt-image-safe": "soft diffused overcast natural daylight for a clean skin complexion",
+      "gpt-image-positive": "natural soft lighting, outdoor portraiture, clean skin texture"
+    },
+    "tags": ["lighting", "ambient", "overcast", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.golden_01",
+    "category": "lighting",
+    "subcategory": "Golden Hour",
+    "label": "Golden Hour Sunlight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "golden hour lighting",
+      "gpt-image": "warm golden hour sunlight casting soft long shadows and brilliant warm highlights",
+      "gpt-image-safe": "warm golden hour sunlight casting soft shadows and warm highlights",
+      "gpt-image-positive": "golden hour photography, warm sun rays, lifestyle portrait, outdoor lighting"
+    },
+    "tags": ["lighting", "golden hour", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.golden_02",
+    "category": "lighting",
+    "subcategory": "Golden Hour",
+    "label": "Sunrise Warm Glow",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "warm morning sunrise light",
+      "gpt-image": "warm morning sunrise light casting long gentle shadows and a soft pinkish-golden glow",
+      "gpt-image-safe": "warm morning sunrise light casting gentle shadows and a soft golden glow",
+      "gpt-image-positive": "early morning glow, sunrise photography, fresh natural highlights"
+    },
+    "tags": ["lighting", "golden hour", "sunrise", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.golden_03",
+    "category": "lighting",
+    "subcategory": "Golden Hour",
+    "label": "Sunset Golden Rays",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "dramatic sunset rays",
+      "gpt-image": "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights",
+      "gpt-image-safe": "low-angle sunset rays piercing through the background with golden highlights",
+      "gpt-image-positive": "sunset rays, dramatic low-angle sun, golden highlights, outdoor portraiture"
+    },
+    "tags": ["lighting", "golden hour", "sunset", "natural"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.golden_04",
+    "category": "lighting",
+    "subcategory": "Golden Hour",
+    "label": "Blue Hour Twilight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "blue hour twilight lighting",
+      "gpt-image": "cool moody blue hour twilight atmosphere with deep cobalt sky tones and glowing city ambient lights",
+      "gpt-image-safe": "cool blue hour twilight atmosphere with deep cobalt sky tones",
+      "gpt-image-positive": "blue hour twilight, cool cobalt ambient tones, twilight color palette"
+    },
+    "tags": ["lighting", "golden hour", "twilight", "blue hour"],
+    "enabled": true
+  },
+  {
+    "id": "lighting.golden_05",
+    "category": "lighting",
+    "subcategory": "Golden Hour",
+    "label": "Silver Moonlight",
+    "ui": {
+      "control": "select",
+      "group": "Lighting"
+    },
+    "prompt": {
+      "default": "soft silver moonlight",
+      "gpt-image": "soft silver moonlight casting cool pale highlights and mystical shadows across the scene",
+      "gpt-image-safe": "soft silver moonlight casting cool highlights and shadows",
+      "gpt-image-positive": "night light mood, silver moonlight reflection, cool pale highlights"
+    },
+    "tags": ["lighting", "golden hour", "moonlight", "night"],
     "enabled": true
   }
 ]
