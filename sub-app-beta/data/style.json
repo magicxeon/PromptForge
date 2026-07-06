@@ -1,0 +1,27 @@
+{
+  "rendering": [
+    "AAA Game Splash Art",
+    "Stylized Realism",
+    "Semi Realistic"
+  ],
+  "lighting": [
+    "cinematic lighting",
+    "soft studio lighting",
+    "rim lighting",
+    "volumetric lighting",
+    "golden hour"
+  ],
+  "camera": [
+    "full body",
+    "three quarter",
+    "portrait",
+    "low angle",
+    "eye level"
+  ],
+  "composition": [
+    "center composition",
+    "leave space above head",
+    "leave space below feet",
+    "no crop"
+  ]
+}

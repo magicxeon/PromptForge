@@ -1,0 +1,64 @@
+{
+  "pose": [
+    {
+      "name": "standing confidently",
+      "minRank": "E"
+    },
+    {
+      "name": "hero pose",
+      "minRank": "S"
+    },
+    {
+      "name": "combat ready",
+      "minRank": "A"
+    },
+    {
+      "name": "walking",
+      "minRank": "E"
+    },
+    {
+      "name": "looking back",
+      "minRank": "B"
+    },
+    {
+      "name": "kneeling",
+      "minRank": "B"
+    },
+    {
+      "name": "running",
+      "minRank": "B"
+    },
+    {
+      "name": "aiming",
+      "minRank": "A"
+    },
+    {
+      "name": "arms crossed",
+      "minRank": "D"
+    },
+    {
+      "name": "saluting",
+      "minRank": "C"
+    },
+    {
+      "name": "holding weapon down",
+      "minRank": "C"
+    },
+    {
+      "name": "weapon on shoulder",
+      "minRank": "A"
+    },
+    {
+      "name": "dynamic jump",
+      "minRank": "S"
+    },
+    {
+      "name": "idle stance",
+      "minRank": "E"
+    },
+    {
+      "name": "guard stance",
+      "minRank": "D"
+    }
+  ]
+}

@@ -1,0 +1,3419 @@
+{
+  "outfit": [
+    {
+      "theme": "military",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "reinforced leather armor",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "hunter coat",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "combat shirt",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "reinforced leather armor",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "royal officer uniform",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "royal vest",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "reinforced leather armor",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "assassin coat",
+      "bottom": "leather pants",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "villager",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "military",
+      "top": "guard uniform",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "traveler",
+      "top": "old traveler coat",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "patched leather jerkin",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "simple linen shirt",
+      "bottom": "rough leggings",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple blouse",
+      "bottom": "rough leggings",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "military",
+      "top": "light breastplate",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "villager",
+      "top": "old traveler coat",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough cloak",
+      "bottom": "traveler pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple blouse",
+      "bottom": "rough leggings",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "military",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "elite combat jacket",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "hunter coat",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "hero armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "goddess ceremonial robe",
+      "bottom": "dragon silk skirt",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "military",
+      "top": "royal officer uniform",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "luxury leather corset",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "ornate battle dress",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "captain long coat",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "light breastplate",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "battle corset",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "military",
+      "top": "hooded jacket",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "hooded jacket",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "combat shirt",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "military",
+      "top": "royal officer uniform",
+      "bottom": "hero trousers",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "legendary dragon armor",
+      "bottom": "holy armored shorts",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "military",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "ornate battle dress",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "military",
+      "top": "hero armor",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "royal officer uniform",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "elite combat jacket",
+      "bottom": "tactical shorts",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "reinforced leather armor",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "reinforced leather armor",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "officer uniform",
+      "bottom": "combat leggings",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "royal officer uniform",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "empress royal gown",
+      "bottom": "celestial leggings",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "hero armor",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "hero armor",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "royal officer uniform",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "stylish tactical jacket",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "hooded jacket",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "combat shirt",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "royal vest",
+      "bottom": "leather pants",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "leather armor",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "traveler jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "stylish tactical jacket",
+      "bottom": "battle skirt",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "royal vest",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "battle corset",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "stylish tactical jacket",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "battle corset",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "celestial armor",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "divine battle dress",
+      "bottom": "enchanted skirt",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "celestial armor",
+      "bottom": "dragon silk skirt",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "celestial armor",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "celestial armor",
+      "bottom": "enchanted skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "mythic commander coat",
+      "bottom": "holy armored shorts",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "elite combat jacket",
+      "bottom": "combat leggings",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "hero armor",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "assassin coat",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "battle corset",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "battle corset",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "celestial armor",
+      "bottom": "enchanted skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "goddess ceremonial robe",
+      "bottom": "enchanted skirt",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "mythic commander coat",
+      "bottom": "enchanted skirt",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "legendary dragon armor",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "divine battle dress",
+      "bottom": "dragon silk skirt",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "cyberpunk",
+      "top": "divine battle dress",
+      "bottom": "dragon silk skirt",
+      "footwear": "celestial greaves",
+      "minRank": "S"
+    },
+    {
+      "theme": "fantasy",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "royal vest",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "hunter coat",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "officer uniform",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "battle corset",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "royal vest",
+      "bottom": "combat leggings",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "officer uniform",
+      "bottom": "tactical shorts",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "royal vest",
+      "bottom": "combat leggings",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "common",
+      "top": "rough cloak",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "hunter",
+      "top": "rough leather vest",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple blouse",
+      "bottom": "hunter trousers",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple linen shirt",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "old traveler coat",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "hunter vest",
+      "bottom": "patched pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "fantasy",
+      "top": "hooded jacket",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "traveler",
+      "top": "simple blouse",
+      "bottom": "patched pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "rough cloak",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "rough cloak",
+      "bottom": "rough leggings",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple blouse",
+      "bottom": "traveler pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "fantasy",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "elite combat jacket",
+      "bottom": "leather pants",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "leather armor",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "dragon scale armor",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "celestial armor",
+      "bottom": "dragon silk skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "fantasy",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "officer uniform",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "hunter coat",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "guard uniform",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "fantasy",
+      "top": "ceremonial dress",
+      "bottom": "luxury skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "legendary dragon armor",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "fantasy",
+      "top": "luxury leather corset",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "luxury leather corset",
+      "bottom": "armored skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "captain long coat",
+      "bottom": "hero trousers",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "fantasy",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "royal vest",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "hooded jacket",
+      "bottom": "explorer trousers",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "reinforced leather armor",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "assassin coat",
+      "bottom": "battle skirt",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "royal vest",
+      "bottom": "leather pants",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "elite combat jacket",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "assassin coat",
+      "bottom": "battle skirt",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "scout",
+      "top": "rough leather vest",
+      "bottom": "hunter trousers",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "school",
+      "top": "hunter coat",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "traveler",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "rough leather vest",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "rough leather vest",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "hunter vest",
+      "bottom": "rough leggings",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "school",
+      "top": "leather armor",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "rough leather vest",
+      "bottom": "traveler pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "old traveler coat",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "rough cloak",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "simple linen shirt",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "school",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "battle corset",
+      "bottom": "tactical shorts",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "guard uniform",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "hooded jacket",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "royal officer uniform",
+      "bottom": "hero trousers",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "divine battle dress",
+      "bottom": "celestial leggings",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "school",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "dragon scale armor",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "battle corset",
+      "bottom": "battle skirt",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "school",
+      "top": "light breastplate",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "hunter coat",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "school",
+      "top": "hero armor",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "divine battle dress",
+      "bottom": "holy armored shorts",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "school",
+      "top": "dragon scale armor",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "dragon scale armor",
+      "bottom": "hero trousers",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "ornate battle dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "school",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "stylish tactical jacket",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "hunter coat",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "hooded jacket",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "reinforced leather armor",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "royal officer uniform",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "officer uniform",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "elite combat jacket",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "elite combat jacket",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "elite combat jacket",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "scout",
+      "top": "simple linen shirt",
+      "bottom": "hunter trousers",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "business",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "hunter",
+      "top": "rough leather vest",
+      "bottom": "simple skirt",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "rough leather vest",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "old traveler coat",
+      "bottom": "traveler pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough leather vest",
+      "bottom": "rough leggings",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple linen shirt",
+      "bottom": "rough leggings",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "business",
+      "top": "combat shirt",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "common",
+      "top": "old traveler coat",
+      "bottom": "simple skirt",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "rough leather vest",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "simple linen shirt",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple blouse",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "business",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "stylish tactical jacket",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "leather armor",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "combat shirt",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "traveler jacket",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "goddess ceremonial robe",
+      "bottom": "enchanted skirt",
+      "footwear": "celestial greaves",
+      "minRank": "S"
+    },
+    {
+      "theme": "business",
+      "top": "ceremonial dress",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "luxury leather corset",
+      "bottom": "ceremonial shorts",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "captain long coat",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "traveler jacket",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "business",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "guard uniform",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "combat shirt",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "business",
+      "top": "ornate battle dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "goddess ceremonial robe",
+      "bottom": "enchanted skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "business",
+      "top": "dragon scale armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "luxury leather corset",
+      "bottom": "hero trousers",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "hero armor",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "business",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "royal vest",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "traveler jacket",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "guard uniform",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "light breastplate",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "battle corset",
+      "bottom": "leather pants",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "officer uniform",
+      "bottom": "battle skirt",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "elite combat jacket",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "officer uniform",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough leather vest",
+      "bottom": "traveler pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "casual",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "common",
+      "top": "rough cloak",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough cloak",
+      "bottom": "patched pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "rough cloak",
+      "bottom": "hunter trousers",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "cloth tunic",
+      "bottom": "traveler pants",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "rough leather vest",
+      "bottom": "rough leggings",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "casual",
+      "top": "leather armor",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "hunter",
+      "top": "hunter vest",
+      "bottom": "simple skirt",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "patched leather jerkin",
+      "bottom": "hunter trousers",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "hunter vest",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "rough leather vest",
+      "bottom": "patched pants",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "casual",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "elite combat jacket",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "light breastplate",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "hooded jacket",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "guard uniform",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "divine battle dress",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "casual",
+      "top": "ceremonial dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "royal officer uniform",
+      "bottom": "luxury skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "luxury leather corset",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "hero armor",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "reinforced leather armor",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "casual",
+      "top": "traveler jacket",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "hunter coat",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "leather armor",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "casual",
+      "top": "luxury leather corset",
+      "bottom": "luxury skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "holy corset armor",
+      "bottom": "celestial leggings",
+      "footwear": "celestial greaves",
+      "minRank": "S"
+    },
+    {
+      "theme": "casual",
+      "top": "dragon scale armor",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "ornate battle dress",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "dragon scale armor",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "casual",
+      "top": "hero armor",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "traveler jacket",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "battle corset",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "combat shirt",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "combat shirt",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "royal vest",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "luxury leather corset",
+      "bottom": "hero trousers",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "assassin coat",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "officer uniform",
+      "bottom": "battle skirt",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "royal vest",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "royal vest",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "scout",
+      "top": "cloth tunic",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "navy",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "old traveler coat",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "cloth tunic",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "patched leather jerkin",
+      "bottom": "rough leggings",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "old traveler coat",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "hunter vest",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "navy",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "patched leather jerkin",
+      "bottom": "hunter trousers",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "patched leather jerkin",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "rough cloak",
+      "bottom": "simple skirt",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "cloth tunic",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "navy",
+      "top": "guard uniform",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "stylish tactical jacket",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "traveler jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "guard uniform",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "light breastplate",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "empress royal gown",
+      "bottom": "dragon silk skirt",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "navy",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "ceremonial dress",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "captain long coat",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "royal officer uniform",
+      "bottom": "armored skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "officer uniform",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "navy",
+      "top": "light breastplate",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "hooded jacket",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "traveler jacket",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "hunter coat",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "navy",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "divine battle dress",
+      "bottom": "holy armored shorts",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "navy",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "ornate battle dress",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "navy",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "reinforced leather armor",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "hooded jacket",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "combat shirt",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "officer uniform",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "luxury leather corset",
+      "bottom": "hero trousers",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "stylish tactical jacket",
+      "bottom": "leather pants",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "elite combat jacket",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "elite combat jacket",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "reinforced leather armor",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "common",
+      "top": "rough cloak",
+      "bottom": "hunter trousers",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "assassin",
+      "top": "leather armor",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "common",
+      "top": "rough leather vest",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "simple linen shirt",
+      "bottom": "traveler pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "hunter vest",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "rough cloak",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "patched leather jerkin",
+      "bottom": "traveler pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "assassin",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "simple blouse",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "cloth tunic",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "hunter vest",
+      "bottom": "traveler pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "hunter",
+      "top": "old traveler coat",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "assassin",
+      "top": "hooded jacket",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "officer uniform",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "light breastplate",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "light breastplate",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "hunter coat",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "dragon scale armor",
+      "bottom": "armored skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "goddess ceremonial robe",
+      "bottom": "celestial leggings",
+      "footwear": "phoenix heels",
+      "minRank": "S"
+    },
+    {
+      "theme": "assassin",
+      "top": "royal officer uniform",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "hero armor",
+      "bottom": "luxury skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "ceremonial dress",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "combat shirt",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "assassin coat",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "assassin",
+      "top": "guard uniform",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "combat shirt",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "traveler jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "hooded jacket",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "assassin",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "holy corset armor",
+      "bottom": "enchanted skirt",
+      "footwear": "holy armored boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "assassin",
+      "top": "hero armor",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "royal officer uniform",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "assassin",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hunter coat",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "assassin coat",
+      "bottom": "combat leggings",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "combat shirt",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hooded jacket",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "reinforced leather armor",
+      "bottom": "battle skirt",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "assassin coat",
+      "bottom": "battle skirt",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "battle corset",
+      "bottom": "battle skirt",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "elite combat jacket",
+      "bottom": "elite trousers",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "royal vest",
+      "bottom": "battle skirt",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "villager",
+      "top": "rough cloak",
+      "bottom": "rough leggings",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "steampunk",
+      "top": "traveler jacket",
+      "bottom": "explorer trousers",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "villager",
+      "top": "simple blouse",
+      "bottom": "rough leggings",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough leather vest",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "hunter vest",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "simple linen shirt",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "cloth tunic",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "simple blouse",
+      "bottom": "patched pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple linen shirt",
+      "bottom": "hunter trousers",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "patched leather jerkin",
+      "bottom": "rough leggings",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "hunter vest",
+      "bottom": "simple skirt",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hooded jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "battle corset",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hunter coat",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "light breastplate",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "traveler jacket",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "guard uniform",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "goddess ceremonial robe",
+      "bottom": "dragon silk skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "steampunk",
+      "top": "ornate battle dress",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "dragon scale armor",
+      "bottom": "luxury skirt",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "ceremonial dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "ceremonial dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "leather armor",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "officer uniform",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "steampunk",
+      "top": "leather armor",
+      "bottom": "explorer trousers",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "guard uniform",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "steampunk",
+      "top": "luxury leather corset",
+      "bottom": "royal leggings",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "legendary dragon armor",
+      "bottom": "dragon silk skirt",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "steampunk",
+      "top": "dragon scale armor",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "captain long coat",
+      "bottom": "hero trousers",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "ornate battle dress",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "steampunk",
+      "top": "hero armor",
+      "bottom": "armored skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "light breastplate",
+      "bottom": "explorer trousers",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "stylish tactical jacket",
+      "bottom": "leather pants",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "leather armor",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "leather armor",
+      "bottom": "combat pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "traveler jacket",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "hunter coat",
+      "bottom": "combat pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "assassin coat",
+      "bottom": "battle skirt",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "ceremonial dress",
+      "bottom": "royal leggings",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "stylish tactical jacket",
+      "bottom": "tactical shorts",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "assassin coat",
+      "bottom": "elite trousers",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "assassin coat",
+      "bottom": "combat leggings",
+      "footwear": "high leather boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "stylish tactical jacket",
+      "bottom": "elite trousers",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "common",
+      "top": "patched leather jerkin",
+      "bottom": "rough leggings",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "mage",
+      "top": "light breastplate",
+      "bottom": "combat pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "hunter",
+      "top": "patched leather jerkin",
+      "bottom": "hunter trousers",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "simple linen shirt",
+      "bottom": "simple skirt",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "hunter vest",
+      "bottom": "patched pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "scout",
+      "top": "old traveler coat",
+      "bottom": "hunter trousers",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple blouse",
+      "bottom": "patched pants",
+      "footwear": "leather sandals",
+      "minRank": "D"
+    },
+    {
+      "theme": "mage",
+      "top": "leather armor",
+      "bottom": "cargo pants",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "scout",
+      "top": "hunter vest",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "common",
+      "top": "simple linen shirt",
+      "bottom": "traveler pants",
+      "footwear": "traveler boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "traveler",
+      "top": "rough leather vest",
+      "bottom": "patched pants",
+      "footwear": "old boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "villager",
+      "top": "simple blouse",
+      "bottom": "traveler pants",
+      "footwear": "simple boots",
+      "minRank": "D"
+    },
+    {
+      "theme": "mage",
+      "top": "guard uniform",
+      "bottom": "reinforced leggings",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "officer uniform",
+      "bottom": "tactical shorts",
+      "footwear": "elite boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "guard uniform",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "guard uniform",
+      "bottom": "cargo pants",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "traveler jacket",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "leather armor",
+      "bottom": "reinforced leggings",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "dragon scale armor",
+      "bottom": "luxury skirt",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "holy corset armor",
+      "bottom": "holy armored shorts",
+      "footwear": "divine boots",
+      "minRank": "S"
+    },
+    {
+      "theme": "mage",
+      "top": "hero armor",
+      "bottom": "hero trousers",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "ornate battle dress",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "captain long coat",
+      "bottom": "armored skirt",
+      "footwear": "captain boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "luxury leather corset",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "light breastplate",
+      "bottom": "battle skirt",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "reinforced leather armor",
+      "bottom": "combat leggings",
+      "footwear": "officer boots",
+      "minRank": "B"
+    },
+    {
+      "theme": "mage",
+      "top": "hunter coat",
+      "bottom": "battle skirt",
+      "footwear": "leather boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "hunter coat",
+      "bottom": "reinforced leggings",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "traveler jacket",
+      "bottom": "battle skirt",
+      "footwear": "combat boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "combat shirt",
+      "bottom": "cargo pants",
+      "footwear": "field boots",
+      "minRank": "C"
+    },
+    {
+      "theme": "mage",
+      "top": "ceremonial dress",
+      "bottom": "royal leggings",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "celestial armor",
+      "bottom": "dragon silk skirt",
+      "footwear": "celestial greaves",
+      "minRank": "S"
+    },
+    {
+      "theme": "mage",
+      "top": "ornate battle dress",
+      "bottom": "armored skirt",
+      "footwear": "royal boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "ceremonial dress",
+      "bottom": "luxury skirt",
+      "footwear": "luxury heels",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "captain long coat",
+      "bottom": "royal leggings",
+      "footwear": "dragon leather boots",
+      "minRank": "A"
+    },
+    {
+      "theme": "mage",
+      "top": "ceremonial dress",
+      "bottom": "ceremonial shorts",
+      "footwear": "captain boots",
+      "minRank": "A"
+    }
+  ],
+  "neckline": [
+    "crew neck",
+    "round neck",
+    "square neckline",
+    "boat neckline",
+    "sweetheart neckline",
+    "deep V-neck",
+    "plunging V-neck",
+    "open collar",
+    "partially unbuttoned shirt",
+    "low-cut tactical top",
+    "deep open collar",
+    "fashionable open neckline",
+    "stylish unbuttoned blouse",
+    "elegant open-front shirt"
+  ],
+  "fit": [
+    "oversized",
+    "regular fit",
+    "slim fit",
+    "tailored fit",
+    "body-hugging fit",
+    "form-fitting",
+    "athletic fit"
+  ],
+  "shirtStyle": [
+    "fully buttoned",
+    "top button open",
+    "two buttons open",
+    "three buttons open",
+    "loosely unbuttoned",
+    "casually unbuttoned"
+  ],
+  "fabric": [
+    "cotton",
+    "silk",
+    "satin",
+    "linen",
+    "sheer chiffon",
+    "soft knit",
+    "premium leather",
+    "latex",
+    "high-tech tactical fabric"
+  ],
+  "details": [
+    "gold trim",
+    "embroidered insignia",
+    "military shoulder straps",
+    "lace trim",
+    "corset waist",
+    "belted waist",
+    "tactical harness",
+    "decorative zipper",
+    "metal buttons"
+  ]
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AAA Character Generator</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+<header>
+<h1>AAA Character Generator</h1>
+<p>Generate AAA Game Style Character Prompts</p>
+</header>
+
+<section class="panel controls">
+<div class="row">
+<label>Rank</label>
+<select id="rankFilter">
+<option value="">Random</option>
+<option>S</option><option>A</option><option>B</option>
+<option>C</option><option>D</option><option>E</option>
+</select>
+
+<button id="generateBtn">Generate</button>
+<button id="copyBtn">Copy Prompt</button>
+<button id="exportBtn">Export JSON</button>
+</div>
+</section>
+
+<div class="grid">
+<section class="panel">
+<h2>Character</h2>
+<pre id="characterInfo">Press Generate...</pre>
+</section>
+
+<section class="panel">
+<h2>Prompt</h2>
+<textarea id="promptOutput" spellcheck="false"></textarea>
+</section>
+</div>
+
+<footer>
+<small>AAA Character Generator v0.1</small>
+</footer>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

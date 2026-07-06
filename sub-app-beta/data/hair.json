@@ -1,0 +1,4324 @@
+{
+  "hair": [
+    {
+      "color": "black",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "black",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "black",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "brown",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "brown",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "silver",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "silver",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "S"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "S"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "A"
+    },
+    {
+      "color": "silver",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "S"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "white",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "white",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "S"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "S"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "A"
+    },
+    {
+      "color": "white",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "S"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "C"
+    },
+    {
+      "color": "blonde",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "blonde",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "ash blonde",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "ash blonde",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "pink",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "pink",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "purple",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "purple",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "blue",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "blue",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "red",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "red",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "emerald",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "emerald",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "short",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "straight",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "wavy",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "curly",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "high ponytail",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "low ponytail",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "twin tails",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "bob cut",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "braided",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "messy",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "bun",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "wolf cut",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "pixie",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "side braid",
+      "minRank": "E"
+    },
+    {
+      "color": "cyan",
+      "length": "medium",
+      "style": "hime cut",
+      "minRank": "D"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "long",
+      "style": "hime cut",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "straight",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "wavy",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "curly",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "high ponytail",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "low ponytail",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "twin tails",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "bob cut",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "braided",
+      "minRank": "A"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "messy",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "bun",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "wolf cut",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "pixie",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "side braid",
+      "minRank": "B"
+    },
+    {
+      "color": "cyan",
+      "length": "very long",
+      "style": "hime cut",
+      "minRank": "A"
+    }
+  ]
+}

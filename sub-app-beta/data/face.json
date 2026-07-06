@@ -1,0 +1,122 @@
+{
+  "faceShape": [
+    "oval face",
+    "heart-shaped face",
+    "round face",
+    "diamond face",
+    "square face",
+    "long face",
+    "soft V-line face",
+    "delicate V-shaped face"
+  ],
+  "skinTone": [
+    "fair skin",
+    "porcelain skin",
+    "light ivory skin",
+    "warm beige skin",
+    "golden tan skin",
+    "rosy fair skin",
+    "healthy glowing skin"
+  ],
+  "skinTexture": [
+    "smooth skin",
+    "ultra smooth skin",
+    "realistic skin texture",
+    "visible skin pores",
+    "soft skin",
+    "silky skin",
+    "natural skin"
+  ],
+  "eyes": [
+    "blue eyes",
+    "emerald green eyes",
+    "golden eyes",
+    "violet eyes",
+    "red eyes",
+    "brown eyes",
+    "gray eyes",
+    "amber eyes",
+    "aqua blue eyes"
+  ],
+  "eyeShape": [
+    "large eyes",
+    "almond-shaped eyes",
+    "round eyes",
+    "slightly narrow eyes",
+    "cat eyes",
+    "soft doe eyes"
+  ],
+  "eyelashes": [
+    "long eyelashes",
+    "thick eyelashes",
+    "natural eyelashes",
+    "curled eyelashes",
+    "soft eyelashes"
+  ],
+  "eyebrows": [
+    "soft eyebrows",
+    "thin eyebrows",
+    "straight eyebrows",
+    "arched eyebrows",
+    "natural eyebrows"
+  ],
+  "nose": [
+    "small nose",
+    "straight nose",
+    "button nose",
+    "slim nose",
+    "refined nose",
+    "high nose bridge"
+  ],
+  "lips": [
+    "soft pink lips",
+    "full lips",
+    "natural lips",
+    "glossy lips",
+    "small lips",
+    "well-defined lips"
+  ],
+  "teeth": [
+    "perfect white teeth",
+    "subtle smile",
+    "closed mouth"
+  ],
+  "expression": [
+    "gentle smile",
+    "confident smile",
+    "serious expression",
+    "cold expression",
+    "playful smile",
+    "cute smile",
+    "calm expression",
+    "focused expression",
+    "elegant expression"
+  ],
+  "blush": [
+    "no blush",
+    "soft blush",
+    "light blush",
+    "rosy cheeks"
+  ],
+  "freckles": [
+    "no freckles",
+    "light freckles"
+  ],
+  "makeup": [
+    "natural makeup",
+    "light makeup",
+    "glam makeup",
+    "smokey eye makeup",
+    "no makeup"
+  ],
+  "beauty": [
+    "beautiful face",
+    "very beautiful face",
+    "extremely beautiful face",
+    "cute face",
+    "elegant face",
+    "mature beauty",
+    "idol-like beauty",
+    "model-like beauty"
+  ]
+}

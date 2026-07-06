@@ -1,0 +1,95 @@
+/**
+ * app.js
+ */
+
+import { generateCharacter } from "./generator.js";
+import {
+    renderCharacter,
+    renderPrompt,
+    clearUI
+} from "./ui.js";
+
+import {
+    copyPrompt,
+    exportJSON
+} from "./export.js";
+
+let currentCharacter = null;
+
+const btnGenerate = document.getElementById("generateBtn");
+const btnCopy = document.getElementById("copyBtn");
+const btnExport = document.getElementById("exportBtn");
+const rankFilter = document.getElementById("rankFilter");
+
+async function generate() {
+
+    try {
+
+        clearUI();
+
+        btnGenerate.disabled = true;
+        btnGenerate.textContent = "Generating...";
+
+        currentCharacter = await generateCharacter(
+            rankFilter.value
+        );
+
+        renderCharacter(currentCharacter);
+
+        renderPrompt(currentCharacter.prompt);
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+    finally {
+
+        btnGenerate.disabled = false;
+
+        btnGenerate.textContent = "Generate";
+
+    }
+
+}
+
+btnGenerate.addEventListener("click", generate);
+
+btnCopy.addEventListener("click", () => {
+
+    if (!currentCharacter) {
+
+        alert("Generate character first.");
+
+        return;
+
+    }
+
+    copyPrompt(currentCharacter.prompt);
+
+    // alert("Prompt copied.");
+
+});
+
+btnExport.addEventListener("click", () => {
+
+    if (!currentCharacter) {
+
+        alert("Generate character first.");
+
+        return;
+
+    }
+
+    exportJSON(currentCharacter);
+
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    generate();
+
+});

@@ -1,0 +1,20 @@
+{
+  "gender": [
+    "female"
+  ],
+  "age": [
+    "young adult"
+  ],
+  "ethnicity": [
+    "East Asian",
+    "European",
+    "Southeast Asian"
+  ],
+  "body": [
+    "slim",
+    "athletic",
+    "curvy",
+    "petite",
+    "tall"
+  ]
+}

@@ -1,0 +1,12 @@
+# TODO
+- [x] Create project structure
+- [x] requirements.md
+- [ ] index.html
+- [ ] style.css
+- [ ] app.js
+- [ ] generator.js
+- [ ] random.js
+- [ ] promptBuilder.js
+- [ ] ui.js
+- [ ] export.js
+- [ ] JSON datasets
