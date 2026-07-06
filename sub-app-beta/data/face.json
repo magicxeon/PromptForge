@@ -1,122 +1,302 @@
 {
   "faceShape": [
-    "oval face",
-    "heart-shaped face",
-    "round face",
-    "diamond face",
-    "square face",
-    "long face",
-    "soft V-line face",
-    "delicate V-shaped face"
-  ],
-  "skinTone": [
-    "fair skin",
-    "porcelain skin",
-    "light ivory skin",
-    "warm beige skin",
-    "golden tan skin",
-    "rosy fair skin",
-    "healthy glowing skin"
-  ],
-  "skinTexture": [
-    "smooth skin",
-    "ultra smooth skin",
-    "realistic skin texture",
-    "visible skin pores",
-    "soft skin",
-    "silky skin",
-    "natural skin"
-  ],
-  "eyes": [
-    "blue eyes",
-    "emerald green eyes",
-    "golden eyes",
-    "violet eyes",
-    "red eyes",
-    "brown eyes",
-    "gray eyes",
-    "amber eyes",
-    "aqua blue eyes"
-  ],
-  "eyeShape": [
-    "large eyes",
-    "almond-shaped eyes",
-    "round eyes",
-    "slightly narrow eyes",
-    "cat eyes",
-    "soft doe eyes"
-  ],
-  "eyelashes": [
-    "long eyelashes",
-    "thick eyelashes",
-    "natural eyelashes",
-    "curled eyelashes",
-    "soft eyelashes"
-  ],
-  "eyebrows": [
-    "soft eyebrows",
-    "thin eyebrows",
-    "straight eyebrows",
-    "arched eyebrows",
-    "natural eyebrows"
-  ],
-  "nose": [
-    "small nose",
-    "straight nose",
-    "button nose",
-    "slim nose",
-    "refined nose",
-    "high nose bridge"
-  ],
-  "lips": [
-    "soft pink lips",
-    "full lips",
-    "natural lips",
-    "glossy lips",
-    "small lips",
-    "well-defined lips"
-  ],
-  "teeth": [
-    "perfect white teeth",
-    "subtle smile",
-    "closed mouth"
-  ],
-  "expression": [
-    "gentle smile",
-    "confident smile",
-    "serious expression",
-    "cold expression",
-    "playful smile",
-    "cute smile",
-    "calm expression",
-    "focused expression",
-    "elegant expression"
-  ],
-  "blush": [
-    "no blush",
-    "soft blush",
-    "light blush",
-    "rosy cheeks"
-  ],
-  "freckles": [
-    "no freckles",
-    "light freckles"
-  ],
-  "makeup": [
-    "natural makeup",
-    "light makeup",
-    "glam makeup",
-    "smokey eye makeup",
-    "no makeup"
+    {
+      "value": "round face",
+      "minRank": "E"
+    },
+    {
+      "value": "square face",
+      "minRank": "E"
+    },
+    {
+      "value": "oval face",
+      "minRank": "D"
+    },
+    {
+      "value": "heart-shaped face",
+      "minRank": "C"
+    },
+    {
+      "value": "diamond face",
+      "minRank": "B"
+    },
+    {
+      "value": "soft V-line face",
+      "minRank": "A"
+    },
+    {
+      "value": "delicate V-shaped face",
+      "minRank": "S"
+    }
   ],
   "beauty": [
-    "beautiful face",
-    "very beautiful face",
-    "extremely beautiful face",
-    "cute face",
-    "elegant face",
-    "mature beauty",
-    "idol-like beauty",
-    "model-like beauty"
+    {
+      "value": "ordinary face",
+      "minRank": "E"
+    },
+    {
+      "value": "plain looking face",
+      "minRank": "E"
+    },
+    {
+      "value": "natural face",
+      "minRank": "D"
+    },
+    {
+      "value": "cute face",
+      "minRank": "D"
+    },
+    {
+      "value": "beautiful face",
+      "minRank": "C"
+    },
+    {
+      "value": "elegant face",
+      "minRank": "B"
+    },
+    {
+      "value": "very beautiful face",
+      "minRank": "A"
+    },
+    {
+      "value": "idol-like beauty",
+      "minRank": "A"
+    },
+    {
+      "value": "model-like beauty",
+      "minRank": "S"
+    },
+    {
+      "value": "goddess face",
+      "minRank": "S"
+    },
+    {
+      "value": "ethereal beauty",
+      "minRank": "S"
+    }
+  ],
+  "skinTone": [
+    {
+      "value": "rough tanned skin",
+      "minRank": "E"
+    },
+    {
+      "value": "sunburned skin",
+      "minRank": "E"
+    },
+    {
+      "value": "healthy skin",
+      "minRank": "D"
+    },
+    {
+      "value": "warm beige skin",
+      "minRank": "D"
+    },
+    {
+      "value": "fair skin",
+      "minRank": "C"
+    },
+    {
+      "value": "golden tan skin",
+      "minRank": "B"
+    },
+    {
+      "value": "light ivory skin",
+      "minRank": "A"
+    },
+    {
+      "value": "porcelain skin",
+      "minRank": "S"
+    }
+  ],
+  "skinTexture": [
+    {
+      "value": "rough skin",
+      "minRank": "E"
+    },
+    {
+      "value": "dry skin",
+      "minRank": "E"
+    },
+    {
+      "value": "natural skin",
+      "minRank": "D"
+    },
+    {
+      "value": "soft skin",
+      "minRank": "C"
+    },
+    {
+      "value": "realistic skin texture",
+      "minRank": "B"
+    },
+    {
+      "value": "smooth skin",
+      "minRank": "A"
+    },
+    {
+      "value": "ultra smooth skin",
+      "minRank": "S"
+    }
+  ],
+  "eyes": [
+    {
+      "value": "brown eyes",
+      "minRank": "E"
+    },
+    {
+      "value": "dark brown eyes",
+      "minRank": "D"
+    },
+    {
+      "value": "gray eyes",
+      "minRank": "C"
+    },
+    {
+      "value": "amber eyes",
+      "minRank": "C"
+    },
+    {
+      "value": "blue eyes",
+      "minRank": "B"
+    },
+    {
+      "value": "emerald green eyes",
+      "minRank": "A"
+    },
+    {
+      "value": "violet eyes",
+      "minRank": "S"
+    },
+    {
+      "value": "golden eyes",
+      "minRank": "S"
+    }
+  ],
+  "eyeShape": [
+    {
+      "value": "small eyes",
+      "minRank": "E"
+    },
+    {
+      "value": "ordinary eyes",
+      "minRank": "D"
+    },
+    {
+      "value": "almond-shaped eyes",
+      "minRank": "C"
+    },
+    {
+      "value": "large eyes",
+      "minRank": "B"
+    },
+    {
+      "value": "soft doe eyes",
+      "minRank": "A"
+    },
+    {
+      "value": "perfect anime eyes",
+      "minRank": "S"
+    }
+  ],
+  "eyelashes": [
+    {
+      "value": "short eyelashes",
+      "minRank": "E"
+    },
+    {
+      "value": "natural eyelashes",
+      "minRank": "D"
+    },
+    {
+      "value": "soft eyelashes",
+      "minRank": "C"
+    },
+    {
+      "value": "long eyelashes",
+      "minRank": "B"
+    },
+    {
+      "value": "thick eyelashes",
+      "minRank": "A"
+    },
+    {
+      "value": "perfect eyelashes",
+      "minRank": "S"
+    }
+  ],
+  "eyebrows": [
+    {
+      "value": "thick eyebrows",
+      "minRank": "E"
+    },
+    {
+      "value": "straight eyebrows",
+      "minRank": "D"
+    },
+    {
+      "value": "natural eyebrows",
+      "minRank": "C"
+    },
+    {
+      "value": "soft eyebrows",
+      "minRank": "B"
+    },
+    {
+      "value": "arched eyebrows",
+      "minRank": "A"
+    }
+  ],
+  "nose": [
+    {
+      "value": "flat nose",
+      "minRank": "E"
+    },
+    {
+      "value": "small nose",
+      "minRank": "D"
+    },
+    {
+      "value": "straight nose",
+      "minRank": "C"
+    },
+    {
+      "value": "slim nose",
+      "minRank": "B"
+    },
+    {
+      "value": "refined nose",
+      "minRank": "A"
+    },
+    {
+      "value": "high nose bridge",
+      "minRank": "S"
+    }
+  ],
+  "lips": [
+    {
+      "value": "thin lips",
+      "minRank": "E"
+    },
+    {
+      "value": "natural lips",
+      "minRank": "D"
+    },
+    {
+      "value": "soft pink lips",
+      "minRank": "C"
+    },
+    {
+      "value": "full lips",
+      "minRank": "B"
+    },
+    {
+      "value": "well-defined lips",
+      "minRank": "A"
+    },
+    {
+      "value": "perfect glossy lips",
+      "minRank": "S"
+    }
   ]
 }

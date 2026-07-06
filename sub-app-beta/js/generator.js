@@ -89,38 +89,22 @@ export async function generateCharacter(forceRank = "") {
 
 
     const faceText = [
-
-        pick(face.beauty),
-
-        pick(face.faceShape),
-
-        pick(face.skinTone),
-
-        pick(face.skinTexture),
-
-        pick(face.eyes),
-
-        pick(face.eyeShape),
-
-        pick(face.eyelashes),
-
-        pick(face.eyebrows),
-
-        pick(face.nose),
-
-        pick(face.lips),
-
+        pick(filterByRank(rank.rank, face.beauty))?.value,
+        pick(filterByRank(rank.rank, face.faceShape))?.value,
+        pick(filterByRank(rank.rank, face.skinTone))?.value,
+        pick(filterByRank(rank.rank, face.skinTexture))?.value,
+        pick(filterByRank(rank.rank, face.eyes))?.value,
+        pick(filterByRank(rank.rank, face.eyeShape))?.value,
+        pick(filterByRank(rank.rank, face.eyelashes))?.value,
+        pick(filterByRank(rank.rank, face.eyebrows))?.value,
+        pick(filterByRank(rank.rank, face.nose))?.value,
+        pick(filterByRank(rank.rank, face.lips))?.value,
         pick(face.teeth),
-
         pick(face.expression),
-
         pick(face.blush),
-
         pick(face.freckles),
-
         pick(face.makeup)
-
-    ].join(", ");
+    ].filter(Boolean).join(", ");
 
     const outfitObj = pick(
         filterByRank(rank.rank, outfit.outfit)
@@ -170,7 +154,7 @@ export async function generateCharacter(forceRank = "") {
 
         ethnicity: pick(character.ethnicity),
 
-        body: pick(character.body),
+        body: pick(filterByRank(rank.rank, character.body)).value,
 
         hair: hairText,
 

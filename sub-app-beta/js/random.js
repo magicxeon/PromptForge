@@ -81,7 +81,7 @@ export function filterByRank(rank, items) {
 
         if (!item.minRank) return true;
 
-        return RANK_ORDER[item.minRank] >= RANK_ORDER[rank];
+        return item.minRank === rank;
 
     });
 
