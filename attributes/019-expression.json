@@ -3,228 +3,220 @@
     "id": "expression.001",
     "category": "expression",
     "label": "Subtle Micro-Expression",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "subtle relaxed micro-expression",
       "gpt-image": "subtle relaxed facial micro-expressions, completely natural and unposed, giving an authentic candid snapshot look"
     },
-    "tags": [
-      "expression",
-      "natural",
-      "candid"
-    ],
-    "enabled": true
+    "tags": ["expression", "natural", "candid"], "enabled": true
   },
   {
     "id": "expression.002",
     "category": "expression",
     "label": "Slightly Thoughtful",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "soft thoughtful expression",
       "gpt-image": "soft thoughtful and reflective facial expression, eyes holding a quiet and calm gaze"
     },
-    "tags": [
-      "expression",
-      "natural",
-      "thoughtful"
-    ],
-    "enabled": true
+    "tags": ["expression", "natural", "thoughtful"], "enabled": true
   },
   {
     "id": "expression.003",
     "category": "expression",
     "label": "Candid Gentle Laugh",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "sharing a genuine candid laugh",
       "gpt-image": "sharing a genuine candid laugh, mouth slightly open, happy crinkle around the eyes, capturing an authentic joyful moment"
     },
-    "tags": [
-      "expression",
-      "laugh",
-      "happy"
-    ],
-    "enabled": true
+    "tags": ["expression", "laugh", "happy"], "enabled": true
   },
   {
     "id": "expression.004",
     "category": "expression",
     "label": "Soft Friendly Smile",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "subtle friendly smile",
       "gpt-image": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort"
     },
-    "tags": [
-      "expression",
-      "smile",
-      "friendly"
-    ],
-    "enabled": true
+    "tags": ["expression", "smile", "friendly"], "enabled": true
   },
   {
     "id": "expression.005",
     "category": "expression",
     "label": "Slightly Asymmetric Smile",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "natural slightly asymmetric smile",
       "gpt-image": "natural slightly asymmetric smile, warm and genuine, completely unforced and real"
     },
-    "tags": [
-      "expression",
-      "smile",
-      "candid"
-    ],
-    "enabled": true
+    "tags": ["expression", "smile", "candid"], "enabled": true
   },
   {
     "id": "expression.006",
     "category": "expression",
     "label": "Curious Look",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "subtle curious look",
       "gpt-image": "subtle curious look, head tilted slightly, soft intelligent gaze looking toward the camera"
     },
-    "tags": [
-      "expression",
-      "curious",
-      "eyes"
-    ],
-    "enabled": true
+    "tags": ["expression", "curious", "eyes"], "enabled": true
   },
   {
     "id": "expression.007",
     "category": "expression",
     "label": "Warm Daydreaming",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "soft daydreaming look",
       "gpt-image": "soft daydreaming look, eyes looking slightly away from the camera, gentle relaxed facial muscles"
     },
-    "tags": [
-      "expression",
-      "daydreaming",
-      "dreamy"
-    ],
-    "enabled": true
+    "tags": ["expression", "daydreaming", "dreamy"], "enabled": true
   },
   {
     "id": "expression.008",
     "category": "expression",
     "label": "Playful Mild Smirk",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "subtle playful smirk",
       "gpt-image": "playful and subtle hint of amusement at the corner of the lips, relaxed friendly eyes"
     },
-    "tags": [
-      "expression",
-      "smirk",
-      "playful"
-    ],
-    "enabled": true
+    "tags": ["expression", "smirk", "playful"], "enabled": true
   },
   {
     "id": "expression.009",
     "category": "expression",
     "label": "Cozy Contentment",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "peaceful relaxed expression",
       "gpt-image": "peaceful relaxed eyes, slight soft smile of cozy contentment, completely at ease"
     },
-    "tags": [
-      "expression",
-      "cozy",
-      "relaxed"
-    ],
-    "enabled": true
+    "tags": ["expression", "cozy", "relaxed"], "enabled": true
   },
   {
     "id": "expression.010",
     "category": "expression",
     "label": "Reflective Mood",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "reflective neutral expression",
       "gpt-image": "reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood"
     },
-    "tags": [
-      "expression",
-      "serious",
-      "thoughtful"
-    ],
-    "enabled": true
+    "tags": ["expression", "serious", "thoughtful"], "enabled": true
   },
   {
     "id": "expression.011",
     "category": "expression",
     "label": "Spontaneous Sparkle",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "gentle spark of delight in expression",
       "gpt-image": "eyes showing a gentle sparkle of surprise or delight, warm and inviting natural facial expression"
     },
-    "tags": [
-      "expression",
-      "happy",
-      "delight"
-    ],
-    "enabled": true
+    "tags": ["expression", "happy", "delight"], "enabled": true
   },
   {
     "id": "expression.012",
     "category": "expression",
     "label": "Candid Dialogue Look",
-    "ui": {
-      "control": "select",
-      "group": "Face"
-    },
+    "ui": { "control": "select", "group": "Face" },
     "prompt": {
       "default": "candid dialogue expression",
       "gpt-image": "mouth slightly parted as if beginning to speak, capturing a lifelike candid moment in conversation"
     },
-    "tags": [
-      "expression",
-      "candid",
-      "conversation"
-    ],
-    "enabled": true
+    "tags": ["expression", "candid", "conversation"], "enabled": true
+  },
+  {
+    "id": "expression.013",
+    "category": "expression",
+    "label": "Gentle Smiling Eyes",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "smiling eyes and soft expression",
+      "gpt-image": "soft smile with eyes slightly squinting in a happy crinkle, warm and authentic candid gaze"
+    },
+    "tags": ["expression", "happy", "candid"], "enabled": true
+  },
+  {
+    "id": "expression.014",
+    "category": "expression",
+    "label": "Mild Surprise",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "soft expression of mild surprise",
+      "gpt-image": "eyes slightly widened in mild surprise, mouth soft and slightly parted, showing a spark of pure curiosity"
+    },
+    "tags": ["expression", "surprise", "curious"], "enabled": true
+  },
+  {
+    "id": "expression.015",
+    "category": "expression",
+    "label": "Quiet Focus",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "calm concentrated expression",
+      "gpt-image": "calm concentrated facial expression, eyes intently focused on something off-camera with relaxed features"
+    },
+    "tags": ["expression", "focus", "serious"], "enabled": true
+  },
+  {
+    "id": "expression.016",
+    "category": "expression",
+    "label": "Subtle Confidence",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "calm and confident expression",
+      "gpt-image": "calm and confident facial expression, relaxed brow, and a very slight, self-assured soft smile"
+    },
+    "tags": ["expression", "confident", "smile"], "enabled": true
+  },
+  {
+    "id": "expression.017",
+    "category": "expression",
+    "label": "Playful Cheerful Look",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "playful cheerful expression",
+      "gpt-image": "cheerful and playful expression, eyes crinkling warmly with a bright, inviting natural smile"
+    },
+    "tags": ["expression", "happy", "smile", "playful"], "enabled": true
+  },
+  {
+    "id": "expression.018",
+    "category": "expression",
+    "label": "Dreamy Gazing",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "dreamy gazing expression",
+      "gpt-image": "dreamy gazing expression, eyes softly focused on empty space, lips relaxed and slightly curved upward"
+    },
+    "tags": ["expression", "dreamy", "relaxed"], "enabled": true
+  },
+  {
+    "id": "expression.019",
+    "category": "expression",
+    "label": "Mellow Serenity",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "serene and calm expression",
+      "gpt-image": "completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace"
+    },
+    "tags": ["expression", "serene", "calm"], "enabled": true
+  },
+  {
+    "id": "expression.020",
+    "category": "expression",
+    "label": "Subtle Determination",
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "calm determined look",
+      "gpt-image": "subtle determined look, lips softly closed, eyes clear and focused, showing calm confidence"
+    },
+    "tags": ["expression", "determined", "serious"], "enabled": true
   }
 ]

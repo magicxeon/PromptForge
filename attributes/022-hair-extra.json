@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "category": "hair",
+    "version": "0.1",
+    "entries": 15
+  },
+  "entries": [
+    {
+      "id": "hair_ex_001",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Bob Cut",
+      "prompt": { "default": "bob cut hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_002",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Lob (Long Bob)",
+      "prompt": { "default": "lob long bob hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_003",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Shag Cut",
+      "prompt": { "default": "shag cut hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_004",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Mullet",
+      "prompt": { "default": "mullet hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_005",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Pixie Cut",
+      "prompt": { "default": "pixie cut hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_006",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "French Bob",
+      "prompt": { "default": "French bob hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_007",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Wolf Cut",
+      "prompt": { "default": "wolf cut hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_008",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Butterfly Cut",
+      "prompt": { "default": "butterfly cut hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_009",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Space Buns",
+      "prompt": { "default": "space buns hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_010",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Braided Pigtails",
+      "prompt": { "default": "braided pigtails" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_011",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Dreadlocks",
+      "prompt": { "default": "dreadlocks hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_012",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Cornrows",
+      "prompt": { "default": "cornrows hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_013",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Sleek High Bun",
+      "prompt": { "default": "sleek high bun hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_014",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Half-Up Half-Down",
+      "prompt": { "default": "half-up half-down hairstyle" },
+      "enabled": true
+    },
+    {
+      "id": "hair_ex_015",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Y2K Spiky Bun",
+      "prompt": { "default": "Y2K spiky bun hairstyle" },
+      "enabled": true
+    }
+  ]
+}

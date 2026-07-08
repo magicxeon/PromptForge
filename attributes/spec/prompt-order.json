@@ -18,6 +18,7 @@
     "nsfw",
     "pose_body",
     "photo_context",
+    "camera_framing",
     "foreground_layer",
     "environment",
     "background_activity",

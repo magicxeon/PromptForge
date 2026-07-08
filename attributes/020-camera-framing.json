@@ -1,0 +1,222 @@
+[
+  {
+    "id": "framing.001",
+    "category": "camera_framing",
+    "label": "Extreme Close-Up (ECU)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme close-up shot",
+      "gpt-image": "extreme close-up shot focusing tightly on a single detail, such as only the eyes or lips, with macro-level skin textures"
+    },
+    "tags": ["camera", "framing", "extreme close-up"], "enabled": true
+  },
+  {
+    "id": "framing.002",
+    "category": "camera_framing",
+    "label": "Face Close-Up (VCU)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "face close-up portrait shot",
+      "gpt-image": "tight face close-up portrait shot from forehead to chin, emphasizing micro-expressions, facial symmetry, and raw skin texture"
+    },
+    "tags": ["camera", "framing", "close-up", "face"], "enabled": true
+  },
+  {
+    "id": "framing.003",
+    "category": "camera_framing",
+    "label": "Portrait Close-Up (CU)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "close-up portrait shot",
+      "gpt-image": "standard close-up portrait shot framing the head and neck down to the collarbone, classic headshot perspective"
+    },
+    "tags": ["camera", "framing", "close-up", "portrait"], "enabled": true
+  },
+  {
+    "id": "framing.004",
+    "category": "camera_framing",
+    "label": "Medium Close-Up (MCU)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "medium close-up shot",
+      "gpt-image": "medium close-up shot framing the subject from the chest up, showing face and upper body details naturally"
+    },
+    "tags": ["camera", "framing", "medium close-up"], "enabled": true
+  },
+  {
+    "id": "framing.005",
+    "category": "camera_framing",
+    "label": "Medium Shot (MS / Waist Shot)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "medium waist shot",
+      "gpt-image": "medium waist shot framing the subject from the waist up, balancing facial expression with clothing and hands posture"
+    },
+    "tags": ["camera", "framing", "medium shot", "waist"], "enabled": true
+  },
+  {
+    "id": "framing.006",
+    "category": "camera_framing",
+    "label": "Medium Full Shot (MFS / Cowboy)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "medium full shot, cowboy shot",
+      "gpt-image": "medium full cowboy shot framing the subject from the thighs or knees up, showing elegant body posture and style"
+    },
+    "tags": ["camera", "framing", "medium full shot"], "enabled": true
+  },
+  {
+    "id": "framing.007",
+    "category": "camera_framing",
+    "label": "Full Body Shot (FS)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "full body photograph",
+      "gpt-image": "full body photograph framing the entire subject from head to toe, showcasing full outfit, posture, and footing"
+    },
+    "tags": ["camera", "framing", "full shot", "body"], "enabled": true
+  },
+  {
+    "id": "framing.008",
+    "category": "camera_framing",
+    "label": "Wide Shot (WS)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "wide shot portrait",
+      "gpt-image": "wide shot portrait showing the subject full-body in relation to the surrounding environment with ample space around them"
+    },
+    "tags": ["camera", "framing", "wide shot"], "enabled": true
+  },
+  {
+    "id": "framing.009",
+    "category": "camera_framing",
+    "label": "Extreme Wide Shot (EWS / View Focus)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme wide shot focusing on scenery",
+      "gpt-image": "extreme wide shot focusing on scenery, the subject is rendered very small in the frame, providing scale for the vast environment"
+    },
+    "tags": ["camera", "framing", "extreme wide", "scenery"], "enabled": true
+  },
+  {
+    "id": "framing.010",
+    "category": "camera_framing",
+    "label": "Over-the-Shoulder (OTS)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "over-the-shoulder shot",
+      "gpt-image": "over-the-shoulder shot looking from behind a conversational partner towards the subject, adding cinematic narrative depth"
+    },
+    "tags": ["camera", "framing", "over shoulder"], "enabled": true
+  },
+  {
+    "id": "framing.011",
+    "category": "camera_framing",
+    "label": "Point-of-View (POV)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "point-of-view POV shot",
+      "gpt-image": "point-of-view POV shot representing the first-person perspective of a friend looking directly at the subject"
+    },
+    "tags": ["camera", "framing", "pov"], "enabled": true
+  },
+  {
+    "id": "framing.012",
+    "category": "camera_framing",
+    "label": "High-Angle Look Down",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "high-angle shot looking down",
+      "gpt-image": "high-angle shot looking down at the subject, making them appear candidly seated, soft proportions, creative layout"
+    },
+    "tags": ["camera", "framing", "high angle"], "enabled": true
+  },
+  {
+    "id": "framing.013",
+    "category": "camera_framing",
+    "label": "Low-Angle Look Up",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "low-angle shot looking up",
+      "gpt-image": "low-angle shot looking up, creating a dramatic tall silhouette, framing the subject against the sky or ceiling"
+    },
+    "tags": ["camera", "framing", "low angle"], "enabled": true
+  },
+  {
+    "id": "framing.014",
+    "category": "camera_framing",
+    "label": "Dutch Angle Tilt",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "canted Dutch angle shot",
+      "gpt-image": "canted Dutch angle shot with a slight camera tilt, adding an organic street snap and dynamic informal perspective"
+    },
+    "tags": ["camera", "framing", "tilt", "dutch angle"], "enabled": true
+  },
+  {
+    "id": "framing.015",
+    "category": "camera_framing",
+    "label": "Macro Detail Focus",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "macro detail focus shot",
+      "gpt-image": "macro detail focus shot on the hands or an accessory, while the subject's face is softly blurred in the background"
+    },
+    "tags": ["camera", "framing", "macro"], "enabled": true
+  },
+  {
+    "id": "framing.016",
+    "category": "camera_framing",
+    "label": "Eye-Level Shot",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "eye-level camera perspective",
+      "gpt-image": "camera standing at eye level with the subject, providing a natural, standard, and intimate height perspective"
+    },
+    "tags": ["camera", "framing", "eye level"], "enabled": true
+  },
+  {
+    "id": "framing.017",
+    "category": "camera_framing",
+    "label": "Seated Across-the-Table",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "seated across-the-table camera height",
+      "gpt-image": "camera positioned at a seated height from across the table, creating an intimate lifestyle conversation feel"
+    },
+    "tags": ["camera", "framing", "table", "seated"], "enabled": true
+  },
+  {
+    "id": "framing.018",
+    "category": "camera_framing",
+    "label": "Two-Thirds Body Shot",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "two-thirds body portrait shot",
+      "gpt-image": "two-thirds body length portrait, framing the subject from the thighs up, comfortable clothing visibility and natural posture"
+    },
+    "tags": ["camera", "framing", "two-thirds"], "enabled": true
+  },
+  {
+    "id": "framing.019",
+    "category": "camera_framing",
+    "label": "Ground-Level Low Angle",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "ground-level extreme low-angle shot",
+      "gpt-image": "ground-level extreme low-angle shot positioned near the ground looking up, creating dramatic elongated body lines and dynamic silhouette"
+    },
+    "tags": ["camera", "framing", "ground level", "low angle"], "enabled": true
+  },
+  {
+    "id": "framing.020",
+    "category": "camera_framing",
+    "label": "Candid Profile Shot",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "candid profile side-angle shot",
+      "gpt-image": "candid profile side-angle shot, side viewpoint showing the clean profile of the face looking slightly ahead"
+    },
+    "tags": ["camera", "framing", "profile", "side"], "enabled": true
+  }
+]

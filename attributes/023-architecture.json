@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "category": "environment",
+    "version": "0.1",
+    "entries": 15
+  },
+  "entries": [
+    {
+      "id": "arch_001",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Brutalist Concrete",
+      "prompt": { "default": "brutalist concrete architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_002",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Gothic Architecture",
+      "prompt": { "default": "gothic architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_003",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Minimalist Modern",
+      "prompt": { "default": "minimalist modern architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_004",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Cyberpunk Cityscape",
+      "prompt": { "default": "cyberpunk cityscape architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_005",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Traditional Japanese",
+      "prompt": { "default": "traditional Japanese machiya architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_006",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Neoclassical",
+      "prompt": { "default": "neoclassical architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_007",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Art Deco",
+      "prompt": { "default": "art deco architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_008",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Victorian House",
+      "prompt": { "default": "Victorian house architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_009",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Mediterranean Villa",
+      "prompt": { "default": "Mediterranean villa architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_010",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Industrial Loft",
+      "prompt": { "default": "industrial loft architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_011",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Mid-Century Modern",
+      "prompt": { "default": "mid-century modern architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_012",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Baroque",
+      "prompt": { "default": "baroque architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_013",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Futuristic Sci-Fi",
+      "prompt": { "default": "futuristic sci-fi architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_014",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Log Cabin",
+      "prompt": { "default": "rustic log cabin architecture background" },
+      "enabled": true
+    },
+    {
+      "id": "arch_015",
+      "category": "environment",
+      "subcategory": "Architecture",
+      "label": "Islamic Geometric",
+      "prompt": { "default": "Islamic geometric architecture background" },
+      "enabled": true
+    }
+  ]
+}

@@ -298,6 +298,10 @@
         "control": "select"
       },
       {
+        "name": "Framing",
+        "control": "select"
+      },
+      {
         "name": "ISO",
         "control": "select"
       },

@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "category": "clothing",
+    "version": "0.1",
+    "entries": 15
+  },
+  "entries": [
+    {
+      "id": "acc_001",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Sunglasses",
+      "prompt": { "default": "wearing sunglasses" },
+      "enabled": true
+    },
+    {
+      "id": "acc_002",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Reading Glasses",
+      "prompt": { "default": "wearing stylish reading glasses" },
+      "enabled": true
+    },
+    {
+      "id": "acc_003",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Pearl Necklace",
+      "prompt": { "default": "wearing an elegant pearl necklace" },
+      "enabled": true
+    },
+    {
+      "id": "acc_004",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Gold Chain",
+      "prompt": { "default": "wearing a thin gold chain necklace" },
+      "enabled": true
+    },
+    {
+      "id": "acc_005",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Choker",
+      "prompt": { "default": "wearing a black velvet choker" },
+      "enabled": true
+    },
+    {
+      "id": "acc_006",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Hoop Earrings",
+      "prompt": { "default": "wearing large hoop earrings" },
+      "enabled": true
+    },
+    {
+      "id": "acc_007",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Diamond Studs",
+      "prompt": { "default": "wearing diamond stud earrings" },
+      "enabled": true
+    },
+    {
+      "id": "acc_008",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Silk Scarf",
+      "prompt": { "default": "with a silk scarf tied around neck" },
+      "enabled": true
+    },
+    {
+      "id": "acc_009",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Leather Belt",
+      "prompt": { "default": "wearing a stylish leather belt" },
+      "enabled": true
+    },
+    {
+      "id": "acc_010",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Wide Brim Hat",
+      "prompt": { "default": "wearing a wide brim sun hat" },
+      "enabled": true
+    },
+    {
+      "id": "acc_011",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Beanie",
+      "prompt": { "default": "wearing a cozy knit beanie" },
+      "enabled": true
+    },
+    {
+      "id": "acc_012",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Baseball Cap",
+      "prompt": { "default": "wearing a casual baseball cap" },
+      "enabled": true
+    },
+    {
+      "id": "acc_013",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Wristwatch",
+      "prompt": { "default": "wearing a sleek wristwatch" },
+      "enabled": true
+    },
+    {
+      "id": "acc_014",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Bracelets",
+      "prompt": { "default": "wearing stacked wrist bracelets" },
+      "enabled": true
+    },
+    {
+      "id": "acc_015",
+      "category": "clothing",
+      "subcategory": "Accessories",
+      "label": "Crossbody Bag",
+      "prompt": { "default": "wearing a designer crossbody bag" },
+      "enabled": true
+    }
+  ]
+}

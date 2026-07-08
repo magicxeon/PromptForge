@@ -22,7 +22,12 @@ const ATTRIBUTE_FILES = [
   '015-quality.json',
   '016-nsfw.json',
   '017-photographic-context.json',
-  '018-scene-story.json'
+  '018-scene-story.json',
+  '019-expression.json',
+  '020-camera-framing.json',
+  '021-accessories.json',
+  '022-hair-extra.json',
+  '023-architecture.json'
 ];
 
 // Mapping ui-schema fields to attribute categories
@@ -99,6 +104,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Lens": "camera",
   "Focal Length": "camera",
   "Aperture": "camera",
+  "Framing": "camera_framing",
   "ISO": "camera",
   "White Balance": "camera",
   "Perspective": "camera",
@@ -305,7 +311,7 @@ const PRESETS = {
       "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
       "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
       "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false },
-      "Story Event": { id: "__custom__", value: "strolling along the coastline at sunset", isCustom: true },
+      "Story Event": { id: "scene_story.008", value: "strolling relaxed and taking in the ambient atmosphere of the scene", isCustom: false },
       "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
       "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
       "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
@@ -319,7 +325,7 @@ const PRESETS = {
       "Sitting": { id: "pose.sitting_03", value: "sitting resting chin on hand with elbow on table, looking directly at the camera", isCustom: false },
       "Location": { id: "environment.loc_03", value: "on a high-end rooftop restaurant terrace", isCustom: false },
       "Ambient": { id: "__custom__", value: "soft warm ambient restaurant lighting", isCustom: true },
-      "Story Event": { id: "scene_story.005", value: "dining and enjoying conversation at a high-end rooftop restaurant", isCustom: false },
+      "Story Event": { id: "scene_story.001", value: "captured in a candid moment during a natural conversation, showing a spontaneous warm smile", isCustom: false },
       "Context Type": { id: "photo_context.003", value: "captured casually by a friend", isCustom: false },
       "Foreground Layer": { id: "foreground.003", value: "foreground restaurant menu out of focus", isCustom: false },
       "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
@@ -334,7 +340,7 @@ const PRESETS = {
       "Sitting": { id: "pose.sitting_04", value: "sitting on a bar stool", isCustom: false },
       "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
       "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
-      "Story Event": { id: "scene_story.006", value: "sharing a lighthearted laugh during a casual gathering after work", isCustom: false },
+      "Story Event": { id: "scene_story.003", value: "laughing genuinely at a lighthearted moment, showing a natural and relaxed smile", isCustom: false },
       "Context Type": { id: "photo_context.004", value: "spontaneous moment captured mid-conversation", isCustom: false },
       "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
       "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
@@ -350,7 +356,7 @@ const PRESETS = {
       "Location": { id: "environment.loc_resort", value: "at a luxury tropical resort", isCustom: false },
       "Top": { id: "clothing.travel_05", value: "breezy tropical sundress", isCustom: false },
       "Key Light": { id: "__custom__", value: "golden hour light", isCustom: true },
-      "Story Event": { id: "__custom__", value: "relaxing by the poolside villa enjoying the peaceful atmosphere", isCustom: true },
+      "Story Event": { id: "scene_story.0010", value: "leaning slightly against a support surface, enjoying a peaceful candid moment", isCustom: false },
       "Context Type": { id: "photo_context.005", value: "unposed snapshot", isCustom: false },
       "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
       "Background Activity": { id: "background.004", value: "with café staff working in the soft-focus background", isCustom: false },
@@ -365,7 +371,7 @@ const PRESETS = {
       "Location": { id: "environment.pop_02", value: "in a lush green forest with tall trees and dappled sunlight", isCustom: false },
       "Top": { id: "clothing.travel_01", value: "lightweight linen safari shirt", isCustom: false },
       "Key Light": { id: "__custom__", value: "soft dappled sunlight filtering through the canopy", isCustom: true },
-      "Story Event": { id: "scene_story.003", value: "relaxing quietly on a wooden park bench while reading a book", isCustom: false },
+      "Story Event": { id: "scene_story.004", value: "taking a brief pause to look thoughtfully towards the distance", isCustom: false },
       "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
       "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
       "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
@@ -381,7 +387,7 @@ const PRESETS = {
       "Location": { id: "environment.loc_mall", value: "inside a modern shopping mall", isCustom: false },
       "Top": { id: "clothing.casual_05", value: "oversized cozy knit sweater", isCustom: false },
       "Props": { id: "__custom__", value: "holding a hot paper coffee cup", isCustom: true },
-      "Story Event": { id: "scene_story.007", value: "browsing clothes and shopping inside a high-end fashion boutique", isCustom: false },
+      "Story Event": { id: "scene_story.005", value: "casually waiting, observing the surroundings with a calm and relaxed posture", isCustom: false },
       "Context Type": { id: "photo_context.006", value: "casual handheld smartphone photo", isCustom: false },
       "Foreground Layer": { id: "foreground.001", value: "foreground coffee cup slightly out of focus", isCustom: false },
       "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
@@ -430,8 +436,8 @@ const state = {
   aspectRatio: "6:8"  // Default aspect ratio
 };
 
-// Helper to randomize pose & expression for presets in a context-aware way
-function randomizePresetSelections(preset) {
+// Helper to randomize pose & expression & framing for presets in a context-aware way
+function randomizePresetSelections(preset, presetName = "") {
   // Clone preset selections
   const selections = JSON.parse(JSON.stringify(preset.selections));
 
@@ -439,14 +445,14 @@ function randomizePresetSelections(preset) {
   const expressions = state.library.filter(opt => opt.category === "expression" && opt.enabled !== false);
   if (expressions.length > 0) {
     const randExpr = expressions[Math.floor(Math.random() * expressions.length)];
-    selections["Expression"] = { id: randExpr.id, value: randExpr.prompt ? (randExpr.prompt.default) : randExpr.label, isCustom: false };
+    selections["Expression"] = { id: randExpr.id, value: randExpr.prompt ? (randExpr.prompt.default) : randExpr.label, isCustom: false, group: "Face" };
   }
 
   // 2. Get all hand positions from state.library
   const handPositions = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Hand Position" && opt.enabled !== false);
   if (handPositions.length > 0) {
     const randHand = handPositions[Math.floor(Math.random() * handPositions.length)];
-    selections["Hand Position"] = { id: randHand.id, value: randHand.prompt ? (randHand.prompt.default) : randHand.label, isCustom: false };
+    selections["Hand Position"] = { id: randHand.id, value: randHand.prompt ? (randHand.prompt.default) : randHand.label, isCustom: false, group: "Pose" };
   }
 
   // 3. Pose Randomization (Context-Aware)
@@ -462,7 +468,7 @@ function randomizePresetSelections(preset) {
     const sittingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Sitting" && opt.enabled !== false);
     if (sittingPoses.length > 0) {
       const randSit = sittingPoses[Math.floor(Math.random() * sittingPoses.length)];
-      selections["Sitting"] = { id: randSit.id, value: randSit.prompt ? (randSit.prompt.default) : randSit.label, isCustom: false };
+      selections["Sitting"] = { id: randSit.id, value: randSit.prompt ? (randSit.prompt.default) : randSit.label, isCustom: false, group: "Pose" };
     }
   } else {
     // It's a standing/walking preset. Clear any sitting pose
@@ -475,16 +481,42 @@ function randomizePresetSelections(preset) {
       const standingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Standing" && opt.enabled !== false);
       if (standingPoses.length > 0) {
         const randStand = standingPoses[Math.floor(Math.random() * standingPoses.length)];
-        selections["Standing"] = { id: randStand.id, value: randStand.prompt ? (randStand.prompt.default) : randStand.label, isCustom: false };
+        selections["Standing"] = { id: randStand.id, value: randStand.prompt ? (randStand.prompt.default) : randStand.label, isCustom: false, group: "Pose" };
       }
     } else {
       delete selections["Standing"];
       const walkingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Walking" && opt.enabled !== false);
       if (walkingPoses.length > 0) {
         const randWalk = walkingPoses[Math.floor(Math.random() * walkingPoses.length)];
-        selections["Walking"] = { id: randWalk.id, value: randWalk.prompt ? (randWalk.prompt.default) : randWalk.label, isCustom: false };
+        selections["Walking"] = { id: randWalk.id, value: randWalk.prompt ? (randWalk.prompt.default) : randWalk.label, isCustom: false, group: "Pose" };
       }
     }
+  }
+
+  // 4. Randomize Camera Framing
+  const framings = state.library.filter(opt => opt.category === "camera_framing" && opt.enabled !== false);
+  if (framings.length > 0) {
+    const randFraming = framings[Math.floor(Math.random() * framings.length)];
+    selections["Framing"] = { id: randFraming.id, value: randFraming.prompt ? (randFraming.prompt.default) : randFraming.label, isCustom: false, group: "Camera" };
+  }
+
+  // 5. Context-aware Foreground Objects
+  const diningKeywords = ["restaurant", "bar", "cafe", "dining", "mall", "eating", "drink"];
+  const isDining = presetName && diningKeywords.some(keyword => presetName.toLowerCase().includes(keyword));
+  
+  let allowedForegroundIds = [];
+  if (isDining) {
+    // Coffee Cup, Menu, Glass of Water
+    allowedForegroundIds = ["foreground.001", "foreground.003", "foreground.004"];
+  } else {
+    // Flowers, Glass of Water
+    allowedForegroundIds = ["foreground.002", "foreground.004"];
+  }
+  
+  const foregrounds = state.library.filter(opt => opt.category === "foreground_layer" && allowedForegroundIds.includes(opt.id) && opt.enabled !== false);
+  if (foregrounds.length > 0) {
+    const randFore = foregrounds[Math.floor(Math.random() * foregrounds.length)];
+    selections["Foreground Layer"] = { id: randFore.id, value: randFore.prompt ? (randFore.prompt.default) : randFore.label, isCustom: false, group: "Environment" };
   }
 
   return {
@@ -888,8 +920,8 @@ function bindEvents() {
       // Load preset
       const preset = PRESETS[presetName];
       if (preset) {
-        // Randomize Expression and Pose in a context-aware way before loading
-        const randomizedPreset = randomizePresetSelections(preset);
+        // Randomize Expression and Pose and Framing in a context-aware way before loading
+        const randomizedPreset = randomizePresetSelections(preset, presetName);
         importConfigJSON(JSON.stringify(randomizedPreset));
       }
     });
@@ -1634,7 +1666,7 @@ function importConfigJSON(jsonString) {
 // Visual Lockout for facial selections when Face Match is checked
 function applyFaceMatchLockout() {
   const isLocked = state.imageReferences.faceMatch;
-  const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
+  const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"];
 
   faceFields.forEach(field => {
     const select = document.querySelector(`.custom-select[data-field="${field}"]`);

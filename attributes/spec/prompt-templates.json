@@ -1,8 +1,8 @@
 {
   "portrait": "{subject}, {appearance}, {clothing}, {nsfw}, {pose}, {environment}, {lighting}, {camera}, {quality}",
-  "nightclub": "{subject}, {nsfw}, inside a vibrant crowded nightclub, {lighting}, {camera}, {quality}",
-  "street": "{subject}, {nsfw}, urban street, {lighting}, {camera}, {quality}",
-  "studio": "{subject}, {nsfw}, photography studio, {lighting}, {camera}, {quality}",
+  "nightclub": "nightclub photo of {subject}, {appearance}, {clothing}, {nsfw}, {pose}, inside a vibrant crowded nightclub environment, {lighting}, {camera}, {quality}",
+  "street": "candid street photo of {subject}, {appearance}, {clothing}, {nsfw}, {pose}, on an urban street environment, {lighting}, {camera}, {quality}",
+  "studio": "studio portrait of {subject}, {appearance}, {clothing}, {nsfw}, {pose}, in a photography studio setting, {lighting}, {camera}, {quality}",
   "thaiTraditional": "{subject}, wearing {clothing}, {nsfw}, {appearance}, standing at {environment}, under soft {lighting}, shot on {camera}, producing {quality}",
   "vintageFilm": "vintage analog photo of {subject}, {appearance}, dressed in {clothing}, {nsfw}, {pose}, located at {environment}, illuminated by {lighting}, {camera}, {quality}",
   "cafeMinimalist": "minimalist aesthetic photo of {subject}, {appearance}, {clothing}, {nsfw}, {pose}, inside {environment}, with {lighting}, captured by {camera}, {quality}"
