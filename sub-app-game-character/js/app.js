@@ -2,7 +2,7 @@
  * app.js
  */
 
-import { generateCharacter } from "./generator.js";
+import { generateCharacter, updateCharacterStyle } from "./generator.js";
 import {
     renderCharacter,
     renderPrompt,
@@ -20,6 +20,7 @@ const btnGenerate = document.getElementById("generateBtn");
 const btnCopy = document.getElementById("copyBtn");
 const btnExport = document.getElementById("exportBtn");
 const rankFilter = document.getElementById("rankFilter");
+const styleFilter = document.getElementById("styleFilter");
 
 async function generate() {
 
@@ -31,7 +32,8 @@ async function generate() {
         btnGenerate.textContent = "Generating...";
 
         currentCharacter = await generateCharacter(
-            rankFilter.value
+            rankFilter.value,
+            styleFilter.value
         );
 
         renderCharacter(currentCharacter);
@@ -57,6 +59,13 @@ async function generate() {
 }
 
 btnGenerate.addEventListener("click", generate);
+
+styleFilter.addEventListener("change", async () => {
+    if (!currentCharacter) return;
+    currentCharacter = await updateCharacterStyle(currentCharacter, styleFilter.value);
+    renderCharacter(currentCharacter);
+    renderPrompt(currentCharacter.prompt);
+});
 
 btnCopy.addEventListener("click", () => {
 

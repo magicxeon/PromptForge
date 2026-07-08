@@ -82,11 +82,7 @@ export function buildPrompt(character) {
 
     add(tags, character.quality);
 
-    add(tags, character.style);
-
-    add(tags, "AAA game splash art");
-
-    add(tags, "semi realistic");
+    add(tags, character.styleThemeTags);
 
     add(tags, character.gender);
 
@@ -96,21 +92,45 @@ export function buildPrompt(character) {
 
     add(tags, character.body);
 
-    add(tags, "doll-like beauty");
+    const isMale = character.gender === "male";
+    const isChibi = character.styleName === "Chibi Cute Style";
+    const isPixel = character.styleName === "Retro Pixel Art";
+    const isRealistic = character.styleName === "Realistic";
 
-    add(tags, "idol-like beauty");
-
-    add(tags, "fashion model proportions");
-
-    add(tags, "stylized body proportions");
-
-    add(tags, "long elegant legs");
-
-    add(tags, "small waist");
-
-    add(tags, "luxury costume");
-
-    add(tags, "premium costume details");
+    if (isChibi) {
+        add(tags, "chibi proportions");
+        add(tags, "cute big head and tiny body");
+        add(tags, "adorable features");
+    } else if (isPixel) {
+        add(tags, "simplified pixel art anatomy");
+        add(tags, "low resolution details");
+    } else if (isRealistic) {
+        add(tags, "natural realistic human proportions");
+        add(tags, "natural facial asymmetry");
+        add(tags, "practical costume materials");
+        add(tags, "realistic fabric textures");
+        add(tags, "realistic fabric wrinkles");
+        add(tags, "weathered leather");
+        add(tags, "realistic embroidery");
+    } else {
+        if (isMale) {
+            add(tags, "handsome masculine features");
+            add(tags, "broad shoulders");
+            add(tags, "strong jawline");
+            add(tags, "athletic muscular proportions");
+            add(tags, "luxury costume");
+            add(tags, "premium costume details");
+        } else {
+            add(tags, "doll-like beauty");
+            add(tags, "idol-like beauty");
+            add(tags, "fashion model proportions");
+            add(tags, "stylized body proportions");
+            add(tags, "long elegant legs");
+            add(tags, "small waist");
+            add(tags, "luxury costume");
+            add(tags, "premium costume details");
+        }
+    }
 
     add(tags, character.face);
 
@@ -126,40 +146,36 @@ export function buildPrompt(character) {
 
     add(tags, buildRankPrompt(character));
 
-    add(tags, "full body");
+    // Composition and lighting are dynamically loaded from quality.json themes now
 
-    add(tags, "center composition");
+    let finalTags = [...new Set(tags)];
 
-    add(tags, "leave space above head");
+    if (isRealistic) {
+        const bannedKeywords = [
+            /masterpiece/gi, /best quality/gi, /ultra quality/gi, /insane detail/gi, /hyper realistic/gi,
+            /16k/gi, /32k/gi, /8k/gi, /flawless/gi, /perfect face/gi, /perfect skin/gi, /perfect anatomy/gi,
+            /perfect symmetry/gi, /aaa game/gi, /splash art/gi, /illustration/gi, /painting/gi, /drawing/gi,
+            /100%/gi, /exact/gi, /identical/gi, /must match/gi, /pixel perfect/gi, /without distortion/gi,
+            /porcelain skin/gi, /glass skin/gi, /airbrushed skin/gi
+        ];
+        
+        // Filter out tags matching banned patterns
+        finalTags = finalTags.filter(tag => {
+            const tagLower = tag.toLowerCase();
+            return !bannedKeywords.some(regex => regex.test(tagLower));
+        });
+        
+        // Map and replace soft-banned words
+        finalTags = finalTags.map(tag => {
+            let t = tag;
+            t = t.replace(/flawless skin/gi, "natural skin texture with visible pores");
+            t = t.replace(/perfect skin/gi, "natural skin texture with visible pores");
+            t = t.replace(/flawless/gi, "natural");
+            t = t.replace(/porcelain skin/gi, "highly detailed skin texture");
+            return t;
+        });
+    }
 
-    add(tags, "leave space below feet");
-
-    add(tags, "no crop");
-
-    add(tags, "cinematic lighting");
-
-    add(tags, "volumetric lighting");
-
-    add(tags, "AAA mobile game character");
-
-    add(tags, "hero splash art");
-
-    add(tags, "gacha game character");
-
-    add(tags, "premium hero illustration");
-
-    add(tags, "stylized realism");
-
-    add(tags, "anime-inspired realism");
-
-    add(tags, "ultra polished illustration");
-
-    add(tags, "high-end digital painting");
-
-    add(tags, "luxury character design");
-
-    add(tags, "semi realistic");
-
-    return [...new Set(tags)].join(", ");
+    return finalTags.join(", ");
 
 }

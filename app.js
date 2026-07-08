@@ -503,7 +503,7 @@ function randomizePresetSelections(preset, presetName = "") {
   // 5. Context-aware Foreground Objects
   const diningKeywords = ["restaurant", "bar", "cafe", "dining", "mall", "eating", "drink"];
   const isDining = presetName && diningKeywords.some(keyword => presetName.toLowerCase().includes(keyword));
-  
+
   let allowedForegroundIds = [];
   if (isDining) {
     // Coffee Cup, Menu, Glass of Water
@@ -512,7 +512,7 @@ function randomizePresetSelections(preset, presetName = "") {
     // Flowers, Glass of Water
     allowedForegroundIds = ["foreground.002", "foreground.004"];
   }
-  
+
   const foregrounds = state.library.filter(opt => opt.category === "foreground_layer" && allowedForegroundIds.includes(opt.id) && opt.enabled !== false);
   if (foregrounds.length > 0) {
     const randFore = foregrounds[Math.floor(Math.random() * foregrounds.length)];

@@ -1,9 +1,28 @@
 {
-  "rendering": [
-    "AAA Game Splash Art",
-    "Stylized Realism",
-    "Semi Realistic"
-  ],
+  "themes": {
+    "3D Game": ["3D game render", "Unreal Engine 5", "octane render", "high quality 3D model", "CGI"],
+    "Realistic": [
+      "ultra photorealistic", "hyper realistic", "real person", "live-action fantasy cosplay", "AAA game live-action adaptation",
+      "premium cosplay costume", "luxury fashion editorial photography", "cinematic blockbuster movie still", "Unreal Engine 5 realism",
+      "practical costume materials", "realistic fabric textures", "realistic fabric wrinkles", "weathered leather", "realistic embroidery",
+      "natural facial asymmetry", "authentic expression", "realistic human proportions", "visible skin pores", "subtle skin imperfections",
+      "realistic eyes with natural reflections", "soft cinematic depth of field", "foreground bokeh", "naturally blurred background",
+      "physically accurate lighting", "cinematic rim lighting", "volumetric atmosphere", "subtle film grain", "natural HDR photography",
+      "shot on Sony A7R V", "85mm GM lens", "RAW photo", "subtle digital sensor noise", "slight chromatic aberration"
+    ],
+    "Premium Hero Illustration": ["premium hero illustration", "AAA game splash art", "ultra polished illustration", "high-end digital painting", "luxury character design", "center composition"],
+    "Anime-Inspired Realism": ["anime-inspired realism", "stylized realism", "semi realistic", "2.5D style", "doll-like beauty", "idol-like beauty"],
+    "Cinematic 2D Animation": ["cinematic 2D animation", "anime movie style", "Studio Ghibli style", "Makoto Shinkai style", "vivid colors", "beautiful cel shading", "anime background art"],
+    "Cyberpunk Concept Art": ["cyberpunk concept art", "neon lighting", "futuristic aesthetic", "high tech low life", "gritty sci-fi illustration", "concept art"],
+    "Dark Fantasy Oil Painting": ["dark fantasy oil painting", "classic oil painting style", "moody chiaroscuro lighting", "highly detailed brush strokes", "grimdark aesthetic", "masterpiece painting"],
+    "Retro Pixel Art": ["retro pixel art", "16-bit graphics", "arcade game style", "clean pixel art", "retro gaming aesthetic", "vibrant pixel colors"],
+    "Chibi Cute Style": ["chibi anime style", "kawaii aesthetic", "cute big eyes", "deformed cute proportions", "pastel color palette", "soft lighting"],
+    "Comic Book Art": ["comic book illustration", "graphic novel style", "bold ink outlines", "halftone patterns", "dynamic shading", "comic book coloring"],
+    "Watercolor Illustration": ["watercolor illustration", "soft watercolor washes", "ethereal aesthetic", "ink and watercolor", "artistic traditional media"],
+    "Gothic Horror Art": ["gothic horror art", "dark academia aesthetic", "macabre illustration", "desaturated colors", "eerie atmosphere", "creepy detailed art"],
+    "Pop Art Retro": ["retro pop art", "vibrant neon colors", "flat shading", "vintage comic poster style", "Andy Warhol style", "high contrast color blocking"],
+    "Steampunk Vintage": ["steampunk aesthetic", "vintage sepia tone", "Victorian era style", "brass and copper tones", "clockwork mechanisms", "vintage photograph effect"]
+  },
   "lighting": [
     "cinematic lighting",
     "soft studio lighting",

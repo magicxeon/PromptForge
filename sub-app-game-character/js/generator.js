@@ -30,7 +30,7 @@ async function loadJson(file) {
 
 }
 
-export async function generateCharacter(forceRank = "") {
+export async function generateCharacter(forceRank = "", forceStyle = "") {
 
     const [
         style,
@@ -136,13 +136,27 @@ export async function generateCharacter(forceRank = "") {
     );
     const poseText = poseObj.name;
 
+    const outfitTheme = outfitObj.theme || "traveler";
+    let availableBackgrounds = Array.isArray(scene.background) ? scene.background : (scene.background[outfitTheme] || Object.values(scene.background).flat());
+    
     const sceneText = [
-        pick(scene.background),
+        pick(availableBackgrounds),
         pick(scene.effects)
+    ].filter(Boolean).join(", ");
 
-    ].join(", ");
-
-    const characterObject = {
+        let selectedStyleTheme;
+        let selectedStyleName = forceStyle;
+        if (forceStyle && style.themes[forceStyle]) {
+            selectedStyleTheme = style.themes[forceStyle];
+        } else {
+            // Pick random key from themes
+            const themeKeys = Object.keys(style.themes);
+            const randomKey = pick(themeKeys);
+            selectedStyleTheme = style.themes[randomKey];
+            selectedStyleName = randomKey;
+        }
+        
+        const characterObject = {
 
         rank: rank.rank,
 
@@ -176,9 +190,11 @@ export async function generateCharacter(forceRank = "") {
 
         palette: pick(paletteData.palette).name,
 
-        style: pick(style.rendering),
+        styleName: selectedStyleName,
 
-        quality: quality.tags
+        styleThemeTags: selectedStyleTheme,
+
+        quality: quality.themes[selectedStyleName] || []
 
     };
 
@@ -186,4 +202,27 @@ export async function generateCharacter(forceRank = "") {
 
     return characterObject;
 
+}
+
+export async function updateCharacterStyle(character, forceStyle) {
+    if (!character) return;
+    const style = await loadJson("style.json");
+    const quality = await loadJson("quality.json");
+    
+    let selectedStyleTheme;
+    let selectedStyleName = forceStyle;
+    if (forceStyle && style.themes[forceStyle]) {
+        selectedStyleTheme = style.themes[forceStyle];
+    } else {
+        const themeKeys = Object.keys(style.themes);
+        const randomKey = pick(themeKeys);
+        selectedStyleTheme = style.themes[randomKey];
+        selectedStyleName = randomKey;
+    }
+    
+    character.styleName = selectedStyleName;
+    character.styleThemeTags = selectedStyleTheme;
+    character.quality = quality.themes[selectedStyleName] || [];
+    character.prompt = buildPrompt(character);
+    return character;
 }
