@@ -226,7 +226,7 @@
     },
     "prompt": {
       "default": "even skin tone",
-      "gpt-image": "even skin tone, smooth facial skin with balanced pigmentation, flawless complexion details",
+      "gpt-image": "even skin tone, smooth facial skin with balanced pigmentation, highly detailed and natural skin texture with visible pores",
       "gpt-image-safe": "even skin tone, smooth facial skin with balanced pigmentation",
       "gpt-image-positive": "professional makeup, studio portrait quality, clean facial skin"
     },

@@ -559,154 +559,204 @@
   },
 
   {
-    "id": "camera.blur_01",
+    "id": "camera.blur_00",
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": "No Blur (Sharp & Frozen)",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
       "default": "sharp frozen motion, no motion blur",
-      "gpt-image": "sharp crisp frozen moment with zero motion blur, all details in focus",
-      "gpt-image-safe": "sharp crisp frozen moment with zero motion blur",
-      "gpt-image-positive": "sharp focus, clean photography, professional digital photography"
+      "gpt-image": "sharp crisp frozen moment with zero motion blur, all details in focus"
     },
     "tags": ["camera", "motion blur", "sharp"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_01",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Cinematic Panning (Tracking)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism",
+      "gpt-image": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism"
+    },
+    "tags": ["camera", "motion blur", "panning", "cinematic"],
     "enabled": true
   },
   {
     "id": "camera.blur_02",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Soft Edge Vignette Blur",
+    "label": "Background Motion Blur (Natural)",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "subtle blur on image edges with sharp center subject",
-      "gpt-image": "soft vignette blur on the outer edges of the frame while the central subject remains tack sharp, drawing focus inward",
-      "gpt-image-safe": "soft blur on image edges with sharp center subject",
-      "gpt-image-positive": "editorial portrait, focus drawing, cinematic vignette"
+      "default": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look",
+      "gpt-image": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look"
     },
-    "tags": ["camera", "motion blur", "vignette"],
+    "tags": ["camera", "motion blur", "background", "natural"],
     "enabled": true
   },
   {
     "id": "camera.blur_03",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Camera Shake / Handheld Wobble",
+    "label": "Shallow DOF + Motion",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "slight camera shake blur from handheld shooting",
-      "gpt-image": "subtle handheld camera shake motion blur applied uniformly across the image, simulating a quick moving candid snapshot at a lower shutter speed",
-      "gpt-image-safe": "subtle camera shake from handheld shooting, slightly blurred",
-      "gpt-image-positive": "lifestyle portrait, natural candid portrait, documentary style portrait"
+      "default": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph",
+      "gpt-image": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph"
     },
-    "tags": ["camera", "motion blur", "shake", "handheld"],
+    "tags": ["camera", "motion blur", "dof", "cinematic"],
     "enabled": true
   },
   {
     "id": "camera.blur_04",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Subject Motion Blur (Body in Motion)",
+    "label": "Long Exposure Street",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "subject motion blur from body movement",
-      "gpt-image": "motion blur on the subject's moving limbs and hair while the background remains stationary, conveying dynamic movement and energy",
-      "gpt-image-safe": "motion blur on the subject's body from movement, suggesting dynamic energy",
-      "gpt-image-positive": "dynamic action portrait, kinetic energy, editorial motion photography"
+      "default": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography",
+      "gpt-image": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography"
     },
-    "tags": ["camera", "motion blur", "subject", "action"],
+    "tags": ["camera", "motion blur", "long exposure", "street"],
     "enabled": true
   },
   {
     "id": "camera.blur_05",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Panning Blur (Sharp Subject, Streaked Background)",
+    "label": "Foreground Motion Blur",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "panning motion blur — sharp subject, streaked background",
-      "gpt-image": "panning technique motion blur where the subject is sharp and in focus while the background becomes horizontal motion streaks, emphasising speed and movement",
-      "gpt-image-safe": "panning blur with sharp subject and streaked background suggesting speed",
-      "gpt-image-positive": "dynamic action shot, motion photography, kinetic energy"
+      "default": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism",
+      "gpt-image": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism"
     },
-    "tags": ["camera", "motion blur", "panning"],
+    "tags": ["camera", "motion blur", "foreground", "depth"],
     "enabled": true
   },
   {
     "id": "camera.blur_06",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Radial Spin Blur (Circular)",
+    "label": "Wind Motion (Hair/Clothing)",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "radial circular spin blur effect",
-      "gpt-image": "radial spin blur effect emanating from the center of the frame, creating a spinning circular motion trail around the subject",
-      "gpt-image-safe": "radial circular spin blur radiating from the center of the frame",
-      "gpt-image-positive": "surreal editorial, cinematic special effect, creative photography"
+      "default": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze",
+      "gpt-image": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze"
     },
-    "tags": ["camera", "motion blur", "radial", "spin"],
+    "tags": ["camera", "motion blur", "wind", "fashion"],
     "enabled": true
   },
   {
     "id": "camera.blur_07",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Zoom Burst Blur (Explosive Radial Pull)",
+    "label": "Edge Motion Blur",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "zoom burst motion blur — explosive radial pull from center",
-      "gpt-image": "zoom burst blur effect with radial lines pulling outward from the sharp center subject, as if the camera zoomed during exposure, creating an explosive energetic feel",
-      "gpt-image-safe": "zoom burst radial blur pulling outward from the subject in the center",
-      "gpt-image-positive": "dynamic editorial fashion, explosive energy, creative photography"
+      "default": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus",
+      "gpt-image": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus"
     },
-    "tags": ["camera", "motion blur", "zoom", "radial"],
+    "tags": ["camera", "motion blur", "edge", "cinematic"],
     "enabled": true
   },
   {
     "id": "camera.blur_08",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Light Trail Blur (Long Exposure Streaks)",
+    "label": "Walking Motion",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "long exposure light trail motion blur",
-      "gpt-image": "long exposure light trail blur with glowing streaks of car headlights, neon signs, and passing lights creating painterly light paths across the frame while the subject remains still",
-      "gpt-image-safe": "long exposure light trail blur with glowing streaks of ambient lights across the frame",
-      "gpt-image-positive": "long exposure photography, light painting, nighttime cityscape photography"
+      "default": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement",
+      "gpt-image": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement"
     },
-    "tags": ["camera", "motion blur", "light trail", "long exposure"],
+    "tags": ["camera", "motion blur", "walking", "movement"],
     "enabled": true
   },
   {
     "id": "camera.blur_09",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Tilt-Shift Selective Blur",
+    "label": "Street Documentary (Leica Style)",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "tilt-shift selective blur with narrow plane of focus",
-      "gpt-image": "tilt-shift lens effect with a narrow horizontal plane of sharp focus and strong progressive blur above and below, making the scene look like a miniature scale model",
-      "gpt-image-safe": "tilt-shift selective blur with sharp narrow horizontal band of focus",
-      "gpt-image-positive": "editorial fashion photography, miniature effect, selective focus photography"
+      "default": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism",
+      "gpt-image": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism"
     },
-    "tags": ["camera", "motion blur", "tilt-shift", "selective"],
+    "tags": ["camera", "motion blur", "documentary", "street"],
     "enabled": true
   },
   {
     "id": "camera.blur_10",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Full Frame Motion Blur (All-Over Blur)",
+    "label": "Dynamic Cinematic (Frozen Subject)",
     "ui": { "control": "select", "group": "Camera" },
     "prompt": {
-      "default": "full frame motion blur across the entire image",
-      "gpt-image": "strong motion blur applied uniformly across the entire image creating a dreamy abstract impression of movement, with all elements blurred in a consistent direction",
-      "gpt-image-safe": "full frame motion blur uniformly across the entire image",
-      "gpt-image-positive": "abstract editorial, dreamy impression, experimental motion photography"
+      "default": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture",
+      "gpt-image": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture"
     },
-    "tags": ["camera", "motion blur", "full frame"],
+    "tags": ["camera", "motion blur", "dynamic", "cinematic"],
     "enabled": true
-  }
+  },
+  {
+    "id": "camera.blur_11",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "Continuous Eye AF (Sony/Canon Style)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph",
+      "gpt-image": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph"
+    },
+    "tags": ["camera", "motion blur", "autofocus", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "camera.blur_12",
+    "category": "camera",
+    "subcategory": "Motion Blur",
+    "label": "AI Killer (Ultimate Realism)",
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography",
+      "gpt-image": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography"
+    },
+    "tags": ["camera", "motion blur", "ultimate", "realism"],
+    "enabled": true
+  },
+
+  { "id": "camera.imp_01", "category": "camera_imperfections", "label": "Slight Handheld Movement", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "prompt": {
+      "default": "slight handheld camera movement, natural organic framing",
+      "gpt-image": "slight handheld camera movement, natural organic framing, giving the impression of an authentic photograph"
+    },
+    "tags": ["camera", "imperfections", "handheld"], "enabled": true },
+  { "id": "camera.imp_02", "category": "camera_imperfections", "label": "Optical Imperfections", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "prompt": {
+      "default": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+      "gpt-image": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look"
+    },
+    "tags": ["camera", "imperfections", "lens"], "enabled": true },
+  { "id": "camera.imp_03", "category": "camera_imperfections", "label": "Subtle Sensor Noise", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "prompt": {
+      "default": "subtle digital sensor noise, natural digital camera texture",
+      "gpt-image": "subtle digital sensor noise, natural digital camera sensor texture, especially visible in shadow regions"
+    },
+    "tags": ["camera", "imperfections", "noise"], "enabled": true },
+  { "id": "camera.imp_04", "category": "camera_imperfections", "label": "Gentle Halation", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "prompt": {
+      "default": "gentle highlight halation, organic highlight roll-off",
+      "gpt-image": "gentle highlight halation around strong light sources, organic realistic highlight roll-off"
+    },
+    "tags": ["camera", "imperfections", "halation"], "enabled": true },
+  { "id": "camera.imp_05", "category": "camera_imperfections", "label": "Subtle Lens Breathing", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "prompt": {
+      "default": "subtle lens breathing, natural optical falloff",
+      "gpt-image": "subtle lens breathing effect, natural soft optical falloff from focus to defocus regions"
+    },
+    "tags": ["camera", "imperfections", "lens"], "enabled": true }
 ]
 

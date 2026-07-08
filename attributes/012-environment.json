@@ -706,6 +706,39 @@
   { "id": "environment.sea_06", "category": "environment", "label": "Dry Season Golden Savanna", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Season",
     "prompt": { "default": "dry season golden savanna landscape", "gpt-image": "dry season golden savanna landscape with tall amber grass, dust haze in the background and dramatic wide-open sky" },
     "exclusions": ["environment.001", "environment.007", "environment.pop_06"],
-    "tags": ["environment", "season", "dry"], "enabled": true }
-]
+    "tags": ["environment", "season", "dry"], "enabled": true },
 
+  { "id": "environment.loc_resort", "category": "environment", "label": "Luxury Tropical Resort", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "at a luxury tropical resort", "gpt-image": "relaxing at a luxury tropical resort with palm trees, a pristine swimming pool, and aesthetic wooden architecture" },
+    "tags": ["environment", "location", "resort", "outdoor", "summer"], "enabled": true },
+
+  { "id": "environment.loc_mall", "category": "environment", "label": "Modern Shopping Mall", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Location",
+    "prompt": { "default": "inside a modern shopping mall", "gpt-image": "inside a bright, modern, spacious luxury shopping mall with glass displays, soft ambient lighting, and blurred shoppers in the background" },
+    "tags": ["environment", "location", "mall", "indoor"], "enabled": true },
+
+  { "id": "foreground.001", "category": "foreground_layer", "label": "Coffee Cup (Out of Focus)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Foreground Layer",
+    "prompt": { "default": "foreground coffee cup slightly out of focus", "gpt-image": "foreground coffee cup slightly out of focus, adding a sense of depth to the camera view" },
+    "tags": ["foreground", "cafe"], "enabled": true },
+  { "id": "foreground.002", "category": "foreground_layer", "label": "Flowers (Softly Blurred)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Foreground Layer",
+    "prompt": { "default": "foreground flowers softly blurred", "gpt-image": "foreground flowers softly blurred, framing the side of the image" },
+    "tags": ["foreground", "nature"], "enabled": true },
+  { "id": "foreground.003", "category": "foreground_layer", "label": "Menu (Softly Blurred)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Foreground Layer",
+    "prompt": { "default": "foreground restaurant menu out of focus", "gpt-image": "foreground restaurant menu out of focus, placing the camera low on the table" },
+    "tags": ["foreground", "restaurant"], "enabled": true },
+  { "id": "foreground.004", "category": "foreground_layer", "label": "Glass of Water (Out of Focus)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Foreground Layer",
+    "prompt": { "default": "foreground glass of water with ice slightly out of focus", "gpt-image": "foreground glass of water with ice slightly out of focus, creating soft transparent highlights" },
+    "tags": ["foreground"], "enabled": true },
+
+  { "id": "background.001", "category": "background_activity", "label": "Chatting Customers (Bokeh)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Background Activity",
+    "prompt": { "default": "with blurred customers talking in the background", "gpt-image": "with blurred customers talking in the background, creating a lively cafe atmosphere" },
+    "tags": ["background", "cafe"], "enabled": true },
+  { "id": "background.002", "category": "background_activity", "label": "Moving Pedestrians (Soft Blur)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Background Activity",
+    "prompt": { "default": "with moving pedestrians softly blurred in the background", "gpt-image": "with moving pedestrians softly blurred in the background, showing street activity" },
+    "tags": ["background", "street"], "enabled": true },
+  { "id": "background.003", "category": "background_activity", "label": "Passing Cars (Light Streaks)", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Background Activity",
+    "prompt": { "default": "with passing traffic and blurred light streaks in the background", "gpt-image": "with passing traffic and blurred light streaks in the background, long exposure style" },
+    "tags": ["background", "traffic"], "enabled": true },
+  { "id": "background.004", "category": "background_activity", "label": "Café Staff Working", "ui": { "control": "select", "group": "Environment" }, "subcategory": "Background Activity",
+    "prompt": { "default": "with café staff working in the soft-focus background", "gpt-image": "with café staff working in the soft-focus background, adding environmental storytelling" },
+    "tags": ["background", "cafe"], "enabled": true }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "id": "photo_context.001",
+    "category": "photo_context",
+    "label": "Candid Lifestyle Photograph",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "candid lifestyle photograph",
+      "gpt-image": "candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions"
+    },
+    "tags": [
+      "photo_context",
+      "candid",
+      "lifestyle"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.002",
+    "category": "photo_context",
+    "label": "Documentary Street Photography",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "documentary street photography style",
+      "gpt-image": "documentary street photography capturing an authentic unposed slice of life, classic street photo aesthetic"
+    },
+    "tags": [
+      "photo_context",
+      "street",
+      "documentary"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.003",
+    "category": "photo_context",
+    "label": "Captured Casually by a Friend",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "captured casually by a friend",
+      "gpt-image": "captured casually by a friend, giving a completely unposed and realistic snapshot aesthetic"
+    },
+    "tags": [
+      "photo_context",
+      "candid",
+      "snapshot"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.004",
+    "category": "photo_context",
+    "label": "Spontaneous Conversation Moment",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "spontaneous moment captured during conversation",
+      "gpt-image": "spontaneous moment captured mid-conversation, showing organic hand movements and genuine emotional expression"
+    },
+    "tags": [
+      "photo_context",
+      "candid",
+      "conversation"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.005",
+    "category": "photo_context",
+    "label": "Unposed Snapshot",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "unposed snapshot",
+      "gpt-image": "unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly"
+    },
+    "tags": [
+      "photo_context",
+      "candid",
+      "snapshot"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.006",
+    "category": "photo_context",
+    "label": "Handheld Smartphone Moment",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "casual handheld smartphone photo",
+      "gpt-image": "casual handheld smartphone photo look, authentic lifestyle image, slight color noise and realistic mobile lens distortion"
+    },
+    "tags": [
+      "photo_context",
+      "smartphone",
+      "snapshot"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "photo_context.007",
+    "category": "photo_context",
+    "label": "Travel Documentary Slice-of-Life",
+    "ui": {
+      "control": "select",
+      "group": "Photographic Context"
+    },
+    "prompt": {
+      "default": "travel documentary photograph",
+      "gpt-image": "travel documentary slice-of-life photograph, capturing regional environmental storytelling and local atmosphere"
+    },
+    "tags": [
+      "photo_context",
+      "travel",
+      "documentary"
+    ],
+    "enabled": true
+  }
+]

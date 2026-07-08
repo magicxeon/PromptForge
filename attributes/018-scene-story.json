@@ -1,0 +1,136 @@
+[
+  {
+    "id": "scene_story.001",
+    "category": "scene_story",
+    "label": "Chatting Over Coffee",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "a candid moment while chatting over coffee at a café table",
+      "gpt-image": "a candid moment while chatting over coffee at a table, interacting naturally, soft smile"
+    },
+    "tags": [
+      "scene_story",
+      "cafe",
+      "conversation"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.002",
+    "category": "scene_story",
+    "label": "Walking in Evening Rain",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "walking casually down a city street in the evening during a light drizzle",
+      "gpt-image": "walking casually down a city street in the evening during a light drizzle, streetlights reflecting on wet pavement"
+    },
+    "tags": [
+      "scene_story",
+      "street",
+      "rain",
+      "night"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.003",
+    "category": "scene_story",
+    "label": "Reading on a Park Bench",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "relaxing quietly on a wooden park bench while reading a book",
+      "gpt-image": "relaxing quietly on a weathered wooden park bench while reading a book, lost in thought"
+    },
+    "tags": [
+      "scene_story",
+      "park",
+      "reading"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.004",
+    "category": "scene_story",
+    "label": "Waiting at Subway Platform",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "standing calmly at a subway station platform waiting for the train",
+      "gpt-image": "standing calmly at a subway station platform waiting for the train, listening to music on headphones"
+    },
+    "tags": [
+      "scene_story",
+      "subway",
+      "transit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.005",
+    "category": "scene_story",
+    "label": "Enjoying Rooftop Dining",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "dining and enjoying conversation at a high-end rooftop restaurant",
+      "gpt-image": "dining and enjoying conversation at a high-end rooftop restaurant, city skyline lights blurred in background"
+    },
+    "tags": [
+      "scene_story",
+      "restaurant",
+      "dining"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.006",
+    "category": "scene_story",
+    "label": "Laughing with Coworkers",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "sharing a lighthearted laugh during a casual gathering after work",
+      "gpt-image": "sharing a lighthearted laugh during a casual gathering after work, relaxed body language and genuine smiles"
+    },
+    "tags": [
+      "scene_story",
+      "office",
+      "social"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "scene_story.007",
+    "category": "scene_story",
+    "label": "Shopping in High-End Boutique",
+    "ui": {
+      "control": "select",
+      "group": "Scene Story"
+    },
+    "prompt": {
+      "default": "browsing and shopping inside a high-end fashion boutique",
+      "gpt-image": "browsing clothes and shopping inside a brightly lit high-end fashion boutique"
+    },
+    "tags": [
+      "scene_story",
+      "mall",
+      "shopping"
+    ],
+    "enabled": true
+  }
+]

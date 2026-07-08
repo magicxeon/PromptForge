@@ -505,6 +505,35 @@ body {
   font-style: italic;
 }
 
+.buzzword-warnings-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba(239, 149, 0, 0.06);
+  border: 1px solid rgba(239, 149, 0, 0.25);
+  border-radius: 8px;
+  color: #ef9500;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.buzzword-warnings-box .warning-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.buzzword-warnings-box .warning-item {
+  color: #ffb03a;
+  margin-left: 1.25rem;
+  font-size: 0.8rem;
+}
+
 /* Token Highlights (Dynamic spans in prompt assembly) */
 .token-subject {
   color: var(--neon-green);

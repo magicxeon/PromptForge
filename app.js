@@ -20,7 +20,9 @@ const ATTRIBUTE_FILES = [
   '013-lighting.json',
   '014-camera.json',
   '015-quality.json',
-  '016-nsfw.json'
+  '016-nsfw.json',
+  '017-photographic-context.json',
+  '018-scene-story.json'
 ];
 
 // Mapping ui-schema fields to attribute categories
@@ -39,7 +41,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Nose": "nose",
   "Lips": "lips",
   "Smile": "lips",
-  "Expression": "face",
+  "Expression": "expression",
 
   // Hair Group
   "Length": "hair",
@@ -113,7 +115,20 @@ const FIELD_TO_CATEGORY_MAP = {
 
   // NSFW Group
   "Nudity Level": "nsfw",
-  "Sensual Pose": "nsfw"
+  "Sensual Pose": "nsfw",
+
+  // Photographic Context
+  "Context Type": "photo_context",
+
+  // Scene Story
+  "Story Event": "scene_story",
+
+  // New Environment fields
+  "Foreground Layer": "foreground_layer",
+  "Background Activity": "background_activity",
+
+  // New Camera field
+  "Camera Imperfections": "camera_imperfections"
 };
 
 // Presets definitions
@@ -289,7 +304,88 @@ const PRESETS = {
       "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
       "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
       "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
-  "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
+      "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false },
+      "Story Event": { id: "__custom__", value: "strolling along the coastline at sunset", isCustom: true },
+      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
+      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
+    }
+  },
+  restaurantSitting: {
+    template: "portrait",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_03", value: "sitting resting chin on hand with elbow on table, looking directly at the camera", isCustom: false },
+      "Location": { id: "environment.loc_03", value: "on a high-end rooftop restaurant terrace", isCustom: false },
+      "Ambient": { id: "__custom__", value: "soft warm ambient restaurant lighting", isCustom: true },
+      "Story Event": { id: "scene_story.005", value: "dining and enjoying conversation at a high-end rooftop restaurant", isCustom: false },
+      "Context Type": { id: "photo_context.003", value: "captured casually by a friend", isCustom: false },
+      "Foreground Layer": { id: "foreground.003", value: "foreground restaurant menu out of focus", isCustom: false },
+      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_02", value: "minor chromatic aberration, corner softness, realistic lens optical imperfections", isCustom: false }
+    }
+  },
+  barSitting: {
+    template: "nightclub",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_04", value: "sitting on a bar stool", isCustom: false },
+      "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
+      "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
+      "Story Event": { id: "scene_story.006", value: "sharing a lighthearted laugh during a casual gathering after work", isCustom: false },
+      "Context Type": { id: "photo_context.004", value: "spontaneous moment captured mid-conversation", isCustom: false },
+      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
+    }
+  },
+  resortSitting: {
+    template: "portrait",
+    aspectRatio: "16:9",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
+      "Location": { id: "environment.loc_resort", value: "at a luxury tropical resort", isCustom: false },
+      "Top": { id: "clothing.travel_05", value: "breezy tropical sundress", isCustom: false },
+      "Key Light": { id: "__custom__", value: "golden hour light", isCustom: true },
+      "Story Event": { id: "__custom__", value: "relaxing by the poolside villa enjoying the peaceful atmosphere", isCustom: true },
+      "Context Type": { id: "photo_context.005", value: "unposed snapshot", isCustom: false },
+      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.004", value: "with café staff working in the soft-focus background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_04", value: "gentle highlight halation, organic highlight roll-off", isCustom: false }
+    }
+  },
+  naturePhoto: {
+    template: "portrait",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Location": { id: "environment.pop_02", value: "in a lush green forest with tall trees and dappled sunlight", isCustom: false },
+      "Top": { id: "clothing.travel_01", value: "lightweight linen safari shirt", isCustom: false },
+      "Key Light": { id: "__custom__", value: "soft dappled sunlight filtering through the canopy", isCustom: true },
+      "Story Event": { id: "scene_story.003", value: "relaxing quietly on a wooden park bench while reading a book", isCustom: false },
+      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
+      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
+      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
+    }
+  },
+  mallWaiting: {
+    template: "portrait",
+    aspectRatio: "9:16",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
+      "Location": { id: "environment.loc_mall", value: "inside a modern shopping mall", isCustom: false },
+      "Top": { id: "clothing.casual_05", value: "oversized cozy knit sweater", isCustom: false },
+      "Props": { id: "__custom__", value: "holding a hot paper coffee cup", isCustom: true },
+      "Story Event": { id: "scene_story.007", value: "browsing clothes and shopping inside a high-end fashion boutique", isCustom: false },
+      "Context Type": { id: "photo_context.006", value: "casual handheld smartphone photo", isCustom: false },
+      "Foreground Layer": { id: "foreground.001", value: "foreground coffee cup slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
     }
   }
 };
@@ -333,6 +429,69 @@ const state = {
   },
   aspectRatio: "6:8"  // Default aspect ratio
 };
+
+// Helper to randomize pose & expression for presets in a context-aware way
+function randomizePresetSelections(preset) {
+  // Clone preset selections
+  const selections = JSON.parse(JSON.stringify(preset.selections));
+
+  // 1. Get all expressions from state.library
+  const expressions = state.library.filter(opt => opt.category === "expression" && opt.enabled !== false);
+  if (expressions.length > 0) {
+    const randExpr = expressions[Math.floor(Math.random() * expressions.length)];
+    selections["Expression"] = { id: randExpr.id, value: randExpr.prompt ? (randExpr.prompt.default) : randExpr.label, isCustom: false };
+  }
+
+  // 2. Get all hand positions from state.library
+  const handPositions = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Hand Position" && opt.enabled !== false);
+  if (handPositions.length > 0) {
+    const randHand = handPositions[Math.floor(Math.random() * handPositions.length)];
+    selections["Hand Position"] = { id: randHand.id, value: randHand.prompt ? (randHand.prompt.default) : randHand.label, isCustom: false };
+  }
+
+  // 3. Pose Randomization (Context-Aware)
+  // Check if this preset has a "Sitting" selection (which means it's a sitting preset)
+  const isSittingPreset = !!selections["Sitting"];
+
+  if (isSittingPreset) {
+    // Clear any standing/walking poses if present
+    delete selections["Standing"];
+    delete selections["Walking"];
+
+    // Get all sitting poses
+    const sittingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Sitting" && opt.enabled !== false);
+    if (sittingPoses.length > 0) {
+      const randSit = sittingPoses[Math.floor(Math.random() * sittingPoses.length)];
+      selections["Sitting"] = { id: randSit.id, value: randSit.prompt ? (randSit.prompt.default) : randSit.label, isCustom: false };
+    }
+  } else {
+    // It's a standing/walking preset. Clear any sitting pose
+    delete selections["Sitting"];
+
+    // Decide randomly between standing or walking
+    const pickStanding = Math.random() > 0.5;
+    if (pickStanding) {
+      delete selections["Walking"];
+      const standingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Standing" && opt.enabled !== false);
+      if (standingPoses.length > 0) {
+        const randStand = standingPoses[Math.floor(Math.random() * standingPoses.length)];
+        selections["Standing"] = { id: randStand.id, value: randStand.prompt ? (randStand.prompt.default) : randStand.label, isCustom: false };
+      }
+    } else {
+      delete selections["Standing"];
+      const walkingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Walking" && opt.enabled !== false);
+      if (walkingPoses.length > 0) {
+        const randWalk = walkingPoses[Math.floor(Math.random() * walkingPoses.length)];
+        selections["Walking"] = { id: randWalk.id, value: randWalk.prompt ? (randWalk.prompt.default) : randWalk.label, isCustom: false };
+      }
+    }
+  }
+
+  return {
+    ...preset,
+    selections
+  };
+}
 
 // Initialize Application
 document.addEventListener("DOMContentLoaded", () => {
@@ -729,7 +888,9 @@ function bindEvents() {
       // Load preset
       const preset = PRESETS[presetName];
       if (preset) {
-        importConfigJSON(JSON.stringify(preset));
+        // Randomize Expression and Pose in a context-aware way before loading
+        const randomizedPreset = randomizePresetSelections(preset);
+        importConfigJSON(JSON.stringify(randomizedPreset));
       }
     });
   });
@@ -899,14 +1060,16 @@ function enforceExclusionRules(selectedId) {
       conflictingSelect.value = "";
 
       // Hide custom write-in input if visible
-      const customInput = conflictingselect.closest(".form-field").querySelector(".custom-writein-input");
-      if (customInput) {
-        customInput.value = "";
-        customInput.style.display = "none";
+      const formField = conflictingSelect.closest(".form-field");
+      if (formField) {
+        const customInput = formField.querySelector(".custom-writein-input");
+        if (customInput) {
+          customInput.value = "";
+          customInput.style.display = "none";
+        }
       }
 
       // 3. Trigger visual flash animation on the parent form-field div
-      const formField = conflictingSelect.closest(".form-field");
       if (formField) {
         formField.classList.remove("conflict-cleared"); // reset if already animating
         void formField.offsetWidth; // force reflow to restart animation
@@ -1052,7 +1215,7 @@ function generatePromptText(cleanTextOnly = false) {
     // Check if overridden by Image Reference Options first
     if (groupName.toLowerCase() === "face") {
       if (state.imageReferences.faceMatch) {
-        const txt = "facial structure, mouth, nose, eyes, and eyebrows must match the original uploaded file 100% without any distortion";
+        const txt = "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.";
         return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
       }
     }
@@ -1224,6 +1387,49 @@ function updatePromptPreview() {
     previewBox.innerHTML = htmlContent;
   }
 
+  // AI Buzzword Warning System
+  const cleanPrompt = generatePromptText(true).toLowerCase();
+  const BANNED_KEYWORDS = [
+    { word: "masterpiece", type: "AI Buzzword", suggestion: "Describe specific photographic details instead." },
+    { word: "best quality", type: "AI Buzzword", suggestion: "Specify camera brand, lens type, and lighting source." },
+    { word: "ultra quality", type: "AI Buzzword", suggestion: "Let the resolution and lens parameters imply quality." },
+    { word: "insane detail", type: "AI Buzzword", suggestion: "Explain what is detailed (e.g. skin pores, fabric weave)." },
+    { word: "hyper realistic", type: "AI Buzzword", suggestion: "Rely on realistic lighting physics and camera properties." },
+    { word: "16k", type: "AI Buzzword", suggestion: "Use standard focal lengths or camera brand names instead." },
+    { word: "32k", type: "AI Buzzword", suggestion: "Use standard focal lengths or camera brand names instead." },
+    { word: "flawless", type: "Unreal Beauty", suggestion: "Prefer natural textures like 'visible pores' or 'subtle blemishes'." },
+    { word: "perfect face", type: "Unreal Beauty", suggestion: "Describe unique features or natural expression." },
+    { word: "perfect skin", type: "Unreal Beauty", suggestion: "Use 'natural skin texture' or 'fine baby hairs'." },
+    { word: "perfect anatomy", type: "Unreal Beauty", suggestion: "Focus on relaxed postures and candid movement." },
+    { word: "perfect symmetry", type: "Unreal Beauty", suggestion: "Embrace 'natural asymmetry' for a photorealistic look." },
+    { word: "identical", type: "Geometry Lock", suggestion: "Allow natural variations from perspective, lighting, and expressions." },
+    { word: "must match", type: "Geometry Lock", suggestion: "Let the AI blend styling naturally with the environment." },
+    { word: "pixel perfect", type: "Geometry Lock", suggestion: "Describe optics like 'creamy bokeh' or 'film grain' for realism." },
+    { word: "without distortion", type: "Geometry Lock", suggestion: "Some lens distortion is natural; rely on camera/lens setup." }
+  ];
+
+  const detected = [];
+  BANNED_KEYWORDS.forEach(rule => {
+    const regex = new RegExp(`\\b${rule.word}\\b`, 'i');
+    if (regex.test(cleanPrompt)) {
+      detected.push(rule);
+    }
+  });
+
+  const warningContainer = document.getElementById("buzzword-warnings");
+  if (warningContainer) {
+    if (detected.length > 0 && htmlContent !== "") {
+      let warningHtml = `<div class="warning-title">⚠️ Photorealistic Warnings:</div>`;
+      detected.forEach(rule => {
+        warningHtml += `<div class="warning-item">Avoid <strong>"${rule.word}"</strong> (${rule.type}) — ${rule.suggestion}</div>`;
+      });
+      warningContainer.innerHTML = warningHtml;
+      warningContainer.style.display = "flex";
+    } else {
+      warningContainer.style.display = "none";
+    }
+  }
+
   // Layer 1: Preventive — disable conflicting options in dropdowns in real-time
   updateDropdownExclusions();
 }
@@ -1253,10 +1459,13 @@ function resetForm() {
   // Clear select elements
   document.querySelectorAll(".custom-select").forEach(select => {
     select.value = "";
-    const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
-    if (customInput) {
-      customInput.value = "";
-      customInput.style.display = "none";
+    const formField = select.closest(".form-field");
+    if (formField) {
+      const customInput = formField.querySelector(".custom-writein-input");
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
     }
   });
 
@@ -1387,10 +1596,13 @@ function importConfigJSON(jsonString) {
 
         if (item.isCustom) {
           select.value = "__custom__";
-          const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
-          if (customInput) {
-            customInput.value = item.value;
-            customInput.style.display = "block";
+          const formField = select.closest(".form-field");
+          if (formField) {
+            const customInput = formField.querySelector(".custom-writein-input");
+            if (customInput) {
+              customInput.value = item.value;
+              customInput.style.display = "block";
+            }
           }
           state.selections[field] = { id: "__custom__", value: item.value, isCustom: true, group: groupName };
         } else {
@@ -1437,7 +1649,7 @@ function applyFaceMatchLockout() {
       delete state.selections[field];
       select.value = "";
 
-      const customInput = formField.querySelector(".custom-writein-input");
+      const customInput = formField ? formField.querySelector(".custom-writein-input") : null;
       if (customInput) {
         customInput.value = "";
         customInput.style.display = "none";

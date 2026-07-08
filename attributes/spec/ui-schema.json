@@ -26,6 +26,26 @@
     ]
   },
   {
+    "group": "Scene Story",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Story Event",
+        "control": "select"
+      }
+    ]
+  },
+  {
+    "group": "Photographic Context",
+    "layout": "accordion",
+    "fields": [
+      {
+        "name": "Context Type",
+        "control": "select"
+      }
+    ]
+  },
+  {
     "group": "Face",
     "layout": "accordion",
     "fields": [
@@ -194,6 +214,14 @@
         "control": "select"
       },
       {
+        "name": "Foreground Layer",
+        "control": "select"
+      },
+      {
+        "name": "Background Activity",
+        "control": "select"
+      },
+      {
         "name": "Architecture",
         "control": "select"
       },
@@ -287,6 +315,10 @@
       },
       {
         "name": "Motion Blur",
+        "control": "select"
+      },
+      {
+        "name": "Camera Imperfections",
         "control": "select"
       }
     ]

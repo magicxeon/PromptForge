@@ -1,11 +1,13 @@
 {
   "order": [
     "subject",
+    "scene_story",
     "face_shape",
     "eyes",
     "eyebrows",
     "nose",
     "lips",
+    "expression",
     "skin",
     "hair_style",
     "body",
@@ -15,9 +17,13 @@
     "bottoms",
     "nsfw",
     "pose_body",
+    "photo_context",
+    "foreground_layer",
     "environment",
+    "background_activity",
     "lighting",
     "camera",
+    "camera_imperfections",
     "quality"
   ]
 }
