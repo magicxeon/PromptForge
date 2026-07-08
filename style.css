@@ -232,8 +232,7 @@ body {
 }
 
 .accordion.active .accordion-content {
-  max-height: 600px;
-  /* High enough value to accommodate all inputs */
+  max-height: 3000px; /* High enough value to accommodate all inputs dynamically */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -719,6 +718,14 @@ button.btn-neon-cyan {
   color: var(--neon-cyan);
   font-weight: 500;
   text-shadow: 0 0 5px rgba(6, 182, 212, 0.2);
+}
+
+/* Dropped/Conflicting token */
+.token-dropped {
+  text-decoration: line-through;
+  opacity: 0.5;
+  cursor: help;
+  color: #a1a1aa; /* zinc-400 */
 }
 
 /* Conflict auto-cleared warning flash */

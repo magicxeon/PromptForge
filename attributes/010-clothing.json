@@ -808,5 +808,205 @@
       "comfortable"
     ],
     "enabled": true
+  },
+  {
+    "id": "clothing.casual_05",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Oversized cozy knit sweater",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "oversized cozy knit sweater", "gpt-image": "oversized chunky cozy knit sweater with a relaxed fit" },
+    "tags": ["clothing", "casual", "comfortable", "sweater", "indoor"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_06",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Relaxed fit linen pants",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "relaxed fit linen pants", "gpt-image": "loose relaxed fit breathable linen lounge pants" },
+    "tags": ["clothing", "casual", "comfortable", "pants"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_07",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Soft cotton oversized t-shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "soft oversized cotton t-shirt", "gpt-image": "soft and comfortable oversized cotton t-shirt with draped shoulders" },
+    "tags": ["clothing", "casual", "comfortable", "shirt", "indoor"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_08",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Comfortable fleece joggers",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "comfortable fleece joggers", "gpt-image": "soft comfortable fleece jogger sweatpants" },
+    "tags": ["clothing", "casual", "comfortable", "pants", "indoor"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.casual_09",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Flowy casual maxi dress",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "flowy casual maxi dress", "gpt-image": "breezy flowy casual maxi dress with soft fabric" },
+    "tags": ["clothing", "casual", "dress", "outdoor"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.work_01",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Crisp white button-down shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "crisp white button-down shirt", "gpt-image": "crisp professional white tailored button-down shirt" },
+    "tags": ["clothing", "work", "office", "formal", "shirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.work_02",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Structured pencil skirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "structured pencil skirt", "gpt-image": "high-waisted structured professional pencil skirt" },
+    "tags": ["clothing", "work", "office", "formal", "skirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.work_03",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Sharp fitted blazer",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "sharp fitted tailored blazer", "gpt-image": "sharp fitted tailored professional blazer jacket" },
+    "tags": ["clothing", "work", "office", "formal", "jacket"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.work_04",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Classic pleated trousers",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "classic pleated trousers", "gpt-image": "classic tailored pleated office trousers" },
+    "tags": ["clothing", "work", "office", "formal", "pants"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.work_05",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Elegant sheath dress",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "elegant knee-length sheath dress", "gpt-image": "elegant structured knee-length professional sheath dress" },
+    "tags": ["clothing", "work", "office", "formal", "dress"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.travel_01",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Lightweight linen safari shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "lightweight linen safari shirt", "gpt-image": "lightweight breathable linen travel safari shirt with pockets" },
+    "tags": ["clothing", "travel", "vacation", "outdoor", "shirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.travel_02",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Tropical print resort shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "tropical print resort shirt", "gpt-image": "casual short-sleeve tropical print resort button-up shirt" },
+    "tags": ["clothing", "travel", "vacation", "outdoor", "summer", "shirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.travel_03",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Flowy pleated midi skirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "flowy pleated midi skirt", "gpt-image": "breezy flowy pleated midi travel skirt" },
+    "tags": ["clothing", "travel", "vacation", "outdoor", "skirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.travel_04",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Relaxed cargo shorts",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "relaxed cargo shorts", "gpt-image": "relaxed fit casual travel cargo shorts with pockets" },
+    "tags": ["clothing", "travel", "vacation", "outdoor", "summer"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.travel_05",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Breezy tropical sundress",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "breezy tropical sundress", "gpt-image": "lightweight breezy tropical summer sundress with a vibrant pattern" },
+    "tags": ["clothing", "travel", "vacation", "outdoor", "summer", "dress"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.sleep_01",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Silky satin camisole",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "silky satin camisole", "gpt-image": "delicate silky smooth satin pajama camisole top" },
+    "tags": ["clothing", "sleepwear", "night", "indoor", "shirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.sleep_02",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Flannel plaid pajama shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "flannel plaid pajama shirt", "gpt-image": "cozy warm flannel plaid pajama button-up shirt" },
+    "tags": ["clothing", "sleepwear", "night", "indoor", "winter", "shirt"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.sleep_03",
+    "category": "clothing",
+    "subcategory": "Bottom",
+    "label": "Matching pajama shorts",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "matching pajama shorts", "gpt-image": "soft matching comfortable sleepwear pajama shorts" },
+    "tags": ["clothing", "sleepwear", "night", "indoor", "summer", "pants"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.sleep_04",
+    "category": "clothing",
+    "subcategory": "Dress",
+    "label": "Elegant silk nightgown",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "elegant silk nightgown", "gpt-image": "elegant flowing long silk nightgown sleepwear" },
+    "tags": ["clothing", "sleepwear", "night", "indoor", "dress"],
+    "enabled": true
+  },
+  {
+    "id": "clothing.sleep_05",
+    "category": "clothing",
+    "subcategory": "Top",
+    "label": "Oversized sleep shirt",
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "oversized sleep shirt", "gpt-image": "comfortable oversized cotton sleep shirt used as pajamas" },
+    "tags": ["clothing", "sleepwear", "night", "indoor", "shirt"],
+    "enabled": true
   }
 ]

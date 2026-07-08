@@ -170,7 +170,7 @@ const state = {
 | `exportConfigJSON()` | download JSON config file |
 | `importConfigJSON(jsonStr)` | restore state จาก JSON |
 | `resetForm()` | ล้าง selections และ UI ทั้งหมด |
-| `randomizeSelections()` | สุ่มเลือก options (65% chance ต่อ field) |
+| `randomizeSelections()` | สุ่มเลือก options (65% chance ต่อ field) โดยข้าม field ที่ถูก Lock ไว้ (`state.lockedFields`) |
 | `applyFaceMatchLockout()` | lock Face fields เมื่อ Face Match checkbox เปิด |
 
 ### การจัดการ selections state
@@ -274,21 +274,16 @@ generatePromptText(cleanTextOnly)
 
 ---
 
-## 11. Exclusions System (Pending Implementation)
+## 11. Exclusions System (Implemented - Bidirectional)
 
-ดูรายละเอียดใน [001-options-enhancements.md](file:///d:/development/ModelPromptForge/requirements/implementation-plan/enhancements/001-options-enhancements.md) ส่วน **E. Conflict Prevention & Mutual Exclusions**
+ดูรายละเอียดใน [004-dynamic-dropdown-conflict-prevention.md](file:///d:/development/ModelPromptForge/requirements/implementation-plan/enhancements/004-dynamic-dropdown-conflict-prevention.md)
 
-**วิธีที่วางแผนไว้**:
-- เพิ่ม field `"exclusions": ["other.id"]` ใน JSON option objects
-- เมื่อ user เลือก option ที่มี exclusions → auto-clear option ที่ขัดแย้งออกจาก state + UI
+**วิธีการทำงาน (Two-Layer Defense)**:
+- **Layer 1 (Preventive)**: ฟังก์ชัน `updateDropdownExclusions()` สแกน active selections และ disable options ใน dropdown อื่นที่ขัดแย้งทันที (เป็นสีจาง + สัญลักษณ์ 🚫)
+- **Layer 2 (Defensive)**: ฟังก์ชัน `enforceExclusionRules()` ล้างค่าที่ขัดแย้งออกจาก state อัตโนมัติ พร้อมแสดง animation เมื่อมีการเปลี่ยนค่า (เช่น โหลด preset หรือ import JSON)
 
-**ตัวอย่าง conflicts ที่รู้จัก**:
-| Option | ขัดกับ |
-|---|---|
-| `environment.pop_06` (Japanese Arcade) | `environment.008` (Traditional Thai architecture) |
-| `environment.pop_04` (Ornate Traditional Temple) | `environment.007` (Cyberpunk neon streets) |
-| `environment.001` (Crowded nightclub) | `environment.pop_07` (Botanical Greenhouse) |
-| `environment.007` (Cyberpunk neon streets) | `environment.008` (Traditional Thai architecture) |
+**Bidirectional Logic**:
+ระบบทำงานแบบ 2 ทาง (Forward และ Reverse lookup) ดังนั้นใน JSON attribute แค่ประกาศ `exclusions` ทิศทางเดียวก็พอ ระบบจะดักจับอีกทางให้อัตโนมัติ
 
 ---
 
@@ -317,12 +312,14 @@ generatePromptText(cleanTextOnly)
 | GPT-Safe Mode toggle | `index.html`, `app.js` | ✅ Done |
 | `gpt-image-safe` field ใน body.json | `009-body.json` | ✅ Done |
 | Beach Casual preset | `app.js` | ✅ Done |
+| Exclusions / Conflict Prevention | `app.js`, `style.css`, `004-dynamic-dropdown-conflict-prevention.md` | ✅ Done |
+| New Env, Blur & Frame options | `012-environment.json`, `014-camera.json`, `015-quality.json` | ✅ Done |
+| Attribute Lock Checkbox | `app.js`, `index.html`, `style.css` | ✅ Done |
 
 ## 14. งานที่ยังรอ Implementation
 
 | Task | Requirement File | Priority |
 |---|---|---|
-| Exclusions / Conflict Prevention | `001-options-enhancements.md` (ส่วน E) | 🔴 High (user รายงาน bug) |
 | GPT-Safe Positive Words (`gpt-image-positive`) | `003-gpt-safe-positive-words.md` | 🟡 Medium |
 | 8-Bit Dynamic Preview Canvas | `002-dynamic-preview-canvas.md` | 🟢 Low |
 

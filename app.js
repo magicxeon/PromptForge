@@ -289,9 +289,33 @@ const PRESETS = {
       "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
       "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
       "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
-      "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
+  "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false }
     }
   }
+};
+
+// --- TAG CONFLICT RESOLUTION RULES ---
+const TAG_CONFLICT_RULES = [
+  ["indoor", "outdoor"],
+  ["day", "night"],
+  ["summer", "winter"],
+  ["modern", "vintage"],
+  ["cyberpunk", "traditional"]
+];
+
+const CATEGORY_PRIORITIES = {
+  "environment": 100,
+  "lighting": 90,
+  "camera": 80,
+  "clothing": 70,
+  "pose": 60,
+  "quality": 50,
+  "nsfw": 40,
+  "body": 30,
+  "skin": 20,
+  "hair": 10,
+  "face": 5,
+  "character": 1
 };
 
 // Global App State
@@ -971,10 +995,57 @@ function updateAccordionSummaryBadges(groupName) {
   }
 }
 
+// Function to resolve semantic tag conflicts before generating the prompt
+function resolveTagConflicts(activeSelections) {
+  const items = [];
+  // 1. Gather all active selections and their tags
+  for (const fieldName in activeSelections) {
+    const sel = activeSelections[fieldName];
+    if (sel.isCustom) continue;
+    const libItem = state.library.find(li => li.id === sel.id);
+    if (libItem && libItem.tags) {
+      items.push({
+        fieldName,
+        category: libItem.category,
+        tags: libItem.tags.map(t => t.toLowerCase()),
+        priority: CATEGORY_PRIORITIES[libItem.category.toLowerCase()] || 0
+      });
+    }
+  }
+
+  // 2. Check against TAG_CONFLICT_RULES
+  TAG_CONFLICT_RULES.forEach(rulePair => {
+    const [tagA, tagB] = rulePair;
+    const itemsA = items.filter(i => i.tags.includes(tagA) && !activeSelections[i.fieldName].isDropped);
+    const itemsB = items.filter(i => i.tags.includes(tagB) && !activeSelections[i.fieldName].isDropped);
+
+    if (itemsA.length > 0 && itemsB.length > 0) {
+      const maxPriA = Math.max(...itemsA.map(i => i.priority));
+      const maxPriB = Math.max(...itemsB.map(i => i.priority));
+
+      if (maxPriA >= maxPriB) {
+        itemsB.forEach(i => {
+          activeSelections[i.fieldName].isDropped = true;
+          activeSelections[i.fieldName].droppedReason = `Dropped: conflicts with '${tagA}'`;
+        });
+      } else {
+        itemsA.forEach(i => {
+          activeSelections[i.fieldName].isDropped = true;
+          activeSelections[i.fieldName].droppedReason = `Dropped: conflicts with '${tagB}'`;
+        });
+      }
+    }
+  });
+}
+
 // Live compilation of active selections into prompt structure
 function generatePromptText(cleanTextOnly = false) {
   const currentTemplateName = document.getElementById("template-select").value || "portrait";
   const templateStr = state.templates[currentTemplateName];
+
+  // Clone selections to safely flag dropped items without affecting the form state
+  const activeSelections = JSON.parse(JSON.stringify(state.selections));
+  resolveTagConflicts(activeSelections);
 
   // Helper to compile a category group
   const compileGroupSegment = (groupName, tokenClass) => {
@@ -1003,7 +1074,7 @@ function generatePromptText(cleanTextOnly = false) {
     // Get order mappings for attributes within this segment
     state.order.forEach(fieldId => {
       // Find field in selections
-      const selection = Object.values(state.selections).find(s => {
+      const selection = Object.values(activeSelections).find(s => {
         const category = FIELD_TO_CATEGORY_MAP[s.group] || s.group.toLowerCase();
         // Match approximate category IDs in order rules
         return category.replace("_", "") === fieldId.replace("_", "") || s.group.toLowerCase() === fieldId.toLowerCase();
@@ -1012,17 +1083,27 @@ function generatePromptText(cleanTextOnly = false) {
       if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
         const val = getPromptValueForSelection(selection);
         if (val && val.trim() !== "") {
-          segmentValues.push(val);
+          if (selection.isDropped) {
+            if (!cleanTextOnly) segmentValues.push(`<span class="token-dropped" title="${selection.droppedReason}">${val}</span>`);
+          } else {
+            segmentValues.push(val);
+          }
         }
       }
     });
 
     // If order rule didn't catch it, fallback to search by group mapping
     if (segmentValues.length === 0) {
-      segmentValues = Object.keys(state.selections)
-        .filter(key => state.selections[key].group.toLowerCase() === groupName.toLowerCase())
-        .map(key => getPromptValueForSelection(state.selections[key]))
-        .filter(val => val && val.trim() !== "");
+      segmentValues = Object.keys(activeSelections)
+        .filter(key => activeSelections[key].group.toLowerCase() === groupName.toLowerCase())
+        .map(key => {
+          const s = activeSelections[key];
+          const val = getPromptValueForSelection(s);
+          if (!val || val.trim() === "") return null;
+          if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
+          return val;
+        })
+        .filter(val => val !== null);
     }
 
     // Deduplicate values
@@ -1041,10 +1122,16 @@ function generatePromptText(cleanTextOnly = false) {
 
   // Distinguish Hair and Skin explicitly using selection key search to prevent overlap
   const getSelectionsForGroup = (grp) => {
-    return Object.keys(state.selections)
-      .filter(key => state.selections[key].group.toLowerCase() === grp.toLowerCase())
-      .map(key => getPromptValueForSelection(state.selections[key]))
-      .filter(val => val && val.trim() !== "");
+    return Object.keys(activeSelections)
+      .filter(key => activeSelections[key].group.toLowerCase() === grp.toLowerCase())
+      .map(key => {
+        const s = activeSelections[key];
+        const val = getPromptValueForSelection(s);
+        if (!val || val.trim() === "") return null;
+        if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
+        return val;
+      })
+      .filter(val => val !== null);
   };
 
   let hairList = getSelectionsForGroup("Hair");

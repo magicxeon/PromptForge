@@ -36,10 +36,11 @@ The web app must dynamically load its options and UI configuration from the repo
     7.  **Pose**: Standing, Sitting, Walking, Hand Position, Eye Contact.
     8.  **Environment**: Location, Architecture, Props, Weather, Time of Day, Season.
     9.  **Lighting**: Key Light, Fill Light, Back Light, Flash, Neon, Ambient, Golden Hour.
-    10. **Camera**: Brand, Lens, Focal Length, Aperture, ISO, White Balance, Perspective, Composition.
-    11. **Quality**: Resolution, Sharpness, Photorealism, Color Grading, Film Look.
+    10. **Camera**: Brand, Lens, Focal Length, Aperture, ISO, White Balance, Perspective, Composition, Motion Blur.
+    11. **Quality**: Resolution, Sharpness, Photorealism, Color Grading, Film Look, Output Frame.
 
 *   **Smart Select Controls**: Render custom-designed select dropdowns containing options parsed from the attributes files.
+*   **Attribute Locking**: Each attribute control includes a lock toggle (`🔓`/`🔒`) that prevents the value from being overridden when the user clicks the "Surprise Me" randomize button.
 *   **Custom Override Input**: Every attribute select control should have a "Custom" option that reveals a text input field, allowing the user to type custom values not present in the library.
 *   **Image Reference Attributes (No Actual Upload Required)**:
     *   A dedicated section/group in the form for referencing external source images (e.g. "Reference Image Prompts").
