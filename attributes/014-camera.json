@@ -126,6 +126,186 @@
     "enabled": true
   },
   {
+    "id": "camera.brand_08",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Vintage CCD Digicam (2000s)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a vintage 2000s digicam with a CCD sensor, flash photography, retro digital artifacts, slightly saturated warm colors",
+      "gpt-image": "shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise",
+      "gpt-image-safe": "captured on a 2000s vintage digicam with a CCD sensor and direct flash",
+      "gpt-image-positive": "vintage digital snapshot, nostalgic colors, digicam aesthetic"
+    },
+    "tags": ["camera", "brand", "ccd", "vintage", "digicam"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_09",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Black and White Film Camera",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on black and white 35mm film, classic high contrast monochrome, rich gray scales, fine silver halide grain",
+      "gpt-image": "shot on Ilford HP5 Plus black and white 35mm film, high contrast monochrome, rich gray tones, classic street photography grain, timeless black and white texture",
+      "gpt-image-safe": "captured on black and white film, high contrast monochrome, rich gray tones",
+      "gpt-image-positive": "classic monochrome, artistic black and white, fine film grain, retro street style"
+    },
+    "tags": ["camera", "brand", "black and white", "monochrome", "film"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_10",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Leica M11 Digital Rangefinder",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Leica M11 rangefinder, Summilux 50mm f/1.4 lens, micro-contrast, signature Leica color science",
+      "gpt-image": "shot on a high-end Leica M11 digital rangefinder camera with a Summilux 50mm f/1.4 lens, exceptional micro-contrast, organic color roll-off, signature Leica warm tones",
+      "gpt-image-safe": "shot on a digital rangefinder camera with exceptional micro-contrast and realistic color rendering",
+      "gpt-image-positive": "premium photography, professional digital rangefinder look, natural color depth"
+    },
+    "tags": ["camera", "brand", "leica", "digital", "rangefinder"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_11",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Pentax 67 Medium Format",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Pentax 67 medium format film camera, background compression, rich tonality, 120 film analog depth",
+      "gpt-image": "shot on a classic Pentax 67 medium format film camera, beautiful bokeh, soft background compression, rich tonality, analog depth of 120 film",
+      "gpt-image-safe": "shot on a medium format film camera with rich tonality and soft background compression",
+      "gpt-image-positive": "analog medium format, soft color rendering, organic background compression"
+    },
+    "tags": ["camera", "brand", "pentax", "medium format", "film"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_12",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Fujifilm GFX Digital Medium Format",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Fujifilm GFX digital medium format camera, dynamic range, detailed texture rendering",
+      "gpt-image": "shot on a modern Fujifilm GFX 100S medium format digital camera, ultra-high dynamic range, rich texture detail, cinematic color rendering, professional commercial studio resolution",
+      "gpt-image-safe": "shot on a digital medium format camera with high dynamic range and detailed texture rendering",
+      "gpt-image-positive": "digital medium format quality, commercial portraiture, rich color depth, clean details"
+    },
+    "tags": ["camera", "brand", "fujifilm", "gfx", "medium format", "digital"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_13",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Sony A7R V Full-Frame",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Sony A7R V full-frame digital camera, 61-megapixel sensor look, sharp eye focus",
+      "gpt-image": "shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering",
+      "gpt-image-safe": "captured on a modern full-frame mirrorless camera, sharp focus and detailed skin texture",
+      "gpt-image-positive": "full-frame photography, modern digital rendering, professional portrait setup"
+    },
+    "tags": ["camera", "brand", "sony", "full frame", "digital"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_14",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Canon EOS R5 Full-Frame",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Canon EOS R5 full-frame digital camera, warm skin tones, crisp details",
+      "gpt-image": "shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering",
+      "gpt-image-safe": "captured on a modern full-frame digital camera with natural warm skin tones",
+      "gpt-image-positive": "warm color balance, professional commercial rendering, realistic skin tones"
+    },
+    "tags": ["camera", "brand", "canon", "full frame", "digital"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_15",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Vintage Nikon CCD DSLR",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on an early Nikon CCD sensor DSLR, organic highlight roll-off, film-like CCD color tones, nostalgic mid-2000s digital photography look",
+      "gpt-image": "shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows",
+      "gpt-image-safe": "captured on a vintage DSLR with a CCD sensor, organic colors and nostalgic digital rendering",
+      "gpt-image-positive": "retro dslr, ccd sensor look, nostalgic digital snapshot, warm vintage colors"
+    },
+    "tags": ["camera", "brand", "nikon", "ccd", "dslr", "vintage"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_16",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Large Format Film Camera (8x10)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on an 8x10 large format film camera, extreme detail, tilt-shift bellows perspective control",
+      "gpt-image": "shot on a classic 8x10 large format bellows camera, extreme resolution, razor-thin depth of field, tilt-shift perspective adjustments, rich analog tones",
+      "gpt-image-safe": "captured on an 8x10 large format camera with tilt-shift perspective adjustments",
+      "gpt-image-positive": "large format resolution, unmatched detail rendering, soft analog bokeh, artistic bellows depth"
+    },
+    "tags": ["camera", "brand", "large format", "film"],
+    "enabled": true
+  },
+  {
+    "id": "camera.brand_17",
+    "category": "camera",
+    "subcategory": "Brand",
+    "label": "Canon EOS 5D Mark IV (Classic DSLR)",
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "shot on a Canon EOS 5D Mark IV DSLR, full-frame sensor rendering, professional commercial color profile",
+      "gpt-image": "shot on a Canon EOS 5D Mark IV DSLR camera with a EF 50mm f/1.2L lens, classic full-frame digital look, high contrast, warm skin tones, professional portrait lighting",
+      "gpt-image-safe": "shot on a professional DSLR camera with a 50mm lens and warm skin tones",
+      "gpt-image-positive": "dslr photography, classic digital look, professional studio lighting, warm color rendering"
+    },
+    "tags": ["camera", "brand", "canon", "dslr", "full frame"],
+    "enabled": true
+  },
+  {
     "id": "camera.lens_01",
     "category": "camera",
     "subcategory": "Lens",
