@@ -433,7 +433,10 @@ const state = {
     styleMatch: false,
     poseMatch: false
   },
-  aspectRatio: "6:8"  // Default aspect ratio
+  aspectRatio: "6:8", // Default aspect ratio
+  mode: "normal",     // "normal", "headshot", "character-sheet"
+  headshotPanels: 1,  // 1 or 3
+  uploadedSheetImageName: "" // Reference name of uploaded image
 };
 
 // Helper to randomize pose & expression & framing for presets in a context-aware way
@@ -577,6 +580,9 @@ async function initApp() {
 
     // 4. Bind Global UI Events
     bindEvents();
+    
+    // Initialize UI for starting mode
+    toggleUIForMode();
 
     // 5. Initial Compilation
     updatePromptPreview();
@@ -813,21 +819,6 @@ function getOptionsForField(fieldName, category, allItems) {
     return items.filter(item => !item.label.toLowerCase().includes("smile"));
   }
 
-  if (category === "character") {
-    if (lowerField === "gender") {
-      return items.filter(item => ["female", "male", "non-binary", "child"].includes(item.label.toLowerCase()));
-    }
-    if (lowerField === "age") {
-      return items.filter(item => ["young adult", "young", "adult", "senior", "mid-twenties"].includes(item.label.toLowerCase()));
-    }
-    if (lowerField === "ethnicity") {
-      return items.filter(item => ["thai", "japanese", "korean", "chinese", "vietnamese", "european", "african", "middle eastern", "south asian", "southeast asian"].includes(item.label.toLowerCase()));
-    }
-    if (lowerField === "beauty") {
-      return items.filter(item => ["beautiful", "attractive", "stunning", "beautiful young asian", "cute doll-like asian"].includes(item.label.toLowerCase()));
-    }
-  }
-
   return items;
 }
 
@@ -1022,6 +1013,117 @@ function bindEvents() {
     };
     reader.readAsText(file);
     e.target.value = ""; // Clear file input
+  });
+
+  // Mode Selection Chips
+  document.querySelectorAll(".mode-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.mode = chip.getAttribute("data-mode");
+      
+      // Auto-load "studio" preset as default starting point (Cute Asian girl) for special modes
+      if (state.mode === "headshot" || state.mode === "character-sheet") {
+        const preset = PRESETS.studio;
+        if (preset) {
+          const randomizedPreset = randomizePresetSelections(preset, "studio");
+          importConfigJSON(JSON.stringify(randomizedPreset));
+        }
+      }
+
+      // Update Aspect Ratio UI selection for the selected mode
+      if (state.mode === "character-sheet" || state.mode === "headshot") {
+        setAspectInUI("6:8");
+      }
+      
+      toggleUIForMode();
+      updatePromptPreview();
+    });
+  });
+
+  // Reference Image Checkbox for Character Sheet
+  const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+  if (sheetUseRefImg) {
+    sheetUseRefImg.addEventListener("change", () => {
+      updatePromptPreview();
+    });
+  }
+}
+
+// Dynamically filter UI accordions based on active mode
+function toggleUIForMode() {
+  const mode = state.mode;
+  
+  // Controls specific to modes in the DOM
+  const imageUpload = document.getElementById("image-upload-container");
+  
+  if (imageUpload) {
+    imageUpload.style.display = mode === "character-sheet" ? "flex" : "none";
+  }
+
+  // Which groups should be visible in each mode
+  const visibleGroups = {
+    normal: null, // all visible
+    headshot: ["character", "face", "hair", "skin", "camera", "quality"],
+    "character-sheet": ["character", "body", "clothing", "hair", "face", "camera", "quality"]
+  };
+
+  const visibleList = visibleGroups[mode];
+
+  document.querySelectorAll(".accordion").forEach(accordion => {
+    const groupName = accordion.id.replace("accordion-", "").replace(/-/g, " ");
+    
+    // Safety check for NSFW accordion
+    const isNsfwGroup = accordion.getAttribute("data-nsfw-controlled") === "true";
+    const toggleNsfw = document.getElementById("toggle-nsfw");
+    const isNsfwEnabled = toggleNsfw ? toggleNsfw.checked : false;
+
+    if (visibleList) {
+      // Check if this accordion's groupName is in the visible list
+      const isVisible = visibleList.some(g => groupName.toLowerCase().includes(g.toLowerCase()));
+      if (isVisible) {
+        if (isNsfwGroup) {
+          accordion.style.display = isNsfwEnabled ? "block" : "none";
+        } else {
+          accordion.style.display = "block";
+        }
+        accordion.classList.remove("hidden-accordion");
+      } else {
+        accordion.style.display = "none";
+        accordion.classList.add("hidden-accordion");
+      }
+    } else {
+      // Normal mode: show all accordions (subject to NSFW)
+      if (isNsfwGroup) {
+        accordion.style.display = isNsfwEnabled ? "block" : "none";
+      } else {
+        accordion.style.display = "block";
+      }
+      accordion.classList.remove("hidden-accordion");
+    }
+  });
+
+  // Make sure the active accordion is not a hidden one
+  const activeAccordion = document.querySelector(".accordion.active");
+  if (activeAccordion && (activeAccordion.classList.contains("hidden-accordion") || activeAccordion.style.display === "none")) {
+    activeAccordion.classList.remove("active");
+    // Open the first visible one
+    const firstVisible = Array.from(document.querySelectorAll(".accordion")).find(acc => !acc.classList.contains("hidden-accordion") && acc.style.display !== "none");
+    if (firstVisible) {
+      firstVisible.classList.add("active");
+    }
+  }
+}
+
+// Programmatically select Aspect Ratio in the UI
+function setAspectInUI(ratio) {
+  state.aspectRatio = ratio;
+  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+    if (chip.getAttribute("data-ratio") === ratio) {
+      chip.classList.add("active");
+    } else {
+      chip.classList.remove("active");
+    }
   });
 }
 
@@ -1350,18 +1452,60 @@ function generatePromptText(cleanTextOnly = false) {
   let camera = compileGroupSegment("Camera", "token-pose"); // Camera tags
   let quality = compileGroupSegment("Quality", "token-lighting"); // Quality keywords
   let nsfw = compileGroupSegment("NSFW", "token-nsfw");
-
-  // Format replacements
-  let prompt = templateStr
-    .replace("{subject}", fullSubject)
-    .replace("{appearance}", fullAppearance)
-    .replace("{clothing}", clothing)
-    .replace("{nsfw}", nsfw)
-    .replace("{pose}", pose)
-    .replace("{environment}", environment)
-    .replace("{lighting}", lighting)
-    .replace("{camera}", camera)
-    .replace("{quality}", quality);
+  
+  // Format replacements based on active generation mode
+  let prompt = "";
+  if (state.mode === "headshot") {
+    let headshotLayout = `headshot portrait`;
+    let elements = [
+        cleanTextOnly ? headshotLayout : `<span class="token-pose">${headshotLayout}</span>`,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
+        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+        camera,
+        quality
+    ].filter(s => s && s.toString().trim() !== "");
+    prompt = elements.join(", ");
+  } else if (state.mode === "character-sheet") {
+    let referenceText = "";
+    const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+    const isUsingRef = sheetUseRefImg ? sheetUseRefImg.checked : false;
+    if (isUsingRef) {
+      const refStr = `[Reference uploaded image]`;
+      referenceText = cleanTextOnly ? refStr : `<span class="token-reference">${refStr}</span>`;
+    }
+    let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
+    let elements = [
+        referenceText,
+        cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
+        fullSubject,
+        appearance,
+        hair,
+        clothing,
+        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+        camera,
+        quality
+    ].filter(s => s && s.toString().trim() !== "");
+    prompt = elements.join(", ");
+  } else {
+    prompt = templateStr
+      .replace("{subject}", fullSubject)
+      .replace("{appearance}", fullAppearance)
+      .replace("{clothing}", clothing)
+      .replace("{nsfw}", nsfw)
+      .replace("{pose}", pose)
+      .replace("{environment}", environment)
+      .replace("{lighting}", lighting)
+      .replace("{camera}", camera)
+      .replace("{quality}", quality);
+  }
 
   // Clean double commas and spaces
   prompt = prompt.replace(/,(\s*,)+/g, ","); // Replace multiple commas

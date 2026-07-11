@@ -29,6 +29,28 @@
           <h2>Attribute Selector</h2>
           <span class="sub-label">Select settings below to construct your prompt</span>
         </div>
+
+        <!-- Generation Mode Selector -->
+        <div class="mode-selector-section">
+          <label>Generation Mode</label>
+          <div class="mode-chip-group">
+            <button class="mode-chip active" data-mode="normal">Normal</button>
+            <button class="mode-chip" data-mode="headshot">Headshot</button>
+            <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
+          </div>
+
+          <!-- Reference Image Checkbox (only visible in character-sheet mode) -->
+          <div id="image-upload-container" class="mode-sub-control" style="display: none;">
+            <div class="checkbox-group">
+              <label class="checkbox-container">
+                <input type="checkbox" id="sheet-use-reference-img">
+                <span class="checkmark"></span>
+                <span class="label-text">ทำภาพต้นแบบจากรูปที่อัพโหลดขึ้นไป (Generate from uploaded reference)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div id="form-container" class="accordions-container">
           <!-- Dynamically loaded inputs will be rendered here by app.js -->
           <div class="loading-placeholder">
