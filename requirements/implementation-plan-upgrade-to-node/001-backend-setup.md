@@ -52,12 +52,29 @@ Initialize Node.js package with type `"module"` to continue using ES modules:
 }
 ```
 
-### 3.2 `.env.example` [NEW]
-Provide template for developers to plug in their credentials:
+### 3.2 `.env-sample` and `.env` [NEW]
+Provide a detailed template for environment variables and API credentials. During setup, the user will copy `.env-sample` to `.env` and fill in the active keys.
+
+**File contents for `.env-sample` / `.env`**:
 ```env
+# Application Port Config
 PORT=3000
+
+# Backend Environment Vibe
+NODE_ENV=development
+
+# OpenAI API Key (Required for DALL-E 3 image generation)
 OPENAI_API_KEY=your_openai_api_key_here
+
+# Google Gemini API Key (Required for Imagen 3 generation via AI Studio)
 GEMINI_API_KEY=your_gemini_api_key_here
+
+# PoC Authentication & Administration Passwords
+ADMIN_PASSCODE=Admin123!
+DEMO_USER_PASSCODE=User123!
+
+# PoC Credit Settings
+DEFAULT_USER_CREDITS=20
 ```
 
 ### 3.3 `server.js` [NEW]
