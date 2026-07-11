@@ -121,7 +121,9 @@ Gemini's native image generation capabilities, known as **Nano Banana**, utilize
   }
 }
 ```
-*Note: If reference images are used (Character Sheet mode), they are passed inside the `input` array as `{ "type": "image", "mime_type": "image/png", "data": "<base64_data>" }`.*
+*Note on Reference Images*:
+- **Character Sheet Mode / Style Match**: If reference images are enabled, they are read as Base64 on the client, passed to the backend, and appended to the `input` array as `{ "type": "image", "mime_type": "image/png", "data": "<base64_data>" }` to serve as visual style guides.
+- **Face Match (Identity Lock)**: If "Face Match" is activated, the user must upload a face reference image file. This image is sent to the backend as `faceReference` and appended to the Gemini interactions `input` array as a separate image object: `{ "type": "image", "mime_type": "image/png", "data": "<base64_face_data>" }`. This provides a physical face template for the Nano Banana model's consistency logic.
 
 ### 3.4 Aspect Ratio Mapping
 - `1:1` -> `"1:1"`

@@ -1,0 +1,7 @@
+{
+  "ignore": [
+    "server/history.json",
+    "server/database.json",
+    "client/outputs/*"
+  ]
+}

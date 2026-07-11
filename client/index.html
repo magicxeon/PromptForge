@@ -19,202 +19,234 @@
           <h1>ModelPromptForge</h1>
           <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
         </div>
-        <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without policy violations.</p>
+        
+        <!-- Header Profile & Credit Balance (Relocated for better layout space) -->
+        <div class="header-status-area">
+          <div class="role-selector">
+            <label for="role-select">Profile</label>
+            <select id="role-select" class="custom-select-compact">
+              <option value="user_demo">user_demo (User)</option>
+              <option value="admin_demo">admin_demo (Admin)</option>
+            </select>
+          </div>
+          <div class="credits-display-compact">
+            <div class="credits-count-row">
+              <span class="credits-count" id="credits-value">20</span>
+              <span class="coin-icon">🪙</span>
+              <button id="btn-recharge" class="btn-recharge-compact" title="Recharge 10 Credits">+</button>
+            </div>
+          </div>
+        </div>
       </div>
+      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without policy violations.</p>
     </header>
 
     <!-- Main Workspace -->
     <main class="app-workspace">
-      <!-- Left Column: Attribute Form Builder -->
-      <section class="form-panel glass-card">
-        <div class="panel-header">
-          <h2><span class="header-icon">⚙️</span> Attribute Selector</h2>
-          <span class="sub-label">Select settings below to construct your character model</span>
+      
+      <!-- Top Section: Visual Workspace & History Dashboard (Collapsible) -->
+      <section class="visual-dashboard glass-card" id="visual-dashboard">
+        <div class="dashboard-header-row">
+          <div class="dashboard-title">
+            <h2><span class="header-icon">🖼️</span> Visual Viewport & Queue</h2>
+            <span class="sub-label">View current render stream, background queues, and history</span>
+          </div>
+          <button id="btn-toggle-dashboard" class="btn-dashboard-toggle" title="Minimize/Maximize Visual Panel">
+            <span class="toggle-icon">▼</span> Toggle Panel
+          </button>
         </div>
 
-        <!-- Generation Mode Selector -->
-        <div class="mode-selector-section">
-          <label>Generation Mode</label>
-          <div class="mode-chip-group">
-            <button class="mode-chip active" data-mode="normal">Normal Mode</button>
-            <button class="mode-chip" data-mode="headshot">Headshot Grid</button>
-            <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
-          </div>
+        <div class="dashboard-layout-grid">
+          <!-- Viewport Column (Active render screen) -->
+          <div class="viewport-column">
+            <div class="viewport-card-header">
+              <h3>Active Render Screen</h3>
+              <button id="btn-download-image" class="btn-download" title="Download Generated Image" style="display: none;">
+                <span>📥 Download Image</span>
+              </button>
+            </div>
+            
+            <div class="viewport-screen" id="viewport-screen">
+              <div class="image-loading-overlay" id="image-loading-overlay">
+                <div class="loading-pulse-ring"></div>
+                <p class="loading-text">Generating character details...</p>
+              </div>
+              
+              <div class="viewport-placeholder-content" id="viewport-placeholder">
+                <span class="viewport-placeholder-icon">✨</span>
+                <p class="placeholder-main-text">Ready to render character</p>
+                <p class="sub-placeholder">Configure attributes below and click Generate Image</p>
+              </div>
+              
+              <div class="viewport-error-banner" id="viewport-error" style="display: none;">
+                <span class="error-icon">⚠️</span>
+                <p class="error-msg" id="error-message">Generation failed</p>
+              </div>
+              
+              <img id="generated-image" src="" alt="Generated Character Output">
+            </div>
 
-          <!-- Reference Image Checkbox (only visible in character-sheet mode) -->
-          <div id="image-upload-container" class="mode-sub-control" style="display: none;">
-            <div class="checkbox-group">
-              <label class="checkbox-container">
-                <input type="checkbox" id="sheet-use-reference-img">
-                <span class="checkmark"></span>
-                <span class="label-text">Generate from uploaded reference image</span>
-              </label>
+            <!-- Telemetry Bar -->
+            <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
+              <div class="telemetry-item"><span class="tel-label">Model:</span> <span id="tel-model">-</span></div>
+              <div class="telemetry-item"><span class="tel-label">Time:</span> <span id="tel-time">-</span></div>
+              <div class="telemetry-item"><span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span></div>
             </div>
           </div>
-        </div>
 
-        <!-- Aesthetic Presets Quick Bar -->
-        <div class="control-section presets-section">
-          <label class="section-label">Aesthetic Presets Quickload</label>
-          <div class="chip-group-scroll" id="presets-group">
-            <button class="option-chip" data-preset="nightclub">Nightclub Aura Red</button>
-            <button class="option-chip" data-preset="studio">Studio Porcelain</button>
-            <button class="option-chip" data-preset="street">Street Dewy Waves</button>
-            <button class="option-chip" data-preset="thaiSilk">Thai Silk Elegance</button>
-            <button class="option-chip" data-preset="cheongsam">Cheongsam Vintage</button>
-            <button class="option-chip" data-preset="minimalistCafe">Minimalist Cafe</button>
-            <button class="option-chip" data-preset="beachCasual">Sunny Beach Casual</button>
-            <button class="option-chip" data-preset="restaurantSitting">Rooftop Restaurant</button>
-            <button class="option-chip" data-preset="barSitting">Vibrant Bar</button>
-            <button class="option-chip" data-preset="resortSitting">Luxury Resort</button>
-            <button class="option-chip" data-preset="naturePhoto">Nature Forest</button>
-            <button class="option-chip" data-preset="mallWaiting">Shopping Mall</button>
-          </div>
-        </div>
-
-        <div id="form-container" class="accordions-container">
-          <!-- Dynamically loaded inputs will be rendered here by app.js -->
-          <div class="loading-placeholder">
-            <div class="spinner"></div>
-            <p>Loading attribute schemas...</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Column: Visual Preview & API Output Dashboard -->
-      <section class="control-panel">
-        
-        <!-- Account Status & Credits Card -->
-        <div class="status-card glass-card">
-          <div class="status-row">
-            <div class="role-selector">
-              <label for="role-select">Account Profile</label>
-              <select id="role-select">
-                <option value="user_demo">user_demo (Standard User)</option>
-                <option value="admin_demo">admin_demo (Administrator)</option>
-              </select>
+          <!-- History / Queue Column -->
+          <div class="history-column">
+            <div class="history-header">
+              <h3>Background Queue & History</h3>
             </div>
-            <div class="credits-display">
-              <span class="credits-label">Balance</span>
-              <div class="credits-count-row">
-                <span class="credits-count" id="credits-value">20</span>
-                <span class="coin-icon">🪙</span>
-                <button id="btn-recharge" class="btn-recharge" title="Recharge 10 Credits">+</button>
+            
+            <!-- Active Pending Job Queue list -->
+            <div class="active-queue-section">
+              <div class="queue-list" id="active-queue-list">
+                <!-- Dynamic queue items -->
+              </div>
+            </div>
+
+            <!-- Static Generation History grid -->
+            <div class="history-grid-container">
+              <div class="history-grid" id="history-grid">
+                <!-- Rendered history thumbnails -->
+                <p class="no-history-text" id="no-history-placeholder">No history found</p>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Visual Viewport Card -->
-        <div class="viewport-card glass-card">
-          <div class="panel-header-compact">
-            <h3><span class="header-icon">🖼️</span> Visual Viewport</h3>
-            <button id="btn-download-image" class="btn-download" title="Download Generated Image" style="display: none;">
-              <span>📥 Download</span>
-            </button>
-          </div>
-          
-          <div class="viewport-screen" id="viewport-screen">
-            <div class="image-loading-overlay" id="image-loading-overlay">
-              <div class="loading-pulse-ring"></div>
-              <p class="loading-text">Generating character details...</p>
-            </div>
-            
-            <div class="viewport-placeholder-content" id="viewport-placeholder">
-              <span class="viewport-placeholder-icon">✨</span>
-              <p>Ready to render character</p>
-              <p class="sub-placeholder">Configure attributes on the left and click Generate Image below</p>
-            </div>
-            
-            <!-- Inline Error Banner -->
-            <div class="viewport-error-banner" id="viewport-error" style="display: none;">
-              <span class="error-icon">⚠️</span>
-              <p class="error-msg" id="error-message">Generation failed</p>
-            </div>
-            
-            <img id="generated-image" src="" alt="Generated Character Output">
-          </div>
+      <!-- Floating control panel trigger when configurator is closed -->
+      <button id="btn-floating-config" class="btn-floating-config" style="display: none;">
+        <span>⚙️ Open Studio Configurator</span>
+      </button>
 
-          <!-- Generation Telemetry Metadata -->
-          <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
-            <div class="telemetry-item">
-              <span class="tel-label">Model:</span> <span id="tel-model">-</span>
-            </div>
-            <div class="telemetry-item">
-              <span class="tel-label">Time:</span> <span id="tel-time">-</span>
-            </div>
-            <div class="telemetry-item">
-              <span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span>
-            </div>
-          </div>
+      <!-- Bottom Section: Creative Configurator Studio (Collapsible) -->
+      <section class="creative-configurator glass-card" id="creative-configurator">
+        <div class="config-header-row">
+          <h2><span class="header-icon">🎨</span> Studio Creative Configurator</h2>
+          <span class="sub-label">Custom attribute maps, mode configurations, and API selector pipeline</span>
         </div>
 
-        <!-- Secret Live Compiler & Prompt Preview -->
-        <div class="preview-card glass-card">
-          <div class="preview-header">
-            <h3><span class="header-icon">📝</span> Live Prompt Preview</h3>
-            <div class="copy-action-group">
-              <button id="btn-copy" class="btn-neon-action">Copy Text</button>
-              <button id="btn-copy-json" class="btn-neon-action">Copy JSON</button>
+        <div class="configurator-pipeline">
+          <!-- Step 1 Group -->
+          <div class="step-card step-1-card">
+            <div class="step-header">
+              <span class="step-badge">Step 1</span>
+              <h3>Character Aesthetic Options</h3>
+            </div>
+
+            <!-- Mode selections & Presets group -->
+            <div class="form-mode-presets-row">
+              <div class="mode-selector-section">
+                <label class="control-label">Generation Mode</label>
+                <div class="mode-chip-group">
+                  <button class="mode-chip active" data-mode="normal">Normal Mode</button>
+                  <button class="mode-chip" data-mode="headshot">Headshot Grid</button>
+                  <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
+                </div>
+                
+                <div id="image-upload-container" class="mode-sub-control" style="display: none;">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="sheet-use-reference-img">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Enable character-sheet reference image</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="presets-section">
+                <label class="control-label" for="preset-select">Aesthetic Presets Quickload</label>
+                <div class="preset-dropdown-row">
+                  <select id="preset-select" class="custom-select">
+                    <option value="">-- Choose Preset --</option>
+                    <option value="nightclub">Nightclub Aura Red</option>
+                    <option value="studio">Studio Porcelain</option>
+                    <option value="street">Street Dewy Waves</option>
+                    <option value="thaiSilk">Thai Silk Elegance</option>
+                    <option value="cheongsam">Cheongsam Vintage</option>
+                    <option value="minimalistCafe">Minimalist Cafe</option>
+                    <option value="beachCasual">Sunny Beach Casual</option>
+                    <option value="restaurantSitting">Rooftop Restaurant</option>
+                    <option value="barSitting">Vibrant Bar</option>
+                    <option value="resortSitting">Luxury Resort</option>
+                    <option value="naturePhoto">Nature Forest</option>
+                    <option value="mallWaiting">Shopping Mall</option>
+                  </select>
+                  <button id="btn-load-preset" class="btn-neon-action">Load Preset</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Accordions Form builder -->
+            <div id="form-container" class="accordions-container">
+              <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>Loading attribute schemas...</p>
+              </div>
             </div>
           </div>
-          <div id="prompt-preview" class="prompt-preview-box">
-            <span class="placeholder-text">Prompt will compile here once attributes are selected...</span>
-          </div>
-          <div id="buzzword-warnings" class="buzzword-warnings-box" style="display: none;">
-            <!-- Render warnings dynamically -->
-          </div>
-        </div>
 
-        <!-- Render Controls Card -->
-        <div class="generator-config-card glass-card">
-          <div class="generator-selectors-row">
-            <div class="form-field">
-              <label for="api-provider-select">Provider Engine</label>
-              <div class="select-wrapper">
+          <!-- Step 2 & 3 Group -->
+          <div class="step-card step-2-card">
+            <div class="step-header">
+              <span class="step-badge">Step 2</span>
+              <h3>Engine & Target Output</h3>
+            </div>
+
+            <div class="engine-settings-grid">
+              <div class="form-field">
+                <label for="api-provider-select">Provider Engine</label>
                 <select id="api-provider-select" class="custom-select">
                   <option value="gemini">Google Gemini AI</option>
                   <option value="openai">OpenAI DALL-E</option>
                 </select>
               </div>
-            </div>
-            <div class="form-field">
-              <label for="api-submodel-select">Submodel Version</label>
-              <div class="select-wrapper">
+              
+              <div class="form-field">
+                <label for="api-submodel-select">Submodel Version</label>
                 <select id="api-submodel-select" class="custom-select">
-                  <!-- Loaded dynamically by app.js based on provider -->
+                  <!-- Dynamically populated -->
                 </select>
               </div>
-            </div>
-          </div>
 
-          <div class="generator-selectors-row">
-            <div class="form-field">
-              <label for="template-select">Prompt Template</label>
-              <div class="select-wrapper">
+              <div class="form-field" style="display: none;">
+                <label for="template-select">Prompt Template</label>
                 <select id="template-select" class="custom-select">
-                  <!-- Templates loaded dynamically -->
+                  <!-- Dynamically populated -->
                 </select>
               </div>
-            </div>
-            <div class="form-field">
-              <label>Aspect Ratio</label>
-              <div class="chip-group" id="aspect-ratio-group">
-                <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
-                <button class="option-chip" data-ratio="1:1">1:1 Square</button>
-                <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
-                <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
-                <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
+
+              <!-- Linked Dimension Inputs (Step 7) -->
+              <div class="form-field">
+                <label for="input-width">Width (px)</label>
+                <input type="number" id="input-width" class="custom-select" value="768" min="720" max="4096" step="8">
+              </div>
+              
+              <div class="form-field">
+                <label for="input-height">Height (px)</label>
+                <input type="number" id="input-height" class="custom-select" value="1024" min="720" max="4096" step="8">
+              </div>
+
+              <div class="form-field full-width">
+                <label>Aspect Ratio</label>
+                <div class="chip-group" id="aspect-ratio-group">
+                  <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
+                  <button class="option-chip" data-ratio="1:1">1:1 Square</button>
+                  <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
+                  <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
+                  <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="control-section-inline">
-            <div class="checkbox-group-row">
+            <div class="matching-options-row">
               <label class="checkbox-container">
                 <input type="checkbox" id="ref-face-match">
                 <span class="checkmark"></span>
-                <span class="label-text">Face Match (ID Lock)</span>
+                <span class="label-text">Face Match</span>
               </label>
               <label class="checkbox-container">
                 <input type="checkbox" id="ref-style-match">
@@ -226,11 +258,6 @@
                 <span class="checkmark"></span>
                 <span class="label-text">Pose Match</span>
               </label>
-            </div>
-          </div>
-
-          <div class="control-section-inline footer-toggles">
-            <div class="checkbox-group-row">
               <label class="checkbox-container">
                 <input type="checkbox" id="toggle-nsfw">
                 <span class="checkmark"></span>
@@ -242,24 +269,56 @@
                 <span class="label-text">GPT-Safe Mode</span>
               </label>
             </div>
-          </div>
 
-          <!-- Main Actions -->
-          <div class="action-grid-redesigned">
-            <button id="btn-reset" class="btn-neon-outline">Reset Form</button>
-            <button id="btn-random" class="btn-neon-cyan">🎲 Surprise Me</button>
-            <button id="btn-export" class="btn-neon-action-preset">Export JSON</button>
-            <button id="btn-generate-image" class="btn-neon-pink-glow">⚡ Generate Image</button>
-          </div>
+            <!-- Dynamic Face Match reference upload container -->
+            <div id="face-match-upload-container" class="mode-sub-control" style="display: none; padding: 0.75rem; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 8px; margin-top: 0.5rem;">
+              <label class="control-label" style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">🔒 Face Match Photo Reference (Identity Lock)</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="file" id="face-match-file" accept="image/*" class="custom-select" style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
+                <button id="btn-clear-face-match" class="btn-compact-neon" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);" type="button">Clear</button>
+              </div>
+            </div>
 
-          <div class="import-section-compact">
-            <label class="file-upload-label-compact">
-              <input type="file" id="btn-import" accept=".json" style="display: none;">
-              <span>📂 Import Configuration JSON</span>
-            </label>
+            <!-- Live prompt preview box inside configurator for instant feedback -->
+            <div class="inner-preview-box" id="preview-outer-container">
+              <div class="preview-header-compact">
+                <h4>Live Prompt Preview</h4>
+                <div class="action-buttons-compact">
+                  <button id="btn-copy" class="btn-compact-neon">Copy Text</button>
+                  <button id="btn-copy-json" class="btn-compact-neon">Copy JSON</button>
+                </div>
+              </div>
+              <div id="prompt-preview" class="prompt-preview-box-compact">
+                <span class="placeholder-text">Prompt will compile here once attributes are selected...</span>
+              </div>
+              <div id="buzzword-warnings" class="buzzword-warnings-box-compact" style="display: none;"></div>
+            </div>
+
+            <div class="step-header render-action-header">
+              <span class="step-badge neon-pink-badge">Step 3</span>
+              <h3>Render Active Prompt</h3>
+            </div>
+
+            <!-- Configuration Actions -->
+            <div class="studio-action-row">
+              <button id="btn-reset" class="btn-neon-outline">Reset Form</button>
+              <button id="btn-random" class="btn-neon-cyan">🎲 Surprise Me</button>
+              <button id="btn-export" class="btn-neon-action-preset">Export Config</button>
+            </div>
+
+            <!-- Dedicated Generate Action Section (Step 7) -->
+            <div class="generate-action-section" style="margin-top: 0.85rem; width: 100%;">
+              <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span class="btn-credit-cost-dark">(1 Credit)</span></button>
+            </div>
+
+            <div class="import-section-studio">
+              <label class="file-upload-label-compact">
+                <input type="file" id="btn-import" accept=".json" style="display: none;">
+                <span>📂 Import Configuration JSON</span>
+              </label>
+            </div>
           </div>
         </div>
-
       </section>
     </main>
 
@@ -268,21 +327,39 @@
       <div class="footer-status-indicators">
         <div class="status-indicator-item">
           <span class="status-dot neon-green-dot"></span>
-          <span class="status-label">API Proxy Status: Connected</span>
+          <span class="status-label">API Engine: Modular Strategy</span>
         </div>
         <div class="status-indicator-item">
           <span class="status-dot neon-green-dot"></span>
-          <span class="status-label">Local Credits Database: Synced</span>
+          <span class="status-label">Active Job Queue: Operational</span>
         </div>
         <div class="status-indicator-item">
           <span class="status-dot neon-cyan-dot"></span>
-          <span class="status-label">CORS Tunnel: Secure</span>
+          <span class="status-label">History Sync: Active JSON</span>
         </div>
       </div>
       <div class="footer-copyright">
         <p>&copy; 2026 ModelPromptForge. All rights reserved. Premium character generation engine.</p>
       </div>
     </footer>
+  </div>
+
+  <!-- Full-screen Lightbox Modal -->
+  <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
+    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <div class="lightbox-content-container">
+      <img id="lightbox-image" src="" alt="Full Resolution Output">
+      <div class="lightbox-metadata-panel">
+        <h4 id="lightbox-meta-title">Generation Reference</h4>
+        <p class="lightbox-meta-prompt" id="lightbox-meta-prompt">-</p>
+        <div class="lightbox-meta-details">
+          <span>Engine: <strong id="lightbox-meta-engine">-</strong></span>
+          <span>Model: <strong id="lightbox-meta-model">-</strong></span>
+          <span>Time: <strong id="lightbox-meta-time">-</strong></span>
+        </div>
+        <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "job_1783781951473_frhn6tnol",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783781951473_frhn6tnol.png",
+    "timestamp": 1783781970204,
+    "provider": "openai",
+    "submodel": "gpt-image-2"
+  },
+  {
+    "id": "job_1783781520261_aorulybi1",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783781520261_aorulybi1.png",
+    "timestamp": 1783781541225,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini"
+  },
+  {
+    "id": "job_1783780830452_dpp0dzjou",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783780830452_dpp0dzjou.png",
+    "timestamp": 1783780842738,
+    "provider": "gemini",
+    "submodel": "imagen-3.0-generate-002"
+  },
+  {
+    "id": "job_1783780788608_sy5eyw0pd",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783780788608_sy5eyw0pd.png",
+    "timestamp": 1783780800460,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image"
+  }
+]

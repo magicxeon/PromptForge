@@ -97,113 +97,94 @@ app.post('/api/credits/recharge', async (req, res) => {
   }
 });
 
-// Secret API Generation Route
+import { queueManager } from './queueManager.js';
+
+// Secret API Generation Route (Queue-based)
 app.post('/api/generate', async (req, res) => {
-  const { provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username } = req.body;
+  const { provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username, referenceImage, faceReferenceImage } = req.body;
   const targetUser = username || 'user_demo';
   
-  // 1. Check and deduct credits first
-  let newCredits;
-  let userRole = 'user';
   try {
-    const deductRes = await checkAndDeductCredit(targetUser);
-    newCredits = deductRes.credits;
-    userRole = deductRes.role;
-  } catch (err) {
-    return res.status(402).json({ error: err.message });
-  }
-
-  // 2. Build the prompt secretly on the server side
-  const compiledPrompt = compilePromptOnServer(
-    selections, 
-    aspectRatio, 
-    imageReferences, 
-    mode, 
-    template || 'portrait', 
-    isGptSafe
-  );
-
-  const activeSubmodel = submodel || (provider === 'openai' ? 'dall-e-3' : 'imagen-3.0-generate-002');
-  console.log(`[API Generate] Provider: ${provider}, Model: ${activeSubmodel}, User: ${targetUser}, Role: ${userRole}, Remaining Credits: ${newCredits}`);
-  console.log(`[API Generate] Compiled Prompt: "${compiledPrompt}"`);
-
-  try {
-    if (provider === 'openai') {
-      const apiKey = process.env.OPENAI_API_KEY;
-      if (!apiKey || apiKey === 'your_openai_api_key_here') {
-        return res.status(500).json({ error: 'OpenAI API Key not configured on server' });
-      }
-
-      // Map aspect ratio to DALL-E sizes
-      const sizeMap = { '1:1': '1024x1024', '16:9': '1792x1024', '9:16': '1024x1792', '6:8': '1024x1792' };
-      let size = sizeMap[aspectRatio] || '1024x1024';
-      if (activeSubmodel === 'dall-e-2') {
-        size = '1024x1024'; // DALL-E 2 only supports 1:1
-      }
-
-      const response = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: activeSubmodel,
-          prompt: compiledPrompt,
-          n: 1,
-          size: size
-        })
-      });
-
-      const data = await response.json();
-      if (data.error) throw new Error(data.error.message);
-
-      return res.json({
-        imageUrl: data.data[0].url,
-        credits: newCredits,
-        prompt: userRole === 'admin' ? compiledPrompt : null // Secret prompt check
-      });
-
-    } else if (provider === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-        return res.status(500).json({ error: 'Gemini API Key not configured on server' });
-      }
-
-      // Map aspect ratio to Imagen parameters
-      const ratioMap = { '1:1': '1:1', '16:9': '16:9', '9:16': '9:16', '6:8': '3:4' };
-      const imageRatio = ratioMap[aspectRatio] || '1:1';
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeSubmodel}:predict?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instances: [{ prompt: compiledPrompt }],
-          parameters: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio: imageRatio
-          }
-        })
-      });
-
-      const data = await response.json();
-      if (data.error) throw new Error(data.error.message);
-
-      const base64Bytes = data.predictions[0].bytesBase64Encoded;
-      return res.json({
-        imageUrl: `data:image/jpeg;base64,${base64Bytes}`,
-        credits: newCredits,
-        prompt: userRole === 'admin' ? compiledPrompt : null // Secret prompt check
-      });
+    // 1. Check user credit before queueing
+    const info = await getUserInfo(targetUser);
+    if (info.credits <= 0) {
+      return res.status(402).json({ error: 'Insufficient credits' });
     }
 
-    res.status(400).json({ error: 'Invalid provider' });
+    // 2. Build prompt secretly on the server
+    const compiledPrompt = compilePromptOnServer(
+      selections, 
+      aspectRatio, 
+      imageReferences, 
+      mode, 
+      template || 'portrait', 
+      isGptSafe
+    );
+
+    // 3. Determine submodel default
+    const activeSubmodel = submodel || (provider === 'openai' ? 'gpt-image-1-mini' : 'gemini-3.1-flash-lite-image');
+
+    // 4. Check if stream option should be active
+    const stream = req.body.stream !== false && provider === 'openai' && activeSubmodel.startsWith('gpt-image');
+
+    console.log(`[API Generate] Enqueueing Job. Provider: ${provider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
+    
+    // 5. Enqueue job
+    const jobId = queueManager.enqueue(provider, activeSubmodel, compiledPrompt, {
+      aspectRatio,
+      imageReferences,
+      mode,
+      template,
+      isGptSafe,
+      username: targetUser,
+      stream,
+      referenceImage,
+      faceReferenceImage
+    });
+
+    res.json({ jobId, status: 'queued' });
 
   } catch (error) {
-    console.error('Generation error:', error);
+    console.error('Generation enqueuing error:', error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// Job Status Endpoint
+app.get('/api/jobs/:id', (req, res) => {
+  const status = queueManager.getJobStatus(req.params.id);
+  if (!status) {
+    return res.status(404).json({ error: 'Job not found' });
+  }
+  res.json(status);
+});
+
+// Job SSE Stream Endpoint
+app.get('/api/jobs/:id/stream', (req, res) => {
+  const jobId = req.params.id;
+  const success = queueManager.addListener(jobId, res);
+  if (!success) {
+    return res.status(404).json({ error: 'Job not found or closed' });
+  }
+
+  req.on('close', () => {
+    queueManager.removeListener(jobId, res);
+  });
+});
+
+// Get Generation History List
+app.get('/api/history', async (req, res) => {
+  const history = await queueManager.getHistory();
+  res.json(history);
+});
+
+// Delete Generation History Item
+app.delete('/api/history/:id', async (req, res) => {
+  const success = await queueManager.deleteHistoryEntry(req.params.id);
+  if (!success) {
+    return res.status(404).json({ error: 'History entry not found' });
+  }
+  res.json({ success: true });
 });
 
 app.listen(PORT, () => {

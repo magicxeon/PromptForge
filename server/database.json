@@ -2,11 +2,11 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 20
+      "credits": 14
     },
     "admin_demo": {
       "role": "admin",
-      "credits": 9999
+      "credits": 9997
     }
   }
 }

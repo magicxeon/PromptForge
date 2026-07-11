@@ -46,3 +46,11 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Develop background concurrency job queue on backend.
   - Add Full-screen Modal Lightbox with download/metadata features.
   - Save outputs as static assets and implement history local database with file deletion.
+- [ ] **Step 7: Advanced UI/UX Refinement & Dynamic Aspect Ratios** (`007-ui-ux-enhancements.md`)
+  - Replace presets scroll chips with dropdown and load button.
+  - Fix dynamic accordion height constraints and scrolling.
+  - Remove redundant Prompt Template selector.
+  - Implement linked aspect ratio dimensions (Width/Height) with validation constraints.
+  - Redesign Generate button with cost indicator and enhance theme contrast.
+  - Auto-collapse viewport on page load if history is empty.
+  - Hide Live Prompt Preview card completely for non-admin users.

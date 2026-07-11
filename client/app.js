@@ -109,12 +109,19 @@ const FIELD_TO_CATEGORY_MAP = {
 // Submodel options definition per provider
 const PROVIDER_SUBMODELS = {
   gemini: [
-    { value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Default, High Quality)' },
-    { value: 'imagen-2.0', name: 'Imagen 2 (Fast, Legacy)' }
+    { value: 'gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite (Fastest & Cheapest)' },
+    { value: 'gemini-3.1-flash-image', name: 'Nano Banana 2 (Generalist)' },
+    { value: 'gemini-3-pro-image', name: 'Nano Banana Pro (Premium)' },
+    { value: 'gemini-2.5-flash-image', name: 'Nano Banana (Legacy)' },
+    { value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Legacy)' }
   ],
   openai: [
-    { value: 'dall-e-3', name: 'DALL-E 3 (High Detail)' },
-    { value: 'dall-e-2', name: 'DALL-E 2 (Standard, Legacy)' }
+    { value: 'gpt-image-1-mini', name: 'GPT-Image 1 Mini (Cheapest)' },
+    { value: 'gpt-image-1', name: 'GPT-Image 1 (Standard)' },
+    { value: 'gpt-image-1.5', name: 'GPT-Image 1.5 (Enhanced)' },
+    { value: 'gpt-image-2', name: 'GPT-Image 2 (Premium)' },
+    { value: 'dall-e-3', name: 'DALL-E 3 (Legacy)' },
+    { value: 'dall-e-2', name: 'DALL-E 2 (Legacy)' }
   ]
 };
 
@@ -414,6 +421,8 @@ const state = {
     styleMatch: false,
     poseMatch: false
   },
+  faceReferenceImage: null,
+  hasInitializedHistoryCollapse: false,
   aspectRatio: "6:8",
   mode: "normal",
   userRole: "user",
@@ -422,10 +431,11 @@ const state = {
 
 // Populate submodel options inside the selectors
 function updateSubmodelList() {
-  const provider = document.getElementById("api-provider-select").value;
+  const providerSelect = document.getElementById("api-provider-select");
   const submodelSelect = document.getElementById("api-submodel-select");
-  if (!submodelSelect) return;
+  if (!submodelSelect || !providerSelect) return;
 
+  const provider = providerSelect.value;
   submodelSelect.innerHTML = "";
   const submodels = PROVIDER_SUBMODELS[provider] || [];
   submodels.forEach(model => {
@@ -434,6 +444,10 @@ function updateSubmodelList() {
     opt.textContent = model.name;
     submodelSelect.appendChild(opt);
   });
+
+  if (submodelSelect.options.length > 0) {
+    submodelSelect.selectedIndex = 0;
+  }
 }
 
 // Fetch balance from the credits DB
@@ -580,6 +594,7 @@ async function initApp() {
     toggleUIForMode();
     updateCredits();
     updatePromptPreview();
+    loadHistory();
 
   } catch (error) {
     console.error("Initialization failed:", error);
@@ -876,40 +891,102 @@ function bindEvents() {
     });
   }
 
-  // Aspect Ratio Chips
-  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+  // Aspect Ratio Chips & Linked Dimensions
+  const aspectChips = document.querySelectorAll("#aspect-ratio-group .option-chip");
+  const inputWidth = document.getElementById("input-width");
+  const inputHeight = document.getElementById("input-height");
+
+  const updateDimensionsForRatio = (ratio) => {
+    if (!inputWidth || !inputHeight) return;
+    const defaults = {
+      "1:1": [1024, 1024],
+      "16:9": [1920, 1080],
+      "9:16": [1080, 1920],
+      "6:8": [768, 1024],
+      "4:5": [1024, 1280]
+    };
+    const dims = defaults[ratio] || [768, 1024];
+    inputWidth.value = dims[0];
+    inputHeight.value = dims[1];
+  };
+
+  aspectChips.forEach(chip => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(c => c.classList.remove("active"));
+      aspectChips.forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       state.aspectRatio = chip.getAttribute("data-ratio");
+      updateDimensionsForRatio(state.aspectRatio);
       updatePromptPreview();
     });
   });
 
-  // Preset selector chips
-  document.querySelectorAll("#presets-group .option-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const presetName = chip.getAttribute("data-preset");
-      document.querySelectorAll("#presets-group .option-chip").forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
+  // Handle width/height linked input modifications
+  const handleDimensionInput = (changedField) => {
+    if (!inputWidth || !inputHeight) return;
+    let width = parseInt(inputWidth.value, 10) || 768;
+    let height = parseInt(inputHeight.value, 10) || 1024;
 
+    const parts = state.aspectRatio.split(":").map(Number);
+    const ratio = parts[0] / parts[1];
+
+    if (changedField === "width") {
+      height = Math.round(width / ratio);
+      height = Math.round(height / 8) * 8;
+      if (height < 720) height = 720;
+      if (height > 4096) height = 4096;
+      inputHeight.value = height;
+    } else {
+      width = Math.round(height * ratio);
+      width = Math.round(width / 8) * 8;
+      if (width < 720) width = 720;
+      if (width > 4096) width = 4096;
+      inputWidth.value = width;
+    }
+  };
+
+  if (inputWidth) {
+    inputWidth.addEventListener("input", () => handleDimensionInput("width"));
+  }
+  if (inputHeight) {
+    inputHeight.addEventListener("input", () => handleDimensionInput("height"));
+  }
+
+  // Preset selector load button
+  const btnLoadPreset = document.getElementById("btn-load-preset");
+  if (btnLoadPreset) {
+    btnLoadPreset.addEventListener("click", () => {
+      const presetSelect = document.getElementById("preset-select");
+      const presetName = presetSelect ? presetSelect.value : "";
+      if (!presetName) return;
       const preset = PRESETS[presetName];
       if (preset) {
         const randomizedPreset = randomizePresetSelections(preset, presetName);
         importConfigJSON(JSON.stringify(randomizedPreset));
       }
     });
-  });
+  }
 
-  // Image Reference Checkboxes
+  // Image Reference Checkboxes & File uploads
   const refFace = document.getElementById("ref-face-match");
   const refStyle = document.getElementById("ref-style-match");
   const refPose = document.getElementById("ref-pose-match");
+  const faceUploadContainer = document.getElementById("face-match-upload-container");
+  const faceFileInput = document.getElementById("face-match-file");
+  const btnClearFace = document.getElementById("btn-clear-face-match");
 
   const updateRefState = () => {
     state.imageReferences.faceMatch = refFace.checked;
     state.imageReferences.styleMatch = refStyle.checked;
     state.imageReferences.poseMatch = refPose.checked;
+
+    if (faceUploadContainer) {
+      faceUploadContainer.style.display = refFace.checked ? "block" : "none";
+    }
+    if (!refFace.checked) {
+      state.faceReferenceImage = null;
+      if (faceFileInput) faceFileInput.value = "";
+    }
+
     applyFaceMatchLockout();
     updatePromptPreview();
   };
@@ -917,6 +994,28 @@ function bindEvents() {
   refFace.addEventListener("change", updateRefState);
   refStyle.addEventListener("change", updateRefState);
   refPose.addEventListener("change", updateRefState);
+
+  if (faceFileInput) {
+    faceFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        state.faceReferenceImage = null;
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        state.faceReferenceImage = evt.target.result.split(',')[1];
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (btnClearFace) {
+    btnClearFace.addEventListener("click", () => {
+      if (faceFileInput) faceFileInput.value = "";
+      state.faceReferenceImage = null;
+    });
+  }
 
   // NSFW Toggle
   const toggleNsfw = document.getElementById("toggle-nsfw");
@@ -996,7 +1095,43 @@ function bindEvents() {
     });
   }
 
-  // Generate Image Button (Redesigned with loading overlays, telemetry, and error banner)
+  // Panel Collapsible Actions
+  const btnToggleDashboard = document.getElementById("btn-toggle-dashboard");
+  const visualDashboard = document.getElementById("visual-dashboard");
+  if (btnToggleDashboard && visualDashboard) {
+    btnToggleDashboard.addEventListener("click", () => {
+      visualDashboard.classList.toggle("collapsed");
+      const icon = btnToggleDashboard.querySelector(".toggle-icon");
+      if (icon) {
+        icon.textContent = visualDashboard.classList.contains("collapsed") ? "▲" : "▼";
+      }
+    });
+  }
+
+  const btnFloatingConfig = document.getElementById("btn-floating-config");
+  const creativeConfigurator = document.getElementById("creative-configurator");
+  if (btnFloatingConfig && creativeConfigurator) {
+    btnFloatingConfig.addEventListener("click", () => {
+      creativeConfigurator.classList.remove("collapsed");
+      btnFloatingConfig.style.display = "none";
+    });
+  }
+
+  // Lightbox close button
+  const lightboxModal = document.getElementById("lightbox-modal");
+  const lightboxClose = document.getElementById("lightbox-close");
+  if (lightboxClose && lightboxModal) {
+    lightboxClose.addEventListener("click", () => {
+      lightboxModal.style.display = "none";
+    });
+    lightboxModal.addEventListener("click", (e) => {
+      if (e.target === lightboxModal) {
+        lightboxModal.style.display = "none";
+      }
+    });
+  }
+
+  // Generate Image Button (Background Queue & SSE Streaming Integration)
   const btnGenerateImage = document.getElementById("btn-generate-image");
   if (btnGenerateImage) {
     btnGenerateImage.addEventListener("click", async () => {
@@ -1008,15 +1143,15 @@ function bindEvents() {
       const errBanner = document.getElementById("viewport-error");
       const telemetryBar = document.getElementById("telemetry-bar");
       const btnDownload = document.getElementById("btn-download-image");
+      const queueList = document.getElementById("active-queue-list");
 
       if (Object.keys(state.selections).length === 0) {
-        // Render inline warning in viewport instead of ugly popup
         errBanner.style.display = "flex";
         document.getElementById("error-message").textContent = "Please select some attributes first before generating.";
         return;
       }
 
-      // Hide all states, show loader
+      // Hide active image details, show loading pulse overlay
       errBanner.style.display = "none";
       placeholder.style.display = "none";
       img.style.display = "none";
@@ -1024,12 +1159,24 @@ function bindEvents() {
       telemetryBar.style.display = "none";
       loader.style.display = "flex";
 
+      // 1. Collapsing/Expanding Transition animations
+      if (creativeConfigurator) {
+        creativeConfigurator.classList.add("collapsed");
+      }
+      if (visualDashboard) {
+        visualDashboard.classList.remove("collapsed");
+      }
+      if (btnFloatingConfig) {
+        btnFloatingConfig.style.display = "block";
+      }
+
       const startTime = performance.now();
 
       try {
         const toggleGptSafe = document.getElementById("toggle-gpt-safe");
         const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
 
+        // 2. Call backend generator queue endpoint
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: {
@@ -1045,44 +1192,111 @@ function bindEvents() {
             mode: state.mode,
             template: document.getElementById("template-select").value || "portrait",
             isGptSafe,
-            username: state.username
+            username: state.username,
+            faceReferenceImage: state.faceReferenceImage
           })
         });
 
         const data = await response.json();
-        
         if (!response.ok) {
           throw new Error(data.error || "Generation failed");
         }
 
-        const endTime = performance.now();
-        const durationSec = ((endTime - startTime) / 1000).toFixed(1);
+        const jobId = data.jobId;
 
-        // Success - render viewport elements
-        img.src = data.imageUrl;
-        img.style.display = "block";
-        btnDownload.style.display = "block";
+        // 3. Render dynamic Job Card in background Queue List
+        const jobCard = document.createElement("div");
+        jobCard.className = "queue-item";
+        jobCard.id = `queue-${jobId}`;
+        jobCard.innerHTML = `
+          <div class="queue-item-left">
+            <div class="queue-spinner"></div>
+            <span>Job #${jobId.substring(4, 9)}: Processing...</span>
+          </div>
+          <span class="queue-badge-status processing">Processing</span>
+        `;
+        queueList.appendChild(jobCard);
 
-        // Display Telemetry
-        document.getElementById("tel-model").textContent = submodel;
-        document.getElementById("tel-time").textContent = `${durationSec}s`;
-        document.getElementById("tel-aspect").textContent = state.aspectRatio;
-        telemetryBar.style.display = "flex";
-        
-        if (data.credits !== undefined) {
-          document.getElementById("credits-value").textContent = data.credits;
-        }
+        // 4. Create SSE connection to listen for dynamic chunks
+        const sseSource = new EventSource(`/api/jobs/${jobId}/stream`);
 
-        if (data.prompt) {
-          console.log("Secret Compiled Prompt from Backend:", data.prompt);
-        }
+        sseSource.addEventListener('status', (e) => {
+          const payload = JSON.parse(e.data);
+          const label = jobCard.querySelector("span");
+          if (label) {
+            label.textContent = `Job #${jobId.substring(4, 9)}: ${payload.status}...`;
+          }
+        });
+
+        // Progressive stream painting (WOW factor)
+        sseSource.addEventListener('image_generation.partial_image', (e) => {
+          const payload = JSON.parse(e.data);
+          if (payload.b64_json) {
+            // Hide loaders/placeholders and render incoming partial base64 slices
+            loader.style.display = "none";
+            img.src = `data:image/png;base64,${payload.b64_json}`;
+            img.style.display = "block";
+          }
+        });
+
+        // Generation completion event handler
+        sseSource.addEventListener('image_generation.completed', (e) => {
+          const payload = JSON.parse(e.data);
+          sseSource.close();
+          jobCard.remove();
+
+          const endTime = performance.now();
+          const durationSec = ((endTime - startTime) / 1000).toFixed(1);
+
+          // Render completed static image
+          img.src = payload.imageUrl;
+          img.style.display = "block";
+          btnDownload.style.display = "block";
+          loader.style.display = "none";
+
+          // Lightbox click handler
+          img.onclick = () => openLightbox({
+            id: jobId,
+            prompt: generatePromptText(true),
+            imageUrl: payload.imageUrl,
+            timestamp: Date.now(),
+            provider,
+            submodel
+          });
+
+          // Update Telemetry
+          document.getElementById("tel-model").textContent = submodel;
+          document.getElementById("tel-time").textContent = `${durationSec}s`;
+          document.getElementById("tel-aspect").textContent = state.aspectRatio;
+          telemetryBar.style.display = "flex";
+
+          // Update credits and history list
+          updateCredits();
+          loadHistory();
+        });
+
+        // Error event handler
+        sseSource.addEventListener('error', (e) => {
+          let errorMsg = "Generation failed";
+          try {
+            const payload = JSON.parse(e.data);
+            errorMsg = payload.error || errorMsg;
+          } catch {}
+          
+          sseSource.close();
+          jobCard.remove();
+          loader.style.display = "none";
+
+          errBanner.style.display = "flex";
+          document.getElementById("error-message").textContent = errorMsg;
+          placeholder.style.display = "flex";
+        });
+
       } catch (err) {
-        // Render error inside viewport banner
+        loader.style.display = "none";
         errBanner.style.display = "flex";
         document.getElementById("error-message").textContent = err.message;
         placeholder.style.display = "flex";
-      } finally {
-        loader.style.display = "none";
       }
     });
   }
@@ -1616,6 +1830,7 @@ function generatePromptText(cleanTextOnly = false) {
 // Update DOM Prompt Preview
 function updatePromptPreview() {
   const previewBox = document.getElementById("prompt-preview");
+  const previewOuter = document.getElementById("preview-outer-container");
   const isUserAdmin = (state.userRole === 'admin');
 
   const copyBtn = document.getElementById("btn-copy");
@@ -1624,16 +1839,10 @@ function updatePromptPreview() {
   if (copyJsonBtn) copyJsonBtn.disabled = !isUserAdmin;
 
   if (!isUserAdmin) {
-    previewBox.innerHTML = `
-      <div class="user-preview-placeholder" style="text-align: center; padding: 1.5rem 1rem; color: var(--text-muted);">
-        <span class="preview-icon" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">✨</span>
-        <p style="font-weight: 600; color: var(--neon-purple); margin-bottom: 0.25rem;">Prompt compilation is hidden in User mode.</p>
-        <p style="font-size: 0.8rem;">Click "Generate Image" below to create the character directly.</p>
-      </div>
-    `;
-    const warningContainer = document.getElementById("buzzword-warnings");
-    if (warningContainer) warningContainer.style.display = "none";
+    if (previewOuter) previewOuter.style.display = "none";
     return;
+  } else {
+    if (previewOuter) previewOuter.style.display = "block";
   }
 
   const htmlContent = generatePromptText(false);
@@ -1737,7 +1946,24 @@ function resetForm() {
 
   state.selections = {};
   state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false };
+  state.faceReferenceImage = null;
   state.aspectRatio = "6:8";
+
+  // Hide Face Match container
+  const faceUploadContainer = document.getElementById("face-match-upload-container");
+  if (faceUploadContainer) faceUploadContainer.style.display = "none";
+  const faceFileInput = document.getElementById("face-match-file");
+  if (faceFileInput) faceFileInput.value = "";
+
+  // Reset linked dimensions inputs
+  const inputWidth = document.getElementById("input-width");
+  const inputHeight = document.getElementById("input-height");
+  if (inputWidth) inputWidth.value = "768";
+  if (inputHeight) inputHeight.value = "1024";
+
+  // Clear presets select
+  const presetSelect = document.getElementById("preset-select");
+  if (presetSelect) presetSelect.value = "";
 
   document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
     chip.classList.remove("active");
@@ -1752,8 +1978,7 @@ function resetForm() {
   });
 
   const templateSelect = document.getElementById("template-select");
-  if (templateSelect.options.length > 0) templateSelect.selectedIndex = 0;
-  document.querySelectorAll("#presets-group .option-chip").forEach(c => c.classList.remove("active"));
+  if (templateSelect && templateSelect.options.length > 0) templateSelect.selectedIndex = 0;
 
   applyFaceMatchLockout();
   updatePromptPreview();
@@ -2020,3 +2245,109 @@ function copyPromptAsJSON() {
     console.error("JSON clipboard copy failed:", err);
   });
 }
+
+// Load generation history from backend
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history');
+    const history = await res.json();
+    renderHistory(history);
+
+    // Auto-collapse on initial page load if history is empty (Step 7)
+    if ((!history || history.length === 0) && !state.hasInitializedHistoryCollapse) {
+      state.hasInitializedHistoryCollapse = true;
+      const visualDashboard = document.getElementById("visual-dashboard");
+      if (visualDashboard) {
+        visualDashboard.classList.add("collapsed");
+        const btnToggleDashboard = document.getElementById("btn-toggle-dashboard");
+        const icon = btnToggleDashboard ? btnToggleDashboard.querySelector(".toggle-icon") : null;
+        if (icon) icon.textContent = "▲";
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load history list:", err);
+  }
+}
+
+// Render history thumbnail grid
+function renderHistory(historyList) {
+  const grid = document.getElementById("history-grid");
+  const placeholder = document.getElementById("no-history-placeholder");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+  
+  if (!historyList || historyList.length === 0) {
+    grid.innerHTML = `<p class="no-history-text" id="no-history-placeholder">No history found</p>`;
+    return;
+  }
+
+  historyList.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "history-item";
+    card.title = `Generate: ${item.prompt.substring(0, 100)}...`;
+
+    const img = document.createElement("img");
+    img.src = item.imageUrl;
+    img.alt = "Generated Character Output";
+    img.addEventListener("click", () => openLightbox(item));
+
+    const btnDel = document.createElement("button");
+    btnDel.className = "btn-delete-history";
+    btnDel.innerHTML = "&times;";
+    btnDel.title = "Delete image record";
+    btnDel.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (confirm("Are you sure you want to delete this generation history?")) {
+        deleteHistory(item.id);
+      }
+    });
+
+    card.appendChild(img);
+    card.appendChild(btnDel);
+    grid.appendChild(card);
+  });
+}
+
+// Delete history record from disk
+async function deleteHistory(jobId) {
+  try {
+    const res = await fetch(`/api/history/${jobId}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      loadHistory();
+    } else {
+      const data = await res.json();
+      alert("Failed to delete entry: " + data.error);
+    }
+  } catch (err) {
+    alert("Delete operation failed: " + err.message);
+  }
+}
+
+// Open full screen Lightbox modal
+function openLightbox(item) {
+  const modal = document.getElementById("lightbox-modal");
+  const img = document.getElementById("lightbox-image");
+  const title = document.getElementById("lightbox-meta-title");
+  const promptTxt = document.getElementById("lightbox-meta-prompt");
+  const engine = document.getElementById("lightbox-meta-engine");
+  const model = document.getElementById("lightbox-meta-model");
+  const time = document.getElementById("lightbox-meta-time");
+  const dlLink = document.getElementById("lightbox-download-link");
+
+  if (!modal || !img) return;
+
+  img.src = item.imageUrl;
+  title.textContent = `Generation Reference #${item.id.substring(4, 9)}`;
+  promptTxt.textContent = item.prompt;
+  engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
+  model.textContent = item.submodel || "N/A";
+  time.textContent = new Date(item.timestamp).toLocaleString();
+  dlLink.href = item.imageUrl;
+  dlLink.download = `modelpromptforge-generation-${item.id}.png`;
+
+  modal.style.display = "flex";
+}
+
