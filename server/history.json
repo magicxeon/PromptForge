@@ -1,5 +1,46 @@
 [
   {
+    "id": "job_1783794785110_6bmhbm14l",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, hand near mouth, walking down stairs, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794785110_6bmhbm14l.png",
+    "timestamp": 1783794801994,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783794360711_2k9gsi48d"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "16.9"
+  },
+  {
+    "id": "job_1783794669467_rc5cd1pk6",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, hand near mouth, walking down stairs, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794669467_rc5cd1pk6.png",
+    "timestamp": 1783794697201,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783794360711_2k9gsi48d"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "27.7"
+  },
+  {
+    "id": "job_1783794360711_2k9gsi48d",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, young adult, korean, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, subtle friendly smile, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794360711_2k9gsi48d.png",
+    "timestamp": 1783794421567,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783781951473_frhn6tnol"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "60.8"
+  },
+  {
     "id": "job_1783781951473_frhn6tnol",
     "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
     "imageUrl": "/outputs/job_1783781951473_frhn6tnol.png",

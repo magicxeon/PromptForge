@@ -65,6 +65,93 @@ This document details the requirements for visual multi-slot loopback referencin
   - `styleReferenceImageA`, `styleReferenceImageB`
   - `faceReferenceJobIds`, `styleReferenceJobIds`
   - `generationDuration` (computed in client upon job completion and saved via update/completed endpoint or saved directly by backend duration logging).
-- **Backend File Loading**:
-  - If any reference path starts with `/outputs/`, the backend Express router (`server/server.js` or `GeminiProvider.js`) must resolve the local static file on disk, read it, and encode it back to base64 before posting to the Google Gemini interactions endpoint.
-  - In `GeminiProvider.js`, append all active face/style base64 objects into the Interactions `input` array as native image parts.
+- **Backend File Loading & Provider Integration**:
+  - If any reference path starts with `/outputs/`, the backend Express router (`server/queueManager.js`) must resolve the local static file on disk, read it, and encode it back to base64 before proceeding with provider-specific logic.
+  - **Google Gemini**: Appends all active face/style base64 objects into the Interactions `input` array as native image parts.
+  - **OpenAI**: Uploads resolved base64 images to the OpenAI Files API (`POST /v1/files`) with `purpose: "vision"` using native Node 18 `FormData`, and appends the resulting `file-xxxxxxxxxxxx` ID values to the request body under `reference_images` / `input_images` parameters.
+
+---
+
+## 5. DALL-E 2 & DALL-E 3 Limitations (Lockout Rules)
+- **Problem**: OpenAI's DALL-E 2 and DALL-E 3 APIs do not support standard multi-slot base64 reference images or face consistency parameters through their generation endpoint.
+- **UI Lockout Specification**:
+  - When the user selects `dall-e-3` or `dall-e-2` as the active submodel under OpenAI:
+    - Automatically uncheck and disable `Face Match`, `Style Match`, and the Character Sheet reference checkboxes.
+    - Set the checkboxes container to `opacity: 0.35` and `pointer-events: none` to indicate visual disabled states.
+    - Clear all active reference states (`state.faceReferenceImageA`/`B` and `state.styleReferenceImageA`/`B` = `null`), clear the lineage arrays, and hide the upload previews dock.
+    - Hide the loopback buttons (`"Use as Face Reference"` and `"Use as Style Reference"`) under the Viewport image card and inside the Lightbox modal.
+  - When switching back to compatible models (`gpt-image` series or Gemini models), restore inputs to active states.
+
+---
+
+## 6. OpenAI Image Edit Safety Rejection Handling
+
+### 6.1 Observed Stream Sequence
+- An OpenAI image edit can emit one or more `image_edit.partial_image` events before the safety decision is final.
+- A rejected request can then emit a terminal `error` event such as:
+  - `error.type`: `image_generation_user_error`
+  - `error.code`: `moderation_blocked`
+  - `error.message`: human-readable rejection details, request ID, and safety violations such as `safety_violations=[sexual]`
+- A partial image received before a terminal error is only a preview. It must not be treated as a successfully generated final image.
+
+### 6.2 Provider Stream State and Event Support
+- Update `server/providers/OpenAIProvider.js` so the stream consumer recognizes both generation and edit event families:
+  - `image_generation.partial_image`
+  - `image_edit.partial_image`
+  - `image_generation.completed`, when provided
+  - `image_edit.completed`, when provided
+  - terminal `error`, `image_generation.failed`, and `image_edit.failed`
+- Track stream state explicitly as `pending`, `completed`, or `failed`.
+- Store the latest partial image only as a temporary candidate while the stream remains `pending`.
+- If a terminal error arrives after any partial image, change the state to `failed`, discard the candidate final result, and throw a structured provider error.
+- Only return the latest partial image as the final result when the stream closes normally without any terminal failure and the API's stream contract identifies the last partial event as the final image.
+- Preserve the OpenAI `x-request-id`; if it is absent, extract the request ID from the API error message when possible.
+
+### 6.3 Structured Error Contract
+- Normalize OpenAI stream failures into an error object with these fields where available:
+  - `provider`: `openai`
+  - `type`: for example `image_generation_user_error`
+  - `code`: for example `moderation_blocked`
+  - `message`: safe human-readable API message
+  - `requestId`: for example `req_...`
+  - `safetyViolations`: parsed array such as `["sexual"]`
+  - `retryable`: `false` for moderation rejection; `true` only for transient failures such as rate limits or upstream availability
+- Do not include Base64 partial-image content in logs, stored job errors, or client-facing error events.
+- Keep the original error as `cause` for server-side diagnostics without exposing secrets or full response payloads.
+
+### 6.4 Queue and SSE Terminal Behavior
+- Update `server/queueManager.js` so a failed provider stream produces exactly one terminal application-level error event.
+- Do not forward the raw OpenAI terminal `error` event and then emit a second wrapped `error` event for the same failure.
+- Forward non-terminal partial-image events for progress display, but mark them as previews and never persist them as completed outputs.
+- On failure:
+  - set `job.status` to `failed`
+  - save only normalized error metadata in `job.error`
+  - do not write an output image file
+  - do not add a successful history entry
+  - do not emit `image_generation.completed`
+  - close listeners only after the single normalized error event has been sent
+- Define the credit policy explicitly during implementation review. Recommended behavior: refund the deducted credit for `moderation_blocked` because no usable output is delivered, while preventing duplicate refunds if the same error is handled more than once.
+
+### 6.5 Client Error Presentation
+- Update the client SSE handler to distinguish `moderation_blocked` from network and retryable provider errors.
+- For moderation rejection, clear any temporary partial preview associated with the failed job and show a concise message explaining that the request did not pass the safety system.
+- Offer prompt adjustment guidance without displaying internal Base64 data or raw stack traces.
+- Display the request ID in an expandable technical-details area so it can be supplied to OpenAI support.
+- Do not automatically retry moderation failures with the same prompt and reference images.
+
+### 6.6 Verification Scenarios
+- Add provider-level stream tests for:
+  - `image_edit.partial_image` followed by normal stream completion
+  - `image_edit.partial_image` followed by `moderation_blocked`
+  - terminal error before any partial image
+  - multiple partial images followed by a terminal error
+  - malformed error payload with an `x-request-id` header
+- Add queue-level tests confirming that moderation rejection emits one client error, writes no output file, creates no successful history item, and applies the reviewed credit policy once.
+- Add a client-level test confirming that a partial preview is removed when the same job later fails moderation.
+
+### 6.7 Implemented Structure Notes
+- Implemented the provider, queue, and client behavior described above.
+- The actual OpenAI edit stream uses `image_edit.partial_image`, while the application completion event remains `image_generation.completed` after the queue has persisted the final output.
+- The existing client uses an embedded `#viewport-error` banner rather than a toast system. Safety messaging and expandable technical details were added to that component to preserve the current dark glassmorphism and neon-red theme.
+- Credit deduction is owned by `server/queueManager.js`; moderation refunds are therefore performed in the same module and guarded by the per-job `creditRefunded` flag.
+- Provider terminal errors and completion events are suppressed in the queue callback. Errors are emitted once from the queue catch path, while completion is emitted once after output and history persistence succeed.

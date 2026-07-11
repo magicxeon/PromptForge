@@ -36,6 +36,50 @@ async function deductUserCredit(username) {
   }
 }
 
+// Refund a failed moderation job once; the caller owns idempotency per job.
+async function refundUserCredit(username) {
+  const dbData = await fs.readFile(DB_PATH, 'utf-8');
+  const db = JSON.parse(dbData);
+  const user = db.users[username];
+  if (!user) throw new Error('User not found');
+  user.credits += 1;
+  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
+  return user.credits;
+}
+
+function normalizeJobError(error) {
+  return {
+    provider: error.provider || null,
+    type: error.type || null,
+    code: error.code || null,
+    message: error.message || 'Generation failed',
+    requestId: error.requestId || null,
+    safetyViolations: Array.isArray(error.safetyViolations)
+      ? error.safetyViolations
+      : [],
+    retryable: error.retryable === true
+  };
+}
+
+// Read local static output image and convert it back to base64 (Step 9)
+async function resolveLocalImageToBase64(imgPath) {
+  if (!imgPath) return null;
+  // If it's already a base64 string, return it
+  if (!imgPath.startsWith('/outputs/')) {
+    return imgPath;
+  }
+  
+  try {
+    const filename = path.basename(imgPath);
+    const filePath = path.join(OUTPUTS_DIR, filename);
+    const fileBuffer = await fs.readFile(filePath);
+    return fileBuffer.toString('base64');
+  } catch (err) {
+    console.error(`[Queue] Failed to resolve local image path ${imgPath}:`, err.message);
+    return null;
+  }
+}
+
 class QueueManager {
   constructor() {
     this.jobs = new Map(); // jobId -> JobObject
@@ -102,7 +146,7 @@ class QueueManager {
       res.end();
       return true;
     } else if (job.status === 'failed') {
-      res.write(`event: error\ndata: ${JSON.stringify({ error: job.error })}\n\n`);
+      res.write(`event: error\ndata: ${JSON.stringify(job.error)}\n\n`);
       res.end();
       return true;
     }
@@ -167,16 +211,41 @@ class QueueManager {
       // Deduct credit at the start of actual processing to prevent abuse
       await deductUserCredit(job.options.username || 'user_demo');
 
+      const startTime = Date.now();
+
+      // Resolve local /outputs/ files to base64 for API transmission (Step 9)
+      const resolvedFaceA = await resolveLocalImageToBase64(job.options.faceReferenceImageA);
+      const resolvedFaceB = await resolveLocalImageToBase64(job.options.faceReferenceImageB);
+      const resolvedStyleA = await resolveLocalImageToBase64(job.options.styleReferenceImageA);
+      const resolvedStyleB = await resolveLocalImageToBase64(job.options.styleReferenceImageB);
+
+      // Mutate options to supply resolved base64 images to provider strategy
+      job.options.resolvedFaceReferenceImageA = resolvedFaceA;
+      job.options.resolvedFaceReferenceImageB = resolvedFaceB;
+      job.options.resolvedStyleReferenceImageA = resolvedStyleA;
+      job.options.resolvedStyleReferenceImageB = resolvedStyleB;
+
       let result;
       if (job.options.stream) {
-        // Run with stream events proxying to listeners
         result = await providerInstance.generateImageStream(job.prompt, job.options, (eventObj) => {
-          this.emitToListeners(jobId, eventObj.event, eventObj.data);
+          const providerOwnedTerminalEvents = new Set([
+            'error',
+            'image_generation.failed',
+            'image_edit.failed',
+            'image_generation.completed',
+            'image_edit.completed'
+          ]);
+
+          if (!providerOwnedTerminalEvents.has(eventObj.event)) {
+            this.emitToListeners(jobId, eventObj.event, eventObj.data);
+          }
         });
       } else {
-        // Run standard sync call
         result = await providerInstance.generateImage(job.prompt, job.options);
       }
+
+      // Calculate generation duration
+      const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
 
       // Save output file to static assets
       await ensureDir(OUTPUTS_DIR);
@@ -188,31 +257,57 @@ class QueueManager {
       job.status = 'completed';
       job.result = {
         imageUrl: `/outputs/${filename}`,
-        usage: result.usage
+        usage: result.usage,
+        generationDuration: durationSec
       };
       
-      // Persist to history database
+      // Persist parent lineage and duration metadata to history database (Step 9)
       await this.saveToHistory({
         id: jobId,
         prompt: job.prompt,
         imageUrl: `/outputs/${filename}`,
         timestamp: Date.now(),
         provider: job.provider,
-        submodel: job.submodel
+        submodel: job.submodel,
+        referencedFaceJobIds: job.options.faceReferenceJobIds || [],
+        referencedStyleJobIds: job.options.styleReferenceJobIds || [],
+        generationDuration: durationSec
       });
 
-      // Emit completed event
+      // Emit completed event with duration metadata
       this.emitToListeners(jobId, 'image_generation.completed', {
         type: 'image_generation.completed',
         imageUrl: `/outputs/${filename}`,
-        usage: result.usage
+        usage: result.usage,
+        generationDuration: durationSec
       });
 
     } catch (err) {
       console.error(`[Queue] Job ${jobId} failed:`, err);
       job.status = 'failed';
-      job.error = err.message;
-      this.emitToListeners(jobId, 'error', { error: err.message });
+      job.error = normalizeJobError(err);
+
+      if (
+        job.error.code === 'moderation_blocked' &&
+        !job.creditRefunded
+      ) {
+        try {
+          job.refundedCredits = await refundUserCredit(
+            job.options.username || 'user_demo'
+          );
+          job.creditRefunded = true;
+        } catch (refundError) {
+          console.error(
+            `[Queue] Credit refund failed for ${jobId}:`,
+            refundError.message
+          );
+        }
+      }
+
+      this.emitToListeners(jobId, 'error', {
+        ...job.error,
+        creditRefunded: job.creditRefunded === true
+      });
     } finally {
       // Close all SSE connections
       job.listeners.forEach(({ res, keepAliveTimer }) => {

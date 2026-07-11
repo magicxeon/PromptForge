@@ -3,7 +3,10 @@
     "id": "skin.tone_01",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Fair skin",
+    "label": {
+      "en": "Fair skin",
+      "th": "ผิวขาวสว่าง"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -14,14 +17,21 @@
       "gpt-image-safe": "balanced fair skin",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, clean skin complexion"
     },
-    "tags": ["skin", "tone", "fair"],
+    "tags": [
+      "skin",
+      "tone",
+      "fair"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_02",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Porcelain skin",
+    "label": {
+      "en": "Porcelain skin",
+      "th": "ผิวขาวเนียน"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -32,14 +42,21 @@
       "gpt-image-safe": "smooth porcelain-like skin",
       "gpt-image-positive": "professional studio lighting, smooth skin details, refined complexion"
     },
-    "tags": ["skin", "tone", "porcelain"],
+    "tags": [
+      "skin",
+      "tone",
+      "porcelain"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_03",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Honey skin",
+    "label": {
+      "en": "Honey skin",
+      "th": "ผิวโทนน้ำผึ้ง"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -50,14 +67,21 @@
       "gpt-image-safe": "honey skin tone with warm natural highlights",
       "gpt-image-positive": "lifestyle photography, golden hour sunlight, warm skin tones"
     },
-    "tags": ["skin", "tone", "honey"],
+    "tags": [
+      "skin",
+      "tone",
+      "honey"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_04",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Warm Olive skin",
+    "label": {
+      "en": "Warm Olive skin",
+      "th": "อุ่น Olive ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -68,14 +92,21 @@
       "gpt-image-safe": "warm olive skin tone, balanced warm undertones",
       "gpt-image-positive": "natural ambient lighting, realistic color rendering, rich skin details"
     },
-    "tags": ["skin", "tone", "olive"],
+    "tags": [
+      "skin",
+      "tone",
+      "olive"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_05",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Rosy Fair skin",
+    "label": {
+      "en": "Rosy Fair skin",
+      "th": "Rosy Fair ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -86,14 +117,22 @@
       "gpt-image-safe": "rosy fair skin, white complexion with soft pinkish undertones",
       "gpt-image-positive": "clean skin complexion, soft facial harmony, natural candid portrait"
     },
-    "tags": ["skin", "tone", "rosy", "asian"],
+    "tags": [
+      "skin",
+      "tone",
+      "rosy",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_06",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Translucent Glass skin",
+    "label": {
+      "en": "Translucent Glass skin",
+      "th": "Translucent Glass ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -104,14 +143,22 @@
       "gpt-image-safe": "translucent glass skin with a clear hydrated skin sheen",
       "gpt-image-positive": "dewy glass skin, translucent and hydrated, beauty editorial shoot"
     },
-    "tags": ["skin", "tone", "glass", "asian"],
+    "tags": [
+      "skin",
+      "tone",
+      "glass",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_07",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Milky White skin",
+    "label": {
+      "en": "Milky White skin",
+      "th": "Milky White ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -122,14 +169,22 @@
       "gpt-image-safe": "milky white skin, smooth fair skin with cream undertones",
       "gpt-image-positive": "milky white skin, professional makeup light, commercial fashion photography"
     },
-    "tags": ["skin", "tone", "milky", "asian"],
+    "tags": [
+      "skin",
+      "tone",
+      "milky",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_08",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Ivory White skin",
+    "label": {
+      "en": "Ivory White skin",
+      "th": "Ivory White ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -140,14 +195,22 @@
       "gpt-image-safe": "ivory white skin, smooth fair ivory complexion",
       "gpt-image-positive": "editorial portrait, classic lighting, structured visual tone"
     },
-    "tags": ["skin", "tone", "ivory", "asian"],
+    "tags": [
+      "skin",
+      "tone",
+      "ivory",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.tone_09",
     "category": "skin",
     "subcategory": "Tone",
-    "label": "Aura Glowing White skin",
+    "label": {
+      "en": "Aura Glowing White skin",
+      "th": "Aura Glowing White ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -158,14 +221,22 @@
       "gpt-image-safe": "aura glowing white skin, brilliant radiant fair complexion reflecting ambient light",
       "gpt-image-positive": "high-fashion editorial, beauty magazine quality, glowing highlights"
     },
-    "tags": ["skin", "tone", "glowing", "asian"],
+    "tags": [
+      "skin",
+      "tone",
+      "glowing",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_01",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Natural Skin Texture",
+    "label": {
+      "en": "Natural Skin Texture",
+      "th": "ธรรมชาติ ผิว Texture"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -176,14 +247,21 @@
       "gpt-image-safe": "realistic natural skin texture with visible pores and fine details",
       "gpt-image-positive": "highly detailed, natural skin texture, photorealistic, premium portrait quality"
     },
-    "tags": ["skin", "texture", "natural"],
+    "tags": [
+      "skin",
+      "texture",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_02",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Dewy Complexion",
+    "label": {
+      "en": "Dewy Complexion",
+      "th": "ผิวฉ่ำวาว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -194,14 +272,21 @@
       "gpt-image-safe": "dewy complexion with soft ambient light reflections",
       "gpt-image-positive": "dewy glass skin, translucent and hydrated, beauty editorial shoot"
     },
-    "tags": ["skin", "texture", "dewy"],
+    "tags": [
+      "skin",
+      "texture",
+      "dewy"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_03",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Healthy Complexion",
+    "label": {
+      "en": "Healthy Complexion",
+      "th": "ผิวพรรณสุขภาพดี"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -212,14 +297,21 @@
       "gpt-image-safe": "healthy skin complexion with natural organic skin details",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, authentic appearance"
     },
-    "tags": ["skin", "texture", "healthy"],
+    "tags": [
+      "skin",
+      "texture",
+      "healthy"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_04",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Even Skin Tone",
+    "label": {
+      "en": "Even Skin Tone",
+      "th": "Even ผิว Tone"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -230,14 +322,21 @@
       "gpt-image-safe": "even skin tone, smooth facial skin with balanced pigmentation",
       "gpt-image-positive": "professional makeup, studio portrait quality, clean facial skin"
     },
-    "tags": ["skin", "texture", "even"],
+    "tags": [
+      "skin",
+      "texture",
+      "even"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_05",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Soft Smooth Skin",
+    "label": {
+      "en": "Soft Smooth Skin",
+      "th": "นุ่มนวล Smooth ผิว"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -248,14 +347,21 @@
       "gpt-image-safe": "soft smooth skin with delicate specular highlights",
       "gpt-image-positive": "close-up portraiture, detailed facial feature rendering, soft facial harmony"
     },
-    "tags": ["skin", "texture", "soft"],
+    "tags": [
+      "skin",
+      "texture",
+      "soft"
+    ],
     "enabled": true
   },
   {
     "id": "skin.text_06",
     "category": "skin",
     "subcategory": "Texture",
-    "label": "Radiant Smooth Skin (under flash)",
+    "label": {
+      "en": "Radiant Smooth Skin (under flash)",
+      "th": "Radiant Smooth ผิว(under แฟลช)"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -266,14 +372,22 @@
       "gpt-image-safe": "radiant, smooth, and bright skin with natural highlights from direct lighting",
       "gpt-image-positive": "direct flash photography, party snapshot look, clean skin texture, vibrant highlights"
     },
-    "tags": ["skin", "texture", "radiant", "flash"],
+    "tags": [
+      "skin",
+      "texture",
+      "radiant",
+      "flash"
+    ],
     "enabled": true
   },
   {
     "id": "skin.makeup_01",
     "category": "skin",
     "subcategory": "Makeup",
-    "label": "Natural Look (No Makeup)",
+    "label": {
+      "en": "Natural Look (No Makeup)",
+      "th": "ลุคธรรมชาติ (ไม่แต่งหน้า)"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -284,14 +398,21 @@
       "gpt-image-safe": "natural look, no makeup, clean skin bare face, authentic facial details",
       "gpt-image-positive": "natural candid portrait, authentic appearance, lifestyle portrait, raw skin details"
     },
-    "tags": ["skin", "makeup", "natural"],
+    "tags": [
+      "skin",
+      "makeup",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "skin.makeup_02",
     "category": "skin",
     "subcategory": "Makeup",
-    "label": "Soft K-Beauty Makeup",
+    "label": {
+      "en": "Soft K-Beauty Makeup",
+      "th": "นุ่มนวล K-Beauty Makeup"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -302,14 +423,22 @@
       "gpt-image-safe": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner",
       "gpt-image-positive": "tasteful styling, refined styling, beauty editorial shoot, soft facial harmony"
     },
-    "tags": ["skin", "makeup", "k-beauty", "asian"],
+    "tags": [
+      "skin",
+      "makeup",
+      "k-beauty",
+      "asian"
+    ],
     "enabled": true
   },
   {
     "id": "skin.makeup_03",
     "category": "skin",
     "subcategory": "Makeup",
-    "label": "Editorial Bold Red Lips",
+    "label": {
+      "en": "Editorial Bold Red Lips",
+      "th": "Editorial Bold Red ริมฝีปาก"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -320,14 +449,22 @@
       "gpt-image-safe": "elegant makeup, classic red lips, clean eyeliner, subtle matte foundation",
       "gpt-image-positive": "editorial fashion photography, high-fashion editorial, tasteful fashion styling, contemporary fashion"
     },
-    "tags": ["skin", "makeup", "editorial", "red lips"],
+    "tags": [
+      "skin",
+      "makeup",
+      "editorial",
+      "red lips"
+    ],
     "enabled": true
   },
   {
     "id": "skin.makeup_04",
     "category": "skin",
     "subcategory": "Makeup",
-    "label": "Gilded Shimmer Eyeshadow",
+    "label": {
+      "en": "Gilded Shimmer Eyeshadow",
+      "th": "อายแชโดว์ประกายทอง"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -338,14 +475,22 @@
       "gpt-image-safe": "luxury makeup, subtle shimmering gold eyeshadow, soft nude lips, defined lash line",
       "gpt-image-positive": "luxury fashion campaign, couture-inspired styling, premium textile craftsmanship, elegant tailoring"
     },
-    "tags": ["skin", "makeup", "gold", "luxury"],
+    "tags": [
+      "skin",
+      "makeup",
+      "gold",
+      "luxury"
+    ],
     "enabled": true
   },
   {
     "id": "skin.freckles_01",
     "category": "skin",
     "subcategory": "Freckles",
-    "label": "No Freckles",
+    "label": {
+      "en": "No Freckles",
+      "th": "ไม่มีกระ"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -356,14 +501,21 @@
       "gpt-image-safe": "smooth even skin tone with no freckles",
       "gpt-image-positive": "clean facial skin, smooth skin details, professional portrait quality"
     },
-    "tags": ["skin", "freckles", "none"],
+    "tags": [
+      "skin",
+      "freckles",
+      "none"
+    ],
     "enabled": true
   },
   {
     "id": "skin.freckles_02",
     "category": "skin",
     "subcategory": "Freckles",
-    "label": "Subtle Light Freckles",
+    "label": {
+      "en": "Subtle Light Freckles",
+      "th": "Subtle แสง Freckles"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -374,14 +526,21 @@
       "gpt-image-safe": "subtle light freckles dusted naturally across the nose and cheeks",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, authentic appearance, cute charm"
     },
-    "tags": ["skin", "freckles", "subtle"],
+    "tags": [
+      "skin",
+      "freckles",
+      "subtle"
+    ],
     "enabled": true
   },
   {
     "id": "skin.freckles_03",
     "category": "skin",
     "subcategory": "Freckles",
-    "label": "Prominent Youthful Freckles",
+    "label": {
+      "en": "Prominent Youthful Freckles",
+      "th": "กระอ่อนวัยที่เห็นเด่นชัด"
+    },
     "ui": {
       "control": "select",
       "group": "Skin"
@@ -392,7 +551,11 @@
       "gpt-image-safe": "prominent freckles scattered across the bridge of the nose and upper cheeks, adding a youthful charm",
       "gpt-image-positive": "youthful charm, candid portrait, detailed skin rendering, natural look"
     },
-    "tags": ["skin", "freckles", "prominent"],
+    "tags": [
+      "skin",
+      "freckles",
+      "prominent"
+    ],
     "enabled": true
   }
 ]

@@ -2,7 +2,10 @@
   {
     "id": "photo_context.001",
     "category": "photo_context",
-    "label": "Candid Lifestyle Photograph",
+    "label": {
+      "en": "Candid Lifestyle Photograph",
+      "th": "แคนดิด Lifestyle Photograph"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -21,7 +24,10 @@
   {
     "id": "photo_context.002",
     "category": "photo_context",
-    "label": "Documentary Street Photography",
+    "label": {
+      "en": "Documentary Street Photography",
+      "th": "Documentary ถนน การถ่ายภาพ"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -40,7 +46,10 @@
   {
     "id": "photo_context.003",
     "category": "photo_context",
-    "label": "Captured Casually by a Friend",
+    "label": {
+      "en": "Captured Casually by a Friend",
+      "th": "เพื่อนถ่ายให้อย่างเป็นกันเอง"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -59,7 +68,10 @@
   {
     "id": "photo_context.004",
     "category": "photo_context",
-    "label": "Spontaneous Conversation Moment",
+    "label": {
+      "en": "Spontaneous Conversation Moment",
+      "th": "ช่วงเวลาสนทนาอย่างเป็นธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -78,7 +90,10 @@
   {
     "id": "photo_context.005",
     "category": "photo_context",
-    "label": "Unposed Snapshot",
+    "label": {
+      "en": "Unposed Snapshot",
+      "th": "ภาพสแนปช็อตที่ไม่ได้จัดท่า"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -97,7 +112,10 @@
   {
     "id": "photo_context.006",
     "category": "photo_context",
-    "label": "Handheld Smartphone Moment",
+    "label": {
+      "en": "Handheld Smartphone Moment",
+      "th": "ช่วงเวลาที่ถ่ายด้วยสมาร์ตโฟนในมือ"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"
@@ -116,7 +134,10 @@
   {
     "id": "photo_context.007",
     "category": "photo_context",
-    "label": "Travel Documentary Slice-of-Life",
+    "label": {
+      "en": "Travel Documentary Slice-of-Life",
+      "th": "ภาพชีวิตประจำวันแนวสารคดีท่องเที่ยว"
+    },
     "ui": {
       "control": "select",
       "group": "Photographic Context"

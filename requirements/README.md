@@ -1,5 +1,17 @@
 # ModelPromptForge — Project Understanding Guide
 
+> **Current runtime correction**: The project now includes an Express backend under `server/`. Earlier client-only descriptions below are historical and no longer represent the complete runtime architecture.
+
+### Current Image Stream Error Contract
+
+- `server/server.js` compiles generation requests and enqueues jobs.
+- `server/queueManager.js` resolves local references, manages credits, persists successful history, and owns application SSE connections.
+- `server/providers/OpenAIProvider.js` handles OpenAI Image API generation/edit requests and provider SSE parsing.
+- OpenAI streams can emit `image_generation.partial_image` or `image_edit.partial_image` previews. A later terminal error overrides and invalidates all previews.
+- `moderation_blocked` errors carry normalized `provider`, `type`, `code`, `message`, `requestId`, `safetyViolations`, and `retryable` metadata.
+- The queue emits one normalized terminal error, writes no failed output/history entry, and refunds a moderation-blocked job once.
+- The client clears failed previews and uses the existing dark neon viewport banner, with expandable technical details for request IDs and safety metadata.
+
 > **วัตถุประสงค์ของเอกสารนี้**: บันทึกความเข้าใจโครงสร้างและระบบทั้งหมดของ project ไว้เพื่อให้ AI agent หรือผู้พัฒนาสามารถ pick up งานต่อได้ทันทีโดยไม่ต้องอ่านโค้ดทั้งหมดซ้ำ
 
 ---

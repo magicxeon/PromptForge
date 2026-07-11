@@ -101,7 +101,11 @@ import { queueManager } from './queueManager.js';
 
 // Secret API Generation Route (Queue-based)
 app.post('/api/generate', async (req, res) => {
-  const { provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username, referenceImage, faceReferenceImage } = req.body;
+  const { 
+    provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username,
+    faceReferenceImageA, faceReferenceImageB, faceReferenceJobIds,
+    styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds
+  } = req.body;
   const targetUser = username || 'user_demo';
   
   try {
@@ -138,8 +142,12 @@ app.post('/api/generate', async (req, res) => {
       isGptSafe,
       username: targetUser,
       stream,
-      referenceImage,
-      faceReferenceImage
+      faceReferenceImageA,
+      faceReferenceImageB,
+      faceReferenceJobIds,
+      styleReferenceImageA,
+      styleReferenceImageB,
+      styleReferenceJobIds
     });
 
     res.json({ jobId, status: 'queued' });

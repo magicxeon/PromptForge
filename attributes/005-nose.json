@@ -2,7 +2,10 @@
   {
     "id": "nose.001",
     "category": "nose",
-    "label": "Small button nose",
+    "label": {
+      "en": "Small button nose",
+      "th": "จมูกหัวกลมเล็ก"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"
@@ -19,7 +22,10 @@
   {
     "id": "nose.002",
     "category": "nose",
-    "label": "High nose bridge",
+    "label": {
+      "en": "High nose bridge",
+      "th": "สันจมูกโด่ง"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"
@@ -36,7 +42,10 @@
   {
     "id": "nose.003",
     "category": "nose",
-    "label": "Delicate narrow nose",
+    "label": {
+      "en": "Delicate narrow nose",
+      "th": "จมูกเรียวบาง"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"
@@ -53,7 +62,10 @@
   {
     "id": "nose.004",
     "category": "nose",
-    "label": "Soft rounded tip",
+    "label": {
+      "en": "Soft rounded tip",
+      "th": "ปลายจมูกมนละมุน"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"
@@ -70,7 +82,10 @@
   {
     "id": "nose.005",
     "category": "nose",
-    "label": "Straight nose",
+    "label": {
+      "en": "Straight nose",
+      "th": "ตรง จมูก"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"
@@ -87,7 +102,10 @@
   {
     "id": "nose.006",
     "category": "nose",
-    "label": "Natural nose",
+    "label": {
+      "en": "Natural nose",
+      "th": "จมูกธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Nose"

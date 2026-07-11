@@ -2,7 +2,10 @@
   {
     "id": "scene_story.001",
     "category": "scene_story",
-    "label": "Mid-Conversation Smile",
+    "label": {
+      "en": "Mid-Conversation Smile",
+      "th": "Mid-Conversation ยิ้ม"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -21,7 +24,10 @@
   {
     "id": "scene_story.002",
     "category": "scene_story",
-    "label": "Quiet Contemplation",
+    "label": {
+      "en": "Quiet Contemplation",
+      "th": "ครุ่นคิดเงียบๆ"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -40,7 +46,10 @@
   {
     "id": "scene_story.003",
     "category": "scene_story",
-    "label": "Spontaneous Laugh",
+    "label": {
+      "en": "Spontaneous Laugh",
+      "th": "หัวเราะอย่างเป็นธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -59,7 +68,10 @@
   {
     "id": "scene_story.004",
     "category": "scene_story",
-    "label": "Looking towards Distance",
+    "label": {
+      "en": "Looking towards Distance",
+      "th": "มองไปยังที่ไกล"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -78,7 +90,10 @@
   {
     "id": "scene_story.005",
     "category": "scene_story",
-    "label": "Waiting and Observing",
+    "label": {
+      "en": "Waiting and Observing",
+      "th": "รอคอยและสังเกตการณ์"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -97,7 +112,10 @@
   {
     "id": "scene_story.006",
     "category": "scene_story",
-    "label": "Adjusting Outfit Detail",
+    "label": {
+      "en": "Adjusting Outfit Detail",
+      "th": "กำลังจัดรายละเอียดของเสื้อผ้า"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -116,7 +134,10 @@
   {
     "id": "scene_story.007",
     "category": "scene_story",
-    "label": "Checking Phone Briefly",
+    "label": {
+      "en": "Checking Phone Briefly",
+      "th": "เหลือบดูโทรศัพท์ชั่วครู่"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -135,7 +156,10 @@
   {
     "id": "scene_story.008",
     "category": "scene_story",
-    "label": "Walking and Observing",
+    "label": {
+      "en": "Walking and Observing",
+      "th": "เดินไปพร้อมกับสังเกตรอบตัว"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -154,7 +178,10 @@
   {
     "id": "scene_story.009",
     "category": "scene_story",
-    "label": "Comfortable Pose Gaze",
+    "label": {
+      "en": "Comfortable Pose Gaze",
+      "th": "Comfortable Pose สายตา"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"
@@ -173,7 +200,10 @@
   {
     "id": "scene_story.0010",
     "category": "scene_story",
-    "label": "Leaning and Relaxing",
+    "label": {
+      "en": "Leaning and Relaxing",
+      "th": "เอนตัวอย่างผ่อนคลาย"
+    },
     "ui": {
       "control": "select",
       "group": "Scene Story"

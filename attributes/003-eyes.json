@@ -2,7 +2,10 @@
   {
     "id": "eyes.001",
     "category": "eyes",
-    "label": "Almond-shaped eyes",
+    "label": {
+      "en": "Almond-shaped eyes",
+      "th": "ตาเรียวรูปอัลมอนด์"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -19,7 +22,10 @@
   {
     "id": "eyes.002",
     "category": "eyes",
-    "label": "Monolid eyes",
+    "label": {
+      "en": "Monolid eyes",
+      "th": "ตาชั้นเดียว"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -36,7 +42,10 @@
   {
     "id": "eyes.003",
     "category": "eyes",
-    "label": "Double eyelids",
+    "label": {
+      "en": "Double eyelids",
+      "th": "ตาสองชั้น"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -53,7 +62,10 @@
   {
     "id": "eyes.004",
     "category": "eyes",
-    "label": "Round eyes",
+    "label": {
+      "en": "Round eyes",
+      "th": "กลม ดวงตา"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -70,7 +82,10 @@
   {
     "id": "eyes.005",
     "category": "eyes",
-    "label": "Phoenix eyes",
+    "label": {
+      "en": "Phoenix eyes",
+      "th": "ตาหงส์"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -87,7 +102,10 @@
   {
     "id": "eyes.006",
     "category": "eyes",
-    "label": "Doe eyes",
+    "label": {
+      "en": "Doe eyes",
+      "th": "ตากลมใส"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -104,7 +122,10 @@
   {
     "id": "eyes.007",
     "category": "eyes",
-    "label": "Puppy eyes",
+    "label": {
+      "en": "Puppy eyes",
+      "th": "ตาแป๋ว"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -121,7 +142,10 @@
   {
     "id": "eyes.008",
     "category": "eyes",
-    "label": "Hooded eyes",
+    "label": {
+      "en": "Hooded eyes",
+      "th": "ตาเปลือกตาตก"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -138,7 +162,10 @@
   {
     "id": "eyes.009",
     "category": "eyes",
-    "label": "Soft gaze",
+    "label": {
+      "en": "Soft gaze",
+      "th": "สายตาอ่อนโยน"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -155,7 +182,10 @@
   {
     "id": "eyes.010",
     "category": "eyes",
-    "label": "Direct eye contact",
+    "label": {
+      "en": "Direct eye contact",
+      "th": "สบตาตรง"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -172,7 +202,10 @@
   {
     "id": "eyes.011",
     "category": "eyes",
-    "label": "Looking at camera",
+    "label": {
+      "en": "Looking at camera",
+      "th": "มองกล้อง"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -189,7 +222,10 @@
   {
     "id": "eyes.012",
     "category": "eyes",
-    "label": "Looking away",
+    "label": {
+      "en": "Looking away",
+      "th": "มองไปทางอื่น"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"
@@ -206,7 +242,10 @@
   {
     "id": "eyes.013",
     "category": "eyes",
-    "label": "Bright eyes",
+    "label": {
+      "en": "Bright eyes",
+      "th": "สว่าง ดวงตา"
+    },
     "ui": {
       "control": "select",
       "group": "Eyes"

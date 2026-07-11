@@ -57,21 +57,35 @@ export class GeminiProvider extends BaseProvider {
         }
       ];
 
-      // If reference image is provided, append it to the inputs array
-      if (options.referenceImage) {
+      // Append style/character references if provided (Slot A & Slot B) (Step 9)
+      if (options.resolvedStyleReferenceImageA) {
         input.push({
           type: 'image',
           mime_type: 'image/png',
-          data: options.referenceImage // Base64 encoded data
+          data: options.resolvedStyleReferenceImageA
+        });
+      }
+      if (options.resolvedStyleReferenceImageB) {
+        input.push({
+          type: 'image',
+          mime_type: 'image/png',
+          data: options.resolvedStyleReferenceImageB
         });
       }
 
-      // If face match reference image is provided, append it to the inputs array
-      if (options.faceReferenceImage) {
+      // Append face references if provided (Slot A & Slot B) (Step 9)
+      if (options.resolvedFaceReferenceImageA) {
         input.push({
           type: 'image',
           mime_type: 'image/png',
-          data: options.faceReferenceImage // Base64 encoded data
+          data: options.resolvedFaceReferenceImageA
+        });
+      }
+      if (options.resolvedFaceReferenceImageB) {
+        input.push({
+          type: 'image',
+          mime_type: 'image/png',
+          data: options.resolvedFaceReferenceImageB
         });
       }
 

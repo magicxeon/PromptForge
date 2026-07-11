@@ -3,7 +3,10 @@
     "id": "lighting.key_01",
     "category": "lighting",
     "subcategory": "Key Light",
-    "label": "Rembrandt Lighting",
+    "label": {
+      "en": "Rembrandt Lighting",
+      "th": "Rembrandt แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -14,14 +17,21 @@
       "gpt-image-safe": "Rembrandt lighting style with soft key illumination defining facial contours",
       "gpt-image-positive": "professional studio lighting, refined composition, elegant portrait photography"
     },
-    "tags": ["lighting", "key light", "rembrandt"],
+    "tags": [
+      "lighting",
+      "key light",
+      "rembrandt"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.key_02",
     "category": "lighting",
     "subcategory": "Key Light",
-    "label": "Soft Studio Key Light",
+    "label": {
+      "en": "Soft Studio Key Light",
+      "th": "นุ่มนวล Studio Key แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -32,14 +42,21 @@
       "gpt-image-safe": "soft professional studio key light defining facial contours with smooth transitions",
       "gpt-image-positive": "studio photography, award-winning portrait, professional lighting setup"
     },
-    "tags": ["lighting", "key light", "soft"],
+    "tags": [
+      "lighting",
+      "key light",
+      "soft"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.key_03",
     "category": "lighting",
     "subcategory": "Key Light",
-    "label": "Dramatic Side Light",
+    "label": {
+      "en": "Dramatic Side Light",
+      "th": "Dramatic Side แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -50,14 +67,21 @@
       "gpt-image-safe": "side lighting defining facial profile with gentle contrast",
       "gpt-image-positive": "fine-art portrait, dramatic contrast, elegant shadows, refined visual composition"
     },
-    "tags": ["lighting", "key light", "side light"],
+    "tags": [
+      "lighting",
+      "key light",
+      "side light"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.key_04",
     "category": "lighting",
     "subcategory": "Key Light",
-    "label": "Dappled Leaf Shadows",
+    "label": {
+      "en": "Dappled Leaf Shadows",
+      "th": "เงาใบไม้เป็นลายกระ"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -68,14 +92,22 @@
       "gpt-image-safe": "soft natural light with dappled shadow patterns on the subject",
       "gpt-image-positive": "cinematic natural lighting, outdoor portraiture, lifestyle photography"
     },
-    "tags": ["lighting", "key light", "natural", "dappled"],
+    "tags": [
+      "lighting",
+      "key light",
+      "natural",
+      "dappled"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.key_05",
     "category": "lighting",
     "subcategory": "Key Light",
-    "label": "Harsh Midday Sun",
+    "label": {
+      "en": "Harsh Midday Sun",
+      "th": "แสงแดดจัดยามเที่ยง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -86,14 +118,22 @@
       "gpt-image-safe": "bright direct sunlight casting natural highlights and defined shadows",
       "gpt-image-positive": "sunny day photography, sharp contrast highlights, lifestyle outdoor portrait"
     },
-    "tags": ["lighting", "key light", "sunlight", "harsh"],
+    "tags": [
+      "lighting",
+      "key light",
+      "sunlight",
+      "harsh"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.fill_01",
     "category": "lighting",
     "subcategory": "Fill Light",
-    "label": "Soft Diffused Fill",
+    "label": {
+      "en": "Soft Diffused Fill",
+      "th": "นุ่มนวล Diffused Fill"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -104,14 +144,21 @@
       "gpt-image-safe": "soft diffused fill light to gently soften shadows",
       "gpt-image-positive": "balanced studio lighting, clean skin complexion, professional photography"
     },
-    "tags": ["lighting", "fill light", "soft"],
+    "tags": [
+      "lighting",
+      "fill light",
+      "soft"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.fill_02",
     "category": "lighting",
     "subcategory": "Fill Light",
-    "label": "Reflector Board Bounce",
+    "label": {
+      "en": "Reflector Board Bounce",
+      "th": "แสงสะท้อนจากแผ่นรีเฟลกเตอร์"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -122,14 +169,21 @@
       "gpt-image-safe": "warm reflector bounce light filling in shadow details on the face",
       "gpt-image-positive": "natural reflector board bounce, professional makeup light, clean portrait"
     },
-    "tags": ["lighting", "fill light", "bounce"],
+    "tags": [
+      "lighting",
+      "fill light",
+      "bounce"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.fill_03",
     "category": "lighting",
     "subcategory": "Fill Light",
-    "label": "Cool-Toned Shadow Fill",
+    "label": {
+      "en": "Cool-Toned Shadow Fill",
+      "th": "เย็น-Toned Shadow Fill"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -140,14 +194,21 @@
       "gpt-image-safe": "cool-toned subtle fill light rendering soft shadows with blue undertones",
       "gpt-image-positive": "cinematic lighting color grading, teal and orange harmony, cool shadow details"
     },
-    "tags": ["lighting", "fill light", "cool"],
+    "tags": [
+      "lighting",
+      "fill light",
+      "cool"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.fill_04",
     "category": "lighting",
     "subcategory": "Fill Light",
-    "label": "High Contrast (No Fill)",
+    "label": {
+      "en": "High Contrast (No Fill)",
+      "th": "สูง Contrast(No Fill)"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -158,14 +219,22 @@
       "gpt-image-safe": "high-contrast lighting with deep natural shadows for a moody look",
       "gpt-image-positive": "low-key photography, artistic shadows, dramatic composition"
     },
-    "tags": ["lighting", "fill light", "high contrast", "no fill"],
+    "tags": [
+      "lighting",
+      "fill light",
+      "high contrast",
+      "no fill"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.back_01",
     "category": "lighting",
     "subcategory": "Back Light",
-    "label": "Brilliant Rim Light",
+    "label": {
+      "en": "Brilliant Rim Light",
+      "th": "Brilliant Rim แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -176,14 +245,21 @@
       "gpt-image-safe": "rim lighting along the contours of her silhouette, separating her from the background",
       "gpt-image-positive": "separating rim light, high-fashion styling, professional studio lighting"
     },
-    "tags": ["lighting", "back light", "rim light"],
+    "tags": [
+      "lighting",
+      "back light",
+      "rim light"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.back_02",
     "category": "lighting",
     "subcategory": "Back Light",
-    "label": "Golden Sun Halo",
+    "label": {
+      "en": "Golden Sun Halo",
+      "th": "รัศมีแสงอาทิตย์สีทอง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -194,14 +270,22 @@
       "gpt-image-safe": "warm golden backlighting from the sun creating a soft halo effect around her hair",
       "gpt-image-positive": "golden lens flare, sun halo, outdoor lifestyle portrait, warm glow"
     },
-    "tags": ["lighting", "back light", "halo", "sunlight"],
+    "tags": [
+      "lighting",
+      "back light",
+      "halo",
+      "sunlight"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.back_03",
     "category": "lighting",
     "subcategory": "Back Light",
-    "label": "Neon Rim Light",
+    "label": {
+      "en": "Neon Rim Light",
+      "th": "Neon Rim แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -212,14 +296,22 @@
       "gpt-image-safe": "neon backlight casting a sharp colorful outline along her silhouette",
       "gpt-image-positive": "cyberpunk neon lights, high-contrast rim lighting, urban night theme"
     },
-    "tags": ["lighting", "back light", "neon", "rim"],
+    "tags": [
+      "lighting",
+      "back light",
+      "neon",
+      "rim"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.back_04",
     "category": "lighting",
     "subcategory": "Back Light",
-    "label": "Soft Hair Light",
+    "label": {
+      "en": "Soft Hair Light",
+      "th": "นุ่มนวล ผม แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -230,14 +322,21 @@
       "gpt-image-safe": "subtle overhead hair light to bring out texture and sheen in her hair",
       "gpt-image-positive": "professional studio hair light, detailed hair styling, commercial quality"
     },
-    "tags": ["lighting", "back light", "hair light"],
+    "tags": [
+      "lighting",
+      "back light",
+      "hair light"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.flash_01",
     "category": "lighting",
     "subcategory": "Flash",
-    "label": "Strong Flash Lighting",
+    "label": {
+      "en": "Strong Flash Lighting",
+      "th": "Strong แฟลช แสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -248,14 +347,21 @@
       "gpt-image-safe": "camera flash lighting illuminating the subject directly, highlighting radiant and smooth skin",
       "gpt-image-positive": "direct flash photography, party snapshot look, high contrast, clean skin texture"
     },
-    "tags": ["lighting", "flash", "strong"],
+    "tags": [
+      "lighting",
+      "flash",
+      "strong"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.flash_02",
     "category": "lighting",
     "subcategory": "Flash",
-    "label": "Ring Flash",
+    "label": {
+      "en": "Ring Flash",
+      "th": "Ring แฟลช"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -266,14 +372,21 @@
       "gpt-image-safe": "ring flash lighting creating catchlights in the eyes and uniform shadowless skin details",
       "gpt-image-positive": "beauty editorial shoot, uniform lighting, shadowless portrait, commercial fashion photography"
     },
-    "tags": ["lighting", "flash", "ring flash"],
+    "tags": [
+      "lighting",
+      "flash",
+      "ring flash"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.flash_03",
     "category": "lighting",
     "subcategory": "Flash",
-    "label": "Slow Sync Flash",
+    "label": {
+      "en": "Slow Sync Flash",
+      "th": "Slow Sync แฟลช"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -284,14 +397,21 @@
       "gpt-image-safe": "slow sync flash combining sharp subject details with soft ambient light trail background",
       "gpt-image-positive": "creative photography, night life snapshot, motion blur contrast, dynamic composition"
     },
-    "tags": ["lighting", "flash", "slow sync"],
+    "tags": [
+      "lighting",
+      "flash",
+      "slow sync"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.neon_01",
     "category": "lighting",
     "subcategory": "Neon",
-    "label": "Red and Pink Neon",
+    "label": {
+      "en": "Red and Pink Neon",
+      "th": "แสงนีออนสีแดงและชมพู"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -302,14 +422,21 @@
       "gpt-image-safe": "dramatic red and pink neon lighting casting a warm atmospheric glow across the scene",
       "gpt-image-positive": "vibrant neon colors, night scene aesthetics, atmospheric city glow"
     },
-    "tags": ["lighting", "neon", "red pink"],
+    "tags": [
+      "lighting",
+      "neon",
+      "red pink"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.neon_02",
     "category": "lighting",
     "subcategory": "Neon",
-    "label": "Cyberpunk Cyan and Purple",
+    "label": {
+      "en": "Cyberpunk Cyan and Purple",
+      "th": "แสงสีฟ้าไซแอนและม่วงสไตล์ไซเบอร์พังก์"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -320,14 +447,21 @@
       "gpt-image-safe": "cyan and purple neon lighting casting vibrant cybernetic hues across the scene",
       "gpt-image-positive": "cyberpunk city vibes, colorful neon reflections, high-tech aesthetic"
     },
-    "tags": ["lighting", "neon", "cyan purple"],
+    "tags": [
+      "lighting",
+      "neon",
+      "cyan purple"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.neon_03",
     "category": "lighting",
     "subcategory": "Neon",
-    "label": "Cozy Warm Amber Neon",
+    "label": {
+      "en": "Cozy Warm Amber Neon",
+      "th": "อบอุ่น อุ่น Amber Neon"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -338,14 +472,21 @@
       "gpt-image-safe": "warm amber and orange neon signs casting a cozy retro reflection",
       "gpt-image-positive": "retro cafe styling, warm neon lights, cozy evening mood"
     },
-    "tags": ["lighting", "neon", "amber orange"],
+    "tags": [
+      "lighting",
+      "neon",
+      "amber orange"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.ambient_01",
     "category": "lighting",
     "subcategory": "Ambient",
-    "label": "Soft Ambient Glow",
+    "label": {
+      "en": "Soft Ambient Glow",
+      "th": "นุ่มนวล Ambient เรืองแสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -356,14 +497,21 @@
       "gpt-image-safe": "soft ambient lighting on the subject's skin and hair in a rich saturated environment",
       "gpt-image-positive": "soft ambient glow, rich saturated background color, gentle highlight falloff"
     },
-    "tags": ["lighting", "ambient", "soft glow"],
+    "tags": [
+      "lighting",
+      "ambient",
+      "soft glow"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.ambient_02",
     "category": "lighting",
     "subcategory": "Ambient",
-    "label": "Cozy Candlelight Glow",
+    "label": {
+      "en": "Cozy Candlelight Glow",
+      "th": "อบอุ่น Candlelight เรืองแสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -374,14 +522,21 @@
       "gpt-image-safe": "warm cozy candlelight glow casting soft golden highlights on the face",
       "gpt-image-positive": "cozy candlelight, intimate portrait mood, warm flickering shadows"
     },
-    "tags": ["lighting", "ambient", "candlelight"],
+    "tags": [
+      "lighting",
+      "ambient",
+      "candlelight"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.ambient_03",
     "category": "lighting",
     "subcategory": "Ambient",
-    "label": "Greenhouse Sunbeams",
+    "label": {
+      "en": "Greenhouse Sunbeams",
+      "th": "ลำแสงอาทิตย์ในเรือนกระจก"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -392,14 +547,21 @@
       "gpt-image-safe": "dreamy sunbeams filtering through glass panels creating soft ambient highlights",
       "gpt-image-positive": "natural light shafts, botanic garden setting, dreamy glowing highlights"
     },
-    "tags": ["lighting", "ambient", "sunbeams"],
+    "tags": [
+      "lighting",
+      "ambient",
+      "sunbeams"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.ambient_04",
     "category": "lighting",
     "subcategory": "Ambient",
-    "label": "Soft Diffused Overcast",
+    "label": {
+      "en": "Soft Diffused Overcast",
+      "th": "นุ่มนวล Diffused Overcast"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -410,14 +572,22 @@
       "gpt-image-safe": "soft diffused overcast natural daylight for a clean skin complexion",
       "gpt-image-positive": "natural soft lighting, outdoor portraiture, clean skin texture"
     },
-    "tags": ["lighting", "ambient", "overcast", "natural"],
+    "tags": [
+      "lighting",
+      "ambient",
+      "overcast",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.golden_01",
     "category": "lighting",
     "subcategory": "Golden Hour",
-    "label": "Golden Hour Sunlight",
+    "label": {
+      "en": "Golden Hour Sunlight",
+      "th": "แสงอาทิตย์ช่วงโกลเดนเอาเวอร์"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -428,14 +598,21 @@
       "gpt-image-safe": "warm golden hour sunlight casting soft shadows and warm highlights",
       "gpt-image-positive": "golden hour photography, warm sun rays, lifestyle portrait, outdoor lighting"
     },
-    "tags": ["lighting", "golden hour", "natural"],
+    "tags": [
+      "lighting",
+      "golden hour",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.golden_02",
     "category": "lighting",
     "subcategory": "Golden Hour",
-    "label": "Sunrise Warm Glow",
+    "label": {
+      "en": "Sunrise Warm Glow",
+      "th": "พระอาทิตย์ขึ้น อุ่น เรืองแสง"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -446,14 +623,22 @@
       "gpt-image-safe": "warm morning sunrise light casting gentle shadows and a soft golden glow",
       "gpt-image-positive": "early morning glow, sunrise photography, fresh natural highlights"
     },
-    "tags": ["lighting", "golden hour", "sunrise", "natural"],
+    "tags": [
+      "lighting",
+      "golden hour",
+      "sunrise",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.golden_03",
     "category": "lighting",
     "subcategory": "Golden Hour",
-    "label": "Sunset Golden Rays",
+    "label": {
+      "en": "Sunset Golden Rays",
+      "th": "พระอาทิตย์ตก Golden Rays"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -464,14 +649,22 @@
       "gpt-image-safe": "low-angle sunset rays piercing through the background with golden highlights",
       "gpt-image-positive": "sunset rays, dramatic low-angle sun, golden highlights, outdoor portraiture"
     },
-    "tags": ["lighting", "golden hour", "sunset", "natural"],
+    "tags": [
+      "lighting",
+      "golden hour",
+      "sunset",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.golden_04",
     "category": "lighting",
     "subcategory": "Golden Hour",
-    "label": "Blue Hour Twilight",
+    "label": {
+      "en": "Blue Hour Twilight",
+      "th": "แสงสนธยาช่วงบลูเอาเวอร์"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -482,14 +675,22 @@
       "gpt-image-safe": "cool blue hour twilight atmosphere with deep cobalt sky tones",
       "gpt-image-positive": "blue hour twilight, cool cobalt ambient tones, twilight color palette"
     },
-    "tags": ["lighting", "golden hour", "twilight", "blue hour"],
+    "tags": [
+      "lighting",
+      "golden hour",
+      "twilight",
+      "blue hour"
+    ],
     "enabled": true
   },
   {
     "id": "lighting.golden_05",
     "category": "lighting",
     "subcategory": "Golden Hour",
-    "label": "Silver Moonlight",
+    "label": {
+      "en": "Silver Moonlight",
+      "th": "แสงจันทร์สีเงิน"
+    },
     "ui": {
       "control": "select",
       "group": "Lighting"
@@ -500,7 +701,12 @@
       "gpt-image-safe": "soft silver moonlight casting cool highlights and shadows",
       "gpt-image-positive": "night light mood, silver moonlight reflection, cool pale highlights"
     },
-    "tags": ["lighting", "golden hour", "moonlight", "night"],
+    "tags": [
+      "lighting",
+      "golden hour",
+      "moonlight",
+      "night"
+    ],
     "enabled": true
   }
 ]

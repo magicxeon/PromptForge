@@ -421,13 +421,19 @@ const state = {
     styleMatch: false,
     poseMatch: false
   },
-  faceReferenceImage: null,
+  faceReferenceImageA: null,
+  faceReferenceImageB: null,
+  faceReferenceJobIds: [], // array of up to 2 referenced parent job IDs
+  styleReferenceImageA: null,
+  styleReferenceImageB: null,
+  styleReferenceJobIds: [], // array of up to 2 referenced parent job IDs
   hasInitializedHistoryCollapse: false,
   language: "th",
   aspectRatio: "6:8",
   mode: "normal",
   userRole: "user",
-  username: "user_demo"
+  username: "user_demo",
+  activeJobId: null
 };
 
 // Retrieve localized label with backward compatibility fallback
@@ -508,6 +514,119 @@ function validateForm() {
   return true; // Validation passed
 }
 
+// Render Slot Thumbnail Previews in the Docks (Step 9)
+function updateReferencePreviewsUI() {
+  const faceSlotACard = document.getElementById("face-slot-a-card");
+  const faceSlotAImg = document.getElementById("face-slot-a-img");
+  const faceSlotBCard = document.getElementById("face-slot-b-card");
+  const faceSlotBImg = document.getElementById("face-slot-b-img");
+
+  if (faceSlotACard && faceSlotAImg) {
+    if (state.faceReferenceImageA) {
+      faceSlotAImg.src = state.faceReferenceImageA.startsWith("data:") ? state.faceReferenceImageA : (state.faceReferenceImageA.startsWith("/outputs/") ? state.faceReferenceImageA : `data:image/png;base64,${state.faceReferenceImageA}`);
+      faceSlotACard.style.display = "flex";
+    } else {
+      faceSlotACard.style.display = "none";
+      faceSlotAImg.src = "";
+    }
+  }
+
+  if (faceSlotBCard && faceSlotBImg) {
+    if (state.faceReferenceImageB) {
+      faceSlotBImg.src = state.faceReferenceImageB.startsWith("data:") ? state.faceReferenceImageB : (state.faceReferenceImageB.startsWith("/outputs/") ? state.faceReferenceImageB : `data:image/png;base64,${state.faceReferenceImageB}`);
+      faceSlotBCard.style.display = "flex";
+    } else {
+      faceSlotBCard.style.display = "none";
+      faceSlotBImg.src = "";
+    }
+  }
+
+  const styleSlotACard = document.getElementById("style-slot-a-card");
+  const styleSlotAImg = document.getElementById("style-slot-a-img");
+  const styleSlotBCard = document.getElementById("style-slot-b-card");
+  const styleSlotBImg = document.getElementById("style-slot-b-img");
+
+  if (styleSlotACard && styleSlotAImg) {
+    if (state.styleReferenceImageA) {
+      styleSlotAImg.src = state.styleReferenceImageA.startsWith("data:") ? state.styleReferenceImageA : (state.styleReferenceImageA.startsWith("/outputs/") ? state.styleReferenceImageA : `data:image/png;base64,${state.styleReferenceImageA}`);
+      styleSlotACard.style.display = "flex";
+    } else {
+      styleSlotACard.style.display = "none";
+      styleSlotAImg.src = "";
+    }
+  }
+
+  if (styleSlotBCard && styleSlotBImg) {
+    if (state.styleReferenceImageB) {
+      styleSlotBImg.src = state.styleReferenceImageB.startsWith("data:") ? state.styleReferenceImageB : (state.styleReferenceImageB.startsWith("/outputs/") ? state.styleReferenceImageB : `data:image/png;base64,${state.styleReferenceImageB}`);
+      styleSlotBCard.style.display = "flex";
+    } else {
+      styleSlotBCard.style.display = "none";
+      styleSlotBImg.src = "";
+    }
+  }
+}
+
+// Clean reference image source, resolving full URLs to relative path /outputs/ (Step 9)
+function cleanReferenceImageSrc(src) {
+  if (!src) return "";
+  const idx = src.indexOf("/outputs/");
+  if (idx !== -1) {
+    return src.substring(idx);
+  }
+  return src;
+}
+
+// Set reference image slot allocation logic
+function assignFaceReference(imageSrc, jobId = null) {
+  const cleanedSrc = cleanReferenceImageSrc(imageSrc);
+  if (!state.faceReferenceImageA) {
+    state.faceReferenceImageA = cleanedSrc;
+    if (jobId) state.faceReferenceJobIds[0] = jobId;
+  } else if (!state.faceReferenceImageB) {
+    state.faceReferenceImageB = cleanedSrc;
+    if (jobId) state.faceReferenceJobIds[1] = jobId;
+  } else {
+    state.faceReferenceImageB = cleanedSrc;
+    if (jobId) state.faceReferenceJobIds[1] = jobId;
+  }
+
+  const refFaceCheckbox = document.getElementById("ref-face-match");
+  if (refFaceCheckbox) {
+    refFaceCheckbox.checked = true;
+    refFaceCheckbox.dispatchEvent(new Event("change"));
+  }
+  updateReferencePreviewsUI();
+}
+
+function assignStyleReference(imageSrc, jobId = null) {
+  const cleanedSrc = cleanReferenceImageSrc(imageSrc);
+  if (!state.styleReferenceImageA) {
+    state.styleReferenceImageA = cleanedSrc;
+    if (jobId) state.styleReferenceJobIds[0] = jobId;
+  } else if (!state.styleReferenceImageB) {
+    state.styleReferenceImageB = cleanedSrc;
+    if (jobId) state.styleReferenceJobIds[1] = jobId;
+  } else {
+    state.styleReferenceImageB = cleanedSrc;
+    if (jobId) state.styleReferenceJobIds[1] = jobId;
+  }
+
+  if (state.mode === "character-sheet") {
+    const sheetCheckbox = document.getElementById("sheet-use-reference-img");
+    if (sheetCheckbox) {
+      sheetCheckbox.checked = true;
+      sheetCheckbox.dispatchEvent(new Event("change"));
+    }
+  } else {
+    const styleCheckbox = document.getElementById("ref-style-match");
+    if (styleCheckbox) {
+      styleCheckbox.checked = true;
+      styleCheckbox.dispatchEvent(new Event("change"));
+    }
+  }
+  updateReferencePreviewsUI();
+}
 
 // Populate submodel options inside the selectors
 function updateSubmodelList() {
@@ -528,6 +647,107 @@ function updateSubmodelList() {
   if (submodelSelect.options.length > 0) {
     submodelSelect.selectedIndex = 0;
   }
+
+  // Disable reference upload if DALL-E 2 / DALL-E 3 is selected (Step 9/OpenAI)
+  applyOpenAIImageReferenceControl();
+}
+
+// Disable/enable references depending on DALL-E support limits
+function applyOpenAIImageReferenceControl() {
+  const providerSelect = document.getElementById("api-provider-select");
+  const submodelSelect = document.getElementById("api-submodel-select");
+  if (!providerSelect || !submodelSelect) return;
+
+  const provider = providerSelect.value;
+  const submodel = submodelSelect.value;
+  const isDalle = provider === "openai" && (submodel === "dall-e-3" || submodel === "dall-e-2");
+
+  const refFace = document.getElementById("ref-face-match");
+  const refStyle = document.getElementById("ref-style-match");
+  const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+
+  if (isDalle) {
+    if (refFace) {
+      refFace.checked = false;
+      refFace.disabled = true;
+      const lbl = refFace.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "0.35";
+        lbl.style.pointerEvents = "none";
+      }
+    }
+    if (refStyle) {
+      refStyle.checked = false;
+      refStyle.disabled = true;
+      const lbl = refStyle.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "0.35";
+        lbl.style.pointerEvents = "none";
+      }
+    }
+    if (sheetUseRefImg) {
+      sheetUseRefImg.checked = false;
+      sheetUseRefImg.disabled = true;
+      const lbl = sheetUseRefImg.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "0.35";
+        lbl.style.pointerEvents = "none";
+      }
+    }
+
+    state.imageReferences.faceMatch = false;
+    state.imageReferences.styleMatch = false;
+    state.faceReferenceImageA = null;
+    state.faceReferenceImageB = null;
+    state.faceReferenceJobIds = [];
+    state.styleReferenceImageA = null;
+    state.styleReferenceImageB = null;
+    state.styleReferenceJobIds = [];
+
+    const faceUploadContainer = document.getElementById("face-match-upload-container");
+    if (faceUploadContainer) faceUploadContainer.style.display = "none";
+    const styleUploadContainer = document.getElementById("image-upload-container");
+    if (styleUploadContainer) styleUploadContainer.style.display = "none";
+
+    const vpActions = document.getElementById("viewport-loopback-actions");
+    if (vpActions) vpActions.style.display = "none";
+    const lbActions = document.querySelector(".lightbox-action-row");
+    if (lbActions) lbActions.style.display = "none";
+
+    updateReferencePreviewsUI();
+    applyFaceMatchLockout();
+  } else {
+    if (refFace) {
+      refFace.disabled = false;
+      const lbl = refFace.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "";
+        lbl.style.pointerEvents = "";
+      }
+    }
+    if (refStyle) {
+      refStyle.disabled = false;
+      const lbl = refStyle.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "";
+        lbl.style.pointerEvents = "";
+      }
+    }
+    if (sheetUseRefImg) {
+      sheetUseRefImg.disabled = false;
+      const lbl = sheetUseRefImg.closest(".checkbox-container");
+      if (lbl) {
+        lbl.style.opacity = "";
+        lbl.style.pointerEvents = "";
+      }
+    }
+
+    const vpActions = document.getElementById("viewport-loopback-actions");
+    if (vpActions && state.activeJobId) vpActions.style.display = "flex";
+    const lbActions = document.querySelector(".lightbox-action-row");
+    if (lbActions) lbActions.style.display = "flex";
+  }
+  updatePromptPreview();
 }
 
 // Fetch balance from the credits DB
@@ -857,29 +1077,41 @@ function getOptionsForField(fieldName, category, allItems) {
     if (matched.length > 0) return matched;
   }
 
+  const getEngLabel = (item) => {
+    const label = item.label;
+    if (typeof label === 'object' && label !== null) {
+      return (label.en || label.th || '').toLowerCase();
+    }
+    return (label || '').toLowerCase();
+  };
+
   if (category === "face") {
     if (lowerField === "face shape") {
-      return items.filter(item =>
-        !item.label.toLowerCase().includes("expression") &&
-        !item.label.toLowerCase().includes("details") &&
-        !item.label.toLowerCase().includes("match")
-      );
+      return items.filter(item => {
+        const lbl = getEngLabel(item);
+        return !lbl.includes("expression") && !lbl.includes("details") && !lbl.includes("match");
+      });
     }
     if (lowerField === "expression") {
-      return items.filter(item =>
-        item.label.toLowerCase().includes("expression") ||
-        item.label.toLowerCase().includes("details") ||
-        item.label.toLowerCase().includes("gaze")
-      );
+      return items.filter(item => {
+        const lbl = getEngLabel(item);
+        return lbl.includes("expression") || lbl.includes("details") || lbl.includes("gaze");
+      });
     }
     return items;
   }
 
   if (category === "lips") {
     if (lowerField === "smile") {
-      return items.filter(item => item.label.toLowerCase().includes("smile") || item.label.toLowerCase().includes("expression"));
+      return items.filter(item => {
+        const lbl = getEngLabel(item);
+        return lbl.includes("smile") || lbl.includes("expression");
+      });
     }
-    return items.filter(item => !item.label.toLowerCase().includes("smile"));
+    return items.filter(item => {
+      const lbl = getEngLabel(item);
+      return !lbl.includes("smile");
+    });
   }
 
   return items;
@@ -968,9 +1200,15 @@ function bindEvents() {
 
   // Dynamic Submodels loading based on API Engine switch
   const apiProviderSelect = document.getElementById("api-provider-select");
+  const apiSubmodelSelect = document.getElementById("api-submodel-select");
   if (apiProviderSelect) {
     apiProviderSelect.addEventListener("change", () => {
       updateSubmodelList();
+    });
+  }
+  if (apiSubmodelSelect) {
+    apiSubmodelSelect.addEventListener("change", () => {
+      applyOpenAIImageReferenceControl();
     });
   }
 
@@ -1049,7 +1287,7 @@ function bindEvents() {
     });
   }
 
-  // Image Reference Checkboxes & File uploads
+  // Image Reference Checkboxes & File uploads (Step 9)
   const refFace = document.getElementById("ref-face-match");
   const refStyle = document.getElementById("ref-style-match");
   const refPose = document.getElementById("ref-pose-match");
@@ -1066,8 +1304,11 @@ function bindEvents() {
       faceUploadContainer.style.display = refFace.checked ? "block" : "none";
     }
     if (!refFace.checked) {
-      state.faceReferenceImage = null;
+      state.faceReferenceImageA = null;
+      state.faceReferenceImageB = null;
+      state.faceReferenceJobIds = [];
       if (faceFileInput) faceFileInput.value = "";
+      updateReferencePreviewsUI();
     }
 
     applyFaceMatchLockout();
@@ -1078,16 +1319,53 @@ function bindEvents() {
   refStyle.addEventListener("change", updateRefState);
   refPose.addEventListener("change", updateRefState);
 
+  // Character Sheet style reference checkbox change listener (Step 9)
+  const sheetUseRefImgCheckbox = document.getElementById("sheet-use-reference-img");
+  if (sheetUseRefImgCheckbox) {
+    sheetUseRefImgCheckbox.addEventListener("change", () => {
+      const isChecked = sheetUseRefImgCheckbox.checked;
+      if (!isChecked) {
+        state.styleReferenceImageA = null;
+        state.styleReferenceImageB = null;
+        state.styleReferenceJobIds = [];
+        updateReferencePreviewsUI();
+      }
+      updatePromptPreview();
+    });
+  }
+
+  // Handle slot close/clear button clicks (Step 9)
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-clear-slot")) {
+      const slot = e.target.getAttribute("data-slot");
+      if (slot === "faceA") {
+        state.faceReferenceImageA = null;
+        state.faceReferenceJobIds[0] = null;
+      } else if (slot === "faceB") {
+        state.faceReferenceImageB = null;
+        state.faceReferenceJobIds[1] = null;
+      } else if (slot === "styleA") {
+        state.styleReferenceImageA = null;
+        state.styleReferenceJobIds[0] = null;
+      } else if (slot === "styleB") {
+        state.styleReferenceImageB = null;
+        state.styleReferenceJobIds[1] = null;
+      }
+      updateReferencePreviewsUI();
+      updatePromptPreview();
+    }
+  });
+
   if (faceFileInput) {
     faceFileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
-      if (!file) {
-        state.faceReferenceImage = null;
-        return;
-      }
+      if (!file) return;
       const reader = new FileReader();
       reader.onload = (evt) => {
-        state.faceReferenceImage = evt.target.result.split(',')[1];
+        // Uploaded file goes to Slot A
+        state.faceReferenceImageA = evt.target.result.split(',')[1];
+        state.faceReferenceJobIds[0] = null;
+        updateReferencePreviewsUI();
       };
       reader.readAsDataURL(file);
     });
@@ -1096,7 +1374,10 @@ function bindEvents() {
   if (btnClearFace) {
     btnClearFace.addEventListener("click", () => {
       if (faceFileInput) faceFileInput.value = "";
-      state.faceReferenceImage = null;
+      state.faceReferenceImageA = null;
+      state.faceReferenceImageB = null;
+      state.faceReferenceJobIds = [];
+      updateReferencePreviewsUI();
     });
   }
 
@@ -1240,6 +1521,61 @@ function bindEvents() {
     });
   }
 
+  // Viewport Loopback action listeners (Step 9)
+  const btnViewportUseFace = document.getElementById("btn-viewport-use-face");
+  const btnViewportUseStyle = document.getElementById("btn-viewport-use-style");
+
+  if (btnViewportUseFace) {
+    btnViewportUseFace.addEventListener("click", () => {
+      const img = document.getElementById("generated-image");
+      if (img && img.src && img.style.display !== "none") {
+        assignFaceReference(img.src, state.activeJobId);
+        
+        // Flash visual feedback indicator on the button
+        btnViewportUseFace.textContent = "👤 Face Locked!";
+        setTimeout(() => { btnViewportUseFace.textContent = "👤 Use as Face Ref"; }, 1500);
+      }
+    });
+  }
+
+  if (btnViewportUseStyle) {
+    btnViewportUseStyle.addEventListener("click", () => {
+      const img = document.getElementById("generated-image");
+      if (img && img.src && img.style.display !== "none") {
+        assignStyleReference(img.src, state.activeJobId);
+        
+        btnViewportUseStyle.textContent = "🖼️ Style Locked!";
+        setTimeout(() => { btnViewportUseStyle.textContent = "🖼️ Use as Style Ref"; }, 1500);
+      }
+    });
+  }
+
+  // Lightbox Loopback action listeners (Step 9)
+  const btnLightboxUseFace = document.getElementById("btn-lightbox-use-face");
+  const btnLightboxUseStyle = document.getElementById("btn-lightbox-use-style");
+
+  if (btnLightboxUseFace) {
+    btnLightboxUseFace.addEventListener("click", () => {
+      const img = document.getElementById("lightbox-image");
+      if (img && img.src && lightboxModal.style.display !== "none") {
+        const activeItem = lightboxModal.activeItem;
+        assignFaceReference(img.src, activeItem ? activeItem.id : null);
+        lightboxModal.style.display = "none";
+      }
+    });
+  }
+
+  if (btnLightboxUseStyle) {
+    btnLightboxUseStyle.addEventListener("click", () => {
+      const img = document.getElementById("lightbox-image");
+      if (img && img.src && lightboxModal.style.display !== "none") {
+        const activeItem = lightboxModal.activeItem;
+        assignStyleReference(img.src, activeItem ? activeItem.id : null);
+        lightboxModal.style.display = "none";
+      }
+    });
+  }
+
   // Generate Image Button (Background Queue & SSE Streaming Integration)
   const btnGenerateImage = document.getElementById("btn-generate-image");
   if (btnGenerateImage) {
@@ -1260,6 +1596,13 @@ function bindEvents() {
 
       // Hide active image details, show loading pulse overlay
       errBanner.style.display = "none";
+      const errorDetails = document.getElementById("error-details");
+      const errorTechnicalMessage = document.getElementById("error-technical-message");
+      if (errorDetails && errorTechnicalMessage) {
+        errorDetails.open = false;
+        errorDetails.style.display = "none";
+        errorTechnicalMessage.textContent = "";
+      }
       placeholder.style.display = "none";
       img.style.display = "none";
       btnDownload.style.display = "none";
@@ -1300,7 +1643,12 @@ function bindEvents() {
             template: document.getElementById("template-select").value || "portrait",
             isGptSafe,
             username: state.username,
-            faceReferenceImage: state.faceReferenceImage
+            faceReferenceImageA: state.faceReferenceImageA,
+            faceReferenceImageB: state.faceReferenceImageB,
+            faceReferenceJobIds: state.faceReferenceJobIds,
+            styleReferenceImageA: state.styleReferenceImageA,
+            styleReferenceImageB: state.styleReferenceImageB,
+            styleReferenceJobIds: state.styleReferenceJobIds
           })
         });
 
@@ -1335,8 +1683,8 @@ function bindEvents() {
           }
         });
 
-        // Progressive stream painting (WOW factor)
-        sseSource.addEventListener('image_generation.partial_image', (e) => {
+        // Progressive stream painting for generation and reference-image edits.
+        const renderPartialImage = (e) => {
           const payload = JSON.parse(e.data);
           if (payload.b64_json) {
             // Hide loaders/placeholders and render incoming partial base64 slices
@@ -1344,7 +1692,10 @@ function bindEvents() {
             img.src = `data:image/png;base64,${payload.b64_json}`;
             img.style.display = "block";
           }
-        });
+        };
+
+        sseSource.addEventListener('image_generation.partial_image', renderPartialImage);
+        sseSource.addEventListener('image_edit.partial_image', renderPartialImage);
 
         // Generation completion event handler
         sseSource.addEventListener('image_generation.completed', (e) => {
@@ -1355,21 +1706,32 @@ function bindEvents() {
           const endTime = performance.now();
           const durationSec = ((endTime - startTime) / 1000).toFixed(1);
 
+          // Track active render metadata (Step 9)
+          state.activeJobId = jobId;
+          const vpActions = document.getElementById("viewport-loopback-actions");
+          if (vpActions) vpActions.style.display = "flex";
+
           // Render completed static image
-          img.src = payload.imageUrl;
+          const finalImgSrc = payload.imageUrl || (payload.b64_json ? `data:image/png;base64,${payload.b64_json}` : '');
+          img.src = finalImgSrc;
           img.style.display = "block";
           btnDownload.style.display = "block";
           loader.style.display = "none";
 
-          // Lightbox click handler
-          img.onclick = () => openLightbox({
+          const jobMeta = {
             id: jobId,
             prompt: generatePromptText(true),
-            imageUrl: payload.imageUrl,
+            imageUrl: finalImgSrc,
             timestamp: Date.now(),
             provider,
-            submodel
-          });
+            submodel,
+            referencedFaceJobIds: [...state.faceReferenceJobIds],
+            referencedStyleJobIds: [...state.styleReferenceJobIds],
+            generationDuration: durationSec
+          };
+
+          // Lightbox click handler
+          img.onclick = () => openLightbox(jobMeta);
 
           // Update Telemetry
           document.getElementById("tel-model").textContent = submodel;
@@ -1385,18 +1747,47 @@ function bindEvents() {
         // Error event handler
         sseSource.addEventListener('error', (e) => {
           let errorMsg = "Generation failed";
+          let technicalMessage = "";
+          let creditRefunded = false;
           try {
             const payload = JSON.parse(e.data);
-            errorMsg = payload.error || errorMsg;
+            const rawMessage = payload.message || payload.error || errorMsg;
+            technicalMessage = [
+              payload.code ? `Code: ${payload.code}` : '',
+              payload.requestId ? `Request ID: ${payload.requestId}` : '',
+              payload.safetyViolations?.length
+                ? `Safety: ${payload.safetyViolations.join(', ')}`
+                : '',
+              rawMessage
+            ].filter(Boolean).join(' | ');
+            creditRefunded = payload.creditRefunded === true;
+            errorMsg = payload.code === 'moderation_blocked'
+              ? `This image did not pass the safety check. Please adjust the prompt or reference image.${creditRefunded ? ' Your credit was refunded.' : ''}`
+              : rawMessage;
           } catch {}
           
           sseSource.close();
           jobCard.remove();
           loader.style.display = "none";
+          img.removeAttribute("src");
+          img.style.display = "none";
+          btnDownload.style.display = "none";
+          telemetryBar.style.display = "none";
+
+          const vpActions = document.getElementById("viewport-loopback-actions");
+          if (vpActions) vpActions.style.display = "none";
 
           errBanner.style.display = "flex";
           document.getElementById("error-message").textContent = errorMsg;
+          const errorDetails = document.getElementById("error-details");
+          const errorTechnicalMessage = document.getElementById("error-technical-message");
+          if (errorDetails && errorTechnicalMessage) {
+            errorDetails.open = false;
+            errorDetails.style.display = technicalMessage ? "block" : "none";
+            errorTechnicalMessage.textContent = technicalMessage;
+          }
           placeholder.style.display = "flex";
+          updateCredits();
         });
 
       } catch (err) {
@@ -2358,6 +2749,7 @@ async function loadHistory() {
   try {
     const res = await fetch('/api/history');
     const history = await res.json();
+    state.history = history; // Store in state for lineage lookups (Step 9)
     renderHistory(history);
 
     // Auto-collapse on initial page load if history is empty (Step 7)
@@ -2442,9 +2834,15 @@ function openLightbox(item) {
   const engine = document.getElementById("lightbox-meta-engine");
   const model = document.getElementById("lightbox-meta-model");
   const time = document.getElementById("lightbox-meta-time");
+  const duration = document.getElementById("lightbox-meta-duration");
   const dlLink = document.getElementById("lightbox-download-link");
+  const lineageContainer = document.getElementById("lightbox-lineage-container");
+  const lineageList = document.getElementById("lightbox-lineage-list");
 
   if (!modal || !img) return;
+
+  // Save active item to modal so button event handlers can retrieve it (Step 9)
+  modal.activeItem = item;
 
   img.src = item.imageUrl;
   title.textContent = `Generation Reference #${item.id.substring(4, 9)}`;
@@ -2452,9 +2850,69 @@ function openLightbox(item) {
   engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
   model.textContent = item.submodel || "N/A";
   time.textContent = new Date(item.timestamp).toLocaleString();
+  if (duration) duration.textContent = item.generationDuration ? `${item.generationDuration}s` : "N/A";
   dlLink.href = item.imageUrl;
   dlLink.download = `modelpromptforge-generation-${item.id}.png`;
 
+  // Render lineage parent links (Step 9)
+  if (lineageContainer && lineageList) {
+    lineageList.innerHTML = "";
+    const faceParents = item.referencedFaceJobIds || [];
+    const styleParents = item.referencedStyleJobIds || [];
+    const allParents = [
+      ...faceParents.map(id => ({ id, type: "Face" })),
+      ...styleParents.map(id => ({ id, type: "Style" }))
+    ].filter(p => p.id);
+
+    if (allParents.length > 0) {
+      allParents.forEach(p => {
+        const parentItem = (state.history || []).find(h => h.id === p.id);
+        const parentThumb = document.createElement("div");
+        parentThumb.style.position = "relative";
+        parentThumb.style.width = "42px";
+        parentThumb.style.height = "42px";
+        parentThumb.style.border = "1px solid rgba(255, 255, 255, 0.15)";
+        parentThumb.style.borderRadius = "4px";
+        parentThumb.style.cursor = "pointer";
+        parentThumb.title = `${p.type} Ref parent: #${p.id.substring(4, 9)}`;
+        
+        const thumbImg = document.createElement("img");
+        thumbImg.src = parentItem ? parentItem.imageUrl : "";
+        thumbImg.style.width = "100%";
+        thumbImg.style.height = "100%";
+        thumbImg.style.objectFit = "cover";
+        thumbImg.style.borderRadius = "3px";
+        
+        const typeBadge = document.createElement("span");
+        typeBadge.textContent = p.type === "Face" ? "F" : "S";
+        typeBadge.style.position = "absolute";
+        typeBadge.style.bottom = "-2px";
+        typeBadge.style.right = "-2px";
+        typeBadge.style.background = p.type === "Face" ? "var(--neon-cyan)" : "var(--neon-pink)";
+        typeBadge.style.color = "#000";
+        typeBadge.style.fontSize = "0.55rem";
+        typeBadge.style.fontWeight = "900";
+        typeBadge.style.padding = "0 3px";
+        typeBadge.style.borderRadius = "2px";
+
+        parentThumb.appendChild(thumbImg);
+        parentThumb.appendChild(typeBadge);
+        
+        parentThumb.addEventListener("click", () => {
+          if (parentItem) {
+            openLightbox(parentItem);
+          } else {
+            alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`);
+          }
+        });
+        
+        lineageList.appendChild(parentThumb);
+      });
+      lineageContainer.style.display = "block";
+    } else {
+      lineageContainer.style.display = "none";
+    }
+  }
+
   modal.style.display = "flex";
 }
-

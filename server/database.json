@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 14
+      "credits": 4
     },
     "admin_demo": {
       "role": "admin",

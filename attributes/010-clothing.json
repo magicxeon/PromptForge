@@ -3,7 +3,10 @@
     "id": "clothing.001",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Tight-fitting fit",
+    "label": {
+      "en": "Tight-fitting fit",
+      "th": "ทรงรัดรูป"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -24,7 +27,10 @@
     "id": "clothing.002",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Skin-tight dress",
+    "label": {
+      "en": "Skin-tight dress",
+      "th": "ผิว-tight เดรส"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -45,7 +51,10 @@
     "id": "clothing.003",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Body-con style",
+    "label": {
+      "en": "Body-con style",
+      "th": "รูปร่าง-con สไตล์"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -66,7 +75,10 @@
     "id": "clothing.004",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Compression fit",
+    "label": {
+      "en": "Compression fit",
+      "th": "ทรงกระชับแนบตัว"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -87,7 +99,10 @@
     "id": "clothing.005",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Second-skin overlay",
+    "label": {
+      "en": "Second-skin overlay",
+      "th": "Second-ผิว overlay"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -106,7 +121,10 @@
     "id": "clothing.006",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Latex fabric",
+    "label": {
+      "en": "Latex fabric",
+      "th": "ผ้าลาเท็กซ์"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -126,7 +144,10 @@
     "id": "clothing.007",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Patent leather",
+    "label": {
+      "en": "Patent leather",
+      "th": "หนังแก้ว"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -145,7 +166,10 @@
     "id": "clothing.008",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Silk and Satin",
+    "label": {
+      "en": "Silk and Satin",
+      "th": "ผ้าไหมและผ้าซาติน"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -164,7 +188,10 @@
     "id": "clothing.009",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Wet-look fabric",
+    "label": {
+      "en": "Wet-look fabric",
+      "th": "Wet-ลุค fabric"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -184,7 +211,10 @@
     "id": "clothing.010",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Corset style top",
+    "label": {
+      "en": "Corset style top",
+      "th": "Corset สไตล์ เสื้อท่อนบน"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -205,7 +235,10 @@
     "id": "clothing.011",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Bustier top",
+    "label": {
+      "en": "Bustier top",
+      "th": "Bustier เสื้อท่อนบน"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -225,7 +258,10 @@
     "id": "clothing.012",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Deep V-neckline",
+    "label": {
+      "en": "Deep V-neckline",
+      "th": "คอวีลึก"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -245,7 +281,10 @@
     "id": "clothing.013",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Plunging neckline",
+    "label": {
+      "en": "Plunging neckline",
+      "th": "คอเสื้อลึกมาก"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -265,7 +304,10 @@
     "id": "clothing.014",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Off-the-shoulder top",
+    "label": {
+      "en": "Off-the-shoulder top",
+      "th": "Off-the-shoulder เสื้อท่อนบน"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -285,7 +327,10 @@
     "id": "clothing.015",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Skirt with thigh-high slit",
+    "label": {
+      "en": "Skirt with thigh-high slit",
+      "th": "กระโปรง with thigh-สูง slit"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -305,7 +350,10 @@
     "id": "clothing.016",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Low-back dress",
+    "label": {
+      "en": "Low-back dress",
+      "th": "ต่ำ-back เดรส"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -325,7 +373,10 @@
     "id": "clothing.017",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Tight leggings",
+    "label": {
+      "en": "Tight leggings",
+      "th": "เลกกิ้งรัดรูป"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -345,7 +396,10 @@
     "id": "clothing.018",
     "category": "clothing",
     "subcategory": "Accessories",
-    "label": "Fashion harness",
+    "label": {
+      "en": "Fashion harness",
+      "th": "แฟชั่น harness"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -364,7 +418,10 @@
     "id": "clothing.019",
     "category": "clothing",
     "subcategory": "Shoes",
-    "label": "Thigh-high boots",
+    "label": {
+      "en": "Thigh-high boots",
+      "th": "Thigh-สูง บูต"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -384,7 +441,10 @@
     "id": "clothing.020",
     "category": "clothing",
     "subcategory": "Accessories",
-    "label": "Opaque tights",
+    "label": {
+      "en": "Opaque tights",
+      "th": "ถุงน่องทึบแสง"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -403,7 +463,10 @@
     "id": "clothing.021",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Modern Thai Sabai (Emerald)",
+    "label": {
+      "en": "Modern Thai Sabai (Emerald)",
+      "th": "ทันสมัย Thai Sabai(Emerald)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -423,7 +486,10 @@
     "id": "clothing.022",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Asymmetric Seoul crop-top (Lilac)",
+    "label": {
+      "en": "Asymmetric Seoul crop-top (Lilac)",
+      "th": "Asymmetric Seoul crop-เสื้อท่อนบน(Lilac)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -443,7 +509,10 @@
     "id": "clothing.023",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Thai Wrap Skirt (Royal Blue)",
+    "label": {
+      "en": "Thai Wrap Skirt (Royal Blue)",
+      "th": "Thai Wrap กระโปรง(Royal Blue)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -463,7 +532,10 @@
     "id": "clothing.024",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Harajuku Pleated Skirt (Silver)",
+    "label": {
+      "en": "Harajuku Pleated Skirt (Silver)",
+      "th": "Harajuku Pleated กระโปรง(Silver)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -483,7 +555,10 @@
     "id": "clothing.025",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Modern Thai Silk Dress (Opal)",
+    "label": {
+      "en": "Modern Thai Silk Dress (Opal)",
+      "th": "ทันสมัย Thai Silk เดรส(Opal)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -503,7 +578,10 @@
     "id": "clothing.026",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Modern Qipao (Lavender)",
+    "label": {
+      "en": "Modern Qipao (Lavender)",
+      "th": "ทันสมัย Qipao(Lavender)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -523,7 +601,10 @@
     "id": "clothing.027",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Harajuku Layered Dress (Magenta)",
+    "label": {
+      "en": "Harajuku Layered Dress (Magenta)",
+      "th": "Harajuku Layered เดรส(Magenta)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -543,7 +624,10 @@
     "id": "clothing.028",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Seoul Oversized Dress (Mint)",
+    "label": {
+      "en": "Seoul Oversized Dress (Mint)",
+      "th": "Seoul Oversized เดรส(Mint)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -563,7 +647,10 @@
     "id": "clothing.029",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Modern Yukata (Royal Indigo)",
+    "label": {
+      "en": "Modern Yukata (Royal Indigo)",
+      "th": "ทันสมัย Yukata(Royal Indigo)"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -583,7 +670,10 @@
     "id": "clothing.030",
     "category": "clothing",
     "subcategory": "Shoes",
-    "label": "Harajuku Platform Boots",
+    "label": {
+      "en": "Harajuku Platform Boots",
+      "th": "Harajuku Platform บูต"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -603,7 +693,10 @@
     "id": "clothing.casual_01",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Oversized Cotton Hoodie",
+    "label": {
+      "en": "Oversized Cotton Hoodie",
+      "th": "เสื้อฮู้ดผ้าฝ้ายโอเวอร์ไซซ์"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -624,7 +717,10 @@
     "id": "clothing.casual_02",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Loose Linen Shirt",
+    "label": {
+      "en": "Loose Linen Shirt",
+      "th": "Loose Linen เสื้อเชิ้ต"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -645,7 +741,10 @@
     "id": "clothing.casual_03",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Comfortable Crewneck T-Shirt",
+    "label": {
+      "en": "Comfortable Crewneck T-Shirt",
+      "th": "Comfortable Crewneck T-เสื้อเชิ้ต"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -666,7 +765,10 @@
     "id": "clothing.casual_04",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Casual Denim Shorts",
+    "label": {
+      "en": "Casual Denim Shorts",
+      "th": "Casual Denim กางเกงขาสั้น"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -687,7 +789,10 @@
     "id": "clothing.casual_05",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Wide-Leg Lounge Pants",
+    "label": {
+      "en": "Wide-Leg Lounge Pants",
+      "th": "Wide-Leg Lounge กางเกง"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -708,7 +813,10 @@
     "id": "clothing.casual_06",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "High-Waist Joggers",
+    "label": {
+      "en": "High-Waist Joggers",
+      "th": "สูง-Waist Joggers"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -729,7 +837,10 @@
     "id": "clothing.casual_07",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Loose Sundress",
+    "label": {
+      "en": "Loose Sundress",
+      "th": "ชุดเดรสฤดูร้อนทรงหลวม"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -750,7 +861,10 @@
     "id": "clothing.casual_08",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Loose Knit Sweater Dress",
+    "label": {
+      "en": "Loose Knit Sweater Dress",
+      "th": "Loose Knit Sweater เดรส"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -771,7 +885,10 @@
     "id": "clothing.casual_09",
     "category": "clothing",
     "subcategory": "Shoes",
-    "label": "Running Sneakers",
+    "label": {
+      "en": "Running Sneakers",
+      "th": "Running สนีกเกอร์"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -792,7 +909,10 @@
     "id": "clothing.casual_10",
     "category": "clothing",
     "subcategory": "Shoes",
-    "label": "Canvas Slip-Ons",
+    "label": {
+      "en": "Canvas Slip-Ons",
+      "th": "รองเท้าผ้าใบสวม"
+    },
     "ui": {
       "control": "select",
       "group": "Clothing"
@@ -813,200 +933,502 @@
     "id": "clothing.casual_05",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Oversized cozy knit sweater",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "oversized cozy knit sweater", "gpt-image": "oversized chunky cozy knit sweater with a relaxed fit" },
-    "tags": ["clothing", "casual", "comfortable", "sweater", "indoor"],
+    "label": {
+      "en": "Oversized cozy knit sweater",
+      "th": "Oversized อบอุ่น knit sweater"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "oversized cozy knit sweater",
+      "gpt-image": "oversized chunky cozy knit sweater with a relaxed fit"
+    },
+    "tags": [
+      "clothing",
+      "casual",
+      "comfortable",
+      "sweater",
+      "indoor"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.casual_06",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Relaxed fit linen pants",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "relaxed fit linen pants", "gpt-image": "loose relaxed fit breathable linen lounge pants" },
-    "tags": ["clothing", "casual", "comfortable", "pants"],
+    "label": {
+      "en": "Relaxed fit linen pants",
+      "th": "Relaxed fit linen กางเกง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "relaxed fit linen pants",
+      "gpt-image": "loose relaxed fit breathable linen lounge pants"
+    },
+    "tags": [
+      "clothing",
+      "casual",
+      "comfortable",
+      "pants"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.casual_07",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Soft cotton oversized t-shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "soft oversized cotton t-shirt", "gpt-image": "soft and comfortable oversized cotton t-shirt with draped shoulders" },
-    "tags": ["clothing", "casual", "comfortable", "shirt", "indoor"],
+    "label": {
+      "en": "Soft cotton oversized t-shirt",
+      "th": "นุ่มนวล cotton oversized t-เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft oversized cotton t-shirt",
+      "gpt-image": "soft and comfortable oversized cotton t-shirt with draped shoulders"
+    },
+    "tags": [
+      "clothing",
+      "casual",
+      "comfortable",
+      "shirt",
+      "indoor"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.casual_08",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Comfortable fleece joggers",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "comfortable fleece joggers", "gpt-image": "soft comfortable fleece jogger sweatpants" },
-    "tags": ["clothing", "casual", "comfortable", "pants", "indoor"],
+    "label": {
+      "en": "Comfortable fleece joggers",
+      "th": "กางเกงจ็อกเกอร์ผ้าฟลีซสวมสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "comfortable fleece joggers",
+      "gpt-image": "soft comfortable fleece jogger sweatpants"
+    },
+    "tags": [
+      "clothing",
+      "casual",
+      "comfortable",
+      "pants",
+      "indoor"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.casual_09",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Flowy casual maxi dress",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "flowy casual maxi dress", "gpt-image": "breezy flowy casual maxi dress with soft fabric" },
-    "tags": ["clothing", "casual", "dress", "outdoor"],
+    "label": {
+      "en": "Flowy casual maxi dress",
+      "th": "Flowy casual maxi เดรส"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "flowy casual maxi dress",
+      "gpt-image": "breezy flowy casual maxi dress with soft fabric"
+    },
+    "tags": [
+      "clothing",
+      "casual",
+      "dress",
+      "outdoor"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.work_01",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Crisp white button-down shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "crisp white button-down shirt", "gpt-image": "crisp professional white tailored button-down shirt" },
-    "tags": ["clothing", "work", "office", "formal", "shirt"],
+    "label": {
+      "en": "Crisp white button-down shirt",
+      "th": "Crisp white button-down เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "crisp white button-down shirt",
+      "gpt-image": "crisp professional white tailored button-down shirt"
+    },
+    "tags": [
+      "clothing",
+      "work",
+      "office",
+      "formal",
+      "shirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.work_02",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Structured pencil skirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "structured pencil skirt", "gpt-image": "high-waisted structured professional pencil skirt" },
-    "tags": ["clothing", "work", "office", "formal", "skirt"],
+    "label": {
+      "en": "Structured pencil skirt",
+      "th": "Structured pencil กระโปรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "structured pencil skirt",
+      "gpt-image": "high-waisted structured professional pencil skirt"
+    },
+    "tags": [
+      "clothing",
+      "work",
+      "office",
+      "formal",
+      "skirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.work_03",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Sharp fitted blazer",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "sharp fitted tailored blazer", "gpt-image": "sharp fitted tailored professional blazer jacket" },
-    "tags": ["clothing", "work", "office", "formal", "jacket"],
+    "label": {
+      "en": "Sharp fitted blazer",
+      "th": "คม fitted blazer"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "sharp fitted tailored blazer",
+      "gpt-image": "sharp fitted tailored professional blazer jacket"
+    },
+    "tags": [
+      "clothing",
+      "work",
+      "office",
+      "formal",
+      "jacket"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.work_04",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Classic pleated trousers",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "classic pleated trousers", "gpt-image": "classic tailored pleated office trousers" },
-    "tags": ["clothing", "work", "office", "formal", "pants"],
+    "label": {
+      "en": "Classic pleated trousers",
+      "th": "กางเกงขายาวจีบทรงคลาสสิก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "classic pleated trousers",
+      "gpt-image": "classic tailored pleated office trousers"
+    },
+    "tags": [
+      "clothing",
+      "work",
+      "office",
+      "formal",
+      "pants"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.work_05",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Elegant sheath dress",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "elegant knee-length sheath dress", "gpt-image": "elegant structured knee-length professional sheath dress" },
-    "tags": ["clothing", "work", "office", "formal", "dress"],
+    "label": {
+      "en": "Elegant sheath dress",
+      "th": "Elegant sheath เดรส"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "elegant knee-length sheath dress",
+      "gpt-image": "elegant structured knee-length professional sheath dress"
+    },
+    "tags": [
+      "clothing",
+      "work",
+      "office",
+      "formal",
+      "dress"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.travel_01",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Lightweight linen safari shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "lightweight linen safari shirt", "gpt-image": "lightweight breathable linen travel safari shirt with pockets" },
-    "tags": ["clothing", "travel", "vacation", "outdoor", "shirt"],
+    "label": {
+      "en": "Lightweight linen safari shirt",
+      "th": "Lightweight linen safari เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "lightweight linen safari shirt",
+      "gpt-image": "lightweight breathable linen travel safari shirt with pockets"
+    },
+    "tags": [
+      "clothing",
+      "travel",
+      "vacation",
+      "outdoor",
+      "shirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.travel_02",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Tropical print resort shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "tropical print resort shirt", "gpt-image": "casual short-sleeve tropical print resort button-up shirt" },
-    "tags": ["clothing", "travel", "vacation", "outdoor", "summer", "shirt"],
+    "label": {
+      "en": "Tropical print resort shirt",
+      "th": "Tropical print resort เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "tropical print resort shirt",
+      "gpt-image": "casual short-sleeve tropical print resort button-up shirt"
+    },
+    "tags": [
+      "clothing",
+      "travel",
+      "vacation",
+      "outdoor",
+      "summer",
+      "shirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.travel_03",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Flowy pleated midi skirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "flowy pleated midi skirt", "gpt-image": "breezy flowy pleated midi travel skirt" },
-    "tags": ["clothing", "travel", "vacation", "outdoor", "skirt"],
+    "label": {
+      "en": "Flowy pleated midi skirt",
+      "th": "Flowy pleated midi กระโปรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "flowy pleated midi skirt",
+      "gpt-image": "breezy flowy pleated midi travel skirt"
+    },
+    "tags": [
+      "clothing",
+      "travel",
+      "vacation",
+      "outdoor",
+      "skirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.travel_04",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Relaxed cargo shorts",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "relaxed cargo shorts", "gpt-image": "relaxed fit casual travel cargo shorts with pockets" },
-    "tags": ["clothing", "travel", "vacation", "outdoor", "summer"],
+    "label": {
+      "en": "Relaxed cargo shorts",
+      "th": "Relaxed cargo กางเกงขาสั้น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "relaxed cargo shorts",
+      "gpt-image": "relaxed fit casual travel cargo shorts with pockets"
+    },
+    "tags": [
+      "clothing",
+      "travel",
+      "vacation",
+      "outdoor",
+      "summer"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.travel_05",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Breezy tropical sundress",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "breezy tropical sundress", "gpt-image": "lightweight breezy tropical summer sundress with a vibrant pattern" },
-    "tags": ["clothing", "travel", "vacation", "outdoor", "summer", "dress"],
+    "label": {
+      "en": "Breezy tropical sundress",
+      "th": "ชุดเดรสฤดูร้อนลายเขตร้อนโปร่งสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "breezy tropical sundress",
+      "gpt-image": "lightweight breezy tropical summer sundress with a vibrant pattern"
+    },
+    "tags": [
+      "clothing",
+      "travel",
+      "vacation",
+      "outdoor",
+      "summer",
+      "dress"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.sleep_01",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Silky satin camisole",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "silky satin camisole", "gpt-image": "delicate silky smooth satin pajama camisole top" },
-    "tags": ["clothing", "sleepwear", "night", "indoor", "shirt"],
+    "label": {
+      "en": "Silky satin camisole",
+      "th": "เสื้อสายเดี่ยวซาตินเนื้อนุ่มลื่น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "silky satin camisole",
+      "gpt-image": "delicate silky smooth satin pajama camisole top"
+    },
+    "tags": [
+      "clothing",
+      "sleepwear",
+      "night",
+      "indoor",
+      "shirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.sleep_02",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Flannel plaid pajama shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "flannel plaid pajama shirt", "gpt-image": "cozy warm flannel plaid pajama button-up shirt" },
-    "tags": ["clothing", "sleepwear", "night", "indoor", "winter", "shirt"],
+    "label": {
+      "en": "Flannel plaid pajama shirt",
+      "th": "Flannel plaid pajama เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "flannel plaid pajama shirt",
+      "gpt-image": "cozy warm flannel plaid pajama button-up shirt"
+    },
+    "tags": [
+      "clothing",
+      "sleepwear",
+      "night",
+      "indoor",
+      "winter",
+      "shirt"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.sleep_03",
     "category": "clothing",
     "subcategory": "Bottom",
-    "label": "Matching pajama shorts",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "matching pajama shorts", "gpt-image": "soft matching comfortable sleepwear pajama shorts" },
-    "tags": ["clothing", "sleepwear", "night", "indoor", "summer", "pants"],
+    "label": {
+      "en": "Matching pajama shorts",
+      "th": "Matching pajama กางเกงขาสั้น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "matching pajama shorts",
+      "gpt-image": "soft matching comfortable sleepwear pajama shorts"
+    },
+    "tags": [
+      "clothing",
+      "sleepwear",
+      "night",
+      "indoor",
+      "summer",
+      "pants"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.sleep_04",
     "category": "clothing",
     "subcategory": "Dress",
-    "label": "Elegant silk nightgown",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "elegant silk nightgown", "gpt-image": "elegant flowing long silk nightgown sleepwear" },
-    "tags": ["clothing", "sleepwear", "night", "indoor", "dress"],
+    "label": {
+      "en": "Elegant silk nightgown",
+      "th": "ชุดนอนไหมหรูหรา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "elegant silk nightgown",
+      "gpt-image": "elegant flowing long silk nightgown sleepwear"
+    },
+    "tags": [
+      "clothing",
+      "sleepwear",
+      "night",
+      "indoor",
+      "dress"
+    ],
     "enabled": true
   },
   {
     "id": "clothing.sleep_05",
     "category": "clothing",
     "subcategory": "Top",
-    "label": "Oversized sleep shirt",
-    "ui": { "control": "select", "group": "Clothing" },
-    "prompt": { "default": "oversized sleep shirt", "gpt-image": "comfortable oversized cotton sleep shirt used as pajamas" },
-    "tags": ["clothing", "sleepwear", "night", "indoor", "shirt"],
+    "label": {
+      "en": "Oversized sleep shirt",
+      "th": "Oversized sleep เสื้อเชิ้ต"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "oversized sleep shirt",
+      "gpt-image": "comfortable oversized cotton sleep shirt used as pajamas"
+    },
+    "tags": [
+      "clothing",
+      "sleepwear",
+      "night",
+      "indoor",
+      "shirt"
+    ],
     "enabled": true
   }
 ]

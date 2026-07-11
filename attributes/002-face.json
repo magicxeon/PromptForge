@@ -2,7 +2,10 @@
   {
     "id": "face.001",
     "category": "face",
-    "label": "V-line face",
+    "label": {
+      "en": "V-line face",
+      "th": "หน้า V-line"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -19,7 +22,10 @@
   {
     "id": "face.002",
     "category": "face",
-    "label": "Oval face",
+    "label": {
+      "en": "Oval face",
+      "th": "หน้าไข่"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -36,7 +42,10 @@
   {
     "id": "face.003",
     "category": "face",
-    "label": "Round face",
+    "label": {
+      "en": "Round face",
+      "th": "กลม หน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -53,7 +62,10 @@
   {
     "id": "face.004",
     "category": "face",
-    "label": "Heart-shaped face",
+    "label": {
+      "en": "Heart-shaped face",
+      "th": "หน้ารูปหัวใจ"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -70,7 +82,10 @@
   {
     "id": "face.005",
     "category": "face",
-    "label": "Square face",
+    "label": {
+      "en": "Square face",
+      "th": "เหลี่ยม หน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -87,7 +102,10 @@
   {
     "id": "face.006",
     "category": "face",
-    "label": "Diamond face",
+    "label": {
+      "en": "Diamond face",
+      "th": "รูปเพชร หน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -104,7 +122,10 @@
   {
     "id": "face.007",
     "category": "face",
-    "label": "Soft jawline",
+    "label": {
+      "en": "Soft jawline",
+      "th": "กรามนุ่มนวล"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -121,7 +142,10 @@
   {
     "id": "face.008",
     "category": "face",
-    "label": "High cheekbones",
+    "label": {
+      "en": "High cheekbones",
+      "th": "โหนกแก้มสูง"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -138,7 +162,10 @@
   {
     "id": "face.009",
     "category": "face",
-    "label": "Youthful face",
+    "label": {
+      "en": "Youthful face",
+      "th": "ใบหน้าดูอ่อนเยาว์"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -155,7 +182,10 @@
   {
     "id": "face.010",
     "category": "face",
-    "label": "Defined jaw",
+    "label": {
+      "en": "Defined jaw",
+      "th": "กรามชัด"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -172,7 +202,10 @@
   {
     "id": "face.011",
     "category": "face",
-    "label": "Balanced facial proportions",
+    "label": {
+      "en": "Balanced facial proportions",
+      "th": "สัดส่วนใบหน้าสมดุล"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -189,7 +222,10 @@
   {
     "id": "face.012",
     "category": "face",
-    "label": "Natural facial features",
+    "label": {
+      "en": "Natural facial features",
+      "th": "ธรรมชาติ facial features"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -206,7 +242,10 @@
   {
     "id": "face.013",
     "category": "face",
-    "label": "Symmetrical face",
+    "label": {
+      "en": "Symmetrical face",
+      "th": "ใบหน้าสมมาตร"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -223,7 +262,10 @@
   {
     "id": "face.014",
     "category": "face",
-    "label": "Gentle expression",
+    "label": {
+      "en": "Gentle expression",
+      "th": "สีหน้าอ่อนโยน"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -240,7 +282,10 @@
   {
     "id": "face.015",
     "category": "face",
-    "label": "Locked Facial Match",
+    "label": {
+      "en": "Locked Facial Match",
+      "th": "ล็อกความเหมือนของใบหน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -258,7 +303,10 @@
   {
     "id": "face.016",
     "category": "face",
-    "label": "Doll-like face structure",
+    "label": {
+      "en": "Doll-like face structure",
+      "th": "Doll-like หน้า structure"
+    },
     "ui": {
       "control": "select",
       "group": "Face"
@@ -275,7 +323,10 @@
   {
     "id": "face.017",
     "category": "face",
-    "label": "Cute doll-like details",
+    "label": {
+      "en": "Cute doll-like details",
+      "th": "รายละเอียดลุคตุ๊กตาน่ารัก"
+    },
     "ui": {
       "control": "select",
       "group": "Face"

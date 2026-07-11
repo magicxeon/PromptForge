@@ -1,871 +1,1306 @@
 [
   {
     "group": "face_shape",
-    "label": "V-line face",
+    "label": {
+      "en": "V-line face",
+      "th": "หน้า V-line"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "face_shape",
-    "label": "Oval face",
+    "label": {
+      "en": "Oval face",
+      "th": "หน้าไข่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "face_shape",
-    "label": "Round baby face",
+    "label": {
+      "en": "Round baby face",
+      "th": "หน้าเด็กกลม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "face_shape",
-    "label": "Heart-shaped face",
+    "label": {
+      "en": "Heart-shaped face",
+      "th": "หน้ารูปหัวใจ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "face_shape",
-    "label": "Soft jawline",
+    "label": {
+      "en": "Soft jawline",
+      "th": "กรามนุ่มนวล"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "face_shape",
-    "label": "High cheekbones",
+    "label": {
+      "en": "High cheekbones",
+      "th": "โหนกแก้มสูง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Almond-shaped eyes",
+    "label": {
+      "en": "Almond-shaped eyes",
+      "th": "ตาเรียวรูปอัลมอนด์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Monolid eyes",
+    "label": {
+      "en": "Monolid eyes",
+      "th": "ตาชั้นเดียว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Double eyelid",
+    "label": {
+      "en": "Double eyelid",
+      "th": "ตาสองชั้น"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Phoenix eyes",
+    "label": {
+      "en": "Phoenix eyes",
+      "th": "ตาหงส์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Puppy eyes",
+    "label": {
+      "en": "Puppy eyes",
+      "th": "ตาแป๋ว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Doe eyes",
+    "label": {
+      "en": "Doe eyes",
+      "th": "ตากลมใส"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyes",
-    "label": "Hooded eyes",
+    "label": {
+      "en": "Hooded eyes",
+      "th": "ตาเปลือกตาตก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "nose",
-    "label": "Small button nose",
+    "label": {
+      "en": "Small button nose",
+      "th": "จมูกหัวกลมเล็ก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "nose",
-    "label": "High nose bridge",
+    "label": {
+      "en": "High nose bridge",
+      "th": "สันจมูกโด่ง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "nose",
-    "label": "Delicate narrow nose",
+    "label": {
+      "en": "Delicate narrow nose",
+      "th": "จมูกเรียวบาง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "nose",
-    "label": "Soft rounded tip",
+    "label": {
+      "en": "Soft rounded tip",
+      "th": "ปลายจมูกมนละมุน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lips",
-    "label": "Cherry lips",
+    "label": {
+      "en": "Cherry lips",
+      "th": "ริมฝีปากเชอร์รี"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lips",
-    "label": "Cupid's bow lips",
+    "label": {
+      "en": "Cupid's bow lips",
+      "th": "ริมฝีปากคิวปิดโบว์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lips",
-    "label": "Plump lips",
+    "label": {
+      "en": "Plump lips",
+      "th": "ริมฝีปากอวบอิ่ม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lips",
-    "label": "Thin natural lips",
+    "label": {
+      "en": "Thin natural lips",
+      "th": "ริมฝีปากบางเป็นธรรมชาติ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyebrows",
-    "label": "Straight eyebrows",
+    "label": {
+      "en": "Straight eyebrows",
+      "th": "คิ้วตรง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyebrows",
-    "label": "Soft arched eyebrows",
+    "label": {
+      "en": "Soft arched eyebrows",
+      "th": "คิ้วโค้งอ่อน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "eyebrows",
-    "label": "Natural thick brows",
+    "label": {
+      "en": "Natural thick brows",
+      "th": "คิ้วหนาธรรมชาติ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Glass skin",
+    "label": {
+      "en": "Glass skin",
+      "th": "ผิวใสฉ่ำ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Porcelain skin",
+    "label": {
+      "en": "Porcelain skin",
+      "th": "ผิวขาวเนียน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Fair skin",
+    "label": {
+      "en": "Fair skin",
+      "th": "ผิวขาวสว่าง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Honey skin",
+    "label": {
+      "en": "Honey skin",
+      "th": "ผิวโทนน้ำผึ้ง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Warm olive skin",
+    "label": {
+      "en": "Warm olive skin",
+      "th": "ผิวโทนมะกอกอุ่น"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "skin",
-    "label": "Dewy complexion",
+    "label": {
+      "en": "Dewy complexion",
+      "th": "ผิวฉ่ำวาว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Long straight natural hair",
+    "label": {
+      "en": "Long straight natural hair",
+      "th": "ผมยาวตรงธรรมชาติ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Shoulder-length bob",
+    "label": {
+      "en": "Shoulder-length bob",
+      "th": "ผมบ๊อบยาวระดับไหล่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Layered hush cut",
+    "label": {
+      "en": "Layered hush cut",
+      "th": "ฮัชคัตแบบเลเยอร์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Low messy bun",
+    "label": {
+      "en": "Low messy bun",
+      "th": "ต่ำ messy bun"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Half-up half-down",
+    "label": {
+      "en": "Half-up half-down",
+      "th": "ทรงผมครึ่งหัวปล่อยครึ่งหัว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Neat braided hair",
+    "label": {
+      "en": "Neat braided hair",
+      "th": "Neat braided ผม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Long loose waves",
+    "label": {
+      "en": "Long loose waves",
+      "th": "ยาว loose waves"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Beach waves",
+    "label": {
+      "en": "Beach waves",
+      "th": "ชายหาด waves"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Side-swept hair",
+    "label": {
+      "en": "Side-swept hair",
+      "th": "Side-swept ผม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Wet look hair",
+    "label": {
+      "en": "Wet look hair",
+      "th": "Wet ลุค ผม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Sleek high ponytail",
+    "label": {
+      "en": "Sleek high ponytail",
+      "th": "Sleek สูง ponytail"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Messy bedhead style",
+    "label": {
+      "en": "Messy bedhead style",
+      "th": "Messy bedhead สไตล์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Wolf cut",
+    "label": {
+      "en": "Wolf cut",
+      "th": "ทรงวูล์ฟคัต"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "hair_style",
-    "label": "Shag cut",
+    "label": {
+      "en": "Shag cut",
+      "th": "ทรงแช็กคัต"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bangs",
-    "label": "See-through bangs",
+    "label": {
+      "en": "See-through bangs",
+      "th": "หน้าม้าซีทรู"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bangs",
-    "label": "Curtain bangs",
+    "label": {
+      "en": "Curtain bangs",
+      "th": "หน้าม้าแสกข้างแบบม่าน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bangs",
-    "label": "Blunt bangs",
+    "label": {
+      "en": "Blunt bangs",
+      "th": "หน้าม้าตัดตรง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bangs",
-    "label": "No bangs",
+    "label": {
+      "en": "No bangs",
+      "th": "ไม่มีหน้าม้า"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bangs",
-    "label": "Swept-back hair",
+    "label": {
+      "en": "Swept-back hair",
+      "th": "Swept-back ผม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Curvy figure",
+    "label": {
+      "en": "Curvy figure",
+      "th": "โค้งเว้า รูปร่าง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Hourglass silhouette",
+    "label": {
+      "en": "Hourglass silhouette",
+      "th": "รูปร่างทรงนาฬิกาทราย"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Voluptuous",
+    "label": {
+      "en": "Voluptuous",
+      "th": "อวบอิ่ม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Shapely",
+    "label": {
+      "en": "Shapely",
+      "th": "รูปร่างมีส่วนเว้าส่วนโค้ง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Full-figured",
+    "label": {
+      "en": "Full-figured",
+      "th": "รูปร่างอวบอิ่ม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "body",
-    "label": "Pear-shaped",
+    "label": {
+      "en": "Pear-shaped",
+      "th": "รูปร่างทรงลูกแพร์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Tight-fitting",
+    "label": {
+      "en": "Tight-fitting",
+      "th": "รัดรูป"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Body-con style",
+    "label": {
+      "en": "Body-con style",
+      "th": "รูปร่าง-con สไตล์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Compression garment",
+    "label": {
+      "en": "Compression garment",
+      "th": "เสื้อผ้ารัดกระชับ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Form-fitting",
+    "label": {
+      "en": "Form-fitting",
+      "th": "เข้ารูป"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Clinging fabric",
+    "label": {
+      "en": "Clinging fabric",
+      "th": "ผ้าแนบเนื้อ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "clothing_fit",
-    "label": "Second-skin fit",
+    "label": {
+      "en": "Second-skin fit",
+      "th": "Second-ผิว fit"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Latex",
+    "label": {
+      "en": "Latex",
+      "th": "ลาเท็กซ์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Vinyl",
+    "label": {
+      "en": "Vinyl",
+      "th": "ไวนิล"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Faux leather",
+    "label": {
+      "en": "Faux leather",
+      "th": "หนังสังเคราะห์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Patent leather",
+    "label": {
+      "en": "Patent leather",
+      "th": "หนังแก้ว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Silk",
+    "label": {
+      "en": "Silk",
+      "th": "ผ้าไหม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Satin",
+    "label": {
+      "en": "Satin",
+      "th": "ผ้าซาติน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Velvet",
+    "label": {
+      "en": "Velvet",
+      "th": "ผ้ากำมะหยี่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Wet-look fabric",
+    "label": {
+      "en": "Wet-look fabric",
+      "th": "Wet-ลุค fabric"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Spandex",
+    "label": {
+      "en": "Spandex",
+      "th": "ผ้าสแปนเด็กซ์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "fabric",
-    "label": "Lycra",
+    "label": {
+      "en": "Lycra",
+      "th": "ผ้าไลครา"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Corset top",
+    "label": {
+      "en": "Corset top",
+      "th": "Corset เสื้อท่อนบน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Bustier top",
+    "label": {
+      "en": "Bustier top",
+      "th": "Bustier เสื้อท่อนบน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Deep V-neck",
+    "label": {
+      "en": "Deep V-neck",
+      "th": "คอวีลึก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Plunging neckline",
+    "label": {
+      "en": "Plunging neckline",
+      "th": "คอเสื้อลึกมาก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Low-cut tank top",
+    "label": {
+      "en": "Low-cut tank top",
+      "th": "ต่ำ-cut tank เสื้อท่อนบน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Off-the-shoulder",
+    "label": {
+      "en": "Off-the-shoulder",
+      "th": "เปิดไหล่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Halter neck",
+    "label": {
+      "en": "Halter neck",
+      "th": "คอคล้อง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Shoulder cut-out",
+    "label": {
+      "en": "Shoulder cut-out",
+      "th": "เว้าเปิดช่วงไหล่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "tops",
-    "label": "Waist cut-out",
+    "label": {
+      "en": "Waist cut-out",
+      "th": "เว้าเปิดช่วงเอว"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Mini skirt",
+    "label": {
+      "en": "Mini skirt",
+      "th": "Mini กระโปรง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Short dress",
+    "label": {
+      "en": "Short dress",
+      "th": "สั้น เดรส"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Thigh-high slit skirt",
+    "label": {
+      "en": "Thigh-high slit skirt",
+      "th": "Thigh-สูง slit กระโปรง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Low-back dress",
+    "label": {
+      "en": "Low-back dress",
+      "th": "ต่ำ-back เดรส"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Body-con cocktail dress",
+    "label": {
+      "en": "Body-con cocktail dress",
+      "th": "รูปร่าง-con cocktail เดรส"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Tight leggings",
+    "label": {
+      "en": "Tight leggings",
+      "th": "เลกกิ้งรัดรูป"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "bottoms",
-    "label": "Form-fitting trousers",
+    "label": {
+      "en": "Form-fitting trousers",
+      "th": "กางเกงขายาวเข้ารูป"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "accessories",
-    "label": "Fashion harness",
+    "label": {
+      "en": "Fashion harness",
+      "th": "แฟชั่น harness"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "accessories",
-    "label": "Thigh-high boots",
+    "label": {
+      "en": "Thigh-high boots",
+      "th": "Thigh-สูง บูต"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "accessories",
-    "label": "High-waist stockings",
+    "label": {
+      "en": "High-waist stockings",
+      "th": "สูง-waist stockings"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "accessories",
-    "label": "Long gloves",
+    "label": {
+      "en": "Long gloves",
+      "th": "ยาว gloves"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "accessories",
-    "label": "Leather gloves",
+    "label": {
+      "en": "Leather gloves",
+      "th": "ถุงมือหนัง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Seductive gaze",
+    "label": {
+      "en": "Seductive gaze",
+      "th": "Seductive สายตา"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Smoldering eyes",
+    "label": {
+      "en": "Smoldering eyes",
+      "th": "Smoldering ดวงตา"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Head tilt",
+    "label": {
+      "en": "Head tilt",
+      "th": "เอียงศีรษะ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Sidelong glance",
+    "label": {
+      "en": "Sidelong glance",
+      "th": "ชำเลืองมองด้านข้าง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Playful wink",
+    "label": {
+      "en": "Playful wink",
+      "th": "ขยิบตาอย่างขี้เล่น"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Kissy face",
+    "label": {
+      "en": "Kissy face",
+      "th": "Kissy หน้า"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Subtle biting lip",
+    "label": {
+      "en": "Subtle biting lip",
+      "th": "Subtle biting ริมฝีปาก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Hair flip",
+    "label": {
+      "en": "Hair flip",
+      "th": "ผม flip"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_head",
-    "label": "Run hands through hair",
+    "label": {
+      "en": "Run hands through hair",
+      "th": "Run hands through ผม"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_hands",
-    "label": "Hand near mouth",
+    "label": {
+      "en": "Hand near mouth",
+      "th": "วางมือใกล้ปาก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_hands",
-    "label": "Resting chin on hand",
+    "label": {
+      "en": "Resting chin on hand",
+      "th": "เท้าคางบนมือ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_hands",
-    "label": "Touching collarbone",
+    "label": {
+      "en": "Touching collarbone",
+      "th": "แตะกระดูกไหปลาร้า"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_hands",
-    "label": "Hand on hip",
+    "label": {
+      "en": "Hand on hip",
+      "th": "วางมือบนสะโพก"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_hands",
-    "label": "Crossing arms subtly",
+    "label": {
+      "en": "Crossing arms subtly",
+      "th": "กอดอกเล็กน้อย"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Crossing legs",
+    "label": {
+      "en": "Crossing legs",
+      "th": "ไขว้ขา"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Leaning forward subtly",
+    "label": {
+      "en": "Leaning forward subtly",
+      "th": "โน้มตัวไปข้างหน้าเล็กน้อย"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Arching back slightly",
+    "label": {
+      "en": "Arching back slightly",
+      "th": "แอ่นหลังเล็กน้อย"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Laying down side view",
+    "label": {
+      "en": "Laying down side view",
+      "th": "นอนตะแคงมองจากด้านข้าง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Crouching pose",
+    "label": {
+      "en": "Crouching pose",
+      "th": "ท่านั่งยอง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Kneeling pose",
+    "label": {
+      "en": "Kneeling pose",
+      "th": "ท่าคุกเข่า"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "pose_body",
-    "label": "Looking over shoulder",
+    "label": {
+      "en": "Looking over shoulder",
+      "th": "หันมองข้ามไหล่"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Natural light",
+    "label": {
+      "en": "Natural light",
+      "th": "ธรรมชาติ แสง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Flash",
+    "label": {
+      "en": "Flash",
+      "th": "แฟลช"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Studio softbox",
+    "label": {
+      "en": "Studio softbox",
+      "th": "ซอฟต์บ็อกซ์ในสตูดิโอ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Golden hour",
+    "label": {
+      "en": "Golden hour",
+      "th": "ช่วงแสงสีทอง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Blue hour",
+    "label": {
+      "en": "Blue hour",
+      "th": "ช่วงแสงสีน้ำเงิน"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Red neon",
+    "label": {
+      "en": "Red neon",
+      "th": "แสงนีออนสีแดง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Pink neon",
+    "label": {
+      "en": "Pink neon",
+      "th": "แสงนีออนสีชมพู"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Window light",
+    "label": {
+      "en": "Window light",
+      "th": "Window แสง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Rim light",
+    "label": {
+      "en": "Rim light",
+      "th": "Rim แสง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Back light",
+    "label": {
+      "en": "Back light",
+      "th": "Back แสง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "lighting",
-    "label": "Ambient light",
+    "label": {
+      "en": "Ambient light",
+      "th": "Ambient แสง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "35mm lens",
+    "label": {
+      "en": "35mm lens",
+      "th": "35mm เลนส์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "50mm lens",
+    "label": {
+      "en": "50mm lens",
+      "th": "50mm เลนส์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "85mm lens",
+    "label": {
+      "en": "85mm lens",
+      "th": "85mm เลนส์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "135mm lens",
+    "label": {
+      "en": "135mm lens",
+      "th": "135mm เลนส์"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "f/1.4",
+    "label": {
+      "en": "f/1.4",
+      "th": "รูรับแสง f/1.4"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "f/1.8",
+    "label": {
+      "en": "f/1.8",
+      "th": "รูรับแสง f/1.8"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "f/2.8",
+    "label": {
+      "en": "f/2.8",
+      "th": "รูรับแสง f/2.8"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "Shallow depth of field",
+    "label": {
+      "en": "Shallow depth of field",
+      "th": "ระยะชัดตื้น"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "Eye level",
+    "label": {
+      "en": "Eye level",
+      "th": "ตา level"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "Low angle",
+    "label": {
+      "en": "Low angle",
+      "th": "ต่ำ angle"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "High angle",
+    "label": {
+      "en": "High angle",
+      "th": "สูง angle"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "camera",
-    "label": "Mirrorless camera",
+    "label": {
+      "en": "Mirrorless camera",
+      "th": "Mirrorless กล้อง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Photorealistic",
+    "label": {
+      "en": "Photorealistic",
+      "th": "สมจริงแบบภาพถ่าย"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Highly detailed",
+    "label": {
+      "en": "Highly detailed",
+      "th": "รายละเอียดสูง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Natural skin texture",
+    "label": {
+      "en": "Natural skin texture",
+      "th": "ธรรมชาติ ผิว texture"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Realistic fabric folds",
+    "label": {
+      "en": "Realistic fabric folds",
+      "th": "รอยพับผ้าที่สมจริง"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Professional photography",
+    "label": {
+      "en": "Professional photography",
+      "th": "Professional การถ่ายภาพ"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "8K detail",
+    "label": {
+      "en": "8K detail",
+      "th": "รายละเอียดระดับ 8K"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Sharp focus",
+    "label": {
+      "en": "Sharp focus",
+      "th": "คม focus"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "Soft bokeh",
+    "label": {
+      "en": "Soft bokeh",
+      "th": "นุ่มนวล โบเก้"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   },
   {
     "group": "quality",
-    "label": "HDR",
+    "label": {
+      "en": "HDR",
+      "th": "ช่วงไดนามิกสูง HDR"
+    },
     "type": "select",
     "safe_for_general_image_generation": true
   }
