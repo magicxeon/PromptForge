@@ -1009,7 +1009,7 @@ function bindEvents() {
 
     const reader = new FileReader();
     reader.onload = (evt) => {
-      importConfigJSON(evt.target.result);
+      importConfigJSON(evt.target.result, true);
     };
     reader.readAsText(file);
     e.target.value = ""; // Clear file input
@@ -1486,7 +1486,7 @@ function generatePromptText(cleanTextOnly = false) {
         fullSubject,
         appearance,
         hair,
-        clothing,
+        cleanTextOnly ? "wearing a simple white tank top and short pants to clearly show body proportions" : `<span class="token-clothing">wearing a simple white tank top and short pants to clearly show body proportions</span>`,
         cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
         cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
         cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
@@ -1695,7 +1695,8 @@ function exportConfigJSON() {
     selections: {},
     imageReferences: state.imageReferences,
     aspectRatio: state.aspectRatio,
-    template: document.getElementById("template-select").value || "portrait"
+    template: document.getElementById("template-select").value || "portrait",
+    mode: state.mode
   };
 
   // Extract relevant values from selection states
@@ -1722,13 +1723,34 @@ function exportConfigJSON() {
 }
 
 // Import JSON configuration and restore UI state
-function importConfigJSON(jsonString) {
+function importConfigJSON(jsonString, isExplicitFileImport = false) {
   try {
     const payload = JSON.parse(jsonString);
     if (!payload || typeof payload !== "object") throw new Error("Invalid preset format");
 
     // Reset current form state first
     resetForm();
+
+    // Restore Mode (if available)
+    if (payload.mode) {
+      state.mode = payload.mode;
+      document.querySelectorAll(".mode-chip").forEach(chip => {
+        chip.classList.remove("active");
+        if (chip.getAttribute("data-mode") === payload.mode) {
+          chip.classList.add("active");
+        }
+      });
+      toggleUIForMode();
+    } else if (isExplicitFileImport) {
+      state.mode = "normal";
+      document.querySelectorAll(".mode-chip").forEach(chip => {
+        chip.classList.remove("active");
+        if (chip.getAttribute("data-mode") === "normal") {
+          chip.classList.add("active");
+        }
+      });
+      toggleUIForMode();
+    }
 
     // 1. Restore template dropdown
     if (payload.template) {
