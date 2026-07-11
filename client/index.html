@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ModelPromptForge - Premium AI Character Generator</title>
+  <!-- Google Fonts: Outfit for Headers, Inter for Body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header glass-card">
+      <div class="header-main-row">
+        <div class="logo-area">
+          <h1>ModelPromptForge</h1>
+          <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
+        </div>
+        <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without policy violations.</p>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-workspace">
+      <!-- Left Column: Attribute Form Builder -->
+      <section class="form-panel glass-card">
+        <div class="panel-header">
+          <h2><span class="header-icon">⚙️</span> Attribute Selector</h2>
+          <span class="sub-label">Select settings below to construct your character model</span>
+        </div>
+
+        <!-- Generation Mode Selector -->
+        <div class="mode-selector-section">
+          <label>Generation Mode</label>
+          <div class="mode-chip-group">
+            <button class="mode-chip active" data-mode="normal">Normal Mode</button>
+            <button class="mode-chip" data-mode="headshot">Headshot Grid</button>
+            <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
+          </div>
+
+          <!-- Reference Image Checkbox (only visible in character-sheet mode) -->
+          <div id="image-upload-container" class="mode-sub-control" style="display: none;">
+            <div class="checkbox-group">
+              <label class="checkbox-container">
+                <input type="checkbox" id="sheet-use-reference-img">
+                <span class="checkmark"></span>
+                <span class="label-text">Generate from uploaded reference image</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aesthetic Presets Quick Bar -->
+        <div class="control-section presets-section">
+          <label class="section-label">Aesthetic Presets Quickload</label>
+          <div class="chip-group-scroll" id="presets-group">
+            <button class="option-chip" data-preset="nightclub">Nightclub Aura Red</button>
+            <button class="option-chip" data-preset="studio">Studio Porcelain</button>
+            <button class="option-chip" data-preset="street">Street Dewy Waves</button>
+            <button class="option-chip" data-preset="thaiSilk">Thai Silk Elegance</button>
+            <button class="option-chip" data-preset="cheongsam">Cheongsam Vintage</button>
+            <button class="option-chip" data-preset="minimalistCafe">Minimalist Cafe</button>
+            <button class="option-chip" data-preset="beachCasual">Sunny Beach Casual</button>
+            <button class="option-chip" data-preset="restaurantSitting">Rooftop Restaurant</button>
+            <button class="option-chip" data-preset="barSitting">Vibrant Bar</button>
+            <button class="option-chip" data-preset="resortSitting">Luxury Resort</button>
+            <button class="option-chip" data-preset="naturePhoto">Nature Forest</button>
+            <button class="option-chip" data-preset="mallWaiting">Shopping Mall</button>
+          </div>
+        </div>
+
+        <div id="form-container" class="accordions-container">
+          <!-- Dynamically loaded inputs will be rendered here by app.js -->
+          <div class="loading-placeholder">
+            <div class="spinner"></div>
+            <p>Loading attribute schemas...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Visual Preview & API Output Dashboard -->
+      <section class="control-panel">
+        
+        <!-- Account Status & Credits Card -->
+        <div class="status-card glass-card">
+          <div class="status-row">
+            <div class="role-selector">
+              <label for="role-select">Account Profile</label>
+              <select id="role-select">
+                <option value="user_demo">user_demo (Standard User)</option>
+                <option value="admin_demo">admin_demo (Administrator)</option>
+              </select>
+            </div>
+            <div class="credits-display">
+              <span class="credits-label">Balance</span>
+              <div class="credits-count-row">
+                <span class="credits-count" id="credits-value">20</span>
+                <span class="coin-icon">🪙</span>
+                <button id="btn-recharge" class="btn-recharge" title="Recharge 10 Credits">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Viewport Card -->
+        <div class="viewport-card glass-card">
+          <div class="panel-header-compact">
+            <h3><span class="header-icon">🖼️</span> Visual Viewport</h3>
+            <button id="btn-download-image" class="btn-download" title="Download Generated Image" style="display: none;">
+              <span>📥 Download</span>
+            </button>
+          </div>
+          
+          <div class="viewport-screen" id="viewport-screen">
+            <div class="image-loading-overlay" id="image-loading-overlay">
+              <div class="loading-pulse-ring"></div>
+              <p class="loading-text">Generating character details...</p>
+            </div>
+            
+            <div class="viewport-placeholder-content" id="viewport-placeholder">
+              <span class="viewport-placeholder-icon">✨</span>
+              <p>Ready to render character</p>
+              <p class="sub-placeholder">Configure attributes on the left and click Generate Image below</p>
+            </div>
+            
+            <!-- Inline Error Banner -->
+            <div class="viewport-error-banner" id="viewport-error" style="display: none;">
+              <span class="error-icon">⚠️</span>
+              <p class="error-msg" id="error-message">Generation failed</p>
+            </div>
+            
+            <img id="generated-image" src="" alt="Generated Character Output">
+          </div>
+
+          <!-- Generation Telemetry Metadata -->
+          <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
+            <div class="telemetry-item">
+              <span class="tel-label">Model:</span> <span id="tel-model">-</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="tel-label">Time:</span> <span id="tel-time">-</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secret Live Compiler & Prompt Preview -->
+        <div class="preview-card glass-card">
+          <div class="preview-header">
+            <h3><span class="header-icon">📝</span> Live Prompt Preview</h3>
+            <div class="copy-action-group">
+              <button id="btn-copy" class="btn-neon-action">Copy Text</button>
+              <button id="btn-copy-json" class="btn-neon-action">Copy JSON</button>
+            </div>
+          </div>
+          <div id="prompt-preview" class="prompt-preview-box">
+            <span class="placeholder-text">Prompt will compile here once attributes are selected...</span>
+          </div>
+          <div id="buzzword-warnings" class="buzzword-warnings-box" style="display: none;">
+            <!-- Render warnings dynamically -->
+          </div>
+        </div>
+
+        <!-- Render Controls Card -->
+        <div class="generator-config-card glass-card">
+          <div class="generator-selectors-row">
+            <div class="form-field">
+              <label for="api-provider-select">Provider Engine</label>
+              <div class="select-wrapper">
+                <select id="api-provider-select" class="custom-select">
+                  <option value="gemini">Google Gemini AI</option>
+                  <option value="openai">OpenAI DALL-E</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="api-submodel-select">Submodel Version</label>
+              <div class="select-wrapper">
+                <select id="api-submodel-select" class="custom-select">
+                  <!-- Loaded dynamically by app.js based on provider -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="generator-selectors-row">
+            <div class="form-field">
+              <label for="template-select">Prompt Template</label>
+              <div class="select-wrapper">
+                <select id="template-select" class="custom-select">
+                  <!-- Templates loaded dynamically -->
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Aspect Ratio</label>
+              <div class="chip-group" id="aspect-ratio-group">
+                <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
+                <button class="option-chip" data-ratio="1:1">1:1 Square</button>
+                <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
+                <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
+                <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-section-inline">
+            <div class="checkbox-group-row">
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-face-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Face Match (ID Lock)</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-style-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Style Match</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-pose-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Pose Match</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-section-inline footer-toggles">
+            <div class="checkbox-group-row">
+              <label class="checkbox-container">
+                <input type="checkbox" id="toggle-nsfw">
+                <span class="checkmark"></span>
+                <span class="label-text">NSFW Options</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="toggle-gpt-safe">
+                <span class="checkmark"></span>
+                <span class="label-text">GPT-Safe Mode</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Main Actions -->
+          <div class="action-grid-redesigned">
+            <button id="btn-reset" class="btn-neon-outline">Reset Form</button>
+            <button id="btn-random" class="btn-neon-cyan">🎲 Surprise Me</button>
+            <button id="btn-export" class="btn-neon-action-preset">Export JSON</button>
+            <button id="btn-generate-image" class="btn-neon-pink-glow">⚡ Generate Image</button>
+          </div>
+
+          <div class="import-section-compact">
+            <label class="file-upload-label-compact">
+              <input type="file" id="btn-import" accept=".json" style="display: none;">
+              <span>📂 Import Configuration JSON</span>
+            </label>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="app-footer-bar glass-card">
+      <div class="footer-status-indicators">
+        <div class="status-indicator-item">
+          <span class="status-dot neon-green-dot"></span>
+          <span class="status-label">API Proxy Status: Connected</span>
+        </div>
+        <div class="status-indicator-item">
+          <span class="status-dot neon-green-dot"></span>
+          <span class="status-label">Local Credits Database: Synced</span>
+        </div>
+        <div class="status-indicator-item">
+          <span class="status-dot neon-cyan-dot"></span>
+          <span class="status-label">CORS Tunnel: Secure</span>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <p>&copy; 2026 ModelPromptForge. All rights reserved. Premium character generation engine.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

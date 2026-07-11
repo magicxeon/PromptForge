@@ -21,12 +21,16 @@ We will convert the project root to a Node.js project using `package.json`.
 
 ```
 ModelPromptForge/
+├── client/              [NEW DIRECTORY - Move frontend assets here]
+│   ├── index.html
+│   ├── app.js
+│   ├── style.css
+│   └── attributes/
+├── server/              [NEW DIRECTORY]
+│   └── server.js        [NEW]
 ├── package.json         [NEW]
-├── server.js            [NEW]
 ├── .env.example         [NEW]
 ├── .env                 [NEW] (Local gitignored file)
-├── app.js               [MODIFY] (Adapt UI endpoints)
-├── index.html           [MODIFY] (Serve from server)
 ```
 
 ---
@@ -40,9 +44,10 @@ Initialize Node.js package with type `"module"` to continue using ES modules:
   "name": "model-prompt-forge",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
@@ -60,19 +65,20 @@ OPENAI_API_KEY=your_openai_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### 3.3 `server.js` [NEW]
-Create the core Express server that serves static frontend files and exposes API routes:
+### 3.3 `server/server.js` [NEW]
+Create the core Express server that serves static frontend files from the client directory and exposes API routes:
 ```javascript
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import path from 'path';
+import path from 'url';
 import { fileURLToPath } from 'url';
+import pathModule from 'path';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = pathModule.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,8 +86,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend files from root directory
-app.use(express.static(__dirname));
+// Serve static frontend files from client directory (relative to root)
+app.use(express.static(pathModule.join(__dirname, '../client')));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

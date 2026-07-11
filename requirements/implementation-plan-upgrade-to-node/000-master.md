@@ -30,3 +30,8 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Implement basic user authentication simulation (headers or query params).
   - Hide/show Prompt Preview based on role (Admin vs User).
   - Implement local simulated credit checks and balance deduction.
+- [ ] **Step 4: UI Redesign & Model Options** (`004-ui-redesign.md`)
+  - Redesign dashboard UI for premium visual experience.
+  - Integrate dynamic provider submodel selectors (DALL-E 2/3, Imagen 2/3).
+  - Create a dedicated generated image viewport card with pulse loaders.
+  - Add status-oriented professional footer.

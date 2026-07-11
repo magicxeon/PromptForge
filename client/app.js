@@ -1,0 +1,2022 @@
+/**
+ * ModelPromptForge - Core Application Script (Redesigned)
+ * Dynamically loads schemas, builds the interactive UI, manages selections,
+ * compiles prompts in real-time, and handles configuration imports/exports.
+ */
+
+const ATTRIBUTE_FILES = [
+  '001-character.json',
+  '002-face.json',
+  '003-eyes.json',
+  '004-eyebrows.json',
+  '005-nose.json',
+  '006-lips.json',
+  '007-skin.json',
+  '008-hair.json',
+  '009-body.json',
+  '010-clothing.json',
+  '011-pose.json',
+  '012-environment.json',
+  '013-lighting.json',
+  '014-camera.json',
+  '015-quality.json',
+  '016-nsfw.json',
+  '017-photographic-context.json',
+  '018-scene-story.json',
+  '019-expression.json',
+  '020-camera-framing.json',
+  '021-accessories.json',
+  '022-hair-extra.json',
+  '023-architecture.json'
+];
+
+// Mapping ui-schema fields to attribute categories
+const FIELD_TO_CATEGORY_MAP = {
+  "Gender": "character",
+  "Age": "character",
+  "Ethnicity": "character",
+  "Beauty": "character",
+  "Reference Image": "character",
+  "Face Shape": "face",
+  "Eyes": "eyes",
+  "Eyebrows": "eyebrows",
+  "Nose": "nose",
+  "Lips": "lips",
+  "Smile": "lips",
+  "Expression": "expression",
+  "Length": "hair",
+  "Style": "hair",
+  "Texture": "hair",
+  "Color": "hair",
+  "Bangs": "hair",
+  "Tone": "skin",
+  "Texture": "skin",
+  "Makeup": "skin",
+  "Freckles": "skin",
+  "Height": "body",
+  "Body Shape": "body",
+  "Build": "body",
+  "Hands": "body",
+  "Legs": "body",
+  "Top": "clothing",
+  "Bottom": "clothing",
+  "Dress": "clothing",
+  "Shoes": "clothing",
+  "Accessories": "clothing",
+  "Standing": "pose",
+  "Sitting": "pose",
+  "Walking": "pose",
+  "Hand Position": "pose",
+  "Eye Contact": "pose",
+  "Location": "environment",
+  "Architecture": "environment",
+  "Props": "environment",
+  "Weather": "environment",
+  "Time of Day": "environment",
+  "Season": "environment",
+  "Key Light": "lighting",
+  "Fill Light": "lighting",
+  "Back Light": "lighting",
+  "Flash": "lighting",
+  "Neon": "lighting",
+  "Ambient": "lighting",
+  "Golden Hour": "lighting",
+  "Brand": "camera",
+  "Lens": "camera",
+  "Focal Length": "camera",
+  "Aperture": "camera",
+  "Framing": "camera_framing",
+  "ISO": "camera",
+  "White Balance": "camera",
+  "Perspective": "camera",
+  "Composition": "camera",
+  "Motion Blur": "camera",
+  "Resolution": "quality",
+  "Sharpness": "quality",
+  "Photorealism": "quality",
+  "Color Grading": "quality",
+  "Film Look": "quality",
+  "Output Frame": "quality",
+  "Nudity Level": "nsfw",
+  "Sensual Pose": "nsfw",
+  "Context Type": "photo_context",
+  "Story Event": "scene_story",
+  "Foreground Layer": "foreground_layer",
+  "Background Activity": "background_activity",
+  "Camera Imperfections": "camera_imperfections"
+};
+
+// Submodel options definition per provider
+const PROVIDER_SUBMODELS = {
+  gemini: [
+    { value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Default, High Quality)' },
+    { value: 'imagen-2.0', name: 'Imagen 2 (Fast, Legacy)' }
+  ],
+  openai: [
+    { value: 'dall-e-3', name: 'DALL-E 3 (High Detail)' },
+    { value: 'dall-e-2', name: 'DALL-E 2 (Standard, Legacy)' }
+  ]
+};
+
+// Presets definitions
+const PRESETS = {
+  nightclub: {
+    template: "nightclub",
+    aspectRatio: "6:8",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
+      "Beauty": { id: "character.023", value: "cute doll-like Asian woman", isCustom: false },
+      "Face Shape": { id: "face.016", value: "doll-like face shape", isCustom: false },
+      "Eyes": { id: "eyes.006", value: "doe eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.001", value: "straight eyebrows", isCustom: false },
+      "Nose": { id: "nose.001", value: "small button nose", isCustom: false },
+      "Lips": { id: "lips.001", value: "cherry lips", isCustom: false },
+      "Smile": { id: "lips.005", value: "gentle smile", isCustom: false },
+      "Expression": { id: "face.017", value: "cute doll-like facial features", isCustom: false },
+      "Length": { id: "hair_003", value: "long hair", isCustom: false },
+      "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
+      "Color": { id: "hair_021", value: "reddish-orange hair color", isCustom: false },
+      "Bangs": { id: "hair_027", value: "see-through bangs", isCustom: false },
+      "Tone": { id: "skin.tone_05", value: "rosy fair skin, glowing white complexion with natural soft pinkish undertones", isCustom: false },
+      "Texture": { id: "skin.text_06", value: "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash", isCustom: false },
+      "Top": { id: "clothing.014", value: "off-the-shoulder top", isCustom: false },
+      "Bottom": { id: "clothing.015", value: "skirt with a thigh-high slit", isCustom: false },
+      "Fit": { id: "clothing.003", value: "body-con style clothing", isCustom: false },
+      "Fabric": { id: "clothing.008", value: "silk satin fabric", isCustom: false },
+      "Sitting": { id: "pose.001", value: "crossing legs", isCustom: false },
+      "Hand Position": { id: "pose.010", value: "hand touching the side of her face near cheek and ear", isCustom: false },
+      "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
+      "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
+      "Flash": { id: "lighting.flash_01", value: "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright", isCustom: false },
+      "Neon": { id: "lighting.neon_01", value: "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene", isCustom: false },
+      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
+      "Perspective": { id: "camera.perspective_02", value: "medium close-up shot captured from a slightly low camera angle, highlighting posture", isCustom: false },
+      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
+    }
+  },
+  studio: {
+    template: "studio",
+    aspectRatio: "1:1",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.009", value: "korean", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
+      "Eyes": { id: "eyes.001", value: "almond-shaped eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.002", value: "soft arched eyebrows", isCustom: false },
+      "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
+      "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
+      "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
+      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
+      "Top": { id: "clothing.010", value: "corset top", isCustom: false },
+      "Bottom": { id: "clothing.017", value: "tight leggings", isCustom: false },
+      "Hand Position": { id: "pose.009", value: "hand on hip", isCustom: false },
+      "Location": { id: "environment.003", value: "in a photography studio", isCustom: false },
+      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
+      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
+    }
+  },
+  street: {
+    template: "street",
+    aspectRatio: "16:9",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.008", value: "japanese", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.003", value: "round baby face", isCustom: false },
+      "Eyes": { id: "eyes.005", value: "puppy eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.003", value: "natural thick brows", isCustom: false },
+      "Nose": { id: "nose.004", value: "soft rounded tip", isCustom: false },
+      "Lips": { id: "lips.002", value: "cupid's bow lips", isCustom: false },
+      "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
+      "Tone": { id: "skin.tone_06", value: "translucent glass skin, highly reflective fair skin with a clear glassy sheen", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
+      "Top": { id: "clothing.012", value: "deep V-neckline top", isCustom: false },
+      "Standing": { id: "pose.005", value: "looking over shoulder", isCustom: false },
+      "Location": { id: "environment.002", value: "on an urban street at night", isCustom: false },
+      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
+    }
+  },
+  thaiSilk: {
+    template: "thaiTraditional",
+    aspectRatio: "6:8",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
+      "Eyes": { id: "eyes.001", value: "almond-shaped eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.002", value: "soft arched eyebrows", isCustom: false },
+      "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
+      "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
+      "Top": { id: "clothing.021", value: "modern one-shoulder Thai sabai top woven in vibrant emerald green and shimmering metallic gold threads", isCustom: false },
+      "Bottom": { id: "clothing.023", value: "modern high-waist Thai wrap skirt in royal blue and gold brocade silk fabric, showing detailed traditional patterns", isCustom: false },
+      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
+      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
+    }
+  },
+  cheongsam: {
+    template: "vintageFilm",
+    aspectRatio: "1:1",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.010", value: "chinese", isCustom: false },
+      "Beauty": { id: "character.023", value: "cute doll-like Asian woman", isCustom: false },
+      "Face Shape": { id: "face.003", value: "round baby face", isCustom: false },
+      "Eyes": { id: "eyes.005", value: "puppy eyes", isCustom: false },
+      "Eyebrows": { id: "eyebrows.001", value: "straight eyebrows", isCustom: false },
+      "Lips": { id: "lips.001", value: "cherry lips", isCustom: false },
+      "Dress": { id: "clothing.026", value: "modern high-collar Qipao dress with a high side slit, styled in soft pastel lavender with delicate emerald green floral patterns", isCustom: false },
+      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
+      "Film Look": { id: "quality.004", value: "shot on Kodak Portra 400 film, warm skin tones, fine film grain, natural analog colors", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
+    }
+  },
+  minimalistCafe: {
+    template: "cafeMinimalist",
+    aspectRatio: "6:8",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.009", value: "korean", isCustom: false },
+      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
+      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
+      "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
+      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
+      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
+      "Dress": { id: "clothing.028", value: "Seoul style oversized minimalist shirt-dress in soft pastel mint green and cream tones", isCustom: false },
+      "Location": { id: "environment.005", value: "in a cozy modern cafe with warm wooden decors and soft background chatter", isCustom: false },
+      "Props": { id: "environment.010", value: "holding a hot paper coffee cup with soft steam rising gently from the lid", isCustom: false },
+      "Natural": { id: "quality.003", value: "candid and unposed look, giving a natural cinematic environment feel", isCustom: false },
+      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
+      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
+      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
+    }
+  },
+  beachCasual: {
+    template: "portrait",
+    aspectRatio: "16:9",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Gender": { id: "character.001", value: "female", isCustom: false },
+      "Age": { id: "character.004", value: "young adult", isCustom: false },
+      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
+      "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
+      "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
+      "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
+      "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false },
+      "Story Event": { id: "scene_story.008", value: "strolling relaxed and taking in the ambient atmosphere of the scene", isCustom: false },
+      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
+      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
+    }
+  },
+  restaurantSitting: {
+    template: "portrait",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_03", value: "sitting resting chin on hand with elbow on table, looking directly at the camera", isCustom: false },
+      "Location": { id: "environment.loc_03", value: "on a high-end rooftop restaurant terrace", isCustom: false },
+      "Ambient": { id: "__custom__", value: "soft warm ambient restaurant lighting", isCustom: true },
+      "Story Event": { id: "scene_story.001", value: "captured in a candid moment during a natural conversation, showing a spontaneous warm smile", isCustom: false },
+      "Context Type": { id: "photo_context.003", value: "captured casually by a friend", isCustom: false },
+      "Foreground Layer": { id: "foreground.003", value: "foreground restaurant menu out of focus", isCustom: false },
+      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_02", value: "minor chromatic aberration, corner softness, realistic lens optical imperfections", isCustom: false }
+    }
+  },
+  barSitting: {
+    template: "nightclub",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_04", value: "sitting on a bar stool", isCustom: false },
+      "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
+      "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
+      "Story Event": { id: "scene_story.003", value: "laughing genuinely at a lighthearted moment, showing a natural and relaxed smile", isCustom: false },
+      "Context Type": { id: "photo_context.004", value: "spontaneous moment captured mid-conversation", isCustom: false },
+      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
+    }
+  },
+  resortSitting: {
+    template: "portrait",
+    aspectRatio: "16:9",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
+      "Location": { id: "environment.loc_resort", value: "at a luxury tropical resort", isCustom: false },
+      "Top": { id: "clothing.travel_05", value: "breezy tropical sundress", isCustom: false },
+      "Key Light": { id: "__custom__", value: "golden hour light", isCustom: true },
+      "Story Event": { id: "scene_story.0010", value: "leaning slightly against a support surface, enjoying a peaceful candid moment", isCustom: false },
+      "Context Type": { id: "photo_context.005", value: "unposed snapshot", isCustom: false },
+      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.004", value: "with café staff working in the soft-focus background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_04", value: "gentle highlight halation, organic highlight roll-off", isCustom: false }
+    }
+  },
+  naturePhoto: {
+    template: "portrait",
+    aspectRatio: "3:4",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Location": { id: "environment.pop_02", value: "in a lush green forest with tall trees and dappled sunlight", isCustom: false },
+      "Top": { id: "clothing.travel_01", value: "lightweight linen safari shirt", isCustom: false },
+      "Key Light": { id: "__custom__", value: "soft dappled sunlight filtering through the canopy", isCustom: true },
+      "Story Event": { id: "scene_story.004", value: "taking a brief pause to look thoughtfully towards the distance", isCustom: false },
+      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
+      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
+      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
+    }
+  },
+  mallWaiting: {
+    template: "portrait",
+    aspectRatio: "9:16",
+    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
+    selections: {
+      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
+      "Location": { id: "environment.loc_mall", value: "inside a modern shopping mall", isCustom: false },
+      "Top": { id: "clothing.casual_05", value: "oversized cozy knit sweater", isCustom: false },
+      "Props": { id: "__custom__", value: "holding a hot paper coffee cup", isCustom: true },
+      "Story Event": { id: "scene_story.005", value: "casually waiting, observing the surroundings with a calm and relaxed posture", isCustom: false },
+      "Context Type": { id: "photo_context.006", value: "casual handheld smartphone photo", isCustom: false },
+      "Foreground Layer": { id: "foreground.001", value: "foreground coffee cup slightly out of focus", isCustom: false },
+      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
+      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
+    }
+  }
+};
+
+// Unified exclusions declaration
+const TAG_CONFLICT_RULES = [
+  ["indoor", "outdoor"],
+  ["day", "night"],
+  ["summer", "winter"],
+  ["modern", "vintage"],
+  ["cyberpunk", "traditional"]
+];
+
+const CATEGORY_PRIORITIES = {
+  "environment": 100,
+  "lighting": 90,
+  "camera": 80,
+  "clothing": 70,
+  "pose": 60,
+  "quality": 50,
+  "nsfw": 40,
+  "body": 30,
+  "skin": 20,
+  "hair": 10,
+  "face": 5,
+  "character": 1
+};
+
+// Global App State
+const state = {
+  schema: null,
+  templates: null,
+  order: null,
+  library: [],
+  selections: {},
+  lockedFields: new Set(),
+  imageReferences: {
+    faceMatch: false,
+    styleMatch: false,
+    poseMatch: false
+  },
+  aspectRatio: "6:8",
+  mode: "normal",
+  userRole: "user",
+  username: "user_demo"
+};
+
+// Populate submodel options inside the selectors
+function updateSubmodelList() {
+  const provider = document.getElementById("api-provider-select").value;
+  const submodelSelect = document.getElementById("api-submodel-select");
+  if (!submodelSelect) return;
+
+  submodelSelect.innerHTML = "";
+  const submodels = PROVIDER_SUBMODELS[provider] || [];
+  submodels.forEach(model => {
+    const opt = document.createElement("option");
+    opt.value = model.value;
+    opt.textContent = model.name;
+    submodelSelect.appendChild(opt);
+  });
+}
+
+// Fetch balance from the credits DB
+async function updateCredits() {
+  try {
+    const res = await fetch(`/api/credits?user=${state.username}`);
+    const data = await res.json();
+    const creditsVal = document.getElementById("credits-value");
+    if (creditsVal) creditsVal.textContent = data.credits;
+    state.userRole = data.role;
+    
+    // Auto switch selector UI value if credentials fetched externally
+    const selector = document.getElementById("role-select");
+    if (selector && selector.value !== state.username) {
+      selector.value = state.username;
+    }
+    
+    updatePromptPreview(); // refresh display
+  } catch (err) {
+    console.error("Failed to fetch credits:", err);
+  }
+}
+
+// Helper to randomize presets
+function randomizePresetSelections(preset, presetName = "") {
+  const selections = JSON.parse(JSON.stringify(preset.selections));
+
+  const expressions = state.library.filter(opt => opt.category === "expression" && opt.enabled !== false);
+  if (expressions.length > 0) {
+    const randExpr = expressions[Math.floor(Math.random() * expressions.length)];
+    selections["Expression"] = { id: randExpr.id, value: randExpr.prompt ? (randExpr.prompt.default) : randExpr.label, isCustom: false, group: "Face" };
+  }
+
+  const handPositions = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Hand Position" && opt.enabled !== false);
+  if (handPositions.length > 0) {
+    const randHand = handPositions[Math.floor(Math.random() * handPositions.length)];
+    selections["Hand Position"] = { id: randHand.id, value: randHand.prompt ? (randHand.prompt.default) : randHand.label, isCustom: false, group: "Pose" };
+  }
+
+  const isSittingPreset = !!selections["Sitting"];
+  if (isSittingPreset) {
+    delete selections["Standing"];
+    delete selections["Walking"];
+    const sittingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Sitting" && opt.enabled !== false);
+    if (sittingPoses.length > 0) {
+      const randSit = sittingPoses[Math.floor(Math.random() * sittingPoses.length)];
+      selections["Sitting"] = { id: randSit.id, value: randSit.prompt ? (randSit.prompt.default) : randSit.label, isCustom: false, group: "Pose" };
+    }
+  } else {
+    delete selections["Sitting"];
+    const pickStanding = Math.random() > 0.5;
+    if (pickStanding) {
+      delete selections["Walking"];
+      const standingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Standing" && opt.enabled !== false);
+      if (standingPoses.length > 0) {
+        const randStand = standingPoses[Math.floor(Math.random() * standingPoses.length)];
+        selections["Standing"] = { id: randStand.id, value: randStand.prompt ? (randStand.prompt.default) : randStand.label, isCustom: false, group: "Pose" };
+      }
+    } else {
+      delete selections["Standing"];
+      const walkingPoses = state.library.filter(opt => opt.category === "pose" && opt.subcategory === "Walking" && opt.enabled !== false);
+      if (walkingPoses.length > 0) {
+        const randWalk = walkingPoses[Math.floor(Math.random() * walkingPoses.length)];
+        selections["Walking"] = { id: randWalk.id, value: randWalk.prompt ? (randWalk.prompt.default) : randWalk.label, isCustom: false, group: "Pose" };
+      }
+    }
+  }
+
+  const framings = state.library.filter(opt => opt.category === "camera_framing" && opt.enabled !== false);
+  if (framings.length > 0) {
+    const randFraming = framings[Math.floor(Math.random() * framings.length)];
+    selections["Framing"] = { id: randFraming.id, value: randFraming.prompt ? (randFraming.prompt.default) : randFraming.label, isCustom: false, group: "Camera" };
+  }
+
+  const diningKeywords = ["restaurant", "bar", "cafe", "dining", "mall", "eating", "drink"];
+  const isDining = presetName && diningKeywords.some(keyword => presetName.toLowerCase().includes(keyword));
+  let allowedForegroundIds = [];
+  if (isDining) {
+    allowedForegroundIds = ["foreground.001", "foreground.003", "foreground.004"];
+  } else {
+    allowedForegroundIds = ["foreground.002", "foreground.004"];
+  }
+
+  const foregrounds = state.library.filter(opt => opt.category === "foreground_layer" && allowedForegroundIds.includes(opt.id) && opt.enabled !== false);
+  if (foregrounds.length > 0) {
+    const randFore = foregrounds[Math.floor(Math.random() * foregrounds.length)];
+    selections["Foreground Layer"] = { id: randFore.id, value: randFore.prompt ? (randFore.prompt.default) : randFore.label, isCustom: false, group: "Environment" };
+  }
+
+  return {
+    ...preset,
+    selections
+  };
+}
+
+// Initializers
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
+});
+
+async function initApp() {
+  try {
+    const [schemaRes, templatesRes, orderRes] = await Promise.all([
+      fetch("attributes/spec/ui-schema.json").then(r => r.json()),
+      fetch("attributes/spec/prompt-templates.json").then(r => r.json()),
+      fetch("attributes/spec/prompt-order.json").then(r => r.json())
+    ]);
+
+    state.schema = schemaRes;
+    state.templates = templatesRes;
+    state.order = orderRes.order;
+
+    // Populate templates select
+    const templateSelect = document.getElementById("template-select");
+    templateSelect.innerHTML = "";
+    Object.keys(state.templates).forEach((key, index) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = key.charAt(0).toUpperCase() + key.slice(1) + " Layout";
+      if (index === 0) option.selected = true;
+      templateSelect.appendChild(option);
+    });
+
+    // Load individual attributes files
+    const attributesData = await Promise.all(
+      ATTRIBUTE_FILES.map(file =>
+        fetch(`attributes/${file}`)
+          .then(r => r.json())
+          .catch(err => {
+            console.warn(`Error loading attributes/${file}, skipping.`, err);
+            return [];
+          })
+      )
+    );
+
+    attributesData.forEach(fileData => {
+      const items = Array.isArray(fileData) ? fileData : (fileData.entries || []);
+      state.library.push(...items);
+    });
+
+    renderForm();
+    updateSubmodelList();
+    bindEvents();
+    toggleUIForMode();
+    updateCredits();
+    updatePromptPreview();
+
+  } catch (error) {
+    console.error("Initialization failed:", error);
+    const container = document.getElementById("form-container");
+    container.innerHTML = `
+      <div style="color: var(--neon-pink); padding: 2rem; text-align: center;">
+        <h3>Failed to load application data</h3>
+        <p style="color: var(--text-muted); margin-top: 0.5rem; font-weight: bold;">Error: ${error.message}</p>
+      </div>
+    `;
+  }
+}
+
+// Render Accordions on Left Panel
+function renderForm() {
+  const container = document.getElementById("form-container");
+  container.innerHTML = "";
+
+  state.schema.forEach((groupObj, groupIdx) => {
+    const groupName = groupObj.group;
+    const isNsfwGroup = groupName.toLowerCase() === "nsfw";
+
+    const accordion = document.createElement("div");
+    accordion.className = "accordion";
+    accordion.id = `accordion-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
+    if (groupIdx === 0) accordion.classList.add("active");
+    if (isNsfwGroup) {
+      accordion.style.display = "none";
+      accordion.setAttribute("data-nsfw-controlled", "true");
+    }
+
+    const header = document.createElement("div");
+    header.className = "accordion-header";
+
+    const titleArea = document.createElement("div");
+    titleArea.className = "accordion-title";
+    titleArea.innerHTML = `<span>${groupName}</span>`;
+
+    const badge = document.createElement("span");
+    badge.className = "accordion-badge";
+    badge.style.display = "none";
+    badge.id = `badge-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
+    titleArea.appendChild(badge);
+
+    const arrow = document.createElement("span");
+    arrow.className = "accordion-arrow";
+    arrow.textContent = "▼";
+
+    header.appendChild(titleArea);
+    header.appendChild(arrow);
+    accordion.appendChild(header);
+
+    const content = document.createElement("div");
+    content.className = "accordion-content";
+
+    const inner = document.createElement("div");
+    inner.className = "accordion-inner";
+
+    groupObj.fields.forEach(field => {
+      const fieldDiv = document.createElement("div");
+      fieldDiv.className = "form-field";
+
+      const label = document.createElement("label");
+      label.textContent = field.name;
+      fieldDiv.appendChild(label);
+
+      const inputRow = document.createElement("div");
+      inputRow.className = "field-input-row";
+
+      const selectWrapper = document.createElement("div");
+      selectWrapper.className = "select-wrapper";
+
+      const select = document.createElement("select");
+      select.className = "custom-select";
+      select.id = `select-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
+      select.setAttribute("data-field", field.name);
+      select.setAttribute("data-group", groupName);
+
+      const category = FIELD_TO_CATEGORY_MAP[field.name] || groupName.toLowerCase();
+      const filteredOptions = getOptionsForField(field.name, category, state.library);
+
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.textContent = `-- Select ${field.name} --`;
+      select.appendChild(defaultOpt);
+
+      filteredOptions.forEach(opt => {
+        if (opt.enabled === false) return;
+        const optionNode = document.createElement("option");
+        optionNode.value = opt.id;
+        optionNode.setAttribute("data-prompt", opt.prompt ? (opt.prompt["gpt-image"] || opt.prompt.default) : opt.label);
+
+        const optLabel = opt.label.toLowerCase();
+        const optTags = (opt.tags || []).map(t => t.toLowerCase());
+        const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") ||
+          optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") ||
+          optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
+
+        if (isAsian) {
+          optionNode.textContent = `🏮 ${opt.label}`;
+          optionNode.style.color = "#06b6d4";
+          optionNode.style.fontWeight = "600";
+          optionNode.className = "asian-option";
+        } else {
+          optionNode.textContent = opt.label;
+        }
+
+        optionNode.setAttribute("data-original-text", optionNode.textContent);
+        select.appendChild(optionNode);
+      });
+
+      const customOpt = document.createElement("option");
+      customOpt.value = "__custom__";
+      customOpt.textContent = "Custom (Write-in)...";
+      select.appendChild(customOpt);
+
+      selectWrapper.appendChild(select);
+
+      const lockLabel = document.createElement("label");
+      lockLabel.className = "lock-checkbox-btn";
+      lockLabel.title = "Lock attribute on Randomize";
+
+      const lockInput = document.createElement("input");
+      lockInput.type = "checkbox";
+      lockInput.className = "lock-input";
+      lockInput.setAttribute("data-field", field.name);
+      lockInput.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          state.lockedFields.add(field.name);
+          fieldDiv.classList.add("is-locked");
+        } else {
+          state.lockedFields.delete(field.name);
+          fieldDiv.classList.remove("is-locked");
+        }
+      });
+
+      const lockIcon = document.createElement("span");
+      lockIcon.className = "lock-icon";
+      lockIcon.textContent = "🔓";
+
+      lockLabel.appendChild(lockInput);
+      lockLabel.appendChild(lockIcon);
+
+      inputRow.appendChild(selectWrapper);
+      inputRow.appendChild(lockLabel);
+      fieldDiv.appendChild(inputRow);
+
+      const customInput = document.createElement("input");
+      customInput.type = "text";
+      customInput.className = "custom-writein-input";
+      customInput.placeholder = `Type custom ${field.name.toLowerCase()} here...`;
+      customInput.style.display = "none";
+      customInput.id = `custom-input-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
+      fieldDiv.appendChild(customInput);
+
+      inner.appendChild(fieldDiv);
+    });
+
+    content.appendChild(inner);
+    accordion.appendChild(content);
+    container.appendChild(accordion);
+  });
+}
+
+// Logic Helper: Filter attributes
+function getOptionsForField(fieldName, category, allItems) {
+  const items = allItems.filter(item => {
+    if (item.category === "nsfw" && category !== "nsfw") return false;
+    return item.category === category;
+  });
+  const lowerField = fieldName.toLowerCase();
+
+  const itemsWithSubcat = items.filter(item => item.subcategory);
+  const hasSubcategory = itemsWithSubcat.length > 0 && (itemsWithSubcat.length / items.length) > 0.5;
+  if (hasSubcategory) {
+    const matched = items.filter(item => item.subcategory && item.subcategory.toLowerCase() === lowerField);
+    if (matched.length > 0) return matched;
+  }
+
+  if (category === "face") {
+    if (lowerField === "face shape") {
+      return items.filter(item =>
+        !item.label.toLowerCase().includes("expression") &&
+        !item.label.toLowerCase().includes("details") &&
+        !item.label.toLowerCase().includes("match")
+      );
+    }
+    if (lowerField === "expression") {
+      return items.filter(item =>
+        item.label.toLowerCase().includes("expression") ||
+        item.label.toLowerCase().includes("details") ||
+        item.label.toLowerCase().includes("gaze")
+      );
+    }
+    return items;
+  }
+
+  if (category === "lips") {
+    if (lowerField === "smile") {
+      return items.filter(item => item.label.toLowerCase().includes("smile") || item.label.toLowerCase().includes("expression"));
+    }
+    return items.filter(item => !item.label.toLowerCase().includes("smile"));
+  }
+
+  return items;
+}
+
+// Bind event listeners
+function bindEvents() {
+  // Accordion Toggle Headers
+  document.querySelectorAll(".accordion-header").forEach(header => {
+    header.addEventListener("click", () => {
+      const accordion = header.parentElement;
+      const isActive = accordion.classList.contains("active");
+      document.querySelectorAll(".accordion").forEach(acc => acc.classList.remove("active"));
+      if (!isActive) {
+        accordion.classList.add("active");
+      }
+    });
+  });
+
+  // Dropdown Select Inputs
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    const fieldName = select.getAttribute("data-field");
+    const groupName = select.getAttribute("data-group");
+    const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
+
+    select.addEventListener("change", (e) => {
+      const val = e.target.value;
+
+      if (val === "__custom__") {
+        customInput.style.display = "block";
+        customInput.focus();
+        state.selections[fieldName] = { 
+          id: "__custom__", 
+          value: customInput.value, 
+          isCustom: true, 
+          group: groupName,
+          category: FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase(),
+          tags: []
+        };
+      } else {
+        customInput.style.display = "none";
+        if (val === "") {
+          delete state.selections[fieldName];
+        } else {
+          const selectedOption = e.target.options[e.target.selectedIndex];
+          const promptVal = selectedOption.getAttribute("data-prompt");
+          const libItem = state.library.find(item => item.id === val);
+          
+          state.selections[fieldName] = { 
+            id: val, 
+            value: promptVal, 
+            isCustom: false, 
+            group: groupName,
+            category: libItem ? libItem.category : (FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase()),
+            tags: libItem ? (libItem.tags || []) : [],
+            gptPositiveWords: libItem && libItem.prompt && libItem.prompt["gpt-image-positive"] ? libItem.prompt["gpt-image-positive"].split(",").map(w => w.trim()) : []
+          };
+          enforceExclusionRules(val);
+        }
+      }
+
+      updateAccordionSummaryBadges(groupName);
+      updatePromptPreview();
+    });
+
+    customInput.addEventListener("input", (e) => {
+      if (select.value === "__custom__") {
+        state.selections[fieldName] = { 
+          id: "__custom__", 
+          value: e.target.value, 
+          isCustom: true, 
+          group: groupName,
+          category: FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase(),
+          tags: []
+        };
+        updateAccordionSummaryBadges(groupName);
+        updatePromptPreview();
+      }
+    });
+  });
+
+  // Template select
+  document.getElementById("template-select").addEventListener("change", () => {
+    updatePromptPreview();
+  });
+
+  // Dynamic Submodels loading based on API Engine switch
+  const apiProviderSelect = document.getElementById("api-provider-select");
+  if (apiProviderSelect) {
+    apiProviderSelect.addEventListener("change", () => {
+      updateSubmodelList();
+    });
+  }
+
+  // Aspect Ratio Chips
+  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.aspectRatio = chip.getAttribute("data-ratio");
+      updatePromptPreview();
+    });
+  });
+
+  // Preset selector chips
+  document.querySelectorAll("#presets-group .option-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const presetName = chip.getAttribute("data-preset");
+      document.querySelectorAll("#presets-group .option-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+
+      const preset = PRESETS[presetName];
+      if (preset) {
+        const randomizedPreset = randomizePresetSelections(preset, presetName);
+        importConfigJSON(JSON.stringify(randomizedPreset));
+      }
+    });
+  });
+
+  // Image Reference Checkboxes
+  const refFace = document.getElementById("ref-face-match");
+  const refStyle = document.getElementById("ref-style-match");
+  const refPose = document.getElementById("ref-pose-match");
+
+  const updateRefState = () => {
+    state.imageReferences.faceMatch = refFace.checked;
+    state.imageReferences.styleMatch = refStyle.checked;
+    state.imageReferences.poseMatch = refPose.checked;
+    applyFaceMatchLockout();
+    updatePromptPreview();
+  };
+
+  refFace.addEventListener("change", updateRefState);
+  refStyle.addEventListener("change", updateRefState);
+  refPose.addEventListener("change", updateRefState);
+
+  // NSFW Toggle
+  const toggleNsfw = document.getElementById("toggle-nsfw");
+  const nsfwAccordion = document.getElementById("accordion-nsfw");
+
+  const updateNsfwState = () => {
+    const isNsfwEnabled = toggleNsfw.checked;
+    if (nsfwAccordion) {
+      nsfwAccordion.style.display = isNsfwEnabled ? "block" : "none";
+    }
+
+    if (!isNsfwEnabled) {
+      const nsfwSelects = document.querySelectorAll("#accordion-nsfw .custom-select");
+      nsfwSelects.forEach(select => {
+        const fieldName = select.getAttribute("data-field");
+        select.value = "";
+        delete state.selections[fieldName];
+        const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
+        if (customInput) {
+          customInput.value = "";
+          customInput.style.display = "none";
+        }
+      });
+      updateAccordionSummaryBadges("NSFW");
+    }
+    updatePromptPreview();
+  };
+
+  toggleNsfw.addEventListener("change", updateNsfwState);
+
+  // Role Selector Event Listener
+  const roleSelect = document.getElementById("role-select");
+  if (roleSelect) {
+    roleSelect.addEventListener("change", (e) => {
+      state.username = e.target.value;
+      updateCredits();
+    });
+  }
+
+  // Simulated Credits Top-up
+  const btnRecharge = document.getElementById("btn-recharge");
+  if (btnRecharge) {
+    btnRecharge.addEventListener("click", async () => {
+      try {
+        const response = await fetch('/api/credits/recharge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: state.username })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Recharge failed");
+        
+        // Update balance display
+        document.getElementById("credits-value").textContent = data.credits;
+        const balanceEl = document.getElementById("credits-value");
+        balanceEl.style.color = "#10b981"; // green flash
+        setTimeout(() => { balanceEl.style.color = ""; }, 1000);
+      } catch (err) {
+        alert("Failed to recharge credits: " + err.message);
+      }
+    });
+  }
+
+  // Download Generated Image Button
+  const btnDownloadImage = document.getElementById("btn-download-image");
+  if (btnDownloadImage) {
+    btnDownloadImage.addEventListener("click", () => {
+      const img = document.getElementById("generated-image");
+      if (!img || !img.src) return;
+
+      const a = document.createElement("a");
+      a.href = img.src;
+      a.download = `modelpromptforge-generation-${Date.now()}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  }
+
+  // Generate Image Button (Redesigned with loading overlays, telemetry, and error banner)
+  const btnGenerateImage = document.getElementById("btn-generate-image");
+  if (btnGenerateImage) {
+    btnGenerateImage.addEventListener("click", async () => {
+      const provider = document.getElementById("api-provider-select").value;
+      const submodel = document.getElementById("api-submodel-select").value;
+      const loader = document.getElementById("image-loading-overlay");
+      const img = document.getElementById("generated-image");
+      const placeholder = document.getElementById("viewport-placeholder");
+      const errBanner = document.getElementById("viewport-error");
+      const telemetryBar = document.getElementById("telemetry-bar");
+      const btnDownload = document.getElementById("btn-download-image");
+
+      if (Object.keys(state.selections).length === 0) {
+        // Render inline warning in viewport instead of ugly popup
+        errBanner.style.display = "flex";
+        document.getElementById("error-message").textContent = "Please select some attributes first before generating.";
+        return;
+      }
+
+      // Hide all states, show loader
+      errBanner.style.display = "none";
+      placeholder.style.display = "none";
+      img.style.display = "none";
+      btnDownload.style.display = "none";
+      telemetryBar.style.display = "none";
+      loader.style.display = "flex";
+
+      const startTime = performance.now();
+
+      try {
+        const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+        const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Role': state.userRole
+          },
+          body: JSON.stringify({
+            provider,
+            submodel,
+            selections: state.selections,
+            aspectRatio: state.aspectRatio,
+            imageReferences: state.imageReferences,
+            mode: state.mode,
+            template: document.getElementById("template-select").value || "portrait",
+            isGptSafe,
+            username: state.username
+          })
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || "Generation failed");
+        }
+
+        const endTime = performance.now();
+        const durationSec = ((endTime - startTime) / 1000).toFixed(1);
+
+        // Success - render viewport elements
+        img.src = data.imageUrl;
+        img.style.display = "block";
+        btnDownload.style.display = "block";
+
+        // Display Telemetry
+        document.getElementById("tel-model").textContent = submodel;
+        document.getElementById("tel-time").textContent = `${durationSec}s`;
+        document.getElementById("tel-aspect").textContent = state.aspectRatio;
+        telemetryBar.style.display = "flex";
+        
+        if (data.credits !== undefined) {
+          document.getElementById("credits-value").textContent = data.credits;
+        }
+
+        if (data.prompt) {
+          console.log("Secret Compiled Prompt from Backend:", data.prompt);
+        }
+      } catch (err) {
+        // Render error inside viewport banner
+        errBanner.style.display = "flex";
+        document.getElementById("error-message").textContent = err.message;
+        placeholder.style.display = "flex";
+      } finally {
+        loader.style.display = "none";
+      }
+    });
+  }
+
+  // GPT-Safe Toggle
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  if (toggleGptSafe) {
+    toggleGptSafe.addEventListener("change", () => {
+      state.schema.forEach(groupObj => {
+        updateAccordionSummaryBadges(groupObj.group);
+      });
+      updatePromptPreview();
+    });
+  }
+
+  // Copy buttons
+  document.getElementById("btn-copy").addEventListener("click", () => {
+    copyPromptToClipboard();
+  });
+
+  document.getElementById("btn-copy-json").addEventListener("click", () => {
+    copyPromptAsJSON();
+  });
+
+  // Random / Surprise Me Button
+  document.getElementById("btn-random").addEventListener("click", () => {
+    randomizeSelections();
+  });
+
+  // Reset Button
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    resetForm();
+  });
+
+  // Export JSON Button
+  document.getElementById("btn-export").addEventListener("click", () => {
+    exportConfigJSON();
+  });
+
+  // Import JSON Button
+  document.getElementById("btn-import").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      importConfigJSON(evt.target.result);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // Mode Selection Chips
+  document.querySelectorAll(".mode-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      state.mode = chip.getAttribute("data-mode");
+      
+      if (state.mode === "headshot" || state.mode === "character-sheet") {
+        const preset = PRESETS.studio;
+        if (preset) {
+          const randomizedPreset = randomizePresetSelections(preset, "studio");
+          importConfigJSON(JSON.stringify(randomizedPreset));
+        }
+      }
+
+      if (state.mode === "character-sheet" || state.mode === "headshot") {
+        setAspectInUI("6:8");
+      }
+      
+      toggleUIForMode();
+      updatePromptPreview();
+    });
+  });
+
+  const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+  if (sheetUseRefImg) {
+    sheetUseRefImg.addEventListener("change", () => {
+      updatePromptPreview();
+    });
+  }
+}
+
+// Dynamically filter UI accordions based on active mode
+function toggleUIForMode() {
+  const mode = state.mode;
+  const imageUpload = document.getElementById("image-upload-container");
+  
+  if (imageUpload) {
+    imageUpload.style.display = mode === "character-sheet" ? "flex" : "none";
+  }
+
+  const visibleGroups = {
+    normal: null,
+    headshot: ["character", "face", "hair", "skin", "camera", "quality"],
+    "character-sheet": ["character", "body", "clothing", "hair", "face", "camera", "quality"]
+  };
+
+  const visibleList = visibleGroups[mode];
+
+  document.querySelectorAll(".accordion").forEach(accordion => {
+    const groupName = accordion.id.replace("accordion-", "").replace(/-/g, " ");
+    const isNsfwGroup = accordion.getAttribute("data-nsfw-controlled") === "true";
+    const toggleNsfw = document.getElementById("toggle-nsfw");
+    const isNsfwEnabled = toggleNsfw ? toggleNsfw.checked : false;
+
+    if (visibleList) {
+      const isVisible = visibleList.some(g => groupName.toLowerCase().includes(g.toLowerCase()));
+      if (isVisible) {
+        if (isNsfwGroup) {
+          accordion.style.display = isNsfwEnabled ? "block" : "none";
+        } else {
+          accordion.style.display = "block";
+        }
+        accordion.classList.remove("hidden-accordion");
+      } else {
+        accordion.style.display = "none";
+        accordion.classList.add("hidden-accordion");
+      }
+    } else {
+      if (isNsfwGroup) {
+        accordion.style.display = isNsfwEnabled ? "block" : "none";
+      } else {
+        accordion.style.display = "block";
+      }
+      accordion.classList.remove("hidden-accordion");
+    }
+  });
+
+  const activeAccordion = document.querySelector(".accordion.active");
+  if (activeAccordion && (activeAccordion.classList.contains("hidden-accordion") || activeAccordion.style.display === "none")) {
+    activeAccordion.classList.remove("active");
+    const firstVisible = Array.from(document.querySelectorAll(".accordion")).find(acc => !acc.classList.contains("hidden-accordion") && acc.style.display !== "none");
+    if (firstVisible) {
+      firstVisible.classList.add("active");
+    }
+  }
+}
+
+// Programmatically select Aspect Ratio in the UI
+function setAspectInUI(ratio) {
+  state.aspectRatio = ratio;
+  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+    if (chip.getAttribute("data-ratio") === ratio) {
+      chip.classList.add("active");
+    } else {
+      chip.classList.remove("active");
+    }
+  });
+}
+
+// Resolves the active prompt value for a selection, checking for GPT-Safe Mode
+function getPromptValueForSelection(selection) {
+  if (!selection) return "";
+  if (selection.isCustom) {
+    return selection.value;
+  }
+
+  const item = state.library.find(libItem => libItem.id === selection.id);
+  if (!item || !item.prompt) {
+    return selection.value;
+  }
+
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+
+  if (isGptSafe) {
+    return item.prompt["gpt-image-safe"] || item.prompt["gpt-image"] || item.prompt.default;
+  } else {
+    return item.prompt["gpt-image"] || item.prompt.default;
+  }
+}
+
+// Enforce mutual exclusion rules
+function enforceExclusionRules(selectedId) {
+  const idsToExclude = new Set();
+  const selectedItem = state.library.find(item => item.id === selectedId);
+  if (selectedItem && selectedItem.exclusions) {
+    selectedItem.exclusions.forEach(id => idsToExclude.add(id));
+  }
+
+  state.library.forEach(libItem => {
+    if (libItem.id !== selectedId && libItem.exclusions && libItem.exclusions.includes(selectedId)) {
+      idsToExclude.add(libItem.id);
+    }
+  });
+
+  if (idsToExclude.size === 0) return;
+
+  idsToExclude.forEach(excludedId => {
+    const conflictingField = Object.keys(state.selections).find(
+      fieldName => state.selections[fieldName].id === excludedId
+    );
+
+    if (!conflictingField) return;
+
+    const conflictingGroup = state.selections[conflictingField].group;
+    delete state.selections[conflictingField];
+
+    const conflictingSelect = document.querySelector(
+      `#form-container .custom-select[data-field="${conflictingField}"]`
+    );
+    if (conflictingSelect) {
+      conflictingSelect.value = "";
+      const formField = conflictingSelect.closest(".form-field");
+      if (formField) {
+        const customInput = formField.querySelector(".custom-writein-input");
+        if (customInput) {
+          customInput.value = "";
+          customInput.style.display = "none";
+        }
+        formField.classList.remove("conflict-cleared");
+        void formField.offsetWidth;
+        formField.classList.add("conflict-cleared");
+        formField.addEventListener("animationend", () => {
+          formField.classList.remove("conflict-cleared");
+        }, { once: true });
+      }
+    }
+    updateAccordionSummaryBadges(conflictingGroup);
+  });
+}
+
+// Preventive UI: Disable/grey-out conflicting options
+function updateDropdownExclusions() {
+  const selectedIds = new Set();
+  Object.values(state.selections).forEach(sel => {
+    if (!sel.isCustom) selectedIds.add(sel.id);
+  });
+
+  const activeExclusions = new Set();
+  selectedIds.forEach(selId => {
+    const item = state.library.find(li => li.id === selId);
+    if (item && item.exclusions) {
+      item.exclusions.forEach(exId => activeExclusions.add(exId));
+    }
+  });
+
+  state.library.forEach(libItem => {
+    if (libItem.exclusions && libItem.exclusions.some(exId => selectedIds.has(exId))) {
+      activeExclusions.add(libItem.id);
+    }
+  });
+
+  selectedIds.forEach(id => activeExclusions.delete(id));
+
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    Array.from(select.options).forEach(option => {
+      if (option.value === "" || option.value === "__custom__") return;
+      const originalText = option.getAttribute("data-original-text") || option.textContent;
+
+      if (activeExclusions.has(option.value)) {
+        option.disabled = true;
+        option.textContent = `🚫 ${originalText}`;
+        option.classList.add("option-conflicted");
+      } else {
+        option.disabled = false;
+        option.textContent = originalText;
+        option.classList.remove("option-conflicted");
+      }
+    });
+  });
+}
+
+// Update accordion header summary badges
+function updateAccordionSummaryBadges(groupName) {
+  const badgeId = `badge-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
+  const badge = document.getElementById(badgeId);
+  if (!badge) return;
+
+  const selectedInGroup = Object.keys(state.selections)
+    .filter(key => state.selections[key].group === groupName)
+    .map(key => getPromptValueForSelection(state.selections[key]))
+    .filter(val => val && val.trim() !== "");
+
+  if (selectedInGroup.length > 0) {
+    badge.textContent = selectedInGroup.join(", ");
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// Resolve tag conflicts in compiled values
+function resolveTagConflicts(activeSelections) {
+  const items = [];
+  for (const fieldName in activeSelections) {
+    const sel = activeSelections[fieldName];
+    if (sel.isCustom) continue;
+    const libItem = state.library.find(li => li.id === sel.id);
+    if (libItem && libItem.tags) {
+      items.push({
+        fieldName,
+        category: libItem.category,
+        tags: libItem.tags.map(t => t.toLowerCase()),
+        priority: CATEGORY_PRIORITIES[libItem.category.toLowerCase()] || 0
+      });
+    }
+  }
+
+  TAG_CONFLICT_RULES.forEach(rulePair => {
+    const [tagA, tagB] = rulePair;
+    const itemsA = items.filter(i => i.tags.includes(tagA) && !activeSelections[i.fieldName].isDropped);
+    const itemsB = items.filter(i => i.tags.includes(tagB) && !activeSelections[i.fieldName].isDropped);
+
+    if (itemsA.length > 0 && itemsB.length > 0) {
+      const maxPriA = Math.max(...itemsA.map(i => i.priority));
+      const maxPriB = Math.max(...itemsB.map(i => i.priority));
+
+      if (maxPriA >= maxPriB) {
+        itemsB.forEach(i => {
+          activeSelections[i.fieldName].isDropped = true;
+          activeSelections[i.fieldName].droppedReason = `Dropped: conflicts with '${tagA}'`;
+        });
+      } else {
+        itemsA.forEach(i => {
+          activeSelections[i.fieldName].isDropped = true;
+          activeSelections[i.fieldName].droppedReason = `Dropped: conflicts with '${tagB}'`;
+        });
+      }
+    }
+  });
+}
+
+// Live compilation of active selections into prompt structure
+function generatePromptText(cleanTextOnly = false) {
+  const currentTemplateName = document.getElementById("template-select").value || "portrait";
+  const templateStr = state.templates[currentTemplateName];
+
+  const activeSelections = JSON.parse(JSON.stringify(state.selections));
+  resolveTagConflicts(activeSelections);
+
+  const compileGroupSegment = (groupName, tokenClass) => {
+    if (groupName.toLowerCase() === "face") {
+      if (state.imageReferences.faceMatch) {
+        const txt = "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+    if (groupName.toLowerCase() === "clothing") {
+      if (state.imageReferences.styleMatch) {
+        const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+    if (groupName.toLowerCase() === "pose") {
+      if (state.imageReferences.poseMatch) {
+        const txt = "with the identical posing and image composition as the original uploaded file";
+        return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+      }
+    }
+
+    let segmentValues = [];
+
+    state.order.forEach(fieldId => {
+      const selection = Object.values(activeSelections).find(s => {
+        const category = FIELD_TO_CATEGORY_MAP[s.group] || s.group.toLowerCase();
+        return category.replace("_", "") === fieldId.replace("_", "") || s.group.toLowerCase() === fieldId.toLowerCase();
+      });
+
+      if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
+        const val = getPromptValueForSelection(selection);
+        if (val && val.trim() !== "") {
+          if (selection.isDropped) {
+            if (!cleanTextOnly) segmentValues.push(`<span class="token-dropped" title="${selection.droppedReason}">${val}</span>`);
+          } else {
+            segmentValues.push(val);
+          }
+        }
+      }
+    });
+
+    if (segmentValues.length === 0) {
+      segmentValues = Object.keys(activeSelections)
+        .filter(key => activeSelections[key].group.toLowerCase() === groupName.toLowerCase())
+        .map(key => {
+          const s = activeSelections[key];
+          const val = getPromptValueForSelection(s);
+          if (!val || val.trim() === "") return null;
+          if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
+          return val;
+        })
+        .filter(val => val !== null);
+    }
+
+    segmentValues = [...new Set(segmentValues)];
+    if (segmentValues.length === 0) return "";
+
+    const combinedStr = segmentValues.join(", ");
+    if (cleanTextOnly) return combinedStr;
+    return `<span class="${tokenClass}">${combinedStr}</span>`;
+  };
+
+  let subject = compileGroupSegment("Character", "token-subject");
+  let appearance = compileGroupSegment("Face", "token-appearance");
+
+  const getSelectionsForGroup = (grp) => {
+    return Object.keys(activeSelections)
+      .filter(key => activeSelections[key].group.toLowerCase() === grp.toLowerCase())
+      .map(key => {
+        const s = activeSelections[key];
+        const val = getPromptValueForSelection(s);
+        if (!val || val.trim() === "") return null;
+        if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
+        return val;
+      })
+      .filter(val => val !== null);
+  };
+
+  let hairList = getSelectionsForGroup("Hair");
+  let hair = hairList.length > 0 ? (cleanTextOnly ? hairList.join(", ") : `<span class="token-appearance">${hairList.join(", ")}</span>`) : "";
+
+  let skinList = getSelectionsForGroup("Skin");
+  let skin = skinList.length > 0 ? (cleanTextOnly ? skinList.join(", ") : `<span class="token-appearance">${skinList.join(", ")}</span>`) : "";
+
+  let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
+
+  let clothing = compileGroupSegment("Clothing", "token-clothing");
+  
+  // FULFILLS REQ 1: If clothing is empty in Character Sheet Mode, force tank top and shorts
+  if (state.mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
+    const clText = "wearing a tight white tank top and white shorts to clearly show the model's body shape and physique";
+    clothing = cleanTextOnly ? clText : `<span class="token-clothing">${clText}</span>`;
+  }
+
+  let pose = compileGroupSegment("Pose", "token-pose");
+  let body = compileGroupSegment("Body", "token-subject");
+  let fullSubject = [subject, body].filter(s => s !== "").join(", ");
+
+  let environment = compileGroupSegment("Environment", "token-pose");
+  let lighting = compileGroupSegment("Lighting", "token-lighting");
+  let camera = compileGroupSegment("Camera", "token-pose");
+  let quality = compileGroupSegment("Quality", "token-lighting");
+  let nsfw = compileGroupSegment("NSFW", "token-nsfw");
+  
+  let prompt = "";
+  if (state.mode === "headshot") {
+    let headshotLayout = `headshot portrait`;
+    let elements = [
+        cleanTextOnly ? headshotLayout : `<span class="token-pose">${headshotLayout}</span>`,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
+        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+        camera,
+        quality
+    ].filter(s => s && s.toString().trim() !== "");
+    prompt = elements.join(", ");
+  } else if (state.mode === "character-sheet") {
+    let referenceText = "";
+    const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+    const isUsingRef = sheetUseRefImg ? sheetUseRefImg.checked : false;
+    if (isUsingRef) {
+      const refStr = `[Reference uploaded image]`;
+      referenceText = cleanTextOnly ? refStr : `<span class="token-reference">${refStr}</span>`;
+    }
+    let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
+    let elements = [
+        referenceText,
+        cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
+        fullSubject,
+        appearance,
+        hair,
+        clothing,
+        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+        camera,
+        quality
+    ].filter(s => s && s.toString().trim() !== "");
+    prompt = elements.join(", ");
+  } else {
+    prompt = templateStr
+      .replace("{subject}", fullSubject)
+      .replace("{appearance}", fullAppearance)
+      .replace("{clothing}", clothing)
+      .replace("{nsfw}", nsfw)
+      .replace("{pose}", pose)
+      .replace("{environment}", environment)
+      .replace("{lighting}", lighting)
+      .replace("{camera}", camera)
+      .replace("{quality}", quality);
+  }
+
+  prompt = prompt.replace(/,(\s*,)+/g, ",");
+  prompt = prompt.replace(/^\s*,\s*/, "");
+  prompt = prompt.replace(/\s*,\s*$/, "");
+  prompt = prompt.trim();
+
+  const toggleGptSafeEl = document.getElementById("toggle-gpt-safe");
+  const isGptSafeActive = toggleGptSafeEl ? toggleGptSafeEl.checked : false;
+  if (isGptSafeActive && prompt !== "") {
+    let positiveWordsList = [];
+    Object.values(state.selections).forEach(selection => {
+      if (selection.isCustom) return;
+      const libItem = state.library.find(li => li.id === selection.id);
+      if (libItem && libItem.prompt && libItem.prompt["gpt-image-positive"]) {
+        positiveWordsList.push(
+          ...libItem.prompt["gpt-image-positive"].split(",").map(w => w.trim()).filter(w => w !== "")
+        );
+      }
+    });
+    positiveWordsList = [...new Set(positiveWordsList)];
+    if (positiveWordsList.length > 0) {
+      const posStr = positiveWordsList.join(", ");
+      if (cleanTextOnly) {
+        prompt += `, ${posStr}`;
+      } else {
+        prompt += `, <span class="token-positive">${posStr}</span>`;
+      }
+    }
+  }
+
+  if (state.aspectRatio && prompt !== "") {
+    const arStr = `(Image aspect ratio ${state.aspectRatio})`;
+    if (cleanTextOnly) {
+      prompt += ` ${arStr}`;
+    } else {
+      prompt += ` <span class="token-lighting">${arStr}</span>`;
+    }
+  }
+
+  return prompt;
+}
+
+// Update DOM Prompt Preview
+function updatePromptPreview() {
+  const previewBox = document.getElementById("prompt-preview");
+  const isUserAdmin = (state.userRole === 'admin');
+
+  const copyBtn = document.getElementById("btn-copy");
+  const copyJsonBtn = document.getElementById("btn-copy-json");
+  if (copyBtn) copyBtn.disabled = !isUserAdmin;
+  if (copyJsonBtn) copyJsonBtn.disabled = !isUserAdmin;
+
+  if (!isUserAdmin) {
+    previewBox.innerHTML = `
+      <div class="user-preview-placeholder" style="text-align: center; padding: 1.5rem 1rem; color: var(--text-muted);">
+        <span class="preview-icon" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">✨</span>
+        <p style="font-weight: 600; color: var(--neon-purple); margin-bottom: 0.25rem;">Prompt compilation is hidden in User mode.</p>
+        <p style="font-size: 0.8rem;">Click "Generate Image" below to create the character directly.</p>
+      </div>
+    `;
+    const warningContainer = document.getElementById("buzzword-warnings");
+    if (warningContainer) warningContainer.style.display = "none";
+    return;
+  }
+
+  const htmlContent = generatePromptText(false);
+
+  if (htmlContent === "") {
+    previewBox.innerHTML = '<span class="placeholder-text">Prompt will generate here once attributes are selected...</span>';
+  } else {
+    previewBox.innerHTML = htmlContent;
+  }
+
+  const cleanPrompt = generatePromptText(true).toLowerCase();
+  const BANNED_KEYWORDS = [
+    { word: "masterpiece", type: "AI Buzzword", suggestion: "Describe specific photographic details instead." },
+    { word: "best quality", type: "AI Buzzword", suggestion: "Specify camera brand, lens type, and lighting source." },
+    { word: "ultra quality", type: "AI Buzzword", suggestion: "Let the resolution and lens parameters imply quality." },
+    { word: "insane detail", type: "AI Buzzword", suggestion: "Explain what is detailed (e.g. skin pores, fabric weave)." },
+    { word: "hyper realistic", type: "AI Buzzword", suggestion: "Rely on realistic lighting physics and camera properties." },
+    { word: "16k", type: "AI Buzzword", suggestion: "Use standard focal lengths or camera brand names instead." },
+    { word: "32k", type: "AI Buzzword", suggestion: "Use standard focal lengths or camera brand names instead." },
+    { word: "flawless", type: "Unreal Beauty", suggestion: "Prefer natural textures like 'visible pores' or 'subtle blemishes'." },
+    { word: "perfect face", type: "Unreal Beauty", suggestion: "Describe unique features or natural expression." },
+    { word: "perfect skin", type: "Unreal Beauty", suggestion: "Use 'natural skin texture' or 'fine baby hairs'." },
+    { word: "perfect anatomy", type: "Unreal Beauty", suggestion: "Focus on relaxed postures and candid movement." },
+    { word: "perfect symmetry", type: "Unreal Beauty", suggestion: "Embrace 'natural asymmetry' for a photorealistic look." },
+    { word: "identical", type: "Geometry Lock", suggestion: "Allow natural variations from perspective, lighting, and expressions." },
+    { word: "must match", type: "Geometry Lock", suggestion: "Let the AI blend styling naturally with the environment." },
+    { word: "pixel perfect", type: "Geometry Lock", suggestion: "Describe optics like 'creamy bokeh' or 'film grain' for realism." },
+    { word: "without distortion", type: "Geometry Lock", suggestion: "Some lens distortion is natural; rely on camera/lens setup." }
+  ];
+
+  const detected = [];
+  BANNED_KEYWORDS.forEach(rule => {
+    const regex = new RegExp(`\\b${rule.word}\\b`, 'i');
+    if (regex.test(cleanPrompt)) {
+      detected.push(rule);
+    }
+  });
+
+  const warningContainer = document.getElementById("buzzword-warnings");
+  if (warningContainer) {
+    if (detected.length > 0 && htmlContent !== "") {
+      let warningHtml = `<div class="warning-title">⚠️ Photorealistic Warnings:</div>`;
+      detected.forEach(rule => {
+        warningHtml += `<div class="warning-item">Avoid <strong>"${rule.word}"</strong> (${rule.type}) — ${rule.suggestion}</div>`;
+      });
+      warningContainer.innerHTML = warningHtml;
+      warningContainer.style.display = "flex";
+    } else {
+      warningContainer.style.display = "none";
+    }
+  }
+
+  updateDropdownExclusions();
+}
+
+// Copy prompt
+function copyPromptToClipboard() {
+  const textVal = generatePromptText(true);
+  if (textVal === "") return;
+
+  navigator.clipboard.writeText(textVal).then(() => {
+    const copyBtn = document.getElementById("btn-copy");
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = "Copied!";
+    copyBtn.classList.add("neon-glow-pink");
+
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+      copyBtn.classList.remove("neon-glow-pink");
+    }, 1500);
+  }).catch(err => {
+    console.error("Clipboard copy failed:", err);
+  });
+}
+
+// Reset form
+function resetForm() {
+  document.querySelectorAll(".custom-select").forEach(select => {
+    select.value = "";
+    const formField = select.closest(".form-field");
+    if (formField) {
+      const customInput = formField.querySelector(".custom-writein-input");
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
+    }
+  });
+
+  document.getElementById("ref-face-match").checked = false;
+  document.getElementById("ref-style-match").checked = false;
+  document.getElementById("ref-pose-match").checked = false;
+
+  const toggleNsfw = document.getElementById("toggle-nsfw");
+  if (toggleNsfw) toggleNsfw.checked = false;
+  const nsfwAccordion = document.getElementById("accordion-nsfw");
+  if (nsfwAccordion) nsfwAccordion.style.display = "none";
+
+  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+  if (toggleGptSafe) toggleGptSafe.checked = false;
+
+  state.selections = {};
+  state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false };
+  state.aspectRatio = "6:8";
+
+  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+    chip.classList.remove("active");
+    if (chip.getAttribute("data-ratio") === "6:8") {
+      chip.classList.add("active");
+    }
+  });
+
+  document.querySelectorAll(".accordion-badge").forEach(badge => {
+    badge.textContent = "";
+    badge.style.display = "none";
+  });
+
+  const templateSelect = document.getElementById("template-select");
+  if (templateSelect.options.length > 0) templateSelect.selectedIndex = 0;
+  document.querySelectorAll("#presets-group .option-chip").forEach(c => c.classList.remove("active"));
+
+  applyFaceMatchLockout();
+  updatePromptPreview();
+}
+
+// Export state as JSON
+function exportConfigJSON() {
+  const payload = {
+    selections: {},
+    imageReferences: state.imageReferences,
+    aspectRatio: state.aspectRatio,
+    template: document.getElementById("template-select").value || "portrait"
+  };
+
+  Object.keys(state.selections).forEach(field => {
+    payload.selections[field] = {
+      id: state.selections[field].id,
+      value: getPromptValueForSelection(state.selections[field]),
+      isCustom: state.selections[field].isCustom
+    };
+  });
+
+  const jsonStr = JSON.stringify(payload, null, 2);
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "model-prompt-config.json";
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Import JSON preset
+function importConfigJSON(jsonString) {
+  try {
+    const payload = JSON.parse(jsonString);
+    if (!payload || typeof payload !== "object") throw new Error("Invalid preset format");
+
+    resetForm();
+
+    if (payload.template) {
+      const templateSelect = document.getElementById("template-select");
+      templateSelect.value = payload.template;
+    }
+
+    if (payload.aspectRatio) {
+      state.aspectRatio = payload.aspectRatio;
+      document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+        chip.classList.remove("active");
+        if (chip.getAttribute("data-ratio") === payload.aspectRatio) {
+          chip.classList.add("active");
+        }
+      });
+    }
+
+    if (payload.imageReferences) {
+      state.imageReferences = payload.imageReferences;
+      document.getElementById("ref-face-match").checked = !!payload.imageReferences.faceMatch;
+      document.getElementById("ref-style-match").checked = !!payload.imageReferences.styleMatch;
+      document.getElementById("ref-pose-match").checked = !!payload.imageReferences.poseMatch;
+    }
+
+    let hasNsfwSelection = false;
+    if (payload.selections) {
+      Object.keys(payload.selections).forEach(field => {
+        const item = payload.selections[field];
+        const select = document.querySelector(`.custom-select[data-field="${field}"]`);
+        if (!select) return;
+
+        const groupName = select.getAttribute("data-group");
+        if (groupName === "NSFW") {
+          hasNsfwSelection = true;
+        }
+
+        const libItem = state.library.find(li => li.id === item.id);
+
+        if (item.isCustom) {
+          select.value = "__custom__";
+          const formField = select.closest(".form-field");
+          if (formField) {
+            const customInput = formField.querySelector(".custom-writein-input");
+            if (customInput) {
+              customInput.value = item.value;
+              customInput.style.display = "block";
+            }
+          }
+          state.selections[field] = { 
+            id: "__custom__", 
+            value: item.value, 
+            isCustom: true, 
+            group: groupName,
+            category: FIELD_TO_CATEGORY_MAP[field] || groupName.toLowerCase(),
+            tags: []
+          };
+        } else {
+          select.value = item.id;
+          state.selections[field] = { 
+            id: item.id, 
+            value: item.value, 
+            isCustom: false, 
+            group: groupName,
+            category: libItem ? libItem.category : (FIELD_TO_CATEGORY_MAP[field] || groupName.toLowerCase()),
+            tags: libItem ? (libItem.tags || []) : [],
+            gptPositiveWords: libItem && libItem.prompt && libItem.prompt["gpt-image-positive"] ? libItem.prompt["gpt-image-positive"].split(",").map(w => w.trim()) : []
+          };
+        }
+        updateAccordionSummaryBadges(groupName);
+      });
+    }
+
+    const toggleNsfw = document.getElementById("toggle-nsfw");
+    if (toggleNsfw) {
+      toggleNsfw.checked = hasNsfwSelection;
+    }
+    const nsfwAccordion = document.getElementById("accordion-nsfw");
+    if (nsfwAccordion) {
+      nsfwAccordion.style.display = hasNsfwSelection ? "block" : "none";
+    }
+
+    applyFaceMatchLockout();
+    updatePromptPreview();
+
+  } catch (error) {
+    alert("Failed to load preset configuration: " + error.message);
+  }
+}
+
+// Lockout facial features when Face Match is checked
+function applyFaceMatchLockout() {
+  const isLocked = state.imageReferences.faceMatch;
+  const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"];
+
+  faceFields.forEach(field => {
+    const select = document.querySelector(`.custom-select[data-field="${field}"]`);
+    if (!select) return;
+
+    const formField = select.closest(".form-field");
+    if (isLocked) {
+      select.disabled = true;
+      if (formField) formField.classList.add("disabled");
+
+      delete state.selections[field];
+      select.value = "";
+
+      const customInput = formField ? formField.querySelector(".custom-writein-input") : null;
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
+    } else {
+      select.disabled = false;
+      if (formField) formField.classList.remove("disabled");
+    }
+  });
+  updateAccordionSummaryBadges("Face");
+}
+
+// Randomize selections
+function randomizeSelections() {
+  Object.keys(state.selections).forEach(field => {
+    if (!state.lockedFields.has(field)) {
+      delete state.selections[field];
+    }
+  });
+
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    const fieldName = select.getAttribute("data-field");
+    if (!state.lockedFields.has(fieldName)) {
+      select.value = "";
+      const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
+      if (customInput) {
+        customInput.value = "";
+        customInput.style.display = "none";
+      }
+    }
+  });
+
+  document.querySelectorAll(".accordion-badge").forEach(badge => {
+    badge.textContent = "";
+    badge.style.display = "none";
+  });
+
+  const isFaceLocked = state.imageReferences.faceMatch;
+  const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
+
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    const fieldName = select.getAttribute("data-field");
+    const groupName = select.getAttribute("data-group");
+
+    if (isFaceLocked && faceFields.includes(fieldName)) return;
+    if (state.lockedFields.has(fieldName)) return;
+    if (Math.random() > 0.65) return;
+
+    let options = Array.from(select.options).filter(opt => opt.value !== "" && opt.value !== "__custom__");
+
+    if (fieldName === "Ethnicity") {
+      const asianIds = ["character.007", "character.008", "character.009", "character.010", "character.011"];
+      options = options.filter(opt => asianIds.includes(opt.value));
+    }
+
+    if (options.length === 0) return;
+
+    const randomOpt = options[Math.floor(Math.random() * options.length)];
+    select.value = randomOpt.value;
+
+    const promptVal = randomOpt.getAttribute("data-prompt");
+    state.selections[fieldName] = { id: randomOpt.value, value: promptVal, isCustom: false, group: groupName };
+    updateAccordionSummaryBadges(groupName);
+  });
+
+  updatePromptPreview();
+}
+
+// Copy prompt as JSON
+function copyPromptAsJSON() {
+  const textVal = generatePromptText(true);
+  if (textVal === "") return;
+
+  const currentTemplateName = document.getElementById("template-select").value || "portrait";
+  const structuredAttrs = {};
+
+  Object.keys(state.selections).forEach(fieldName => {
+    const selection = state.selections[fieldName];
+    const group = selection.group;
+
+    if (!structuredAttrs[group]) {
+      structuredAttrs[group] = {};
+    }
+    structuredAttrs[group][fieldName] = {
+      id: selection.id,
+      prompt_value: getPromptValueForSelection(selection)
+    };
+  });
+
+  const refAttrs = {};
+  if (state.imageReferences.faceMatch) refAttrs["Face Match"] = "100% Identity Lock Active";
+  if (state.imageReferences.styleMatch) refAttrs["Style Match"] = "Style & Outfit Match Active";
+  if (state.imageReferences.poseMatch) refAttrs["Pose Match"] = "Pose & Composition Match Active";
+  if (Object.keys(refAttrs).length > 0) {
+    structuredAttrs["Image Reference Options"] = refAttrs;
+  }
+
+  const jsonPayload = JSON.stringify({
+    template: currentTemplateName,
+    aspect_ratio: state.aspectRatio,
+    attributes: structuredAttrs
+  }, null, 2);
+
+  navigator.clipboard.writeText(jsonPayload).then(() => {
+    const copyJsonBtn = document.getElementById("btn-copy-json");
+    const originalText = copyJsonBtn.textContent;
+    copyJsonBtn.textContent = "Copied JSON!";
+    copyJsonBtn.classList.add("neon-glow-pink");
+
+    setTimeout(() => {
+      copyJsonBtn.textContent = originalText;
+      copyJsonBtn.classList.remove("neon-glow-pink");
+    }, 1500);
+  }).catch(err => {
+    console.error("JSON clipboard copy failed:", err);
+  });
+}
