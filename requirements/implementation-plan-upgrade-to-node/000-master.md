@@ -35,3 +35,14 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Integrate dynamic provider submodel selectors (DALL-E 2/3, Imagen 2/3).
   - Create a dedicated generated image viewport card with pulse loaders.
   - Add status-oriented professional footer.
+- [ ] **Step 5: Modular Providers & SSE Image Streaming** (`005-modular-generation-providers.md`)
+  - Implement Provider Strategy pattern on backend (OpenAI, Gemini, others).
+  - Integrate OpenAI `gpt-image-*` models via `/v1/images/generations`.
+  - Implement progressive SSE streaming proxy for real-time viewport drawing.
+  - Refine billing to support token analytics and display telemetry statistics.
+- [ ] **Step 6: UI/UX Refinement, Concurrency Queue & Image Lightbox** (`006-ui-ux-refinement-and-queue.md`)
+  - Restructure page layout (logical creator pipeline).
+  - Implement collapsible/expandable Visual Dashboard and Aesthetic Configurator.
+  - Develop background concurrency job queue on backend.
+  - Add Full-screen Modal Lightbox with download/metadata features.
+  - Save outputs as static assets and implement history local database with file deletion.

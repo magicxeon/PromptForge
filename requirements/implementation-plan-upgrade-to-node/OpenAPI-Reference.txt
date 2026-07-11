@@ -1,0 +1,2 @@
+https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide#43-photorealistic-images-that-feel-natural
+https://developers.openai.com/api/reference/resources/images/methods/generate
