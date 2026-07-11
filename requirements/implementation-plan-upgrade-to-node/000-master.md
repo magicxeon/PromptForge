@@ -54,3 +54,11 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Redesign Generate button with cost indicator and enhance theme contrast.
   - Auto-collapse viewport on page load if history is empty.
   - Hide Live Prompt Preview card completely for non-admin users.
+- [ ] **Step 8: Advanced Validations & Attribute Localization** (`008-advanced-validations-and-localization.md`)
+  - Implement mandatory field validation and autofocus scrolling.
+  - Add scroll-to-focus on Open Studio Configurator click.
+  - Update character.json schema to support multilingual translation keys and load language toggle.
+- [ ] **Step 9: Loopback Referencing** (`009-loopback-referencing.md`)
+  - Add Face and Style reference selection buttons to active Viewport and Lightbox Modal.
+  - Bind client-side JS to store base64/local paths and show thumbnail previews.
+  - Adjust backend to resolve local static file paths and read references.

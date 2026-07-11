@@ -423,11 +423,91 @@ const state = {
   },
   faceReferenceImage: null,
   hasInitializedHistoryCollapse: false,
+  language: "th",
   aspectRatio: "6:8",
   mode: "normal",
   userRole: "user",
   username: "user_demo"
 };
+
+// Retrieve localized label with backward compatibility fallback
+function getLocalizedLabel(labelObj) {
+  if (typeof labelObj === 'object' && labelObj !== null) {
+    return labelObj[state.language] || labelObj['en'] || '';
+  }
+  return labelObj || '';
+}
+
+// Restore selections to the active DOM inputs (Step 8)
+function restoreSelectionsToUI() {
+  Object.keys(state.selections).forEach(fieldName => {
+    const selection = state.selections[fieldName];
+    const selectEl = document.querySelector(`.custom-select[data-field="${fieldName}"]`);
+    if (selectEl) {
+      if (selection.isCustom) {
+        selectEl.value = "__custom__";
+        const formField = selectEl.closest(".form-field");
+        const customInput = formField ? formField.querySelector(".custom-writein-input") : null;
+        if (customInput) {
+          customInput.value = selection.value;
+          customInput.style.display = "block";
+        }
+      } else {
+        selectEl.value = selection.id;
+      }
+      updateAccordionSummaryBadges(selection.group);
+    }
+  });
+}
+
+// Validate mandatory required fields (Step 8)
+function validateForm() {
+  const required = [
+    { field: "Ethnicity", group: "Character" },
+    { field: "Gender", group: "Character" }
+  ];
+
+  for (const req of required) {
+    const isSelected = state.selections[req.field] && state.selections[req.field].value && state.selections[req.field].value.trim() !== "";
+    if (!isSelected) {
+      // Find the select element
+      const id = `select-${req.group.toLowerCase()}-${req.field.toLowerCase().replace(/\s+/g, "-")}`;
+      const selectEl = document.getElementById(id);
+      if (selectEl) {
+        // Expand the accordion parent
+        const accordion = selectEl.closest(".accordion");
+        if (accordion && !accordion.classList.contains("active")) {
+          // Open it
+          accordion.classList.add("active");
+          const content = accordion.querySelector(".accordion-content");
+          if (content) {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
+        }
+        
+        // Smooth scroll to it
+        selectEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        // Highlight the select wrapper with flashing neon red
+        const formField = selectEl.closest(".form-field");
+        if (formField) {
+          formField.classList.remove("required-flash");
+          void formField.offsetWidth; // trigger reflow
+          formField.classList.add("required-flash");
+          setTimeout(() => {
+            formField.classList.remove("required-flash");
+          }, 3000);
+        }
+        
+        // Focus the select input
+        selectEl.focus();
+      }
+      return false; // Validation failed
+    }
+  }
+  return true; // Validation passed
+}
+
 
 // Populate submodel options inside the selectors
 function updateSubmodelList() {
@@ -460,9 +540,10 @@ async function updateCredits() {
     state.userRole = data.role;
     
     // Auto switch selector UI value if credentials fetched externally
-    const selector = document.getElementById("role-select");
-    if (selector && selector.value !== state.username) {
-      selector.value = state.username;
+    const activePill = document.querySelector(`#profile-pill-selector .pill-btn[data-value="${state.username}"]`);
+    if (activePill) {
+      document.querySelectorAll("#profile-pill-selector .pill-btn").forEach(b => b.classList.remove("active"));
+      activePill.classList.add("active");
     }
     
     updatePromptPreview(); // refresh display
@@ -685,21 +766,23 @@ function renderForm() {
         if (opt.enabled === false) return;
         const optionNode = document.createElement("option");
         optionNode.value = opt.id;
-        optionNode.setAttribute("data-prompt", opt.prompt ? (opt.prompt["gpt-image"] || opt.prompt.default) : opt.label);
+        
+        const resolvedLabel = getLocalizedLabel(opt.label);
+        optionNode.setAttribute("data-prompt", opt.prompt ? (opt.prompt["gpt-image"] || opt.prompt.default) : resolvedLabel);
 
-        const optLabel = opt.label.toLowerCase();
+        const optLabel = resolvedLabel.toLowerCase();
         const optTags = (opt.tags || []).map(t => t.toLowerCase());
         const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") ||
           optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") ||
           optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
 
         if (isAsian) {
-          optionNode.textContent = `🏮 ${opt.label}`;
+          optionNode.textContent = `🏮 ${resolvedLabel}`;
           optionNode.style.color = "#06b6d4";
           optionNode.style.fontWeight = "600";
           optionNode.className = "asian-option";
         } else {
-          optionNode.textContent = opt.label;
+          optionNode.textContent = resolvedLabel;
         }
 
         optionNode.setAttribute("data-original-text", optionNode.textContent);
@@ -1046,14 +1129,37 @@ function bindEvents() {
 
   toggleNsfw.addEventListener("change", updateNsfwState);
 
-  // Role Selector Event Listener
-  const roleSelect = document.getElementById("role-select");
-  if (roleSelect) {
-    roleSelect.addEventListener("change", (e) => {
-      state.username = e.target.value;
-      updateCredits();
+  // Language Selector Pill Toggles (Step 8)
+  const languagePills = document.querySelectorAll("#language-pill-selector .pill-btn");
+  languagePills.forEach(btn => {
+    btn.addEventListener("click", () => {
+      languagePills.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      const newLang = btn.getAttribute("data-value");
+      if (state.language !== newLang) {
+        state.language = newLang;
+        renderForm();
+        restoreSelectionsToUI();
+        updatePromptPreview();
+      }
     });
-  }
+  });
+
+  // Profile Selector Pill Toggles (Step 8)
+  const profilePills = document.querySelectorAll("#profile-pill-selector .pill-btn");
+  profilePills.forEach(btn => {
+    btn.addEventListener("click", () => {
+      profilePills.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      const newUsername = btn.getAttribute("data-value");
+      if (state.username !== newUsername) {
+        state.username = newUsername;
+        updateCredits();
+      }
+    });
+  });
 
   // Simulated Credits Top-up
   const btnRecharge = document.getElementById("btn-recharge");
@@ -1114,6 +1220,9 @@ function bindEvents() {
     btnFloatingConfig.addEventListener("click", () => {
       creativeConfigurator.classList.remove("collapsed");
       btnFloatingConfig.style.display = "none";
+      setTimeout(() => {
+        creativeConfigurator.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     });
   }
 
@@ -1145,9 +1254,7 @@ function bindEvents() {
       const btnDownload = document.getElementById("btn-download-image");
       const queueList = document.getElementById("active-queue-list");
 
-      if (Object.keys(state.selections).length === 0) {
-        errBanner.style.display = "flex";
-        document.getElementById("error-message").textContent = "Please select some attributes first before generating.";
+      if (!validateForm()) {
         return;
       }
 

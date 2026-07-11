@@ -20,15 +20,26 @@
           <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
         </div>
         
-        <!-- Header Profile & Credit Balance (Relocated for better layout space) -->
+        <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
         <div class="header-status-area">
-          <div class="role-selector">
-            <label for="role-select">Profile</label>
-            <select id="role-select" class="custom-select-compact">
-              <option value="user_demo">user_demo (User)</option>
-              <option value="admin_demo">admin_demo (Admin)</option>
-            </select>
+          <!-- Language Toggle Pill Selector -->
+          <div class="header-toggle-group">
+            <span class="toggle-group-label">Language</span>
+            <div class="pill-selector" id="language-pill-selector">
+              <button class="pill-btn active" data-value="th">TH</button>
+              <button class="pill-btn" data-value="en">EN</button>
+            </div>
           </div>
+
+          <!-- Profile/Role Toggle Pill Selector -->
+          <div class="header-toggle-group">
+            <span class="toggle-group-label">Profile</span>
+            <div class="pill-selector" id="profile-pill-selector">
+              <button class="pill-btn active" data-value="user_demo">User</button>
+              <button class="pill-btn" data-value="admin_demo">Admin</button>
+            </div>
+          </div>
+
           <div class="credits-display-compact">
             <div class="credits-count-row">
               <span class="credits-count" id="credits-value">20</span>

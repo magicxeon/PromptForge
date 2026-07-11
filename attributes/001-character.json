@@ -3,7 +3,10 @@
     "id": "character.001",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Female",
+    "label": {
+      "en": "Female",
+      "th": "ผู้หญิง"
+    },
     "ui": { "control": "select", "group": "Character" },
     "prompt": {
       "default": "female",
@@ -15,7 +18,10 @@
     "id": "character.002",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Male",
+    "label": {
+      "en": "Male",
+      "th": "ผู้ชาย"
+    },
     "ui": { "control": "select", "group": "Character" },
     "prompt": {
       "default": "male",
@@ -27,7 +33,10 @@
     "id": "character.002_nb",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Non-binary",
+    "label": {
+      "en": "Non-binary",
+      "th": "นอนไบนารี (Non-binary)"
+    },
     "ui": { "control": "select", "group": "Character" },
     "prompt": {
       "default": "non-binary person",
