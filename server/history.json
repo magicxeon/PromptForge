@@ -1,5 +1,31 @@
 [
   {
+    "id": "job_1783870598727_ui633u481",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short hair, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, relaxed loose-fit breathable linen shirt with rolled-up sleeves, comfy high-waisted frayed denim shorts, leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders, gently holding the frame of her designer sunglasses with slender fingers, elegant style, candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment, at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background, soft diffused fill light to gently soften shadows without losing facial definition, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783870598727_ui633u481.png",
+    "timestamp": 1783870685549,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783864845137_hwbgdq8jl"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "86.8"
+  },
+  {
+    "id": "job_1783870510972_6y99q7kgr",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short hair, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, relaxed loose-fit breathable linen shirt with rolled-up sleeves, comfy high-waisted frayed denim shorts, leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders, gently holding the frame of her designer sunglasses with slender fingers, elegant style, candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment, at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background, soft diffused fill light to gently soften shadows without losing facial definition, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783870510972_6y99q7kgr.png",
+    "timestamp": 1783870530293,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      "job_1783864845137_hwbgdq8jl"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "19.3"
+  },
+  {
     "id": "job_1783864845137_hwbgdq8jl",
     "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
     "imageUrl": "/outputs/job_1783864845137_hwbgdq8jl.png",

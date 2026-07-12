@@ -2150,13 +2150,10 @@ function generatePromptText(cleanTextOnly = false) {
     let segmentValues = [];
 
     state.order.forEach(fieldId => {
-      const selection = Object.values(activeSelections).find(s => {
-        const category = FIELD_TO_CATEGORY_MAP[s.group] || s.group.toLowerCase();
-        return category.replace("_", "") === fieldId.replace("_", "") || s.group.toLowerCase() === fieldId.toLowerCase();
-      });
-
-      if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
-        const fieldName = Object.keys(activeSelections).find(k => activeSelections[k] === selection);
+      Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+        const category = FIELD_TO_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
+        const matchesOrder = category.replaceAll("_", "") === fieldId.replaceAll("_", "");
+        if (matchesOrder && selection.group.toLowerCase() === groupName.toLowerCase()) {
         const val = getPromptValueForSelection(selection, fieldName);
         if (val && val.trim() !== "") {
           if (selection.isDropped) {
@@ -2165,7 +2162,8 @@ function generatePromptText(cleanTextOnly = false) {
             segmentValues.push(val);
           }
         }
-      }
+        }
+      });
     });
 
     if (segmentValues.length === 0) {
@@ -2222,6 +2220,9 @@ function generatePromptText(cleanTextOnly = false) {
   }
 
   let pose = compileGroupSegment("Pose", "token-pose");
+  let photoContext = compileGroupSegment("Photographic Context", "token-pose");
+  let sceneStory = compileGroupSegment("Scene Story", "token-pose");
+  let sceneContext = [photoContext, sceneStory].filter(s => s !== "").join(", ");
   let body = compileGroupSegment("Body", "token-subject");
   let fullSubject = [subject, body].filter(s => s !== "").join(", ");
 
@@ -2240,6 +2241,7 @@ function generatePromptText(cleanTextOnly = false) {
       appearance,
       hair,
       skin,
+      sceneContext,
       cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
       cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
       cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
@@ -2264,6 +2266,7 @@ function generatePromptText(cleanTextOnly = false) {
       appearance,
       hair,
       clothing,
+      sceneContext,
       cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
       cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
       cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
@@ -2277,7 +2280,7 @@ function generatePromptText(cleanTextOnly = false) {
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", pose)
+      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)

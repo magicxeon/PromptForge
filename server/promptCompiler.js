@@ -198,18 +198,16 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
     // Get order mappings for attributes within this segment
     promptOrder.forEach(fieldId => {
-      const selection = Object.values(activeSelections).find(s => {
-        const category = FIELD_TO_CATEGORY_MAP[s.group] || s.group.toLowerCase();
-        return category.replace("_", "") === fieldId.replace("_", "") || s.group.toLowerCase() === fieldId.toLowerCase();
-      });
-
-      if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
-        const fieldName = Object.keys(activeSelections).find(k => activeSelections[k] === selection);
+      Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+        const category = FIELD_TO_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
+        const matchesOrder = category.replaceAll("_", "") === fieldId.replaceAll("_", "");
+        if (matchesOrder && selection.group.toLowerCase() === groupName.toLowerCase()) {
         const val = getPromptValueWithColor(selection, fieldName);
         if (val && val.trim() !== "" && !selection.isDropped) {
           segmentValues.push(val);
         }
-      }
+        }
+      });
     });
 
     // Fallback if order rule didn't catch it
@@ -253,6 +251,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
+  let photoContext = compileGroupSegment("Photographic Context");
+  let sceneStory = compileGroupSegment("Scene Story");
+  let sceneContext = [photoContext, sceneStory].filter(s => s !== "").join(", ");
   let body = compileGroupSegment("Body");
   let fullSubject = [subject, body].filter(s => s !== "").join(", ");
 
@@ -271,6 +272,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       appearance,
       hair,
       skin,
+      sceneContext,
       "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head",
       "on a solid pure white background",
       "photorealistic photography",
@@ -292,6 +294,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       appearance,
       hair,
       clothing,
+      sceneContext,
       "on a solid pure white background",
       "photorealistic photography",
       "realistic camera imperfections",
@@ -305,7 +308,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", pose)
+      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)

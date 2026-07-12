@@ -1030,9 +1030,9 @@
     "enabled": true
   },
   {
-    "id": "camera.composition_03",
-    "category": "camera",
-    "subcategory": "Composition",
+    "id": "camera.framing_03",
+    "category": "camera_framing",
+    "subcategory": "Framing",
     "label": {
       "en": "Medium Close-up Framing",
       "th": "เฟรมระยะใกล้กลาง"
@@ -1049,9 +1049,121 @@
     },
     "tags": [
       "camera",
-      "composition",
+      "framing",
       "close up"
     ],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_01",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Extreme Close-up", "th": "ระยะใกล้มาก เน้นรายละเอียด" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme close-up shot",
+      "gpt-image": "extreme close-up framing, filling the frame with a small facial detail such as the eyes",
+      "gpt-image-safe": "extreme close-up framing focused on fine facial detail"
+    },
+    "tags": ["camera", "framing", "extreme close up"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_02",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Close-up", "th": "ระยะใกล้ เน้นใบหน้า" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "close-up shot",
+      "gpt-image": "close-up framing from the shoulders upward, emphasizing the face and expression",
+      "gpt-image-safe": "close-up framing from the shoulders upward"
+    },
+    "tags": ["camera", "framing", "close up", "face"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_04",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Medium Shot", "th": "ระยะครึ่งตัว" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "medium shot",
+      "gpt-image": "medium shot framing from the waist upward, balancing facial expression and body language",
+      "gpt-image-safe": "medium shot framing from the waist upward"
+    },
+    "tags": ["camera", "framing", "medium shot", "half body"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_05",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Cowboy Shot", "th": "ระยะเหนือเข่า" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "cowboy shot",
+      "gpt-image": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+      "gpt-image-safe": "cowboy shot framing from above the knees upward"
+    },
+    "tags": ["camera", "framing", "cowboy shot", "three quarter"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_06",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Full-body Shot", "th": "ระยะเต็มตัว" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "full-body shot",
+      "gpt-image": "full-body framing showing the subject completely from head to toe with clear surrounding space",
+      "gpt-image-safe": "full-body framing showing the subject from head to toe"
+    },
+    "tags": ["camera", "framing", "full body"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_07",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Wide Shot", "th": "ระยะไกล เห็นตัวแบบและฉาก" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "wide shot",
+      "gpt-image": "wide shot framing showing the full subject within a clearly visible surrounding environment",
+      "gpt-image-safe": "wide shot showing the subject and surrounding environment"
+    },
+    "tags": ["camera", "framing", "wide shot", "environment"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_08",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Extreme Wide Shot", "th": "ระยะไกลมาก เน้นทิวทัศน์" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme wide establishing shot",
+      "gpt-image": "extreme wide establishing shot emphasizing the expansive scenery, with the subject appearing small in the environment",
+      "gpt-image-safe": "extreme wide establishing shot emphasizing expansive scenery"
+    },
+    "tags": ["camera", "framing", "extreme wide", "scenery", "establishing shot"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_09",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Environmental Portrait", "th": "ภาพบุคคลเน้นสภาพแวดล้อม" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "environmental portrait framing",
+      "gpt-image": "environmental portrait framing balancing the subject with meaningful surroundings that tell the scene story",
+      "gpt-image-safe": "environmental portrait balancing the subject with meaningful surroundings"
+    },
+    "tags": ["camera", "framing", "environmental portrait", "scenery"],
     "enabled": true
   },
   {

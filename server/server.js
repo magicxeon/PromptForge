@@ -60,7 +60,9 @@ const ATTRIBUTE_FILES = [
 let cachedAttributesBundle = null;
 
 async function getAttributesBundle() {
-  if (cachedAttributesBundle) {
+  const enabledCache = process.env.ENABLED_CACHE_ATTRIBUTE_BUNDLE === 'true';
+
+  if (enabledCache && cachedAttributesBundle) {
     return cachedAttributesBundle;
   }
 
@@ -92,7 +94,7 @@ async function getAttributesBundle() {
       }
     }
 
-    cachedAttributesBundle = {
+    const compiledBundle = {
       schema,
       templates,
       order,
@@ -100,7 +102,11 @@ async function getAttributesBundle() {
       presets
     };
 
-    return cachedAttributesBundle;
+    if (enabledCache) {
+      cachedAttributesBundle = compiledBundle;
+    }
+
+    return compiledBundle;
   } catch (err) {
     console.error('[Bundle] Failed to compile attributes bundle:', err);
     throw err;
@@ -393,12 +399,18 @@ app.delete('/api/history/:id', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
-  // Warm the attributes cache on startup
-  getAttributesBundle().then(() => {
-    console.log('[Bundle] Attributes cache warmed successfully.');
-  }).catch(err => {
-    console.error('[Bundle] Failed to warm cache on startup:', err);
-  });
+  // Warm the attributes cache on startup if enabled and refresh is true (Step 10)
+  const enabledCache = process.env.ENABLED_CACHE_ATTRIBUTE_BUNDLE === 'true';
+  const refreshCache = process.env.REFRESH_CACHE_ATTRIBUTE_BUNDLE === 'true';
+  if (enabledCache && refreshCache) {
+    getAttributesBundle().then(() => {
+      console.log('[Bundle] Attributes cache warmed successfully.');
+    }).catch(err => {
+      console.error('[Bundle] Failed to warm cache on startup:', err);
+    });
+  } else {
+    console.log(`[Bundle] Attributes cache warming skipped. Cache Enabled: ${enabledCache}, Refresh: ${refreshCache}`);
+  }
   collectionManager.init().catch(err => {
     console.error('[Collections] Failed to initialize storage:', err);
   });
