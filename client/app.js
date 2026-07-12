@@ -658,6 +658,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initApp() {
+  state.isRestoringState = true; // Block any auto-saving during initialization race conditions (Step 12)
   try {
     const response = await fetch("/api/attributes/bundle");
     if (!response.ok) {
@@ -692,13 +693,26 @@ async function initApp() {
     initializeCollectionsUI();
     initializeScrollToViewport();
 
+    // Restore active mode from localStorage (Step 12)
+    const savedMode = localStorage.getItem("model_prompt_forge_active_mode") || "normal";
+    state.mode = savedMode;
+
+    // Sync mode chips in DOM
+    document.querySelectorAll(".mode-chip").forEach(chip => {
+      chip.classList.remove("active");
+      if (chip.getAttribute("data-mode") === state.mode) {
+        chip.classList.add("active");
+      }
+    });
+
     // Restore persisted state for initial mode (Step 12)
-    state.isRestoringState = true;
     restoreCurrentModeState();
-    state.isRestoringState = false;
 
     toggleUIForMode();
     updateCredits();
+
+    state.isRestoringState = false; // Safe to auto-save now
+
     updatePromptPreview();
     await loadCollections();
     loadHistory();
@@ -2448,6 +2462,7 @@ function saveCurrentModeState() {
   };
 
   localStorage.setItem(modeKey, JSON.stringify(payload));
+  localStorage.setItem("model_prompt_forge_active_mode", state.mode);
 }
 
 // Restore state from localStorage by mode (Step 12)
