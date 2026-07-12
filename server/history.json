@@ -1,5 +1,71 @@
 [
   {
+    "id": "job_1783834479379_9qd5mry7r",
+    "prompt": "headshot portrait, female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, soft jawline, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, calm and confident expression, straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834479379_9qd5mry7r.png",
+    "timestamp": 1783834501121,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "21.7"
+  },
+  {
+    "id": "job_1783834418376_h5dvc3v5q",
+    "prompt": "headshot portrait, female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, soft jawline, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, calm and confident expression, straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834418376_h5dvc3v5q.png",
+    "timestamp": 1783834433950,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.6"
+  },
+  {
+    "id": "job_1783834037466_cts32n135",
+    "prompt": "headshot portrait, female, young adult, korean, beautiful young Asian woman, delicate doll-like face structure, highly symmetrical and refined, monolid eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, layered hush cut hairstyle, short hair, hair, colored in #090501, accented with custom highlights in #5e0d0d, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834037466_cts32n135.png",
+    "timestamp": 1783834061848,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.4"
+  },
+  {
+    "id": "job_1783834029445_ztxpbs0ef",
+    "prompt": "headshot portrait, female, young adult, korean, beautiful young Asian woman, delicate doll-like face structure, highly symmetrical and refined, monolid eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, layered hush cut hairstyle, short hair, hair, colored in #090501, accented with custom highlights in #5e0d0d, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834029445_ztxpbs0ef.png",
+    "timestamp": 1783834041939,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "12.5"
+  },
+  {
+    "id": "job_1783831362086_93nayu1n1",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, beautiful young Asian woman, balanced facial proportions, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, gentle spark of delight in expression, straight hair, short hair, soft glossy hair waves, displaying brilliant specular light reflections off healthy luminous waves, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783831362086_93nayu1n1.png",
+    "timestamp": 1783831388699,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "26.6"
+  },
+  {
+    "id": "job_1783831373185_e3l5d3ozc",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, beautiful young Asian woman, balanced facial proportions, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, gentle spark of delight in expression, straight hair, short hair, soft glossy hair waves, displaying brilliant specular light reflections off healthy luminous waves, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783831373185_e3l5d3ozc.png",
+    "timestamp": 1783831388696,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.4"
+  },
+  {
     "id": "job_1783794785110_6bmhbm14l",
     "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, hand near mouth, walking down stairs, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1783794785110_6bmhbm14l.png",

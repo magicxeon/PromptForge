@@ -232,7 +232,7 @@
   {
     "id": "skin.text_01",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Natural Skin Texture",
       "th": "ธรรมชาติ ผิว Texture"
@@ -257,7 +257,7 @@
   {
     "id": "skin.text_02",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Dewy Complexion",
       "th": "ผิวฉ่ำวาว"
@@ -282,7 +282,7 @@
   {
     "id": "skin.text_03",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Healthy Complexion",
       "th": "ผิวพรรณสุขภาพดี"
@@ -307,7 +307,7 @@
   {
     "id": "skin.text_04",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Even Skin Tone",
       "th": "Even ผิว Tone"
@@ -332,7 +332,7 @@
   {
     "id": "skin.text_05",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Soft Smooth Skin",
       "th": "นุ่มนวล Smooth ผิว"
@@ -357,7 +357,7 @@
   {
     "id": "skin.text_06",
     "category": "skin",
-    "subcategory": "Texture",
+    "subcategory": "Skin Texture",
     "label": {
       "en": "Radiant Smooth Skin (under flash)",
       "th": "Radiant Smooth ผิว(under แฟลช)"

@@ -46,11 +46,11 @@ const FIELD_TO_CATEGORY_MAP = {
   "Expression": "expression",
   "Length": "hair",
   "Style": "hair",
-  "Texture": "hair",
+  "Hair Texture": "hair",
   "Color": "hair",
   "Bangs": "",
   "Tone": "skin",
-  "Texture": "skin",
+  "Skin Texture": "skin",
   "Makeup": "skin",
   "Freckles": "skin",
   "Height": "body",
@@ -125,264 +125,7 @@ const PROVIDER_SUBMODELS = {
   ]
 };
 
-// Presets definitions
-const PRESETS = {
-  nightclub: {
-    template: "nightclub",
-    aspectRatio: "6:8",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
-      "Beauty": { id: "character.023", value: "cute doll-like Asian woman", isCustom: false },
-      "Face Shape": { id: "face.016", value: "doll-like face shape", isCustom: false },
-      "Eyes": { id: "eyes.006", value: "doe eyes", isCustom: false },
-      "Eyebrows": { id: "eyebrows.001", value: "straight eyebrows", isCustom: false },
-      "Nose": { id: "nose.001", value: "small button nose", isCustom: false },
-      "Lips": { id: "lips.001", value: "cherry lips", isCustom: false },
-      "Smile": { id: "lips.005", value: "gentle smile", isCustom: false },
-      "Expression": { id: "face.017", value: "cute doll-like facial features", isCustom: false },
-      "Length": { id: "hair_003", value: "long hair", isCustom: false },
-      "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
-      "Color": { id: "hair_021", value: "reddish-orange hair color", isCustom: false },
-      "Bangs": { id: "hair_027", value: "see-through bangs", isCustom: false },
-      "Tone": { id: "skin.tone_05", value: "rosy fair skin, glowing white complexion with natural soft pinkish undertones", isCustom: false },
-      "Texture": { id: "skin.text_06", value: "radiant, smooth, and bright skin, with high-detail specular highlights from a strong camera flash", isCustom: false },
-      "Top": { id: "clothing.014", value: "off-the-shoulder top", isCustom: false },
-      "Bottom": { id: "clothing.015", value: "skirt with a thigh-high slit", isCustom: false },
-      "Fit": { id: "clothing.003", value: "body-con style clothing", isCustom: false },
-      "Fabric": { id: "clothing.008", value: "silk satin fabric", isCustom: false },
-      "Sitting": { id: "pose.001", value: "crossing legs", isCustom: false },
-      "Hand Position": { id: "pose.010", value: "hand touching the side of her face near cheek and ear", isCustom: false },
-      "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
-      "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
-      "Flash": { id: "lighting.flash_01", value: "strong camera flash lighting illuminating the subject directly, making the skin appear radiant, smooth, and bright", isCustom: false },
-      "Neon": { id: "lighting.neon_01", value: "strong dramatic red and pink neon lighting casting a warm atmospheric glow across the scene", isCustom: false },
-      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
-      "Perspective": { id: "camera.perspective_02", value: "medium close-up shot captured from a slightly low camera angle, highlighting posture", isCustom: false },
-      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
-    }
-  },
-  studio: {
-    template: "studio",
-    aspectRatio: "1:1",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.009", value: "korean", isCustom: false },
-      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
-      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
-      "Eyes": { id: "eyes.001", value: "almond-shaped eyes", isCustom: false },
-      "Eyebrows": { id: "eyebrows.002", value: "soft arched eyebrows", isCustom: false },
-      "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
-      "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
-      "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
-      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
-      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
-      "Top": { id: "clothing.010", value: "corset top", isCustom: false },
-      "Bottom": { id: "clothing.017", value: "tight leggings", isCustom: false },
-      "Hand Position": { id: "pose.009", value: "hand on hip", isCustom: false },
-      "Location": { id: "environment.003", value: "in a photography studio", isCustom: false },
-      "Ambient": { id: "lighting.ambient_01", value: "soft highlights on the subject's skin and hair, with rich saturated ambient red environment", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false },
-      "Aperture": { id: "camera.aperture_01", value: "f/1.4 shallow depth of field, creating circular glowing specular bokeh blur in background", isCustom: false }
-    }
-  },
-  street: {
-    template: "street",
-    aspectRatio: "16:9",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.008", value: "japanese", isCustom: false },
-      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
-      "Face Shape": { id: "face.003", value: "round baby face", isCustom: false },
-      "Eyes": { id: "eyes.005", value: "puppy eyes", isCustom: false },
-      "Eyebrows": { id: "eyebrows.003", value: "natural thick brows", isCustom: false },
-      "Nose": { id: "nose.004", value: "soft rounded tip", isCustom: false },
-      "Lips": { id: "lips.002", value: "cupid's bow lips", isCustom: false },
-      "Style": { id: "hair_023", value: "long loose waves/beach waves", isCustom: false },
-      "Tone": { id: "skin.tone_06", value: "translucent glass skin, highly reflective fair skin with a clear glassy sheen", isCustom: false },
-      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
-      "Top": { id: "clothing.012", value: "deep V-neckline top", isCustom: false },
-      "Standing": { id: "pose.005", value: "looking over shoulder", isCustom: false },
-      "Location": { id: "environment.002", value: "on an urban street at night", isCustom: false },
-      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
-    }
-  },
-  thaiSilk: {
-    template: "thaiTraditional",
-    aspectRatio: "6:8",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
-      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
-      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
-      "Eyes": { id: "eyes.001", value: "almond-shaped eyes", isCustom: false },
-      "Eyebrows": { id: "eyebrows.002", value: "soft arched eyebrows", isCustom: false },
-      "Nose": { id: "nose.002", value: "high nose bridge", isCustom: false },
-      "Lips": { id: "lips.003", value: "plump lips", isCustom: false },
-      "Top": { id: "clothing.021", value: "modern one-shoulder Thai sabai top woven in vibrant emerald green and shimmering metallic gold threads", isCustom: false },
-      "Bottom": { id: "clothing.023", value: "modern high-waist Thai wrap skirt in royal blue and gold brocade silk fabric, showing detailed traditional patterns", isCustom: false },
-      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
-      "Golden Hour": { id: "lighting.golden_01", value: "golden hour lighting", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
-    }
-  },
-  cheongsam: {
-    template: "vintageFilm",
-    aspectRatio: "1:1",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.010", value: "chinese", isCustom: false },
-      "Beauty": { id: "character.023", value: "cute doll-like Asian woman", isCustom: false },
-      "Face Shape": { id: "face.003", value: "round baby face", isCustom: false },
-      "Eyes": { id: "eyes.005", value: "puppy eyes", isCustom: false },
-      "Eyebrows": { id: "eyebrows.001", value: "straight eyebrows", isCustom: false },
-      "Lips": { id: "lips.001", value: "cherry lips", isCustom: false },
-      "Dress": { id: "clothing.026", value: "modern high-collar Qipao dress with a high side slit, styled in soft pastel lavender with delicate emerald green floral patterns", isCustom: false },
-      "Location": { id: "environment.008", value: "traditional Thai architecture with ornate teak wooden structures and soft warm lighting", isCustom: false },
-      "Film Look": { id: "quality.004", value: "shot on Kodak Portra 400 film, warm skin tones, fine film grain, natural analog colors", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
-    }
-  },
-  minimalistCafe: {
-    template: "cafeMinimalist",
-    aspectRatio: "6:8",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.009", value: "korean", isCustom: false },
-      "Beauty": { id: "character.022", value: "beautiful young Asian woman", isCustom: false },
-      "Face Shape": { id: "face.002", value: "oval face", isCustom: false },
-      "Style": { id: "hair_022", value: "layered hush cut hairstyle", isCustom: false },
-      "Tone": { id: "skin.tone_07", value: "milky white skin, smooth porcelain skin with soft cream undertones", isCustom: false },
-      "Texture": { id: "skin.text_02", value: "dewy complexion reflecting soft ambient lights, hydrated skin look", isCustom: false },
-      "Dress": { id: "clothing.028", value: "Seoul style oversized minimalist shirt-dress in soft pastel mint green and cream tones", isCustom: false },
-      "Location": { id: "environment.005", value: "in a cozy modern cafe with warm wooden decors and soft background chatter", isCustom: false },
-      "Props": { id: "environment.010", value: "holding a hot paper coffee cup with soft steam rising gently from the lid", isCustom: false },
-      "Natural": { id: "quality.003", value: "candid and unposed look, giving a natural cinematic environment feel", isCustom: false },
-      "Brand": { id: "camera.brand_01", value: "shot on a modern high-resolution mirrorless camera, sharp focus", isCustom: false },
-      "Lens": { id: "camera.lens_01", value: "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics", isCustom: false },
-      "Focal Length": { id: "camera.focal_01", value: "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion", isCustom: false }
-    }
-  },
-  beachCasual: {
-    template: "portrait",
-    aspectRatio: "16:9",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Gender": { id: "character.001", value: "female", isCustom: false },
-      "Age": { id: "character.004", value: "young adult", isCustom: false },
-      "Ethnicity": { id: "character.007", value: "thai", isCustom: false },
-      "Top": { id: "clothing.casual_02", value: "relaxed loose-fit breathable linen shirt with rolled-up sleeves", isCustom: false },
-      "Bottom": { id: "clothing.casual_04", value: "comfy high-waisted frayed denim shorts", isCustom: false },
-      "Location": { id: "environment.pop_01", value: "on a scenic tropical beach with fine white sand and crystal clear turquoise ocean water", isCustom: false },
-      "Key Light": { id: "lighting.golden_03", value: "dramatic low-angle sunset rays piercing through the background with brilliant golden highlights", isCustom: false },
-      "Story Event": { id: "scene_story.008", value: "strolling relaxed and taking in the ambient atmosphere of the scene", isCustom: false },
-      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
-      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
-    }
-  },
-  restaurantSitting: {
-    template: "portrait",
-    aspectRatio: "3:4",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Sitting": { id: "pose.sitting_03", value: "sitting resting chin on hand with elbow on table, looking directly at the camera", isCustom: false },
-      "Location": { id: "environment.loc_03", value: "on a high-end rooftop restaurant terrace", isCustom: false },
-      "Ambient": { id: "__custom__", value: "soft warm ambient restaurant lighting", isCustom: true },
-      "Story Event": { id: "scene_story.001", value: "captured in a candid moment during a natural conversation, showing a spontaneous warm smile", isCustom: false },
-      "Context Type": { id: "photo_context.003", value: "captured casually by a friend", isCustom: false },
-      "Foreground Layer": { id: "foreground.003", value: "foreground restaurant menu out of focus", isCustom: false },
-      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_02", value: "minor chromatic aberration, corner softness, realistic lens optical imperfections", isCustom: false }
-    }
-  },
-  barSitting: {
-    template: "nightclub",
-    aspectRatio: "3:4",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Sitting": { id: "pose.sitting_04", value: "sitting on a bar stool", isCustom: false },
-      "Location": { id: "environment.001", value: "inside a vibrant crowded bar or nightclub", isCustom: false },
-      "Props": { id: "environment.009", value: "green glass bottle, glass with a purple straw, smartphone, table items", isCustom: false },
-      "Story Event": { id: "scene_story.003", value: "laughing genuinely at a lighthearted moment, showing a natural and relaxed smile", isCustom: false },
-      "Context Type": { id: "photo_context.004", value: "spontaneous moment captured mid-conversation", isCustom: false },
-      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
-      "Background Activity": { id: "background.001", value: "with blurred customers talking in the background", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
-    }
-  },
-  resortSitting: {
-    template: "portrait",
-    aspectRatio: "16:9",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
-      "Location": { id: "environment.loc_resort", value: "at a luxury tropical resort", isCustom: false },
-      "Top": { id: "clothing.travel_05", value: "breezy tropical sundress", isCustom: false },
-      "Key Light": { id: "__custom__", value: "golden hour light", isCustom: true },
-      "Story Event": { id: "scene_story.0010", value: "leaning slightly against a support surface, enjoying a peaceful candid moment", isCustom: false },
-      "Context Type": { id: "photo_context.005", value: "unposed snapshot", isCustom: false },
-      "Foreground Layer": { id: "foreground.004", value: "foreground glass of water with ice slightly out of focus", isCustom: false },
-      "Background Activity": { id: "background.004", value: "with café staff working in the soft-focus background", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_04", value: "gentle highlight halation, organic highlight roll-off", isCustom: false }
-    }
-  },
-  naturePhoto: {
-    template: "portrait",
-    aspectRatio: "3:4",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Location": { id: "environment.pop_02", value: "in a lush green forest with tall trees and dappled sunlight", isCustom: false },
-      "Top": { id: "clothing.travel_01", value: "lightweight linen safari shirt", isCustom: false },
-      "Key Light": { id: "__custom__", value: "soft dappled sunlight filtering through the canopy", isCustom: true },
-      "Story Event": { id: "scene_story.004", value: "taking a brief pause to look thoughtfully towards the distance", isCustom: false },
-      "Context Type": { id: "photo_context.007", value: "travel documentary slice-of-life photograph", isCustom: false },
-      "Foreground Layer": { id: "foreground.002", value: "foreground flowers softly blurred", isCustom: false },
-      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_01", value: "slight handheld camera movement, natural organic framing", isCustom: false }
-    }
-  },
-  mallWaiting: {
-    template: "portrait",
-    aspectRatio: "9:16",
-    imageReferences: { faceMatch: false, styleMatch: false, poseMatch: false },
-    selections: {
-      "Sitting": { id: "pose.sitting_01", value: "sitting crossing legs, showing neat and elegant body alignment", isCustom: false },
-      "Location": { id: "environment.loc_mall", value: "inside a modern shopping mall", isCustom: false },
-      "Top": { id: "clothing.casual_05", value: "oversized cozy knit sweater", isCustom: false },
-      "Props": { id: "__custom__", value: "holding a hot paper coffee cup", isCustom: true },
-      "Story Event": { id: "scene_story.005", value: "casually waiting, observing the surroundings with a calm and relaxed posture", isCustom: false },
-      "Context Type": { id: "photo_context.006", value: "casual handheld smartphone photo", isCustom: false },
-      "Foreground Layer": { id: "foreground.001", value: "foreground coffee cup slightly out of focus", isCustom: false },
-      "Background Activity": { id: "background.002", value: "with moving pedestrians softly blurred in the background", isCustom: false },
-      "Camera Imperfections": { id: "camera.imp_03", value: "subtle digital sensor noise, natural digital camera texture", isCustom: false }
-    }
-  }
-};
+// Presets are loaded dynamically from server bundle via state.presets
 
 // Unified exclusions declaration
 const TAG_CONFLICT_RULES = [
@@ -433,7 +176,15 @@ const state = {
   mode: "normal",
   userRole: "user",
   username: "user_demo",
-  activeJobId: null
+  activeJobId: null,
+  presets: null,
+  customColors: {
+    "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
+    "Top": { enabled: false, color: "#ffffff" },
+    "Bottom": { enabled: false, color: "#ffffff" },
+    "Dress": { enabled: false, color: "#ffffff" },
+    "Shoes": { enabled: false, color: "#ffffff" }
+  }
 };
 
 // Retrieve localized label with backward compatibility fallback
@@ -861,6 +612,7 @@ async function initApp() {
     state.templates = bundle.templates;
     state.order = bundle.order;
     state.library = bundle.library;
+    state.presets = bundle.presets;
 
     // Populate templates select
     const templateSelect = document.getElementById("template-select");
@@ -1036,6 +788,124 @@ function renderForm() {
       customInput.style.display = "none";
       customInput.id = `custom-input-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
       fieldDiv.appendChild(customInput);
+
+      // Render color pickers for specified fields (Step 11)
+      const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes"];
+      if (colorPickerFields.includes(field.name) && (field.name !== "Color" || groupName === "Hair")) {
+        const pickerRow = document.createElement("div");
+        pickerRow.className = "custom-color-picker-row";
+        pickerRow.id = `color-picker-row-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
+        
+        if (field.name === "Color" && groupName === "Hair") {
+          // Base Hair Color Picker Container
+          const baseContainer = document.createElement("div");
+          baseContainer.className = "custom-color-picker-container";
+          
+          const baseToggle = document.createElement("input");
+          baseToggle.type = "checkbox";
+          baseToggle.id = `hair-base-toggle`;
+          baseToggle.checked = state.customColors["Color"].enabled;
+          
+          const baseLabel = document.createElement("label");
+          baseLabel.htmlFor = `hair-base-toggle`;
+          baseLabel.textContent = "🎨 Custom Base:";
+          
+          const baseInput = document.createElement("input");
+          baseInput.type = "color";
+          baseInput.id = `hair-base-input`;
+          baseInput.value = state.customColors["Color"].base;
+          baseInput.disabled = !baseToggle.checked;
+          
+          baseToggle.addEventListener("change", (e) => {
+            state.customColors["Color"].enabled = e.target.checked;
+            baseInput.disabled = !e.target.checked;
+            updatePromptPreview();
+          });
+          
+          baseInput.addEventListener("input", (e) => {
+            state.customColors["Color"].base = e.target.value;
+            updatePromptPreview();
+          });
+          
+          baseContainer.appendChild(baseToggle);
+          baseContainer.appendChild(baseLabel);
+          baseContainer.appendChild(baseInput);
+          pickerRow.appendChild(baseContainer);
+
+          // Highlight Hair Color Picker Container
+          const highlightContainer = document.createElement("div");
+          highlightContainer.className = "custom-color-picker-container";
+          highlightContainer.style.marginLeft = "1rem";
+          
+          const highlightToggle = document.createElement("input");
+          highlightToggle.type = "checkbox";
+          highlightToggle.id = `hair-highlight-toggle`;
+          highlightToggle.checked = state.customColors["Color"].highlightEnabled;
+          
+          const highlightLabel = document.createElement("label");
+          highlightLabel.htmlFor = `hair-highlight-toggle`;
+          highlightLabel.textContent = "✨ Highlight Accent:";
+          
+          const highlightInput = document.createElement("input");
+          highlightInput.type = "color";
+          highlightInput.id = `hair-highlight-input`;
+          highlightInput.value = state.customColors["Color"].highlight;
+          highlightInput.disabled = !highlightToggle.checked;
+          
+          highlightToggle.addEventListener("change", (e) => {
+            state.customColors["Color"].highlightEnabled = e.target.checked;
+            highlightInput.disabled = !e.target.checked;
+            updatePromptPreview();
+          });
+          
+          highlightInput.addEventListener("input", (e) => {
+            state.customColors["Color"].highlight = e.target.value;
+            updatePromptPreview();
+          });
+          
+          highlightContainer.appendChild(highlightToggle);
+          highlightContainer.appendChild(highlightLabel);
+          highlightContainer.appendChild(highlightInput);
+          pickerRow.appendChild(highlightContainer);
+        } else {
+          // Clothing Color Picker (Top, Bottom, Dress, Shoes)
+          const clothingContainer = document.createElement("div");
+          clothingContainer.className = "custom-color-picker-container";
+          
+          const clothingToggle = document.createElement("input");
+          clothingToggle.type = "checkbox";
+          clothingToggle.id = `clothing-toggle-${field.name.toLowerCase()}`;
+          clothingToggle.checked = state.customColors[field.name].enabled;
+          
+          const clothingLabel = document.createElement("label");
+          clothingLabel.htmlFor = `clothing-toggle-${field.name.toLowerCase()}`;
+          clothingLabel.textContent = `🎨 Custom ${field.name} Color:`;
+          
+          const clothingInput = document.createElement("input");
+          clothingInput.type = "color";
+          clothingInput.id = `clothing-input-${field.name.toLowerCase()}`;
+          clothingInput.value = state.customColors[field.name].color;
+          clothingInput.disabled = !clothingToggle.checked;
+          
+          clothingToggle.addEventListener("change", (e) => {
+            state.customColors[field.name].enabled = e.target.checked;
+            clothingInput.disabled = !e.target.checked;
+            updatePromptPreview();
+          });
+          
+          clothingInput.addEventListener("input", (e) => {
+            state.customColors[field.name].color = e.target.value;
+            updatePromptPreview();
+          });
+          
+          clothingContainer.appendChild(clothingToggle);
+          clothingContainer.appendChild(clothingLabel);
+          clothingContainer.appendChild(clothingInput);
+          pickerRow.appendChild(clothingContainer);
+        }
+        
+        fieldDiv.appendChild(pickerRow);
+      }
 
       inner.appendChild(fieldDiv);
     });
@@ -1263,7 +1133,8 @@ function bindEvents() {
       const presetSelect = document.getElementById("preset-select");
       const presetName = presetSelect ? presetSelect.value : "";
       if (!presetName) return;
-      const preset = PRESETS[presetName];
+      // Presets are loaded dynamically from server bundle via state.presets ? state.presets[presetName] : null;
+      const preset = state.presets ? state.presets[presetName] : null;
       if (preset) {
         const randomizedPreset = randomizePresetSelections(preset, presetName);
         importConfigJSON(JSON.stringify(randomizedPreset));
@@ -1632,7 +1503,8 @@ function bindEvents() {
             faceReferenceJobIds: state.faceReferenceJobIds,
             styleReferenceImageA: state.styleReferenceImageA,
             styleReferenceImageB: state.styleReferenceImageB,
-            styleReferenceJobIds: state.styleReferenceJobIds
+            styleReferenceJobIds: state.styleReferenceJobIds,
+            customColors: state.customColors
           })
         });
 
@@ -1839,7 +1711,7 @@ function bindEvents() {
       state.mode = chip.getAttribute("data-mode");
 
       if (state.mode === "headshot" || state.mode === "character-sheet") {
-        const preset = PRESETS.studio;
+        const preset = state.presets ? state.presets.studio : null;
         if (preset) {
           const randomizedPreset = randomizePresetSelections(preset, "studio");
           importConfigJSON(JSON.stringify(randomizedPreset));
@@ -1937,25 +1809,54 @@ function setAspectInUI(ratio) {
 }
 
 // Resolves the active prompt value for a selection, checking for GPT-Safe Mode
-function getPromptValueForSelection(selection) {
+function getPromptValueForSelection(selection, fieldName) {
   if (!selection) return "";
+  let baseVal = "";
   if (selection.isCustom) {
-    return selection.value;
-  }
-
-  const item = state.library.find(libItem => libItem.id === selection.id);
-  if (!item || !item.prompt) {
-    return selection.value;
-  }
-
-  const toggleGptSafe = document.getElementById("toggle-gpt-safe");
-  const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
-
-  if (isGptSafe) {
-    return item.prompt["gpt-image-safe"] || item.prompt["gpt-image"] || item.prompt.default;
+    baseVal = selection.value;
   } else {
-    return item.prompt["gpt-image"] || item.prompt.default;
+    const item = state.library.find(libItem => libItem.id === selection.id);
+    if (!item || !item.prompt) {
+      baseVal = selection.value;
+    } else {
+      const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+      const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+
+      if (isGptSafe) {
+        baseVal = item.prompt["gpt-image-safe"] || item.prompt["gpt-image"] || item.prompt.default;
+      } else {
+        baseVal = item.prompt["gpt-image"] || item.prompt.default;
+      }
+    }
   }
+
+  // Inject custom color picker info (Step 11)
+  if (fieldName && state.customColors && state.customColors[fieldName]) {
+    const cfg = state.customColors[fieldName];
+    if (fieldName === "Color") {
+      if (cfg.enabled || cfg.highlightEnabled) {
+        let parts = [];
+        if (baseVal && baseVal.trim() !== "") {
+          parts.push(baseVal);
+        } else {
+          parts.push("hair");
+        }
+        if (cfg.enabled) {
+          parts.push(`colored in ${cfg.base}`);
+        }
+        if (cfg.highlightEnabled) {
+          parts.push(`accented with custom highlights in ${cfg.highlight}`);
+        }
+        return parts.join(", ");
+      }
+    } else {
+      if (cfg.enabled && baseVal && baseVal.trim() !== "") {
+        return `${baseVal} colored in ${cfg.color}`;
+      }
+    }
+  }
+
+  return baseVal;
 }
 
 // Enforce mutual exclusion rules
@@ -2057,7 +1958,7 @@ function updateAccordionSummaryBadges(groupName) {
 
   const selectedInGroup = Object.keys(state.selections)
     .filter(key => state.selections[key].group === groupName)
-    .map(key => getPromptValueForSelection(state.selections[key]))
+    .map(key => getPromptValueForSelection(state.selections[key], key))
     .filter(val => val && val.trim() !== "");
 
   if (selectedInGroup.length > 0) {
@@ -2115,6 +2016,35 @@ function generatePromptText(cleanTextOnly = false) {
   const templateStr = state.templates[currentTemplateName];
 
   const activeSelections = JSON.parse(JSON.stringify(state.selections));
+
+  // Dynamically inject selections for active custom color pickers if empty (Step 11)
+  if (state.customColors && state.customColors["Color"] && (state.customColors["Color"].enabled || state.customColors["Color"].highlightEnabled)) {
+    if (!activeSelections["Color"]) {
+      activeSelections["Color"] = {
+        id: "",
+        value: "",
+        isCustom: false,
+        group: "Hair",
+        category: "hair",
+        tags: []
+      };
+    }
+  }
+  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
+    if (state.customColors && state.customColors[field] && state.customColors[field].enabled) {
+      if (!activeSelections[field]) {
+        activeSelections[field] = {
+          id: "",
+          value: field.toLowerCase(),
+          isCustom: false,
+          group: "Clothing",
+          category: "clothing",
+          tags: []
+        };
+      }
+    }
+  });
+
   resolveTagConflicts(activeSelections);
 
   const compileGroupSegment = (groupName, tokenClass) => {
@@ -2146,7 +2076,8 @@ function generatePromptText(cleanTextOnly = false) {
       });
 
       if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
-        const val = getPromptValueForSelection(selection);
+        const fieldName = Object.keys(activeSelections).find(k => activeSelections[k] === selection);
+        const val = getPromptValueForSelection(selection, fieldName);
         if (val && val.trim() !== "") {
           if (selection.isDropped) {
             if (!cleanTextOnly) segmentValues.push(`<span class="token-dropped" title="${selection.droppedReason}">${val}</span>`);
@@ -2162,7 +2093,7 @@ function generatePromptText(cleanTextOnly = false) {
         .filter(key => activeSelections[key].group.toLowerCase() === groupName.toLowerCase())
         .map(key => {
           const s = activeSelections[key];
-          const val = getPromptValueForSelection(s);
+          const val = getPromptValueForSelection(s, key);
           if (!val || val.trim() === "") return null;
           if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
           return val;
@@ -2186,7 +2117,7 @@ function generatePromptText(cleanTextOnly = false) {
       .filter(key => activeSelections[key].group.toLowerCase() === grp.toLowerCase())
       .map(key => {
         const s = activeSelections[key];
-        const val = getPromptValueForSelection(s);
+        const val = getPromptValueForSelection(s, key);
         if (!val || val.trim() === "") return null;
         if (s.isDropped) return cleanTextOnly ? null : `<span class="token-dropped" title="${s.droppedReason}">${val}</span>`;
         return val;
@@ -2435,6 +2366,14 @@ function resetForm() {
   state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false };
   state.faceReferenceImage = null;
   state.aspectRatio = "6:8";
+  state.customColors = {
+    "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
+    "Top": { enabled: false, color: "#ffffff" },
+    "Bottom": { enabled: false, color: "#ffffff" },
+    "Dress": { enabled: false, color: "#ffffff" },
+    "Shoes": { enabled: false, color: "#ffffff" }
+  };
+  updateColorPickerUI();
 
   // Hide Face Match container
   const faceUploadContainer = document.getElementById("face-match-upload-container");
@@ -2477,13 +2416,14 @@ function exportConfigJSON() {
     selections: {},
     imageReferences: state.imageReferences,
     aspectRatio: state.aspectRatio,
-    template: document.getElementById("template-select").value || "portrait"
+    template: document.getElementById("template-select").value || "portrait",
+    customColors: state.customColors
   };
 
   Object.keys(state.selections).forEach(field => {
     payload.selections[field] = {
       id: state.selections[field].id,
-      value: getPromptValueForSelection(state.selections[field]),
+      value: getPromptValueForSelection(state.selections[field], field),
       isCustom: state.selections[field].isCustom
     };
   });
@@ -2530,6 +2470,11 @@ function importConfigJSON(jsonString) {
       document.getElementById("ref-face-match").checked = !!payload.imageReferences.faceMatch;
       document.getElementById("ref-style-match").checked = !!payload.imageReferences.styleMatch;
       document.getElementById("ref-pose-match").checked = !!payload.imageReferences.poseMatch;
+    }
+
+    if (payload.customColors) {
+      state.customColors = JSON.parse(JSON.stringify(payload.customColors));
+      updateColorPickerUI();
     }
 
     let hasNsfwSelection = false;
@@ -2595,6 +2540,36 @@ function importConfigJSON(jsonString) {
   } catch (error) {
     alert("Failed to load preset configuration: " + error.message);
   }
+}
+
+// Update the interactive color picker states and inputs in DOM (Step 11)
+function updateColorPickerUI() {
+  // Hair Color Pickers
+  const hairBaseToggle = document.getElementById("hair-base-toggle");
+  const hairBaseInput = document.getElementById("hair-base-input");
+  if (hairBaseToggle && hairBaseInput) {
+    hairBaseToggle.checked = !!(state.customColors && state.customColors["Color"] && state.customColors["Color"].enabled);
+    hairBaseInput.value = (state.customColors && state.customColors["Color"] && state.customColors["Color"].base) || "#4a3728";
+    hairBaseInput.disabled = !hairBaseToggle.checked;
+  }
+  const hairHighlightToggle = document.getElementById("hair-highlight-toggle");
+  const hairHighlightInput = document.getElementById("hair-highlight-input");
+  if (hairHighlightToggle && hairHighlightInput) {
+    hairHighlightToggle.checked = !!(state.customColors && state.customColors["Color"] && state.customColors["Color"].highlightEnabled);
+    hairHighlightInput.value = (state.customColors && state.customColors["Color"] && state.customColors["Color"].highlight) || "#ff00a0";
+    hairHighlightInput.disabled = !hairHighlightToggle.checked;
+  }
+
+  // Clothing Color Pickers
+  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
+    const toggle = document.getElementById(`clothing-toggle-${field.toLowerCase()}`);
+    const input = document.getElementById(`clothing-input-${field.toLowerCase()}`);
+    if (toggle && input) {
+      toggle.checked = !!(state.customColors && state.customColors[field] && state.customColors[field].enabled);
+      input.value = (state.customColors && state.customColors[field] && state.customColors[field].color) || "#ffffff";
+      input.disabled = !toggle.checked;
+    }
+  });
 }
 
 // Lockout facial features when Face Match is checked

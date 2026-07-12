@@ -2047,3 +2047,57 @@ body {
     box-shadow: 0 0 16px rgba(239, 68, 68, 0.6), inset 0 0 6px rgba(239, 68, 68, 0.25);
   }
 }
+
+/* Custom Interactive Color Pickers styles */
+.custom-color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.8rem;
+}
+
+.custom-color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.custom-color-picker-container label {
+  cursor: pointer;
+  color: var(--text-muted);
+  user-select: none;
+  font-weight: 500;
+}
+
+.custom-color-picker-container input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--neon-gold);
+}
+
+.custom-color-picker-container input[type="color"] {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: none;
+  width: 32px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  vertical-align: middle;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.custom-color-picker-container input[type="color"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.custom-color-picker-container input[type="color"]:hover:not(:disabled) {
+  border-color: var(--neon-gold);
+}
+

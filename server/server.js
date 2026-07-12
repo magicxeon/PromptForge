@@ -70,11 +70,13 @@ async function getAttributesBundle() {
     const schemaRaw = await fs.readFile(pathModule.join(attributesDir, 'spec/ui-schema.json'), 'utf-8');
     const templatesRaw = await fs.readFile(pathModule.join(attributesDir, 'spec/prompt-templates.json'), 'utf-8');
     const orderRaw = await fs.readFile(pathModule.join(attributesDir, 'spec/prompt-order.json'), 'utf-8');
+    const presetsRaw = await fs.readFile(pathModule.join(attributesDir, 'spec/presets.json'), 'utf-8');
 
     const schema = JSON.parse(schemaRaw);
     const templates = JSON.parse(templatesRaw);
     const orderData = JSON.parse(orderRaw);
     const order = orderData.order;
+    const presets = JSON.parse(presetsRaw);
 
     // Load individual attributes
     const library = [];
@@ -93,7 +95,8 @@ async function getAttributesBundle() {
       schema,
       templates,
       order,
-      library
+      library,
+      presets
     };
 
     return cachedAttributesBundle;
@@ -204,7 +207,8 @@ app.post('/api/generate', async (req, res) => {
   const { 
     provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username,
     faceReferenceImageA, faceReferenceImageB, faceReferenceJobIds,
-    styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds
+    styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds,
+    customColors
   } = req.body;
   const targetUser = username || 'user_demo';
   
@@ -222,7 +226,8 @@ app.post('/api/generate', async (req, res) => {
       imageReferences, 
       mode, 
       template || 'portrait', 
-      isGptSafe
+      isGptSafe,
+      customColors
     );
 
     // 3. Determine submodel default

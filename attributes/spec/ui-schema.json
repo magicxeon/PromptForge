@@ -92,7 +92,7 @@
         "control": "select"
       },
       {
-        "name": "Texture",
+        "name": "Hair Texture",
         "control": "select"
       },
       {
@@ -114,7 +114,7 @@
         "control": "select"
       },
       {
-        "name": "Texture",
+        "name": "Skin Texture",
         "control": "select"
       },
       {

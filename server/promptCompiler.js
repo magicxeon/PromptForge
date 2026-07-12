@@ -110,12 +110,71 @@ function resolveTagConflicts(activeSelections) {
   });
 }
 
-export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false) {
+export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false, customColors = null) {
   const templateStr = templates[templateName] || templates["portrait"] || "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}";
 
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
+
+  // Dynamically inject selections for active custom color pickers if empty (Step 11)
+  if (customColors && customColors["Color"] && (customColors["Color"].enabled || customColors["Color"].highlightEnabled)) {
+    if (!activeSelections["Color"]) {
+      activeSelections["Color"] = {
+        id: "",
+        value: "",
+        isCustom: false,
+        group: "Hair",
+        category: "hair",
+        tags: []
+      };
+    }
+  }
+  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
+    if (customColors && customColors[field] && customColors[field].enabled) {
+      if (!activeSelections[field]) {
+        activeSelections[field] = {
+          id: "",
+          value: field.toLowerCase(),
+          isCustom: false,
+          group: "Clothing",
+          category: "clothing",
+          tags: []
+        };
+      }
+    }
+  });
+
   resolveTagConflicts(activeSelections);
+
+  const getPromptValueWithColor = (selection, fieldName) => {
+    if (!selection) return "";
+    const baseVal = selection.value || "";
+    if (customColors && customColors[fieldName]) {
+      const cfg = customColors[fieldName];
+      if (fieldName === "Color") {
+        if (cfg.enabled || cfg.highlightEnabled) {
+          let parts = [];
+          if (baseVal && baseVal.trim() !== "") {
+            parts.push(baseVal);
+          } else {
+            parts.push("hair");
+          }
+          if (cfg.enabled) {
+            parts.push(`colored in ${cfg.base}`);
+          }
+          if (cfg.highlightEnabled) {
+            parts.push(`accented with custom highlights in ${cfg.highlight}`);
+          }
+          return parts.join(", ");
+        }
+      } else {
+        if (cfg.enabled && baseVal && baseVal.trim() !== "") {
+          return `${baseVal} colored in ${cfg.color}`;
+        }
+      }
+    }
+    return baseVal;
+  };
 
   const compileGroupSegment = (groupName) => {
     // Check if overridden by Image Reference Options
@@ -145,7 +204,8 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       });
 
       if (selection && selection.group.toLowerCase() === groupName.toLowerCase()) {
-        const val = selection.value;
+        const fieldName = Object.keys(activeSelections).find(k => activeSelections[k] === selection);
+        const val = getPromptValueWithColor(selection, fieldName);
         if (val && val.trim() !== "" && !selection.isDropped) {
           segmentValues.push(val);
         }
@@ -159,7 +219,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
         .map(key => {
           const s = activeSelections[key];
           if (s.isDropped) return null;
-          return s.value;
+          return getPromptValueWithColor(s, key);
         })
         .filter(val => val && val.trim() !== "");
     }
@@ -179,7 +239,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       .map(key => {
         const s = activeSelections[key];
         if (s.isDropped) return null;
-        return s.value;
+        return getPromptValueWithColor(s, key);
       })
       .filter(val => val && val.trim() !== "");
   };

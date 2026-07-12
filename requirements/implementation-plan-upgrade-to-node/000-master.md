@@ -72,5 +72,11 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Correct hair texture attribute mappings to represent actual hair qualities.
   - Implement interactive custom Color Pickers for hair colors/highlights.
   - Add optional custom Color Pickers for clothing components (tops, bottoms, dresses, shoes).
+- [ ] **Step 12: Session Persistence & Engine Selection Validation** (`012-session-persistence-and-engine-validation.md`)
+  - Add validation inside `validateForm()` for selected Provider Engine and Submodel Version.
+  - Implement automatic selections persistence in browser `localStorage` on any form inputs change.
+  - Partition saved configurations by current mode (`headshot`, `character-sheet`, and `normal`).
+  - Restore active mode settings on application load and switch.
+
 
 
