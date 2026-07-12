@@ -219,6 +219,42 @@ function restoreSelectionsToUI() {
 
 // Validate mandatory required fields (Step 8)
 function validateForm() {
+  // Validate Engine Selectors (Step 12)
+  const apiProviderSelect = document.getElementById("api-provider-select");
+  const apiSubmodelSelect = document.getElementById("api-submodel-select");
+
+  if (apiProviderSelect && (!apiProviderSelect.value || apiProviderSelect.value.trim() === "")) {
+    apiProviderSelect.scrollIntoView({ behavior: "smooth", block: "center" });
+    const formField = apiProviderSelect.closest(".form-field");
+    if (formField) {
+      formField.classList.remove("required-flash");
+      void formField.offsetWidth;
+      formField.classList.add("required-flash");
+      setTimeout(() => {
+        formField.classList.remove("required-flash");
+      }, 3000);
+    }
+    apiProviderSelect.focus();
+    alert("Please select both a Provider Engine and a Submodel Version before generating an image.");
+    return false;
+  }
+
+  if (apiSubmodelSelect && (!apiSubmodelSelect.value || apiSubmodelSelect.value.trim() === "")) {
+    apiSubmodelSelect.scrollIntoView({ behavior: "smooth", block: "center" });
+    const formField = apiSubmodelSelect.closest(".form-field");
+    if (formField) {
+      formField.classList.remove("required-flash");
+      void formField.offsetWidth;
+      formField.classList.add("required-flash");
+      setTimeout(() => {
+        formField.classList.remove("required-flash");
+      }, 3000);
+    }
+    apiSubmodelSelect.focus();
+    alert("Please select both a Provider Engine and a Submodel Version before generating an image.");
+    return false;
+  }
+
   const required = [
     { field: "Ethnicity", group: "Character" },
     { field: "Gender", group: "Character" }
@@ -628,6 +664,12 @@ async function initApp() {
     renderForm();
     updateSubmodelList();
     bindEvents();
+
+    // Restore persisted state for initial mode (Step 12)
+    state.isRestoringState = true;
+    restoreCurrentModeState();
+    state.isRestoringState = false;
+
     toggleUIForMode();
     updateCredits();
     updatePromptPreview();
@@ -1708,19 +1750,16 @@ function bindEvents() {
     chip.addEventListener("click", () => {
       document.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
+
+      // Save current state first before switching mode (Step 12)
+      saveCurrentModeState();
+
       state.mode = chip.getAttribute("data-mode");
 
-      if (state.mode === "headshot" || state.mode === "character-sheet") {
-        const preset = state.presets ? state.presets.studio : null;
-        if (preset) {
-          const randomizedPreset = randomizePresetSelections(preset, "studio");
-          importConfigJSON(JSON.stringify(randomizedPreset));
-        }
-      }
-
-      if (state.mode === "character-sheet" || state.mode === "headshot") {
-        setAspectInUI("6:8");
-      }
+      // Restore saved state or fallback to defaults (Step 12)
+      state.isRestoringState = true;
+      restoreCurrentModeState();
+      state.isRestoringState = false;
 
       toggleUIForMode();
       updatePromptPreview();
@@ -2247,6 +2286,10 @@ function generatePromptText(cleanTextOnly = false) {
 
 // Update DOM Prompt Preview
 function updatePromptPreview() {
+  if (state.mode && !state.isRestoringState) {
+    saveCurrentModeState();
+  }
+
   const previewBox = document.getElementById("prompt-preview");
   const previewOuter = document.getElementById("preview-outer-container");
   const isUserAdmin = (state.userRole === 'admin');
@@ -2336,9 +2379,161 @@ function copyPromptToClipboard() {
   });
 }
 
+// Save state to localStorage by mode (Step 12)
+function saveCurrentModeState() {
+  if (!state.mode) return;
+  const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
+
+  const payload = {
+    selections: state.selections,
+    customColors: state.customColors,
+    imageReferences: state.imageReferences,
+    aspectRatio: state.aspectRatio,
+    width: document.getElementById("input-width") ? document.getElementById("input-width").value : "768",
+    height: document.getElementById("input-height") ? document.getElementById("input-height").value : "1024",
+    template: document.getElementById("template-select") ? document.getElementById("template-select").value : "portrait",
+    nsfwEnabled: document.getElementById("toggle-nsfw") ? document.getElementById("toggle-nsfw").checked : false,
+    gptSafeEnabled: document.getElementById("toggle-gpt-safe") ? document.getElementById("toggle-gpt-safe").checked : false,
+    faceReferenceImageA: state.faceReferenceImageA,
+    faceReferenceImageB: state.faceReferenceImageB,
+    faceReferenceJobIds: state.faceReferenceJobIds,
+    styleReferenceImageA: state.styleReferenceImageA,
+    styleReferenceImageB: state.styleReferenceImageB,
+    styleReferenceJobIds: state.styleReferenceJobIds
+  };
+
+  localStorage.setItem(modeKey, JSON.stringify(payload));
+}
+
+// Restore state from localStorage by mode (Step 12)
+function restoreCurrentModeState() {
+  if (!state.mode) return;
+  const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
+  const saved = localStorage.getItem(modeKey);
+  if (!saved) {
+    // If no saved state, reset form selections to default
+    state.isRestoringState = true;
+    resetForm();
+    state.isRestoringState = false;
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(saved);
+    if (!payload || typeof payload !== "object") return;
+
+    // 1. Restore core state objects
+    state.selections = payload.selections || {};
+    state.customColors = payload.customColors || {
+      "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
+      "Top": { enabled: false, color: "#ffffff" },
+      "Bottom": { enabled: false, color: "#ffffff" },
+      "Dress": { enabled: false, color: "#ffffff" },
+      "Shoes": { enabled: false, color: "#ffffff" }
+    };
+    state.imageReferences = payload.imageReferences || { faceMatch: false, styleMatch: false, poseMatch: false };
+    state.aspectRatio = payload.aspectRatio || "6:8";
+    state.faceReferenceImageA = payload.faceReferenceImageA || null;
+    state.faceReferenceImageB = payload.faceReferenceImageB || null;
+    state.faceReferenceJobIds = payload.faceReferenceJobIds || [];
+    state.styleReferenceImageA = payload.styleReferenceImageA || null;
+    state.styleReferenceImageB = payload.styleReferenceImageB || null;
+    state.styleReferenceJobIds = payload.styleReferenceJobIds || [];
+
+    // 2. Restore DOM element values
+    const inputWidth = document.getElementById("input-width");
+    const inputHeight = document.getElementById("input-height");
+    if (inputWidth && payload.width) inputWidth.value = payload.width;
+    if (inputHeight && payload.height) inputHeight.value = payload.height;
+
+    // Aspect ratio chips
+    document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+      chip.classList.remove("active");
+      if (chip.getAttribute("data-ratio") === state.aspectRatio) {
+        chip.classList.add("active");
+      }
+    });
+
+    // Image reference checks
+    const refFaceMatch = document.getElementById("ref-face-match");
+    const refStyleMatch = document.getElementById("ref-style-match");
+    const refPoseMatch = document.getElementById("ref-pose-match");
+    if (refFaceMatch) refFaceMatch.checked = state.imageReferences.faceMatch;
+    if (refStyleMatch) refStyleMatch.checked = state.imageReferences.styleMatch;
+    if (refPoseMatch) refPoseMatch.checked = state.imageReferences.poseMatch;
+
+    // Toggle container display
+    const faceMatchUploadContainer = document.getElementById("face-match-upload-container");
+    if (faceMatchUploadContainer) {
+      faceMatchUploadContainer.style.display = state.imageReferences.faceMatch ? "block" : "none";
+    }
+
+    // Toggle NSFW & GPT-Safe
+    const toggleNsfw = document.getElementById("toggle-nsfw");
+    if (toggleNsfw) {
+      toggleNsfw.checked = !!payload.nsfwEnabled;
+      const nsfwAccordion = document.getElementById("accordion-nsfw");
+      if (nsfwAccordion) {
+        nsfwAccordion.style.display = toggleNsfw.checked ? "block" : "none";
+      }
+    }
+    const toggleGptSafe = document.getElementById("toggle-gpt-safe");
+    if (toggleGptSafe) {
+      toggleGptSafe.checked = !!payload.gptSafeEnabled;
+    }
+
+    // Template select
+    const templateSelect = document.getElementById("template-select");
+    if (templateSelect && payload.template) templateSelect.value = payload.template;
+
+    // 3. Re-render attributes form fields (sync DOM selects with state.selections)
+    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+      const fieldName = select.getAttribute("data-field");
+      const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
+
+      if (state.selections[fieldName]) {
+        const selection = state.selections[fieldName];
+        if (selection.isCustom) {
+          select.value = "__custom__";
+          if (customInput) {
+            customInput.value = selection.value;
+            customInput.style.display = "block";
+          }
+        } else {
+          select.value = selection.id;
+          if (customInput) {
+            customInput.value = "";
+            customInput.style.display = "none";
+          }
+        }
+      } else {
+        select.value = "";
+        if (customInput) {
+          customInput.value = "";
+          customInput.style.display = "none";
+        }
+      }
+      updateAccordionSummaryBadges(select.getAttribute("data-group"));
+    });
+
+    // 4. Sync Color Pickers UI
+    updateColorPickerUI();
+
+    // 5. Lockout and previews
+    applyFaceMatchLockout();
+    updateReferencePreviewsUI();
+
+    // 6. Recalculate preview
+    updatePromptPreview();
+
+  } catch (err) {
+    console.error("Failed to restore mode state:", err);
+  }
+}
+
 // Reset form
 function resetForm() {
-  document.querySelectorAll(".custom-select").forEach(select => {
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
     select.value = "";
     const formField = select.closest(".form-field");
     if (formField) {
