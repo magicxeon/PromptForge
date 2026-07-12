@@ -1,347 +1,439 @@
-# ModelPromptForge — Project Understanding Guide
+# ModelPromptForge - Project Understanding Guide
 
-> **Current runtime correction**: The project now includes an Express backend under `server/`. Earlier client-only descriptions below are historical and no longer represent the complete runtime architecture.
+เอกสารนี้เป็น source of truth สำหรับทำความเข้าใจโครงสร้างและพฤติกรรมของโปรเจกต์ตามโค้ดปัจจุบัน ใช้สำหรับ onboarding นักพัฒนาและ AI agent ก่อนเริ่มแก้ไขงาน
 
-### Current Image Stream Error Contract
+อัปเดตจากการวิเคราะห์ repository: 2026-07-12
 
-- `server/server.js` compiles generation requests and enqueues jobs.
-- `server/queueManager.js` resolves local references, manages credits, persists successful history, and owns application SSE connections.
-- `server/providers/OpenAIProvider.js` handles OpenAI Image API generation/edit requests and provider SSE parsing.
-- OpenAI streams can emit `image_generation.partial_image` or `image_edit.partial_image` previews. A later terminal error overrides and invalidates all previews.
-- `moderation_blocked` errors carry normalized `provider`, `type`, `code`, `message`, `requestId`, `safetyViolations`, and `retryable` metadata.
-- The queue emits one normalized terminal error, writes no failed output/history entry, and refunds a moderation-blocked job once.
-- The client clears failed previews and uses the existing dark neon viewport banner, with expandable technical details for request IDs and safety metadata.
+## 1. ภาพรวม
 
-> **วัตถุประสงค์ของเอกสารนี้**: บันทึกความเข้าใจโครงสร้างและระบบทั้งหมดของ project ไว้เพื่อให้ AI agent หรือผู้พัฒนาสามารถ pick up งานต่อได้ทันทีโดยไม่ต้องอ่านโค้ดทั้งหมดซ้ำ
+ModelPromptForge เป็นเว็บแอปสำหรับประกอบ prompt และสร้างภาพตัวละครจาก attribute แบบมีโครงสร้าง ผู้ใช้เลือกคุณลักษณะผ่าน UI แทนการเขียน prompt เองทั้งหมด แล้ว backend จะ compile prompt และส่งไปยัง OpenAI หรือ Google Gemini
 
----
+ความสามารถหลัก:
 
-## 1. สรุป Project ในภาพรวม
+- Dynamic attribute form จาก JSON schema
+- Prompt preview แบบ real time พร้อม template และ conflict resolution
+- สร้างภาพผ่าน OpenAI Image API และ Gemini/Imagen
+- รองรับ normal, headshot และ character-sheet modes
+- รองรับ face/style reference อย่างละไม่เกิน 2 ภาพ
+- OpenAI image streaming ผ่าน SSE พร้อม partial preview
+- Queue, credits, generation history และ lineage ของภาพอ้างอิง
+- ภาษา UI/label ไทยและอังกฤษ
+- Presets, custom color pickers, randomization, field locking และ import/export config
+- เก็บ state ใน `localStorage` แยกตาม generation mode
 
-**ModelPromptForge** คือ Single Page Application (SPA) แบบ client-side ล้วน ทำด้วย vanilla HTML + CSS + JavaScript ไม่มี framework ไม่มี backend
+งานหลักทำงานผ่าน Node/Express backend ไม่ใช่ client-only application
 
-**เป้าหมาย**: ช่วยให้ผู้ใช้สร้าง prompt สำหรับ AI image generator (โดยเฉพาะ GPT Image / DALL-E 3, Midjourney, Stable Diffusion) ผ่าน UI แบบ dropdown form แทนการพิมพ์เองทั้งหมด
+## 2. Technology Stack
 
-**Aesthetic Focus**: ภาพ Asian beauty — Thai, Korean, Japanese, Chinese — เน้นความขาว น่ารัก สไตล์ตุ๊กตา (doll-like) และ editorial fashion
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla HTML, CSS และ JavaScript ES6+ |
+| Backend | Node.js ESM และ Express 4 |
+| API transport | REST และ Server-Sent Events (SSE) |
+| Image providers | OpenAI และ Google Gemini/Imagen |
+| Local storage | JSON files, browser `localStorage` และ generated image files |
+| Development | `nodemon` |
 
----
+ไม่มี React, Vue, database server หรือ ORM ในโปรเจกต์หลัก
 
-## 2. โครงสร้างไฟล์ทั้งหมด
+## 3. โครงสร้าง Repository
 
-```
+```text
 ModelPromptForge/
-├── index.html                        # App shell — layout, panels, right sidebar controls
-├── style.css                         # Design system — dark mode, neon glow, glassmorphism
-├── app.js                            # Core logic — fetch, state, render, compile, events
-├── attributes/                       # JSON datasets for all option groups
-│   ├── 001-character.json            # Gender, Age, Ethnicity, Beauty, Reference
-│   ├── 002-face.json                 # Face Shape, Expression
-│   ├── 003-eyes.json                 # Eye shapes
-│   ├── 004-eyebrows.json             # Eyebrow styles
-│   ├── 005-nose.json                 # Nose shapes
-│   ├── 006-lips.json                 # Lip types, Smile
-│   ├── 007-skin.json                 # Skin tone, Texture, Makeup, Freckles
-│   ├── 008-hair.json                 # Hair length, style, texture, color, bangs
-│   ├── 009-body.json                 # Body shape — has gpt-image-safe variants
-│   ├── 010-clothing.json             # Top, Bottom, Dress, Shoes, Accessories, Casual wear
-│   ├── 011-pose.json                 # Standing, Sitting, Walking, Hand Position, Eye Contact
-│   ├── 012-environment.json          # Location, Architecture, Props, Weather, Time, Season
-│   ├── 013-lighting.json             # Key/Fill/Back Light, Flash, Neon, Ambient, Golden Hour, Natural
-│   ├── 014-camera.json               # Brand, Lens, Focal Length, Aperture, ISO, WB, Perspective
-│   ├── 015-quality.json              # Resolution, Sharpness, Photorealism, Color Grading, Film Look
-│   ├── 016-nsfw.json                 # Nudity Level, Sensual Pose (ซ่อนอยู่ ต้อง toggle เปิด)
-│   └── spec/
-│       ├── ui-schema.json            # กำหนด accordion groups และ fields ทุกตัว
-│       ├── prompt-templates.json     # Template strings ที่ใช้ประกอบ prompt
-│       └── prompt-order.json        # ลำดับการวาง segment ใน prompt
-├── requirements/
-│   ├── README.md                     # ← ไฟล์นี้ — project understanding guide
-│   ├── requirements.md               # Original functional requirements
-│   ├── prompt-rules.md               # Prompt ordering rules
-│   ├── gpt-image-style-guide.md      # GPT Image specific style guidelines
-│   └── implementation-plan/
-│       └── enhancements/
-│           ├── 001-options-enhancements.md   # NSFW toggle, lighting, clothing, env, conflict rules
-│           ├── 002-dynamic-preview-canvas.md # 8-bit pixel art canvas preview (pending impl.)
-│           └── 003-gpt-safe-positive-words.md # Positive words system (pending impl.)
-└── example-target/                   # ตัวอย่าง exported prompts / config JSON
+|-- client/
+|   |-- index.html                 # App shell และ viewport
+|   |-- style.css                  # Dark neon/glassmorphism design system
+|   |-- app.js                     # UI, state, preview, SSE และ history
+|   `-- outputs/                   # Generated images (runtime)
+|-- server/
+|   |-- server.js                  # Express routes และ attribute bundle
+|   |-- promptCompiler.js          # Authoritative server-side prompt compiler
+|   |-- queueManager.js            # Queue, credits, SSE, output และ history
+|   |-- database.json              # Mock users, roles และ credits
+|   |-- history.json               # Successful generation history
+|   `-- providers/
+|       |-- BaseProvider.js
+|       |-- ProviderFactory.js
+|       |-- OpenAIProvider.js
+|       `-- GeminiProvider.js
+|-- attributes/
+|   |-- 001-character.json ... 023-architecture.json
+|   `-- spec/
+|       |-- ui-schema.json
+|       |-- prompt-templates.json
+|       |-- prompt-order.json
+|       |-- presets.json
+|       `-- attribute-library.json
+|-- requirements/                  # Requirements และ implementation plans
+|-- sub-app-game-character/        # Static sub-application แยกจาก app หลัก
+|-- example-target/                # ตัวอย่าง exported prompt/config
+|-- package.json
+`-- nodemon.json
 ```
 
----
+`sub-app-game-character` ถูก serve ที่ `/sub-app-game-character` แต่มี code/data/design system ของตัวเอง ไม่ได้ใช้ state หรือ attribute library ชุดเดียวกับ app หลัก
 
-## 3. โครงสร้าง JSON ของ Attribute Files
+## 4. การเริ่มระบบ
 
-ทุกไฟล์ใน `/attributes/` เป็น JSON array ของ option objects มีโครงสร้างดังนี้:
+ติดตั้ง dependency และเริ่ม server:
+
+```bash
+npm install
+npm start
+```
+
+Development mode:
+
+```bash
+npm run dev
+```
+
+ค่า default คือ `http://localhost:3000`
+
+Environment variables:
+
+```dotenv
+PORT=3000
+OPENAI_API_KEY=...
+GEMINI_API_KEY=...
+MAX_CONCURRENT_GENERATIONS=2
+```
+
+- ต้องมี API key ของ provider ที่เลือกใช้งาน
+- API key อยู่ฝั่ง server และไม่ถูกส่งไป browser
+- `MAX_CONCURRENT_GENERATIONS` กำหนดจำนวน job ที่ประมวลผลพร้อมกัน
+
+## 5. Frontend Architecture
+
+### 5.1 App State
+
+State หลักอยู่ใน `client/app.js` และประกอบด้วย:
+
+- `schema`, `templates`, `order`, `library`, `presets`
+- `selections`: attribute ที่เลือก โดย key คือชื่อ field จาก UI schema
+- `lockedFields`: field ที่ randomization ห้ามแก้
+- `imageReferences`: `faceMatch`, `styleMatch`, `poseMatch`
+- face/style reference slots A และ B พร้อม parent job IDs
+- `language`: default `th`
+- `aspectRatio`: default `6:8`
+- `mode`: default `normal`
+- `username`, `userRole`, `activeJobId`
+- custom colors สำหรับ Hair, Top, Bottom, Dress และ Shoes
+
+State ถูกบันทึกใน `localStorage` แยกตาม mode:
+
+```text
+model_prompt_forge_state_normal
+model_prompt_forge_state_headshot
+model_prompt_forge_state_character_sheet
+```
+
+### 5.2 Initialization
+
+ลำดับเริ่มต้นโดยสรุป:
+
+1. Client เรียก `GET /api/attributes/bundle`
+2. โหลด schema, templates, order, library และ presets เข้า state
+3. สร้าง accordion fields ตาม `ui-schema.json`
+4. restore state ของ mode ปัจจุบัน
+5. bind controls, provider/model selectors, references และ generation events
+6. โหลด credits และ history
+
+Client ไม่อ่าน attribute files ทีละไฟล์ใน runtime ปกติ แม้ยังมี `ATTRIBUTE_FILES` constant อยู่ แต่ใช้ bundle endpoint เป็นหลัก
+
+### 5.3 Generation Modes
+
+| Mode | Behavior |
+|---|---|
+| `normal` | ใช้ template ที่เลือกและ attribute ทุกกลุ่มตามปกติ |
+| `headshot` | บังคับโครง portrait ระดับศีรษะถึงไหล่ พื้นหลังขาว และมุมหน้าตรง |
+| `character-sheet` | สร้าง front/side/back full-body model sheet บนพื้นหลังขาว |
+
+### 5.4 UI Theme
+
+Design system อยู่ใน `client/style.css`:
+
+- พื้นหลังดำอมม่วง
+- Glassmorphism panels
+- Neon purple, pink, cyan, green, gold และ red tokens
+- Error state ใช้ translucent neon-red viewport banner
+- Layout เป็น creative configurator + visual dashboard และรองรับ responsive viewport
+
+เมื่อเพิ่ม UI ให้ reuse CSS variables และ component patterns เดิมก่อนสร้าง style ใหม่
+
+## 6. Attribute และ Spec System
+
+ปัจจุบันมี:
+
+- 23 attribute JSON files
+- 467 attribute entries
+- 14 UI schema groups
+- 7 prompt templates
+- 12 presets
+
+### 6.1 Attribute Contract
+
+รูปแบบทั่วไป:
 
 ```json
 {
-  "id": "environment.pop_06",
-  "category": "environment",
-  "label": "Bustling Japanese Arcade",
+  "id": "character.001",
+  "category": "character",
+  "subcategory": "Gender",
+  "label": {
+    "en": "Female",
+    "th": "ผู้หญิง"
+  },
   "ui": {
     "control": "select",
-    "group": "Environment"
+    "group": "Character"
   },
-  "subcategory": "Location",
   "prompt": {
-    "default": "in a bustling Japanese game center and arcade",
-    "gpt-image": "in a vibrant bustling Japanese game center and arcade, filled with glowing screens and colorful neon signs",
-    "gpt-image-safe": "...",          
-    "gpt-image-positive": "..."       
+    "default": "female",
+    "gpt-image": "female woman",
+    "gpt-image-safe": "...",
+    "gpt-image-positive": ["..."]
   },
-  "exclusions": ["environment.008"],  
-  "tags": ["environment", "location", "arcade", "indoor", "asian"],
+  "exclusions": [],
+  "tags": ["character"],
   "enabled": true
 }
 ```
 
-### ฟิลด์ที่สำคัญ:
-| ฟิลด์ | ความหมาย |
+กติกาสำคัญ:
+
+- `id` ต้องไม่ซ้ำ
+- `label` ควรมีทั้ง `en` และ `th`
+- `subcategory` ต้องตรงกับ field name ใน UI schema เมื่อ category มีหลาย field
+- `prompt.default` เป็น fallback หลัก
+- `enabled: false` ทำให้ option ไม่แสดง
+- `exclusions` ปิด option ที่ขัดกันโดยตรง
+- `tags` ใช้แก้ conflict เช่น indoor/outdoor และ day/night
+- หากเพิ่ม attribute file ใหม่ ต้องเพิ่มชื่อไฟล์ใน `ATTRIBUTE_FILES` ของ `server/server.js`; client มีรายการซ้ำที่ควรรักษาให้ตรงกันจนกว่าจะ refactor
+
+### 6.2 Spec Files
+
+| File | Responsibility |
 |---|---|
-| `id` | unique ID ใช้เป็น key ใน `state.selections` และใช้อ้างอิงใน `exclusions` |
-| `category` | ตรงกับชื่อ category ย่อ เช่น `"environment"`, `"clothing"` |
-| `subcategory` | ใช้ filter options ให้ตรงกับ field ใน ui-schema (เช่น `"Location"`, `"Architecture"`) |
-| `prompt.default` | คำ prompt พื้นฐาน |
-| `prompt.gpt-image` | คำ prompt แบบ expanded ใช้กับ GPT Image โดยปกติ |
-| `prompt.gpt-image-safe` | คำ prompt เซฟสำหรับเลี่ยง safety filter (เปิดใช้ผ่าน GPT-Safe Mode toggle) |
-| `prompt.gpt-image-positive` | (pending) คำ positive keywords เพิ่มท้าย prompt เมื่อเปิด GPT-Safe Mode |
-| `exclusions` | (pending) array ของ `id` ที่ห้ามเลือกพร้อมกัน |
-| `enabled` | `false` = ซ่อน option ออกจาก dropdown |
+| `ui-schema.json` | กลุ่ม, field, required state และ control definition |
+| `prompt-templates.json` | รูปประโยคสำหรับ normal mode |
+| `prompt-order.json` | ลำดับการประกอบ segment |
+| `presets.json` | template, ratio, references และ selections สำเร็จรูป |
+| `attribute-library.json` | Combined/reference library; runtime bundle ปัจจุบันอ่านไฟล์ 001-023 โดยตรง |
 
-### ข้อสังเกต subcategory:
-- ไฟล์ที่ **มี** subcategory: `010-clothing.json`, `011-pose.json`, `012-environment.json`, `013-lighting.json`, `016-nsfw.json`
-- ไฟล์ที่ **ไม่มี** subcategory (ใช้ heuristics ใน `getOptionsForField`): `001-character.json`, `002-face.json`, `007-skin.json`, `006-lips.json`
+Attribute bundle ถูก cache ใน memory และ gzip เมื่อ client รองรับ การแก้ JSON ระหว่าง server ทำงานจึงต้อง restart server เพื่อ rebuild cache
 
----
+## 7. Prompt Compilation
 
-## 4. Spec Files
+มี prompt logic สองชุด:
 
-### `attributes/spec/ui-schema.json`
-กำหนด accordion groups และ fields ทั้งหมด มี 12 groups:
-`Character`, `Face`, `Hair`, `Skin`, `Body`, `Clothing`, `Pose`, `Environment`, `Lighting`, `Camera`, `Quality`, `NSFW`
+- `client/app.js`: สร้าง live preview และ export
+- `server/promptCompiler.js`: compile prompt ที่ส่งให้ providerจริง
 
-Group `NSFW` จะถูก **ซ่อนโดย CSS default** และแสดงผลเมื่อ user เปิด toggle "Enable NSFW Options"
+Server compiler เป็น authoritative path สำหรับ image generation
 
-### `attributes/spec/prompt-templates.json`
-Template strings ที่ประกอบ prompt ขั้นสุดท้าย มี 7 templates:
-| Template | ลักษณะ |
+Flow หลัก:
+
+```text
+selections + custom colors
+  -> clone active selections
+  -> resolve tag conflicts by category priority
+  -> apply face/style/pose reference overrides
+  -> group Character/Face/Hair/Skin/Body/Clothing/Pose/Environment/Lighting/Camera/Quality/NSFW
+  -> apply normal template or special mode layout
+  -> append deduplicated GPT-safe positive words
+  -> append aspect ratio instruction
+```
+
+Conflict pairs ปัจจุบัน:
+
+- indoor / outdoor
+- day / night
+- summer / winter
+- modern / vintage
+- cyberpunk / traditional
+
+เมื่อแก้ prompt behavior ต้องตรวจและอัปเดตทั้ง client preview กับ server compiler เพื่อไม่ให้ preview ต่างจาก prompt ที่ส่งจริง
+
+## 8. Backend API
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Health check |
+| `GET` | `/api/attributes/bundle` | Schema, templates, order, attributes และ presets |
+| `GET` | `/api/credits?user=...` | Credits และ role ของ mock user |
+| `POST` | `/api/credits/recharge` | เพิ่ม mock credits 10 หน่วย |
+| `POST` | `/api/generate` | Compile prompt และ enqueue generation job |
+| `GET` | `/api/jobs/:id` | Job status/result/error |
+| `GET` | `/api/jobs/:id/stream` | SSE progress, partial image, completion หรือ error |
+| `GET` | `/api/history` | Successful generation history |
+| `DELETE` | `/api/history/:id` | ลบ history และ output image |
+
+`POST /api/generate` รับ selections และ config จาก client แต่ prompt ถูก compile ฝั่ง server เพื่อไม่ต้องเชื่อ prompt text จาก browser
+
+## 9. Queue, Credits และ History
+
+`server/queueManager.js` รับผิดชอบ:
+
+- เก็บ queue และ active jobs ใน memory
+- จำกัด concurrency จาก `MAX_CONCURRENT_GENERATIONS`
+- หัก 1 credit เมื่อเริ่มประมวลผลจริง
+- resolve `/outputs/...` reference paths กลับเป็น Base64
+- เรียก provider แบบ stream หรือ non-stream
+- เขียนภาพสำเร็จที่ `client/outputs/<jobId>.png`
+- บันทึก metadata ใน `server/history.json`
+- ส่ง completion/error ไป SSE listeners
+- คืน credit หนึ่งครั้งเมื่อ OpenAI ตอบ `moderation_blocked`
+
+History เก็บเฉพาะงานสำเร็จ พร้อม provider, submodel, duration และ parent face/style job IDs งานล้มเหลวไม่สร้าง output หรือ history entry
+
+Queue ไม่ durable: หาก restart process งาน queued/processing และ job status ใน memory จะหาย แต่ output/history ที่เขียนแล้วจะยังอยู่
+
+## 10. Provider Architecture
+
+`ProviderFactory` เลือก provider และตรวจ API key ก่อนสร้าง instance
+
+### 10.1 OpenAI
+
+รองรับ model choices ที่ UI ระบุ:
+
+- `gpt-image-1-mini`
+- `gpt-image-1`
+- `gpt-image-1.5`
+- `gpt-image-2`
+- `dall-e-3`
+- `dall-e-2`
+
+พฤติกรรมสำคัญ:
+
+- Text-to-image ใช้ `/v1/images/generations`
+- Reference/edit ใช้ `/v1/images/edits` แบบ multipart
+- GPT Image รองรับหลาย reference images
+- DALL-E controls จะปิด face/style reference ใน client
+- Streaming parser รองรับ generation/edit partial events
+- Partial image เป็น preview เท่านั้นจนกว่า stream จบโดยไม่มี terminal failure
+- Error ถูก normalize เป็น `provider`, `type`, `code`, `message`, `requestId`, `safetyViolations`, `retryable`
+- `moderation_blocked` ยกเลิก partial preview และไม่ retry อัตโนมัติ
+
+Application-level completion ถูก emit โดย Queue หลังเขียน output และ history สำเร็จ ไม่ forward provider completion โดยตรง
+
+### 10.2 Gemini
+
+- Imagen legacy ใช้ `:predict`
+- Gemini image models ใช้ `/v1beta/interactions`
+- ส่ง style references ก่อน face references เป็น image input parts
+- แปลง ratio `6:8` เป็น `3:4`
+- `gemini-3.1-flash-lite-image` ถูกจำกัดไว้ที่ 1K ใน provider
+- ไม่มี native image SSE ใน implementation นี้; provider คืนผลสำเร็จแบบครั้งเดียว
+
+Model IDs และ API contracts เป็นข้อมูลที่เปลี่ยนตาม provider ควรตรวจเอกสารทางการก่อนเพิ่มหรือเปลี่ยน model
+
+## 11. Image Reference และ Lineage
+
+- Face reference: Slot A และ B
+- Style reference: Slot A และ B
+- Reference อาจเป็น Base64, data URL หรือ local `/outputs/...` path
+- Queue แปลง local output path เป็น Base64 ก่อนเรียก provider
+- เมื่อใช้ภาพจาก history เป็น reference จะเก็บ parent job ID
+- Lightbox ใช้ parent IDs เพื่อย้อนดู generation lineage
+- ถ้า slot เต็ม การ assign ใหม่จะแทน Slot B
+
+Face/style references ถูก disable และล้างเมื่อเลือก DALL-E 2 หรือ DALL-E 3
+
+## 12. SSE Event Contract
+
+Events ที่ client ใช้:
+
+| Event | Meaning |
 |---|---|
-| `portrait` | standard — `{subject}, {appearance}, {clothing}, ...` |
-| `nightclub` | เน้น nightclub atmosphere |
-| `street` | เน้น urban street |
-| `studio` | photography studio |
-| `thaiTraditional` | สำหรับชุดไทย |
-| `vintageFilm` | สไตล์ฟิล์มเก่า |
-| `cafeMinimalist` | สไตล์ cafe ญี่ปุ่น/เกาหลี |
+| `status` | queued/processing status |
+| `image_generation.partial_image` | OpenAI generation preview |
+| `image_edit.partial_image` | OpenAI edit/reference preview |
+| `image_generation.completed` | Queue persist output/history สำเร็จ |
+| `error` | Terminal normalized application error |
 
-Template tags ที่ใช้: `{subject}`, `{appearance}`, `{clothing}`, `{nsfw}`, `{pose}`, `{environment}`, `{lighting}`, `{camera}`, `{quality}`
+กฎ terminal behavior:
 
-### `attributes/spec/prompt-order.json`
-กำหนดลำดับ segment ใน prompt:
-`subject → face_shape → eyes → eyebrows → nose → lips → skin → hair_style → body → clothing_fit → fabric → tops → bottoms → nsfw → pose_body → environment → lighting → camera → quality`
+- Provider error/completion ไม่ถูก forward ตรงจาก Queue callback
+- Queue ส่ง terminal application event เพียงครั้งเดียว
+- Error หลัง partial image มีสิทธิ์เหนือ preview เสมอ
+- Client ต้องล้าง failed preview, download action และ telemetry
+- Technical details แสดง request ID และ safety metadata โดยไม่ log Base64
 
----
+## 13. Localization
 
-## 5. โครงสร้าง app.js
+- Default language คือไทย (`state.language = "th"`)
+- Attribute labels รองรับ `{ "en": "...", "th": "..." }`
+- `getLocalizedLabel()` fallback จากภาษาปัจจุบันไป `en`
+- Prompt values ยังเป็นภาษาอังกฤษ เพราะส่งให้ image providers
+- เมื่อเพิ่ม option ใหม่ ต้องเพิ่ม label ทั้งสองภาษา
 
-### Constants และ State
-```js
-const ATTRIBUTE_FILES = [...]  // รายชื่อไฟล์ JSON ทั้งหมดที่ต้อง fetch
-const FIELD_TO_CATEGORY_MAP = {...}  // map field name → category string
-const PRESETS = {...}  // preset definitions (nightclub, studio, street, thaiSilk, cheongsam, minimalistCafe, beachCasual)
+## 14. Security และ Data Boundaries
 
-const state = {
-  schema: null,       // ui-schema.json
-  templates: null,    // prompt-templates.json
-  order: null,        // prompt-order.json order array
-  library: [],        // รวม options ทุกตัวจากทุกไฟล์
-  selections: {},     // { fieldName: { id, value, isCustom, group } }
-  imageReferences: { faceMatch, styleMatch, poseMatch },
-  aspectRatio: "6:8"
-}
+- Provider API keys อยู่ใน environment variables ฝั่ง server
+- Prompt สำหรับ generation compile ฝั่ง server
+- Attribute bundle expose เฉพาะข้อมูล UI/prompt ที่ client ต้องใช้
+- `database.json` เป็น mock storage ไม่เหมาะกับ production authentication/billing
+- `X-User-Role` และ username จาก client ไม่ใช่ security boundary ที่เชื่อถือได้
+- CORS เปิดใช้งานแบบกว้างในปัจจุบัน
+- Reference Base64 ถูกส่งผ่าน JSON/multipart และอาจมีขนาดใหญ่
+- อย่า log API keys, Base64 images หรือ provider response ทั้งก้อน
+
+## 15. Known Risks และ Technical Debt
+
+1. Prompt compilation ซ้ำใน client และ server มีโอกาส drift
+2. `ATTRIBUTE_FILES` ซ้ำใน client และ server มีโอกาสรายการไม่ตรงกัน
+3. Queue อยู่ใน memory และไม่ recover หลัง restart
+4. Credits/history ใช้ read-modify-write บน JSON files จึงมี race condition เมื่อมี concurrent writes
+5. Mock user/role สามารถเลือกจาก client ได้และไม่ใช่ authentication จริง
+6. Attribute bundle cache ไม่มี invalidation ระหว่าง runtime
+7. ไม่มี automated test suite ใน `package.json`; ปัจจุบันมีเพียง `start` และ `dev`
+8. Provider model availability และ parameter support อาจเปลี่ยน ต้อง verify กับ official docs
+9. Generated files และ history ไม่มี retention/cleanup policy อัตโนมัติ
+10. `checkAndDeductCredit()` ใน `server/server.js` เป็น helper ที่ไม่ได้ใช้; การหักเงินจริงในระบบปัจจุบันอยู่ใน Queue
+
+## 16. แนวทางแก้ไขงาน
+
+ก่อนแก้ feature:
+
+1. อ่าน requirement/implementation plan ที่เกี่ยวข้อง
+2. ตรวจ code path จริงทั้ง client และ server
+3. รักษา UI theme และ component pattern เดิม
+4. หากแก้ attribute ให้ตรวจ schema, category mapping, subcategory และ prompt order
+5. หากแก้ prompt ให้ sync client preview กับ server compiler
+6. หากแก้ provider ให้ตรวจทั้ง normal response, streaming, edit/reference และ error path
+7. หากแก้ queue ให้ตรวจ credits, output, history, SSE terminal event และ reconnect behavior
+8. อัปเดตเอกสารนี้เมื่อ architecture หรือ contract เปลี่ยน
+
+Verification ขั้นต่ำ:
+
+```bash
+node --check client/app.js
+node --check server/server.js
+node --check server/promptCompiler.js
+node --check server/queueManager.js
+node --check server/providers/OpenAIProvider.js
+node --check server/providers/GeminiProvider.js
 ```
 
-### ลำดับการทำงานตอน init
-1. `initApp()` → fetch spec files + attribute files พร้อมกัน
-2. `renderForm()` → สร้าง accordion UI จาก schema
-3. `bindEvents()` → ผูก event listeners
-4. `updatePromptPreview()` → compile prompt ครั้งแรก
+จากนั้นควรทดสอบ manual flow อย่างน้อย:
 
-### ฟังก์ชันหลัก
-| ฟังก์ชัน | หน้าที่ |
-|---|---|
-| `renderForm()` | สร้าง accordion + dropdown จาก ui-schema |
-| `getOptionsForField(fieldName, category, library)` | filter options ให้ตรง field โดยใช้ subcategory หรือ heuristics |
-| `bindEvents()` | ผูก event ทุกอย่าง — dropdown change, checkboxes, buttons, presets |
-| `getPromptValueForSelection(selection)` | ดึงค่า prompt ที่ถูกต้องโดยดู GPT-Safe toggle (คืน `gpt-image-safe` หรือ `gpt-image` หรือ `default`) |
-| `updateAccordionSummaryBadges(groupName)` | อัปเดต badge สรุปหัว accordion |
-| `generatePromptText(cleanTextOnly)` | compile prompt จาก state.selections + template |
-| `updatePromptPreview()` | เรียก generatePromptText แล้วแสดง HTML ใน #prompt-preview |
-| `copyPromptToClipboard()` | copy text prompt |
-| `copyPromptAsJSON()` | copy structured JSON |
-| `exportConfigJSON()` | download JSON config file |
-| `importConfigJSON(jsonStr)` | restore state จาก JSON |
-| `resetForm()` | ล้าง selections และ UI ทั้งหมด |
-| `randomizeSelections()` | สุ่มเลือก options (65% chance ต่อ field) โดยข้าม field ที่ถูก Lock ไว้ (`state.lockedFields`) |
-| `applyFaceMatchLockout()` | lock Face fields เมื่อ Face Match checkbox เปิด |
+- โหลด attribute bundle และ render form
+- สลับภาษาและ generation mode
+- generate แบบไม่มี reference
+- generate/edit แบบมี reference
+- partial preview แล้วสำเร็จ
+- partial preview แล้ว moderation block
+- credit deduction/refund
+- history, deletion และ lineage navigation
+- state restore หลัง reload
 
-### การจัดการ selections state
-เมื่อ user เลือก dropdown:
-```js
-state.selections[fieldName] = {
-  id: "environment.pop_06",   // option ID จาก JSON
-  value: "prompt text...",    // prompt value ที่แสดงตามสภาพ GPT-Safe
-  isCustom: false,            // true ถ้าเป็น custom write-in
-  group: "Environment"        // accordion group name
-}
-```
+## 17. Related Documents
 
----
-
-## 6. UI Layout
-
-### Left Panel (`#form-container`)
-- Collapsible accordions สร้างจาก `ui-schema.json` แบบ dynamic
-- แต่ละ accordion มี badge แสดงสรุปค่าที่เลือก
-- NSFW accordion ซ่อนโดย default
-
-### Right Panel (Sticky sidebar)
-ประกอบด้วย sections:
-1. **Template Selector** — dropdown เลือก prompt template
-2. **Presets** — chip buttons สำหรับ preset ต่างๆ (nightclub, studio, street, thaiSilk, cheongsam, minimalistCafe, beachCasual)
-3. **Aspect Ratio** — chip buttons (1:1, 6:8, 16:9, 9:16)
-4. **Image Reference Options** — checkboxes: Face Match, Style Match, Pose Match
-5. **Content Settings** — checkboxes: Enable NSFW Options, GPT-Safe Mode (Avoid Violations)
-6. **Live Prompt Preview** — แสดง prompt แบบ color-coded + ปุ่ม Copy Text / Copy JSON
-7. **Actions** — ปุ่ม Surprise Me (random), Reset, Export JSON, Import JSON
-
----
-
-## 7. Color Token Classes ใน Live Preview
-
-| CSS Class | สี | หมายถึง |
-|---|---|---|
-| `.token-subject` | ม่วง/violet | Character segment |
-| `.token-appearance` | ฟ้าอ่อน/cyan | Face, Hair, Skin segment |
-| `.token-clothing` | ส้ม/amber | Clothing segment |
-| `.token-pose` | เขียว | Pose segment |
-| `.token-environment` | ฟ้าน้ำทะเล | Environment segment |
-| `.token-lighting` | เหลือง | Lighting segment |
-| `.token-camera` | เทา | Camera segment |
-| `.token-quality` | ชมพูอ่อน | Quality segment |
-| `.token-reference` | ชมพูเรืองแสง | Image Reference overrides |
-| `.token-nsfw` | ชมพูบาน | NSFW segment |
-
----
-
-## 8. Prompt Compilation Flow
-
-```
-generatePromptText(cleanTextOnly)
-  ↓
-  [ตรวจ Image Reference overrides] → ถ้า faceMatch/styleMatch/poseMatch เปิด → inject fixed text แทน
-  ↓
-  compileGroupSegment(groupName, tokenClass)
-    ↓
-    [วน state.order] → หา selection ที่ group ตรงกัน
-    → getPromptValueForSelection(selection)
-       → ดู toggle-gpt-safe
-       → คืน prompt["gpt-image-safe"] || prompt["gpt-image"] || prompt.default
-    ↓
-    [fallback] → ถ้าหาไม่เจอจาก order → วนจาก state.selections โดยตรง
-  ↓
-  แทน template tags {subject}, {appearance}, {clothing}, {nsfw}, {pose}, {environment}, {lighting}, {camera}, {quality}
-  ↓
-  ต่อท้ายด้วย --ar {aspectRatio}
-```
-
----
-
-## 9. GPT-Safe Mode System
-
-**Toggle**: `#toggle-gpt-safe` checkbox ใน Content Settings
-
-**วิธีทำงาน**: เมื่อเปิด ฟังก์ชัน `getPromptValueForSelection()` จะเลือก:
-1. `prompt["gpt-image-safe"]` — ถ้ามี
-2. `prompt["gpt-image"]` — fallback
-3. `prompt.default` — fallback สุดท้าย
-
-**Attribute files ที่มี gpt-image-safe ครบ**: `009-body.json`
-
-**Planned (pending)**: `gpt-image-positive` field — รวบรวม positive keywords ต่อท้าย prompt เมื่อ GPT-Safe เปิด ดูรายละเอียดใน `003-gpt-safe-positive-words.md`
-
----
-
-## 10. NSFW System
-
-**Toggle**: `#toggle-nsfw` checkbox ใน Content Settings
-
-**Accordion**: `#accordion-nsfw` ซ่อนโดย `style.css` default แสดงเมื่อ checkbox checked
-
-**Dataset**: `016-nsfw.json` — มี 2 fields:
-- `Nudity Level` (subcategory: `Nudity Level`)
-- `Sensual Pose` (subcategory: `Sensual Pose`)
-
-**เมื่อปิด toggle**: ล้าง state.selections ของ NSFW group ทั้งหมดทันที
-
----
-
-## 11. Exclusions System (Implemented - Bidirectional)
-
-ดูรายละเอียดใน [004-dynamic-dropdown-conflict-prevention.md](file:///d:/development/ModelPromptForge/requirements/implementation-plan/enhancements/004-dynamic-dropdown-conflict-prevention.md)
-
-**วิธีการทำงาน (Two-Layer Defense)**:
-- **Layer 1 (Preventive)**: ฟังก์ชัน `updateDropdownExclusions()` สแกน active selections และ disable options ใน dropdown อื่นที่ขัดแย้งทันที (เป็นสีจาง + สัญลักษณ์ 🚫)
-- **Layer 2 (Defensive)**: ฟังก์ชัน `enforceExclusionRules()` ล้างค่าที่ขัดแย้งออกจาก state อัตโนมัติ พร้อมแสดง animation เมื่อมีการเปลี่ยนค่า (เช่น โหลด preset หรือ import JSON)
-
-**Bidirectional Logic**:
-ระบบทำงานแบบ 2 ทาง (Forward และ Reverse lookup) ดังนั้นใน JSON attribute แค่ประกาศ `exclusions` ทิศทางเดียวก็พอ ระบบจะดักจับอีกทางให้อัตโนมัติ
-
----
-
-## 12. Presets
-
-| Preset Key | Template | ธีม |
-|---|---|---|
-| `nightclub` | nightclub | ผู้หญิงไทยในไนท์คลับ flash + neon |
-| `studio` | studio | ผู้หญิงเกาหลีใน studio corset |
-| `street` | street | ผู้หญิงญี่ปุ่นริมถนน urban |
-| `thaiSilk` | thaiTraditional | ชุดผ้าไหมไทย + วัด |
-| `cheongsam` | vintageFilm | ชุด Qipao จีน vintage film |
-| `minimalistCafe` | cafeMinimalist | ผู้หญิงเกาหลีในคาเฟ่ minimalist |
-| `beachCasual` | portrait | ผู้หญิงไทยชุด casual ริมทะเล |
-
----
-
-## 13. งานที่ Implementation เสร็จแล้ว
-
-| Task | ไฟล์ | Status |
-|---|---|---|
-| NSFW Toggle + Accordion | `index.html`, `app.js`, `style.css`, `016-nsfw.json`, `ui-schema.json` | ✅ Done |
-| Natural Lighting options | `013-lighting.json` | ✅ Done |
-| Casual Clothing options | `010-clothing.json` | ✅ Done |
-| Popular Environment options | `012-environment.json` | ✅ Done |
-| GPT-Safe Mode toggle | `index.html`, `app.js` | ✅ Done |
-| `gpt-image-safe` field ใน body.json | `009-body.json` | ✅ Done |
-| Beach Casual preset | `app.js` | ✅ Done |
-| Exclusions / Conflict Prevention | `app.js`, `style.css`, `004-dynamic-dropdown-conflict-prevention.md` | ✅ Done |
-| New Env, Blur & Frame options | `012-environment.json`, `014-camera.json`, `015-quality.json` | ✅ Done |
-| Attribute Lock Checkbox | `app.js`, `index.html`, `style.css` | ✅ Done |
-
-## 14. งานที่ยังรอ Implementation
-
-| Task | Requirement File | Priority |
-|---|---|---|
-| GPT-Safe Positive Words (`gpt-image-positive`) | `003-gpt-safe-positive-words.md` | 🟡 Medium |
-| 8-Bit Dynamic Preview Canvas | `002-dynamic-preview-canvas.md` | 🟢 Low |
-
----
-
-## 15. หมายเหตุสำคัญและ Gotchas
-
-1. **ไม่มี backend** — ทุกอย่าง client-side fetch จาก local files เท่านั้น ต้องรันผ่าน HTTP server (Live Server, `npm serve`) ไม่ใช่ double-click เปิด HTML ตรง เพราะ fetch จะ fail ด้วย CORS error
-2. **FIELD_TO_CATEGORY_MAP** ต้องอัปเดตทุกครั้งที่เพิ่ม field ใหม่ใน ui-schema
-3. **subcategory ต้องตรงกับชื่อ field** ใน ui-schema ทุกตัวอักษร (case-sensitive)
-4. **state.library** คือ flat array รวม options ทั้งหมด ค้นหาด้วย `.find(item => item.id === id)`
-5. **getPromptValueForSelection** ต้องการ `state.library` ครบ — ถ้า item ไม่อยู่ใน library จะ fallback ไปใช้ `selection.value` เดิม
-6. **NSFW accordion** ถูกสร้างจาก `renderForm()` เหมือน accordion ปกติ แต่ถูกซ่อนด้วย `display: none` ใน `style.css` และแสดงผ่าน JS event listener ของ `#toggle-nsfw`
+- `requirements/requirements.md`: functional requirements ตั้งต้น
+- `requirements/prompt-rules.md`: prompt ordering rules
+- `requirements/gpt-image-style-guide.md`: GPT Image prompt guidance
+- `requirements/implementation-plan-upgrade-to-node/000-master.md`: แผน migration หลัก
+- `requirements/implementation-plan-upgrade-to-node/009-loopback-referencing.md`: references, lineage และ stream safety handling
+- `requirements/implementation-plan-upgrade-to-node/010-attribute-bundling-and-security.md`: attribute bundle/security
+- `requirements/implementation-plan-upgrade-to-node/012-session-persistence-and-engine-validation.md`: state persistence และ validation
