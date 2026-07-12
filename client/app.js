@@ -48,7 +48,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Style": "hair",
   "Texture": "hair",
   "Color": "hair",
-  "Bangs": "hair",
+  "Bangs": "",
   "Tone": "skin",
   "Texture": "skin",
   "Makeup": "skin",
@@ -490,10 +490,10 @@ function validateForm() {
             content.style.maxHeight = content.scrollHeight + "px";
           }
         }
-        
+
         // Smooth scroll to it
         selectEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        
+
         // Highlight the select wrapper with flashing neon red
         const formField = selectEl.closest(".form-field");
         if (formField) {
@@ -504,7 +504,7 @@ function validateForm() {
             formField.classList.remove("required-flash");
           }, 3000);
         }
-        
+
         // Focus the select input
         selectEl.focus();
       }
@@ -758,14 +758,14 @@ async function updateCredits() {
     const creditsVal = document.getElementById("credits-value");
     if (creditsVal) creditsVal.textContent = data.credits;
     state.userRole = data.role;
-    
+
     // Auto switch selector UI value if credentials fetched externally
     const activePill = document.querySelector(`#profile-pill-selector .pill-btn[data-value="${state.username}"]`);
     if (activePill) {
       document.querySelectorAll("#profile-pill-selector .pill-btn").forEach(b => b.classList.remove("active"));
       activePill.classList.add("active");
     }
-    
+
     updatePromptPreview(); // refresh display
   } catch (err) {
     console.error("Failed to fetch credits:", err);
@@ -851,15 +851,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function initApp() {
   try {
-    const [schemaRes, templatesRes, orderRes] = await Promise.all([
-      fetch("attributes/spec/ui-schema.json").then(r => r.json()),
-      fetch("attributes/spec/prompt-templates.json").then(r => r.json()),
-      fetch("attributes/spec/prompt-order.json").then(r => r.json())
-    ]);
+    const response = await fetch("/api/attributes/bundle");
+    if (!response.ok) {
+      throw new Error(`Server returned HTTP ${response.status}`);
+    }
+    const bundle = await response.json();
 
-    state.schema = schemaRes;
-    state.templates = templatesRes;
-    state.order = orderRes.order;
+    state.schema = bundle.schema;
+    state.templates = bundle.templates;
+    state.order = bundle.order;
+    state.library = bundle.library;
 
     // Populate templates select
     const templateSelect = document.getElementById("template-select");
@@ -870,23 +871,6 @@ async function initApp() {
       option.textContent = key.charAt(0).toUpperCase() + key.slice(1) + " Layout";
       if (index === 0) option.selected = true;
       templateSelect.appendChild(option);
-    });
-
-    // Load individual attributes files
-    const attributesData = await Promise.all(
-      ATTRIBUTE_FILES.map(file =>
-        fetch(`attributes/${file}`)
-          .then(r => r.json())
-          .catch(err => {
-            console.warn(`Error loading attributes/${file}, skipping.`, err);
-            return [];
-          })
-      )
-    );
-
-    attributesData.forEach(fileData => {
-      const items = Array.isArray(fileData) ? fileData : (fileData.entries || []);
-      state.library.push(...items);
     });
 
     renderForm();
@@ -986,24 +970,24 @@ function renderForm() {
         if (opt.enabled === false) return;
         const optionNode = document.createElement("option");
         optionNode.value = opt.id;
-        
+
         const resolvedLabel = getLocalizedLabel(opt.label);
         optionNode.setAttribute("data-prompt", opt.prompt ? (opt.prompt["gpt-image"] || opt.prompt.default) : resolvedLabel);
 
         const optLabel = resolvedLabel.toLowerCase();
         const optTags = (opt.tags || []).map(t => t.toLowerCase());
-        const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") ||
-          optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") ||
-          optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
+        // const isAsian = optTags.includes("asian") || optTags.includes("thai") || optTags.includes("korean") || optTags.includes("japanese") || optTags.includes("chinese") ||
+        //   optLabel.includes("asian") || optLabel.includes("thai") || optLabel.includes("korean") || optLabel.includes("japanese") || optLabel.includes("chinese") ||
+        //   optLabel.includes("qipao") || optLabel.includes("sabai") || optLabel.includes("yukata") || optLabel.includes("kimono");
 
-        if (isAsian) {
-          optionNode.textContent = `🏮 ${resolvedLabel}`;
-          optionNode.style.color = "#06b6d4";
-          optionNode.style.fontWeight = "600";
-          optionNode.className = "asian-option";
-        } else {
-          optionNode.textContent = resolvedLabel;
-        }
+        // if (isAsian) {
+        //   optionNode.textContent = `🏮 ${resolvedLabel}`;
+        //   optionNode.style.color = "#06b6d4";
+        //   optionNode.style.fontWeight = "600";
+        //   optionNode.className = "asian-option";
+        // } else {
+        optionNode.textContent = resolvedLabel;
+        // }
 
         optionNode.setAttribute("data-original-text", optionNode.textContent);
         select.appendChild(optionNode);
@@ -1143,10 +1127,10 @@ function bindEvents() {
       if (val === "__custom__") {
         customInput.style.display = "block";
         customInput.focus();
-        state.selections[fieldName] = { 
-          id: "__custom__", 
-          value: customInput.value, 
-          isCustom: true, 
+        state.selections[fieldName] = {
+          id: "__custom__",
+          value: customInput.value,
+          isCustom: true,
           group: groupName,
           category: FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase(),
           tags: []
@@ -1159,11 +1143,11 @@ function bindEvents() {
           const selectedOption = e.target.options[e.target.selectedIndex];
           const promptVal = selectedOption.getAttribute("data-prompt");
           const libItem = state.library.find(item => item.id === val);
-          
-          state.selections[fieldName] = { 
-            id: val, 
-            value: promptVal, 
-            isCustom: false, 
+
+          state.selections[fieldName] = {
+            id: val,
+            value: promptVal,
+            isCustom: false,
             group: groupName,
             category: libItem ? libItem.category : (FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase()),
             tags: libItem ? (libItem.tags || []) : [],
@@ -1179,10 +1163,10 @@ function bindEvents() {
 
     customInput.addEventListener("input", (e) => {
       if (select.value === "__custom__") {
-        state.selections[fieldName] = { 
-          id: "__custom__", 
-          value: e.target.value, 
-          isCustom: true, 
+        state.selections[fieldName] = {
+          id: "__custom__",
+          value: e.target.value,
+          isCustom: true,
           group: groupName,
           category: FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase(),
           tags: []
@@ -1416,7 +1400,7 @@ function bindEvents() {
     btn.addEventListener("click", () => {
       languagePills.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      
+
       const newLang = btn.getAttribute("data-value");
       if (state.language !== newLang) {
         state.language = newLang;
@@ -1433,7 +1417,7 @@ function bindEvents() {
     btn.addEventListener("click", () => {
       profilePills.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      
+
       const newUsername = btn.getAttribute("data-value");
       if (state.username !== newUsername) {
         state.username = newUsername;
@@ -1454,7 +1438,7 @@ function bindEvents() {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Recharge failed");
-        
+
         // Update balance display
         document.getElementById("credits-value").textContent = data.credits;
         const balanceEl = document.getElementById("credits-value");
@@ -1530,7 +1514,7 @@ function bindEvents() {
       const img = document.getElementById("generated-image");
       if (img && img.src && img.style.display !== "none") {
         assignFaceReference(img.src, state.activeJobId);
-        
+
         // Flash visual feedback indicator on the button
         btnViewportUseFace.textContent = "👤 Face Locked!";
         setTimeout(() => { btnViewportUseFace.textContent = "👤 Use as Face Ref"; }, 1500);
@@ -1543,7 +1527,7 @@ function bindEvents() {
       const img = document.getElementById("generated-image");
       if (img && img.src && img.style.display !== "none") {
         assignStyleReference(img.src, state.activeJobId);
-        
+
         btnViewportUseStyle.textContent = "🖼️ Style Locked!";
         setTimeout(() => { btnViewportUseStyle.textContent = "🖼️ Use as Style Ref"; }, 1500);
       }
@@ -1764,8 +1748,8 @@ function bindEvents() {
             errorMsg = payload.code === 'moderation_blocked'
               ? `This image did not pass the safety check. Please adjust the prompt or reference image.${creditRefunded ? ' Your credit was refunded.' : ''}`
               : rawMessage;
-          } catch {}
-          
+          } catch { }
+
           sseSource.close();
           jobCard.remove();
           loader.style.display = "none";
@@ -1853,7 +1837,7 @@ function bindEvents() {
       document.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       state.mode = chip.getAttribute("data-mode");
-      
+
       if (state.mode === "headshot" || state.mode === "character-sheet") {
         const preset = PRESETS.studio;
         if (preset) {
@@ -1865,7 +1849,7 @@ function bindEvents() {
       if (state.mode === "character-sheet" || state.mode === "headshot") {
         setAspectInUI("6:8");
       }
-      
+
       toggleUIForMode();
       updatePromptPreview();
     });
@@ -1883,9 +1867,14 @@ function bindEvents() {
 function toggleUIForMode() {
   const mode = state.mode;
   const imageUpload = document.getElementById("image-upload-container");
-  
+
   if (imageUpload) {
     imageUpload.style.display = mode === "character-sheet" ? "flex" : "none";
+  }
+
+  const presetsSection = document.querySelector(".presets-section");
+  if (presetsSection) {
+    presetsSection.style.display = mode === "normal" ? "block" : "none";
   }
 
   const visibleGroups = {
@@ -2214,7 +2203,7 @@ function generatePromptText(cleanTextOnly = false) {
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
 
   let clothing = compileGroupSegment("Clothing", "token-clothing");
-  
+
   // FULFILLS REQ 1: If clothing is empty in Character Sheet Mode, force tank top and shorts
   if (state.mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
     const clText = "wearing a tight white tank top and white shorts to clearly show the model's body shape and physique";
@@ -2230,22 +2219,22 @@ function generatePromptText(cleanTextOnly = false) {
   let camera = compileGroupSegment("Camera", "token-pose");
   let quality = compileGroupSegment("Quality", "token-lighting");
   let nsfw = compileGroupSegment("NSFW", "token-nsfw");
-  
+
   let prompt = "";
   if (state.mode === "headshot") {
     let headshotLayout = `headshot portrait`;
     let elements = [
-        cleanTextOnly ? headshotLayout : `<span class="token-pose">${headshotLayout}</span>`,
-        fullSubject,
-        appearance,
-        hair,
-        skin,
-        cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
-        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
-        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
-        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
-        camera,
-        quality
+      cleanTextOnly ? headshotLayout : `<span class="token-pose">${headshotLayout}</span>`,
+      fullSubject,
+      appearance,
+      hair,
+      skin,
+      cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
+      cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+      cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+      cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+      camera,
+      quality
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else if (state.mode === "character-sheet") {
@@ -2258,17 +2247,17 @@ function generatePromptText(cleanTextOnly = false) {
     }
     let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
     let elements = [
-        referenceText,
-        cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
-        fullSubject,
-        appearance,
-        hair,
-        clothing,
-        cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
-        cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
-        cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
-        camera,
-        quality
+      referenceText,
+      cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
+      fullSubject,
+      appearance,
+      hair,
+      clothing,
+      cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
+      cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
+      cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
+      camera,
+      quality
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else {
@@ -2567,20 +2556,20 @@ function importConfigJSON(jsonString) {
               customInput.style.display = "block";
             }
           }
-          state.selections[field] = { 
-            id: "__custom__", 
-            value: item.value, 
-            isCustom: true, 
+          state.selections[field] = {
+            id: "__custom__",
+            value: item.value,
+            isCustom: true,
             group: groupName,
             category: FIELD_TO_CATEGORY_MAP[field] || groupName.toLowerCase(),
             tags: []
           };
         } else {
           select.value = item.id;
-          state.selections[field] = { 
-            id: item.id, 
-            value: item.value, 
-            isCustom: false, 
+          state.selections[field] = {
+            id: item.id,
+            value: item.value,
+            isCustom: false,
             group: groupName,
             category: libItem ? libItem.category : (FIELD_TO_CATEGORY_MAP[field] || groupName.toLowerCase()),
             tags: libItem ? (libItem.tags || []) : [],
@@ -2775,7 +2764,7 @@ function renderHistory(historyList) {
   if (!grid) return;
 
   grid.innerHTML = "";
-  
+
   if (!historyList || historyList.length === 0) {
     grid.innerHTML = `<p class="no-history-text" id="no-history-placeholder">No history found</p>`;
     return;
@@ -2875,14 +2864,14 @@ function openLightbox(item) {
         parentThumb.style.borderRadius = "4px";
         parentThumb.style.cursor = "pointer";
         parentThumb.title = `${p.type} Ref parent: #${p.id.substring(4, 9)}`;
-        
+
         const thumbImg = document.createElement("img");
         thumbImg.src = parentItem ? parentItem.imageUrl : "";
         thumbImg.style.width = "100%";
         thumbImg.style.height = "100%";
         thumbImg.style.objectFit = "cover";
         thumbImg.style.borderRadius = "3px";
-        
+
         const typeBadge = document.createElement("span");
         typeBadge.textContent = p.type === "Face" ? "F" : "S";
         typeBadge.style.position = "absolute";
@@ -2897,7 +2886,7 @@ function openLightbox(item) {
 
         parentThumb.appendChild(thumbImg);
         parentThumb.appendChild(typeBadge);
-        
+
         parentThumb.addEventListener("click", () => {
           if (parentItem) {
             openLightbox(parentItem);
@@ -2905,7 +2894,7 @@ function openLightbox(item) {
             alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`);
           }
         });
-        
+
         lineageList.appendChild(parentThumb);
       });
       lineageContainer.style.display = "block";

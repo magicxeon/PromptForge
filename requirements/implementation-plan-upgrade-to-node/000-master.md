@@ -62,3 +62,15 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Add Face and Style reference selection buttons to active Viewport and Lightbox Modal.
   - Bind client-side JS to store base64/local paths and show thumbnail previews.
   - Adjust backend to resolve local static file paths and read references.
+- [ ] **Step 10: Secure Attribute Aggregation & Caching API** (`010-attribute-bundling-and-security.md`)
+  - Build server-side attributes bundle aggregation endpoint.
+  - Hide/restrict the raw static `/attributes/` directory path on the Express web server.
+  - Implement server-side warming memory cache for attributes database.
+  - Refactor frontend `initApp()` to load all configurations in a single bundle request.
+- [ ] **Step 11: Presets Externalization, Hair Textures & Color Pickers** (`011-presets-json-and-color-pickers.md`)
+  - Extract presets from `client/app.js` code variables to server-side JSON.
+  - Correct hair texture attribute mappings to represent actual hair qualities.
+  - Implement interactive custom Color Pickers for hair colors/highlights.
+  - Add optional custom Color Pickers for clothing components (tops, bottoms, dresses, shoes).
+
+

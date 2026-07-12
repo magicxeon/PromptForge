@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,12 @@
   <!-- Google Fonts: Outfit for Headers, Inter for Body -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="app-container">
     <!-- Header -->
@@ -19,7 +23,7 @@
           <h1>ModelPromptForge</h1>
           <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
         </div>
-        
+
         <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
         <div class="header-status-area">
           <!-- Language Toggle Pill Selector -->
@@ -49,12 +53,13 @@
           </div>
         </div>
       </div>
-      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without policy violations.</p>
+      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without
+        policy violations.</p>
     </header>
 
     <!-- Main Workspace -->
     <main class="app-workspace">
-      
+
       <!-- Top Section: Visual Workspace & History Dashboard (Collapsible) -->
       <section class="visual-dashboard glass-card" id="visual-dashboard">
         <div class="dashboard-header-row">
@@ -72,23 +77,24 @@
           <div class="viewport-column">
             <div class="viewport-card-header">
               <h3>Active Render Screen</h3>
-              <button id="btn-download-image" class="btn-download" title="Download Generated Image" style="display: none;">
+              <button id="btn-download-image" class="btn-download" title="Download Generated Image"
+                style="display: none;">
                 <span>📥 Download Image</span>
               </button>
             </div>
-            
+
             <div class="viewport-screen" id="viewport-screen">
               <div class="image-loading-overlay" id="image-loading-overlay">
                 <div class="loading-pulse-ring"></div>
                 <p class="loading-text">Generating character details...</p>
               </div>
-              
+
               <div class="viewport-placeholder-content" id="viewport-placeholder">
                 <span class="viewport-placeholder-icon">✨</span>
                 <p class="placeholder-main-text">Ready to render character</p>
                 <p class="sub-placeholder">Configure attributes below and click Generate Image</p>
               </div>
-              
+
               <div class="viewport-error-banner" id="viewport-error" style="display: none;">
                 <span class="error-icon">⚠️</span>
                 <div class="error-content">
@@ -99,14 +105,17 @@
                   </details>
                 </div>
               </div>
-              
+
               <img id="generated-image" src="" alt="Generated Character Output">
             </div>
 
             <!-- Loopback viewport controls (Step 9) -->
-            <div class="viewport-actions-row" id="viewport-loopback-actions" style="display: none; gap: 0.5rem; margin-top: 0.5rem; width: 100%;">
-              <button id="btn-viewport-use-face" class="btn-compact-neon btn-use-face-ref" style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
-              <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref" style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+            <div class="viewport-actions-row" id="viewport-loopback-actions"
+              style="display: none; gap: 0.5rem; margin-top: 0.5rem; width: 100%;">
+              <button id="btn-viewport-use-face" class="btn-compact-neon btn-use-face-ref"
+                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
+              <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref"
+                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
             </div>
 
             <!-- Telemetry Bar -->
@@ -122,7 +131,7 @@
             <div class="history-header">
               <h3>Background Queue & History</h3>
             </div>
-            
+
             <!-- Active Pending Job Queue list -->
             <div class="active-queue-section">
               <div class="queue-list" id="active-queue-list">
@@ -166,12 +175,13 @@
               <div class="mode-selector-section">
                 <label class="control-label">Generation Mode</label>
                 <div class="mode-chip-group">
-                  <button class="mode-chip active" data-mode="normal">Normal Mode</button>
                   <button class="mode-chip" data-mode="headshot">Headshot Grid</button>
                   <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
+                  <button class="mode-chip active" data-mode="normal">Story Mode</button>
                 </div>
-                
-                <div id="image-upload-container" class="mode-sub-control" style="display: none; padding: 0.5rem 0; border-top: 1px dashed rgba(255, 255, 255, 0.05); margin-top: 0.5rem;">
+
+                <div id="image-upload-container" class="mode-sub-control"
+                  style="display: none; padding: 0.5rem 0; border-top: 1px dashed rgba(255, 255, 255, 0.05); margin-top: 0.5rem;">
                   <label class="checkbox-container">
                     <input type="checkbox" id="sheet-use-reference-img">
                     <span class="checkmark"></span>
@@ -179,16 +189,27 @@
                   </label>
 
                   <!-- Slot Previews Dock (Step 9) -->
-                  <div class="reference-slots-dock" id="style-ref-slots-dock" style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
-                    <div class="ref-slot-card" id="style-slot-a-card" style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                      <img id="style-slot-a-img" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                      <span class="slot-badge" style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot A</span>
-                      <button type="button" class="btn-clear-slot" data-slot="styleA" style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                  <div class="reference-slots-dock" id="style-ref-slots-dock"
+                    style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <div class="ref-slot-card" id="style-slot-a-card"
+                      style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                      <img id="style-slot-a-img" src=""
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                      <span class="slot-badge"
+                        style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
+                        A</span>
+                      <button type="button" class="btn-clear-slot" data-slot="styleA"
+                        style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                     </div>
-                    <div class="ref-slot-card" id="style-slot-b-card" style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                      <img id="style-slot-b-img" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                      <span class="slot-badge" style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot B</span>
-                      <button type="button" class="btn-clear-slot" data-slot="styleB" style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                    <div class="ref-slot-card" id="style-slot-b-card"
+                      style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                      <img id="style-slot-b-img" src=""
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                      <span class="slot-badge"
+                        style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
+                        B</span>
+                      <button type="button" class="btn-clear-slot" data-slot="styleB"
+                        style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                     </div>
                   </div>
                 </div>
@@ -241,7 +262,7 @@
                   <option value="openai">OpenAI DALL-E</option>
                 </select>
               </div>
-              
+
               <div class="form-field">
                 <label for="api-submodel-select">Submodel Version</label>
                 <select id="api-submodel-select" class="custom-select">
@@ -261,7 +282,7 @@
                 <label for="input-width">Width (px)</label>
                 <input type="number" id="input-width" class="custom-select" value="768" min="720" max="4096" step="8">
               </div>
-              
+
               <div class="form-field">
                 <label for="input-height">Height (px)</label>
                 <input type="number" id="input-height" class="custom-select" value="1024" min="720" max="4096" step="8">
@@ -308,26 +329,43 @@
             </div>
 
             <!-- Dynamic Face Match reference upload container -->
-            <div id="face-match-upload-container" class="mode-sub-control" style="display: none; padding: 0.75rem; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 8px; margin-top: 0.5rem;">
-              <label class="control-label" style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">🔒 Face Match Reference (Up to 2 slots for Face Lock)</label>
-              
+            <div id="face-match-upload-container" class="mode-sub-control"
+              style="display: none; padding: 0.75rem; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 8px; margin-top: 0.5rem;">
+              <label class="control-label"
+                style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">🔒
+                Face Match Reference (Up to 2 slots for Face Lock)</label>
+
               <!-- Slot Previews Dock (Step 9) -->
-              <div class="reference-slots-dock" id="face-ref-slots-dock" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                <div class="ref-slot-card" id="face-slot-a-card" style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                  <img id="face-slot-a-img" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                  <span class="slot-badge" style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot A</span>
-                  <button type="button" class="btn-clear-slot" data-slot="faceA" style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+              <div class="reference-slots-dock" id="face-ref-slots-dock"
+                style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <div class="ref-slot-card" id="face-slot-a-card"
+                  style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                  <img id="face-slot-a-img" src=""
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                  <span class="slot-badge"
+                    style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot
+                    A</span>
+                  <button type="button" class="btn-clear-slot" data-slot="faceA"
+                    style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                 </div>
-                <div class="ref-slot-card" id="face-slot-b-card" style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                  <img id="face-slot-b-img" src="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-                  <span class="slot-badge" style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot B</span>
-                  <button type="button" class="btn-clear-slot" data-slot="faceB" style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                <div class="ref-slot-card" id="face-slot-b-card"
+                  style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                  <img id="face-slot-b-img" src=""
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                  <span class="slot-badge"
+                    style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot
+                    B</span>
+                  <button type="button" class="btn-clear-slot" data-slot="faceB"
+                    style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                 </div>
               </div>
 
               <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="file" id="face-match-file" accept="image/*" class="custom-select" style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
-                <button id="btn-clear-face-match" class="btn-compact-neon" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);" type="button">Clear All</button>
+                <input type="file" id="face-match-file" accept="image/*" class="custom-select"
+                  style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
+                <button id="btn-clear-face-match" class="btn-compact-neon"
+                  style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
+                  type="button">Clear All</button>
               </div>
             </div>
 
@@ -360,7 +398,8 @@
 
             <!-- Dedicated Generate Action Section (Step 7) -->
             <div class="generate-action-section" style="margin-top: 0.85rem; width: 100%;">
-              <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span class="btn-credit-cost-dark">(1 Credit)</span></button>
+              <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span
+                  class="btn-credit-cost-dark">(1 Credit)</span></button>
             </div>
 
             <div class="import-section-studio">
@@ -412,14 +451,20 @@
         </div>
 
         <!-- Reference Lineage Container (Step 9) -->
-        <div id="lightbox-lineage-container" style="display: none; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.5rem;">
-          <h5 style="font-size: 0.7rem; color: var(--neon-cyan); margin-bottom: 0.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Parent Lineage</h5>
+        <div id="lightbox-lineage-container"
+          style="display: none; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.5rem;">
+          <h5
+            style="font-size: 0.7rem; color: var(--neon-cyan); margin-bottom: 0.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+            Parent Lineage</h5>
           <div id="lightbox-lineage-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
         </div>
 
-        <div class="lightbox-action-row" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.85rem; margin-bottom: 0.5rem;">
-          <button id="btn-lightbox-use-face" class="btn-compact-neon btn-use-face-ref" style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
-          <button id="btn-lightbox-use-style" class="btn-compact-neon btn-use-style-ref" style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+        <div class="lightbox-action-row"
+          style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.85rem; margin-bottom: 0.5rem;">
+          <button id="btn-lightbox-use-face" class="btn-compact-neon btn-use-face-ref"
+            style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
+          <button id="btn-lightbox-use-style" class="btn-compact-neon btn-use-style-ref"
+            style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
@@ -429,4 +474,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
