@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { ProviderFactory } from './providers/ProviderFactory.js';
+import { collectionManager } from './collectionManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -142,7 +143,12 @@ class QueueManager {
 
     // If job has already completed/failed, notify client and end immediately
     if (job.status === 'completed') {
-      res.write(`event: image_generation.completed\ndata: ${JSON.stringify({ type: 'image_generation.completed', b64_json: job.result.base64, usage: job.result.usage })}\n\n`);
+      res.write(`event: image_generation.completed\ndata: ${JSON.stringify({
+        type: 'image_generation.completed',
+        imageUrl: job.result.imageUrl,
+        usage: job.result.usage,
+        generationDuration: job.result.generationDuration
+      })}\n\n`);
       res.end();
       return true;
     } else if (job.status === 'failed') {
@@ -274,12 +280,21 @@ class QueueManager {
         generationDuration: durationSec
       });
 
+      let collectionWarning = null;
+      try {
+        await collectionManager.addToDefault(jobId);
+      } catch (collectionError) {
+        collectionWarning = 'The image was saved, but it could not be added to the default collection.';
+        console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
+      }
+
       // Emit completed event with duration metadata
       this.emitToListeners(jobId, 'image_generation.completed', {
         type: 'image_generation.completed',
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
-        generationDuration: durationSec
+        generationDuration: durationSec,
+        collectionWarning
       });
 
     } catch (err) {
@@ -356,6 +371,11 @@ class QueueManager {
         // Remove from database
         history.splice(entryIdx, 1);
         await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+        try {
+          await collectionManager.removeJobEverywhere(jobId);
+        } catch (collectionError) {
+          console.warn(`[Queue] Collection cleanup failed for ${jobId}:`, collectionError.message);
+        }
         return true;
       }
       return false;

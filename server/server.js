@@ -6,6 +6,7 @@ import pathModule from 'path';
 import fs from 'fs/promises';
 import zlib from 'zlib';
 import { compilePromptOnServer } from './promptCompiler.js';
+import { collectionManager, CollectionError } from './collectionManager.js';
 
 dotenv.config();
 
@@ -200,6 +201,96 @@ app.post('/api/credits/recharge', async (req, res) => {
   }
 });
 
+function sendCollectionError(res, error) {
+  if (error instanceof CollectionError) {
+    return res.status(error.status).json({
+      error: {
+        code: error.code,
+        message: error.message
+      }
+    });
+  }
+  console.error('[Collections] Unexpected error:', error);
+  return res.status(500).json({
+    error: {
+      code: 'collection_internal_error',
+      message: 'Collection operation failed.'
+    }
+  });
+}
+
+app.get('/api/collections', async (req, res) => {
+  try {
+    res.json(await collectionManager.list());
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.post('/api/collections', async (req, res) => {
+  try {
+    res.status(201).json(await collectionManager.create(req.body));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.get('/api/collections/:id', async (req, res) => {
+  try {
+    res.json(await collectionManager.get(req.params.id));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.patch('/api/collections/:id', async (req, res) => {
+  try {
+    res.json(await collectionManager.update(req.params.id, req.body));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.delete('/api/collections/default', async (req, res) => {
+  try {
+    res.json(await collectionManager.clearDefault());
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.delete('/api/collections/:id', async (req, res) => {
+  try {
+    res.json(await collectionManager.remove(req.params.id));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.post('/api/collections/:id/images', async (req, res) => {
+  try {
+    res.json(await collectionManager.addImages(req.params.id, req.body.jobIds));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.delete('/api/collections/:id/images/:jobId', async (req, res) => {
+  try {
+    res.json(await collectionManager.removeImage(req.params.id, req.params.jobId));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
+app.put('/api/collections/:id/default', async (req, res) => {
+  try {
+    res.json(await collectionManager.setDefault(req.params.id));
+  } catch (error) {
+    sendCollectionError(res, error);
+  }
+});
+
 import { queueManager } from './queueManager.js';
 
 // Secret API Generation Route (Queue-based)
@@ -307,5 +398,8 @@ app.listen(PORT, () => {
     console.log('[Bundle] Attributes cache warmed successfully.');
   }).catch(err => {
     console.error('[Bundle] Failed to warm cache on startup:', err);
+  });
+  collectionManager.init().catch(err => {
+    console.error('[Collections] Failed to initialize storage:', err);
   });
 });

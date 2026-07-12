@@ -77,6 +77,15 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Implement automatic selections persistence in browser `localStorage` on any form inputs change.
   - Partition saved configurations by current mode (`headshot`, `character-sheet`, and `normal`).
   - Restore active mode settings on application load and switch.
-
-
-
+- [x] **Step 13: Image Collections, Navigation & UI Reliability** (`013-image-collections-navigation-and-ui-fixes.md`)
+  - Add persistent image Collections with description, story, cover, and default behavior.
+  - Prepare Collection metadata for a future AI story-to-character workflow without implementing AI automation yet.
+  - Fix stale Face Match references when the checkbox is disabled.
+  - Fix language switching and preserve dynamic form behavior.
+  - Add a floating control that returns users to Visual Viewport & Queue.
+- [ ] **Step 14: Optional AI Story Studio & Character Generation** (`014-optional-ai-story-studio-and-character-generation.md`)
+  - Add an opt-in Story Studio without changing the default manual generation workflow.
+  - Use Gemini structured analysis to build a reviewable story bible, cast, and attribute mappings.
+  - Require human approval before canonical character generation and batch progression.
+  - Charge configurable credits for analysis, re-analysis, AI remapping, and each generated image.
+  - Provide cost previews, server-authoritative billing, idempotent deduction/refund, and resumable generation plans.

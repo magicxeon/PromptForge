@@ -19,6 +19,7 @@ ModelPromptForge เป็นเว็บแอปสำหรับประก
 - Queue, credits, generation history และ lineage ของภาพอ้างอิง
 - ภาษา UI/label ไทยและอังกฤษ
 - Presets, custom color pickers, randomization, field locking และ import/export config
+- Image Collections พร้อม description, story, cover, default auto-assignment และ history filtering
 - เก็บ state ใน `localStorage` แยกตาม generation mode
 
 งานหลักทำงานผ่าน Node/Express backend ไม่ใช่ client-only application
@@ -268,6 +269,12 @@ Conflict pairs ปัจจุบัน:
 | `GET` | `/api/jobs/:id/stream` | SSE progress, partial image, completion หรือ error |
 | `GET` | `/api/history` | Successful generation history |
 | `DELETE` | `/api/history/:id` | ลบ history และ output image |
+| `GET` | `/api/collections` | List Collections และ default Collection |
+| `POST` | `/api/collections` | Create Collection |
+| `GET/PATCH/DELETE` | `/api/collections/:id` | Read, edit หรือ delete Collection metadata |
+| `POST/DELETE` | `/api/collections/:id/images...` | Add/remove history membership |
+| `PUT` | `/api/collections/:id/default` | Set default Collection |
+| `DELETE` | `/api/collections/default` | Clear default Collection |
 
 `POST /api/generate` รับ selections และ config จาก client แต่ prompt ถูก compile ฝั่ง server เพื่อไม่ต้องเชื่อ prompt text จาก browser
 
@@ -288,6 +295,8 @@ Conflict pairs ปัจจุบัน:
 History เก็บเฉพาะงานสำเร็จ พร้อม provider, submodel, duration และ parent face/style job IDs งานล้มเหลวไม่สร้าง output หรือ history entry
 
 Queue ไม่ durable: หาก restart process งาน queued/processing และ job status ใน memory จะหาย แต่ output/history ที่เขียนแล้วจะยังอยู่
+
+Collection metadata เก็บใน `server/collections.json` ผ่าน `server/collectionManager.js` โดยอ้าง history job IDs แทนการ duplicate รูป มี default Collection ได้หนึ่งรายการ และ successful generation ใหม่จะถูกเพิ่มเข้า default แบบ idempotent
 
 ## 10. Provider Architecture
 

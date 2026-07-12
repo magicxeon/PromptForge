@@ -112,16 +112,16 @@ const PROVIDER_SUBMODELS = {
     { value: 'gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite (Fastest & Cheapest)' },
     { value: 'gemini-3.1-flash-image', name: 'Nano Banana 2 (Generalist)' },
     { value: 'gemini-3-pro-image', name: 'Nano Banana Pro (Premium)' },
-    { value: 'gemini-2.5-flash-image', name: 'Nano Banana (Legacy)' },
-    { value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Legacy)' }
+    { value: 'gemini-2.5-flash-image', name: 'Nano Banana (Legacy)' }
+    // ,{ value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Legacy)' }
   ],
   openai: [
     { value: 'gpt-image-1-mini', name: 'GPT-Image 1 Mini (Cheapest)' },
     { value: 'gpt-image-1', name: 'GPT-Image 1 (Standard)' },
     { value: 'gpt-image-1.5', name: 'GPT-Image 1.5 (Enhanced)' },
     { value: 'gpt-image-2', name: 'GPT-Image 2 (Premium)' },
-    { value: 'dall-e-3', name: 'DALL-E 3 (Legacy)' },
-    { value: 'dall-e-2', name: 'DALL-E 2 (Legacy)' }
+    { value: 'dall-e-3', name: 'DALL-E 3 (Legacy)' }
+    // ,{ value: 'dall-e-2', name: 'DALL-E 2 (Legacy)' }
   ]
 };
 
@@ -178,6 +178,12 @@ const state = {
   username: "user_demo",
   activeJobId: null,
   presets: null,
+  history: [],
+  collections: [],
+  defaultCollectionId: null,
+  selectedCollectionId: "all",
+  collectionMembershipJobId: null,
+  pendingCollectionJobId: null,
   customColors: {
     "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
     "Top": { enabled: false, color: "#ffffff" },
@@ -302,6 +308,21 @@ function validateForm() {
 }
 
 // Render Slot Thumbnail Previews in the Docks (Step 9)
+function clearFaceReferenceState({ updateUI = true } = {}) {
+  state.faceReferenceImageA = null;
+  state.faceReferenceImageB = null;
+  state.faceReferenceJobIds = [];
+  const faceFileInput = document.getElementById("face-match-file");
+  if (faceFileInput) faceFileInput.value = "";
+  if (updateUI) updateReferencePreviewsUI();
+}
+
+function enforceFaceMatchInvariant({ updateUI = true } = {}) {
+  const refFace = document.getElementById("ref-face-match");
+  const enabled = state.imageReferences.faceMatch === true && refFace?.checked === true;
+  if (!enabled) clearFaceReferenceState({ updateUI });
+}
+
 function updateReferencePreviewsUI() {
   const faceSlotACard = document.getElementById("face-slot-a-card");
   const faceSlotAImg = document.getElementById("face-slot-a-img");
@@ -649,6 +670,7 @@ async function initApp() {
     state.order = bundle.order;
     state.library = bundle.library;
     state.presets = bundle.presets;
+    state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
 
     // Populate templates select
     const templateSelect = document.getElementById("template-select");
@@ -662,8 +684,13 @@ async function initApp() {
     });
 
     renderForm();
+    document.querySelectorAll('#language-pill-selector .pill-btn').forEach(button => {
+      button.classList.toggle('active', button.getAttribute('data-value') === state.language);
+    });
     updateSubmodelList();
     bindEvents();
+    initializeCollectionsUI();
+    initializeScrollToViewport();
 
     // Restore persisted state for initial mode (Step 12)
     state.isRestoringState = true;
@@ -673,6 +700,7 @@ async function initApp() {
     toggleUIForMode();
     updateCredits();
     updatePromptPreview();
+    await loadCollections();
     loadHistory();
 
   } catch (error) {
@@ -837,38 +865,38 @@ function renderForm() {
         const pickerRow = document.createElement("div");
         pickerRow.className = "custom-color-picker-row";
         pickerRow.id = `color-picker-row-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
-        
+
         if (field.name === "Color" && groupName === "Hair") {
           // Base Hair Color Picker Container
           const baseContainer = document.createElement("div");
           baseContainer.className = "custom-color-picker-container";
-          
+
           const baseToggle = document.createElement("input");
           baseToggle.type = "checkbox";
           baseToggle.id = `hair-base-toggle`;
           baseToggle.checked = state.customColors["Color"].enabled;
-          
+
           const baseLabel = document.createElement("label");
           baseLabel.htmlFor = `hair-base-toggle`;
           baseLabel.textContent = "🎨 Custom Base:";
-          
+
           const baseInput = document.createElement("input");
           baseInput.type = "color";
           baseInput.id = `hair-base-input`;
           baseInput.value = state.customColors["Color"].base;
           baseInput.disabled = !baseToggle.checked;
-          
+
           baseToggle.addEventListener("change", (e) => {
             state.customColors["Color"].enabled = e.target.checked;
             baseInput.disabled = !e.target.checked;
             updatePromptPreview();
           });
-          
+
           baseInput.addEventListener("input", (e) => {
             state.customColors["Color"].base = e.target.value;
             updatePromptPreview();
           });
-          
+
           baseContainer.appendChild(baseToggle);
           baseContainer.appendChild(baseLabel);
           baseContainer.appendChild(baseInput);
@@ -878,33 +906,33 @@ function renderForm() {
           const highlightContainer = document.createElement("div");
           highlightContainer.className = "custom-color-picker-container";
           highlightContainer.style.marginLeft = "1rem";
-          
+
           const highlightToggle = document.createElement("input");
           highlightToggle.type = "checkbox";
           highlightToggle.id = `hair-highlight-toggle`;
           highlightToggle.checked = state.customColors["Color"].highlightEnabled;
-          
+
           const highlightLabel = document.createElement("label");
           highlightLabel.htmlFor = `hair-highlight-toggle`;
           highlightLabel.textContent = "✨ Highlight Accent:";
-          
+
           const highlightInput = document.createElement("input");
           highlightInput.type = "color";
           highlightInput.id = `hair-highlight-input`;
           highlightInput.value = state.customColors["Color"].highlight;
           highlightInput.disabled = !highlightToggle.checked;
-          
+
           highlightToggle.addEventListener("change", (e) => {
             state.customColors["Color"].highlightEnabled = e.target.checked;
             highlightInput.disabled = !e.target.checked;
             updatePromptPreview();
           });
-          
+
           highlightInput.addEventListener("input", (e) => {
             state.customColors["Color"].highlight = e.target.value;
             updatePromptPreview();
           });
-          
+
           highlightContainer.appendChild(highlightToggle);
           highlightContainer.appendChild(highlightLabel);
           highlightContainer.appendChild(highlightInput);
@@ -913,39 +941,39 @@ function renderForm() {
           // Clothing Color Picker (Top, Bottom, Dress, Shoes)
           const clothingContainer = document.createElement("div");
           clothingContainer.className = "custom-color-picker-container";
-          
+
           const clothingToggle = document.createElement("input");
           clothingToggle.type = "checkbox";
           clothingToggle.id = `clothing-toggle-${field.name.toLowerCase()}`;
           clothingToggle.checked = state.customColors[field.name].enabled;
-          
+
           const clothingLabel = document.createElement("label");
           clothingLabel.htmlFor = `clothing-toggle-${field.name.toLowerCase()}`;
           clothingLabel.textContent = `🎨 Custom ${field.name} Color:`;
-          
+
           const clothingInput = document.createElement("input");
           clothingInput.type = "color";
           clothingInput.id = `clothing-input-${field.name.toLowerCase()}`;
           clothingInput.value = state.customColors[field.name].color;
           clothingInput.disabled = !clothingToggle.checked;
-          
+
           clothingToggle.addEventListener("change", (e) => {
             state.customColors[field.name].enabled = e.target.checked;
             clothingInput.disabled = !e.target.checked;
             updatePromptPreview();
           });
-          
+
           clothingInput.addEventListener("input", (e) => {
             state.customColors[field.name].color = e.target.value;
             updatePromptPreview();
           });
-          
+
           clothingContainer.appendChild(clothingToggle);
           clothingContainer.appendChild(clothingLabel);
           clothingContainer.appendChild(clothingInput);
           pickerRow.appendChild(clothingContainer);
         }
-        
+
         fieldDiv.appendChild(pickerRow);
       }
 
@@ -1013,8 +1041,7 @@ function getOptionsForField(fieldName, category, allItems) {
   return items;
 }
 
-// Bind event listeners
-function bindEvents() {
+function bindDynamicFormEvents() {
   // Accordion Toggle Headers
   document.querySelectorAll(".accordion-header").forEach(header => {
     header.addEventListener("click", () => {
@@ -1088,6 +1115,11 @@ function bindEvents() {
       }
     });
   });
+}
+
+// Bind event listeners
+function bindEvents() {
+  bindDynamicFormEvents();
 
   // Template select
   document.getElementById("template-select").addEventListener("change", () => {
@@ -1201,11 +1233,7 @@ function bindEvents() {
       faceUploadContainer.style.display = refFace.checked ? "block" : "none";
     }
     if (!refFace.checked) {
-      state.faceReferenceImageA = null;
-      state.faceReferenceImageB = null;
-      state.faceReferenceJobIds = [];
-      if (faceFileInput) faceFileInput.value = "";
-      updateReferencePreviewsUI();
+      clearFaceReferenceState();
     }
 
     applyFaceMatchLockout();
@@ -1260,9 +1288,14 @@ function bindEvents() {
       const reader = new FileReader();
       reader.onload = (evt) => {
         // Uploaded file goes to Slot A
+        refFace.checked = true;
+        state.imageReferences.faceMatch = true;
         state.faceReferenceImageA = evt.target.result.split(',')[1];
         state.faceReferenceJobIds[0] = null;
+        if (faceUploadContainer) faceUploadContainer.style.display = "block";
         updateReferencePreviewsUI();
+        applyFaceMatchLockout();
+        updatePromptPreview();
       };
       reader.readAsDataURL(file);
     });
@@ -1316,9 +1349,16 @@ function bindEvents() {
 
       const newLang = btn.getAttribute("data-value");
       if (state.language !== newLang) {
+        const openAccordionIds = [...document.querySelectorAll('#form-container .accordion.active')]
+          .map(accordion => accordion.id)
+          .filter(Boolean);
         state.language = newLang;
+        localStorage.setItem('model_prompt_forge_language', newLang);
         renderForm();
+        bindDynamicFormEvents();
         restoreSelectionsToUI();
+        openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
+        updateColorPickerUI();
         updatePromptPreview();
       }
     });
@@ -1540,9 +1580,9 @@ function bindEvents() {
             template: document.getElementById("template-select").value || "portrait",
             isGptSafe,
             username: state.username,
-            faceReferenceImageA: state.faceReferenceImageA,
-            faceReferenceImageB: state.faceReferenceImageB,
-            faceReferenceJobIds: state.faceReferenceJobIds,
+            faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
+            faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
+            faceReferenceJobIds: state.imageReferences.faceMatch ? state.faceReferenceJobIds : [],
             styleReferenceImageA: state.styleReferenceImageA,
             styleReferenceImageB: state.styleReferenceImageB,
             styleReferenceJobIds: state.styleReferenceJobIds,
@@ -1639,6 +1679,7 @@ function bindEvents() {
 
           // Update credits and history list
           updateCredits();
+          loadCollections();
           loadHistory();
         });
 
@@ -2382,6 +2423,7 @@ function copyPromptToClipboard() {
 // Save state to localStorage by mode (Step 12)
 function saveCurrentModeState() {
   if (!state.mode) return;
+  enforceFaceMatchInvariant({ updateUI: false });
   const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
 
   const payload = {
@@ -2461,6 +2503,7 @@ function restoreCurrentModeState() {
     if (refFaceMatch) refFaceMatch.checked = state.imageReferences.faceMatch;
     if (refStyleMatch) refStyleMatch.checked = state.imageReferences.styleMatch;
     if (refPoseMatch) refPoseMatch.checked = state.imageReferences.poseMatch;
+    enforceFaceMatchInvariant({ updateUI: false });
 
     // Toggle container display
     const faceMatchUploadContainer = document.getElementById("face-match-upload-container");
@@ -2559,7 +2602,7 @@ function resetForm() {
 
   state.selections = {};
   state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false };
-  state.faceReferenceImage = null;
+  clearFaceReferenceState({ updateUI: false });
   state.aspectRatio = "6:8";
   state.customColors = {
     "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -2602,6 +2645,7 @@ function resetForm() {
   if (templateSelect && templateSelect.options.length > 0) templateSelect.selectedIndex = 0;
 
   applyFaceMatchLockout();
+  updateReferencePreviewsUI();
   updatePromptPreview();
 }
 
@@ -2665,6 +2709,7 @@ function importConfigJSON(jsonString) {
       document.getElementById("ref-face-match").checked = !!payload.imageReferences.faceMatch;
       document.getElementById("ref-style-match").checked = !!payload.imageReferences.styleMatch;
       document.getElementById("ref-pose-match").checked = !!payload.imageReferences.poseMatch;
+      enforceFaceMatchInvariant({ updateUI: false });
     }
 
     if (payload.customColors) {
@@ -2903,12 +2948,383 @@ function copyPromptAsJSON() {
   });
 }
 
+function getApiErrorMessage(payload, fallback) {
+  return payload?.error?.message || payload?.error || payload?.message || fallback;
+}
+
+function getCollectionById(collectionId) {
+  return state.collections.find(collection => collection.id === collectionId) || null;
+}
+
+function getCollectionsForJob(jobId) {
+  return state.collections.filter(collection => collection.jobIds.includes(jobId));
+}
+
+async function loadCollections({ preserveSelection = true } = {}) {
+  try {
+    const response = await fetch('/api/collections');
+    const payload = await response.json();
+    if (!response.ok) throw new Error(getApiErrorMessage(payload, 'Failed to load collections.'));
+    state.collections = payload.collections || [];
+    state.defaultCollectionId = payload.defaultCollectionId || null;
+    if (
+      !preserveSelection ||
+      (state.selectedCollectionId !== 'all' && !getCollectionById(state.selectedCollectionId))
+    ) {
+      state.selectedCollectionId = 'all';
+    }
+    renderCollectionToolbar();
+    if (state.history) renderHistory(state.history);
+  } catch (error) {
+    console.error('Failed to load collections:', error);
+  }
+}
+
+function renderCollectionToolbar() {
+  const select = document.getElementById('collection-select');
+  const editButton = document.getElementById('btn-edit-collection');
+  const count = document.getElementById('collection-count');
+  if (!select || !count) return;
+
+  select.innerHTML = '';
+  const allOption = document.createElement('option');
+  allOption.value = 'all';
+  allOption.textContent = `All Images (${state.history?.length || 0})`;
+  select.appendChild(allOption);
+
+  state.collections.forEach(collection => {
+    const option = document.createElement('option');
+    option.value = collection.id;
+    option.textContent = `${collection.isDefault ? '★ ' : ''}${collection.name} (${collection.imageCount})`;
+    select.appendChild(option);
+  });
+
+  select.value = state.selectedCollectionId;
+  const activeCollection = getCollectionById(state.selectedCollectionId);
+  count.textContent = activeCollection
+    ? `${activeCollection.imageCount} image${activeCollection.imageCount === 1 ? '' : 's'}${activeCollection.isDefault ? ' · Default' : ''}`
+    : `${state.history?.length || 0} image${state.history?.length === 1 ? '' : 's'}`;
+  if (editButton) editButton.disabled = !activeCollection;
+}
+
+function setCollectionModalVisibility(modal, visible) {
+  if (!modal) return;
+  modal.style.display = visible ? 'flex' : 'none';
+  document.body.style.overflow = visible ? 'hidden' : '';
+}
+
+function updateCollectionCharacterCounts() {
+  [
+    ['collection-name', 'collection-name-count'],
+    ['collection-description', 'collection-description-count'],
+    ['collection-story', 'collection-story-count']
+  ].forEach(([fieldId, countId]) => {
+    const field = document.getElementById(fieldId);
+    const count = document.getElementById(countId);
+    if (field && count) count.textContent = field.value.length;
+  });
+}
+
+function populateCollectionCoverOptions(collection) {
+  const field = document.getElementById('collection-cover-field');
+  const select = document.getElementById('collection-cover');
+  if (!field || !select) return;
+  select.innerHTML = '';
+  if (!collection || collection.jobIds.length === 0) {
+    field.style.display = 'none';
+    return;
+  }
+  collection.jobIds.forEach((jobId, index) => {
+    const historyItem = state.history.find(item => item.id === jobId);
+    if (!historyItem) return;
+    const option = document.createElement('option');
+    option.value = jobId;
+    option.textContent = `Image ${index + 1} · #${jobId.substring(4, 9)}`;
+    select.appendChild(option);
+  });
+  select.value = collection.coverJobId || collection.jobIds[0];
+  field.style.display = select.options.length ? 'block' : 'none';
+}
+
+function openCollectionEditor(collection = null, { pendingJobId = null } = {}) {
+  const modal = document.getElementById('collection-editor-modal');
+  const title = document.getElementById('collection-editor-title');
+  const error = document.getElementById('collection-editor-error');
+  const deleteButton = document.getElementById('btn-delete-collection');
+  document.getElementById('collection-editor-id').value = collection?.id || '';
+  document.getElementById('collection-name').value = collection?.name || '';
+  document.getElementById('collection-description').value = collection?.description || '';
+  document.getElementById('collection-story').value = collection?.story || '';
+  document.getElementById('collection-set-default').checked = collection?.isDefault === true;
+  title.textContent = collection ? 'Edit Collection' : 'New Collection';
+  error.textContent = '';
+  deleteButton.style.display = collection ? 'inline-flex' : 'none';
+  state.pendingCollectionJobId = pendingJobId;
+  populateCollectionCoverOptions(collection);
+  updateCollectionCharacterCounts();
+  setCollectionModalVisibility(modal, true);
+  setTimeout(() => document.getElementById('collection-name').focus(), 0);
+}
+
+function closeCollectionEditor() {
+  state.pendingCollectionJobId = null;
+  setCollectionModalVisibility(document.getElementById('collection-editor-modal'), false);
+}
+
+async function saveCollectionFromEditor(event) {
+  event.preventDefault();
+  const id = document.getElementById('collection-editor-id').value;
+  const setAsDefault = document.getElementById('collection-set-default').checked;
+  const payload = {
+    name: document.getElementById('collection-name').value,
+    description: document.getElementById('collection-description').value,
+    story: document.getElementById('collection-story').value
+  };
+  const coverSelect = document.getElementById('collection-cover');
+  if (id && coverSelect?.value) payload.coverJobId = coverSelect.value;
+  const error = document.getElementById('collection-editor-error');
+  error.textContent = '';
+
+  try {
+    const response = await fetch(id ? `/api/collections/${id}` : '/api/collections', {
+      method: id ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(id ? payload : { ...payload, setAsDefault })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(getApiErrorMessage(result, 'Could not save collection.'));
+    const collectionId = result.id;
+    if (!id) document.getElementById('collection-editor-id').value = collectionId;
+
+    if (id) {
+      if (setAsDefault && state.defaultCollectionId !== collectionId) {
+        await fetch(`/api/collections/${collectionId}/default`, { method: 'PUT' });
+      } else if (!setAsDefault && state.defaultCollectionId === collectionId) {
+        await fetch('/api/collections/default', { method: 'DELETE' });
+      }
+    }
+
+    if (state.pendingCollectionJobId) {
+      const addResponse = await fetch(`/api/collections/${collectionId}/images`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobIds: [state.pendingCollectionJobId] })
+      });
+      if (!addResponse.ok) {
+        const addPayload = await addResponse.json();
+        throw new Error(getApiErrorMessage(addPayload, 'Collection saved, but image could not be added.'));
+      }
+    }
+
+    state.selectedCollectionId = collectionId;
+    closeCollectionEditor();
+    await loadCollections();
+  } catch (saveError) {
+    error.textContent = saveError.message;
+  }
+}
+
+async function deleteActiveCollection() {
+  const id = document.getElementById('collection-editor-id').value;
+  const collection = getCollectionById(id);
+  if (!collection) return;
+  if (!confirm(`Delete collection "${collection.name}"? Images and history will be kept.`)) return;
+  const response = await fetch(`/api/collections/${id}`, { method: 'DELETE' });
+  const payload = await response.json();
+  if (!response.ok) {
+    document.getElementById('collection-editor-error').textContent =
+      getApiErrorMessage(payload, 'Could not delete collection.');
+    return;
+  }
+  state.selectedCollectionId = 'all';
+  closeCollectionEditor();
+  await loadCollections();
+}
+
+function renderMembershipModal() {
+  const list = document.getElementById('collection-membership-list');
+  const error = document.getElementById('collection-membership-error');
+  if (!list) return;
+  list.innerHTML = '';
+  error.textContent = '';
+
+  if (state.collections.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'no-history-text';
+    empty.textContent = 'No collections yet. Create one to organize this image.';
+    list.appendChild(empty);
+    return;
+  }
+
+  state.collections.forEach(collection => {
+    const label = document.createElement('label');
+    label.className = 'collection-membership-option';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = collection.jobIds.includes(state.collectionMembershipJobId);
+    checkbox.addEventListener('change', async () => {
+      checkbox.disabled = true;
+      error.textContent = '';
+      try {
+        const response = await fetch(
+          checkbox.checked
+            ? `/api/collections/${collection.id}/images`
+            : `/api/collections/${collection.id}/images/${state.collectionMembershipJobId}`,
+          checkbox.checked
+            ? {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ jobIds: [state.collectionMembershipJobId] })
+            }
+            : { method: 'DELETE' }
+        );
+        const payload = await response.json();
+        if (!response.ok) throw new Error(getApiErrorMessage(payload, 'Could not update membership.'));
+        await loadCollections();
+        renderMembershipModal();
+        if (document.getElementById('lightbox-modal')?.activeItem) {
+          renderLightboxCollections(document.getElementById('lightbox-modal').activeItem.id);
+        }
+      } catch (membershipError) {
+        checkbox.checked = !checkbox.checked;
+        checkbox.disabled = false;
+        error.textContent = membershipError.message;
+      }
+    });
+    const copy = document.createElement('span');
+    copy.className = 'collection-membership-copy';
+    const name = document.createElement('strong');
+    name.textContent = collection.name;
+    const meta = document.createElement('small');
+    meta.textContent = `${collection.imageCount} image${collection.imageCount === 1 ? '' : 's'}`;
+    copy.append(name, meta);
+    label.append(checkbox, copy);
+    if (collection.isDefault) {
+      const badge = document.createElement('span');
+      badge.className = 'collection-default-badge';
+      badge.textContent = 'DEFAULT';
+      label.appendChild(badge);
+    }
+    list.appendChild(label);
+  });
+}
+
+function openMembershipModal(jobId) {
+  state.collectionMembershipJobId = jobId;
+  renderMembershipModal();
+  setCollectionModalVisibility(document.getElementById('collection-membership-modal'), true);
+}
+
+function closeMembershipModal() {
+  state.collectionMembershipJobId = null;
+  setCollectionModalVisibility(document.getElementById('collection-membership-modal'), false);
+}
+
+function renderLightboxCollections(jobId) {
+  const list = document.getElementById('lightbox-collection-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const memberships = getCollectionsForJob(jobId);
+  if (memberships.length === 0) {
+    const empty = document.createElement('span');
+    empty.className = 'no-history-text';
+    empty.textContent = 'Not in a collection';
+    list.appendChild(empty);
+    return;
+  }
+  memberships.forEach(collection => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'collection-chip';
+    chip.textContent = `${collection.isDefault ? '★ ' : ''}${collection.name}`;
+    chip.addEventListener('click', () => {
+      state.selectedCollectionId = collection.id;
+      renderCollectionToolbar();
+      renderHistory(state.history);
+      document.getElementById('lightbox-modal').style.display = 'none';
+    });
+    list.appendChild(chip);
+  });
+}
+
+function initializeCollectionsUI() {
+  const select = document.getElementById('collection-select');
+  const editorModal = document.getElementById('collection-editor-modal');
+  const membershipModal = document.getElementById('collection-membership-modal');
+  select?.addEventListener('change', () => {
+    state.selectedCollectionId = select.value;
+    renderCollectionToolbar();
+    renderHistory(state.history);
+  });
+  document.getElementById('btn-new-collection')?.addEventListener('click', () => openCollectionEditor());
+  document.getElementById('btn-edit-collection')?.addEventListener('click', () => {
+    const collection = getCollectionById(state.selectedCollectionId);
+    if (collection) openCollectionEditor(collection);
+  });
+  document.getElementById('collection-editor-form')?.addEventListener('submit', saveCollectionFromEditor);
+  document.getElementById('btn-delete-collection')?.addEventListener('click', deleteActiveCollection);
+  ['btn-close-collection-editor', 'btn-cancel-collection'].forEach(id =>
+    document.getElementById(id)?.addEventListener('click', closeCollectionEditor)
+  );
+  ['collection-name', 'collection-description', 'collection-story'].forEach(id =>
+    document.getElementById(id)?.addEventListener('input', updateCollectionCharacterCounts)
+  );
+  editorModal?.addEventListener('click', event => {
+    if (event.target === editorModal) closeCollectionEditor();
+  });
+  document.getElementById('btn-close-membership')?.addEventListener('click', closeMembershipModal);
+  document.getElementById('btn-membership-done')?.addEventListener('click', closeMembershipModal);
+  document.getElementById('btn-membership-new')?.addEventListener('click', () => {
+    const jobId = state.collectionMembershipJobId;
+    closeMembershipModal();
+    openCollectionEditor(null, { pendingJobId: jobId });
+  });
+  membershipModal?.addEventListener('click', event => {
+    if (event.target === membershipModal) closeMembershipModal();
+  });
+  document.getElementById('btn-lightbox-add-collection')?.addEventListener('click', () => {
+    const item = document.getElementById('lightbox-modal')?.activeItem;
+    if (item) openMembershipModal(item.id);
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+    if (editorModal?.style.display === 'flex') closeCollectionEditor();
+    if (membershipModal?.style.display === 'flex') closeMembershipModal();
+  });
+}
+
+function initializeScrollToViewport() {
+  const button = document.getElementById('btn-scroll-viewport');
+  const visualDashboard = document.getElementById('visual-dashboard');
+  if (!button || !visualDashboard) return;
+
+  button.addEventListener('click', () => {
+    if (visualDashboard.classList.contains('collapsed')) {
+      visualDashboard.classList.remove('collapsed');
+      const icon = document.querySelector('#btn-toggle-dashboard .toggle-icon');
+      if (icon) icon.textContent = '▼';
+    }
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    visualDashboard.scrollIntoView({
+      behavior: reducedMotion ? 'auto' : 'smooth',
+      block: 'start'
+    });
+    const heading = visualDashboard.querySelector('h2');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      setTimeout(() => heading.focus({ preventScroll: true }), reducedMotion ? 0 : 450);
+    }
+  });
+
+}
+
 // Load generation history from backend
 async function loadHistory() {
   try {
     const res = await fetch('/api/history');
     const history = await res.json();
     state.history = history; // Store in state for lineage lookups (Step 9)
+    renderCollectionToolbar();
     renderHistory(history);
 
     // Auto-collapse on initial page load if history is empty (Step 7)
@@ -2935,12 +3351,19 @@ function renderHistory(historyList) {
 
   grid.innerHTML = "";
 
-  if (!historyList || historyList.length === 0) {
+  let visibleHistory = historyList || [];
+  const activeCollection = getCollectionById(state.selectedCollectionId);
+  if (activeCollection) {
+    const byId = new Map(visibleHistory.map(item => [item.id, item]));
+    visibleHistory = activeCollection.jobIds.map(jobId => byId.get(jobId)).filter(Boolean);
+  }
+
+  if (visibleHistory.length === 0) {
     grid.innerHTML = `<p class="no-history-text" id="no-history-placeholder">No history found</p>`;
     return;
   }
 
-  historyList.forEach(item => {
+  visibleHistory.forEach(item => {
     const card = document.createElement("div");
     card.className = "history-item";
     card.title = `Generate: ${item.prompt.substring(0, 100)}...`;
@@ -2961,8 +3384,28 @@ function renderHistory(historyList) {
       }
     });
 
+    const collectionButton = document.createElement('button');
+    collectionButton.type = 'button';
+    collectionButton.className = 'history-collection-action';
+    collectionButton.textContent = '+';
+    collectionButton.title = 'Add or remove from collections';
+    collectionButton.setAttribute('aria-label', 'Add or remove image from collections');
+    collectionButton.addEventListener('click', event => {
+      event.stopPropagation();
+      openMembershipModal(item.id);
+    });
+
+    const memberships = getCollectionsForJob(item.id);
+    if (memberships.length > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'history-collection-badge';
+      badge.textContent = memberships.length === 1 ? memberships[0].name : `${memberships.length} Collections`;
+      card.appendChild(badge);
+    }
+
     card.appendChild(img);
     card.appendChild(btnDel);
+    card.appendChild(collectionButton);
     grid.appendChild(card);
   });
 }
@@ -2974,6 +3417,7 @@ async function deleteHistory(jobId) {
       method: 'DELETE'
     });
     if (res.ok) {
+      await loadCollections();
       loadHistory();
     } else {
       const data = await res.json();
@@ -3012,6 +3456,7 @@ function openLightbox(item) {
   if (duration) duration.textContent = item.generationDuration ? `${item.generationDuration}s` : "N/A";
   dlLink.href = item.imageUrl;
   dlLink.download = `modelpromptforge-generation-${item.id}.png`;
+  renderLightboxCollections(item.id);
 
   // Render lineage parent links (Step 9)
   if (lineageContainer && lineageList) {

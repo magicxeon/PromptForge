@@ -132,6 +132,18 @@
               <h3>Background Queue & History</h3>
             </div>
 
+            <div class="collection-toolbar" id="collection-toolbar">
+              <div class="collection-select-wrap">
+                <label for="collection-select">Collection</label>
+                <select id="collection-select" class="collection-select">
+                  <option value="all">All Images</option>
+                </select>
+              </div>
+              <span class="collection-count" id="collection-count">0 images</span>
+              <button id="btn-new-collection" class="btn-collection-action" type="button">+ New</button>
+              <button id="btn-edit-collection" class="btn-collection-action" type="button" disabled>Edit</button>
+            </div>
+
             <!-- Active Pending Job Queue list -->
             <div class="active-queue-section">
               <div class="queue-list" id="active-queue-list">
@@ -151,7 +163,8 @@
       </section>
 
       <!-- Floating control panel trigger when configurator is closed -->
-      <button id="btn-floating-config" class="btn-floating-config" style="display: none;">
+      <button id="btn-floating-config" class="btn-floating-config btn-neon-yellow-glow" type="button"
+        style="display: none;">
         <span>⚙️ Open Studio Configurator</span>
       </button>
 
@@ -407,6 +420,10 @@
                 <input type="file" id="btn-import" accept=".json" style="display: none;">
                 <span>📂 Import Configuration JSON</span>
               </label>
+              <button id="btn-scroll-viewport" class="btn-scroll-viewport" type="button"
+                aria-label="Scroll to Visual Viewport and Queue" title="Back to Visual Viewport & Queue">
+                <span aria-hidden="true">&#8593;</span>
+              </button>
             </div>
           </div>
         </div>
@@ -459,6 +476,12 @@
           <div id="lightbox-lineage-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
         </div>
 
+        <div class="lightbox-collections" id="lightbox-collections">
+          <h5>Collections</h5>
+          <div id="lightbox-collection-list" class="collection-chip-list"></div>
+          <button id="btn-lightbox-add-collection" class="btn-compact-neon" type="button">Add to Collection</button>
+        </div>
+
         <div class="lightbox-action-row"
           style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.85rem; margin-bottom: 0.5rem;">
           <button id="btn-lightbox-use-face" class="btn-compact-neon btn-use-face-ref"
@@ -468,6 +491,78 @@
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collection Create/Edit Modal -->
+  <div id="collection-editor-modal" class="collection-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="collection-editor-title">
+    <div class="collection-modal-card glass-card">
+      <div class="collection-modal-header">
+        <div>
+          <span class="collection-kicker">IMAGE COLLECTION</span>
+          <h3 id="collection-editor-title">New Collection</h3>
+        </div>
+        <button id="btn-close-collection-editor" class="collection-modal-close" type="button"
+          aria-label="Close collection editor">&times;</button>
+      </div>
+      <form id="collection-editor-form">
+        <input id="collection-editor-id" type="hidden">
+        <label class="collection-field">
+          <span>Name <strong>*</strong></span>
+          <input id="collection-name" type="text" maxlength="100" required placeholder="Character set or story name">
+          <small><span id="collection-name-count">0</span>/100</small>
+        </label>
+        <label class="collection-field">
+          <span>Description</span>
+          <textarea id="collection-description" maxlength="1000" rows="3"
+            placeholder="What belongs in this collection?"></textarea>
+          <small><span id="collection-description-count">0</span>/1000</small>
+        </label>
+        <label class="collection-field">
+          <span>Story</span>
+          <textarea id="collection-story" maxlength="20000" rows="6"
+            placeholder="Optional story context for this character set"></textarea>
+          <small><span id="collection-story-count">0</span>/20000</small>
+        </label>
+        <label class="collection-default-toggle">
+          <input id="collection-set-default" type="checkbox">
+          <span>Set as default for new generated images</span>
+        </label>
+        <label class="collection-field" id="collection-cover-field" style="display: none;">
+          <span>Cover Image</span>
+          <select id="collection-cover" class="collection-select"></select>
+        </label>
+        <p id="collection-editor-error" class="collection-form-error" role="alert"></p>
+        <div class="collection-modal-actions">
+          <button id="btn-delete-collection" class="btn-collection-danger" type="button" style="display: none;">Delete</button>
+          <span class="collection-action-spacer"></span>
+          <button id="btn-cancel-collection" class="btn-neon-outline" type="button">Cancel</button>
+          <button class="btn-collection-primary" type="submit">Save Collection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Collection Membership Modal -->
+  <div id="collection-membership-modal" class="collection-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="collection-membership-title">
+    <div class="collection-modal-card collection-membership-card glass-card">
+      <div class="collection-modal-header">
+        <div>
+          <span class="collection-kicker">ORGANIZE IMAGE</span>
+          <h3 id="collection-membership-title">Add to Collection</h3>
+        </div>
+        <button id="btn-close-membership" class="collection-modal-close" type="button"
+          aria-label="Close collection membership editor">&times;</button>
+      </div>
+      <div id="collection-membership-list" class="collection-membership-list"></div>
+      <p id="collection-membership-error" class="collection-form-error" role="alert"></p>
+      <div class="collection-modal-actions">
+        <button id="btn-membership-new" class="btn-neon-outline" type="button">+ New Collection</button>
+        <span class="collection-action-spacer"></span>
+        <button id="btn-membership-done" class="btn-collection-primary" type="button">Done</button>
       </div>
     </div>
   </div>

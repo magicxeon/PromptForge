@@ -1,5 +1,77 @@
 [
   {
+    "id": "job_1783864845137_hwbgdq8jl",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783864845137_hwbgdq8jl.png",
+    "timestamp": 1783864881202,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "36.1"
+  },
+  {
+    "id": "job_1783861772868_5d21lrtew",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783861772868_5d21lrtew.png",
+    "timestamp": 1783861788159,
+    "provider": "gemini",
+    "submodel": "gemini-2.5-flash-image",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.3"
+  },
+  {
+    "id": "job_1783860975681_xhajeq0i4",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783860975681_xhajeq0i4.png",
+    "timestamp": 1783860990830,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.1"
+  },
+  {
+    "id": "job_1783860717836_95bml9qg8",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, balanced facial proportions, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, high ponytail, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860717836_95bml9qg8.png",
+    "timestamp": 1783860734007,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "16.2"
+  },
+  {
+    "id": "job_1783860597662_gei6lrddd",
+    "prompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, soft innocent face, youthful glowing appearance, gentle friendly expression, round face, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, hair, colored in #030303, accented with custom highlights in #fe71e4, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860597662_gei6lrddd.png",
+    "timestamp": 1783860610103,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "12.4"
+  },
+  {
+    "id": "job_1783860574102_ivoyi6lw7",
+    "prompt": "headshot portrait, male man, young adult in early twenties, 21 years old, vietnamese person, soft innocent face, youthful glowing appearance, gentle friendly expression, round face, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, hair, colored in #030303, accented with custom highlights in #fe71e4, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860574102_ivoyi6lw7.png",
+    "timestamp": 1783860585865,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "11.8"
+  },
+  {
     "id": "job_1783836058642_wlb8342d2",
     "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, defined jaw, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, long loose waves, beach waves hair, flowing naturally, long hair, hair, colored in #0e0102, accented with custom highlights in #a28f16, milky white skin, smooth porcelain skin with soft cream undertones, healthy skin complexion, natural facial blood flow color, organic skin details, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1783836058642_wlb8342d2.png",
@@ -80,19 +152,6 @@
     ],
     "referencedStyleJobIds": [],
     "generationDuration": "25.1"
-  },
-  {
-    "id": "job_1783835475837_vhaj7s52g",
-    "prompt": "studio portrait of female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, เสื้อทำงานสไตร์วัยรุ่น แต่ดูเรียบร้อย colored in #21163c, classic tailored pleated office trousers colored in #ffffff, touching collarbone, กำลัง ชงเครื่องเดื่มอยู่หน้า counter ชงกาแฟ ใน office, in a photography studio setting, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 6:8)",
-    "imageUrl": "/outputs/job_1783835475837_vhaj7s52g.png",
-    "timestamp": 1783835491873,
-    "provider": "gemini",
-    "submodel": "gemini-3.1-flash-lite-image",
-    "referencedFaceJobIds": [
-      "job_1783834418376_h5dvc3v5q"
-    ],
-    "referencedStyleJobIds": [],
-    "generationDuration": "16.0"
   },
   {
     "id": "job_1783834479379_9qd5mry7r",
