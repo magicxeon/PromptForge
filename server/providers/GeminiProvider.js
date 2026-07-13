@@ -57,6 +57,22 @@ export class GeminiProvider extends BaseProvider {
         }
       ];
 
+      // Character sheets come first so the prompt can treat them as the primary design reference.
+      if (options.resolvedCharacterReferenceImageA) {
+        input.push({
+          type: 'image',
+          mime_type: 'image/png',
+          data: options.resolvedCharacterReferenceImageA
+        });
+      }
+      if (options.resolvedCharacterReferenceImageB) {
+        input.push({
+          type: 'image',
+          mime_type: 'image/png',
+          data: options.resolvedCharacterReferenceImageB
+        });
+      }
+
       // Append style/character references if provided (Slot A & Slot B) (Step 9)
       if (options.resolvedStyleReferenceImageA) {
         input.push({

@@ -282,13 +282,8 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else if (mode === "character-sheet") {
-    let referenceText = "";
-    if (imageReferences && imageReferences.useReferenceImage) {
-      referenceText = `[Reference uploaded image]`;
-    }
     let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
     let elements = [
-      referenceText,
       sheetLayout,
       fullSubject,
       appearance,
@@ -303,12 +298,15 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else {
+    const characterReferenceText = imageReferences?.characterReference
+      ? "Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene"
+      : "";
     prompt = templateStr
       .replace("{subject}", fullSubject)
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
+      .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)

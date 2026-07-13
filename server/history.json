@@ -1,5 +1,153 @@
 [
   {
+    "id": "job_1783953313793_ijj4zmz2g",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783953313793_ijj4zmz2g.png",
+    "timestamp": 1783953332682,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "18.9"
+  },
+  {
+    "id": "job_1783953126829_500vvvoar",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783953126829_500vvvoar.png",
+    "timestamp": 1783953186722,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "59.9"
+  },
+  {
+    "id": "job_1783952720991_y1m3chkxl",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952720991_y1m3chkxl.png",
+    "timestamp": 1783952738323,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.3"
+  },
+  {
+    "id": "job_1783952255988_630p2j76u",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952255988_630p2j76u.png",
+    "timestamp": 1783952321944,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "65.9"
+  },
+  {
+    "id": "job_1783952067082_zcmayskxc",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952067082_zcmayskxc.png",
+    "timestamp": 1783952084797,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.7"
+  },
+  {
+    "id": "job_1783951280717_ao9rytlxt",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, matching the style, colors, and clothing outfit from the original uploaded image, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, rustic old stone wall thickly covered in lush green vines and ivy, dappled sunlight filtering through, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783951280717_ao9rytlxt.png",
+    "timestamp": 1783951343276,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "62.5"
+  },
+  {
+    "id": "job_1783951153800_zm84dszor",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, matching the style, colors, and clothing outfit from the original uploaded image, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, rustic old stone wall thickly covered in lush green vines and ivy, dappled sunlight filtering through, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783951153800_zm84dszor.png",
+    "timestamp": 1783951186975,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "33.2"
+  },
+  {
+    "id": "job_1783937710329_wef6teqsx",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female woman, thai person, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., เสื้อสไตร์วัยร่นเอเชีย มีลายและแบรน ดูกระชับทะมัดทะแมง, กางเกงยีนรัดรูป, comfortable athletic running sneakers with thick soft soles, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783937710329_wef6teqsx.png",
+    "timestamp": 1783937774715,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783937205872_e29xk7xi2"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "64.4"
+  },
+  {
+    "id": "job_1783937205872_e29xk7xi2",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, striking expressive eyes with deep emotional clarity, capturing focus naturally, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783937205872_e29xk7xi2.png",
+    "timestamp": 1783937230592,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.7"
+  },
+  {
+    "id": "job_1783935573216_cl42vpru8",
+    "prompt": "headshot portrait, female woman, mature adult in mid-fifties, 55 years old, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, ivory white skin, smooth fair ivory complexion, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783935573216_cl42vpru8.png",
+    "timestamp": 1783935597198,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.0"
+  },
+  {
+    "id": "job_1783934997247_a8lnbz7iw",
+    "prompt": "headshot portrait, female woman, mature adult in mid-fifties, 55 years old, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, ivory white skin, smooth fair ivory complexion, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783934997247_a8lnbz7iw.png",
+    "timestamp": 1783935011950,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "14.7"
+  },
+  {
     "id": "job_1783870598727_ui633u481",
     "prompt": "female woman, teenager in late teens around 18 years old, thai person, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short hair, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, relaxed loose-fit breathable linen shirt with rolled-up sleeves, comfy high-waisted frayed denim shorts, leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders, gently holding the frame of her designer sunglasses with slender fingers, elegant style, candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment, at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background, soft diffused fill light to gently soften shadows without losing facial definition, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering (Image aspect ratio 9:16)",
     "imageUrl": "/outputs/job_1783870598727_ui633u481.png",

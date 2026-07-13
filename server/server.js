@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import zlib from 'zlib';
 import { compilePromptOnServer } from './promptCompiler.js';
 import { collectionManager, CollectionError } from './collectionManager.js';
+import { isOpenAIAPIStreamingEnabled } from './providers/OpenAIProvider.js';
 
 dotenv.config();
 
@@ -305,6 +306,7 @@ app.post('/api/generate', async (req, res) => {
     provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username,
     faceReferenceImageA, faceReferenceImageB, faceReferenceJobIds,
     styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds,
+    characterReferenceImageA, characterReferenceImageB, characterReferenceJobIds,
     customColors
   } = req.body;
   const targetUser = username || 'user_demo';
@@ -316,11 +318,25 @@ app.post('/api/generate', async (req, res) => {
       return res.status(402).json({ error: 'Insufficient credits' });
     }
 
+    const hasFaceReference = Boolean(faceReferenceImageA || faceReferenceImageB);
+    const hasStyleOrPoseReference = Boolean(styleReferenceImageA || styleReferenceImageB);
+    const hasCharacterReference = Boolean(characterReferenceImageA || characterReferenceImageB);
+    const normalizedImageReferences = {
+      ...(imageReferences || {}),
+      faceMatch: imageReferences?.faceMatch === true && hasFaceReference,
+      styleMatch: mode === 'normal' && imageReferences?.styleMatch === true && hasStyleOrPoseReference,
+      poseMatch: mode === 'normal' && imageReferences?.poseMatch === true && hasStyleOrPoseReference,
+      characterReference: mode === 'normal'
+        && imageReferences?.characterReference === true
+        && hasCharacterReference
+    };
+    delete normalizedImageReferences.useReferenceImage;
+
     // 2. Build prompt secretly on the server
     const compiledPrompt = compilePromptOnServer(
       selections, 
       aspectRatio, 
-      imageReferences, 
+      normalizedImageReferences,
       mode, 
       template || 'portrait', 
       isGptSafe,
@@ -331,28 +347,44 @@ app.post('/api/generate', async (req, res) => {
     const activeSubmodel = submodel || (provider === 'openai' ? 'gpt-image-1-mini' : 'gemini-3.1-flash-lite-image');
 
     // 4. Check if stream option should be active
-    const stream = req.body.stream !== false && provider === 'openai' && activeSubmodel.startsWith('gpt-image');
+    const stream = isOpenAIAPIStreamingEnabled()
+      && req.body.stream !== false
+      && provider === 'openai'
+      && activeSubmodel.startsWith('gpt-image');
 
     console.log(`[API Generate] Enqueueing Job. Provider: ${provider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
     
     // 5. Enqueue job
     const jobId = queueManager.enqueue(provider, activeSubmodel, compiledPrompt, {
       aspectRatio,
-      imageReferences,
+      imageReferences: normalizedImageReferences,
       mode,
       template,
       isGptSafe,
       username: targetUser,
       stream,
-      faceReferenceImageA,
-      faceReferenceImageB,
-      faceReferenceJobIds,
-      styleReferenceImageA,
-      styleReferenceImageB,
-      styleReferenceJobIds
+      faceReferenceImageA: normalizedImageReferences.faceMatch ? faceReferenceImageA : null,
+      faceReferenceImageB: normalizedImageReferences.faceMatch ? faceReferenceImageB : null,
+      faceReferenceJobIds: normalizedImageReferences.faceMatch && Array.isArray(faceReferenceJobIds)
+        ? faceReferenceJobIds.slice(0, 2)
+        : [],
+      styleReferenceImageA: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageA : null,
+      styleReferenceImageB: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageB : null,
+      styleReferenceJobIds: (normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch) && Array.isArray(styleReferenceJobIds)
+        ? styleReferenceJobIds.slice(0, 2)
+        : [],
+      characterReferenceImageA: normalizedImageReferences.characterReference ? characterReferenceImageA : null,
+      characterReferenceImageB: normalizedImageReferences.characterReference ? characterReferenceImageB : null,
+      characterReferenceJobIds: normalizedImageReferences.characterReference && Array.isArray(characterReferenceJobIds)
+        ? characterReferenceJobIds.slice(0, 2)
+        : []
     });
 
-    res.json({ jobId, status: 'queued' });
+    res.json({
+      jobId,
+      status: 'queued',
+      providerStreaming: stream
+    });
 
   } catch (error) {
     console.error('Generation enqueuing error:', error);
@@ -361,8 +393,8 @@ app.post('/api/generate', async (req, res) => {
 });
 
 // Job Status Endpoint
-app.get('/api/jobs/:id', (req, res) => {
-  const status = queueManager.getJobStatus(req.params.id);
+app.get('/api/jobs/:id', async (req, res) => {
+  const status = await queueManager.getJobStatus(req.params.id);
   if (!status) {
     return res.status(404).json({ error: 'Job not found' });
   }

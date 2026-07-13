@@ -116,6 +116,8 @@
                 style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
               <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref"
                 style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+              <button id="btn-viewport-use-character" class="btn-compact-neon btn-use-character-ref"
+                style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
             </div>
 
             <!-- Telemetry Bar -->
@@ -196,34 +198,44 @@
                 <div id="image-upload-container" class="mode-sub-control"
                   style="display: none; padding: 0.5rem 0; border-top: 1px dashed rgba(255, 255, 255, 0.05); margin-top: 0.5rem;">
                   <label class="checkbox-container">
-                    <input type="checkbox" id="sheet-use-reference-img">
+                    <input type="checkbox" id="story-use-character-reference">
                     <span class="checkmark"></span>
-                    <span class="label-text">Enable character-sheet reference image (Up to 2 slots)</span>
+                    <span class="label-text">Use Character Sheet Reference</span>
                   </label>
+                  <p class="sub-label" style="margin: 0.35rem 0 0;">
+                    Story Mode only. Both slots must show the same character. Use Face Match below for facial identity.
+                  </p>
 
                   <!-- Slot Previews Dock (Step 9) -->
-                  <div class="reference-slots-dock" id="style-ref-slots-dock"
+                  <div class="reference-slots-dock" id="character-ref-slots-dock"
                     style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
-                    <div class="ref-slot-card" id="style-slot-a-card"
+                    <div class="ref-slot-card" id="character-slot-a-card"
                       style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                      <img id="style-slot-a-img" src=""
+                      <img id="character-slot-a-img" src="" alt="Primary character sheet reference"
                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
                       <span class="slot-badge"
                         style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
                         A</span>
-                      <button type="button" class="btn-clear-slot" data-slot="styleA"
+                      <button type="button" class="btn-clear-slot" data-slot="characterA"
                         style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                     </div>
-                    <div class="ref-slot-card" id="style-slot-b-card"
+                    <div class="ref-slot-card" id="character-slot-b-card"
                       style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-                      <img id="style-slot-b-img" src=""
+                      <img id="character-slot-b-img" src="" alt="Secondary character sheet reference of the same character"
                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
                       <span class="slot-badge"
                         style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
                         B</span>
-                      <button type="button" class="btn-clear-slot" data-slot="styleB"
+                      <button type="button" class="btn-clear-slot" data-slot="characterB"
                         style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
                     </div>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="file" id="character-reference-file" accept="image/*" class="custom-select"
+                      style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
+                    <button id="btn-clear-character-reference" class="btn-compact-neon"
+                      style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
+                      type="button">Clear All</button>
                   </div>
                 </div>
               </div>
@@ -488,6 +500,8 @@
             style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
           <button id="btn-lightbox-use-style" class="btn-compact-neon btn-use-style-ref"
             style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+          <button id="btn-lightbox-use-character" class="btn-compact-neon btn-use-character-ref"
+            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>

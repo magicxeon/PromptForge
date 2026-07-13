@@ -152,7 +152,7 @@ class QueueManager {
       res.end();
       return true;
     } else if (job.status === 'failed') {
-      res.write(`event: error\ndata: ${JSON.stringify(job.error)}\n\n`);
+      res.write(`event: job.failed\ndata: ${JSON.stringify(job.error)}\n\n`);
       res.end();
       return true;
     }
@@ -224,12 +224,16 @@ class QueueManager {
       const resolvedFaceB = await resolveLocalImageToBase64(job.options.faceReferenceImageB);
       const resolvedStyleA = await resolveLocalImageToBase64(job.options.styleReferenceImageA);
       const resolvedStyleB = await resolveLocalImageToBase64(job.options.styleReferenceImageB);
+      const resolvedCharacterA = await resolveLocalImageToBase64(job.options.characterReferenceImageA);
+      const resolvedCharacterB = await resolveLocalImageToBase64(job.options.characterReferenceImageB);
 
       // Mutate options to supply resolved base64 images to provider strategy
       job.options.resolvedFaceReferenceImageA = resolvedFaceA;
       job.options.resolvedFaceReferenceImageB = resolvedFaceB;
       job.options.resolvedStyleReferenceImageA = resolvedStyleA;
       job.options.resolvedStyleReferenceImageB = resolvedStyleB;
+      job.options.resolvedCharacterReferenceImageA = resolvedCharacterA;
+      job.options.resolvedCharacterReferenceImageB = resolvedCharacterB;
 
       let result;
       if (job.options.stream) {
@@ -277,6 +281,7 @@ class QueueManager {
         submodel: job.submodel,
         referencedFaceJobIds: job.options.faceReferenceJobIds || [],
         referencedStyleJobIds: job.options.styleReferenceJobIds || [],
+        referencedCharacterJobIds: job.options.characterReferenceJobIds || [],
         generationDuration: durationSec
       });
 
@@ -319,7 +324,7 @@ class QueueManager {
         }
       }
 
-      this.emitToListeners(jobId, 'error', {
+      this.emitToListeners(jobId, 'job.failed', {
         ...job.error,
         creditRefunded: job.creditRefunded === true
       });
@@ -397,14 +402,33 @@ class QueueManager {
     }
   }
 
-  getJobStatus(jobId) {
+  async getJobStatus(jobId) {
     const job = this.jobs.get(jobId);
-    if (!job) return null;
+    if (job) {
+      return {
+        id: job.id,
+        status: job.status,
+        result: job.result,
+        error: job.error
+      };
+    }
+
+    // Completed jobs survive process restarts in history even though the
+    // current queue implementation still keeps active jobs in memory.
+    const history = await this.getHistory();
+    const completed = history.find(entry => entry.id === jobId);
+    if (!completed) return null;
+
     return {
-      id: job.id,
-      status: job.status,
-      result: job.result,
-      error: job.error
+      id: completed.id,
+      status: 'completed',
+      result: {
+        imageUrl: completed.imageUrl,
+        usage: completed.usage || null,
+        generationDuration: completed.generationDuration || null
+      },
+      error: null,
+      recoveredFromHistory: true
     };
   }
 }

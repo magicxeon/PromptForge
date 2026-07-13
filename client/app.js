@@ -162,7 +162,8 @@ const state = {
   imageReferences: {
     faceMatch: false,
     styleMatch: false,
-    poseMatch: false
+    poseMatch: false,
+    characterReference: false
   },
   faceReferenceImageA: null,
   faceReferenceImageB: null,
@@ -170,6 +171,9 @@ const state = {
   styleReferenceImageA: null,
   styleReferenceImageB: null,
   styleReferenceJobIds: [], // array of up to 2 referenced parent job IDs
+  characterReferenceImageA: null,
+  characterReferenceImageB: null,
+  characterReferenceJobIds: [], // same character only; up to 2 source images
   hasInitializedHistoryCollapse: false,
   language: "th",
   aspectRatio: "6:8",
@@ -317,6 +321,36 @@ function clearFaceReferenceState({ updateUI = true } = {}) {
   if (updateUI) updateReferencePreviewsUI();
 }
 
+function clearCharacterReferenceState({ updateUI = true } = {}) {
+  state.characterReferenceImageA = null;
+  state.characterReferenceImageB = null;
+  state.characterReferenceJobIds = [];
+  state.imageReferences.characterReference = false;
+  const checkbox = document.getElementById("story-use-character-reference");
+  const fileInput = document.getElementById("character-reference-file");
+  if (checkbox) checkbox.checked = false;
+  if (fileInput) fileInput.value = "";
+  if (updateUI) updateReferencePreviewsUI();
+}
+
+function isStoryCharacterReferenceActive() {
+  return state.mode === "normal"
+    && state.imageReferences.characterReference === true
+    && Boolean(state.characterReferenceImageA || state.characterReferenceImageB);
+}
+
+function enforceModeReferencePolicy({ updateUI = true } = {}) {
+  if (state.mode !== "normal") {
+    clearCharacterReferenceState({ updateUI });
+    state.imageReferences.styleMatch = false;
+    state.imageReferences.poseMatch = false;
+    const styleCheckbox = document.getElementById("ref-style-match");
+    const poseCheckbox = document.getElementById("ref-pose-match");
+    if (styleCheckbox) styleCheckbox.checked = false;
+    if (poseCheckbox) poseCheckbox.checked = false;
+  }
+}
+
 function enforceFaceMatchInvariant({ updateUI = true } = {}) {
   const refFace = document.getElementById("ref-face-match");
   const enabled = state.imageReferences.faceMatch === true && refFace?.checked === true;
@@ -346,6 +380,31 @@ function updateReferencePreviewsUI() {
     } else {
       faceSlotBCard.style.display = "none";
       faceSlotBImg.src = "";
+    }
+  }
+
+  const characterSlotACard = document.getElementById("character-slot-a-card");
+  const characterSlotAImg = document.getElementById("character-slot-a-img");
+  const characterSlotBCard = document.getElementById("character-slot-b-card");
+  const characterSlotBImg = document.getElementById("character-slot-b-img");
+
+  if (characterSlotACard && characterSlotAImg) {
+    if (state.characterReferenceImageA) {
+      characterSlotAImg.src = state.characterReferenceImageA.startsWith("data:") ? state.characterReferenceImageA : (state.characterReferenceImageA.startsWith("/outputs/") ? state.characterReferenceImageA : `data:image/png;base64,${state.characterReferenceImageA}`);
+      characterSlotACard.style.display = "flex";
+    } else {
+      characterSlotACard.style.display = "none";
+      characterSlotAImg.src = "";
+    }
+  }
+
+  if (characterSlotBCard && characterSlotBImg) {
+    if (state.characterReferenceImageB) {
+      characterSlotBImg.src = state.characterReferenceImageB.startsWith("data:") ? state.characterReferenceImageB : (state.characterReferenceImageB.startsWith("/outputs/") ? state.characterReferenceImageB : `data:image/png;base64,${state.characterReferenceImageB}`);
+      characterSlotBCard.style.display = "flex";
+    } else {
+      characterSlotBCard.style.display = "none";
+      characterSlotBImg.src = "";
     }
   }
 
@@ -420,20 +479,32 @@ function assignStyleReference(imageSrc, jobId = null) {
     if (jobId) state.styleReferenceJobIds[1] = jobId;
   }
 
-  if (state.mode === "character-sheet") {
-    const sheetCheckbox = document.getElementById("sheet-use-reference-img");
-    if (sheetCheckbox) {
-      sheetCheckbox.checked = true;
-      sheetCheckbox.dispatchEvent(new Event("change"));
-    }
-  } else {
-    const styleCheckbox = document.getElementById("ref-style-match");
-    if (styleCheckbox) {
-      styleCheckbox.checked = true;
-      styleCheckbox.dispatchEvent(new Event("change"));
-    }
+  const styleCheckbox = document.getElementById("ref-style-match");
+  if (styleCheckbox) {
+    styleCheckbox.checked = true;
+    styleCheckbox.dispatchEvent(new Event("change"));
   }
   updateReferencePreviewsUI();
+}
+
+function assignCharacterReference(imageSrc, jobId = null) {
+  if (state.mode !== "normal") return;
+  const cleanedSrc = cleanReferenceImageSrc(imageSrc);
+  if (!state.characterReferenceImageA) {
+    state.characterReferenceImageA = cleanedSrc;
+    if (jobId) state.characterReferenceJobIds[0] = jobId;
+  } else if (!state.characterReferenceImageB) {
+    state.characterReferenceImageB = cleanedSrc;
+    if (jobId) state.characterReferenceJobIds[1] = jobId;
+  } else {
+    state.characterReferenceImageB = cleanedSrc;
+    if (jobId) state.characterReferenceJobIds[1] = jobId;
+  }
+  state.imageReferences.characterReference = true;
+  const checkbox = document.getElementById("story-use-character-reference");
+  if (checkbox) checkbox.checked = true;
+  updateReferencePreviewsUI();
+  updatePromptPreview();
 }
 
 // Populate submodel options inside the selectors
@@ -472,7 +543,7 @@ function applyOpenAIImageReferenceControl() {
 
   const refFace = document.getElementById("ref-face-match");
   const refStyle = document.getElementById("ref-style-match");
-  const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
+  const storyCharacterReference = document.getElementById("story-use-character-reference");
 
   if (isDalle) {
     if (refFace) {
@@ -493,10 +564,10 @@ function applyOpenAIImageReferenceControl() {
         lbl.style.pointerEvents = "none";
       }
     }
-    if (sheetUseRefImg) {
-      sheetUseRefImg.checked = false;
-      sheetUseRefImg.disabled = true;
-      const lbl = sheetUseRefImg.closest(".checkbox-container");
+    if (storyCharacterReference) {
+      storyCharacterReference.checked = false;
+      storyCharacterReference.disabled = true;
+      const lbl = storyCharacterReference.closest(".checkbox-container");
       if (lbl) {
         lbl.style.opacity = "0.35";
         lbl.style.pointerEvents = "none";
@@ -505,12 +576,16 @@ function applyOpenAIImageReferenceControl() {
 
     state.imageReferences.faceMatch = false;
     state.imageReferences.styleMatch = false;
+    state.imageReferences.characterReference = false;
     state.faceReferenceImageA = null;
     state.faceReferenceImageB = null;
     state.faceReferenceJobIds = [];
     state.styleReferenceImageA = null;
     state.styleReferenceImageB = null;
     state.styleReferenceJobIds = [];
+    state.characterReferenceImageA = null;
+    state.characterReferenceImageB = null;
+    state.characterReferenceJobIds = [];
 
     const faceUploadContainer = document.getElementById("face-match-upload-container");
     if (faceUploadContainer) faceUploadContainer.style.display = "none";
@@ -541,9 +616,9 @@ function applyOpenAIImageReferenceControl() {
         lbl.style.pointerEvents = "";
       }
     }
-    if (sheetUseRefImg) {
-      sheetUseRefImg.disabled = false;
-      const lbl = sheetUseRefImg.closest(".checkbox-container");
+    if (storyCharacterReference) {
+      storyCharacterReference.disabled = false;
+      const lbl = storyCharacterReference.closest(".checkbox-container");
       if (lbl) {
         lbl.style.opacity = "";
         lbl.style.pointerEvents = "";
@@ -692,6 +767,7 @@ async function initApp() {
     bindEvents();
     initializeCollectionsUI();
     initializeScrollToViewport();
+    initializeAutoExpandConfigurator();
 
     // Restore active mode from localStorage (Step 12)
     const savedMode = localStorage.getItem("model_prompt_forge_active_mode") || "normal";
@@ -708,7 +784,9 @@ async function initApp() {
     // Restore persisted state for initial mode (Step 12)
     restoreCurrentModeState();
 
+    enforceModeReferencePolicy({ updateUI: false });
     toggleUIForMode();
+    updateReferencePreviewsUI();
     updateCredits();
 
     state.isRestoringState = false; // Safe to auto-save now
@@ -1258,17 +1336,46 @@ function bindEvents() {
   refStyle.addEventListener("change", updateRefState);
   refPose.addEventListener("change", updateRefState);
 
-  // Character Sheet style reference checkbox change listener (Step 9)
-  const sheetUseRefImgCheckbox = document.getElementById("sheet-use-reference-img");
-  if (sheetUseRefImgCheckbox) {
-    sheetUseRefImgCheckbox.addEventListener("change", () => {
-      const isChecked = sheetUseRefImgCheckbox.checked;
-      if (!isChecked) {
-        state.styleReferenceImageA = null;
-        state.styleReferenceImageB = null;
-        state.styleReferenceJobIds = [];
-        updateReferencePreviewsUI();
+  const storyCharacterReference = document.getElementById("story-use-character-reference");
+  const characterReferenceFile = document.getElementById("character-reference-file");
+  const btnClearCharacterReference = document.getElementById("btn-clear-character-reference");
+  if (storyCharacterReference) {
+    storyCharacterReference.addEventListener("change", () => {
+      state.imageReferences.characterReference = storyCharacterReference.checked && state.mode === "normal";
+      if (!state.imageReferences.characterReference) {
+        clearCharacterReferenceState();
       }
+      updatePromptPreview();
+    });
+  }
+
+  if (characterReferenceFile) {
+    characterReferenceFile.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file || state.mode !== "normal") return;
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        const base64 = loadEvent.target.result.split(',')[1];
+        if (!state.characterReferenceImageA) {
+          state.characterReferenceImageA = base64;
+          state.characterReferenceJobIds[0] = null;
+        } else {
+          state.characterReferenceImageB = base64;
+          state.characterReferenceJobIds[1] = null;
+        }
+        storyCharacterReference.checked = true;
+        state.imageReferences.characterReference = true;
+        characterReferenceFile.value = "";
+        updateReferencePreviewsUI();
+        updatePromptPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (btnClearCharacterReference) {
+    btnClearCharacterReference.addEventListener("click", () => {
+      clearCharacterReferenceState();
       updatePromptPreview();
     });
   }
@@ -1289,6 +1396,15 @@ function bindEvents() {
       } else if (slot === "styleB") {
         state.styleReferenceImageB = null;
         state.styleReferenceJobIds[1] = null;
+      } else if (slot === "characterA") {
+        state.characterReferenceImageA = null;
+        state.characterReferenceJobIds[0] = null;
+      } else if (slot === "characterB") {
+        state.characterReferenceImageB = null;
+        state.characterReferenceJobIds[1] = null;
+      }
+      if (!state.characterReferenceImageA && !state.characterReferenceImageB) {
+        clearCharacterReferenceState({ updateUI: false });
       }
       updateReferencePreviewsUI();
       updatePromptPreview();
@@ -1475,6 +1591,7 @@ function bindEvents() {
   // Viewport Loopback action listeners (Step 9)
   const btnViewportUseFace = document.getElementById("btn-viewport-use-face");
   const btnViewportUseStyle = document.getElementById("btn-viewport-use-style");
+  const btnViewportUseCharacter = document.getElementById("btn-viewport-use-character");
 
   if (btnViewportUseFace) {
     btnViewportUseFace.addEventListener("click", () => {
@@ -1501,9 +1618,21 @@ function bindEvents() {
     });
   }
 
+  if (btnViewportUseCharacter) {
+    btnViewportUseCharacter.addEventListener("click", () => {
+      const img = document.getElementById("generated-image");
+      if (img && img.src && img.style.display !== "none" && state.mode === "normal") {
+        assignCharacterReference(img.src, state.activeJobId);
+        btnViewportUseCharacter.textContent = "📋 Character Added!";
+        setTimeout(() => { btnViewportUseCharacter.textContent = "📋 Use as Character Ref"; }, 1500);
+      }
+    });
+  }
+
   // Lightbox Loopback action listeners (Step 9)
   const btnLightboxUseFace = document.getElementById("btn-lightbox-use-face");
   const btnLightboxUseStyle = document.getElementById("btn-lightbox-use-style");
+  const btnLightboxUseCharacter = document.getElementById("btn-lightbox-use-character");
 
   if (btnLightboxUseFace) {
     btnLightboxUseFace.addEventListener("click", () => {
@@ -1522,6 +1651,17 @@ function bindEvents() {
       if (img && img.src && lightboxModal.style.display !== "none") {
         const activeItem = lightboxModal.activeItem;
         assignStyleReference(img.src, activeItem ? activeItem.id : null);
+        lightboxModal.style.display = "none";
+      }
+    });
+  }
+
+  if (btnLightboxUseCharacter) {
+    btnLightboxUseCharacter.addEventListener("click", () => {
+      const img = document.getElementById("lightbox-image");
+      if (img && img.src && lightboxModal.style.display !== "none" && state.mode === "normal") {
+        const activeItem = lightboxModal.activeItem;
+        assignCharacterReference(img.src, activeItem ? activeItem.id : null);
         lightboxModal.style.display = "none";
       }
     });
@@ -1597,9 +1737,12 @@ function bindEvents() {
             faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
             faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
             faceReferenceJobIds: state.imageReferences.faceMatch ? state.faceReferenceJobIds : [],
-            styleReferenceImageA: state.styleReferenceImageA,
-            styleReferenceImageB: state.styleReferenceImageB,
-            styleReferenceJobIds: state.styleReferenceJobIds,
+            styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageA : null,
+            styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageB : null,
+            styleReferenceJobIds: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceJobIds : [],
+            characterReferenceImageA: isStoryCharacterReferenceActive() ? state.characterReferenceImageA : null,
+            characterReferenceImageB: isStoryCharacterReferenceActive() ? state.characterReferenceImageB : null,
+            characterReferenceJobIds: isStoryCharacterReferenceActive() ? state.characterReferenceJobIds : [],
             customColors: state.customColors
           })
         });
@@ -1624,8 +1767,49 @@ function bindEvents() {
         `;
         queueList.appendChild(jobCard);
 
-        // 4. Create SSE connection to listen for dynamic chunks
-        const sseSource = new EventSource(`/api/jobs/${jobId}/stream`);
+        // Provider streaming uses SSE for partial images. Non-streaming jobs poll
+        // authoritative job state and render only the completed output file.
+        let pollTimer = null;
+        let sseSource;
+        if (data.providerStreaming === true) {
+          sseSource = new EventSource(`/api/jobs/${jobId}/stream`);
+        } else {
+          sseSource = new EventTarget();
+          sseSource.close = () => {
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = null;
+          };
+
+          const pollJobStatus = async () => {
+            try {
+              const statusResponse = await fetch(`/api/jobs/${jobId}`);
+              if (!statusResponse.ok) return;
+              const statusPayload = await statusResponse.json();
+
+              if (statusPayload.status === 'completed') {
+                sseSource.dispatchEvent(new MessageEvent('image_generation.completed', {
+                  data: JSON.stringify({
+                    type: 'image_generation.completed',
+                    ...(statusPayload.result || {})
+                  })
+                }));
+              } else if (statusPayload.status === 'failed') {
+                sseSource.dispatchEvent(new MessageEvent('job.failed', {
+                  data: JSON.stringify(statusPayload.error || {})
+                }));
+              } else {
+                sseSource.dispatchEvent(new MessageEvent('status', {
+                  data: JSON.stringify({ status: statusPayload.status })
+                }));
+              }
+            } catch {
+              // A transient polling failure must not remove the active job.
+            }
+          };
+
+          pollTimer = setInterval(pollJobStatus, 1000);
+          pollJobStatus();
+        }
 
         sseSource.addEventListener('status', (e) => {
           const payload = JSON.parse(e.data);
@@ -1646,8 +1830,10 @@ function bindEvents() {
           }
         };
 
-        sseSource.addEventListener('image_generation.partial_image', renderPartialImage);
-        sseSource.addEventListener('image_edit.partial_image', renderPartialImage);
+        if (data.providerStreaming === true) {
+          sseSource.addEventListener('image_generation.partial_image', renderPartialImage);
+          sseSource.addEventListener('image_edit.partial_image', renderPartialImage);
+        }
 
         // Generation completion event handler
         sseSource.addEventListener('image_generation.completed', (e) => {
@@ -1697,8 +1883,8 @@ function bindEvents() {
           loadHistory();
         });
 
-        // Error event handler
-        sseSource.addEventListener('error', (e) => {
+        // Application job failure is separate from EventSource transport errors.
+        sseSource.addEventListener('job.failed', (e) => {
           let errorMsg = "Generation failed";
           let technicalMessage = "";
           let creditRefunded = false;
@@ -1742,6 +1928,13 @@ function bindEvents() {
           placeholder.style.display = "flex";
           updateCredits();
         });
+
+        if (data.providerStreaming === true) {
+          sseSource.addEventListener('error', () => {
+            // EventSource reconnects automatically. A temporary or normal SSE
+            // disconnect is not a generation failure and must not clear output.
+          });
+        }
 
       } catch (err) {
         loader.style.display = "none";
@@ -1816,17 +2009,13 @@ function bindEvents() {
       restoreCurrentModeState();
       state.isRestoringState = false;
 
+      enforceModeReferencePolicy({ updateUI: false });
       toggleUIForMode();
+      updateReferencePreviewsUI();
       updatePromptPreview();
     });
   });
 
-  const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
-  if (sheetUseRefImg) {
-    sheetUseRefImg.addEventListener("change", () => {
-      updatePromptPreview();
-    });
-  }
 }
 
 // Dynamically filter UI accordions based on active mode
@@ -1835,8 +2024,16 @@ function toggleUIForMode() {
   const imageUpload = document.getElementById("image-upload-container");
 
   if (imageUpload) {
-    imageUpload.style.display = mode === "character-sheet" ? "flex" : "none";
+    imageUpload.style.display = mode === "normal" ? "block" : "none";
   }
+  document.querySelectorAll(".btn-use-character-ref").forEach(button => {
+    button.style.display = mode === "normal" ? "inline-flex" : "none";
+  });
+  ["ref-style-match", "ref-pose-match"].forEach(id => {
+    const checkbox = document.getElementById(id);
+    const label = checkbox?.closest(".checkbox-container");
+    if (label) label.style.display = mode === "normal" ? "inline-flex" : "none";
+  });
 
   const presetsSection = document.querySelector(".presets-section");
   if (presetsSection) {
@@ -2265,16 +2462,8 @@ function generatePromptText(cleanTextOnly = false) {
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else if (state.mode === "character-sheet") {
-    let referenceText = "";
-    const sheetUseRefImg = document.getElementById("sheet-use-reference-img");
-    const isUsingRef = sheetUseRefImg ? sheetUseRefImg.checked : false;
-    if (isUsingRef) {
-      const refStr = `[Reference uploaded image]`;
-      referenceText = cleanTextOnly ? refStr : `<span class="token-reference">${refStr}</span>`;
-    }
     let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
     let elements = [
-      referenceText,
       cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
       fullSubject,
       appearance,
@@ -2289,12 +2478,17 @@ function generatePromptText(cleanTextOnly = false) {
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else {
+    const characterReferenceText = isStoryCharacterReferenceActive()
+      ? (cleanTextOnly
+        ? "Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene"
+        : `<span class="token-reference">Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene</span>`)
+      : "";
     prompt = templateStr
       .replace("{subject}", fullSubject)
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
+      .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
@@ -2441,6 +2635,7 @@ function copyPromptToClipboard() {
 function saveCurrentModeState() {
   if (!state.mode) return;
   enforceFaceMatchInvariant({ updateUI: false });
+  enforceModeReferencePolicy({ updateUI: false });
   const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
 
   const payload = {
@@ -2458,7 +2653,10 @@ function saveCurrentModeState() {
     faceReferenceJobIds: state.faceReferenceJobIds,
     styleReferenceImageA: state.styleReferenceImageA,
     styleReferenceImageB: state.styleReferenceImageB,
-    styleReferenceJobIds: state.styleReferenceJobIds
+    styleReferenceJobIds: state.styleReferenceJobIds,
+    characterReferenceImageA: state.characterReferenceImageA,
+    characterReferenceImageB: state.characterReferenceImageB,
+    characterReferenceJobIds: state.characterReferenceJobIds
   };
 
   localStorage.setItem(modeKey, JSON.stringify(payload));
@@ -2491,7 +2689,13 @@ function restoreCurrentModeState() {
       "Dress": { enabled: false, color: "#ffffff" },
       "Shoes": { enabled: false, color: "#ffffff" }
     };
-    state.imageReferences = payload.imageReferences || { faceMatch: false, styleMatch: false, poseMatch: false };
+    state.imageReferences = {
+      faceMatch: false,
+      styleMatch: false,
+      poseMatch: false,
+      characterReference: false,
+      ...(payload.imageReferences || {})
+    };
     state.aspectRatio = payload.aspectRatio || "6:8";
     state.faceReferenceImageA = payload.faceReferenceImageA || null;
     state.faceReferenceImageB = payload.faceReferenceImageB || null;
@@ -2499,6 +2703,12 @@ function restoreCurrentModeState() {
     state.styleReferenceImageA = payload.styleReferenceImageA || null;
     state.styleReferenceImageB = payload.styleReferenceImageB || null;
     state.styleReferenceJobIds = payload.styleReferenceJobIds || [];
+    state.characterReferenceImageA = payload.characterReferenceImageA || null;
+    state.characterReferenceImageB = payload.characterReferenceImageB || null;
+    state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
+    if (state.mode !== "normal") {
+      clearCharacterReferenceState({ updateUI: false });
+    }
 
     // 2. Restore DOM element values
     const inputWidth = document.getElementById("input-width");
@@ -2521,6 +2731,10 @@ function restoreCurrentModeState() {
     if (refFaceMatch) refFaceMatch.checked = state.imageReferences.faceMatch;
     if (refStyleMatch) refStyleMatch.checked = state.imageReferences.styleMatch;
     if (refPoseMatch) refPoseMatch.checked = state.imageReferences.poseMatch;
+    const storyCharacterReference = document.getElementById("story-use-character-reference");
+    if (storyCharacterReference) {
+      storyCharacterReference.checked = isStoryCharacterReferenceActive();
+    }
     enforceFaceMatchInvariant({ updateUI: false });
 
     // Toggle container display
@@ -2619,8 +2833,9 @@ function resetForm() {
   if (toggleGptSafe) toggleGptSafe.checked = false;
 
   state.selections = {};
-  state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false };
+  state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false, characterReference: false };
   clearFaceReferenceState({ updateUI: false });
+  clearCharacterReferenceState({ updateUI: false });
   state.aspectRatio = "6:8";
   state.customColors = {
     "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -2670,6 +2885,8 @@ function resetForm() {
 // Export state as JSON
 function exportConfigJSON() {
   const payload = {
+    schemaVersion: 2,
+    mode: state.mode,
     selections: {},
     imageReferences: state.imageReferences,
     aspectRatio: state.aspectRatio,
@@ -2723,10 +2940,21 @@ function importConfigJSON(jsonString) {
     }
 
     if (payload.imageReferences) {
-      state.imageReferences = payload.imageReferences;
+      state.imageReferences = {
+        faceMatch: false,
+        styleMatch: false,
+        poseMatch: false,
+        characterReference: false,
+        ...payload.imageReferences
+      };
+      if (state.mode !== "normal") state.imageReferences.characterReference = false;
       document.getElementById("ref-face-match").checked = !!payload.imageReferences.faceMatch;
       document.getElementById("ref-style-match").checked = !!payload.imageReferences.styleMatch;
       document.getElementById("ref-pose-match").checked = !!payload.imageReferences.poseMatch;
+      const storyCharacterReference = document.getElementById("story-use-character-reference");
+      if (storyCharacterReference) {
+        storyCharacterReference.checked = isStoryCharacterReferenceActive();
+      }
       enforceFaceMatchInvariant({ updateUI: false });
     }
 
@@ -2941,6 +3169,7 @@ function copyPromptAsJSON() {
   if (state.imageReferences.faceMatch) refAttrs["Face Match"] = "100% Identity Lock Active";
   if (state.imageReferences.styleMatch) refAttrs["Style Match"] = "Style & Outfit Match Active";
   if (state.imageReferences.poseMatch) refAttrs["Pose Match"] = "Pose & Composition Match Active";
+  if (isStoryCharacterReferenceActive()) refAttrs["Character Reference"] = "Character Sheet Design Reference Active";
   if (Object.keys(refAttrs).length > 0) {
     structuredAttrs["Image Reference Options"] = refAttrs;
   }
@@ -3336,6 +3565,57 @@ function initializeScrollToViewport() {
 
 }
 
+function initializeAutoExpandConfigurator() {
+  const creativeConfigurator = document.getElementById('creative-configurator');
+  const btnFloatingConfig = document.getElementById('btn-floating-config');
+  if (!creativeConfigurator || !btnFloatingConfig) return;
+
+  let lastScrollY = window.scrollY;
+  let scheduled = false;
+  let expanding = false;
+
+  const expandAtPageEnd = () => {
+    scheduled = false;
+    const currentScrollY = window.scrollY;
+    const movingDown = currentScrollY > lastScrollY + 1;
+    lastScrollY = currentScrollY;
+
+    if (!movingDown || expanding || !creativeConfigurator.classList.contains('collapsed')) return;
+
+    const documentHeight = document.documentElement.scrollHeight;
+    const viewportBottom = currentScrollY + window.innerHeight;
+    const threshold = Math.max(96, window.innerHeight * 0.08);
+    const nearPageEnd = documentHeight - viewportBottom <= threshold;
+    const modalOpen = document.querySelector(
+      '.collection-modal[style*="display: flex"], #lightbox-modal[style*="display: flex"]'
+    );
+
+    if (!nearPageEnd || modalOpen) return;
+
+    expanding = true;
+    creativeConfigurator.classList.remove('collapsed');
+    btnFloatingConfig.style.display = 'none';
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(() => {
+      creativeConfigurator.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+        block: 'start'
+      });
+      window.setTimeout(() => {
+        expanding = false;
+        lastScrollY = window.scrollY;
+      }, reducedMotion ? 0 : 450);
+    });
+  };
+
+  window.addEventListener('scroll', () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(expandAtPageEnd);
+  }, { passive: true });
+}
+
 // Load generation history from backend
 async function loadHistory() {
   try {
@@ -3481,9 +3761,11 @@ function openLightbox(item) {
     lineageList.innerHTML = "";
     const faceParents = item.referencedFaceJobIds || [];
     const styleParents = item.referencedStyleJobIds || [];
+    const characterParents = item.referencedCharacterJobIds || [];
     const allParents = [
       ...faceParents.map(id => ({ id, type: "Face" })),
-      ...styleParents.map(id => ({ id, type: "Style" }))
+      ...styleParents.map(id => ({ id, type: "Style" })),
+      ...characterParents.map(id => ({ id, type: "Character" }))
     ].filter(p => p.id);
 
     if (allParents.length > 0) {
@@ -3506,11 +3788,11 @@ function openLightbox(item) {
         thumbImg.style.borderRadius = "3px";
 
         const typeBadge = document.createElement("span");
-        typeBadge.textContent = p.type === "Face" ? "F" : "S";
+        typeBadge.textContent = p.type === "Face" ? "F" : (p.type === "Style" ? "S" : "C");
         typeBadge.style.position = "absolute";
         typeBadge.style.bottom = "-2px";
         typeBadge.style.right = "-2px";
-        typeBadge.style.background = p.type === "Face" ? "var(--neon-cyan)" : "var(--neon-pink)";
+        typeBadge.style.background = p.type === "Face" ? "var(--neon-cyan)" : (p.type === "Style" ? "var(--neon-pink)" : "var(--neon-gold)");
         typeBadge.style.color = "#000";
         typeBadge.style.fontSize = "0.55rem";
         typeBadge.style.fontWeight = "900";

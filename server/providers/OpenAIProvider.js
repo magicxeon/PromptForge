@@ -1,5 +1,11 @@
 import { BaseProvider } from './BaseProvider.js';
 
+export function isOpenAIAPIStreamingEnabled() {
+  const value = process.env.ENABLE_OPENAI_API_STREAMING;
+  if (value === undefined) return true;
+  return value.trim().toLowerCase() === 'true';
+}
+
 export class OpenAIProvider extends BaseProvider {
   /**
    * Upload binary image to OpenAI Files API with purpose "vision" (Step 9/OpenAI)
@@ -52,6 +58,8 @@ export class OpenAIProvider extends BaseProvider {
     }
 
     const referenceImages = [
+      options.resolvedCharacterReferenceImageA,
+      options.resolvedCharacterReferenceImageB,
       options.resolvedFaceReferenceImageA,
       options.resolvedFaceReferenceImageB,
       options.resolvedStyleReferenceImageA,
@@ -439,6 +447,14 @@ export class OpenAIProvider extends BaseProvider {
     options = {},
     onEvent = () => { }
   ) {
+    if (!isOpenAIAPIStreamingEnabled()) {
+      return this.generateImageWithSyntheticCompletionEvent(
+        prompt,
+        options,
+        onEvent
+      );
+    }
+
     const model = options.submodel || 'gpt-image-1.5';
     const aspectRatio = options.aspectRatio || '1:1';
 
@@ -451,6 +467,8 @@ export class OpenAIProvider extends BaseProvider {
     }
 
     const referenceImages = [
+      options.resolvedCharacterReferenceImageA,
+      options.resolvedCharacterReferenceImageB,
       options.resolvedFaceReferenceImageA,
       options.resolvedFaceReferenceImageB,
       options.resolvedStyleReferenceImageA,
