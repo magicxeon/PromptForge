@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ProviderFactory } from './providers/ProviderFactory.js';
 import { collectionManager } from './collectionManager.js';
+import { dedupeResolvedReferenceImages, normalizeReferenceJobIds } from './referenceUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -227,13 +228,22 @@ class QueueManager {
       const resolvedCharacterA = await resolveLocalImageToBase64(job.options.characterReferenceImageA);
       const resolvedCharacterB = await resolveLocalImageToBase64(job.options.characterReferenceImageB);
 
+      const uniqueReferences = dedupeResolvedReferenceImages([
+        ['characterA', resolvedCharacterA],
+        ['characterB', resolvedCharacterB],
+        ['faceA', resolvedFaceA],
+        ['faceB', resolvedFaceB],
+        ['styleA', resolvedStyleA],
+        ['styleB', resolvedStyleB]
+      ]);
+
       // Mutate options to supply resolved base64 images to provider strategy
-      job.options.resolvedFaceReferenceImageA = resolvedFaceA;
-      job.options.resolvedFaceReferenceImageB = resolvedFaceB;
-      job.options.resolvedStyleReferenceImageA = resolvedStyleA;
-      job.options.resolvedStyleReferenceImageB = resolvedStyleB;
-      job.options.resolvedCharacterReferenceImageA = resolvedCharacterA;
-      job.options.resolvedCharacterReferenceImageB = resolvedCharacterB;
+      job.options.resolvedFaceReferenceImageA = uniqueReferences.faceA;
+      job.options.resolvedFaceReferenceImageB = uniqueReferences.faceB;
+      job.options.resolvedStyleReferenceImageA = uniqueReferences.styleA;
+      job.options.resolvedStyleReferenceImageB = uniqueReferences.styleB;
+      job.options.resolvedCharacterReferenceImageA = uniqueReferences.characterA;
+      job.options.resolvedCharacterReferenceImageB = uniqueReferences.characterB;
 
       let result;
       if (job.options.stream) {
@@ -279,9 +289,9 @@ class QueueManager {
         timestamp: Date.now(),
         provider: job.provider,
         submodel: job.submodel,
-        referencedFaceJobIds: job.options.faceReferenceJobIds || [],
-        referencedStyleJobIds: job.options.styleReferenceJobIds || [],
-        referencedCharacterJobIds: job.options.characterReferenceJobIds || [],
+        referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
+        referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
+        referencedCharacterJobIds: normalizeReferenceJobIds(job.options.characterReferenceJobIds),
         generationDuration: durationSec
       });
 

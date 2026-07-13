@@ -27,7 +27,8 @@ const ATTRIBUTE_FILES = [
   '020-camera-framing.json',
   '021-accessories.json',
   '022-hair-extra.json',
-  '023-architecture.json'
+  '023-architecture.json',
+  '024-fashion-commerce.json'
 ];
 
 // Mapping ui-schema fields to attribute categories
@@ -36,7 +37,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Age": "character",
   "Ethnicity": "character",
   "Beauty": "character",
-  "Reference Image": "character",
+  "Fashion Direction": "fashion_direction",
   "Face Shape": "face",
   "Eyes": "eyes",
   "Eyebrows": "eyebrows",
@@ -49,6 +50,10 @@ const FIELD_TO_CATEGORY_MAP = {
   "Hair Texture": "hair",
   "Color": "hair",
   "Bangs": "",
+  "Cut / Style": "hair",
+  "Texture": "hair",
+  "Parting / Fringe": "hair",
+  "Finish": "hair",
   "Tone": "skin",
   "Skin Texture": "skin",
   "Makeup": "skin",
@@ -58,22 +63,36 @@ const FIELD_TO_CATEGORY_MAP = {
   "Build": "body",
   "Hands": "body",
   "Legs": "body",
+  "Height Impression": "body",
+  "Model Build": "body",
+  "Body Silhouette": "body",
   "Top": "clothing",
   "Bottom": "clothing",
   "Dress": "clothing",
   "Shoes": "clothing",
   "Accessories": "clothing",
+  "Product Type": "clothing",
+  "Garment Silhouette": "clothing",
+  "Material / Surface": "clothing",
+  "Construction / Detail": "clothing",
+  "Styling": "clothing",
   "Standing": "pose",
   "Sitting": "pose",
   "Walking": "pose",
   "Hand Position": "pose",
   "Eye Contact": "pose",
+  "Pose Intent": "pose",
+  "Fashion Hand Position": "pose",
+  "Fashion Gaze": "pose",
   "Location": "environment",
   "Architecture": "environment",
   "Props": "environment",
   "Weather": "environment",
   "Time of Day": "environment",
   "Season": "environment",
+  "Fashion Venue": "environment",
+  "Set Design": "environment",
+  "Atmosphere": "environment",
   "Key Light": "lighting",
   "Fill Light": "lighting",
   "Back Light": "lighting",
@@ -81,6 +100,11 @@ const FIELD_TO_CATEGORY_MAP = {
   "Neon": "lighting",
   "Ambient": "lighting",
   "Golden Hour": "lighting",
+  "Lighting Setup": "lighting",
+  "Contrast": "lighting",
+  "Color Temperature": "lighting",
+  "Shadow Character": "lighting",
+  "Lighting Accent": "lighting",
   "Brand": "camera",
   "Lens": "camera",
   "Focal Length": "camera",
@@ -101,6 +125,8 @@ const FIELD_TO_CATEGORY_MAP = {
   "Sensual Pose": "nsfw",
   "Context Type": "photo_context",
   "Story Event": "scene_story",
+  "Fashion Photography Context": "photo_context",
+  "Fashion Story": "scene_story",
   "Foreground Layer": "foreground_layer",
   "Background Activity": "background_activity",
   "Camera Imperfections": "camera_imperfections"
@@ -174,6 +200,7 @@ const state = {
   characterReferenceImageA: null,
   characterReferenceImageB: null,
   characterReferenceJobIds: [], // same character only; up to 2 source images
+  characterReferenceOverrides: false,
   hasInitializedHistoryCollapse: false,
   language: "th",
   aspectRatio: "6:8",
@@ -193,7 +220,8 @@ const state = {
     "Top": { enabled: false, color: "#ffffff" },
     "Bottom": { enabled: false, color: "#ffffff" },
     "Dress": { enabled: false, color: "#ffffff" },
-    "Shoes": { enabled: false, color: "#ffffff" }
+    "Shoes": { enabled: false, color: "#ffffff" },
+    "Product Type": { enabled: false, color: "#ffffff" }
   }
 };
 
@@ -222,6 +250,9 @@ function restoreSelectionsToUI() {
       } else {
         selectEl.value = selection.id;
       }
+      const selectedItem = state.library.find(item => item.id === selection.id);
+      const fieldHelp = selectEl.closest(".form-field")?.querySelector(".field-option-help");
+      if (fieldHelp) fieldHelp.textContent = getLocalizedLabel(selectedItem?.description);
       updateAccordionSummaryBadges(selection.group);
     }
   });
@@ -269,13 +300,20 @@ function validateForm() {
     { field: "Ethnicity", group: "Character" },
     { field: "Gender", group: "Character" }
   ];
+  const characterReferenceOwnsIdentity = isStoryCharacterReferenceActive()
+    && !state.characterReferenceOverrides;
 
   for (const req of required) {
+    const id = `select-${req.group.toLowerCase()}-${req.field.toLowerCase().replace(/\s+/g, "-")}`;
+    const selectEl = document.getElementById(id);
+    const isReferenceOwned = req.group === "Character" && characterReferenceOwnsIdentity;
+
+    // A reference-owned or otherwise disabled field is not user-actionable and
+    // must never block generation validation.
+    if (isReferenceOwned || selectEl?.disabled) continue;
+
     const isSelected = state.selections[req.field] && state.selections[req.field].value && state.selections[req.field].value.trim() !== "";
     if (!isSelected) {
-      // Find the select element
-      const id = `select-${req.group.toLowerCase()}-${req.field.toLowerCase().replace(/\s+/g, "-")}`;
-      const selectEl = document.getElementById(id);
       if (selectEl) {
         // Expand the accordion parent
         const accordion = selectEl.closest(".accordion");
@@ -326,17 +364,158 @@ function clearCharacterReferenceState({ updateUI = true } = {}) {
   state.characterReferenceImageB = null;
   state.characterReferenceJobIds = [];
   state.imageReferences.characterReference = false;
+  state.characterReferenceOverrides = false;
   const checkbox = document.getElementById("story-use-character-reference");
   const fileInput = document.getElementById("character-reference-file");
   if (checkbox) checkbox.checked = false;
   if (fileInput) fileInput.value = "";
-  if (updateUI) updateReferencePreviewsUI();
+  if (updateUI) {
+    updateReferencePreviewsUI();
+    refreshReferenceAuthorityUI();
+  }
 }
 
 function isStoryCharacterReferenceActive() {
   return state.mode === "normal"
     && state.imageReferences.characterReference === true
     && Boolean(state.characterReferenceImageA || state.characterReferenceImageB);
+}
+
+const REFERENCE_OWNED_GROUPS = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
+const FACE_MATCH_OWNED_FIELDS = new Set(["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"]);
+
+function applyReferenceAuthorityToSelections(activeSelections) {
+  delete activeSelections["Reference Image"];
+  if (!isStoryCharacterReferenceActive() || state.characterReferenceOverrides) return;
+
+  Object.keys(activeSelections).forEach(fieldName => {
+    if (REFERENCE_OWNED_GROUPS.has(activeSelections[fieldName]?.group)) {
+      delete activeSelections[fieldName];
+    }
+  });
+}
+
+function applyCharacterReferenceAuthority() {
+  const isReferenceOwned = isStoryCharacterReferenceActive() && !state.characterReferenceOverrides;
+  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    const groupName = select.getAttribute("data-group");
+    if (!REFERENCE_OWNED_GROUPS.has(groupName)) return;
+    const fieldName = select.getAttribute("data-field");
+    const formField = select.closest(".form-field");
+    select.disabled = isReferenceOwned
+      || (state.imageReferences.faceMatch && FACE_MATCH_OWNED_FIELDS.has(fieldName));
+    if (formField) formField.classList.toggle("reference-owned", isReferenceOwned);
+  });
+
+  const panel = document.getElementById("character-reference-authority");
+  const title = document.getElementById("character-reference-authority-title");
+  const summary = document.getElementById("character-reference-authority-summary");
+  const override = document.getElementById("character-reference-override");
+  const overrideLabel = document.getElementById("character-reference-override-label");
+  if (panel) panel.classList.toggle("active", isStoryCharacterReferenceActive());
+  if (title) title.textContent = state.language === "th" ? "สิทธิ์ควบคุมจากภาพอ้างอิงตัวละคร" : "Character Reference Authority";
+  if (summary) {
+    summary.textContent = state.language === "th"
+      ? (isStoryCharacterReferenceActive()
+        ? (state.characterReferenceOverrides
+          ? "เปิดการปรับแต่งขั้นสูงอยู่ ความต่อเนื่องของตัวละครอาจลดลง"
+          : "กำลังใช้เอกลักษณ์ ทรงผม รูปร่าง และเสื้อผ้าจากภาพอ้างอิงตัวละคร")
+        : "ตัวเลือก Character ทำงานตามปกติเนื่องจากยังไม่ได้เลือกภาพอ้างอิงตัวละครใน Story Mode")
+      : (isStoryCharacterReferenceActive()
+        ? (state.characterReferenceOverrides
+          ? "Advanced overrides are active. Identity consistency may be reduced."
+          : "Using identity, hair, body, and clothing from Character Reference.")
+        : "Character attributes are active because no Story Character Reference is selected.");
+  }
+  if (overrideLabel) overrideLabel.textContent = state.language === "th" ? "เปิดการปรับ Character ขั้นสูง" : "Enable advanced character overrides";
+  if (override) override.checked = state.characterReferenceOverrides;
+}
+
+function refreshReferenceAuthorityUI() {
+  applyFaceMatchLockout();
+  applyCharacterReferenceAuthority();
+}
+
+function applyFashionDirectionDefaults(directionItem) {
+  if (!directionItem?.defaults) return;
+  Object.entries(directionItem.defaults).forEach(([fieldName, optionId]) => {
+    if (state.selections[fieldName]) return;
+    const item = state.library.find(entry => entry.id === optionId && entry.enabled !== false);
+    const select = document.querySelector(`.custom-select[data-field="${fieldName}"]`);
+    if (!item || !select) return;
+    select.value = optionId;
+    state.selections[fieldName] = {
+      id: item.id,
+      value: item.prompt?.["gpt-image"] || item.prompt?.default || getLocalizedLabel(item.label),
+      isCustom: false,
+      group: select.getAttribute("data-group"),
+      category: item.category,
+      tags: item.tags || []
+    };
+    updateAccordionSummaryBadges(select.getAttribute("data-group"));
+  });
+}
+
+const LEGACY_FASHION_SELECTION_REPLACEMENTS = {
+  "scene_story.001": "scene_story.fashion.outfit-reveal",
+  "scene_story.002": "scene_story.fashion.lookbook-pause",
+  "scene_story.003": "scene_story.fashion.outfit-reveal",
+  "scene_story.004": "scene_story.fashion.lookbook-pause",
+  "scene_story.005": "scene_story.fashion.lookbook-pause",
+  "scene_story.006": "scene_story.fashion.detail-demo",
+  "scene_story.007": "scene_story.fashion.outfit-reveal",
+  "scene_story.008": "scene_story.fashion.collection-walk",
+  "scene_story.009": "scene_story.fashion.lookbook-pause",
+  "scene_story.0010": "scene_story.fashion.lookbook-pause",
+  "photo_context.001": "photo_context.fashion.creator",
+  "photo_context.002": "photo_context.fashion.street-style",
+  "photo_context.003": "photo_context.fashion.creator",
+  "photo_context.004": "photo_context.fashion.creator",
+  "photo_context.005": "photo_context.fashion.creator",
+  "photo_context.006": "photo_context.fashion.creator",
+  "photo_context.007": "photo_context.fashion.street-style"
+};
+
+function migrateFashionSelection(selection, group) {
+  if (!selection || selection.isCustom) return selection ? { ...selection, group } : selection;
+  const replacementId = LEGACY_FASHION_SELECTION_REPLACEMENTS[selection.id];
+  if (!replacementId) return { ...selection, group };
+  const replacement = state.library.find(item => item.id === replacementId);
+  if (!replacement) return { ...selection, group };
+  return {
+    ...selection,
+    id: replacement.id,
+    value: replacement.prompt?.["gpt-image"] || replacement.prompt?.default || getLocalizedLabel(replacement.label),
+    group,
+    category: replacement.category,
+    tags: replacement.tags || []
+  };
+}
+
+function migrateLegacySelections(selections) {
+  const migrated = { ...(selections || {}) };
+  delete migrated["Reference Image"];
+  if (migrated["Story Event"] && !migrated["Fashion Story"]) {
+    migrated["Fashion Story"] = migrateFashionSelection(migrated["Story Event"], "Scene Story");
+  }
+  if (migrated["Context Type"] && !migrated["Fashion Photography Context"]) {
+    migrated["Fashion Photography Context"] = migrateFashionSelection(
+      migrated["Context Type"],
+      "Photographic Context"
+    );
+  }
+  if (migrated["Fashion Story"]) {
+    migrated["Fashion Story"] = migrateFashionSelection(migrated["Fashion Story"], "Scene Story");
+  }
+  if (migrated["Fashion Photography Context"]) {
+    migrated["Fashion Photography Context"] = migrateFashionSelection(
+      migrated["Fashion Photography Context"],
+      "Photographic Context"
+    );
+  }
+  delete migrated["Story Event"];
+  delete migrated["Context Type"];
+  return migrated;
 }
 
 function enforceModeReferencePolicy({ updateUI = true } = {}) {
@@ -444,6 +623,10 @@ function cleanReferenceImageSrc(src) {
   return src;
 }
 
+function uniqueReferenceJobIds(ids) {
+  return [...new Set((Array.isArray(ids) ? ids : []).filter(Boolean))].slice(0, 2);
+}
+
 // Set reference image slot allocation logic
 function assignFaceReference(imageSrc, jobId = null) {
   const cleanedSrc = cleanReferenceImageSrc(imageSrc);
@@ -504,6 +687,7 @@ function assignCharacterReference(imageSrc, jobId = null) {
   const checkbox = document.getElementById("story-use-character-reference");
   if (checkbox) checkbox.checked = true;
   updateReferencePreviewsUI();
+  refreshReferenceAuthorityUI();
   updatePromptPreview();
 }
 
@@ -577,6 +761,7 @@ function applyOpenAIImageReferenceControl() {
     state.imageReferences.faceMatch = false;
     state.imageReferences.styleMatch = false;
     state.imageReferences.characterReference = false;
+    state.characterReferenceOverrides = false;
     state.faceReferenceImageA = null;
     state.faceReferenceImageB = null;
     state.faceReferenceJobIds = [];
@@ -598,7 +783,7 @@ function applyOpenAIImageReferenceControl() {
     if (lbActions) lbActions.style.display = "none";
 
     updateReferencePreviewsUI();
-    applyFaceMatchLockout();
+    refreshReferenceAuthorityUI();
   } else {
     if (refFace) {
       refFace.disabled = false;
@@ -904,6 +1089,7 @@ function renderForm() {
         // }
 
         optionNode.setAttribute("data-original-text", optionNode.textContent);
+        optionNode.setAttribute("data-description", getLocalizedLabel(opt.description));
         select.appendChild(optionNode);
       });
 
@@ -951,8 +1137,13 @@ function renderForm() {
       customInput.id = `custom-input-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
       fieldDiv.appendChild(customInput);
 
+      const fieldHelp = document.createElement("small");
+      fieldHelp.className = "field-option-help";
+      fieldHelp.setAttribute("aria-live", "polite");
+      fieldDiv.appendChild(fieldHelp);
+
       // Render color pickers for specified fields (Step 11)
-      const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes"];
+      const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes", "Product Type"];
       if (colorPickerFields.includes(field.name) && (field.name !== "Color" || groupName === "Hair")) {
         const pickerRow = document.createElement("div");
         pickerRow.className = "custom-color-picker-row";
@@ -1036,16 +1227,17 @@ function renderForm() {
 
           const clothingToggle = document.createElement("input");
           clothingToggle.type = "checkbox";
-          clothingToggle.id = `clothing-toggle-${field.name.toLowerCase()}`;
+          const clothingFieldSlug = field.name.toLowerCase().replace(/\s+/g, "-");
+          clothingToggle.id = `clothing-toggle-${clothingFieldSlug}`;
           clothingToggle.checked = state.customColors[field.name].enabled;
 
           const clothingLabel = document.createElement("label");
-          clothingLabel.htmlFor = `clothing-toggle-${field.name.toLowerCase()}`;
+          clothingLabel.htmlFor = `clothing-toggle-${clothingFieldSlug}`;
           clothingLabel.textContent = `🎨 Custom ${field.name} Color:`;
 
           const clothingInput = document.createElement("input");
           clothingInput.type = "color";
-          clothingInput.id = `clothing-input-${field.name.toLowerCase()}`;
+          clothingInput.id = `clothing-input-${clothingFieldSlug}`;
           clothingInput.value = state.customColors[field.name].color;
           clothingInput.disabled = !clothingToggle.checked;
 
@@ -1071,6 +1263,21 @@ function renderForm() {
 
       inner.appendChild(fieldDiv);
     });
+
+    if (groupName === "Character") {
+      const authorityPanel = document.createElement("div");
+      authorityPanel.id = "character-reference-authority";
+      authorityPanel.className = "reference-authority-panel";
+      authorityPanel.innerHTML = `
+        <strong id="character-reference-authority-title">Character Reference Authority</strong>
+        <span id="character-reference-authority-summary">Character attributes are active because no Story Character Reference is selected.</span>
+        <label class="reference-override-control">
+          <input type="checkbox" id="character-reference-override">
+          <span id="character-reference-override-label">Enable advanced character overrides</span>
+        </label>
+      `;
+      inner.appendChild(authorityPanel);
+    }
 
     content.appendChild(inner);
     accordion.appendChild(content);
@@ -1170,6 +1377,8 @@ function bindDynamicFormEvents() {
         customInput.style.display = "none";
         if (val === "") {
           delete state.selections[fieldName];
+          const fieldHelp = select.closest(".form-field")?.querySelector(".field-option-help");
+          if (fieldHelp) fieldHelp.textContent = "";
         } else {
           const selectedOption = e.target.options[e.target.selectedIndex];
           const promptVal = selectedOption.getAttribute("data-prompt");
@@ -1184,6 +1393,9 @@ function bindDynamicFormEvents() {
             tags: libItem ? (libItem.tags || []) : [],
             gptPositiveWords: libItem && libItem.prompt && libItem.prompt["gpt-image-positive"] ? libItem.prompt["gpt-image-positive"].split(",").map(w => w.trim()) : []
           };
+          const fieldHelp = select.closest(".form-field")?.querySelector(".field-option-help");
+          if (fieldHelp) fieldHelp.textContent = getLocalizedLabel(libItem?.description);
+          if (fieldName === "Fashion Direction") applyFashionDirectionDefaults(libItem);
           enforceExclusionRules(val);
         }
       }
@@ -1207,6 +1419,15 @@ function bindDynamicFormEvents() {
       }
     });
   });
+
+  const characterOverride = document.getElementById("character-reference-override");
+  if (characterOverride) {
+    characterOverride.addEventListener("change", event => {
+      state.characterReferenceOverrides = event.target.checked;
+      refreshReferenceAuthorityUI();
+      updatePromptPreview();
+    });
+  }
 }
 
 // Bind event listeners
@@ -1328,7 +1549,7 @@ function bindEvents() {
       clearFaceReferenceState();
     }
 
-    applyFaceMatchLockout();
+    refreshReferenceAuthorityUI();
     updatePromptPreview();
   };
 
@@ -1345,6 +1566,7 @@ function bindEvents() {
       if (!state.imageReferences.characterReference) {
         clearCharacterReferenceState();
       }
+      refreshReferenceAuthorityUI();
       updatePromptPreview();
     });
   }
@@ -1367,6 +1589,7 @@ function bindEvents() {
         state.imageReferences.characterReference = true;
         characterReferenceFile.value = "";
         updateReferencePreviewsUI();
+        refreshReferenceAuthorityUI();
         updatePromptPreview();
       };
       reader.readAsDataURL(file);
@@ -1407,6 +1630,7 @@ function bindEvents() {
         clearCharacterReferenceState({ updateUI: false });
       }
       updateReferencePreviewsUI();
+      refreshReferenceAuthorityUI();
       updatePromptPreview();
     }
   });
@@ -1424,7 +1648,7 @@ function bindEvents() {
         state.faceReferenceJobIds[0] = null;
         if (faceUploadContainer) faceUploadContainer.style.display = "block";
         updateReferencePreviewsUI();
-        applyFaceMatchLockout();
+        refreshReferenceAuthorityUI();
         updatePromptPreview();
       };
       reader.readAsDataURL(file);
@@ -1489,6 +1713,7 @@ function bindEvents() {
         restoreSelectionsToUI();
         openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
         updateColorPickerUI();
+        refreshReferenceAuthorityUI();
         updatePromptPreview();
       }
     });
@@ -1716,6 +1941,17 @@ function bindEvents() {
       try {
         const toggleGptSafe = document.getElementById("toggle-gpt-safe");
         const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+        const submittedReferenceJobIds = {
+          face: state.imageReferences.faceMatch
+            ? uniqueReferenceJobIds(state.faceReferenceJobIds)
+            : [],
+          style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
+            ? uniqueReferenceJobIds(state.styleReferenceJobIds)
+            : [],
+          character: isStoryCharacterReferenceActive()
+            ? uniqueReferenceJobIds(state.characterReferenceJobIds)
+            : []
+        };
 
         // 2. Call backend generator queue endpoint
         const response = await fetch('/api/generate', {
@@ -1729,20 +1965,23 @@ function bindEvents() {
             submodel,
             selections: state.selections,
             aspectRatio: state.aspectRatio,
-            imageReferences: state.imageReferences,
+            imageReferences: {
+              ...state.imageReferences,
+              characterOverrides: state.characterReferenceOverrides
+            },
             mode: state.mode,
             template: document.getElementById("template-select").value || "portrait",
             isGptSafe,
             username: state.username,
             faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
             faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
-            faceReferenceJobIds: state.imageReferences.faceMatch ? state.faceReferenceJobIds : [],
+            faceReferenceJobIds: submittedReferenceJobIds.face,
             styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageA : null,
             styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageB : null,
-            styleReferenceJobIds: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceJobIds : [],
+            styleReferenceJobIds: submittedReferenceJobIds.style,
             characterReferenceImageA: isStoryCharacterReferenceActive() ? state.characterReferenceImageA : null,
             characterReferenceImageB: isStoryCharacterReferenceActive() ? state.characterReferenceImageB : null,
-            characterReferenceJobIds: isStoryCharacterReferenceActive() ? state.characterReferenceJobIds : [],
+            characterReferenceJobIds: submittedReferenceJobIds.character,
             customColors: state.customColors
           })
         });
@@ -1863,8 +2102,9 @@ function bindEvents() {
             timestamp: Date.now(),
             provider,
             submodel,
-            referencedFaceJobIds: [...state.faceReferenceJobIds],
-            referencedStyleJobIds: [...state.styleReferenceJobIds],
+            referencedFaceJobIds: submittedReferenceJobIds.face,
+            referencedStyleJobIds: submittedReferenceJobIds.style,
+            referencedCharacterJobIds: submittedReferenceJobIds.character,
             generationDuration: durationSec
           };
 
@@ -2307,9 +2547,11 @@ function generatePromptText(cleanTextOnly = false) {
   const templateStr = state.templates[currentTemplateName];
 
   const activeSelections = JSON.parse(JSON.stringify(state.selections));
+  applyReferenceAuthorityToSelections(activeSelections);
+  const referenceOwnsAppearance = isStoryCharacterReferenceActive() && !state.characterReferenceOverrides;
 
   // Dynamically inject selections for active custom color pickers if empty (Step 11)
-  if (state.customColors && state.customColors["Color"] && (state.customColors["Color"].enabled || state.customColors["Color"].highlightEnabled)) {
+  if (!referenceOwnsAppearance && state.customColors && state.customColors["Color"] && (state.customColors["Color"].enabled || state.customColors["Color"].highlightEnabled)) {
     if (!activeSelections["Color"]) {
       activeSelections["Color"] = {
         id: "",
@@ -2321,8 +2563,8 @@ function generatePromptText(cleanTextOnly = false) {
       };
     }
   }
-  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
-    if (state.customColors && state.customColors[field] && state.customColors[field].enabled) {
+  ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+    if (!referenceOwnsAppearance && state.customColors && state.customColors[field] && state.customColors[field].enabled) {
       if (!activeSelections[field]) {
         activeSelections[field] = {
           id: "",
@@ -2346,7 +2588,7 @@ function generatePromptText(cleanTextOnly = false) {
       }
     }
     if (groupName.toLowerCase() === "clothing") {
-      if (state.imageReferences.styleMatch) {
+      if (state.imageReferences.styleMatch && !referenceOwnsAppearance) {
         const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
         return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
       }
@@ -2431,9 +2673,10 @@ function generatePromptText(cleanTextOnly = false) {
   }
 
   let pose = compileGroupSegment("Pose", "token-pose");
+  let fashionDirection = compileGroupSegment("Fashion Direction", "token-pose");
   let photoContext = compileGroupSegment("Photographic Context", "token-pose");
   let sceneStory = compileGroupSegment("Scene Story", "token-pose");
-  let sceneContext = [photoContext, sceneStory].filter(s => s !== "").join(", ");
+  let sceneContext = [fashionDirection, photoContext, sceneStory].filter(s => s !== "").join(", ");
   let body = compileGroupSegment("Body", "token-subject");
   let fullSubject = [subject, body].filter(s => s !== "").join(", ");
 
@@ -2480,8 +2723,12 @@ function generatePromptText(cleanTextOnly = false) {
   } else {
     const characterReferenceText = isStoryCharacterReferenceActive()
       ? (cleanTextOnly
-        ? "Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene"
-        : `<span class="token-reference">Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene</span>`)
+        ? (state.characterReferenceOverrides
+          ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
+          : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
+        : `<span class="token-reference">${state.characterReferenceOverrides
+          ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
+          : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"}</span>`)
       : "";
     prompt = templateStr
       .replace("{subject}", fullSubject)
@@ -2656,7 +2903,8 @@ function saveCurrentModeState() {
     styleReferenceJobIds: state.styleReferenceJobIds,
     characterReferenceImageA: state.characterReferenceImageA,
     characterReferenceImageB: state.characterReferenceImageB,
-    characterReferenceJobIds: state.characterReferenceJobIds
+    characterReferenceJobIds: state.characterReferenceJobIds,
+    characterReferenceOverrides: state.characterReferenceOverrides
   };
 
   localStorage.setItem(modeKey, JSON.stringify(payload));
@@ -2681,13 +2929,15 @@ function restoreCurrentModeState() {
     if (!payload || typeof payload !== "object") return;
 
     // 1. Restore core state objects
-    state.selections = payload.selections || {};
-    state.customColors = payload.customColors || {
+    state.selections = migrateLegacySelections(payload.selections);
+    state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
       "Top": { enabled: false, color: "#ffffff" },
       "Bottom": { enabled: false, color: "#ffffff" },
       "Dress": { enabled: false, color: "#ffffff" },
-      "Shoes": { enabled: false, color: "#ffffff" }
+      "Shoes": { enabled: false, color: "#ffffff" },
+      "Product Type": { enabled: false, color: "#ffffff" },
+      ...(payload.customColors || {})
     };
     state.imageReferences = {
       faceMatch: false,
@@ -2706,6 +2956,7 @@ function restoreCurrentModeState() {
     state.characterReferenceImageA = payload.characterReferenceImageA || null;
     state.characterReferenceImageB = payload.characterReferenceImageB || null;
     state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
+    state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
     if (state.mode !== "normal") {
       clearCharacterReferenceState({ updateUI: false });
     }
@@ -2795,7 +3046,7 @@ function restoreCurrentModeState() {
     updateColorPickerUI();
 
     // 5. Lockout and previews
-    applyFaceMatchLockout();
+    refreshReferenceAuthorityUI();
     updateReferencePreviewsUI();
 
     // 6. Recalculate preview
@@ -2842,7 +3093,8 @@ function resetForm() {
     "Top": { enabled: false, color: "#ffffff" },
     "Bottom": { enabled: false, color: "#ffffff" },
     "Dress": { enabled: false, color: "#ffffff" },
-    "Shoes": { enabled: false, color: "#ffffff" }
+    "Shoes": { enabled: false, color: "#ffffff" },
+    "Product Type": { enabled: false, color: "#ffffff" }
   };
   updateColorPickerUI();
 
@@ -2877,7 +3129,7 @@ function resetForm() {
   const templateSelect = document.getElementById("template-select");
   if (templateSelect && templateSelect.options.length > 0) templateSelect.selectedIndex = 0;
 
-  applyFaceMatchLockout();
+  refreshReferenceAuthorityUI();
   updateReferencePreviewsUI();
   updatePromptPreview();
 }
@@ -2885,10 +3137,14 @@ function resetForm() {
 // Export state as JSON
 function exportConfigJSON() {
   const payload = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     mode: state.mode,
     selections: {},
-    imageReferences: state.imageReferences,
+    imageReferences: {
+      ...state.imageReferences,
+      characterOverrides: state.characterReferenceOverrides
+    },
+    characterReferenceOverrides: state.characterReferenceOverrides,
     aspectRatio: state.aspectRatio,
     template: document.getElementById("template-select").value || "portrait",
     customColors: state.customColors
@@ -2947,6 +3203,8 @@ function importConfigJSON(jsonString) {
         characterReference: false,
         ...payload.imageReferences
       };
+      state.characterReferenceOverrides = payload.characterReferenceOverrides === true
+        || payload.imageReferences.characterOverrides === true;
       if (state.mode !== "normal") state.imageReferences.characterReference = false;
       document.getElementById("ref-face-match").checked = !!payload.imageReferences.faceMatch;
       document.getElementById("ref-style-match").checked = !!payload.imageReferences.styleMatch;
@@ -2959,14 +3217,23 @@ function importConfigJSON(jsonString) {
     }
 
     if (payload.customColors) {
-      state.customColors = JSON.parse(JSON.stringify(payload.customColors));
+      state.customColors = {
+        "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
+        "Top": { enabled: false, color: "#ffffff" },
+        "Bottom": { enabled: false, color: "#ffffff" },
+        "Dress": { enabled: false, color: "#ffffff" },
+        "Shoes": { enabled: false, color: "#ffffff" },
+        "Product Type": { enabled: false, color: "#ffffff" },
+        ...JSON.parse(JSON.stringify(payload.customColors))
+      };
       updateColorPickerUI();
     }
 
     let hasNsfwSelection = false;
-    if (payload.selections) {
-      Object.keys(payload.selections).forEach(field => {
-        const item = payload.selections[field];
+    const importedSelections = migrateLegacySelections(payload.selections);
+    if (Object.keys(importedSelections).length > 0) {
+      Object.keys(importedSelections).forEach(field => {
+        const item = importedSelections[field];
         const select = document.querySelector(`.custom-select[data-field="${field}"]`);
         if (!select) return;
 
@@ -3020,7 +3287,7 @@ function importConfigJSON(jsonString) {
       nsfwAccordion.style.display = hasNsfwSelection ? "block" : "none";
     }
 
-    applyFaceMatchLockout();
+    refreshReferenceAuthorityUI();
     updatePromptPreview();
 
   } catch (error) {
@@ -3047,9 +3314,10 @@ function updateColorPickerUI() {
   }
 
   // Clothing Color Pickers
-  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
-    const toggle = document.getElementById(`clothing-toggle-${field.toLowerCase()}`);
-    const input = document.getElementById(`clothing-input-${field.toLowerCase()}`);
+  ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+    const fieldSlug = field.toLowerCase().replace(/\s+/g, "-");
+    const toggle = document.getElementById(`clothing-toggle-${fieldSlug}`);
+    const input = document.getElementById(`clothing-input-${fieldSlug}`);
     if (toggle && input) {
       toggle.checked = !!(state.customColors && state.customColors[field] && state.customColors[field].enabled);
       input.value = (state.customColors && state.customColors[field] && state.customColors[field].color) || "#ffffff";
@@ -3060,10 +3328,10 @@ function updateColorPickerUI() {
 
 // Lockout facial features when Face Match is checked
 function applyFaceMatchLockout() {
-  const isLocked = state.imageReferences.faceMatch;
-  const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"];
+  const isLocked = state.imageReferences.faceMatch
+    || (isStoryCharacterReferenceActive() && !state.characterReferenceOverrides);
 
-  faceFields.forEach(field => {
+  FACE_MATCH_OWNED_FIELDS.forEach(field => {
     const select = document.querySelector(`.custom-select[data-field="${field}"]`);
     if (!select) return;
 
@@ -3071,15 +3339,6 @@ function applyFaceMatchLockout() {
     if (isLocked) {
       select.disabled = true;
       if (formField) formField.classList.add("disabled");
-
-      delete state.selections[field];
-      select.value = "";
-
-      const customInput = formField ? formField.querySelector(".custom-writein-input") : null;
-      if (customInput) {
-        customInput.value = "";
-        customInput.style.display = "none";
-      }
     } else {
       select.disabled = false;
       if (formField) formField.classList.remove("disabled");
@@ -3120,7 +3379,7 @@ function randomizeSelections() {
     const fieldName = select.getAttribute("data-field");
     const groupName = select.getAttribute("data-group");
 
-    if (isFaceLocked && faceFields.includes(fieldName)) return;
+    if (select.disabled || (isFaceLocked && faceFields.includes(fieldName))) return;
     if (state.lockedFields.has(fieldName)) return;
     if (Math.random() > 0.65) return;
 
@@ -3762,11 +4021,20 @@ function openLightbox(item) {
     const faceParents = item.referencedFaceJobIds || [];
     const styleParents = item.referencedStyleJobIds || [];
     const characterParents = item.referencedCharacterJobIds || [];
-    const allParents = [
+    const lineageEntries = [
       ...faceParents.map(id => ({ id, type: "Face" })),
       ...styleParents.map(id => ({ id, type: "Style" })),
       ...characterParents.map(id => ({ id, type: "Character" }))
     ].filter(p => p.id);
+    const lineageById = new Map();
+    lineageEntries.forEach(parent => {
+      if (!lineageById.has(parent.id)) {
+        lineageById.set(parent.id, { id: parent.id, types: [] });
+      }
+      const groupedParent = lineageById.get(parent.id);
+      if (!groupedParent.types.includes(parent.type)) groupedParent.types.push(parent.type);
+    });
+    const allParents = [...lineageById.values()];
 
     if (allParents.length > 0) {
       allParents.forEach(p => {
@@ -3778,7 +4046,7 @@ function openLightbox(item) {
         parentThumb.style.border = "1px solid rgba(255, 255, 255, 0.15)";
         parentThumb.style.borderRadius = "4px";
         parentThumb.style.cursor = "pointer";
-        parentThumb.title = `${p.type} Ref parent: #${p.id.substring(4, 9)}`;
+        parentThumb.title = `${p.types.join(" + ")} Ref parent: #${p.id.substring(4, 9)}`;
 
         const thumbImg = document.createElement("img");
         thumbImg.src = parentItem ? parentItem.imageUrl : "";
@@ -3788,11 +4056,14 @@ function openLightbox(item) {
         thumbImg.style.borderRadius = "3px";
 
         const typeBadge = document.createElement("span");
-        typeBadge.textContent = p.type === "Face" ? "F" : (p.type === "Style" ? "S" : "C");
+        const typeCodes = { Face: "F", Style: "S", Character: "C" };
+        typeBadge.textContent = p.types.map(type => typeCodes[type]).join("+");
         typeBadge.style.position = "absolute";
         typeBadge.style.bottom = "-2px";
         typeBadge.style.right = "-2px";
-        typeBadge.style.background = p.type === "Face" ? "var(--neon-cyan)" : (p.type === "Style" ? "var(--neon-pink)" : "var(--neon-gold)");
+        typeBadge.style.background = p.types.length > 1
+          ? "var(--neon-purple)"
+          : (p.types[0] === "Face" ? "var(--neon-cyan)" : (p.types[0] === "Style" ? "var(--neon-pink)" : "var(--neon-gold)"));
         typeBadge.style.color = "#000";
         typeBadge.style.fontSize = "0.55rem";
         typeBadge.style.fontWeight = "900";

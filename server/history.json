@@ -1,5 +1,120 @@
 [
   {
+    "id": "job_1783960976853_jdqjqvrmn",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960976853_jdqjqvrmn.png",
+    "timestamp": 1783961033858,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "57.0"
+  },
+  {
+    "id": "job_1783960856901_stuksfpgk",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960856901_stuksfpgk.png",
+    "timestamp": 1783960914889,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "58.0"
+  },
+  {
+    "id": "job_1783960799080_b77ssewa5",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960799080_b77ssewa5.png",
+    "timestamp": 1783960818208,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "19.1"
+  },
+  {
+    "id": "job_1783960701221_ozib2xaf2",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled back-view fashion pose showing rear garment construction, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960701221_ozib2xaf2.png",
+    "timestamp": 1783960718813,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.6"
+  },
+  {
+    "id": "job_1783960597057_0i9ak47g0",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled back-view fashion pose showing rear garment construction, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a minimal clean product photography corner, minimal uncluttered set design that keeps attention on the garment, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960597057_0i9ak47g0.png",
+    "timestamp": 1783960613181,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "16.1"
+  },
+  {
+    "id": "job_1783959909967_3w2rm5zv5",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a clean seamless commerce studio with an unobtrusive neutral background, minimal uncluttered set design that keeps attention on the garment, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783959909967_3w2rm5zv5.png",
+    "timestamp": 1783959928021,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "18.0"
+  },
+  {
+    "id": "job_1783959456658_3yacydt4q",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, arriving with confident presence as the central character of a luxury fashion campaign, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, in a clean seamless commerce studio with an unobtrusive neutral background, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at clean ISO 100, zero digital noise, maximum color fidelity and clean shadow details, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783959456658_3yacydt4q.png",
+    "timestamp": 1783959473626,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.0"
+  },
+  {
+    "id": "job_1783958954159_8h71lt84z",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, arriving with confident presence as the central character of a luxury fashion campaign, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, in a clean seamless commerce studio with an unobtrusive neutral background, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at clean ISO 100, zero digital noise, maximum color fidelity and clean shadow details, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783958954159_8h71lt84z.png",
+    "timestamp": 1783959030745,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx",
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "76.6"
+  },
+  {
     "id": "job_1783953313793_ijj4zmz2g",
     "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1783953313793_ijj4zmz2g.png",

@@ -6,6 +6,7 @@ import pathModule from 'path';
 import fs from 'fs/promises';
 import zlib from 'zlib';
 import { compilePromptOnServer } from './promptCompiler.js';
+import { normalizeReferenceJobIds } from './referenceUtils.js';
 import { collectionManager, CollectionError } from './collectionManager.js';
 import { isOpenAIAPIStreamingEnabled } from './providers/OpenAIProvider.js';
 
@@ -55,7 +56,8 @@ const ATTRIBUTE_FILES = [
   '020-camera-framing.json',
   '021-accessories.json',
   '022-hair-extra.json',
-  '023-architecture.json'
+  '023-architecture.json',
+  '024-fashion-commerce.json'
 ];
 
 let cachedAttributesBundle = null;
@@ -328,7 +330,11 @@ app.post('/api/generate', async (req, res) => {
       poseMatch: mode === 'normal' && imageReferences?.poseMatch === true && hasStyleOrPoseReference,
       characterReference: mode === 'normal'
         && imageReferences?.characterReference === true
+        && hasCharacterReference,
+      characterOverrides: mode === 'normal'
+        && imageReferences?.characterReference === true
         && hasCharacterReference
+        && imageReferences?.characterOverrides === true
     };
     delete normalizedImageReferences.useReferenceImage;
 
@@ -366,17 +372,17 @@ app.post('/api/generate', async (req, res) => {
       faceReferenceImageA: normalizedImageReferences.faceMatch ? faceReferenceImageA : null,
       faceReferenceImageB: normalizedImageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: normalizedImageReferences.faceMatch && Array.isArray(faceReferenceJobIds)
-        ? faceReferenceJobIds.slice(0, 2)
+        ? normalizeReferenceJobIds(faceReferenceJobIds)
         : [],
       styleReferenceImageA: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageA : null,
       styleReferenceImageB: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageB : null,
       styleReferenceJobIds: (normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch) && Array.isArray(styleReferenceJobIds)
-        ? styleReferenceJobIds.slice(0, 2)
+        ? normalizeReferenceJobIds(styleReferenceJobIds)
         : [],
       characterReferenceImageA: normalizedImageReferences.characterReference ? characterReferenceImageA : null,
       characterReferenceImageB: normalizedImageReferences.characterReference ? characterReferenceImageB : null,
       characterReferenceJobIds: normalizedImageReferences.characterReference && Array.isArray(characterReferenceJobIds)
-        ? characterReferenceJobIds.slice(0, 2)
+        ? normalizeReferenceJobIds(characterReferenceJobIds)
         : []
     });
 

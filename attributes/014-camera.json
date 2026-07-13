@@ -1172,7 +1172,7 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "No Blur (Sharp & Frozen)",
-      "th": "No เบลอ(คม& Frozen)"
+      "th": "ไม่เบลอ ภาพคมและหยุดการเคลื่อนไหว"
     },
     "ui": {
       "control": "select",
@@ -1180,7 +1180,7 @@
     },
     "prompt": {
       "default": "sharp frozen motion, no motion blur",
-      "gpt-image": "sharp crisp frozen moment with zero motion blur, all details in focus"
+      "gpt-image": "fast-shutter rendering with no motion blur, all visible motion frozen sharply"
     },
     "tags": [
       "camera",
@@ -1195,15 +1195,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Cinematic Panning (Tracking)",
-      "th": "แบบภาพยนตร์ Panning(Tracking)"
+      "th": "แพนกล้องติดตามแบบภาพยนตร์"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism",
-      "gpt-image": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism"
+      "default": "tracked panning motion blur with a sharp primary subject and smooth horizontal blur across existing non-subject regions",
+      "gpt-image": "tracked panning motion blur, primary subject held sharply in focus, existing non-subject regions rendered as smooth horizontal motion streaks"
     },
     "tags": [
       "camera",
@@ -1219,15 +1219,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Background Motion Blur (Natural)",
-      "th": "Background การเคลื่อนไหว เบลอ(ธรรมชาติ)"
+      "th": "ฉากหลังเบลอจากการเคลื่อนไหวอย่างเป็นธรรมชาติ"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look",
-      "gpt-image": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look"
+      "default": "sharp primary subject with subtle natural motion blur limited to existing background elements",
+      "gpt-image": "primary subject remains sharply focused while only existing background elements show subtle natural directional motion blur"
     },
     "tags": [
       "camera",
@@ -1243,15 +1243,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Shallow DOF + Motion",
-      "th": "Shallow DOF + การเคลื่อนไหว"
+      "th": "ระยะชัดตื้นร่วมกับโมชั่นเบลอ"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph",
-      "gpt-image": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph"
+      "default": "sharp focal plane with shallow depth of field and subtle directional motion blur outside the focal plane",
+      "gpt-image": "sharp primary focal plane, shallow depth-of-field falloff, and subtle directional motion blur confined to existing out-of-focus regions"
     },
     "tags": [
       "camera",
@@ -1266,22 +1266,22 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "Long Exposure Street",
-      "th": "ยาว Exposure ถนน"
+      "en": "Slow-shutter Motion Trails",
+      "th": "เส้นการเคลื่อนไหวจากชัตเตอร์ช้า"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography",
-      "gpt-image": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography"
+      "default": "slow-shutter rendering with a stable sharp focal subject and gentle motion trails in existing moving regions",
+      "gpt-image": "controlled slow-shutter effect, focal subject held sharp, existing moving regions rendered as gentle continuous motion trails"
     },
     "tags": [
       "camera",
       "motion blur",
       "long exposure",
-      "street"
+      "slow shutter"
     ],
     "enabled": true
   },
@@ -1291,15 +1291,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Foreground Motion Blur",
-      "th": "Foreground การเคลื่อนไหว เบลอ"
+      "th": "โมชั่นเบลอเฉพาะระยะหน้า"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism",
-      "gpt-image": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism"
+      "default": "soft directional motion blur limited to existing foreground elements while the focal subject remains sharp and unobstructed",
+      "gpt-image": "existing foreground elements rendered with soft directional motion blur, focal subject remaining sharp, visible, and unobstructed"
     },
     "tags": [
       "camera",
@@ -1314,22 +1314,22 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "Wind Motion (Hair/Clothing)",
-      "th": "Wind การเคลื่อนไหว(ผม/Clothing)"
+      "en": "Localized Secondary Motion",
+      "th": "โมชั่นเบลอเฉพาะรายละเอียดที่กำลังเคลื่อนไหว"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze",
-      "gpt-image": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze"
+      "default": "sharp primary subject with subtle motion blur limited to already-moving fine details",
+      "gpt-image": "primary subject remains sharply focused while only existing fine details that are already in motion receive subtle localized blur"
     },
     "tags": [
       "camera",
       "motion blur",
-      "wind",
-      "fashion"
+      "localized",
+      "secondary motion"
     ],
     "enabled": true
   },
@@ -1339,15 +1339,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Edge Motion Blur",
-      "th": "Edge การเคลื่อนไหว เบลอ"
+      "th": "โมชั่นเบลอบริเวณขอบภาพ"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus",
-      "gpt-image": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus"
+      "default": "subtle peripheral motion blur confined to the outer frame edges with a sharp central focal region",
+      "gpt-image": "controlled peripheral motion blur confined to the outer edges of the frame, central focal region remaining sharply resolved"
     },
     "tags": [
       "camera",
@@ -1362,22 +1362,22 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "Walking Motion",
-      "th": "Walking การเคลื่อนไหว"
+      "en": "Directional Movement Blur",
+      "th": "โมชั่นเบลอตามทิศทางการเคลื่อนไหว"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement",
-      "gpt-image": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement"
+      "default": "precise focal tracking with soft directional motion blur following the existing movement vector",
+      "gpt-image": "focal region maintained sharply while existing moving regions receive soft blur aligned with their direction of movement"
     },
     "tags": [
       "camera",
       "motion blur",
-      "walking",
-      "movement"
+      "directional",
+      "tracking"
     ],
     "enabled": true
   },
@@ -1386,22 +1386,22 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "Street Documentary (Leica Style)",
-      "th": "ถนน Documentary(Leica สไตล์)"
+      "en": "Irregular Natural Motion Blur",
+      "th": "โมชั่นเบลอธรรมชาติแบบไม่สม่ำเสมอ"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism",
-      "gpt-image": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism"
+      "default": "sharp focal subject with subtle irregular motion blur based only on movement already present in the scene",
+      "gpt-image": "focal subject remains sharp while existing moving regions receive subtle non-uniform motion blur proportional to their movement"
     },
     "tags": [
       "camera",
       "motion blur",
-      "documentary",
-      "street"
+      "irregular",
+      "natural"
     ],
     "enabled": true
   },
@@ -1411,15 +1411,15 @@
     "subcategory": "Motion Blur",
     "label": {
       "en": "Dynamic Cinematic (Frozen Subject)",
-      "th": "Dynamic แบบภาพยนตร์(Frozen Subject)"
+      "th": "โมชั่นเบลอแบบไดนามิกโดยตัวแบบหลักคมชัด"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture",
-      "gpt-image": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture"
+      "default": "dynamic motion blur confined to existing non-subject regions while the primary subject remains sharply frozen",
+      "gpt-image": "dynamic directional motion blur affects only existing non-subject regions, with the primary subject rendered sharply frozen"
     },
     "tags": [
       "camera",
@@ -1434,16 +1434,16 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "Continuous Eye AF (Sony/Canon Style)",
-      "th": "Continuous ตา AF(Sony/Canon สไตล์)"
+      "en": "Continuous Tracking Focus",
+      "th": "โฟกัสติดตามต่อเนื่อง"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph",
-      "gpt-image": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph"
+      "default": "continuous tracking focus holding the primary subject sharp while existing moving background regions show smooth motion blur",
+      "gpt-image": "continuous tracking autofocus keeps the primary subject sharply resolved while existing moving background regions receive smooth natural motion blur"
     },
     "tags": [
       "camera",
@@ -1458,22 +1458,22 @@
     "category": "camera",
     "subcategory": "Motion Blur",
     "label": {
-      "en": "AI Killer (Ultimate Realism)",
-      "th": "ความสมจริงขั้นสุดจนแยกจากภาพจริงได้ยาก"
+      "en": "Advanced Realistic Motion Rendering",
+      "th": "การเรนเดอร์โมชั่นเบลอสมจริงขั้นสูง"
     },
     "ui": {
       "control": "select",
       "group": "Camera"
     },
     "prompt": {
-      "default": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography",
-      "gpt-image": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography"
+      "default": "realistic tracked motion rendering with a sharp focal subject, subtle directional blur in existing moving regions, and physically plausible shutter behavior",
+      "gpt-image": "realistic tracked motion rendering, focal subject sharply resolved, existing moving regions receiving subtle directionally accurate blur with physically plausible shutter timing"
     },
     "tags": [
       "camera",
       "motion blur",
-      "ultimate",
-      "realism"
+      "advanced",
+      "realistic shutter"
     ],
     "enabled": true
   },

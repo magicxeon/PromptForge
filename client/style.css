@@ -2568,3 +2568,67 @@ body {
     transition: none;
   }
 }
+
+/* Fashion taxonomy: explain visual outcomes without crowding dropdown labels. */
+.field-option-help {
+  display: block;
+  min-height: 1rem;
+  margin-top: 0.32rem;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  line-height: 1.45;
+}
+
+.reference-authority-panel {
+  display: grid;
+  gap: 0.38rem;
+  margin-top: 0.45rem;
+  border: 1px solid rgba(6, 182, 212, 0.22);
+  border-radius: 10px;
+  background: rgba(6, 182, 212, 0.06);
+  padding: 0.72rem;
+  color: var(--text-muted);
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
+.reference-authority-panel strong {
+  color: var(--neon-cyan);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reference-authority-panel.active {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.07);
+}
+
+.reference-authority-panel.active strong {
+  color: var(--neon-gold);
+}
+
+.reference-override-control {
+  display: none;
+  align-items: center;
+  gap: 0.42rem;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.reference-authority-panel.active .reference-override-control {
+  display: flex;
+}
+
+.form-field.reference-owned {
+  opacity: 0.48;
+}
+
+.form-field.reference-owned::after {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--neon-gold);
+  content: "Controlled by Character Reference";
+  font-size: 0.58rem;
+  font-weight: 800;
+}

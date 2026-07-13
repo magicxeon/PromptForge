@@ -30,19 +30,19 @@ const CATEGORY_PRIORITIES = {
 };
 
 const FIELD_TO_CATEGORY_MAP = {
-  "Gender": "character", "Age": "character", "Ethnicity": "character", "Beauty": "character", "Reference Image": "character",
+  "Gender": "character", "Age": "character", "Ethnicity": "character", "Beauty": "character", "Fashion Direction": "fashion_direction",
   "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Smile": "lips", "Expression": "expression",
-  "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair",
+  "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
   "Tone": "skin", "Texture": "skin", "Makeup": "skin", "Freckles": "skin",
-  "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body",
-  "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing",
-  "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose",
-  "Location": "environment", "Architecture": "environment", "Props": "environment", "Weather": "environment", "Time of Day": "environment", "Season": "environment",
-  "Key Light": "lighting", "Fill Light": "lighting", "Back Light": "lighting", "Flash": "lighting", "Neon": "lighting", "Ambient": "lighting", "Golden Hour": "lighting",
+  "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body",
+  "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
+  "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose", "Pose Intent": "pose", "Fashion Hand Position": "pose", "Fashion Gaze": "pose",
+  "Location": "environment", "Architecture": "environment", "Props": "environment", "Weather": "environment", "Time of Day": "environment", "Season": "environment", "Fashion Venue": "environment", "Set Design": "environment", "Atmosphere": "environment",
+  "Key Light": "lighting", "Fill Light": "lighting", "Back Light": "lighting", "Flash": "lighting", "Neon": "lighting", "Ambient": "lighting", "Golden Hour": "lighting", "Lighting Setup": "lighting", "Contrast": "lighting", "Color Temperature": "lighting", "Shadow Character": "lighting", "Lighting Accent": "lighting",
   "Brand": "camera", "Lens": "camera", "Focal Length": "camera", "Aperture": "camera", "Framing": "camera_framing", "ISO": "camera", "White Balance": "camera", "Perspective": "camera", "Composition": "camera", "Motion Blur": "camera",
   "Resolution": "quality", "Sharpness": "quality", "Photorealism": "quality", "Color Grading": "quality", "Film Look": "quality", "Output Frame": "quality",
   "Nudity Level": "nsfw", "Sensual Pose": "nsfw",
-  "Context Type": "photo_context", "Story Event": "scene_story",
+  "Context Type": "photo_context", "Story Event": "scene_story", "Fashion Photography Context": "photo_context", "Fashion Story": "scene_story",
   "Foreground Layer": "foreground_layer", "Background Activity": "background_activity", "Camera Imperfections": "camera_imperfections"
 };
 
@@ -115,9 +115,21 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
+  delete activeSelections["Reference Image"];
+  const referenceOwnsAppearance = mode === "normal"
+    && imageReferences?.characterReference
+    && !imageReferences?.characterOverrides;
+  if (referenceOwnsAppearance) {
+    const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
+    Object.keys(activeSelections).forEach(fieldName => {
+      if (referenceOwnedGroups.has(activeSelections[fieldName]?.group)) {
+        delete activeSelections[fieldName];
+      }
+    });
+  }
 
   // Dynamically inject selections for active custom color pickers if empty (Step 11)
-  if (customColors && customColors["Color"] && (customColors["Color"].enabled || customColors["Color"].highlightEnabled)) {
+  if (!referenceOwnsAppearance && customColors && customColors["Color"] && (customColors["Color"].enabled || customColors["Color"].highlightEnabled)) {
     if (!activeSelections["Color"]) {
       activeSelections["Color"] = {
         id: "",
@@ -129,8 +141,8 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       };
     }
   }
-  ["Top", "Bottom", "Dress", "Shoes"].forEach(field => {
-    if (customColors && customColors[field] && customColors[field].enabled) {
+  ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+    if (!referenceOwnsAppearance && customColors && customColors[field] && customColors[field].enabled) {
       if (!activeSelections[field]) {
         activeSelections[field] = {
           id: "",
@@ -184,7 +196,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       }
     }
     if (groupName.toLowerCase() === "clothing") {
-      if (imageReferences && imageReferences.styleMatch) {
+      if (imageReferences && imageReferences.styleMatch && !referenceOwnsAppearance) {
         return "matching the style, colors, and clothing outfit from the original uploaded image";
       }
     }
@@ -251,9 +263,10 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
+  let fashionDirection = compileGroupSegment("Fashion Direction");
   let photoContext = compileGroupSegment("Photographic Context");
   let sceneStory = compileGroupSegment("Scene Story");
-  let sceneContext = [photoContext, sceneStory].filter(s => s !== "").join(", ");
+  let sceneContext = [fashionDirection, photoContext, sceneStory].filter(s => s !== "").join(", ");
   let body = compileGroupSegment("Body");
   let fullSubject = [subject, body].filter(s => s !== "").join(", ");
 
@@ -299,7 +312,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     prompt = elements.join(", ");
   } else {
     const characterReferenceText = imageReferences?.characterReference
-      ? "Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene"
+      ? (imageReferences?.characterOverrides
+        ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
+        : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
       : "";
     prompt = templateStr
       .replace("{subject}", fullSubject)

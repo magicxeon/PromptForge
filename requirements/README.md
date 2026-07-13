@@ -2,7 +2,7 @@
 
 เอกสารนี้เป็น source of truth สำหรับทำความเข้าใจโครงสร้างและพฤติกรรมของโปรเจกต์ตามโค้ดปัจจุบัน ใช้สำหรับ onboarding นักพัฒนาและ AI agent ก่อนเริ่มแก้ไขงาน
 
-อัปเดตจากการวิเคราะห์ repository: 2026-07-12
+อัปเดตจากการวิเคราะห์ repository: 2026-07-13
 
 ## 1. ภาพรวม
 
@@ -18,6 +18,7 @@ ModelPromptForge เป็นเว็บแอปสำหรับประก
 - OpenAI image streaming ผ่าน SSE พร้อม partial preview
 - Queue, credits, generation history และ lineage ของภาพอ้างอิง
 - ภาษา UI/label ไทยและอังกฤษ
+- Fashion Direction และ curated fashion taxonomy ตั้งแต่ marketplace commerce ถึง runway/couture
 - Presets, custom color pickers, randomization, field locking และ import/export config
 - Image Collections พร้อม description, story, cover, default auto-assignment และ history filtering
 - เก็บ state ใน `localStorage` แยกตาม generation mode
@@ -59,6 +60,7 @@ ModelPromptForge/
 |       `-- GeminiProvider.js
 |-- attributes/
 |   |-- 001-character.json ... 023-architecture.json
+|   |-- 024-fashion-commerce.json # Optional curated fashion attribute pack
 |   `-- spec/
 |       |-- ui-schema.json
 |       |-- prompt-templates.json
@@ -113,13 +115,13 @@ State หลักอยู่ใน `client/app.js` และประกอบ
 - `schema`, `templates`, `order`, `library`, `presets`
 - `selections`: attribute ที่เลือก โดย key คือชื่อ field จาก UI schema
 - `lockedFields`: field ที่ randomization ห้ามแก้
-- `imageReferences`: `faceMatch`, `styleMatch`, `poseMatch`
-- face/style reference slots A และ B พร้อม parent job IDs
+- `imageReferences`: `faceMatch`, `styleMatch`, `poseMatch`, `characterReference`, `characterOverrides`
+- face/style/character reference slots A และ B พร้อม parent job IDs
 - `language`: default `th`
 - `aspectRatio`: default `6:8`
 - `mode`: default `normal`
 - `username`, `userRole`, `activeJobId`
-- custom colors สำหรับ Hair, Top, Bottom, Dress และ Shoes
+- custom colors สำหรับ Hair, legacy garment fields และ Fashion Product Type
 
 State ถูกบันทึกใน `localStorage` แยกตาม mode:
 
@@ -166,9 +168,9 @@ Design system อยู่ใน `client/style.css`:
 
 ปัจจุบันมี:
 
-- 23 attribute JSON files
-- 467 attribute entries
-- 14 UI schema groups
+- 24 attribute JSON files
+- 643 attribute entries
+- 15 UI schema groups
 - 7 prompt templates
 - 12 presets
 
@@ -211,6 +213,8 @@ Design system อยู่ใน `client/style.css`:
 - `exclusions` ปิด option ที่ขัดกันโดยตรง
 - `tags` ใช้แก้ conflict เช่น indoor/outdoor และ day/night
 - หากเพิ่ม attribute file ใหม่ ต้องเพิ่มชื่อไฟล์ใน `ATTRIBUTE_FILES` ของ `server/server.js`; client มีรายการซ้ำที่ควรรักษาให้ตรงกันจนกว่าจะ refactor
+- `024-fashion-commerce.json` เป็น modular pack ที่ UI ปัจจุบันใช้สำหรับ Fashion Direction, Hair, Body, Clothing, Pose, Environment และ Lighting แบบ curated โดยคงข้อมูล 001-023 สำหรับ backward compatibility
+- Story Character Reference ใช้ reference authority: ค่า Character/Face/Hair/Skin/Body/Clothing เดิมยังอยู่ใน state แต่ถูก suppress ตอน compile เว้นแต่เปิด Advanced Override
 
 ### 6.2 Spec Files
 
