@@ -25,7 +25,10 @@
     bindEvents();
     renderMode();
     const recovery = readRecoveryState();
-    if (recovery.setId) openSet(recovery.setId, { showWorkspace: recovery.workspaceOpen === true });
+    if (recovery.setId) openSet(recovery.setId, {
+      showWorkspace: recovery.workspaceOpen === true,
+      updateRoute: recovery.workspaceOpen === true
+    });
   }
 
   function bindEvents() {
@@ -236,20 +239,32 @@
     }
   }
 
-  async function openSet(setId, { showWorkspace = true } = {}) {
+  async function openSet(setId, { showWorkspace = true, updateRoute = true, silentError = false } = {}) {
+    const targetRoute = `/comparisons/${encodeURIComponent(setId)}`;
+    if (showWorkspace && updateRoute && window.ModelPromptForgeRouter?.current().pathname !== targetRoute) {
+      window.ModelPromptForgeRouter.navigate(targetRoute);
+      return;
+    }
     try {
       state.activeSet = await api(`/api/comparisons/${encodeURIComponent(setId)}?username=${encodeURIComponent(bridge().getUsername())}`);
       saveRecoveryState(setId, showWorkspace);
       updateActiveRunChip();
       if (showWorkspace) {
+        if (window.ModelPromptForgeRouter && window.ModelPromptForgeRouter.current().pathname !== targetRoute) return;
         openWorkspace();
         renderWorkspace();
       }
       startPolling();
+      window.dispatchEvent(new CustomEvent('modelpromptforge:comparison-opened', { detail: { setId } }));
     } catch (error) {
       saveRecoveryState(null, false);
       updateActiveRunChip();
-      await AppDialog.alert(error.message, { title: text('Comparison Error', 'เกิดข้อผิดพลาดในการเปรียบเทียบ') });
+      window.dispatchEvent(new CustomEvent('modelpromptforge:comparison-error', {
+        detail: { setId, status: error.status || null, message: error.message }
+      }));
+      if (!silentError) {
+        await AppDialog.alert(error.message, { title: text('Comparison Error', 'เกิดข้อผิดพลาดในการเปรียบเทียบ') });
+      }
     }
   }
 
@@ -260,10 +275,28 @@
     workspace.focus?.();
   }
 
-  function closeWorkspace() {
+  function closeWorkspace({ updateRoute = true, destination = '/comparisons' } = {}) {
     document.getElementById('comparison-workspace').hidden = true;
     document.body.classList.remove('comparison-workspace-open');
     saveRecoveryState(state.activeSet?.id || null, false);
+    updateActiveRunChip();
+    if (updateRoute && window.ModelPromptForgeRouter?.current().pathname.startsWith('/comparisons/')) {
+      window.ModelPromptForgeRouter.navigate(destination);
+    }
+  }
+
+  function closeForRoute() {
+    if (!document.getElementById('comparison-workspace')?.hidden) closeWorkspace({ updateRoute: false });
+  }
+
+  function handleSetDeleted(setId) {
+    const recovery = readRecoveryState();
+    if (recovery.setId === setId) saveRecoveryState(null, false);
+    if (state.activeSet?.id !== setId) return;
+    stopPolling();
+    state.activeSet = null;
+    saveRecoveryState(null, false);
+    closeForRoute();
     updateActiveRunChip();
   }
 
@@ -363,9 +396,9 @@
         submodel: slot.model
       }));
       card.querySelector('[data-winner]').addEventListener('click', () => setWinner(winner ? null : slot.jobId));
-      card.querySelector('[data-face]').addEventListener('click', () => { bridge().useAsFaceReference(imageUrl, slot.jobId); closeWorkspace(); });
-      card.querySelector('[data-style]').addEventListener('click', () => { bridge().useAsStyleReference(imageUrl, slot.jobId); closeWorkspace(); });
-      card.querySelector('[data-character]').addEventListener('click', () => { bridge().useAsCharacterReference(imageUrl, slot.jobId); closeWorkspace(); });
+      card.querySelector('[data-face]').addEventListener('click', () => { bridge().useAsFaceReference(imageUrl, slot.jobId); closeWorkspace({ destination: '/studio' }); });
+      card.querySelector('[data-style]').addEventListener('click', () => { bridge().useAsStyleReference(imageUrl, slot.jobId); closeWorkspace({ destination: '/studio' }); });
+      card.querySelector('[data-character]').addEventListener('click', () => { bridge().useAsCharacterReference(imageUrl, slot.jobId); closeWorkspace({ destination: '/studio' }); });
       card.querySelector('[data-collection]').addEventListener('click', () => bridge().openCollectionPicker(slot.jobId));
       const download = card.querySelector('[data-download]');
       download.href = imageUrl;
@@ -558,7 +591,12 @@
       body: options.body ? JSON.stringify({ ...options.body, username: options.body.username || bridge()?.getUsername() }) : undefined
     });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error?.message || payload.error || `Request failed with HTTP ${response.status}`);
+    if (!response.ok) {
+      const error = new Error(payload.error?.message || payload.error || `Request failed with HTTP ${response.status}`);
+      error.status = response.status;
+      error.code = payload.error?.code || null;
+      throw error;
+    }
     return payload;
   }
 
@@ -644,7 +682,13 @@
   function escapeHtml(value) { const element = document.createElement('span'); element.textContent = value || ''; return element.innerHTML; }
   function escapeAttribute(value) { return escapeHtml(value).replaceAll('"', '&quot;'); }
 
-  window.ModelPromptForgeComparison = { isActive: () => state.active, generate, openSet };
+  window.ModelPromptForgeComparison = {
+    isActive: () => state.active,
+    generate,
+    openSet,
+    closeForRoute,
+    handleSetDeleted
+  };
   window.addEventListener('modelpromptforge:ready', initialize);
   document.addEventListener('DOMContentLoaded', () => { if (bridge()) initialize(); });
 })();

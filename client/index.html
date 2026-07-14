@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -56,6 +56,17 @@
       <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without
         policy violations.</p>
     </header>
+
+    <div class="application-nav-shell glass-card">
+      <button id="application-menu-button" class="application-menu-button" type="button"
+        aria-expanded="false" aria-controls="application-navigation">
+        <span aria-hidden="true">&#9776;</span>
+        <span>Menu</span>
+      </button>
+      <nav id="application-navigation" class="application-navigation" aria-label="Primary navigation"></nav>
+      <button id="application-menu-backdrop" class="application-menu-backdrop" type="button"
+        aria-label="Close navigation" hidden></button>
+    </div>
 
     <!-- Main Workspace -->
     <main class="app-workspace">
@@ -485,6 +496,53 @@
       </section>
     </main>
 
+    <main id="comparison-dashboard" class="comparison-dashboard" hidden aria-labelledby="comparison-dashboard-title">
+      <section class="comparison-dashboard-hero glass-card">
+        <div>
+          <span class="comparison-dashboard-kicker" data-dashboard-text="kicker">SAVED MODEL TESTS</span>
+          <h2 id="comparison-dashboard-title" data-dashboard-text="title">Comparison History</h2>
+          <p data-dashboard-text="subtitle">Find and reopen model comparisons without loading full generation details.</p>
+        </div>
+        <button id="comparison-dashboard-studio" class="comparison-dashboard-studio" type="button"
+          data-route="/studio" data-dashboard-text="backStudio">Back to Studio</button>
+      </section>
+
+      <section class="comparison-dashboard-content glass-card" aria-busy="false">
+        <form id="comparison-dashboard-filters" class="comparison-dashboard-filters" role="search">
+          <label class="comparison-dashboard-search">
+            <span class="sr-only" data-dashboard-text="searchLabel">Search comparisons</span>
+            <input id="comparison-dashboard-search" type="search" maxlength="100" autocomplete="off"
+              placeholder="Search name, provider or model...">
+            <button id="comparison-dashboard-clear-search" type="button" aria-label="Clear search" hidden>&times;</button>
+          </label>
+          <label>
+            <span data-dashboard-text="statusLabel">Status</span>
+            <select id="comparison-dashboard-status" class="collection-select">
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="issues">Partial / Failed</option>
+              <option value="processing">Processing</option>
+            </select>
+          </label>
+          <label>
+            <span data-dashboard-text="dateLabel">Date</span>
+            <select id="comparison-dashboard-date" class="collection-select">
+              <option value="all">All time</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+            </select>
+          </label>
+        </form>
+
+        <div id="comparison-dashboard-message" class="comparison-dashboard-message" role="status" aria-live="polite" hidden></div>
+        <div id="comparison-dashboard-grid" class="comparison-dashboard-grid" aria-live="polite"></div>
+        <div class="comparison-dashboard-pagination">
+          <button id="comparison-dashboard-retry" class="comparison-dashboard-load" type="button" hidden>Retry</button>
+          <button id="comparison-dashboard-load-more" class="comparison-dashboard-load" type="button" hidden>Load More</button>
+        </div>
+      </section>
+    </main>
+
     <!-- Professional Footer -->
     <footer class="app-footer-bar glass-card">
       <div class="footer-status-indicators">
@@ -702,9 +760,15 @@
     </div>
   </section>
 
-  <script src="app-dialog.js"></script>
-  <script src="app.js"></script>
-  <script src="comparison.js"></script>
+  <script src="/app-dialog.js"></script>
+  <script src="/app.js"></script>
+  <script src="/comparison.js"></script>
+  <script src="/shell/navigationRegistry.js"></script>
+  <script src="/shell/router.js"></script>
+  <script src="/shell/applicationShell.js"></script>
+  <script src="/comparisons/comparisonApi.js"></script>
+  <script src="/comparisons/comparisonSummaryCard.js"></script>
+  <script src="/comparisons/comparisonDashboard.js"></script>
 </body>
 
 </html>

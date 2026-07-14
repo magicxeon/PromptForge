@@ -456,6 +456,11 @@ app.delete('/api/history/:id', async (req, res) => {
   res.json({ success: true });
 });
 
+// Static SPA routes must return the application shell for direct links and refreshes.
+app.get(['/studio', '/history', '/comparisons', '/comparisons/:setId'], (req, res) => {
+  res.sendFile(pathModule.join(__dirname, '../client/index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
   // Warm the attributes cache on startup if enabled and refresh is true (Step 10)

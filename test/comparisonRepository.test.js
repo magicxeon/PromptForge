@@ -61,6 +61,45 @@ test('comparison summaries paginate without returning full runs', async t => {
   assert.equal(new Set([...first.items, ...second.items].map(item => item.id)).size, 3);
 });
 
+test('comparison summaries support MVP search and status filters', async t => {
+  const { repository, directory } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const completed = await repository.createSetWithRun({
+    username: 'user_demo', name: 'Fashion Gemini Test', description: '', idempotencyKey: 'filter_completed', run: run('filter_completed')
+  });
+  const failed = await repository.createSetWithRun({
+    username: 'user_demo', name: 'Grok Street Test', description: '', idempotencyKey: 'filter_failed', run: run('filter_failed')
+  });
+  await repository.updateRun(completed.set.id, completed.run.id, target => {
+    target.status = 'completed';
+    target.slots.forEach(slot => {
+      slot.status = 'completed';
+      slot.provider = 'gemini';
+      slot.model = 'gemini-2.5-flash-image';
+    });
+  });
+  await repository.updateRun(failed.set.id, failed.run.id, target => {
+    target.status = 'failed';
+    target.slots.forEach(slot => { slot.status = 'failed'; slot.provider = 'xai'; slot.model = 'grok-imagine'; });
+  });
+  const search = await repository.listPage('user_demo', { search: 'gemini' });
+  const issues = await repository.listPage('user_demo', { status: 'issues' });
+  assert.deepEqual(search.items.map(item => item.id), [completed.set.id]);
+  assert.deepEqual(issues.items.map(item => item.id), [failed.set.id]);
+});
+
+test('deleting comparison metadata preserves child history', async t => {
+  const { repository, directory } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await repository.createSetWithRun({
+    username: 'user_demo', name: 'Delete metadata only', description: '', idempotencyKey: 'delete_metadata', run: run('delete_metadata')
+  });
+  const historyFile = repository.historyFile;
+  await fs.writeFile(historyFile, JSON.stringify([{ id: 'job_child', imageUrl: '/outputs/job_child.png' }]), 'utf8');
+  await repository.remove(created.set.id, 'user_demo');
+  assert.deepEqual(JSON.parse(await fs.readFile(historyFile, 'utf8')), [{ id: 'job_child', imageUrl: '/outputs/job_child.png' }]);
+});
+
 test('serialized slot updates do not overwrite sibling results', async t => {
   const { repository, directory } = await createRepository();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
