@@ -3,7 +3,7 @@
 **Status:** Proposed - Awaiting Review  
 **Target:** Fashion Selling MVP for Thai small merchants  
 **Architecture:** Modular monolith first, replaceable solution modules  
-**Updated:** 2026-07-13
+**Updated:** 2026-07-14
 
 ## 1. Product Decisions
 
@@ -15,6 +15,8 @@
 - Customers buy understandable packages; internal accounting settles actual operation costs through an immutable credit ledger.
 - The complete maximum price must be displayed and confirmed before processing.
 - Existing Studio Creative Configurator remains the advanced editor and reusable visual-control foundation.
+- The product evolves from one long screen into an application shell with route-based pages as modules grow.
+- Navigation shows only available modules; future or unauthorized modules are not displayed.
 - Product concept may use a demo identity, but all service contracts must include actor, ownership and billing boundaries from the beginning.
 
 ## 2. Architecture Direction
@@ -23,6 +25,7 @@ Use a modular monolith before considering microservices:
 
 ```text
 Core Platform
+  Application Shell, Navigation and Routing
   Identity and Access
   Projects and Ownership
   Assets and Storage
@@ -52,7 +55,7 @@ Solution modules must never call image providers, mutate balances or access pers
 | Phase | Requirement | Dependency |
 |---|---|---|
 | Phase2-01 | Schema-driven Visual Configurator | Existing application |
-| Phase2-02 | Modular Core Architecture and Module Registry | Existing application |
+| Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Existing application |
 | Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
 | Phase2-04 | Authentication, Sessions and Authorization | Phase2-03 |
 | Phase2-05 | Projects, Ownership and Collections | Phase2-03, Phase2-04 |
@@ -109,13 +112,33 @@ Solution modules must never call image providers, mutate balances or access pers
 - Personally identifiable and financial data must not be written to normal application logs.
 - Modules communicate through documented application-service contracts and domain events.
 - Feature flags and entitlements control module availability; UI hiding is not authorization.
+- Pages register navigation metadata through the Module Registry; feature modules must not hardcode global menus independently.
+- Routes must support deep links, browser Back/Forward and ownership checks before loading protected records.
+- List pages use shared pagination, thumbnail and lazy-loading infrastructure rather than loading full datasets or original assets.
+
+### 5.1 Application Navigation Direction
+
+The initial shell exposes only working areas:
+
+```text
+Studio
+Image History
+Comparisons
+```
+
+Future phases may register Projects, Assets, Fashion Selling and Account after their modules are implemented. Desktop and mobile may render navigation differently, but both consume the same registry, route and entitlement contracts.
+
+Near-term implementation references:
+
+- Requirement 021 - History Performance, Pagination, Thumbnails and Lazy Preview
+- Requirement 022 - Comparison History Dashboard and Application Navigation
 
 ## 6. Progress Tracker
 
 | Phase | Status | Review Gate |
 |---|---|---|
 | Phase2-01 | Existing requirement | UX/Technical |
-| Phase2-02 | Proposed | Architecture |
+| Phase2-02 | Proposed | Architecture/Application shell |
 | Phase2-03 | Proposed | Data/Migration |
 | Phase2-04 | Proposed | Security |
 | Phase2-05 | Proposed | Domain/UX |
@@ -131,4 +154,3 @@ Solution modules must never call image providers, mutate balances or access pers
 | Phase2-15 | Proposed | Operations/refunds |
 | Phase2-16 | Proposed | Export quality |
 | Phase2-17 | Proposed | Launch approval |
-

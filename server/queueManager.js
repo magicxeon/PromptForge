@@ -6,6 +6,7 @@ import { collectionManager } from './collectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds } from './referenceUtils.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditManager } from './creditManager.js';
+import { thumbnailService } from './thumbnailService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -280,7 +281,7 @@ class QueueManager {
       };
       
       // Persist parent lineage and duration metadata to history database (Step 9)
-      await this.saveToHistory({
+      const historyEntry = {
         id: jobId,
         prompt: job.prompt,
         imageUrl: `/outputs/${filename}`,
@@ -299,7 +300,14 @@ class QueueManager {
         comparisonSetId: job.options.comparisonSetId || null,
         comparisonRunId: job.options.comparisonRunId || null,
         comparisonSlotId: job.options.comparisonSlotId || null
-      });
+      };
+      try {
+        Object.assign(historyEntry, await thumbnailService.createForHistoryItem(historyEntry));
+      } catch (thumbnailError) {
+        console.warn(`[Queue] Thumbnail generation failed for ${jobId}:`, thumbnailError.message);
+        historyEntry.thumbnailUrl = null;
+      }
+      await this.saveToHistory(historyEntry);
 
       let collectionWarning = null;
       try {
@@ -405,6 +413,9 @@ class QueueManager {
         const filename = path.basename(entry.imageUrl);
         const filePath = path.join(OUTPUTS_DIR, filename);
         await fs.unlink(filePath).catch(e => console.warn(`[Queue] Image file not found for deletion: ${filePath}`, e));
+        await thumbnailService.removeForHistoryItem(entry).catch(thumbnailError => {
+          console.warn(`[Queue] Thumbnail cleanup failed for ${jobId}:`, thumbnailError.message);
+        });
         try {
           await collectionManager.removeJobEverywhere(jobId);
         } catch (collectionError) {

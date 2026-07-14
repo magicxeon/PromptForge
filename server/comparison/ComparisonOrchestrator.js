@@ -101,9 +101,8 @@ export class ComparisonOrchestrator {
     }
   }
 
-  async list(username) {
-    const sets = await this.repository.list(username);
-    return { sets };
+  async list(username, query = {}) {
+    return this.repository.listPage(username, query);
   }
 
   async get(setId, username) {

@@ -1498,6 +1498,52 @@ body {
   padding-right: 0.25rem;
 }
 
+.history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding-top: 0.7rem;
+}
+
+.history-pagination[hidden],
+.btn-history-page[hidden] {
+  display: none;
+}
+
+.btn-history-page {
+  padding: 0.38rem 0.75rem;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 999px;
+  background: rgba(6, 182, 212, 0.08);
+  color: var(--neon-cyan);
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-history-page:hover:not(:disabled) {
+  background: rgba(6, 182, 212, 0.16);
+  border-color: var(--neon-cyan);
+}
+
+.btn-history-page:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.history-page-status {
+  min-width: 5.5rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.history-page-status.is-error {
+  color: var(--neon-red);
+}
+
 .history-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -1534,11 +1580,55 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  opacity: 0;
+  transition: opacity 0.24s ease, transform 0.3s ease;
+}
+
+.history-item img.is-loaded {
+  opacity: 1;
+}
+
+.history-image-loading {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.025) 25%, rgba(6, 182, 212, 0.12) 45%, rgba(255, 255, 255, 0.025) 65%);
+  background-size: 220% 100%;
+  animation: history-preview-loading 1.2s linear infinite;
+}
+
+.history-item:not(.is-image-loading) .history-image-loading {
+  display: none;
+}
+
+.history-item.is-image-error::after {
+  content: "Image unavailable";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  text-align: center;
+}
+
+@keyframes history-preview-loading {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
 }
 
 .history-item:hover img {
   transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .history-item img {
+    transition: none;
+  }
+
+  .history-image-loading {
+    animation: none;
+  }
 }
 
 .btn-delete-history {

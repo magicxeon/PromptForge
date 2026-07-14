@@ -6,13 +6,15 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "migrate:thumbnails": "node scripts/migrate-history-thumbnails.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "nodemon": "^3.1.14",
-    "openai": "^6.46.0"
+    "openai": "^6.46.0",
+    "sharp": "^0.34.3"
   }
 }

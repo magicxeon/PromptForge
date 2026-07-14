@@ -4,12 +4,12 @@
     {
       "id": "cmp_set_1784018588952_ihyd5s",
       "username": "user_demo",
-      "name": "เปรียบเทียบโมเดล AI",
+      "name": "Prototype 01",
       "description": "",
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1784018588952,
-      "updatedAt": 1784018615836,
+      "updatedAt": 1784045379399,
       "runs": [
         {
           "idempotencyKey": "cmp_1784018588864_ki0y65af",
@@ -492,7 +492,7 @@
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1784018530407,
-      "updatedAt": 1784018531030,
+      "updatedAt": 1784019116338,
       "runs": [
         {
           "idempotencyKey": "cmp_1784018530295_r40be3qb",
@@ -953,7 +953,7 @@
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1784018036000,
-      "updatedAt": 1784018036585,
+      "updatedAt": 1784019118424,
       "runs": [
         {
           "idempotencyKey": "cmp_1784018035904_kgv3wsz2",
@@ -1323,7 +1323,7 @@
             "isGptSafe": false
           },
           "estimatedTotalCredit": 3,
-          "actualTotalCredit": 2,
+          "actualTotalCredit": 0,
           "providerConfigVersion": 1,
           "promptCompilerVersion": 1,
           "createdAt": 1784018035999,
@@ -1346,7 +1346,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784018036003_jmlou5nyz",
               "status": "failed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": null,
               "error": {
                 "code": "job_state_lost",
@@ -1370,7 +1370,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784018036004_w6keyjkew",
               "status": "failed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": null,
               "error": {
                 "code": "job_state_lost",
@@ -1414,7 +1414,7 @@
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1784017340493,
-      "updatedAt": 1784017341086,
+      "updatedAt": 1784019117923,
       "runs": [
         {
           "idempotencyKey": "cmp_1784017340391_nvmaegur",
@@ -1784,7 +1784,7 @@
             "isGptSafe": false
           },
           "estimatedTotalCredit": 3,
-          "actualTotalCredit": 2,
+          "actualTotalCredit": 0,
           "providerConfigVersion": 1,
           "promptCompilerVersion": 1,
           "createdAt": 1784017340492,
@@ -1807,7 +1807,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784017340496_n4wb10qk5",
               "status": "failed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": null,
               "error": {
                 "code": "job_state_lost",
@@ -1831,7 +1831,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784017340498_5my6fmfbm",
               "status": "failed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": null,
               "error": {
                 "code": "job_state_lost",

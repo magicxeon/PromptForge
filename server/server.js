@@ -12,6 +12,7 @@ import { creditManager } from './creditManager.js';
 import { compileGenerationContext, createQueueOptions } from './generationRequestService.js';
 import { ComparisonOrchestrator } from './comparison/ComparisonOrchestrator.js';
 import { ComparisonError } from './comparison/ComparisonRepository.js';
+import { historyRepository, HistoryCursorError } from './historyRepository.js';
 
 dotenv.config();
 
@@ -349,7 +350,7 @@ app.post('/api/comparisons', async (req, res) => {
 
 app.get('/api/comparisons', async (req, res) => {
   try {
-    res.json(await comparisonOrchestrator.list(getComparisonUsername(req)));
+    res.json(await comparisonOrchestrator.list(getComparisonUsername(req), req.query));
   } catch (error) {
     sendComparisonError(res, error);
   }
@@ -415,8 +416,34 @@ app.get('/api/jobs/:id/stream', (req, res) => {
 
 // Get Generation History List
 app.get('/api/history', async (req, res) => {
-  const history = await queueManager.getHistory();
-  res.json(history);
+  try {
+    const collectionId = req.query.collectionId || 'all';
+    let allowedJobIds = null;
+    if (collectionId !== 'all') {
+      const collections = await collectionManager.list();
+      const collection = collections.collections.find(item => item.id === collectionId);
+      if (!collection) return res.status(404).json({ error: 'Collection not found' });
+      allowedJobIds = new Set(collection.jobIds);
+    }
+    res.json(await historyRepository.listPage({
+      cursor: req.query.cursor || null,
+      limit: req.query.limit,
+      collectionId,
+      allowedJobIds
+    }));
+  } catch (error) {
+    if (error instanceof HistoryCursorError) {
+      return res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
+    }
+    console.error('[History] Pagination failed:', error);
+    res.status(500).json({ error: 'Could not load image history.' });
+  }
+});
+
+app.get('/api/history/:id', async (req, res) => {
+  const item = await historyRepository.getById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'History entry not found' });
+  res.json(item);
 });
 
 // Delete Generation History Item

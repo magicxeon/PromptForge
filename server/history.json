@@ -29,7 +29,15 @@
     "generationDuration": "25.2",
     "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
     "comparisonRunId": "cmp_run_1784018588952_n69nqo",
-    "comparisonSlotId": "slot_1784016595519_qxkb"
+    "comparisonSlotId": "slot_1784016595519_qxkb",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784018588965_nnx9bcch3.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 13860,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2250308
   },
   {
     "id": "job_1784018588966_3imm3v9z7",
@@ -51,7 +59,15 @@
     "generationDuration": "7.2",
     "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
     "comparisonRunId": "cmp_run_1784018588952_n69nqo",
-    "comparisonSlotId": "slot_1784016719250_us6x"
+    "comparisonSlotId": "slot_1784016719250_us6x",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784018588966_3imm3v9z7.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 480,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11676,
+    "width": 864,
+    "height": 1152,
+    "originalBytes": 165232
   },
   {
     "id": "job_1784018588964_qzx1wt6n5",
@@ -73,7 +89,15 @@
     "generationDuration": "12.7",
     "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
     "comparisonRunId": "cmp_run_1784018588952_n69nqo",
-    "comparisonSlotId": "slot_1784016593146_fplb"
+    "comparisonSlotId": "slot_1784016593146_fplb",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784018588964_qzx1wt6n5.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19862,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 631023
   },
   {
     "id": "job_1784012629295_xmbv3qasf",
@@ -102,7 +126,15 @@
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
     "referencedCharacterJobIds": [],
-    "generationDuration": "27.3"
+    "generationDuration": "27.3",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784012629295_xmbv3qasf.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 13792,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2112512
   },
   {
     "id": "job_1784012593956_0r5v3vvnt",
@@ -121,7 +153,15 @@
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
     "referencedCharacterJobIds": [],
-    "generationDuration": "13.0"
+    "generationDuration": "13.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784012593956_0r5v3vvnt.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 12960,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 564557
   },
   {
     "id": "job_1784012382527_kbrtl4i0o",
@@ -142,7 +182,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "16.5"
+    "generationDuration": "16.5",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784012382527_kbrtl4i0o.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 480,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16876,
+    "width": 864,
+    "height": 1152,
+    "originalBytes": 212185
   },
   {
     "id": "job_1783960976853_jdqjqvrmn",
@@ -156,7 +204,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "57.0"
+    "generationDuration": "57.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783960976853_jdqjqvrmn.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 18684,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2335984
   },
   {
     "id": "job_1783960856901_stuksfpgk",
@@ -170,7 +226,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "58.0"
+    "generationDuration": "58.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783960856901_stuksfpgk.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16958,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2370580
   },
   {
     "id": "job_1783960799080_b77ssewa5",
@@ -184,7 +248,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "19.1"
+    "generationDuration": "19.1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783960799080_b77ssewa5.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 23722,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 721140
   },
   {
     "id": "job_1783960701221_ozib2xaf2",
@@ -198,7 +270,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "17.6"
+    "generationDuration": "17.6",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783960701221_ozib2xaf2.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15272,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 580547
   },
   {
     "id": "job_1783960597057_0i9ak47g0",
@@ -212,7 +292,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "16.1"
+    "generationDuration": "16.1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783960597057_0i9ak47g0.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 10462,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 542635
   },
   {
     "id": "job_1783959909967_3w2rm5zv5",
@@ -226,7 +314,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "18.0"
+    "generationDuration": "18.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783959909967_3w2rm5zv5.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 8690,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 481972
   },
   {
     "id": "job_1783959456658_3yacydt4q",
@@ -240,7 +336,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "17.0"
+    "generationDuration": "17.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783959456658_3yacydt4q.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 357,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 40368,
+    "width": 768,
+    "height": 1376,
+    "originalBytes": 775369
   },
   {
     "id": "job_1783958954159_8h71lt84z",
@@ -257,7 +361,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "76.6"
+    "generationDuration": "76.6",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783958954159_8h71lt84z.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 18252,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2128084
   },
   {
     "id": "job_1783953313793_ijj4zmz2g",
@@ -271,7 +383,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "18.9"
+    "generationDuration": "18.9",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783953313793_ijj4zmz2g.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 66692,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 900470
   },
   {
     "id": "job_1783953126829_500vvvoar",
@@ -285,7 +405,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "59.9"
+    "generationDuration": "59.9",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783953126829_500vvvoar.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 38978,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2555994
   },
   {
     "id": "job_1783952720991_y1m3chkxl",
@@ -299,7 +427,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "17.3"
+    "generationDuration": "17.3",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783952720991_y1m3chkxl.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 40504,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 746689
   },
   {
     "id": "job_1783952255988_630p2j76u",
@@ -313,7 +449,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "65.9"
+    "generationDuration": "65.9",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783952255988_630p2j76u.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 48066,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2681132
   },
   {
     "id": "job_1783952067082_zcmayskxc",
@@ -327,7 +471,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "17.7"
+    "generationDuration": "17.7",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783952067082_zcmayskxc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 72876,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 904468
   },
   {
     "id": "job_1783951280717_ao9rytlxt",
@@ -343,7 +495,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "62.5"
+    "generationDuration": "62.5",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783951280717_ao9rytlxt.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 51646,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2792731
   },
   {
     "id": "job_1783951153800_zm84dszor",
@@ -359,7 +519,15 @@
     "referencedCharacterJobIds": [
       "job_1783937710329_wef6teqsx"
     ],
-    "generationDuration": "33.2"
+    "generationDuration": "33.2",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783951153800_zm84dszor.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 87774,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 1016790
   },
   {
     "id": "job_1783937710329_wef6teqsx",
@@ -372,7 +540,15 @@
       "job_1783937205872_e29xk7xi2"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "64.4"
+    "generationDuration": "64.4",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783937710329_wef6teqsx.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21390,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2281634
   },
   {
     "id": "job_1783937205872_e29xk7xi2",
@@ -383,7 +559,15 @@
     "submodel": "gpt-image-1-mini",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "24.7"
+    "generationDuration": "24.7",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783937205872_e29xk7xi2.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14050,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2140225
   },
   {
     "id": "job_1783935573216_cl42vpru8",
@@ -394,7 +578,15 @@
     "submodel": "gpt-image-1-mini",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "24.0"
+    "generationDuration": "24.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783935573216_cl42vpru8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14880,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2239940
   },
   {
     "id": "job_1783934997247_a8lnbz7iw",
@@ -405,7 +597,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "14.7"
+    "generationDuration": "14.7",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783934997247_a8lnbz7iw.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19634,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 614914
   },
   {
     "id": "job_1783870598727_ui633u481",
@@ -418,7 +618,15 @@
       "job_1783864845137_hwbgdq8jl"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "86.8"
+    "generationDuration": "86.8",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783870598727_ui633u481.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 31640,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2507005
   },
   {
     "id": "job_1783870510972_6y99q7kgr",
@@ -431,7 +639,15 @@
       "job_1783864845137_hwbgdq8jl"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "19.3"
+    "generationDuration": "19.3",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783870510972_6y99q7kgr.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 357,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 33242,
+    "width": 768,
+    "height": 1376,
+    "originalBytes": 759959
   },
   {
     "id": "job_1783864845137_hwbgdq8jl",
@@ -444,7 +660,15 @@
       "job_1783860717836_95bml9qg8"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "36.1"
+    "generationDuration": "36.1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783864845137_hwbgdq8jl.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 427,
+    "thumbnailBytes": 14840,
+    "width": 1536,
+    "height": 1024,
+    "originalBytes": 2345626
   },
   {
     "id": "job_1783861772868_5d21lrtew",
@@ -457,7 +681,15 @@
       "job_1783860717836_95bml9qg8"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "15.3"
+    "generationDuration": "15.3",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783861772868_5d21lrtew.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 357,
+    "thumbnailBytes": 19394,
+    "width": 1376,
+    "height": 768,
+    "originalBytes": 674047
   },
   {
     "id": "job_1783860975681_xhajeq0i4",
@@ -470,7 +702,15 @@
       "job_1783860717836_95bml9qg8"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "15.1"
+    "generationDuration": "15.1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783860975681_xhajeq0i4.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 357,
+    "thumbnailBytes": 16840,
+    "width": 1376,
+    "height": 768,
+    "originalBytes": 632504
   },
   {
     "id": "job_1783860717836_95bml9qg8",
@@ -481,7 +721,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "16.2"
+    "generationDuration": "16.2",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783860717836_95bml9qg8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22628,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 678226
   },
   {
     "id": "job_1783860597662_gei6lrddd",
@@ -492,7 +740,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "12.4"
+    "generationDuration": "12.4",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783860597662_gei6lrddd.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19982,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 579621
   },
   {
     "id": "job_1783860574102_ivoyi6lw7",
@@ -503,7 +759,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "11.8"
+    "generationDuration": "11.8",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783860574102_ivoyi6lw7.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15586,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 640897
   },
   {
     "id": "job_1783836058642_wlb8342d2",
@@ -517,7 +781,15 @@
       "job_1783834479379_9qd5mry7r"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "28.3"
+    "generationDuration": "28.3",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783836058642_wlb8342d2.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 20220,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2283684
   },
   {
     "id": "job_1783836049841_slqm9v9ka",
@@ -531,7 +803,15 @@
       "job_1783834479379_9qd5mry7r"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "17.4"
+    "generationDuration": "17.4",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783836049841_slqm9v9ka.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 34328,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 718875
   },
   {
     "id": "job_1783835805770_6yffx00fc",
@@ -545,7 +825,15 @@
       "job_1783834479379_9qd5mry7r"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "15.8"
+    "generationDuration": "15.8",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783835805770_6yffx00fc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 8362,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 490360
   },
   {
     "id": "job_1783835790942_napg874kn",
@@ -559,7 +847,15 @@
       "job_1783834479379_9qd5mry7r"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "27.6"
+    "generationDuration": "27.6",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783835790942_napg874kn.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11312,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2397474
   },
   {
     "id": "job_1783835538188_v4yzzqtfi",
@@ -572,7 +868,15 @@
       "job_1783834418376_h5dvc3v5q"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "57.0"
+    "generationDuration": "57.0",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783835538188_v4yzzqtfi.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19306,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 3213485
   },
   {
     "id": "job_1783835526999_69zfazvr0",
@@ -585,7 +889,15 @@
       "job_1783834418376_h5dvc3v5q"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "25.1"
+    "generationDuration": "25.1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783835526999_69zfazvr0.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21584,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 669136
   },
   {
     "id": "job_1783834479379_9qd5mry7r",
@@ -596,7 +908,15 @@
     "submodel": "gpt-image-1-mini",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "21.7"
+    "generationDuration": "21.7",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783834479379_9qd5mry7r.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14884,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 1692929
   },
   {
     "id": "job_1783834418376_h5dvc3v5q",
@@ -607,7 +927,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "15.6"
+    "generationDuration": "15.6",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783834418376_h5dvc3v5q.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21952,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 646191
   },
   {
     "id": "job_1783834037466_cts32n135",
@@ -618,7 +946,15 @@
     "submodel": "gpt-image-1-mini",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "24.4"
+    "generationDuration": "24.4",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783834037466_cts32n135.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15422,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2324656
   },
   {
     "id": "job_1783834029445_ztxpbs0ef",
@@ -629,7 +965,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "12.5"
+    "generationDuration": "12.5",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783834029445_ztxpbs0ef.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14608,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 584667
   },
   {
     "id": "job_1783831362086_93nayu1n1",
@@ -640,7 +984,15 @@
     "submodel": "gpt-image-1-mini",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "26.6"
+    "generationDuration": "26.6",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783831362086_93nayu1n1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15490,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2147954
   },
   {
     "id": "job_1783831373185_e3l5d3ozc",
@@ -651,7 +1003,15 @@
     "submodel": "gemini-3.1-flash-lite-image",
     "referencedFaceJobIds": [],
     "referencedStyleJobIds": [],
-    "generationDuration": "15.4"
+    "generationDuration": "15.4",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783831373185_e3l5d3ozc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22532,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 682632
   },
   {
     "id": "job_1783794785110_6bmhbm14l",
@@ -665,7 +1025,15 @@
       "job_1783794360711_2k9gsi48d"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "16.9"
+    "generationDuration": "16.9",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783794785110_6bmhbm14l.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19310,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 646118
   },
   {
     "id": "job_1783794669467_rc5cd1pk6",
@@ -679,7 +1047,15 @@
       "job_1783794360711_2k9gsi48d"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "27.7"
+    "generationDuration": "27.7",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783794669467_rc5cd1pk6.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14322,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2316483
   },
   {
     "id": "job_1783794360711_2k9gsi48d",
@@ -692,7 +1068,15 @@
       "job_1783781951473_frhn6tnol"
     ],
     "referencedStyleJobIds": [],
-    "generationDuration": "60.8"
+    "generationDuration": "60.8",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783794360711_2k9gsi48d.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 13268,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2164627
   },
   {
     "id": "job_1783781951473_frhn6tnol",
@@ -700,7 +1084,15 @@
     "imageUrl": "/outputs/job_1783781951473_frhn6tnol.png",
     "timestamp": 1783781970204,
     "provider": "openai",
-    "submodel": "gpt-image-2"
+    "submodel": "gpt-image-2",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783781951473_frhn6tnol.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21514,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1487416
   },
   {
     "id": "job_1783781520261_aorulybi1",
@@ -708,7 +1100,15 @@
     "imageUrl": "/outputs/job_1783781520261_aorulybi1.png",
     "timestamp": 1783781541225,
     "provider": "openai",
-    "submodel": "gpt-image-1-mini"
+    "submodel": "gpt-image-1-mini",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783781520261_aorulybi1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 27584,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1222762
   },
   {
     "id": "job_1783780830452_dpp0dzjou",
@@ -716,7 +1116,15 @@
     "imageUrl": "/outputs/job_1783780830452_dpp0dzjou.png",
     "timestamp": 1783780842738,
     "provider": "gemini",
-    "submodel": "imagen-3.0-generate-002"
+    "submodel": "imagen-3.0-generate-002",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783780830452_dpp0dzjou.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 26972,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 598396
   },
   {
     "id": "job_1783780788608_sy5eyw0pd",
@@ -724,6 +1132,14 @@
     "imageUrl": "/outputs/job_1783780788608_sy5eyw0pd.png",
     "timestamp": 1783780800460,
     "provider": "gemini",
-    "submodel": "gemini-3.1-flash-lite-image"
+    "submodel": "gemini-3.1-flash-lite-image",
+    "thumbnailUrl": "/outputs/thumbnails/job_1783780788608_sy5eyw0pd.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 17326,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 617080
   }
 ]

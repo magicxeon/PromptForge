@@ -507,6 +507,8 @@ Run status ที่รองรับ:
 
 ## 16. Performance Requirements
 
+รายละเอียด pagination, thumbnail pipeline, lazy preview และ DOM/memory boundaries ถูกแยกไปติดตามใน Requirement 021 ส่วนหน้า Comparison History และ Application Navigation ติดตามใน Requirement 022
+
 - Model Tray ต้องไม่โหลด SDK ของ Provider
 - lazy-load Comparison Workspace เมื่อเปิดใช้งาน
 - thumbnail ใช้ไฟล์ขนาดเหมาะสม ไม่โหลด full-resolution ทั้ง History list

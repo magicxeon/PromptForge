@@ -451,8 +451,9 @@
     const response = await api(`/api/comparisons?username=${encodeURIComponent(bridge().getUsername())}`);
     const list = document.getElementById('comparison-set-list');
     list.innerHTML = '';
-    if (!response.sets.length) list.innerHTML = `<p>${text('No saved comparisons.', 'ยังไม่มีชุดเปรียบเทียบ')}</p>`;
-    response.sets.forEach(set => {
+    const sets = response.items || response.sets || [];
+    if (!sets.length) list.innerHTML = `<p>${text('No saved comparisons.', 'ยังไม่มีชุดเปรียบเทียบ')}</p>`;
+    sets.forEach(set => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'comparison-set-list-item';

@@ -191,6 +191,12 @@ const state = {
   activeJobId: null,
   presets: null,
   history: [],
+  historyCursor: null,
+  historyHasMore: false,
+  historyLoading: false,
+  historyError: null,
+  historyWindowed: false,
+  historyAbortController: null,
   collections: [],
   defaultCollectionId: null,
   providerCatalog: null,
@@ -3696,7 +3702,7 @@ function renderCollectionToolbar() {
   select.innerHTML = '';
   const allOption = document.createElement('option');
   allOption.value = 'all';
-  allOption.textContent = `All Images (${state.history?.length || 0})`;
+  allOption.textContent = `All Images (${state.history?.length || 0}${state.historyHasMore ? '+' : ''} loaded)`;
   select.appendChild(allOption);
 
   state.collections.forEach(collection => {
@@ -3710,7 +3716,7 @@ function renderCollectionToolbar() {
   const activeCollection = getCollectionById(state.selectedCollectionId);
   count.textContent = activeCollection
     ? `${activeCollection.imageCount} image${activeCollection.imageCount === 1 ? '' : 's'}${activeCollection.isDefault ? ' · Default' : ''}`
-    : `${state.history?.length || 0} image${state.history?.length === 1 ? '' : 's'}`;
+    : `${state.history?.length || 0}${state.historyHasMore ? '+' : ''} loaded`;
   if (editButton) editButton.disabled = !activeCollection;
 }
 
@@ -3826,6 +3832,7 @@ async function saveCollectionFromEditor(event) {
     state.selectedCollectionId = collectionId;
     closeCollectionEditor();
     await loadCollections();
+    await loadHistory({ reset: true });
   } catch (saveError) {
     error.textContent = saveError.message;
   }
@@ -3850,6 +3857,7 @@ async function deleteActiveCollection() {
   state.selectedCollectionId = 'all';
   closeCollectionEditor();
   await loadCollections();
+  await loadHistory({ reset: true });
 }
 
 function renderMembershipModal() {
@@ -3951,8 +3959,8 @@ function renderLightboxCollections(jobId) {
     chip.addEventListener('click', () => {
       state.selectedCollectionId = collection.id;
       renderCollectionToolbar();
-      renderHistory(state.history);
       closeLightbox();
+      loadHistory({ reset: true });
     });
     list.appendChild(chip);
   });
@@ -3966,8 +3974,10 @@ function initializeCollectionsUI() {
     closeLightbox({ restoreFocus: false });
     state.selectedCollectionId = select.value;
     renderCollectionToolbar();
-    renderHistory(state.history);
+    loadHistory({ reset: true });
   });
+  document.getElementById('btn-history-load-more')?.addEventListener('click', () => loadHistory({ reset: false }));
+  document.getElementById('btn-history-newer')?.addEventListener('click', () => loadHistory({ reset: true }));
   document.getElementById('btn-new-collection')?.addEventListener('click', () => openCollectionEditor());
   document.getElementById('btn-edit-collection')?.addEventListener('click', () => {
     const collection = getCollectionById(state.selectedCollectionId);
@@ -4082,17 +4092,50 @@ function initializeAutoExpandConfigurator() {
 }
 
 // Load generation history from backend
-async function loadHistory() {
+async function loadHistory({ reset = true } = {}) {
+  if (state.historyLoading && !reset) return;
+  if (reset) {
+    state.historyAbortController?.abort();
+    state.historyAbortController = new AbortController();
+  }
+  const controller = state.historyAbortController || new AbortController();
+  state.historyAbortController = controller;
+  state.historyLoading = true;
+  state.historyError = null;
+  renderHistoryPagination();
   try {
-    const res = await fetch('/api/history');
-    const history = await res.json();
-    state.history = history; // Store in state for lineage lookups (Step 9)
+    const params = new URLSearchParams({
+      limit: '24',
+      collectionId: state.selectedCollectionId || 'all'
+    });
+    if (!reset && state.historyCursor) params.set('cursor', state.historyCursor);
+    const res = await fetch(`/api/history?${params}`, { signal: controller.signal });
+    const payload = await res.json();
+    if (!res.ok && !reset && payload?.error?.code === 'invalid_history_cursor') {
+      return loadHistory({ reset: true });
+    }
+    if (!res.ok) throw new Error(getApiErrorMessage(payload, 'Failed to load history.'));
+    const incoming = Array.isArray(payload.items) ? payload.items : [];
+    if (reset) {
+      state.history = incoming;
+      state.historyWindowed = false;
+    } else {
+      const byId = new Map(state.history.map(item => [item.id, item]));
+      incoming.forEach(item => byId.set(item.id, item));
+      state.history = [...byId.values()];
+      if (state.history.length > 96) {
+        state.history = state.history.slice(-96);
+        state.historyWindowed = true;
+      }
+    }
+    state.historyCursor = payload.nextCursor || null;
+    state.historyHasMore = payload.hasMore === true;
     renderCollectionToolbar();
-    renderHistory(history);
+    renderHistory(state.history);
     syncOpenLightboxContext();
 
     // Auto-collapse on initial page load if history is empty (Step 7)
-    if ((!history || history.length === 0) && !state.hasInitializedHistoryCollapse) {
+    if (state.history.length === 0 && !state.hasInitializedHistoryCollapse) {
       state.hasInitializedHistoryCollapse = true;
       const visualDashboard = document.getElementById("visual-dashboard");
       if (visualDashboard) {
@@ -4103,16 +4146,58 @@ async function loadHistory() {
       }
     }
   } catch (err) {
+    if (err.name === 'AbortError') return;
     console.error("Failed to load history list:", err);
+    state.historyError = err.message;
+  } finally {
+    if (state.historyAbortController === controller) {
+      state.historyLoading = false;
+      renderHistoryPagination();
+    }
   }
 }
 
 function getVisibleHistoryItems(historyList = state.history) {
-  const availableHistory = Array.isArray(historyList) ? historyList : [];
-  const activeCollection = getCollectionById(state.selectedCollectionId);
-  if (!activeCollection) return availableHistory;
-  const byId = new Map(availableHistory.map(item => [item.id, item]));
-  return activeCollection.jobIds.map(jobId => byId.get(jobId)).filter(Boolean);
+  return Array.isArray(historyList) ? historyList : [];
+}
+
+function renderHistoryPagination() {
+  const container = document.getElementById('history-pagination');
+  const loadMore = document.getElementById('btn-history-load-more');
+  const newer = document.getElementById('btn-history-newer');
+  const status = document.getElementById('history-page-status');
+  if (!container || !loadMore || !newer || !status) return;
+  container.hidden = state.history.length === 0 && !state.historyLoading && !state.historyError;
+  loadMore.hidden = !state.historyHasMore;
+  loadMore.disabled = state.historyLoading;
+  newer.hidden = !state.historyWindowed && !state.historyError;
+  newer.disabled = state.historyLoading;
+  newer.textContent = state.historyError ? 'Retry' : 'Newer Images';
+  status.textContent = state.historyLoading
+    ? 'Loading previews...'
+    : state.historyError || `${state.history.length}${state.historyHasMore ? '+' : ''} loaded`;
+  status.classList.toggle('is-error', Boolean(state.historyError));
+}
+
+let historyImageObserver = null;
+
+function observeHistoryImage(img) {
+  const beginLoad = () => {
+    if (img.src) return;
+    img.src = img.dataset.src;
+  };
+  if (!('IntersectionObserver' in window)) {
+    beginLoad();
+    return;
+  }
+  historyImageObserver ||= new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      historyImageObserver.unobserve(entry.target);
+      if (!entry.target.src) entry.target.src = entry.target.dataset.src;
+    });
+  }, { rootMargin: '160px 0px' });
+  historyImageObserver.observe(img);
 }
 
 // Render history thumbnail grid
@@ -4121,6 +4206,8 @@ function renderHistory(historyList) {
   const placeholder = document.getElementById("no-history-placeholder");
   if (!grid) return;
 
+  historyImageObserver?.disconnect();
+  historyImageObserver = null;
   grid.innerHTML = "";
 
   const visibleHistory = getVisibleHistoryItems(historyList);
@@ -4132,12 +4219,37 @@ function renderHistory(historyList) {
 
   visibleHistory.forEach(item => {
     const card = document.createElement("div");
-    card.className = "history-item";
-    card.title = `Generate: ${item.prompt.substring(0, 100)}...`;
+    card.className = "history-item is-image-loading";
+    card.title = `Generate: ${(item.prompt || '').substring(0, 100)}...`;
+
+    const loading = document.createElement('span');
+    loading.className = 'history-image-loading';
+    loading.setAttribute('aria-hidden', 'true');
 
     const img = document.createElement("img");
-    img.src = item.imageUrl;
+    img.dataset.src = item.thumbnailUrl || item.imageUrl;
+    img.dataset.fallbackSrc = item.imageUrl;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    if (item.thumbnailWidth && item.thumbnailHeight) {
+      img.width = item.thumbnailWidth;
+      img.height = item.thumbnailHeight;
+    }
     img.alt = "Generated Character Output";
+    img.addEventListener('load', async () => {
+      try { await img.decode(); } catch { /* The load event already confirms a usable image. */ }
+      img.classList.add('is-loaded');
+      card.classList.remove('is-image-loading', 'is-image-error');
+    });
+    img.addEventListener('error', () => {
+      if (!img.dataset.usedFallback && img.dataset.fallbackSrc && img.src !== img.dataset.fallbackSrc) {
+        img.dataset.usedFallback = 'true';
+        img.src = img.dataset.fallbackSrc;
+        return;
+      }
+      card.classList.remove('is-image-loading');
+      card.classList.add('is-image-error');
+    });
     img.addEventListener("click", () => openLightbox(item, { triggerElement: img }));
 
     const btnDel = document.createElement("button");
@@ -4186,11 +4298,14 @@ function renderHistory(historyList) {
       card.appendChild(comparisonBadge);
     }
 
+    card.appendChild(loading);
     card.appendChild(img);
     card.appendChild(btnDel);
     card.appendChild(collectionButton);
     grid.appendChild(card);
+    observeHistoryImage(img);
   });
+  renderHistoryPagination();
 }
 
 // Delete history record from disk
@@ -4452,7 +4567,7 @@ function renderLightboxItem(item) {
 
     if (allParents.length > 0) {
       allParents.forEach(p => {
-        const parentItem = (state.history || []).find(h => h.id === p.id);
+        let parentItem = (state.history || []).find(h => h.id === p.id);
         const parentThumb = document.createElement("div");
         parentThumb.style.position = "relative";
         parentThumb.style.width = "42px";
@@ -4463,7 +4578,7 @@ function renderLightboxItem(item) {
         parentThumb.title = `${p.types.join(" + ")} Ref parent: #${p.id.substring(4, 9)}`;
 
         const thumbImg = document.createElement("img");
-        thumbImg.src = parentItem ? parentItem.imageUrl : "";
+        thumbImg.src = parentItem ? (parentItem.thumbnailUrl || parentItem.imageUrl) : "";
         thumbImg.style.width = "100%";
         thumbImg.style.height = "100%";
         thumbImg.style.objectFit = "cover";
@@ -4487,11 +4602,22 @@ function renderLightboxItem(item) {
         parentThumb.appendChild(thumbImg);
         parentThumb.appendChild(typeBadge);
 
-        parentThumb.addEventListener("click", () => {
+        if (!parentItem) {
+          fetch(`/api/history/${encodeURIComponent(p.id)}`)
+            .then(response => response.ok ? response.json() : null)
+            .then(loadedParent => {
+              if (!loadedParent) return;
+              parentItem = loadedParent;
+              thumbImg.src = loadedParent.thumbnailUrl || loadedParent.imageUrl;
+            })
+            .catch(() => {});
+        }
+
+        parentThumb.addEventListener("click", async () => {
           if (parentItem) {
             openLineageLightboxItem(parentItem);
           } else {
-            void AppDialog.alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`, { title: "Parent Image Unavailable" });
+            await AppDialog.alert(`Parent job #${p.id.substring(4, 9)} is no longer available.`, { title: "Parent Image Unavailable" });
           }
         });
 
