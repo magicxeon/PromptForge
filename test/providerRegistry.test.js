@@ -97,3 +97,31 @@ test('project provider configuration registers Grok with X_API_KEY', () => {
     'grok-imagine-image'
   ]);
 });
+
+test('project catalog sorts each provider by the configured local price order', () => {
+  const config = loadProviderConfig();
+  const registry = new ProviderRegistry(config, {
+    GEMINI_API_KEY: 'secret',
+    OPENAI_API_KEY: 'secret',
+    X_API_KEY: 'secret'
+  });
+  const providers = new Map(registry.getPublicCatalog().providers.map(provider => [provider.id, provider]));
+
+  assert.deepEqual(providers.get('gemini').models.map(model => model.id), [
+    'gemini-3.1-flash-lite-image',
+    'gemini-2.5-flash-image',
+    'gemini-3.1-flash-image',
+    'gemini-3-pro-image'
+  ]);
+  assert.deepEqual(providers.get('openai').models.map(model => model.id), [
+    'gpt-image-1-mini',
+    'gpt-image-1.5',
+    'dall-e-3',
+    'gpt-image-1',
+    'gpt-image-2'
+  ]);
+  assert.deepEqual(providers.get('xai').models.map(model => model.id), [
+    'grok-imagine-image',
+    'grok-imagine-image-quality'
+  ]);
+});

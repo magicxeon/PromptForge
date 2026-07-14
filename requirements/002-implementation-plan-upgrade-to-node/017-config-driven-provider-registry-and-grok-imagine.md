@@ -5,7 +5,7 @@
 **Status:** Implemented - Pending Runtime Verification  
 **Feature type:** Core provider architecture and paid image provider integration  
 **Depends on:** Requirement 005 - Modular Generation Providers, Queue, Credits, History and Reference Workflow  
-**Required by:** Requirement 018 - Provider Pricing Catalog and Value Ranking, Requirement 019 - AI Model Comparison Workspace  
+**Required by:** Requirement 018 - Provider Pricing Catalog and Value Ranking, Requirement 020 - AI Model Comparison Workspace  
 **Created:** 2026-07-14  
 **Implementation authorization:** Approved and implemented on 2026-07-14
 

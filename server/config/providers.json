@@ -24,7 +24,7 @@
           "id": "gemini-3.1-flash-image",
           "enabled": true,
           "displayName": { "en": "Nano Banana 2 (Generalist)", "th": "Nano Banana 2 (ใช้งานทั่วไป)" },
-          "displayOrder": 20,
+          "displayOrder": 30,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "defaults": { "imageSize": "1K" },
           "creditCost": 1
@@ -33,7 +33,7 @@
           "id": "gemini-3-pro-image",
           "enabled": true,
           "displayName": { "en": "Nano Banana Pro (Premium)", "th": "Nano Banana Pro (พรีเมียม)" },
-          "displayOrder": 30,
+          "displayOrder": 40,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "defaults": { "imageSize": "1K" },
           "creditCost": 1
@@ -42,7 +42,7 @@
           "id": "gemini-2.5-flash-image",
           "enabled": true,
           "displayName": { "en": "Nano Banana (Legacy)", "th": "Nano Banana (รุ่นเดิม)" },
-          "displayOrder": 40,
+          "displayOrder": 20,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "defaults": { "imageSize": "1K" },
           "creditCost": 1
@@ -71,7 +71,7 @@
           "id": "gpt-image-1",
           "enabled": true,
           "displayName": { "en": "GPT-Image 1 (Standard)", "th": "GPT-Image 1 (มาตรฐาน)" },
-          "displayOrder": 20,
+          "displayOrder": 40,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": true, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "creditCost": 1
         },
@@ -79,7 +79,7 @@
           "id": "gpt-image-1.5",
           "enabled": true,
           "displayName": { "en": "GPT-Image 1.5 (Enhanced)", "th": "GPT-Image 1.5 (คุณภาพสูง)" },
-          "displayOrder": 30,
+          "displayOrder": 20,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": true, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "creditCost": 1
         },
@@ -87,7 +87,7 @@
           "id": "gpt-image-2",
           "enabled": true,
           "displayName": { "en": "GPT-Image 2 (Premium)", "th": "GPT-Image 2 (พรีเมียม)" },
-          "displayOrder": 40,
+          "displayOrder": 50,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 6, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "creditCost": 1
         },
@@ -95,7 +95,7 @@
           "id": "dall-e-3",
           "enabled": true,
           "displayName": { "en": "DALL-E 3 (Legacy)", "th": "DALL-E 3 (รุ่นเดิม)" },
-          "displayOrder": 50,
+          "displayOrder": 30,
           "capabilities": { "imageGeneration": true, "imageEdit": false, "imageReferences": false, "maxReferenceImages": 0, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5"] },
           "creditCost": 1
         }
@@ -113,8 +113,8 @@
         {
           "id": "grok-imagine-image-quality",
           "enabled": true,
-          "displayName": { "en": "Grok Imagine Image Quality", "th": "Grok Imagine Image Quality" },
-          "displayOrder": 10,
+          "displayName": { "en": "Grok Imagine Image Quality (Premium)", "th": "Grok Imagine Image Quality (พรีเมียม)" },
+          "displayOrder": 20,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 3, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:3", "3:4", "3:2", "2:3", "2:1", "1:2", "19.5:9", "9:19.5", "20:9", "9:20"], "resolutions": ["1k", "2k"] },
           "aspectRatioMap": { "1:1": "1:1", "16:9": "16:9", "9:16": "9:16", "6:8": "3:4", "4:3": "4:3", "3:4": "3:4", "3:2": "3:2", "2:3": "2:3", "2:1": "2:1", "1:2": "1:2", "19.5:9": "19.5:9", "9:19.5": "9:19.5", "20:9": "20:9", "9:20": "9:20" },
           "defaults": { "resolution": "1k", "responseFormat": "b64_json" },
@@ -123,8 +123,8 @@
         {
           "id": "grok-imagine-image",
           "enabled": true,
-          "displayName": { "en": "Grok Imagine Image", "th": "Grok Imagine Image" },
-          "displayOrder": 20,
+          "displayName": { "en": "Grok Imagine Image (Cheapest)", "th": "Grok Imagine Image (ประหยัดที่สุด)" },
+          "displayOrder": 10,
           "capabilities": { "imageGeneration": true, "imageEdit": true, "imageReferences": true, "maxReferenceImages": 3, "streaming": false, "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:3", "3:4", "3:2", "2:3", "2:1", "1:2", "19.5:9", "9:19.5", "20:9", "9:20"], "resolutions": ["1k", "2k"] },
           "aspectRatioMap": { "1:1": "1:1", "16:9": "16:9", "9:16": "9:16", "6:8": "3:4", "4:3": "4:3", "3:4": "3:4", "3:2": "3:2", "2:3": "2:3", "2:1": "2:1", "1:2": "1:2", "19.5:9": "19.5:9", "9:19.5": "9:19.5", "20:9": "20:9", "9:20": "9:20" },
           "defaults": { "resolution": "1k", "responseFormat": "b64_json" },
