@@ -471,9 +471,16 @@
 
   <!-- Full-screen Lightbox Modal -->
   <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
-    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close image viewer">&times;</button>
     <div class="lightbox-content-container">
-      <img id="lightbox-image" src="" alt="Full Resolution Output">
+      <button id="lightbox-previous" class="lightbox-nav-control lightbox-nav-previous" type="button"
+        aria-label="Previous image" title="Previous image" hidden>
+        <span aria-hidden="true">&lt;</span>
+      </button>
+      <div class="lightbox-image-stage" id="lightbox-image-stage">
+        <img id="lightbox-image" src="" alt="Full Resolution Output">
+        <p id="lightbox-position-status" class="lightbox-position-status" aria-live="polite"></p>
+      </div>
       <div class="lightbox-metadata-panel">
         <h4 id="lightbox-meta-title">Generation Reference</h4>
         <p class="lightbox-meta-prompt" id="lightbox-meta-prompt">-</p>
@@ -511,6 +518,10 @@
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
       </div>
+      <button id="lightbox-next" class="lightbox-nav-control lightbox-nav-next" type="button"
+        aria-label="Next image" title="Next image" hidden>
+        <span aria-hidden="true">&gt;</span>
+      </button>
     </div>
   </div>
 

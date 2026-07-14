@@ -195,6 +195,8 @@ const state = {
   defaultCollectionId: null,
   providerCatalog: null,
   selectedCollectionId: "all",
+  lightboxBrowseContext: null,
+  lightboxReturnFocus: null,
   collectionMembershipJobId: null,
   pendingCollectionJobId: null,
   customColors: {
@@ -1838,6 +1840,7 @@ function bindEvents() {
         openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
         updateColorPickerUI();
         refreshReferenceAuthorityUI();
+        updateLightboxNavigationLabels();
         updatePromptPreview();
       }
     });
@@ -1927,12 +1930,39 @@ function bindEvents() {
   const lightboxModal = document.getElementById("lightbox-modal");
   const lightboxClose = document.getElementById("lightbox-close");
   if (lightboxClose && lightboxModal) {
-    lightboxClose.addEventListener("click", () => {
-      lightboxModal.style.display = "none";
-    });
+    lightboxClose.addEventListener("click", closeLightbox);
     lightboxModal.addEventListener("click", (e) => {
       if (e.target === lightboxModal) {
-        lightboxModal.style.display = "none";
+        closeLightbox();
+      }
+    });
+    document.getElementById("lightbox-previous")?.addEventListener("click", () => navigateLightbox(-1));
+    document.getElementById("lightbox-next")?.addEventListener("click", () => navigateLightbox(1));
+    document.addEventListener("keydown", event => {
+      if (lightboxModal.style.display === "none") return;
+      if (document.querySelector('.collection-modal[style*="display: flex"]')) return;
+      const target = event.target;
+      if (target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
+      if (event.key === "Tab") {
+        const focusable = [...lightboxModal.querySelectorAll('button:not([hidden]), a[href]')]
+          .filter(element => !element.disabled && element.getClientRects().length > 0);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeLightbox();
+      } else if (event.key === "ArrowLeft") {
+        if (navigateLightbox(-1)) event.preventDefault();
+      } else if (event.key === "ArrowRight") {
+        if (navigateLightbox(1)) event.preventDefault();
       }
     });
   }
@@ -1989,7 +2019,7 @@ function bindEvents() {
       if (img && img.src && lightboxModal.style.display !== "none") {
         const activeItem = lightboxModal.activeItem;
         assignFaceReference(img.src, activeItem ? activeItem.id : null);
-        lightboxModal.style.display = "none";
+        closeLightbox();
       }
     });
   }
@@ -2000,7 +2030,7 @@ function bindEvents() {
       if (img && img.src && lightboxModal.style.display !== "none") {
         const activeItem = lightboxModal.activeItem;
         assignStyleReference(img.src, activeItem ? activeItem.id : null);
-        lightboxModal.style.display = "none";
+        closeLightbox();
       }
     });
   }
@@ -2011,7 +2041,7 @@ function bindEvents() {
       if (img && img.src && lightboxModal.style.display !== "none" && state.mode === "normal") {
         const activeItem = lightboxModal.activeItem;
         assignCharacterReference(img.src, activeItem ? activeItem.id : null);
-        lightboxModal.style.display = "none";
+        closeLightbox();
       }
     });
   }
@@ -3429,8 +3459,9 @@ function importConfigJSON(jsonString) {
       nsfwAccordion.style.display = hasNsfwSelection ? "block" : "none";
     }
 
-    refreshReferenceAuthorityUI();
-    updatePromptPreview();
+        refreshReferenceAuthorityUI();
+        updateLightboxNavigationLabels();
+        updatePromptPreview();
 
   } catch (error) {
     alert("Failed to load preset configuration: " + error.message);
@@ -3623,6 +3654,7 @@ async function loadCollections({ preserveSelection = true } = {}) {
     }
     renderCollectionToolbar();
     if (state.history) renderHistory(state.history);
+    syncOpenLightboxContext();
   } catch (error) {
     console.error('Failed to load collections:', error);
   }
@@ -3889,7 +3921,7 @@ function renderLightboxCollections(jobId) {
       state.selectedCollectionId = collection.id;
       renderCollectionToolbar();
       renderHistory(state.history);
-      document.getElementById('lightbox-modal').style.display = 'none';
+      closeLightbox();
     });
     list.appendChild(chip);
   });
@@ -3900,6 +3932,7 @@ function initializeCollectionsUI() {
   const editorModal = document.getElementById('collection-editor-modal');
   const membershipModal = document.getElementById('collection-membership-modal');
   select?.addEventListener('change', () => {
+    closeLightbox({ restoreFocus: false });
     state.selectedCollectionId = select.value;
     renderCollectionToolbar();
     renderHistory(state.history);
@@ -4025,6 +4058,7 @@ async function loadHistory() {
     state.history = history; // Store in state for lineage lookups (Step 9)
     renderCollectionToolbar();
     renderHistory(history);
+    syncOpenLightboxContext();
 
     // Auto-collapse on initial page load if history is empty (Step 7)
     if ((!history || history.length === 0) && !state.hasInitializedHistoryCollapse) {
@@ -4042,6 +4076,14 @@ async function loadHistory() {
   }
 }
 
+function getVisibleHistoryItems(historyList = state.history) {
+  const availableHistory = Array.isArray(historyList) ? historyList : [];
+  const activeCollection = getCollectionById(state.selectedCollectionId);
+  if (!activeCollection) return availableHistory;
+  const byId = new Map(availableHistory.map(item => [item.id, item]));
+  return activeCollection.jobIds.map(jobId => byId.get(jobId)).filter(Boolean);
+}
+
 // Render history thumbnail grid
 function renderHistory(historyList) {
   const grid = document.getElementById("history-grid");
@@ -4050,12 +4092,7 @@ function renderHistory(historyList) {
 
   grid.innerHTML = "";
 
-  let visibleHistory = historyList || [];
-  const activeCollection = getCollectionById(state.selectedCollectionId);
-  if (activeCollection) {
-    const byId = new Map(visibleHistory.map(item => [item.id, item]));
-    visibleHistory = activeCollection.jobIds.map(jobId => byId.get(jobId)).filter(Boolean);
-  }
+  const visibleHistory = getVisibleHistoryItems(historyList);
 
   if (visibleHistory.length === 0) {
     grid.innerHTML = `<p class="no-history-text" id="no-history-placeholder">No history found</p>`;
@@ -4070,7 +4107,7 @@ function renderHistory(historyList) {
     const img = document.createElement("img");
     img.src = item.imageUrl;
     img.alt = "Generated Character Output";
-    img.addEventListener("click", () => openLightbox(item));
+    img.addEventListener("click", () => openLightbox(item, { triggerElement: img }));
 
     const btnDel = document.createElement("button");
     btnDel.className = "btn-delete-history";
@@ -4127,8 +4164,195 @@ async function deleteHistory(jobId) {
   }
 }
 
-// Open full screen Lightbox modal
-function openLightbox(item) {
+let lightboxImageLoadToken = 0;
+
+function createLightboxBrowseContext(item) {
+  const visibleItems = getVisibleHistoryItems();
+  const activeIndex = visibleItems.findIndex(entry => entry.id === item.id);
+  if (activeIndex === -1) {
+    return { source: "standalone", collectionId: null, itemIds: [item.id], activeIndex: 0 };
+  }
+  const activeCollection = getCollectionById(state.selectedCollectionId);
+  return {
+    source: activeCollection ? "collection" : "history",
+    collectionId: activeCollection?.id || "all",
+    itemIds: visibleItems.map(entry => entry.id),
+    activeIndex
+  };
+}
+
+function updateLightboxNavigationLabels() {
+  const previous = document.getElementById("lightbox-previous");
+  const next = document.getElementById("lightbox-next");
+  const close = document.getElementById("lightbox-close");
+  const status = document.getElementById("lightbox-position-status");
+  const context = state.lightboxBrowseContext;
+  const previousLabel = state.language === "th" ? "ภาพก่อนหน้า" : "Previous image";
+  const nextLabel = state.language === "th" ? "ภาพถัดไป" : "Next image";
+  const closeLabel = state.language === "th" ? "ปิดหน้าดูภาพ" : "Close image viewer";
+  if (previous) {
+    previous.setAttribute("aria-label", previousLabel);
+    previous.title = previousLabel;
+  }
+  if (next) {
+    next.setAttribute("aria-label", nextLabel);
+    next.title = nextLabel;
+  }
+  if (close) close.setAttribute("aria-label", closeLabel);
+  if (!status || !context || context.itemIds.length <= 1) {
+    if (status) status.textContent = "";
+    return;
+  }
+  status.textContent = state.language === "th"
+    ? `ภาพ ${context.activeIndex + 1} จาก ${context.itemIds.length}`
+    : `Image ${context.activeIndex + 1} of ${context.itemIds.length}`;
+}
+
+function renderLightboxNavigation() {
+  const context = state.lightboxBrowseContext;
+  const previous = document.getElementById("lightbox-previous");
+  const next = document.getElementById("lightbox-next");
+  const hasPrevious = Boolean(context && context.itemIds.length > 1 && context.activeIndex > 0);
+  const hasNext = Boolean(context && context.itemIds.length > 1 && context.activeIndex < context.itemIds.length - 1);
+  if (previous) previous.hidden = !hasPrevious;
+  if (next) next.hidden = !hasNext;
+  if (previous?.hidden && document.activeElement === previous) {
+    (next?.hidden ? document.getElementById("lightbox-close") : next)?.focus({ preventScroll: true });
+  }
+  if (next?.hidden && document.activeElement === next) {
+    (previous?.hidden ? document.getElementById("lightbox-close") : previous)?.focus({ preventScroll: true });
+  }
+  updateLightboxNavigationLabels();
+}
+
+function preloadLightboxNeighbors() {
+  const context = state.lightboxBrowseContext;
+  if (!context) return;
+  [context.activeIndex - 1, context.activeIndex + 1].forEach(index => {
+    const id = context.itemIds[index];
+    const item = id ? state.history.find(entry => entry.id === id) : null;
+    if (item?.imageUrl) {
+      const preload = new Image();
+      preload.src = item.imageUrl;
+    }
+  });
+}
+
+function setLightboxImage(item) {
+  const img = document.getElementById("lightbox-image");
+  const status = document.getElementById("lightbox-position-status");
+  if (!img) return;
+  const loadToken = ++lightboxImageLoadToken;
+  img.classList.add("is-loading");
+  img.alt = item.prompt
+    ? `${state.language === "th" ? "ภาพที่สร้าง" : "Generated image"}: ${item.prompt.substring(0, 120)}`
+    : (state.language === "th" ? "ภาพที่สร้างแบบเต็มขนาด" : "Full resolution generated image");
+  img.onload = () => {
+    if (loadToken !== lightboxImageLoadToken) return;
+    img.classList.remove("is-loading");
+    updateLightboxNavigationLabels();
+  };
+  img.onerror = () => {
+    if (loadToken !== lightboxImageLoadToken) return;
+    img.classList.remove("is-loading");
+    if (status) status.textContent = state.language === "th" ? "โหลดภาพไม่สำเร็จ" : "Image failed to load";
+  };
+  img.src = item.imageUrl;
+}
+
+function openLightbox(item, { triggerElement = null, browseContext = null } = {}) {
+  const modal = document.getElementById("lightbox-modal");
+  if (!modal || !item) return;
+  state.lightboxBrowseContext = browseContext || createLightboxBrowseContext(item);
+  if (triggerElement) state.lightboxReturnFocus = triggerElement;
+  modal.style.display = "flex";
+  renderLightboxItem(item);
+  requestAnimationFrame(() => document.getElementById("lightbox-close")?.focus({ preventScroll: true }));
+}
+
+function closeLightbox({ restoreFocus = true } = {}) {
+  const modal = document.getElementById("lightbox-modal");
+  if (!modal || modal.style.display === "none") return;
+  modal.style.display = "none";
+  modal.activeItem = null;
+  state.lightboxBrowseContext = null;
+  lightboxImageLoadToken += 1;
+  const img = document.getElementById("lightbox-image");
+  if (img) {
+    img.onload = null;
+    img.onerror = null;
+    img.classList.remove("is-loading");
+    img.removeAttribute("src");
+  }
+  renderLightboxNavigation();
+  const returnFocus = state.lightboxReturnFocus;
+  state.lightboxReturnFocus = null;
+  if (restoreFocus && returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+}
+
+function navigateLightbox(direction) {
+  const context = state.lightboxBrowseContext;
+  if (!context || ![-1, 1].includes(direction)) return false;
+  const nextIndex = context.activeIndex + direction;
+  if (nextIndex < 0 || nextIndex >= context.itemIds.length) return false;
+  const nextItem = state.history.find(entry => entry.id === context.itemIds[nextIndex]);
+  if (!nextItem) {
+    syncOpenLightboxContext();
+    return false;
+  }
+  context.activeIndex = nextIndex;
+  renderLightboxItem(nextItem);
+  return true;
+}
+
+function openLineageLightboxItem(item) {
+  const context = state.lightboxBrowseContext;
+  const contextIndex = context?.itemIds.indexOf(item.id) ?? -1;
+  if (contextIndex >= 0) {
+    context.activeIndex = contextIndex;
+    renderLightboxItem(item);
+    return;
+  }
+  state.lightboxBrowseContext = {
+    source: "standalone",
+    collectionId: null,
+    itemIds: [item.id],
+    activeIndex: 0
+  };
+  renderLightboxItem(item);
+}
+
+function syncOpenLightboxContext() {
+  const modal = document.getElementById("lightbox-modal");
+  const context = state.lightboxBrowseContext;
+  if (!modal || modal.style.display === "none" || !context) return;
+  const activeId = modal.activeItem?.id;
+  if (context.source === "standalone") {
+    const activeItem = state.history.find(entry => entry.id === activeId);
+    if (activeItem) renderLightboxItem(activeItem);
+    else closeLightbox();
+    return;
+  }
+  if (context.source === "collection" && !getCollectionById(context.collectionId)) {
+    closeLightbox({ restoreFocus: false });
+    return;
+  }
+  const visibleItems = getVisibleHistoryItems();
+  if (visibleItems.length === 0) {
+    closeLightbox();
+    return;
+  }
+  const previousIndex = context.activeIndex;
+  context.itemIds = visibleItems.map(item => item.id);
+  const retainedIndex = context.itemIds.indexOf(activeId);
+  context.activeIndex = retainedIndex >= 0
+    ? retainedIndex
+    : Math.min(previousIndex, context.itemIds.length - 1);
+  renderLightboxItem(visibleItems[context.activeIndex]);
+}
+
+// Render one history item into the already-open full screen Lightbox modal.
+function renderLightboxItem(item) {
   const modal = document.getElementById("lightbox-modal");
   const img = document.getElementById("lightbox-image");
   const title = document.getElementById("lightbox-meta-title");
@@ -4146,7 +4370,7 @@ function openLightbox(item) {
   // Save active item to modal so button event handlers can retrieve it (Step 9)
   modal.activeItem = item;
 
-  img.src = item.imageUrl;
+  setLightboxImage(item);
   title.textContent = `Generation Reference #${item.id.substring(4, 9)}`;
   promptTxt.textContent = item.prompt;
   engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
@@ -4218,7 +4442,7 @@ function openLightbox(item) {
 
         parentThumb.addEventListener("click", () => {
           if (parentItem) {
-            openLightbox(parentItem);
+            openLineageLightboxItem(parentItem);
           } else {
             alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`);
           }
@@ -4232,5 +4456,6 @@ function openLightbox(item) {
     }
   }
 
-  modal.style.display = "flex";
+  renderLightboxNavigation();
+  preloadLightboxNeighbors();
 }
