@@ -1,5 +1,5 @@
-import { OpenAIProvider } from './OpenAIProvider.js';
-import { GeminiProvider } from './GeminiProvider.js';
+import { PROVIDER_ADAPTERS } from './providerAdapters.js';
+import { getProviderRegistry, ProviderSelectionError } from './ProviderRegistry.js';
 
 export class ProviderFactory {
   /**
@@ -8,22 +8,12 @@ export class ProviderFactory {
    * @returns {BaseProvider}
    */
   static getProvider(providerName) {
-    const name = providerName.toLowerCase();
-    
-    if (name === 'openai') {
-      const apiKey = process.env.OPENAI_API_KEY;
-      if (!apiKey || apiKey === 'your_openai_api_key_here') {
-        throw new Error('OpenAI API Key is not configured on the server.');
-      }
-      return new OpenAIProvider(apiKey);
-    } else if (name === 'gemini') {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-        throw new Error('Gemini API Key is not configured on the server.');
-      }
-      return new GeminiProvider(apiKey);
-    } else {
-      throw new Error(`Unsupported provider: ${providerName}`);
-    }
+    const registry = getProviderRegistry();
+    const provider = registry.getProvider(String(providerName || '').toLowerCase());
+    if (!provider || provider.enabled === false) throw new ProviderSelectionError(`Unsupported or disabled provider: ${providerName}`);
+    if (!registry.isProviderAvailable(provider)) throw new ProviderSelectionError(`${provider.displayName.en} API key is not configured on the server.`, 503);
+    const Adapter = PROVIDER_ADAPTERS[provider.adapter];
+    if (!Adapter) throw new ProviderSelectionError(`Provider adapter is not registered: ${provider.adapter}`, 500);
+    return new Adapter(process.env[provider.apiKeyEnv], provider);
   }
 }

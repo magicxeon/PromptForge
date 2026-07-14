@@ -3,6 +3,31 @@
   "defaultCollectionId": null,
   "collections": [
     {
+      "id": "col_1783963420230_wopgi9",
+      "name": "Fashion 01",
+      "description": "Fashion Testing",
+      "story": "",
+      "coverJobId": "job_1783960976853_jdqjqvrmn",
+      "jobIds": [
+        "job_1783960976853_jdqjqvrmn",
+        "job_1783960856901_stuksfpgk",
+        "job_1783960799080_b77ssewa5",
+        "job_1783960701221_ozib2xaf2",
+        "job_1783960597057_0i9ak47g0",
+        "job_1783959909967_3w2rm5zv5",
+        "job_1783937710329_wef6teqsx",
+        "job_1783937205872_e29xk7xi2",
+        "job_1784012382527_kbrtl4i0o"
+      ],
+      "createdAt": 1783963420230,
+      "updatedAt": 1784012679952,
+      "futureAutomation": {
+        "status": "not_configured",
+        "characterProfiles": [],
+        "generationPlan": null
+      }
+    },
+    {
       "id": "col_1783860277044_y6a8cg",
       "name": "Testing Collection",
       "description": "use for testing collect imagaes",

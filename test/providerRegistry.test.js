@@ -1,0 +1,99 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { loadProviderConfig, validateProviderConfig, ProviderConfigError } from '../server/providers/ProviderConfigLoader.js';
+import { ProviderRegistry, ProviderSelectionError } from '../server/providers/ProviderRegistry.js';
+
+function createConfig() {
+  return {
+    schemaVersion: 1,
+    defaultProvider: 'alpha',
+    providers: [
+      {
+        id: 'alpha',
+        adapter: 'alpha-adapter',
+        enabled: true,
+        displayName: { en: 'Alpha', th: 'Alpha' },
+        apiKeyEnv: 'ALPHA_KEY',
+        streamingEnv: 'ALPHA_STREAM',
+        defaultModel: 'alpha-image',
+        models: [
+          {
+            id: 'alpha-image',
+            enabled: true,
+            displayName: { en: 'Alpha Image', th: 'Alpha Image' },
+            capabilities: {
+              imageGeneration: true,
+              imageReferences: true,
+              maxReferenceImages: 2,
+              streaming: true,
+              aspectRatios: ['1:1']
+            },
+            creditCost: 3
+          }
+        ]
+      },
+      {
+        id: 'disabled',
+        adapter: 'disabled-adapter',
+        enabled: false,
+        displayName: { en: 'Disabled', th: 'Disabled' },
+        apiKeyEnv: 'DISABLED_KEY',
+        defaultModel: 'disabled-image',
+        models: [
+          {
+            id: 'disabled-image',
+            enabled: true,
+            displayName: { en: 'Disabled Image', th: 'Disabled Image' },
+            capabilities: { imageGeneration: true }
+          }
+        ]
+      }
+    ]
+  };
+}
+
+test('provider registry exposes only enabled providers with configured secrets', () => {
+  const registry = new ProviderRegistry(validateProviderConfig(createConfig()), {
+    ALPHA_KEY: 'secret',
+    ALPHA_STREAM: 'false',
+    DISABLED_KEY: 'secret'
+  });
+  const catalog = registry.getPublicCatalog();
+
+  assert.equal(catalog.defaultProvider, 'alpha');
+  assert.deepEqual(catalog.providers.map(provider => provider.id), ['alpha']);
+  assert.equal(catalog.providers[0].models[0].estimatedCredits, 3);
+  assert.equal('apiKeyEnv' in catalog.providers[0], false);
+  assert.equal(registry.shouldStream(createConfig().providers[0], createConfig().providers[0].models[0]), false);
+});
+
+test('provider registry rejects unknown models and incompatible requests', () => {
+  const registry = new ProviderRegistry(validateProviderConfig(createConfig()), { ALPHA_KEY: 'secret' });
+  assert.throws(() => registry.resolveSelection('alpha', 'missing'), ProviderSelectionError);
+  assert.throws(
+    () => registry.validateRequest(createConfig().providers[0].models[0], { aspectRatio: '4:5', referenceCount: 0 }),
+    /does not support aspect ratio/
+  );
+  assert.throws(
+    () => registry.validateRequest(createConfig().providers[0].models[0], { aspectRatio: '1:1', referenceCount: 3 }),
+    /supports up to 2/
+  );
+});
+
+test('provider configuration rejects duplicate provider IDs', () => {
+  const config = createConfig();
+  config.providers.push({ ...config.providers[0] });
+  assert.throws(() => validateProviderConfig(config), ProviderConfigError);
+});
+
+test('project provider configuration registers Grok with X_API_KEY', () => {
+  const config = loadProviderConfig();
+  const xai = config.providers.find(provider => provider.id === 'xai');
+
+  assert.equal(xai.apiKeyEnv, 'X_API_KEY');
+  assert.equal(xai.defaultModel, 'grok-imagine-image-quality');
+  assert.deepEqual(xai.models.map(model => model.id), [
+    'grok-imagine-image-quality',
+    'grok-imagine-image'
+  ]);
+});

@@ -1,5 +1,74 @@
 [
   {
+    "id": "job_1784012629295_xmbv3qasf",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, soft rounded tip, natural lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012629295_xmbv3qasf.png",
+    "timestamp": 1784012656619,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 278,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 278
+      },
+      "output_tokens": 1953,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 369
+      },
+      "total_tokens": 2231
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "27.3"
+  },
+  {
+    "id": "job_1784012593956_0r5v3vvnt",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, soft rounded tip, natural lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012593956_0r5v3vvnt.jpg",
+    "timestamp": 1784012607013,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "13.0"
+  },
+  {
+    "id": "job_1784012382527_kbrtl4i0o",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012382527_kbrtl4i0o.jpg",
+    "timestamp": 1784012399054,
+    "provider": "xai",
+    "submodel": "grok-imagine-image",
+    "resolvedSubmodel": "grok-imagine-image-quality",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "cost_in_usd_ticks": 600000000
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "16.5"
+  },
+  {
     "id": "job_1783960976853_jdqjqvrmn",
     "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1783960976853_jdqjqvrmn.png",

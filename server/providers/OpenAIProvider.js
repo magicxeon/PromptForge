@@ -107,6 +107,7 @@ export class OpenAIProvider extends BaseProvider {
 
     return {
       base64,
+      mimeType: `image/${(data.output_format || options.outputFormat || 'png') === 'jpg' ? 'jpeg' : (data.output_format || options.outputFormat || 'png')}`,
       usage: data.usage || null,
       size: data.size || size,
       quality: data.quality || options.quality || null,

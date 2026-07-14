@@ -37,6 +37,7 @@ export class GeminiProvider extends BaseProvider {
       const base64Bytes = data.predictions[0].bytesBase64Encoded;
       return {
         base64: base64Bytes,
+        mimeType: 'image/jpeg',
         usage: null
       };
     } else {
@@ -58,50 +59,61 @@ export class GeminiProvider extends BaseProvider {
       ];
 
       // Character sheets come first so the prompt can treat them as the primary design reference.
+      const normalizeImage = (value) => {
+        const match = typeof value === 'string' ? value.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/is) : null;
+        return match ? { mimeType: match[1], data: match[2] } : { mimeType: 'image/png', data: value };
+      };
+
       if (options.resolvedCharacterReferenceImageA) {
+        const image = normalizeImage(options.resolvedCharacterReferenceImageA);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedCharacterReferenceImageA
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
       if (options.resolvedCharacterReferenceImageB) {
+        const image = normalizeImage(options.resolvedCharacterReferenceImageB);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedCharacterReferenceImageB
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
 
       // Append style/character references if provided (Slot A & Slot B) (Step 9)
       if (options.resolvedStyleReferenceImageA) {
+        const image = normalizeImage(options.resolvedStyleReferenceImageA);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedStyleReferenceImageA
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
       if (options.resolvedStyleReferenceImageB) {
+        const image = normalizeImage(options.resolvedStyleReferenceImageB);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedStyleReferenceImageB
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
 
       // Append face references if provided (Slot A & Slot B) (Step 9)
       if (options.resolvedFaceReferenceImageA) {
+        const image = normalizeImage(options.resolvedFaceReferenceImageA);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedFaceReferenceImageA
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
       if (options.resolvedFaceReferenceImageB) {
+        const image = normalizeImage(options.resolvedFaceReferenceImageB);
         input.push({
           type: 'image',
-          mime_type: 'image/png',
-          data: options.resolvedFaceReferenceImageB
+          mime_type: image.mimeType,
+          data: image.data
         });
       }
 
@@ -147,6 +159,7 @@ export class GeminiProvider extends BaseProvider {
 
       return {
         base64: base64Bytes,
+        mimeType: 'image/jpeg',
         usage: {
           latency_ms: latency || null
         }

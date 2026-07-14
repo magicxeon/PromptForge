@@ -7,7 +7,7 @@ export class BaseProvider {
    * Standard image generation
    * @param {string} prompt 
    * @param {object} options 
-   * @returns {Promise<{base64: string, usage?: object}>}
+   * @returns {Promise<{base64: string, mimeType?: string, usage?: object}>}
    */
   async generateImage(prompt, options = {}) {
     throw new Error('generateImage method not implemented');
@@ -18,7 +18,7 @@ export class BaseProvider {
    * @param {string} prompt 
    * @param {object} options 
    * @param {function} onEvent - callback for event streaming ({ event, data })
-   * @returns {Promise<{base64: string, usage?: object}>}
+   * @returns {Promise<{base64: string, mimeType?: string, usage?: object}>}
    */
   async generateImageStream(prompt, options = {}, onEvent = () => {}) {
     throw new Error('generateImageStream method not implemented by this provider');

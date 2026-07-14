@@ -283,8 +283,7 @@
               <div class="form-field">
                 <label for="api-provider-select">Provider Engine</label>
                 <select id="api-provider-select" class="custom-select">
-                  <option value="gemini">Google Gemini AI</option>
-                  <option value="openai">OpenAI DALL-E</option>
+                  <!-- Dynamically populated from the server provider registry -->
                 </select>
               </div>
 
@@ -293,6 +292,12 @@
                 <select id="api-submodel-select" class="custom-select">
                   <!-- Dynamically populated -->
                 </select>
+                <small id="model-capability-summary" class="field-option-help" aria-live="polite"></small>
+              </div>
+
+              <div id="image-resolution-field" class="form-field" style="display: none;">
+                <label for="image-resolution-select">Output Resolution</label>
+                <select id="image-resolution-select" class="custom-select"></select>
               </div>
 
               <div class="form-field" style="display: none;">

@@ -132,25 +132,6 @@ const FIELD_TO_CATEGORY_MAP = {
   "Camera Imperfections": "camera_imperfections"
 };
 
-// Submodel options definition per provider
-const PROVIDER_SUBMODELS = {
-  gemini: [
-    { value: 'gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite (Fastest & Cheapest)' },
-    { value: 'gemini-3.1-flash-image', name: 'Nano Banana 2 (Generalist)' },
-    { value: 'gemini-3-pro-image', name: 'Nano Banana Pro (Premium)' },
-    { value: 'gemini-2.5-flash-image', name: 'Nano Banana (Legacy)' }
-    // ,{ value: 'imagen-3.0-generate-002', name: 'Imagen 3 (Legacy)' }
-  ],
-  openai: [
-    { value: 'gpt-image-1-mini', name: 'GPT-Image 1 Mini (Cheapest)' },
-    { value: 'gpt-image-1', name: 'GPT-Image 1 (Standard)' },
-    { value: 'gpt-image-1.5', name: 'GPT-Image 1.5 (Enhanced)' },
-    { value: 'gpt-image-2', name: 'GPT-Image 2 (Premium)' },
-    { value: 'dall-e-3', name: 'DALL-E 3 (Legacy)' }
-    // ,{ value: 'dall-e-2', name: 'DALL-E 2 (Legacy)' }
-  ]
-};
-
 // Presets are loaded dynamically from server bundle via state.presets
 
 // Unified exclusions declaration
@@ -212,6 +193,7 @@ const state = {
   history: [],
   collections: [],
   defaultCollectionId: null,
+  providerCatalog: null,
   selectedCollectionId: "all",
   collectionMembershipJobId: null,
   pendingCollectionJobId: null,
@@ -294,6 +276,29 @@ function validateForm() {
     apiSubmodelSelect.focus();
     alert("Please select both a Provider Engine and a Submodel Version before generating an image.");
     return false;
+  }
+
+  const activeModel = getActiveModelConfig();
+  if (activeModel) {
+    const capabilities = activeModel.capabilities || {};
+    const activeReferences = [
+      ...(state.imageReferences.faceMatch ? [state.faceReferenceImageA, state.faceReferenceImageB] : []),
+      ...((state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch))
+        ? [state.styleReferenceImageA, state.styleReferenceImageB]
+        : []),
+      ...(isStoryCharacterReferenceActive() ? [state.characterReferenceImageA, state.characterReferenceImageB] : [])
+    ].filter(Boolean);
+    const uniqueReferenceCount = new Set(activeReferences).size;
+    const maxReferences = Number(capabilities.maxReferenceImages || 0);
+    if (uniqueReferenceCount > maxReferences) {
+      apiSubmodelSelect.scrollIntoView({ behavior: "smooth", block: "center" });
+      alert(`${getLocalizedLabel(activeModel.displayName)} supports up to ${maxReferences} unique reference images. Please remove ${uniqueReferenceCount - maxReferences} reference image(s).`);
+      return false;
+    }
+    if (Array.isArray(capabilities.aspectRatios) && !capabilities.aspectRatios.includes(state.aspectRatio)) {
+      alert(`${getLocalizedLabel(activeModel.displayName)} does not support aspect ratio ${state.aspectRatio}. Please select another ratio or model.`);
+      return false;
+    }
   }
 
   const required = [
@@ -691,45 +696,103 @@ function assignCharacterReference(imageSrc, jobId = null) {
   updatePromptPreview();
 }
 
-// Populate submodel options inside the selectors
-function updateSubmodelList() {
+function getActiveProviderConfig() {
+  const providerId = document.getElementById("api-provider-select")?.value;
+  return state.providerCatalog?.providers?.find(provider => provider.id === providerId) || null;
+}
+
+function getActiveModelConfig() {
+  const modelId = document.getElementById("api-submodel-select")?.value;
+  return getActiveProviderConfig()?.models?.find(model => model.id === modelId) || null;
+}
+
+function getSelectedImageResolution() {
+  const model = getActiveModelConfig();
+  if (!model?.capabilities?.resolutions?.length) return null;
+  return document.getElementById("image-resolution-select")?.value || model.defaults?.resolution || null;
+}
+
+function populateProviderList(preferredProvider = null) {
+  const providerSelect = document.getElementById("api-provider-select");
+  if (!providerSelect) return;
+  const previous = preferredProvider || providerSelect.value;
+  providerSelect.innerHTML = "";
+  (state.providerCatalog?.providers || []).forEach(provider => {
+    const option = document.createElement("option");
+    option.value = provider.id;
+    option.textContent = getLocalizedLabel(provider.displayName);
+    providerSelect.appendChild(option);
+  });
+  const fallback = state.providerCatalog?.defaultProvider || providerSelect.options[0]?.value || "";
+  const hasPrevious = (state.providerCatalog?.providers || []).some(provider => provider.id === previous);
+  providerSelect.value = hasPrevious ? previous : fallback;
+  if (preferredProvider && !hasPrevious) {
+    alert(state.language === "th"
+      ? `Provider ${preferredProvider} ไม่พร้อมใช้งาน ระบบเปลี่ยนเป็น Provider เริ่มต้นแล้ว`
+      : `Provider ${preferredProvider} is unavailable. The default provider was selected.`);
+  }
+}
+
+// Populate models from the server-owned provider catalog.
+function updateSubmodelList(preferredModel = null) {
   const providerSelect = document.getElementById("api-provider-select");
   const submodelSelect = document.getElementById("api-submodel-select");
   if (!submodelSelect || !providerSelect) return;
 
-  const provider = providerSelect.value;
+  const previous = preferredModel || submodelSelect.value;
   submodelSelect.innerHTML = "";
-  const submodels = PROVIDER_SUBMODELS[provider] || [];
-  submodels.forEach(model => {
+  const provider = getActiveProviderConfig();
+  (provider?.models || []).forEach(model => {
     const opt = document.createElement("option");
-    opt.value = model.value;
-    opt.textContent = model.name;
+    opt.value = model.id;
+    opt.textContent = getLocalizedLabel(model.displayName);
     submodelSelect.appendChild(opt);
   });
 
-  if (submodelSelect.options.length > 0) {
-    submodelSelect.selectedIndex = 0;
+  const hasPrevious = (provider?.models || []).some(model => model.id === previous);
+  submodelSelect.value = hasPrevious ? previous : (provider?.defaultModel || submodelSelect.options[0]?.value || "");
+  if (preferredModel && !hasPrevious) {
+    alert(state.language === "th"
+      ? `Model ${preferredModel} ไม่พร้อมใช้งาน ระบบเปลี่ยนเป็น Model เริ่มต้นแล้ว`
+      : `Model ${preferredModel} is unavailable. The default model was selected.`);
   }
 
-  // Disable reference upload if DALL-E 2 / DALL-E 3 is selected (Step 9/OpenAI)
-  applyOpenAIImageReferenceControl();
+  applyModelCapabilityControls();
 }
 
-// Disable/enable references depending on DALL-E support limits
-function applyOpenAIImageReferenceControl() {
+// Disable or enable references from the selected model capability contract.
+function applyModelCapabilityControls() {
   const providerSelect = document.getElementById("api-provider-select");
   const submodelSelect = document.getElementById("api-submodel-select");
   if (!providerSelect || !submodelSelect) return;
 
-  const provider = providerSelect.value;
-  const submodel = submodelSelect.value;
-  const isDalle = provider === "openai" && (submodel === "dall-e-3" || submodel === "dall-e-2");
+  const model = getActiveModelConfig();
+  const referencesDisabled = model ? model.capabilities?.imageReferences !== true : true;
+  const capabilitySummary = document.getElementById("model-capability-summary");
+  if (capabilitySummary) {
+    if (!model) {
+      capabilitySummary.textContent = "";
+    } else {
+      const credits = Number(model.estimatedCredits || 1);
+      const creditText = state.language === "th"
+        ? `${credits} เครดิต`
+        : `${credits} credit${credits === 1 ? "" : "s"}`;
+      const referenceText = model.capabilities?.imageReferences
+        ? (state.language === "th"
+          ? `ภาพอ้างอิงสูงสุด ${model.capabilities.maxReferenceImages || 0} ภาพ`
+          : `up to ${model.capabilities.maxReferenceImages || 0} references`)
+        : (state.language === "th" ? "สร้างจากข้อความเท่านั้น" : "text-to-image only");
+      capabilitySummary.textContent = `${creditText} • ${referenceText}`;
+    }
+  }
+  updateAspectRatioCapabilityUI();
+  updateImageResolutionControl();
 
   const refFace = document.getElementById("ref-face-match");
   const refStyle = document.getElementById("ref-style-match");
   const storyCharacterReference = document.getElementById("story-use-character-reference");
 
-  if (isDalle) {
+  if (referencesDisabled) {
     if (refFace) {
       refFace.checked = false;
       refFace.disabled = true;
@@ -816,6 +879,47 @@ function applyOpenAIImageReferenceControl() {
     if (lbActions) lbActions.style.display = "flex";
   }
   updatePromptPreview();
+}
+
+function updateImageResolutionControl(preferredResolution = null) {
+  const field = document.getElementById("image-resolution-field");
+  const select = document.getElementById("image-resolution-select");
+  if (!field || !select) return;
+  const model = getActiveModelConfig();
+  const resolutions = model?.capabilities?.resolutions || [];
+  if (resolutions.length === 0) {
+    field.style.display = "none";
+    select.innerHTML = "";
+    return;
+  }
+
+  const previous = preferredResolution || select.value;
+  select.innerHTML = "";
+  resolutions.forEach(resolution => {
+    const option = document.createElement("option");
+    option.value = resolution;
+    option.textContent = resolution.toUpperCase();
+    select.appendChild(option);
+  });
+  select.value = resolutions.includes(previous)
+    ? previous
+    : (model.defaults?.resolution || resolutions[0]);
+  field.style.display = "block";
+}
+
+function updateAspectRatioCapabilityUI() {
+  const supportedRatios = getActiveModelConfig()?.capabilities?.aspectRatios || [];
+  document.querySelectorAll("#aspect-ratio-group .option-chip").forEach(chip => {
+    const ratio = chip.getAttribute("data-ratio");
+    const supported = supportedRatios.length === 0 || supportedRatios.includes(ratio);
+    chip.classList.toggle("model-unsupported", !supported);
+    chip.setAttribute("aria-disabled", String(!supported));
+    chip.title = supported
+      ? ""
+      : (state.language === "th"
+        ? `โมเดลที่เลือกไม่รองรับอัตราส่วน ${ratio}`
+        : `The selected model does not support ${ratio}.`);
+  });
 }
 
 // Fetch balance from the credits DB
@@ -920,18 +1024,25 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initApp() {
   state.isRestoringState = true; // Block any auto-saving during initialization race conditions (Step 12)
   try {
-    const response = await fetch("/api/attributes/bundle");
-    if (!response.ok) {
-      throw new Error(`Server returned HTTP ${response.status}`);
+    state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
+    const [response, providerResponse] = await Promise.all([
+      fetch("/api/attributes/bundle"),
+      fetch("/api/providers")
+    ]);
+    if (!response.ok || !providerResponse.ok) {
+      throw new Error(`Server returned HTTP ${!response.ok ? response.status : providerResponse.status}`);
     }
     const bundle = await response.json();
+    state.providerCatalog = await providerResponse.json();
+    if (!state.providerCatalog?.providers?.length) {
+      throw new Error("No configured image providers are available.");
+    }
 
     state.schema = bundle.schema;
     state.templates = bundle.templates;
     state.order = bundle.order;
     state.library = bundle.library;
     state.presets = bundle.presets;
-    state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
 
     // Populate templates select
     const templateSelect = document.getElementById("template-select");
@@ -945,6 +1056,7 @@ async function initApp() {
     });
 
     renderForm();
+    populateProviderList();
     document.querySelectorAll('#language-pill-selector .pill-btn').forEach(button => {
       button.classList.toggle('active', button.getAttribute('data-value') === state.language);
     });
@@ -1449,8 +1561,12 @@ function bindEvents() {
   }
   if (apiSubmodelSelect) {
     apiSubmodelSelect.addEventListener("change", () => {
-      applyOpenAIImageReferenceControl();
+      applyModelCapabilityControls();
     });
+  }
+  const imageResolutionSelect = document.getElementById("image-resolution-select");
+  if (imageResolutionSelect) {
+    imageResolutionSelect.addEventListener("change", updatePromptPreview);
   }
 
   // Aspect Ratio Chips & Linked Dimensions
@@ -1474,6 +1590,10 @@ function bindEvents() {
 
   aspectChips.forEach(chip => {
     chip.addEventListener("click", () => {
+      if (chip.getAttribute("aria-disabled") === "true") {
+        alert(chip.title || "The selected model does not support this aspect ratio.");
+        return;
+      }
       aspectChips.forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
       state.aspectRatio = chip.getAttribute("data-ratio");
@@ -1708,6 +1828,10 @@ function bindEvents() {
           .filter(Boolean);
         state.language = newLang;
         localStorage.setItem('model_prompt_forge_language', newLang);
+        const currentProvider = document.getElementById("api-provider-select")?.value;
+        const currentModel = document.getElementById("api-submodel-select")?.value;
+        populateProviderList(currentProvider);
+        updateSubmodelList(currentModel);
         renderForm();
         bindDynamicFormEvents();
         restoreSelectionsToUI();
@@ -1963,6 +2087,7 @@ function bindEvents() {
           body: JSON.stringify({
             provider,
             submodel,
+            imageResolution: getSelectedImageResolution(),
             selections: state.selections,
             aspectRatio: state.aspectRatio,
             imageReferences: {
@@ -2895,6 +3020,9 @@ function saveCurrentModeState() {
     template: document.getElementById("template-select") ? document.getElementById("template-select").value : "portrait",
     nsfwEnabled: document.getElementById("toggle-nsfw") ? document.getElementById("toggle-nsfw").checked : false,
     gptSafeEnabled: document.getElementById("toggle-gpt-safe") ? document.getElementById("toggle-gpt-safe").checked : false,
+    provider: document.getElementById("api-provider-select")?.value || null,
+    submodel: document.getElementById("api-submodel-select")?.value || null,
+    imageResolution: getSelectedImageResolution(),
     faceReferenceImageA: state.faceReferenceImageA,
     faceReferenceImageB: state.faceReferenceImageB,
     faceReferenceJobIds: state.faceReferenceJobIds,
@@ -2957,6 +3085,11 @@ function restoreCurrentModeState() {
     state.characterReferenceImageB = payload.characterReferenceImageB || null;
     state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
     state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
+    if (payload.provider) {
+      populateProviderList(payload.provider);
+      updateSubmodelList(payload.submodel || null);
+      updateImageResolutionControl(payload.imageResolution || null);
+    }
     if (state.mode !== "normal") {
       clearCharacterReferenceState({ updateUI: false });
     }
@@ -3137,8 +3270,11 @@ function resetForm() {
 // Export state as JSON
 function exportConfigJSON() {
   const payload = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     mode: state.mode,
+    provider: document.getElementById("api-provider-select")?.value || null,
+    submodel: document.getElementById("api-submodel-select")?.value || null,
+    imageResolution: getSelectedImageResolution(),
     selections: {},
     imageReferences: {
       ...state.imageReferences,
@@ -3179,6 +3315,12 @@ function importConfigJSON(jsonString) {
     if (!payload || typeof payload !== "object") throw new Error("Invalid preset format");
 
     resetForm();
+
+    if (payload.provider) {
+      populateProviderList(payload.provider);
+      updateSubmodelList(payload.submodel || null);
+      updateImageResolutionControl(payload.imageResolution || null);
+    }
 
     if (payload.template) {
       const templateSelect = document.getElementById("template-select");
@@ -4012,7 +4154,8 @@ function openLightbox(item) {
   time.textContent = new Date(item.timestamp).toLocaleString();
   if (duration) duration.textContent = item.generationDuration ? `${item.generationDuration}s` : "N/A";
   dlLink.href = item.imageUrl;
-  dlLink.download = `modelpromptforge-generation-${item.id}.png`;
+  const outputExtension = item.imageUrl?.match(/\.([a-z0-9]+)(?:\?|$)/i)?.[1] || "png";
+  dlLink.download = `modelpromptforge-generation-${item.id}.${outputExtension}`;
   renderLightboxCollections(item.id);
 
   // Render lineage parent links (Step 9)

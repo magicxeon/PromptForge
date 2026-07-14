@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { ProviderFactory } from './providers/ProviderFactory.js';
 import { collectionManager } from './collectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds } from './referenceUtils.js';
+import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,14 +23,14 @@ async function ensureDir(dir) {
 }
 
 // Helper to deduct credit from database
-async function deductUserCredit(username) {
+async function deductUserCredit(username, amount = 1) {
   try {
     const dbData = await fs.readFile(DB_PATH, 'utf-8');
     const db = JSON.parse(dbData);
     const user = db.users[username];
     if (!user) throw new Error('User not found');
-    if (user.credits <= 0) throw new Error('Insufficient credits');
-    user.credits -= 1;
+    if (user.credits < amount) throw new Error('Insufficient credits');
+    user.credits -= amount;
     await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
     return user.credits;
   } catch (err) {
@@ -39,12 +40,12 @@ async function deductUserCredit(username) {
 }
 
 // Refund a failed moderation job once; the caller owns idempotency per job.
-async function refundUserCredit(username) {
+async function refundUserCredit(username, amount = 1) {
   const dbData = await fs.readFile(DB_PATH, 'utf-8');
   const db = JSON.parse(dbData);
   const user = db.users[username];
   if (!user) throw new Error('User not found');
-  user.credits += 1;
+  user.credits += amount;
   await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
   return user.credits;
 }
@@ -75,7 +76,7 @@ async function resolveLocalImageToBase64(imgPath) {
     const filename = path.basename(imgPath);
     const filePath = path.join(OUTPUTS_DIR, filename);
     const fileBuffer = await fs.readFile(filePath);
-    return fileBuffer.toString('base64');
+    return `data:${mimeTypeFromFilename(filename)};base64,${fileBuffer.toString('base64')}`;
   } catch (err) {
     console.error(`[Queue] Failed to resolve local image path ${imgPath}:`, err.message);
     return null;
@@ -148,6 +149,7 @@ class QueueManager {
         type: 'image_generation.completed',
         imageUrl: job.result.imageUrl,
         usage: job.result.usage,
+        mimeType: job.result.mimeType,
         generationDuration: job.result.generationDuration
       })}\n\n`);
       res.end();
@@ -216,7 +218,8 @@ class QueueManager {
       const providerInstance = ProviderFactory.getProvider(job.provider);
       
       // Deduct credit at the start of actual processing to prevent abuse
-      await deductUserCredit(job.options.username || 'user_demo');
+      const creditCost = Number(job.options.creditCost || 1);
+      await deductUserCredit(job.options.username || 'user_demo', creditCost);
 
       const startTime = Date.now();
 
@@ -269,7 +272,8 @@ class QueueManager {
 
       // Save output file to static assets
       await ensureDir(OUTPUTS_DIR);
-      const filename = `${jobId}.png`;
+      const { mimeType, extension } = resolveImageOutputType(result);
+      const filename = `${jobId}.${extension}`;
       const filePath = path.join(OUTPUTS_DIR, filename);
       await fs.writeFile(filePath, Buffer.from(result.base64, 'base64'));
 
@@ -278,6 +282,7 @@ class QueueManager {
       job.result = {
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
+        mimeType,
         generationDuration: durationSec
       };
       
@@ -289,6 +294,11 @@ class QueueManager {
         timestamp: Date.now(),
         provider: job.provider,
         submodel: job.submodel,
+        resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
+        providerConfigVersion: job.options.providerConfigVersion || null,
+        creditCost,
+        mimeType,
+        usage: result.usage || null,
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
         referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
         referencedCharacterJobIds: normalizeReferenceJobIds(job.options.characterReferenceJobIds),
@@ -308,6 +318,7 @@ class QueueManager {
         type: 'image_generation.completed',
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
+        mimeType,
         generationDuration: durationSec,
         collectionWarning
       });
@@ -323,7 +334,8 @@ class QueueManager {
       ) {
         try {
           job.refundedCredits = await refundUserCredit(
-            job.options.username || 'user_demo'
+            job.options.username || 'user_demo',
+            Number(job.options.creditCost || 1)
           );
           job.creditRefunded = true;
         } catch (refundError) {
@@ -435,6 +447,7 @@ class QueueManager {
       result: {
         imageUrl: completed.imageUrl,
         usage: completed.usage || null,
+        mimeType: completed.mimeType || null,
         generationDuration: completed.generationDuration || null
       },
       error: null,

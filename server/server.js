@@ -8,7 +8,7 @@ import zlib from 'zlib';
 import { compilePromptOnServer } from './promptCompiler.js';
 import { normalizeReferenceJobIds } from './referenceUtils.js';
 import { collectionManager, CollectionError } from './collectionManager.js';
-import { isOpenAIAPIStreamingEnabled } from './providers/OpenAIProvider.js';
+import { getProviderRegistry } from './providers/ProviderRegistry.js';
 
 dotenv.config();
 
@@ -17,6 +17,7 @@ const __dirname = pathModule.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const providerRegistry = getProviderRegistry();
 
 app.use(cors());
 app.use(express.json());
@@ -31,6 +32,10 @@ app.use('/sub-app-game-character', express.static(pathModule.join(__dirname, '..
 app.use((req, res, next) => {
   req.userRole = req.headers['x-user-role'] || 'user';
   next();
+});
+
+app.get('/api/providers', (req, res) => {
+  res.json(providerRegistry.getPublicCatalog());
 });
 
 const ATTRIBUTE_FILES = [
@@ -309,16 +314,33 @@ app.post('/api/generate', async (req, res) => {
     faceReferenceImageA, faceReferenceImageB, faceReferenceJobIds,
     styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds,
     characterReferenceImageA, characterReferenceImageB, characterReferenceJobIds,
-    customColors
+    customColors, imageResolution
   } = req.body;
   const targetUser = username || 'user_demo';
   
   try {
+    const { provider: providerConfig, model: modelConfig } = providerRegistry.resolveSelection(provider, submodel);
+    const activeProvider = providerConfig.id;
+    const activeSubmodel = modelConfig.id;
+    const creditCost = Number(modelConfig.creditCost || 1);
+
     // 1. Check user credit before queueing
     const info = await getUserInfo(targetUser);
-    if (info.credits <= 0) {
-      return res.status(402).json({ error: 'Insufficient credits' });
+    if (info.credits < creditCost) {
+      return res.status(402).json({ error: `Insufficient credits. This model requires ${creditCost} credit(s).` });
     }
+
+    const referenceValues = [
+      faceReferenceImageA, faceReferenceImageB,
+      styleReferenceImageA, styleReferenceImageB,
+      characterReferenceImageA, characterReferenceImageB
+    ].filter(value => typeof value === 'string' && value.trim());
+    const uniqueReferenceCount = new Set(referenceValues).size;
+    providerRegistry.validateRequest(modelConfig, {
+      aspectRatio: aspectRatio || '1:1',
+      referenceCount: uniqueReferenceCount,
+      imageResolution
+    });
 
     const hasFaceReference = Boolean(faceReferenceImageA || faceReferenceImageB);
     const hasStyleOrPoseReference = Boolean(styleReferenceImageA || styleReferenceImageB);
@@ -349,19 +371,13 @@ app.post('/api/generate', async (req, res) => {
       customColors
     );
 
-    // 3. Determine submodel default
-    const activeSubmodel = submodel || (provider === 'openai' ? 'gpt-image-1-mini' : 'gemini-3.1-flash-lite-image');
+    // 3. Resolve streaming from the selected model capability and provider policy.
+    const stream = providerRegistry.shouldStream(providerConfig, modelConfig, req.body.stream !== false);
 
-    // 4. Check if stream option should be active
-    const stream = isOpenAIAPIStreamingEnabled()
-      && req.body.stream !== false
-      && provider === 'openai'
-      && activeSubmodel.startsWith('gpt-image');
-
-    console.log(`[API Generate] Enqueueing Job. Provider: ${provider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
+    console.log(`[API Generate] Enqueueing Job. Provider: ${activeProvider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
     
     // 5. Enqueue job
-    const jobId = queueManager.enqueue(provider, activeSubmodel, compiledPrompt, {
+    const jobId = queueManager.enqueue(activeProvider, activeSubmodel, compiledPrompt, {
       aspectRatio,
       imageReferences: normalizedImageReferences,
       mode,
@@ -369,6 +385,10 @@ app.post('/api/generate', async (req, res) => {
       isGptSafe,
       username: targetUser,
       stream,
+      modelConfig,
+      providerConfigVersion: providerRegistry.getConfigVersion(),
+      creditCost,
+      imageResolution: imageResolution || modelConfig.defaults?.resolution || null,
       faceReferenceImageA: normalizedImageReferences.faceMatch ? faceReferenceImageA : null,
       faceReferenceImageB: normalizedImageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: normalizedImageReferences.faceMatch && Array.isArray(faceReferenceJobIds)
@@ -394,7 +414,7 @@ app.post('/api/generate', async (req, res) => {
 
   } catch (error) {
     console.error('Generation enqueuing error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(error.statusCode || 500).json({ error: error.message });
   }
 });
 

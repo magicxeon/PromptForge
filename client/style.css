@@ -422,6 +422,18 @@ body {
   box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
 }
 
+.option-chip.model-unsupported {
+  opacity: 0.32;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+.option-chip.model-unsupported:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
 /* Custom Checkboxes */
 .checkbox-group-row {
   display: flex;
