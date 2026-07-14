@@ -5,10 +5,13 @@ import { fileURLToPath } from 'url';
 import pathModule from 'path';
 import fs from 'fs/promises';
 import zlib from 'zlib';
-import { compilePromptOnServer } from './promptCompiler.js';
-import { normalizeReferenceJobIds } from './referenceUtils.js';
 import { collectionManager, CollectionError } from './collectionManager.js';
 import { getProviderRegistry } from './providers/ProviderRegistry.js';
+import { queueManager } from './queueManager.js';
+import { creditManager } from './creditManager.js';
+import { compileGenerationContext, createQueueOptions } from './generationRequestService.js';
+import { ComparisonOrchestrator } from './comparison/ComparisonOrchestrator.js';
+import { ComparisonError } from './comparison/ComparisonRepository.js';
 
 dotenv.config();
 
@@ -18,6 +21,11 @@ const __dirname = pathModule.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const providerRegistry = getProviderRegistry();
+const comparisonOrchestrator = new ComparisonOrchestrator({
+  providerRegistry,
+  queueManager,
+  creditManager
+});
 
 app.use(cors());
 app.use(express.json());
@@ -148,40 +156,6 @@ app.get('/api/attributes/bundle', async (req, res) => {
   }
 });
 
-const DB_PATH = pathModule.join(__dirname, 'database.json');
-
-// Helper to check/deduct credit
-async function checkAndDeductCredit(username) {
-  try {
-    const dbData = await fs.readFile(DB_PATH, 'utf-8');
-    const db = JSON.parse(dbData);
-    
-    const user = db.users[username];
-    if (!user) throw new Error('User not found');
-    if (user.credits <= 0) throw new Error('Insufficient credits');
-    
-    user.credits -= 1; // Deduct 1 credit
-    
-    await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
-    return { credits: user.credits, role: user.role };
-  } catch (err) {
-    throw new Error(`Credit error: ${err.message}`);
-  }
-}
-
-// Helper to get credits and role
-async function getUserInfo(username) {
-  try {
-    const dbData = await fs.readFile(DB_PATH, 'utf-8');
-    const db = JSON.parse(dbData);
-    const user = db.users[username];
-    if (!user) return { credits: 0, role: 'user' };
-    return { credits: user.credits, role: user.role };
-  } catch (err) {
-    return { credits: 0, role: 'user' };
-  }
-}
-
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
@@ -190,7 +164,7 @@ app.get('/api/health', (req, res) => {
 // Endpoint to fetch current user's credits and role
 app.get('/api/credits', async (req, res) => {
   const username = req.query.user || 'user_demo';
-  const info = await getUserInfo(username);
+  const info = await creditManager.getUserInfo(username);
   res.json(info);
 });
 
@@ -199,19 +173,9 @@ app.post('/api/credits/recharge', async (req, res) => {
   const { username } = req.body;
   const targetUser = username || 'user_demo';
   try {
-    const dbData = await fs.readFile(DB_PATH, 'utf-8');
-    const db = JSON.parse(dbData);
-    
-    if (!db.users[targetUser]) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    db.users[targetUser].credits += 10; // Add 10 credits
-    await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
-    
-    res.json({ credits: db.users[targetUser].credits, role: db.users[targetUser].role });
+    res.json(await creditManager.recharge(targetUser, 10));
   } catch (err) {
-    res.status(500).json({ error: `Recharge failed: ${err.message}` });
+    res.status(err.statusCode || 500).json({ error: `Recharge failed: ${err.message}` });
   }
 });
 
@@ -305,18 +269,10 @@ app.put('/api/collections/:id/default', async (req, res) => {
   }
 });
 
-import { queueManager } from './queueManager.js';
-
 // Secret API Generation Route (Queue-based)
 app.post('/api/generate', async (req, res) => {
-  const { 
-    provider, submodel, selections, aspectRatio, imageReferences, mode, template, isGptSafe, username,
-    faceReferenceImageA, faceReferenceImageB, faceReferenceJobIds,
-    styleReferenceImageA, styleReferenceImageB, styleReferenceJobIds,
-    characterReferenceImageA, characterReferenceImageB, characterReferenceJobIds,
-    customColors, imageResolution
-  } = req.body;
-  const targetUser = username || 'user_demo';
+  const { provider, submodel } = req.body;
+  const targetUser = req.body.username || 'user_demo';
   
   try {
     const { provider: providerConfig, model: modelConfig } = providerRegistry.resolveSelection(provider, submodel);
@@ -324,52 +280,13 @@ app.post('/api/generate', async (req, res) => {
     const activeSubmodel = modelConfig.id;
     const creditCost = Number(modelConfig.creditCost || 1);
 
-    // 1. Check user credit before queueing
-    const info = await getUserInfo(targetUser);
-    if (info.credits < creditCost) {
-      return res.status(402).json({ error: `Insufficient credits. This model requires ${creditCost} credit(s).` });
-    }
-
-    const referenceValues = [
-      faceReferenceImageA, faceReferenceImageB,
-      styleReferenceImageA, styleReferenceImageB,
-      characterReferenceImageA, characterReferenceImageB
-    ].filter(value => typeof value === 'string' && value.trim());
-    const uniqueReferenceCount = new Set(referenceValues).size;
+    await creditManager.assertBalance(targetUser, creditCost);
+    const { context, compiledPrompt } = compileGenerationContext(req.body);
     providerRegistry.validateRequest(modelConfig, {
-      aspectRatio: aspectRatio || '1:1',
-      referenceCount: uniqueReferenceCount,
-      imageResolution
+      aspectRatio: context.aspectRatio,
+      referenceCount: context.referenceCount,
+      imageResolution: context.imageResolution || modelConfig.defaults?.resolution || null
     });
-
-    const hasFaceReference = Boolean(faceReferenceImageA || faceReferenceImageB);
-    const hasStyleOrPoseReference = Boolean(styleReferenceImageA || styleReferenceImageB);
-    const hasCharacterReference = Boolean(characterReferenceImageA || characterReferenceImageB);
-    const normalizedImageReferences = {
-      ...(imageReferences || {}),
-      faceMatch: imageReferences?.faceMatch === true && hasFaceReference,
-      styleMatch: mode === 'normal' && imageReferences?.styleMatch === true && hasStyleOrPoseReference,
-      poseMatch: mode === 'normal' && imageReferences?.poseMatch === true && hasStyleOrPoseReference,
-      characterReference: mode === 'normal'
-        && imageReferences?.characterReference === true
-        && hasCharacterReference,
-      characterOverrides: mode === 'normal'
-        && imageReferences?.characterReference === true
-        && hasCharacterReference
-        && imageReferences?.characterOverrides === true
-    };
-    delete normalizedImageReferences.useReferenceImage;
-
-    // 2. Build prompt secretly on the server
-    const compiledPrompt = compilePromptOnServer(
-      selections, 
-      aspectRatio, 
-      normalizedImageReferences,
-      mode, 
-      template || 'portrait', 
-      isGptSafe,
-      customColors
-    );
 
     // 3. Resolve streaming from the selected model capability and provider policy.
     const stream = providerRegistry.shouldStream(providerConfig, modelConfig, req.body.stream !== false);
@@ -377,34 +294,13 @@ app.post('/api/generate', async (req, res) => {
     console.log(`[API Generate] Enqueueing Job. Provider: ${activeProvider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
     
     // 5. Enqueue job
-    const jobId = queueManager.enqueue(activeProvider, activeSubmodel, compiledPrompt, {
-      aspectRatio,
-      imageReferences: normalizedImageReferences,
-      mode,
-      template,
-      isGptSafe,
+    const jobId = queueManager.enqueue(activeProvider, activeSubmodel, compiledPrompt, createQueueOptions(context, {
       username: targetUser,
       stream,
       modelConfig,
       providerConfigVersion: providerRegistry.getConfigVersion(),
-      creditCost,
-      imageResolution: imageResolution || modelConfig.defaults?.resolution || null,
-      faceReferenceImageA: normalizedImageReferences.faceMatch ? faceReferenceImageA : null,
-      faceReferenceImageB: normalizedImageReferences.faceMatch ? faceReferenceImageB : null,
-      faceReferenceJobIds: normalizedImageReferences.faceMatch && Array.isArray(faceReferenceJobIds)
-        ? normalizeReferenceJobIds(faceReferenceJobIds)
-        : [],
-      styleReferenceImageA: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageA : null,
-      styleReferenceImageB: normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch ? styleReferenceImageB : null,
-      styleReferenceJobIds: (normalizedImageReferences.styleMatch || normalizedImageReferences.poseMatch) && Array.isArray(styleReferenceJobIds)
-        ? normalizeReferenceJobIds(styleReferenceJobIds)
-        : [],
-      characterReferenceImageA: normalizedImageReferences.characterReference ? characterReferenceImageA : null,
-      characterReferenceImageB: normalizedImageReferences.characterReference ? characterReferenceImageB : null,
-      characterReferenceJobIds: normalizedImageReferences.characterReference && Array.isArray(characterReferenceJobIds)
-        ? normalizeReferenceJobIds(characterReferenceJobIds)
-        : []
-    });
+      creditCost
+    }));
 
     res.json({
       jobId,
@@ -415,6 +311,83 @@ app.post('/api/generate', async (req, res) => {
   } catch (error) {
     console.error('Generation enqueuing error:', error);
     res.status(error.statusCode || 500).json({ error: error.message });
+  }
+});
+
+function getComparisonUsername(req) {
+  return req.body?.username || req.query?.username || 'user_demo';
+}
+
+function sendComparisonError(res, error) {
+  if (error instanceof ComparisonError || error.statusCode) {
+    return res.status(error.statusCode || 400).json({
+      error: { code: error.code || 'comparison_request_failed', message: error.message }
+    });
+  }
+  console.error('[Comparison] Unexpected error:', error);
+  return res.status(500).json({
+    error: { code: 'comparison_internal_error', message: 'Comparison operation failed.' }
+  });
+}
+
+app.post('/api/comparisons/estimate', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.estimate(req.body, getComparisonUsername(req)));
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.post('/api/comparisons', async (req, res) => {
+  try {
+    const result = await comparisonOrchestrator.create(req.body, getComparisonUsername(req));
+    res.status(result.idempotentReplay ? 200 : 201).json(result);
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.get('/api/comparisons', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.list(getComparisonUsername(req)));
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.get('/api/comparisons/:setId', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.get(req.params.setId, getComparisonUsername(req)));
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.patch('/api/comparisons/:setId', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.update(req.params.setId, getComparisonUsername(req), req.body));
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.patch('/api/comparisons/:setId/winner', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.setWinner(
+      req.params.setId,
+      getComparisonUsername(req),
+      req.body.jobId
+    ));
+  } catch (error) {
+    sendComparisonError(res, error);
+  }
+});
+
+app.delete('/api/comparisons/:setId', async (req, res) => {
+  try {
+    res.json(await comparisonOrchestrator.remove(req.params.setId, getComparisonUsername(req)));
+  } catch (error) {
+    sendComparisonError(res, error);
   }
 });
 
@@ -452,6 +425,7 @@ app.delete('/api/history/:id', async (req, res) => {
   if (!success) {
     return res.status(404).json({ error: 'History entry not found' });
   }
+  await comparisonOrchestrator.removeHistoryJob(req.params.id);
   res.json({ success: true });
 });
 
@@ -471,5 +445,8 @@ app.listen(PORT, () => {
   }
   collectionManager.init().catch(err => {
     console.error('[Collections] Failed to initialize storage:', err);
+  });
+  comparisonOrchestrator.init().catch(err => {
+    console.error('[Comparison] Failed to initialize storage:', err);
   });
 });

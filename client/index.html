@@ -288,7 +288,20 @@
               </div>
 
               <div class="form-field">
-                <label for="api-submodel-select">Submodel Version</label>
+                <div class="model-label-row">
+                  <label for="api-submodel-select">Submodel Version</label>
+                  <div class="comparison-model-actions">
+                    <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
+                      <span class="comparison-active-dot" aria-hidden="true"></span>
+                      <span id="comparison-active-run-label">Comparison 0/2</span>
+                    </button>
+                    <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
+                      aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
+                      <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
+                      <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
+                    </button>
+                  </div>
+                </div>
                 <select id="api-submodel-select" class="custom-select">
                   <!-- Dynamically populated -->
                 </select>
@@ -329,6 +342,26 @@
                 </div>
               </div>
             </div>
+
+            <section id="comparison-model-tray" class="comparison-model-tray" hidden
+              aria-labelledby="comparison-tray-title">
+              <div class="comparison-tray-header">
+                <div>
+                  <span class="comparison-kicker">FAIR COMPARISON</span>
+                  <h4 id="comparison-tray-title">AI Model Comparison</h4>
+                </div>
+                <span id="comparison-slot-count" class="comparison-slot-count">2 of 4</span>
+              </div>
+              <div id="comparison-slot-list" class="comparison-slot-list"></div>
+              <div class="comparison-tray-footer">
+                <button id="btn-add-comparison-slot" class="btn-neon-outline" type="button">+ Add Model</button>
+                <div class="comparison-estimate-total">
+                  <span>Estimated total</span>
+                  <strong id="comparison-total-credits">2 credits</strong>
+                </div>
+              </div>
+              <p id="comparison-tray-error" class="comparison-inline-error" role="alert"></p>
+            </section>
 
             <div class="matching-options-row">
               <label class="checkbox-container">
@@ -597,7 +630,76 @@
     </div>
   </div>
 
+  <!-- Shared application dialog: replaces native alert, confirm, and prompt. -->
+  <div id="app-dialog-modal" class="collection-modal app-dialog-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="app-dialog-title" aria-describedby="app-dialog-message">
+    <div class="collection-modal-card app-dialog-card glass-card" tabindex="-1">
+      <div class="collection-modal-header">
+        <div>
+          <span id="app-dialog-kicker" class="collection-kicker">MODEL PROMPT FORGE</span>
+          <h3 id="app-dialog-title">Notice</h3>
+        </div>
+        <button id="app-dialog-close" class="collection-modal-close" type="button"
+          aria-label="Close dialog">&times;</button>
+      </div>
+      <p id="app-dialog-message" class="app-dialog-message"></p>
+      <label id="app-dialog-input-field" class="collection-field app-dialog-field" hidden>
+        <span id="app-dialog-input-label">Value</span>
+        <input id="app-dialog-input" type="text" maxlength="1000" autocomplete="off">
+      </label>
+      <label id="app-dialog-select-field" class="collection-field app-dialog-field" hidden>
+        <span id="app-dialog-select-label">Choose an option</span>
+        <select id="app-dialog-select" class="collection-select"></select>
+      </label>
+      <p id="app-dialog-error" class="collection-form-error" role="alert"></p>
+      <div class="collection-modal-actions">
+        <span class="collection-action-spacer"></span>
+        <button id="app-dialog-cancel" class="btn-neon-outline" type="button">Cancel</button>
+        <button id="app-dialog-confirm" class="btn-collection-primary" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="comparison-workspace" class="comparison-workspace" hidden
+    aria-labelledby="comparison-workspace-title">
+    <header class="comparison-workspace-header">
+      <div class="comparison-workspace-title-group">
+        <span class="comparison-kicker">AI COMPARISON WORKSPACE</span>
+        <h2 id="comparison-workspace-title">Model comparison</h2>
+        <span id="comparison-workspace-status" class="comparison-run-status">Queued</span>
+      </div>
+      <div class="comparison-workspace-actions">
+        <button id="btn-comparison-history" class="comparison-tool-button" type="button">Previous Sets</button>
+        <button id="btn-comparison-add-all" class="comparison-tool-button" type="button">Add All</button>
+        <button id="btn-close-comparison-workspace" class="comparison-close-button" type="button"
+          aria-label="Close Comparison Workspace">&times;</button>
+      </div>
+    </header>
+    <div class="comparison-workspace-toolbar" role="toolbar" aria-label="Comparison viewport controls">
+      <label class="comparison-sync-toggle"><input id="comparison-sync-view" type="checkbox" checked> Sync view</label>
+      <button class="comparison-tool-button" type="button" data-comparison-view="zoom-out">−</button>
+      <span id="comparison-zoom-label" class="comparison-zoom-label">Fit</span>
+      <button class="comparison-tool-button" type="button" data-comparison-view="zoom-in">+</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="fit">Fit</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="actual">100%</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="reset">Reset</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="fullscreen">Fullscreen</button>
+    </div>
+    <div class="comparison-workspace-body">
+      <aside id="comparison-set-drawer" class="comparison-set-drawer" hidden>
+        <div class="comparison-drawer-header">
+          <h3>Comparison Sets</h3>
+          <button id="btn-close-comparison-drawer" type="button" aria-label="Close Comparison Sets">&times;</button>
+        </div>
+        <div id="comparison-set-list" class="comparison-set-list"></div>
+      </aside>
+      <div id="comparison-result-grid" class="comparison-result-grid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <script src="app-dialog.js"></script>
   <script src="app.js"></script>
+  <script src="comparison.js"></script>
 </body>
 
 </html>

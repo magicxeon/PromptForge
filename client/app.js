@@ -260,7 +260,7 @@ function validateForm() {
       }, 3000);
     }
     apiProviderSelect.focus();
-    alert("Please select both a Provider Engine and a Submodel Version before generating an image.");
+    void AppDialog.alert("Please select both a Provider Engine and a Submodel Version before generating an image.", { title: "Model Required" });
     return false;
   }
 
@@ -276,7 +276,7 @@ function validateForm() {
       }, 3000);
     }
     apiSubmodelSelect.focus();
-    alert("Please select both a Provider Engine and a Submodel Version before generating an image.");
+    void AppDialog.alert("Please select both a Provider Engine and a Submodel Version before generating an image.", { title: "Model Required" });
     return false;
   }
 
@@ -294,11 +294,11 @@ function validateForm() {
     const maxReferences = Number(capabilities.maxReferenceImages || 0);
     if (uniqueReferenceCount > maxReferences) {
       apiSubmodelSelect.scrollIntoView({ behavior: "smooth", block: "center" });
-      alert(`${getLocalizedLabel(activeModel.displayName)} supports up to ${maxReferences} unique reference images. Please remove ${uniqueReferenceCount - maxReferences} reference image(s).`);
+      void AppDialog.alert(`${getLocalizedLabel(activeModel.displayName)} supports up to ${maxReferences} unique reference images. Please remove ${uniqueReferenceCount - maxReferences} reference image(s).`, { title: "Reference Limit" });
       return false;
     }
     if (Array.isArray(capabilities.aspectRatios) && !capabilities.aspectRatios.includes(state.aspectRatio)) {
-      alert(`${getLocalizedLabel(activeModel.displayName)} does not support aspect ratio ${state.aspectRatio}. Please select another ratio or model.`);
+      void AppDialog.alert(`${getLocalizedLabel(activeModel.displayName)} does not support aspect ratio ${state.aspectRatio}. Please select another ratio or model.`, { title: "Unsupported Aspect Ratio" });
       return false;
     }
   }
@@ -714,6 +714,42 @@ function getSelectedImageResolution() {
   return document.getElementById("image-resolution-select")?.value || model.defaults?.resolution || null;
 }
 
+function getGenerationRequestPayload() {
+  const submittedReferenceJobIds = {
+    face: state.imageReferences.faceMatch ? uniqueReferenceJobIds(state.faceReferenceJobIds) : [],
+    style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
+      ? uniqueReferenceJobIds(state.styleReferenceJobIds)
+      : [],
+    character: isStoryCharacterReferenceActive()
+      ? uniqueReferenceJobIds(state.characterReferenceJobIds)
+      : []
+  };
+  return {
+    provider: document.getElementById("api-provider-select")?.value || null,
+    submodel: document.getElementById("api-submodel-select")?.value || null,
+    imageResolution: getSelectedImageResolution(),
+    selections: state.selections,
+    aspectRatio: state.aspectRatio,
+    imageReferences: { ...state.imageReferences, characterOverrides: state.characterReferenceOverrides },
+    mode: state.mode,
+    template: document.getElementById("template-select")?.value || "portrait",
+    isGptSafe: document.getElementById("toggle-gpt-safe")?.checked === true,
+    username: state.username,
+    faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
+    faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
+    faceReferenceJobIds: submittedReferenceJobIds.face,
+    styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
+      ? state.styleReferenceImageA : null,
+    styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
+      ? state.styleReferenceImageB : null,
+    styleReferenceJobIds: submittedReferenceJobIds.style,
+    characterReferenceImageA: isStoryCharacterReferenceActive() ? state.characterReferenceImageA : null,
+    characterReferenceImageB: isStoryCharacterReferenceActive() ? state.characterReferenceImageB : null,
+    characterReferenceJobIds: submittedReferenceJobIds.character,
+    customColors: state.customColors
+  };
+}
+
 function populateProviderList(preferredProvider = null) {
   const providerSelect = document.getElementById("api-provider-select");
   if (!providerSelect) return;
@@ -729,9 +765,9 @@ function populateProviderList(preferredProvider = null) {
   const hasPrevious = (state.providerCatalog?.providers || []).some(provider => provider.id === previous);
   providerSelect.value = hasPrevious ? previous : fallback;
   if (preferredProvider && !hasPrevious) {
-    alert(state.language === "th"
+    void AppDialog.alert(state.language === "th"
       ? `Provider ${preferredProvider} ไม่พร้อมใช้งาน ระบบเปลี่ยนเป็น Provider เริ่มต้นแล้ว`
-      : `Provider ${preferredProvider} is unavailable. The default provider was selected.`);
+      : `Provider ${preferredProvider} is unavailable. The default provider was selected.`, { title: state.language === "th" ? "Provider ไม่พร้อมใช้งาน" : "Provider Unavailable" });
   }
 }
 
@@ -754,9 +790,9 @@ function updateSubmodelList(preferredModel = null) {
   const hasPrevious = (provider?.models || []).some(model => model.id === previous);
   submodelSelect.value = hasPrevious ? previous : (provider?.defaultModel || submodelSelect.options[0]?.value || "");
   if (preferredModel && !hasPrevious) {
-    alert(state.language === "th"
+    void AppDialog.alert(state.language === "th"
       ? `Model ${preferredModel} ไม่พร้อมใช้งาน ระบบเปลี่ยนเป็น Model เริ่มต้นแล้ว`
-      : `Model ${preferredModel} is unavailable. The default model was selected.`);
+      : `Model ${preferredModel} is unavailable. The default model was selected.`, { title: state.language === "th" ? "Model ไม่พร้อมใช้งาน" : "Model Unavailable" });
   }
 
   applyModelCapabilityControls();
@@ -1093,6 +1129,24 @@ async function initApp() {
     updatePromptPreview();
     await loadCollections();
     loadHistory();
+    window.ModelPromptForgeComparisonBridge = {
+      getCatalog: () => state.providerCatalog,
+      getLanguage: () => state.language,
+      getUsername: () => state.username,
+      getGenerationPayload: getGenerationRequestPayload,
+      validateForm,
+      openLightbox: item => openLightbox(item),
+      openCollectionPicker: jobId => openMembershipModal(jobId),
+      useAsFaceReference: (imageUrl, jobId) => assignFaceReference(imageUrl, jobId),
+      useAsStyleReference: (imageUrl, jobId) => assignStyleReference(imageUrl, jobId),
+      useAsCharacterReference: (imageUrl, jobId) => assignCharacterReference(imageUrl, jobId),
+      refreshCredits: updateCredits,
+      refreshHistory: loadHistory,
+      refreshCollections: loadCollections,
+      getCollections: () => state.collections,
+      getHistory: () => state.history
+    };
+    window.dispatchEvent(new CustomEvent('modelpromptforge:ready'));
 
   } catch (error) {
     console.error("Initialization failed:", error);
@@ -1593,7 +1647,7 @@ function bindEvents() {
   aspectChips.forEach(chip => {
     chip.addEventListener("click", () => {
       if (chip.getAttribute("aria-disabled") === "true") {
-        alert(chip.title || "The selected model does not support this aspect ratio.");
+        void AppDialog.alert(chip.title || "The selected model does not support this aspect ratio.", { title: "Unsupported Aspect Ratio" });
         return;
       }
       aspectChips.forEach(c => c.classList.remove("active"));
@@ -1880,7 +1934,7 @@ function bindEvents() {
         balanceEl.style.color = "#10b981"; // green flash
         setTimeout(() => { balanceEl.style.color = ""; }, 1000);
       } catch (err) {
-        alert("Failed to recharge credits: " + err.message);
+        void AppDialog.alert("Failed to recharge credits: " + err.message, { title: "Recharge Failed" });
       }
     });
   }
@@ -2050,6 +2104,10 @@ function bindEvents() {
   const btnGenerateImage = document.getElementById("btn-generate-image");
   if (btnGenerateImage) {
     btnGenerateImage.addEventListener("click", async () => {
+      if (window.ModelPromptForgeComparison?.isActive()) {
+        await window.ModelPromptForgeComparison.generate();
+        return;
+      }
       const provider = document.getElementById("api-provider-select").value;
       const submodel = document.getElementById("api-submodel-select").value;
       const loader = document.getElementById("image-loading-overlay");
@@ -2093,18 +2151,11 @@ function bindEvents() {
       const startTime = performance.now();
 
       try {
-        const toggleGptSafe = document.getElementById("toggle-gpt-safe");
-        const isGptSafe = toggleGptSafe ? toggleGptSafe.checked : false;
+        const generationPayload = getGenerationRequestPayload();
         const submittedReferenceJobIds = {
-          face: state.imageReferences.faceMatch
-            ? uniqueReferenceJobIds(state.faceReferenceJobIds)
-            : [],
-          style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
-            ? uniqueReferenceJobIds(state.styleReferenceJobIds)
-            : [],
-          character: isStoryCharacterReferenceActive()
-            ? uniqueReferenceJobIds(state.characterReferenceJobIds)
-            : []
+          face: generationPayload.faceReferenceJobIds,
+          style: generationPayload.styleReferenceJobIds,
+          character: generationPayload.characterReferenceJobIds
         };
 
         // 2. Call backend generator queue endpoint
@@ -2114,31 +2165,7 @@ function bindEvents() {
             'Content-Type': 'application/json',
             'X-User-Role': state.userRole
           },
-          body: JSON.stringify({
-            provider,
-            submodel,
-            imageResolution: getSelectedImageResolution(),
-            selections: state.selections,
-            aspectRatio: state.aspectRatio,
-            imageReferences: {
-              ...state.imageReferences,
-              characterOverrides: state.characterReferenceOverrides
-            },
-            mode: state.mode,
-            template: document.getElementById("template-select").value || "portrait",
-            isGptSafe,
-            username: state.username,
-            faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
-            faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
-            faceReferenceJobIds: submittedReferenceJobIds.face,
-            styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageA : null,
-            styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch) ? state.styleReferenceImageB : null,
-            styleReferenceJobIds: submittedReferenceJobIds.style,
-            characterReferenceImageA: isStoryCharacterReferenceActive() ? state.characterReferenceImageA : null,
-            characterReferenceImageB: isStoryCharacterReferenceActive() ? state.characterReferenceImageB : null,
-            characterReferenceJobIds: submittedReferenceJobIds.character,
-            customColors: state.customColors
-          })
+          body: JSON.stringify(generationPayload)
         });
 
         const data = await response.json();
@@ -3464,7 +3491,7 @@ function importConfigJSON(jsonString) {
         updatePromptPreview();
 
   } catch (error) {
-    alert("Failed to load preset configuration: " + error.message);
+    void AppDialog.alert("Failed to load preset configuration: " + error.message, { title: "Preset Error" });
   }
 }
 
@@ -3808,7 +3835,11 @@ async function deleteActiveCollection() {
   const id = document.getElementById('collection-editor-id').value;
   const collection = getCollectionById(id);
   if (!collection) return;
-  if (!confirm(`Delete collection "${collection.name}"? Images and history will be kept.`)) return;
+  const confirmed = await AppDialog.confirm(
+    `Delete collection "${collection.name}"? Images and history will be kept.`,
+    { title: "Delete Collection", confirmLabel: "Delete" }
+  );
+  if (!confirmed) return;
   const response = await fetch(`/api/collections/${id}`, { method: 'DELETE' });
   const payload = await response.json();
   if (!response.ok) {
@@ -4113,9 +4144,12 @@ function renderHistory(historyList) {
     btnDel.className = "btn-delete-history";
     btnDel.innerHTML = "&times;";
     btnDel.title = "Delete image record";
-    btnDel.addEventListener("click", (e) => {
+    btnDel.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if (confirm("Are you sure you want to delete this generation history?")) {
+      if (await AppDialog.confirm("Are you sure you want to delete this generation history?", {
+        title: "Delete Image History",
+        confirmLabel: "Delete"
+      })) {
         deleteHistory(item.id);
       }
     });
@@ -4139,6 +4173,19 @@ function renderHistory(historyList) {
       card.appendChild(badge);
     }
 
+    if (item.comparisonSetId) {
+      const comparisonBadge = document.createElement('button');
+      comparisonBadge.type = 'button';
+      comparisonBadge.className = 'history-comparison-badge';
+      comparisonBadge.textContent = 'Compare';
+      comparisonBadge.title = 'Open this AI Comparison Set';
+      comparisonBadge.addEventListener('click', event => {
+        event.stopPropagation();
+        window.ModelPromptForgeComparison?.openSet(item.comparisonSetId);
+      });
+      card.appendChild(comparisonBadge);
+    }
+
     card.appendChild(img);
     card.appendChild(btnDel);
     card.appendChild(collectionButton);
@@ -4157,10 +4204,10 @@ async function deleteHistory(jobId) {
       loadHistory();
     } else {
       const data = await res.json();
-      alert("Failed to delete entry: " + data.error);
+      await AppDialog.alert("Failed to delete entry: " + data.error, { title: "Delete Failed" });
     }
   } catch (err) {
-    alert("Delete operation failed: " + err.message);
+    await AppDialog.alert("Delete operation failed: " + err.message, { title: "Delete Failed" });
   }
 }
 
@@ -4444,7 +4491,7 @@ function renderLightboxItem(item) {
           if (parentItem) {
             openLineageLightboxItem(parentItem);
           } else {
-            alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`);
+            void AppDialog.alert(`Parent job #${p.id.substring(4, 9)} is not in local history list.`, { title: "Parent Image Unavailable" });
           }
         });
 

@@ -17,10 +17,13 @@
         "job_1783959909967_3w2rm5zv5",
         "job_1783937710329_wef6teqsx",
         "job_1783937205872_e29xk7xi2",
-        "job_1784012382527_kbrtl4i0o"
+        "job_1784012382527_kbrtl4i0o",
+        "job_1784018588964_qzx1wt6n5",
+        "job_1784018588965_nnx9bcch3",
+        "job_1784018588966_3imm3v9z7"
       ],
       "createdAt": 1783963420230,
-      "updatedAt": 1784012679952,
+      "updatedAt": 1784018958513,
       "futureAutomation": {
         "status": "not_configured",
         "characterProfiles": [],

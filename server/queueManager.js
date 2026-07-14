@@ -5,13 +5,13 @@ import { ProviderFactory } from './providers/ProviderFactory.js';
 import { collectionManager } from './collectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds } from './referenceUtils.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
+import { creditManager } from './creditManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const OUTPUTS_DIR = path.join(__dirname, '../client/outputs');
 const HISTORY_FILE = path.join(__dirname, 'history.json');
-const DB_PATH = path.join(__dirname, 'database.json');
 
 // Ensure directories exist
 async function ensureDir(dir) {
@@ -20,34 +20,6 @@ async function ensureDir(dir) {
   } catch (err) {
     if (err.code !== 'EEXIST') throw err;
   }
-}
-
-// Helper to deduct credit from database
-async function deductUserCredit(username, amount = 1) {
-  try {
-    const dbData = await fs.readFile(DB_PATH, 'utf-8');
-    const db = JSON.parse(dbData);
-    const user = db.users[username];
-    if (!user) throw new Error('User not found');
-    if (user.credits < amount) throw new Error('Insufficient credits');
-    user.credits -= amount;
-    await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
-    return user.credits;
-  } catch (err) {
-    console.error(`[Queue] Credit deduction error for ${username}:`, err.message);
-    throw err;
-  }
-}
-
-// Refund a failed moderation job once; the caller owns idempotency per job.
-async function refundUserCredit(username, amount = 1) {
-  const dbData = await fs.readFile(DB_PATH, 'utf-8');
-  const db = JSON.parse(dbData);
-  const user = db.users[username];
-  if (!user) throw new Error('User not found');
-  user.credits += amount;
-  await fs.writeFile(DB_PATH, JSON.stringify(db, null, 2));
-  return user.credits;
 }
 
 function normalizeJobError(error) {
@@ -88,6 +60,8 @@ class QueueManager {
     this.jobs = new Map(); // jobId -> JobObject
     this.queue = [];       // Array of pending jobIds
     this.activeCount = 0;
+    this.lifecycleSubscribers = new Set();
+    this.historyMutationChain = Promise.resolve();
     this.concurrencyLimit = parseInt(process.env.MAX_CONCURRENT_GENERATIONS || '2', 10);
     
     // Init history file if not exists
@@ -128,6 +102,19 @@ class QueueManager {
     this.processNext();
     
     return jobId;
+  }
+
+  subscribeLifecycle(listener) {
+    this.lifecycleSubscribers.add(listener);
+    return () => this.lifecycleSubscribers.delete(listener);
+  }
+
+  emitLifecycle(job, status, extra = {}) {
+    this.lifecycleSubscribers.forEach(listener => {
+      Promise.resolve(listener({ job, status, ...extra })).catch(error => {
+        console.warn(`[Queue] Lifecycle listener failed for ${job.id}:`, error.message);
+      });
+    });
   }
 
   /**
@@ -210,6 +197,7 @@ class QueueManager {
 
     this.activeCount++;
     job.status = 'processing';
+    this.emitLifecycle(job, 'processing');
     console.log(`[Queue] Processing job ${jobId}. Active jobs: ${this.activeCount}`);
     
     this.emitToListeners(jobId, 'status', { status: 'processing' });
@@ -219,7 +207,12 @@ class QueueManager {
       
       // Deduct credit at the start of actual processing to prevent abuse
       const creditCost = Number(job.options.creditCost || 1);
-      await deductUserCredit(job.options.username || 'user_demo', creditCost);
+      await creditManager.deduct(job.options.username || 'user_demo', creditCost, {
+        jobId,
+        comparisonSetId: job.options.comparisonSetId,
+        comparisonRunId: job.options.comparisonRunId
+      });
+      job.creditCharged = true;
 
       const startTime = Date.now();
 
@@ -302,7 +295,10 @@ class QueueManager {
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
         referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
         referencedCharacterJobIds: normalizeReferenceJobIds(job.options.characterReferenceJobIds),
-        generationDuration: durationSec
+        generationDuration: durationSec,
+        comparisonSetId: job.options.comparisonSetId || null,
+        comparisonRunId: job.options.comparisonRunId || null,
+        comparisonSlotId: job.options.comparisonSlotId || null
       });
 
       let collectionWarning = null;
@@ -322,6 +318,7 @@ class QueueManager {
         generationDuration: durationSec,
         collectionWarning
       });
+      this.emitLifecycle(job, 'completed', { result: job.result });
 
     } catch (err) {
       console.error(`[Queue] Job ${jobId} failed:`, err);
@@ -333,9 +330,14 @@ class QueueManager {
         !job.creditRefunded
       ) {
         try {
-          job.refundedCredits = await refundUserCredit(
+          job.refundedCredits = await creditManager.refund(
             job.options.username || 'user_demo',
-            Number(job.options.creditCost || 1)
+            Number(job.options.creditCost || 1),
+            {
+              jobId,
+              comparisonSetId: job.options.comparisonSetId,
+              comparisonRunId: job.options.comparisonRunId
+            }
           );
           job.creditRefunded = true;
         } catch (refundError) {
@@ -350,6 +352,7 @@ class QueueManager {
         ...job.error,
         creditRefunded: job.creditRefunded === true
       });
+      this.emitLifecycle(job, 'failed', { error: job.error });
     } finally {
       // Close all SSE connections
       job.listeners.forEach(({ res, keepAliveTimer }) => {
@@ -368,11 +371,15 @@ class QueueManager {
    * Save successful generation record to history.json
    */
   async saveToHistory(entry) {
-    try {
+    const mutation = this.historyMutationChain.then(async () => {
       const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
       const history = JSON.parse(dataStr);
       history.unshift(entry); // add to top
       await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+    });
+    this.historyMutationChain = mutation.catch(() => {});
+    try {
+      await mutation;
     } catch (err) {
       console.error('[Queue] Failed to save history:', err);
     }
@@ -383,21 +390,21 @@ class QueueManager {
    */
   async deleteHistoryEntry(jobId) {
     try {
-      const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
-      const history = JSON.parse(dataStr);
-      const entryIdx = history.findIndex(item => item.id === jobId);
-      
-      if (entryIdx !== -1) {
-        const entry = history[entryIdx];
-        
-        // Remove image file from disk
+      const mutation = this.historyMutationChain.then(async () => {
+        const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
+        const history = JSON.parse(dataStr);
+        const entryIdx = history.findIndex(item => item.id === jobId);
+        if (entryIdx === -1) return null;
+        const [entry] = history.splice(entryIdx, 1);
+        await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+        return entry;
+      });
+      this.historyMutationChain = mutation.catch(() => {});
+      const entry = await mutation;
+      if (entry) {
         const filename = path.basename(entry.imageUrl);
         const filePath = path.join(OUTPUTS_DIR, filename);
         await fs.unlink(filePath).catch(e => console.warn(`[Queue] Image file not found for deletion: ${filePath}`, e));
-        
-        // Remove from database
-        history.splice(entryIdx, 1);
-        await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
         try {
           await collectionManager.removeJobEverywhere(jobId);
         } catch (collectionError) {
@@ -431,7 +438,10 @@ class QueueManager {
         id: job.id,
         status: job.status,
         result: job.result,
-        error: job.error
+        error: job.error,
+        creditCost: Number(job.options.creditCost || 1),
+        creditCharged: job.creditCharged === true,
+        creditRefunded: job.creditRefunded === true
       };
     }
 

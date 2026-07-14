@@ -1,5 +1,81 @@
 [
   {
+    "id": "job_1784018588965_nnx9bcch3",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588965_nnx9bcch3.png",
+    "timestamp": 1784018614262,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 273,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 273
+      },
+      "output_tokens": 1936,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 352
+      },
+      "total_tokens": 2209
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "25.2",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016595519_qxkb"
+  },
+  {
+    "id": "job_1784018588966_3imm3v9z7",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588966_3imm3v9z7.jpg",
+    "timestamp": 1784018608925,
+    "provider": "xai",
+    "submodel": "grok-imagine-image",
+    "resolvedSubmodel": "grok-imagine-image-quality",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "cost_in_usd_ticks": 500000000
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "7.2",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016719250_us6x"
+  },
+  {
+    "id": "job_1784018588964_qzx1wt6n5",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588964_qzx1wt6n5.jpg",
+    "timestamp": 1784018601717,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "12.7",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016593146_fplb"
+  },
+  {
     "id": "job_1784012629295_xmbv3qasf",
     "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, soft rounded tip, natural lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784012629295_xmbv3qasf.png",

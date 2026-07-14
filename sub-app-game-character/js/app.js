@@ -45,7 +45,7 @@ async function generate() {
 
         console.error(error);
 
-        alert(error.message);
+        await AppDialog.alert(error.message, { title: "Generation Error" });
 
     }
     finally {
@@ -67,11 +67,11 @@ styleFilter.addEventListener("change", async () => {
     renderPrompt(currentCharacter.prompt);
 });
 
-btnCopy.addEventListener("click", () => {
+btnCopy.addEventListener("click", async () => {
 
     if (!currentCharacter) {
 
-        alert("Generate character first.");
+        await AppDialog.alert("Generate character first.", { title: "Character Required" });
 
         return;
 
@@ -79,15 +79,13 @@ btnCopy.addEventListener("click", () => {
 
     copyPrompt(currentCharacter.prompt);
 
-    // alert("Prompt copied.");
-
 });
 
-btnExport.addEventListener("click", () => {
+btnExport.addEventListener("click", async () => {
 
     if (!currentCharacter) {
 
-        alert("Generate character first.");
+        await AppDialog.alert("Generate character first.", { title: "Character Required" });
 
         return;
 
