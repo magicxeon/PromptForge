@@ -166,7 +166,7 @@
   function updateNavigationVisibility() {
     const shell = document.querySelector('.application-nav-shell');
     if (!shell) return;
-    const muted = window.scrollY <= 24 && !menuOpen && !navHover && !navFocus;
+    const muted = window.scrollY > 24 && !menuOpen && !navHover && !navFocus;
     shell.classList.toggle('application-nav-muted', muted);
   }
 

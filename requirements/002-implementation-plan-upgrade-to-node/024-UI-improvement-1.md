@@ -209,12 +209,12 @@ Do not remove these categories globally. Hide them only for modes where they cre
 
 ## 7. Navigation Fade Behavior
 
-The application navigation currently stays visible at the top and may cover or visually compete with the main workspace.
+The application navigation is useful and non-obstructive when it is in the natural top-of-page position. It becomes visually obstructive after the user scrolls down because the sticky navigation follows the viewport and can cover the active workspace.
 
 Desired behavior:
 
-- When the page is at the very top and the user is not scrolling, navigation becomes subtle/faded.
-- When the user scrolls down, navigation becomes visible and usable.
+- When the page is at the very top, navigation stays fully visible.
+- When the user scrolls down and the sticky navigation is floating over workspace content, navigation becomes subtle/faded while idle.
 - When navigation receives focus or hover, it becomes fully visible.
 - The behavior must not hide navigation from keyboard users.
 - The behavior must not break mobile menu access.
@@ -222,13 +222,19 @@ Desired behavior:
 Recommended CSS/JS behavior:
 
 ```text
-body at top + no hover/focus
+body at top
+-> nav opacity 1
+-> nav is fully readable because it is not covering workspace content
+```
+
+```text
+scrollY > threshold + no hover/focus + mobile menu closed
 -> nav opacity reduced
 -> nav pointer behavior remains safe for menu button
 ```
 
 ```text
-scrollY > threshold OR nav hover OR nav focus-within OR mobile menu open
+scrollY <= threshold OR nav hover OR nav focus-within OR mobile menu open
 -> nav opacity 1
 ```
 
@@ -292,7 +298,8 @@ If a hidden category exists in imported preset JSON, it should not leak into pro
 - Character Sheet no longer shows Scene Story, Fashion Direction or full-scene/commercial categories.
 - Story Mode still has access to story, fashion, environment and commercial categories.
 - Preset import/session restore cannot compile hidden mode-incompatible categories.
-- Navigation fades at page top but becomes clear on scroll, hover and keyboard focus.
+- Navigation stays fully visible at the top of the page.
+- Navigation becomes subtle/faded only after scrolling down while idle, then becomes clear on hover, keyboard focus or mobile menu open.
 - Mobile menu remains discoverable and accessible.
 - Existing provider registry, comparison and generation tests remain passing.
 
