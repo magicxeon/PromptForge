@@ -60,6 +60,7 @@ export function createQueueOptions(context, {
   modelConfig,
   providerConfigVersion,
   creditCost,
+  imageResolution = null,
   comparison = null
 }) {
   const references = context.imageReferences;
@@ -74,7 +75,7 @@ export function createQueueOptions(context, {
     modelConfig,
     providerConfigVersion,
     creditCost,
-    imageResolution: context.imageResolution || modelConfig.defaults?.resolution || null,
+    imageResolution: imageResolution || context.imageResolution || modelConfig.defaults?.resolution || null,
     faceReferenceImageA: references.faceMatch ? context.faceReferenceImageA : null,
     faceReferenceImageB: references.faceMatch ? context.faceReferenceImageB : null,
     faceReferenceJobIds: references.faceMatch ? normalizeReferenceJobIds(context.faceReferenceJobIds) : [],

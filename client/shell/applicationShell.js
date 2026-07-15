@@ -2,6 +2,8 @@
   const iconClasses = new Set(['studio', 'history', 'compare']);
   let initialized = false;
   let menuOpen = false;
+  let navHover = false;
+  let navFocus = false;
   let lastRoute = null;
   const language = () => window.ModelPromptForgeComparisonBridge?.getLanguage?.() || 'th';
 
@@ -10,9 +12,11 @@
     initialized = true;
     renderNavigation();
     bindMenu();
+    bindNavigationFade();
     window.addEventListener('modelpromptforge:route', event => applyRoute(event.detail));
     document.getElementById('language-pill-selector')?.addEventListener('click', () => window.setTimeout(renderNavigation, 0));
     applyRoute(window.ModelPromptForgeRouter.current());
+    updateNavigationVisibility();
   }
 
   function renderNavigation() {
@@ -68,6 +72,7 @@
     if (backdrop) backdrop.hidden = !open;
     if (open) document.querySelector('#application-navigation a')?.focus();
     else if (restoreFocus) button?.focus();
+    updateNavigationVisibility();
   }
 
   function applyRoute(route) {
@@ -80,10 +85,47 @@
     if (dashboard) dashboard.hidden = !comparisonPage;
     updateActiveNavigation(route);
     setMenuOpen(false);
+    requestAnimationFrame(updateNavigationVisibility);
     if (route.pathname === '/history') {
-      requestAnimationFrame(() => document.getElementById('visual-dashboard')?.scrollIntoView({ block: 'start' }));
+      requestAnimationFrame(() => scrollToSection('visual-dashboard'));
+    } else if (route.pathname === '/studio') {
+      requestAnimationFrame(() => scrollToStudio(route));
     } else if (!route.pathname.startsWith('/comparisons/')) {
-      requestAnimationFrame(() => window.scrollTo({ top: route.state?.scrollY || 0, behavior: 'auto' }));
+      requestAnimationFrame(() => smoothScrollTo(route.state?.scrollY || 0));
+    }
+  }
+
+  function scrollToStudio(route) {
+    if (typeof route.state?.scrollY === 'number') {
+      smoothScrollTo(route.state.scrollY);
+      return;
+    }
+    scrollToSection('creative-configurator');
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+  }
+
+  function smoothScrollTo(top) {
+    window.scrollTo({
+      top,
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth'
+    });
+  }
+
+  function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    const reducedMotion = prefersReducedMotion();
+    section.scrollIntoView({
+      behavior: reducedMotion ? 'auto' : 'smooth',
+      block: 'start'
+    });
+    const heading = section.querySelector('h2, h1, h3');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      window.setTimeout(() => heading.focus({ preventScroll: true }), reducedMotion ? 0 : 450);
     }
   }
 
@@ -95,6 +137,37 @@
       if (active) item.setAttribute('aria-current', 'page');
       else item.removeAttribute('aria-current');
     });
+  }
+
+  function bindNavigationFade() {
+    const shell = document.querySelector('.application-nav-shell');
+    if (!shell) return;
+    shell.addEventListener('pointerenter', () => {
+      navHover = true;
+      updateNavigationVisibility();
+    });
+    shell.addEventListener('pointerleave', () => {
+      navHover = false;
+      updateNavigationVisibility();
+    });
+    shell.addEventListener('focusin', () => {
+      navFocus = true;
+      updateNavigationVisibility();
+    });
+    shell.addEventListener('focusout', () => {
+      requestAnimationFrame(() => {
+        navFocus = shell.contains(document.activeElement);
+        updateNavigationVisibility();
+      });
+    });
+    window.addEventListener('scroll', updateNavigationVisibility, { passive: true });
+  }
+
+  function updateNavigationVisibility() {
+    const shell = document.querySelector('.application-nav-shell');
+    if (!shell) return;
+    const muted = window.scrollY <= 24 && !menuOpen && !navHover && !navFocus;
+    shell.classList.toggle('application-nav-muted', muted);
   }
 
   document.addEventListener('DOMContentLoaded', initialize);

@@ -8,10 +8,21 @@ export class ProviderSelectionError extends Error {
   }
 }
 
-function hasConfiguredSecret(environment, envName) {
-  const value = environment[envName];
+function isConfiguredSecret(value) {
   if (typeof value !== 'string' || !value.trim()) return false;
   return !/^your_.+_here$/i.test(value.trim());
+}
+
+export function getConfiguredSecret(environment, provider) {
+  const envNames = [
+    provider?.apiKeyEnv,
+    ...(Array.isArray(provider?.apiKeyEnvAliases) ? provider.apiKeyEnvAliases : [])
+  ].filter(Boolean);
+  for (const envName of envNames) {
+    const value = environment[envName];
+    if (isConfiguredSecret(value)) return value.trim();
+  }
+  return null;
 }
 
 function parseStrictBoolean(value, defaultValue) {
@@ -35,7 +46,7 @@ export class ProviderRegistry {
   }
 
   isProviderAvailable(provider) {
-    return provider?.enabled !== false && hasConfiguredSecret(this.environment, provider.apiKeyEnv);
+    return provider?.enabled !== false && Boolean(getConfiguredSecret(this.environment, provider));
   }
 
   getPublicCatalog() {

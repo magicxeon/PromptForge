@@ -78,6 +78,7 @@ export class ComparisonOrchestrator {
           modelConfig: slot.modelConfig,
           providerConfigVersion: this.providerRegistry.getConfigVersion(),
           creditCost: slot.estimatedCredit,
+          imageResolution: slot.imageResolution,
           comparison: { setId, runId, slotId: slot.id }
         }));
         enqueuedSlots.push({ slotId: slot.id, jobId, providerStreaming: stream });

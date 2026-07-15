@@ -208,7 +208,7 @@
     try {
       const estimate = await api('/api/comparisons/estimate', { method: 'POST', body: payload });
       const summary = estimate.slots.map((slot, index) =>
-        `${index + 1}. ${label(slot.providerDisplayName)} / ${label(slot.modelDisplayName)}: ${slot.estimatedCredit} credits`
+        `${index + 1}. ${label(slot.providerDisplayName)} / ${label(slot.modelDisplayName)}: ${slot.estimatedCredit} credits${slot.imageResolution ? `, ${slot.imageResolution}` : ''}${slot.resolutionFallback ? ` (${text('auto fallback', 'ปรับอัตโนมัติ')})` : ''}`
       ).join('\n');
       const confirmed = await AppDialog.confirm(
         `${text('Generate these comparison images?', 'ยืนยันการGenerate Comaprison?')}\n\n${summary}\n\n${text('Estimated total', 'เครดิตโดยประมาณรวม')}: ${estimate.estimatedTotalCredit} credits`,
@@ -661,7 +661,18 @@
         `โมเดลนี้ไม่รองรับอัตราส่วน ${payload.aspectRatio}`
       );
     }
-    return '';
+    return getResolutionNotice(model, payload.imageResolution);
+  }
+
+  function getResolutionNotice(model, requestedResolution) {
+    const supported = model?.capabilities?.resolutions;
+    if (!Array.isArray(supported) || supported.length === 0 || !requestedResolution || supported.includes(requestedResolution)) return '';
+    const fallback = supported.includes(model.defaults?.resolution) ? model.defaults.resolution : supported[0];
+    if (!fallback) return '';
+    return text(
+      `${label(model.displayName)} does not support ${requestedResolution}; comparison will use ${fallback} for this slot.`,
+      `${label(model.displayName)} ไม่รองรับ ${requestedResolution}; ระบบจะใช้ ${fallback} สำหรับ slot นี้`
+    );
   }
 
   function renderModeButtonCost() {

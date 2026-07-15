@@ -83,13 +83,17 @@ class QueueManager {
    */
   enqueue(provider, submodel, prompt, options = {}) {
     const jobId = 'job_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const jobOptions = {
+      ...options,
+      submodel
+    };
     const job = {
       id: jobId,
       status: 'queued',
       provider,
       submodel,
       prompt,
-      options,
+      options: jobOptions,
       result: null,
       error: null,
       created: Date.now(),

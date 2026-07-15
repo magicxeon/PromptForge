@@ -34,10 +34,12 @@ export class ComparisonValidator {
       if (model.capabilities?.imageGeneration !== true) {
         throw new ComparisonError('unsupported_model', `${model.displayName.en} does not support image generation.`);
       }
+      const requestedImageResolution = context.imageResolution || null;
+      const imageResolution = resolveSlotImageResolution(model, requestedImageResolution);
       this.providerRegistry.validateRequest(model, {
         aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,
-        imageResolution: context.imageResolution || model.defaults?.resolution || null
+        imageResolution
       });
       return {
         id,
@@ -47,6 +49,10 @@ export class ComparisonValidator {
         providerDisplayName: provider.displayName,
         modelDisplayName: model.displayName,
         estimatedCredit: Number(model.creditCost || 1),
+        imageResolution,
+        resolutionFallback: requestedImageResolution && imageResolution && requestedImageResolution !== imageResolution
+          ? { requested: requestedImageResolution, resolved: imageResolution }
+          : null,
         providerConfig: provider,
         modelConfig: model
       };
@@ -80,7 +86,13 @@ export class ComparisonValidator {
   signEstimate(estimate, context, username) {
     const fingerprint = JSON.stringify({
       username,
-      slots: estimate.slots.map(slot => ({ provider: slot.provider, model: slot.model, estimatedCredit: slot.estimatedCredit })),
+      slots: estimate.slots.map(slot => ({
+        provider: slot.provider,
+        model: slot.model,
+        estimatedCredit: slot.estimatedCredit,
+        imageResolution: slot.imageResolution || null,
+        resolutionFallback: slot.resolutionFallback || null
+      })),
       estimatedTotalCredit: estimate.estimatedTotalCredit,
       providerConfigVersion: estimate.providerConfigVersion,
       expiresAt: estimate.expiresAt,
@@ -98,4 +110,12 @@ export class ComparisonValidator {
 export function stripPrivateConfig(slot) {
   const { providerConfig, modelConfig, ...publicSlot } = slot;
   return publicSlot;
+}
+
+function resolveSlotImageResolution(model, requestedResolution) {
+  const supported = model.capabilities?.resolutions;
+  if (!Array.isArray(supported) || supported.length === 0) return null;
+  if (requestedResolution && supported.includes(requestedResolution)) return requestedResolution;
+  if (model.defaults?.resolution && supported.includes(model.defaults.resolution)) return model.defaults.resolution;
+  return supported[0] || null;
 }

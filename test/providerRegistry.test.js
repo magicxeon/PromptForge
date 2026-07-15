@@ -103,7 +103,8 @@ test('project catalog sorts each provider by the configured local price order', 
   const registry = new ProviderRegistry(config, {
     GEMINI_API_KEY: 'secret',
     OPENAI_API_KEY: 'secret',
-    X_API_KEY: 'secret'
+    X_API_KEY: 'secret',
+    'MODEL_ARK_API-KEY': 'secret'
   });
   const providers = new Map(registry.getPublicCatalog().providers.map(provider => [provider.id, provider]));
 
@@ -124,4 +125,21 @@ test('project catalog sorts each provider by the configured local price order', 
     'grok-imagine-image',
     'grok-imagine-image-quality'
   ]);
+  assert.deepEqual(providers.get('modelark').models.map(model => model.id), [
+    'seedream-4-0-250828',
+    'seedream-5-0-lite-260128',
+    'seedream-4-5-251128',
+    'dola-seedream-5-0-pro-260628'
+  ]);
+});
+
+test('provider registry accepts ModelArk API key aliases', () => {
+  const config = loadProviderConfig();
+  const registry = new ProviderRegistry(config, {
+    MODEL_ARK_API: 'secret'
+  });
+
+  const { provider, model } = registry.resolveSelection('modelark');
+  assert.equal(provider.id, 'modelark');
+  assert.equal(model.id, 'seedream-4-0-250828');
 });

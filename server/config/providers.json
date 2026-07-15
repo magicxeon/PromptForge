@@ -131,6 +131,107 @@
           "creditCost": 1
         }
       ]
+    },
+    {
+      "id": "modelark",
+      "adapter": "modelark-seedream",
+      "enabled": true,
+      "displayName": { "en": "BytePlus ModelArk Seedream", "th": "BytePlus ModelArk Seedream" },
+      "apiKeyEnv": "MODEL_ARK_API-KEY",
+      "apiKeyEnvAliases": ["MODEL_ARK_API", "ARK_API_KEY"],
+      "baseUrlEnv": "MODEL_ARK_BASE_URL",
+      "displayOrder": 40,
+      "defaultModel": "seedream-4-0-250828",
+      "models": [
+        {
+          "id": "seedream-4-0-250828",
+          "enabled": true,
+          "displayName": { "en": "Seedream 4.0 (Cheapest)", "th": "Seedream 4.0 (ประหยัดที่สุด)" },
+          "displayOrder": 10,
+          "capabilities": {
+            "imageGeneration": true,
+            "imageEdit": true,
+            "imageReferences": true,
+            "maxReferenceImages": 14,
+            "streaming": false,
+            "batchOutput": false,
+            "responseFormats": ["b64_json", "url"],
+            "supportsOutputFormatParameter": false,
+            "outputFormats": ["jpeg"],
+            "resolutions": ["1K", "2K", "4K"],
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+          },
+          "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "jpeg", "watermark": false },
+          "creditCost": 1,
+          "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImage": 0.03 }
+        },
+        {
+          "id": "seedream-5-0-lite-260128",
+          "enabled": true,
+          "displayName": { "en": "Seedream 5.0 Lite", "th": "Seedream 5.0 Lite" },
+          "displayOrder": 20,
+          "capabilities": {
+            "imageGeneration": true,
+            "imageEdit": true,
+            "imageReferences": true,
+            "maxReferenceImages": 14,
+            "streaming": false,
+            "batchOutput": false,
+            "responseFormats": ["b64_json", "url"],
+            "supportsOutputFormatParameter": true,
+            "outputFormats": ["png", "jpeg"],
+            "resolutions": ["2K", "3K", "4K"],
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+          },
+          "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "png", "watermark": false },
+          "creditCost": 1,
+          "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImage": 0.035 }
+        },
+        {
+          "id": "seedream-4-5-251128",
+          "enabled": true,
+          "displayName": { "en": "Seedream 4.5", "th": "Seedream 4.5" },
+          "displayOrder": 30,
+          "capabilities": {
+            "imageGeneration": true,
+            "imageEdit": true,
+            "imageReferences": true,
+            "maxReferenceImages": 14,
+            "streaming": false,
+            "batchOutput": false,
+            "responseFormats": ["b64_json", "url"],
+            "supportsOutputFormatParameter": false,
+            "outputFormats": ["jpeg"],
+            "resolutions": ["2K", "4K"],
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+          },
+          "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "jpeg", "watermark": false },
+          "creditCost": 1,
+          "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImage": 0.04 }
+        },
+        {
+          "id": "dola-seedream-5-0-pro-260628",
+          "enabled": true,
+          "displayName": { "en": "Seedream 5.0 Pro (Premium)", "th": "Seedream 5.0 Pro (พรีเมียม)" },
+          "displayOrder": 40,
+          "capabilities": {
+            "imageGeneration": true,
+            "imageEdit": true,
+            "imageReferences": true,
+            "maxReferenceImages": 10,
+            "streaming": false,
+            "batchOutput": false,
+            "responseFormats": ["b64_json", "url"],
+            "supportsOutputFormatParameter": true,
+            "outputFormats": ["png", "jpeg"],
+            "resolutions": ["1K", "2K"],
+            "aspectRatios": ["1:1", "16:9", "9:16", "6:8", "4:5", "auto"]
+          },
+          "defaults": { "resolution": "2K", "responseFormat": "b64_json", "outputFormat": "png", "watermark": false },
+          "creditCost": 1,
+          "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImageBelowOrEqual2360000Pixels": 0.045, "usdPerImageAbove2360000Pixels": 0.09 }
+        }
+      ]
     }
   ]
 }

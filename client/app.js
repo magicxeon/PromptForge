@@ -158,6 +158,12 @@ const CATEGORY_PRIORITIES = {
   "character": 1
 };
 
+const MODE_CATEGORY_POLICY = {
+  normal: null,
+  headshot: new Set(["Character", "Face", "Hair", "Skin", "Camera", "Lighting", "Quality"]),
+  "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Lighting", "Quality"])
+};
+
 // Global App State
 const state = {
   schema: null,
@@ -804,6 +810,30 @@ function updateSubmodelList(preferredModel = null) {
   applyModelCapabilityControls();
 }
 
+function isGroupAllowedForMode(groupName, mode = state.mode) {
+  const policy = MODE_CATEGORY_POLICY[mode];
+  if (!policy || !groupName) return true;
+  return policy.has(groupName);
+}
+
+function pruneSelectionsForMode(selections = state.selections, mode = state.mode) {
+  Object.keys(selections || {}).forEach(fieldName => {
+    const groupName = selections[fieldName]?.group;
+    if (groupName && !isGroupAllowedForMode(groupName, mode)) {
+      delete selections[fieldName];
+    }
+  });
+  return selections;
+}
+
+function getModeCompatibleSelections(source = state.selections, mode = state.mode) {
+  return pruneSelectionsForMode(JSON.parse(JSON.stringify(source || {})), mode);
+}
+
+function usesProviderResolutionPreset(model = getActiveModelConfig()) {
+  return Array.isArray(model?.capabilities?.resolutions) && model.capabilities.resolutions.length > 0;
+}
+
 // Disable or enable references from the selected model capability contract.
 function applyModelCapabilityControls() {
   const providerSelect = document.getElementById("api-provider-select");
@@ -931,6 +961,7 @@ function updateImageResolutionControl(preferredResolution = null) {
   if (!field || !select) return;
   const model = getActiveModelConfig();
   const resolutions = model?.capabilities?.resolutions || [];
+  updateDimensionControlsVisibility(model);
   if (resolutions.length === 0) {
     field.style.display = "none";
     select.innerHTML = "";
@@ -949,6 +980,21 @@ function updateImageResolutionControl(preferredResolution = null) {
     ? previous
     : (model.defaults?.resolution || resolutions[0]);
   field.style.display = "block";
+}
+
+function updateDimensionControlsVisibility(model = getActiveModelConfig()) {
+  const hidePixelDimensions = usesProviderResolutionPreset(model);
+  const dimensionsField = document.getElementById("pixel-dimensions-field");
+  if (dimensionsField) {
+    dimensionsField.style.display = hidePixelDimensions ? "none" : "";
+    dimensionsField.setAttribute("aria-hidden", String(hidePixelDimensions));
+  }
+  ["input-width", "input-height"].forEach(id => {
+    const field = document.getElementById(id)?.closest(".form-field");
+    if (!field) return;
+    field.style.display = "";
+    field.setAttribute("aria-hidden", String(hidePixelDimensions));
+  });
 }
 
 function updateAspectRatioCapabilityUI() {
@@ -1178,6 +1224,7 @@ function renderForm() {
     const accordion = document.createElement("div");
     accordion.className = "accordion";
     accordion.id = `accordion-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
+    accordion.dataset.groupName = groupName;
     if (groupIdx === 0) accordion.classList.add("active");
     if (isNsfwGroup) {
       accordion.style.display = "none";
@@ -1899,7 +1946,10 @@ function bindEvents() {
         restoreSelectionsToUI();
         openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
         updateColorPickerUI();
+        enforceModeReferencePolicy({ updateUI: false });
+        toggleUIForMode();
         refreshReferenceAuthorityUI();
+        updateReferencePreviewsUI();
         updateLightboxNavigationLabels();
         updatePromptPreview();
       }
@@ -2450,6 +2500,7 @@ function bindEvents() {
 function toggleUIForMode() {
   const mode = state.mode;
   const imageUpload = document.getElementById("image-upload-container");
+  pruneSelectionsForMode(state.selections, mode);
 
   if (imageUpload) {
     imageUpload.style.display = mode === "normal" ? "block" : "none";
@@ -2468,39 +2519,21 @@ function toggleUIForMode() {
     presetsSection.style.display = mode === "normal" ? "block" : "none";
   }
 
-  const visibleGroups = {
-    normal: null,
-    headshot: ["character", "face", "hair", "skin", "camera", "quality"],
-    "character-sheet": ["character", "body", "clothing", "hair", "face", "camera", "quality"]
-  };
-
-  const visibleList = visibleGroups[mode];
-
   document.querySelectorAll(".accordion").forEach(accordion => {
-    const groupName = accordion.id.replace("accordion-", "").replace(/-/g, " ");
+    const groupName = accordion.dataset.groupName || accordion.id.replace("accordion-", "").replace(/-/g, " ");
     const isNsfwGroup = accordion.getAttribute("data-nsfw-controlled") === "true";
     const toggleNsfw = document.getElementById("toggle-nsfw");
     const isNsfwEnabled = toggleNsfw ? toggleNsfw.checked : false;
+    const isVisibleForMode = isGroupAllowedForMode(groupName, mode);
 
-    if (visibleList) {
-      const isVisible = visibleList.some(g => groupName.toLowerCase().includes(g.toLowerCase()));
-      if (isVisible) {
-        if (isNsfwGroup) {
-          accordion.style.display = isNsfwEnabled ? "block" : "none";
-        } else {
-          accordion.style.display = "block";
-        }
-        accordion.classList.remove("hidden-accordion");
-      } else {
-        accordion.style.display = "none";
-        accordion.classList.add("hidden-accordion");
-      }
+    if (!isVisibleForMode) {
+      accordion.style.display = "none";
+      accordion.classList.add("hidden-accordion");
+    } else if (isNsfwGroup) {
+      accordion.style.display = isNsfwEnabled ? "block" : "none";
+      accordion.classList.toggle("hidden-accordion", !isNsfwEnabled);
     } else {
-      if (isNsfwGroup) {
-        accordion.style.display = isNsfwEnabled ? "block" : "none";
-      } else {
-        accordion.style.display = "block";
-      }
+      accordion.style.display = "block";
       accordion.classList.remove("hidden-accordion");
     }
   });
@@ -2734,12 +2767,12 @@ function generatePromptText(cleanTextOnly = false) {
   const currentTemplateName = document.getElementById("template-select").value || "portrait";
   const templateStr = state.templates[currentTemplateName];
 
-  const activeSelections = JSON.parse(JSON.stringify(state.selections));
+  const activeSelections = getModeCompatibleSelections(state.selections, state.mode);
   applyReferenceAuthorityToSelections(activeSelections);
   const referenceOwnsAppearance = isStoryCharacterReferenceActive() && !state.characterReferenceOverrides;
 
   // Dynamically inject selections for active custom color pickers if empty (Step 11)
-  if (!referenceOwnsAppearance && state.customColors && state.customColors["Color"] && (state.customColors["Color"].enabled || state.customColors["Color"].highlightEnabled)) {
+  if (!referenceOwnsAppearance && isGroupAllowedForMode("Hair") && state.customColors && state.customColors["Color"] && (state.customColors["Color"].enabled || state.customColors["Color"].highlightEnabled)) {
     if (!activeSelections["Color"]) {
       activeSelections["Color"] = {
         id: "",
@@ -2752,7 +2785,7 @@ function generatePromptText(cleanTextOnly = false) {
     }
   }
   ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
-    if (!referenceOwnsAppearance && state.customColors && state.customColors[field] && state.customColors[field].enabled) {
+    if (!referenceOwnsAppearance && isGroupAllowedForMode("Clothing") && state.customColors && state.customColors[field] && state.customColors[field].enabled) {
       if (!activeSelections[field]) {
         activeSelections[field] = {
           id: "",
@@ -2883,7 +2916,6 @@ function generatePromptText(cleanTextOnly = false) {
       appearance,
       hair,
       skin,
-      sceneContext,
       cleanTextOnly ? "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head" : `<span class="token-pose">showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head</span>`,
       cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
       cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
@@ -2900,7 +2932,6 @@ function generatePromptText(cleanTextOnly = false) {
       appearance,
       hair,
       clothing,
-      sceneContext,
       cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
       cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
       cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
@@ -2939,7 +2970,7 @@ function generatePromptText(cleanTextOnly = false) {
   const isGptSafeActive = toggleGptSafeEl ? toggleGptSafeEl.checked : false;
   if (isGptSafeActive && prompt !== "") {
     let positiveWordsList = [];
-    Object.values(state.selections).forEach(selection => {
+    Object.values(activeSelections).forEach(selection => {
       if (selection.isCustom) return;
       const libItem = state.library.find(li => li.id === selection.id);
       if (libItem && libItem.prompt && libItem.prompt["gpt-image-positive"]) {
@@ -3071,10 +3102,11 @@ function saveCurrentModeState() {
   if (!state.mode) return;
   enforceFaceMatchInvariant({ updateUI: false });
   enforceModeReferencePolicy({ updateUI: false });
+  pruneSelectionsForMode(state.selections, state.mode);
   const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
 
   const payload = {
-    selections: state.selections,
+    selections: getModeCompatibleSelections(state.selections, state.mode),
     customColors: state.customColors,
     imageReferences: state.imageReferences,
     aspectRatio: state.aspectRatio,
@@ -3120,7 +3152,7 @@ function restoreCurrentModeState() {
     if (!payload || typeof payload !== "object") return;
 
     // 1. Restore core state objects
-    state.selections = migrateLegacySelections(payload.selections);
+    state.selections = pruneSelectionsForMode(migrateLegacySelections(payload.selections), state.mode);
     state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
       "Top": { enabled: false, color: "#ffffff" },
@@ -3332,6 +3364,7 @@ function resetForm() {
 
 // Export state as JSON
 function exportConfigJSON() {
+  const exportSelections = getModeCompatibleSelections(state.selections, state.mode);
   const payload = {
     schemaVersion: 4,
     mode: state.mode,
@@ -3349,11 +3382,11 @@ function exportConfigJSON() {
     customColors: state.customColors
   };
 
-  Object.keys(state.selections).forEach(field => {
+  Object.keys(exportSelections).forEach(field => {
     payload.selections[field] = {
-      id: state.selections[field].id,
-      value: getPromptValueForSelection(state.selections[field], field),
-      isCustom: state.selections[field].isCustom
+      id: exportSelections[field].id,
+      value: getPromptValueForSelection(exportSelections[field], field),
+      isCustom: exportSelections[field].isCustom
     };
   });
 
@@ -3376,6 +3409,14 @@ function importConfigJSON(jsonString) {
   try {
     const payload = JSON.parse(jsonString);
     if (!payload || typeof payload !== "object") throw new Error("Invalid preset format");
+
+    if (payload.mode && Object.prototype.hasOwnProperty.call(MODE_CATEGORY_POLICY, payload.mode)) {
+      state.mode = payload.mode;
+      localStorage.setItem("model_prompt_forge_active_mode", state.mode);
+      document.querySelectorAll(".mode-chip").forEach(chip => {
+        chip.classList.toggle("active", chip.getAttribute("data-mode") === state.mode);
+      });
+    }
 
     resetForm();
 
@@ -3435,7 +3476,7 @@ function importConfigJSON(jsonString) {
     }
 
     let hasNsfwSelection = false;
-    const importedSelections = migrateLegacySelections(payload.selections);
+    const importedSelections = pruneSelectionsForMode(migrateLegacySelections(payload.selections), state.mode);
     if (Object.keys(importedSelections).length > 0) {
       Object.keys(importedSelections).forEach(field => {
         const item = importedSelections[field];
@@ -4537,7 +4578,10 @@ function renderLightboxItem(item) {
   promptTxt.textContent = item.prompt;
   engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
   model.textContent = item.submodel || "N/A";
-  time.textContent = new Date(item.timestamp).toLocaleString();
+  const timestamp = Number(item.timestamp || item.createdAt || item.completedAt);
+  time.textContent = Number.isFinite(timestamp) && timestamp > 0
+    ? new Date(timestamp).toLocaleString()
+    : "N/A";
   if (duration) duration.textContent = item.generationDuration ? `${item.generationDuration}s` : "N/A";
   dlLink.href = item.imageUrl;
   const outputExtension = item.imageUrl?.match(/\.([a-z0-9]+)(?:\?|$)/i)?.[1] || "png";

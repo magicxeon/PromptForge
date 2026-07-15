@@ -290,9 +290,23 @@
 
           <!-- Step 2 & 3 Group -->
           <div class="step-card step-2-card">
-            <div class="step-header">
-              <span class="step-badge">Step 2</span>
-              <h3>Engine & Target Output</h3>
+            <div class="step-header engine-step-header">
+              <div class="step-title-group">
+                <span class="step-badge">Step 2</span>
+                <h3>Engine & Target Output</h3>
+              </div>
+              <div class="comparison-model-actions" aria-label="Model comparison actions">
+                <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
+                  <span class="comparison-active-dot" aria-hidden="true"></span>
+                  <span id="comparison-active-run-label">Comparison 0/2</span>
+                </button>
+                <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
+                  aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
+                  <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
+                  <span class="compare-label">Compare</span>
+                  <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
+                </button>
+              </div>
             </div>
 
             <div class="engine-settings-grid">
@@ -304,20 +318,7 @@
               </div>
 
               <div class="form-field">
-                <div class="model-label-row">
-                  <label for="api-submodel-select">Submodel Version</label>
-                  <div class="comparison-model-actions">
-                    <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
-                      <span class="comparison-active-dot" aria-hidden="true"></span>
-                      <span id="comparison-active-run-label">Comparison 0/2</span>
-                    </button>
-                    <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
-                      aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
-                      <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
-                      <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
-                    </button>
-                  </div>
-                </div>
+                <label for="api-submodel-select">Submodel Version</label>
                 <select id="api-submodel-select" class="custom-select">
                   <!-- Dynamically populated -->
                 </select>

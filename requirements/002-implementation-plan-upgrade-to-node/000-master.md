@@ -89,3 +89,16 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Require human approval before canonical character generation and batch progression.
   - Charge configurable credits for analysis, re-analysis, AI remapping, and each generated image.
   - Provide cost previews, server-authoritative billing, idempotent deduction/refund, and resumable generation plans.
+
+## 3. Later Requirement Addendum
+
+- [ ] **Step 23: BytePlus ModelArk Seedream Provider** (`023-byteplus-modelark-seedream-provider.md`)
+  - Add BytePlus ModelArk Seedream through the config-driven provider registry.
+  - Support `MODEL_ARK_API`, region/base URL configuration, and server-side bearer authentication.
+  - Map text-to-image and reference-image workflows to ModelArk `/api/v3/images/generations`.
+  - Normalize `b64_json` and temporary `url` responses into existing History, Queue and Comparison result contracts.
+  - Defer Seedream streaming and batch output until pricing/credit and UI behavior are approved.
+- [ ] **Step 24: UI Improvement 1** (`024-UI-improvement-1.md`)
+  - Hide unused pixel width/height controls for resolution-driven providers such as Seedream and Grok.
+  - Prune Headshot Grid and Character Sheet categories so story/commercial controls do not leak into identity workflows.
+  - Add subtle application navigation fade behavior at the top of the page.
