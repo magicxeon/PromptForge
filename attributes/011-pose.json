@@ -3,7 +3,10 @@
     "id": "pose.standing_01",
     "category": "pose",
     "subcategory": "Standing",
-    "label": "Hand on Hip",
+    "label": {
+      "en": "Hand on Hip",
+      "th": "วางมือบนสะโพก"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -14,14 +17,21 @@
       "gpt-image-safe": "standing confidently with one hand on hip in an editorial pose",
       "gpt-image-positive": "confident posture, editorial standing pose, professional portrait photography, fashion magazine photography, lifestyle portrait"
     },
-    "tags": ["pose", "standing", "hand on hip"],
+    "tags": [
+      "pose",
+      "standing",
+      "hand on hip"
+    ],
     "enabled": true
   },
   {
     "id": "pose.standing_02",
     "category": "pose",
     "subcategory": "Standing",
-    "label": "Leaning Against Wall",
+    "label": {
+      "en": "Leaning Against Wall",
+      "th": "พิงกำแพง"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -32,14 +42,21 @@
       "gpt-image-safe": "leaning casually against a modern wall in a relaxed standing stance",
       "gpt-image-positive": "contemporary fashion, lifestyle portrait, relaxed posture, balanced composition"
     },
-    "tags": ["pose", "standing", "leaning"],
+    "tags": [
+      "pose",
+      "standing",
+      "leaning"
+    ],
     "enabled": true
   },
   {
     "id": "pose.standing_03",
     "category": "pose",
     "subcategory": "Standing",
-    "label": "Looking Over Shoulder",
+    "label": {
+      "en": "Looking Over Shoulder",
+      "th": "หันมองข้ามไหล่"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -50,14 +67,21 @@
       "gpt-image-safe": "looking over her shoulder toward the camera with an elegant profile",
       "gpt-image-positive": "editorial standing pose, graceful posture, natural candid portrait, lifestyle portrait, professional portrait photography"
     },
-    "tags": ["pose", "standing", "over shoulder"],
+    "tags": [
+      "pose",
+      "standing",
+      "over shoulder"
+    ],
     "enabled": true
   },
   {
     "id": "pose.standing_04",
     "category": "pose",
     "subcategory": "Standing",
-    "label": "Arching Back Subtly",
+    "label": {
+      "en": "Arching Back Subtly",
+      "th": "แอ่นหลังเล็กน้อย"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -68,14 +92,21 @@
       "gpt-image-safe": "subtle natural back arch creating an elegant high-fashion editorial stance",
       "gpt-image-positive": "editorial fashion photography, graceful posture, tasteful fashion styling, elegant visual storytelling, balanced composition"
     },
-    "tags": ["pose", "standing", "back arch"],
+    "tags": [
+      "pose",
+      "standing",
+      "back arch"
+    ],
     "enabled": true
   },
   {
     "id": "pose.standing_05",
     "category": "pose",
     "subcategory": "Standing",
-    "label": "Classical Contrapposto",
+    "label": {
+      "en": "Classical Contrapposto",
+      "th": "ท่ายืนคอนทรัปโปสโตแบบคลาสสิก"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -86,14 +117,21 @@
       "gpt-image-safe": "standing in a contrapposto posture shifting weight naturally for a graceful line",
       "gpt-image-positive": "graceful posture, elegant tailoring, tasteful styling, editorial fashion photography"
     },
-    "tags": ["pose", "standing", "contrapposto"],
+    "tags": [
+      "pose",
+      "standing",
+      "contrapposto"
+    ],
     "enabled": true
   },
   {
     "id": "pose.sitting_01",
     "category": "pose",
     "subcategory": "Sitting",
-    "label": "Crossing Legs",
+    "label": {
+      "en": "Crossing Legs",
+      "th": "ไขว้ขา"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -104,14 +142,21 @@
       "gpt-image-safe": "seated with legs crossed naturally in a composed elegant pose",
       "gpt-image-positive": "relaxed posture, natural stance, editorial standing pose, balanced composition, graceful posture"
     },
-    "tags": ["pose", "sitting", "crossing legs"],
+    "tags": [
+      "pose",
+      "sitting",
+      "crossing legs"
+    ],
     "enabled": true
   },
   {
     "id": "pose.sitting_02",
     "category": "pose",
     "subcategory": "Sitting",
-    "label": "Laying Down Side View",
+    "label": {
+      "en": "Laying Down Side View",
+      "th": "นอนตะแคงมองจากด้านข้าง"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -122,14 +167,21 @@
       "gpt-image-safe": "reclining naturally on her side with elegant body alignment",
       "gpt-image-positive": "editorial fashion photography, comfortable seated pose, natural candid portrait, refined artistic direction, tasteful composition"
     },
-    "tags": ["pose", "sitting", "laying down"],
+    "tags": [
+      "pose",
+      "sitting",
+      "laying down"
+    ],
     "enabled": true
   },
   {
     "id": "pose.sitting_03",
     "category": "pose",
     "subcategory": "Sitting",
-    "label": "Resting Chin on Hand",
+    "label": {
+      "en": "Resting Chin on Hand",
+      "th": "เท้าคางบนมือ"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -140,14 +192,21 @@
       "gpt-image-safe": "resting chin on hand in a natural thoughtful editorial pose",
       "gpt-image-positive": "comfortable seated pose, natural candid portrait, casual body language, lifestyle portrait"
     },
-    "tags": ["pose", "sitting", "resting chin"],
+    "tags": [
+      "pose",
+      "sitting",
+      "resting chin"
+    ],
     "enabled": true
   },
   {
     "id": "pose.sitting_04",
     "category": "pose",
     "subcategory": "Sitting",
-    "label": "Sitting on Bar Stool",
+    "label": {
+      "en": "Sitting on Bar Stool",
+      "th": "นั่งบนเก้าอี้บาร์"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -158,14 +217,21 @@
       "gpt-image-safe": "sitting comfortably on a high bar stool in a relaxed posture",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, casual styling, contemporary fashion"
     },
-    "tags": ["pose", "sitting", "bar stool"],
+    "tags": [
+      "pose",
+      "sitting",
+      "bar stool"
+    ],
     "enabled": true
   },
   {
     "id": "pose.sitting_05",
     "category": "pose",
     "subcategory": "Sitting",
-    "label": "Cozy Floor Sitting",
+    "label": {
+      "en": "Cozy Floor Sitting",
+      "th": "อบอุ่น Floor Sitting"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -176,14 +242,21 @@
       "gpt-image-safe": "sitting cross-legged on a rug in a comfortable relaxed posture",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, cozy ambiance, casual wardrobe"
     },
-    "tags": ["pose", "sitting", "floor"],
+    "tags": [
+      "pose",
+      "sitting",
+      "floor"
+    ],
     "enabled": true
   },
   {
     "id": "pose.walking_01",
     "category": "pose",
     "subcategory": "Walking",
-    "label": "Mid-Stride Forward",
+    "label": {
+      "en": "Mid-Stride Forward",
+      "th": "ก้าวเดินไปข้างหน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -194,14 +267,21 @@
       "gpt-image-safe": "walking forward mid-stride with natural movement in her clothing and hair",
       "gpt-image-positive": "dynamic composition, contemporary fashion, editorial fashion photography, lifestyle portrait"
     },
-    "tags": ["pose", "walking", "mid-stride"],
+    "tags": [
+      "pose",
+      "walking",
+      "mid-stride"
+    ],
     "enabled": true
   },
   {
     "id": "pose.walking_02",
     "category": "pose",
     "subcategory": "Walking",
-    "label": "Turning Back While Walking",
+    "label": {
+      "en": "Turning Back While Walking",
+      "th": "หันกลับมาขณะเดิน"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -212,14 +292,21 @@
       "gpt-image-safe": "walking away from the camera and looking back with a gentle smile",
       "gpt-image-positive": "natural candid portrait, lifestyle portrait, friendly expression, authentic appearance"
     },
-    "tags": ["pose", "walking", "look back"],
+    "tags": [
+      "pose",
+      "walking",
+      "look back"
+    ],
     "enabled": true
   },
   {
     "id": "pose.walking_03",
     "category": "pose",
     "subcategory": "Walking",
-    "label": "Casual Stroll",
+    "label": {
+      "en": "Casual Stroll",
+      "th": "เดินเล่นสบาย ๆ"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -230,14 +317,21 @@
       "gpt-image-safe": "strolling casually in a natural relaxed walking posture",
       "gpt-image-positive": "lifestyle portrait, casual styling, natural candid portrait, relaxed posture"
     },
-    "tags": ["pose", "walking", "stroll"],
+    "tags": [
+      "pose",
+      "walking",
+      "stroll"
+    ],
     "enabled": true
   },
   {
     "id": "pose.walking_04",
     "category": "pose",
     "subcategory": "Walking",
-    "label": "Walking Down Stairs",
+    "label": {
+      "en": "Walking Down Stairs",
+      "th": "เดินลงบันได"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -248,14 +342,21 @@
       "gpt-image-safe": "stepping down a flight of stairs with elegant composure",
       "gpt-image-positive": "editorial fashion photography, structured garment construction, refined styling, luxury fashion campaign"
     },
-    "tags": ["pose", "walking", "stairs"],
+    "tags": [
+      "pose",
+      "walking",
+      "stairs"
+    ],
     "enabled": true
   },
   {
     "id": "pose.walking_05",
     "category": "pose",
     "subcategory": "Walking",
-    "label": "Walking Against Breeze",
+    "label": {
+      "en": "Walking Against Breeze",
+      "th": "เดินต้านสายลม"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -266,14 +367,21 @@
       "gpt-image-safe": "walking forward into a gentle breeze with natural wind-swept hair",
       "gpt-image-positive": "lifestyle portrait, dynamic composition, contemporary fashion, professional portrait photography"
     },
-    "tags": ["pose", "walking", "breeze"],
+    "tags": [
+      "pose",
+      "walking",
+      "breeze"
+    ],
     "enabled": true
   },
   {
     "id": "pose.hand_01",
     "category": "pose",
     "subcategory": "Hand Position",
-    "label": "Hand Near Mouth",
+    "label": {
+      "en": "Hand Near Mouth",
+      "th": "วางมือใกล้ปาก"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -284,14 +392,21 @@
       "gpt-image-safe": "hand resting naturally near her face",
       "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance"
     },
-    "tags": ["pose", "hand position", "hand near mouth"],
+    "tags": [
+      "pose",
+      "hand position",
+      "hand near mouth"
+    ],
     "enabled": true
   },
   {
     "id": "pose.hand_02",
     "category": "pose",
     "subcategory": "Hand Position",
-    "label": "Touching Collarbone",
+    "label": {
+      "en": "Touching Collarbone",
+      "th": "แตะกระดูกไหปลาร้า"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -302,14 +417,21 @@
       "gpt-image-safe": "gently resting a hand near her neckline",
       "gpt-image-positive": "editorial fashion photography, graceful posture, elegant tailoring, natural beauty, refined styling"
     },
-    "tags": ["pose", "hand position", "collarbone"],
+    "tags": [
+      "pose",
+      "hand position",
+      "collarbone"
+    ],
     "enabled": true
   },
   {
     "id": "pose.hand_03",
     "category": "pose",
     "subcategory": "Hand Position",
-    "label": "Touching Cheek / Face",
+    "label": {
+      "en": "Touching Cheek / Face",
+      "th": "Touching Cheek/ หน้า"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -320,14 +442,21 @@
       "gpt-image-safe": "gently resting hand near her cheek in a natural candid editorial pose",
       "gpt-image-positive": "natural candid portrait, casual body language, soft facial harmony, authentic appearance, lifestyle portrait"
     },
-    "tags": ["pose", "hand position", "touch cheek"],
+    "tags": [
+      "pose",
+      "hand position",
+      "touch cheek"
+    ],
     "enabled": true
   },
   {
     "id": "pose.hand_04",
     "category": "pose",
     "subcategory": "Hand Position",
-    "label": "Adjusting Hair",
+    "label": {
+      "en": "Adjusting Hair",
+      "th": "Adjusting ผม"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -338,14 +467,21 @@
       "gpt-image-safe": "raising a hand to adjust her hair in a natural candid gesture",
       "gpt-image-positive": "lifestyle portrait, natural candid portrait, casual body language, soft lighting"
     },
-    "tags": ["pose", "hand position", "adjust hair"],
+    "tags": [
+      "pose",
+      "hand position",
+      "adjust hair"
+    ],
     "enabled": true
   },
   {
     "id": "pose.hand_05",
     "category": "pose",
     "subcategory": "Hand Position",
-    "label": "Holding Sunglasses Frame",
+    "label": {
+      "en": "Holding Sunglasses Frame",
+      "th": "จับกรอบแว่นกันแดด"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -356,14 +492,21 @@
       "gpt-image-safe": "gently holding the frame of her sunglasses with refined styling",
       "gpt-image-positive": "editorial fashion photography, contemporary fashion, luxury fashion campaign, tasteful fashion styling"
     },
-    "tags": ["pose", "hand position", "sunglasses"],
+    "tags": [
+      "pose",
+      "hand position",
+      "sunglasses"
+    ],
     "enabled": true
   },
   {
     "id": "pose.eye_01",
     "category": "pose",
     "subcategory": "Eye Contact",
-    "label": "Looking Directly at Camera",
+    "label": {
+      "en": "Looking Directly at Camera",
+      "th": "มองกล้องตรงๆ"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -374,14 +517,21 @@
       "gpt-image-safe": "looking directly into the camera lens with a warm pleasant gaze",
       "gpt-image-positive": "professional portrait photography, natural candid portrait, lifestyle portrait, authentic appearance"
     },
-    "tags": ["pose", "eye contact", "direct gaze"],
+    "tags": [
+      "pose",
+      "eye contact",
+      "direct gaze"
+    ],
     "enabled": true
   },
   {
     "id": "pose.eye_02",
     "category": "pose",
     "subcategory": "Eye Contact",
-    "label": "Looking Away Candidly",
+    "label": {
+      "en": "Looking Away Candidly",
+      "th": "มองออกไปแบบเป็นธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -392,14 +542,21 @@
       "gpt-image-safe": "candid gaze looking slightly off-camera in a natural thoughtful moment",
       "gpt-image-positive": "natural candid portrait, lifestyle portrait, candid composition, soft emotional tone"
     },
-    "tags": ["pose", "eye contact", "look away"],
+    "tags": [
+      "pose",
+      "eye contact",
+      "look away"
+    ],
     "enabled": true
   },
   {
     "id": "pose.eye_03",
     "category": "pose",
     "subcategory": "Eye Contact",
-    "label": "Looking Down Thoughtfully",
+    "label": {
+      "en": "Looking Down Thoughtfully",
+      "th": "ก้มมองอย่างครุ่นคิด"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -410,14 +567,21 @@
       "gpt-image-safe": "gaze directed downwards in a soft thoughtful expression",
       "gpt-image-positive": "natural candid portrait, soft facial harmony, gentle atmosphere, quiet emotional tone"
     },
-    "tags": ["pose", "eye contact", "look down"],
+    "tags": [
+      "pose",
+      "eye contact",
+      "look down"
+    ],
     "enabled": true
   },
   {
     "id": "pose.eye_04",
     "category": "pose",
     "subcategory": "Eye Contact",
-    "label": "Intense Seductive Gaze",
+    "label": {
+      "en": "Intense Seductive Gaze",
+      "th": "Intense Seductive สายตา"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -428,14 +592,21 @@
       "gpt-image-safe": "focused and captivating direct gaze, locking eyes with the viewer",
       "gpt-image-positive": "high-fashion editorial, editorial fashion photography, professional portrait photography, refined composition"
     },
-    "tags": ["pose", "eye contact", "seductive gaze"],
+    "tags": [
+      "pose",
+      "eye contact",
+      "seductive gaze"
+    ],
     "enabled": true
   },
   {
     "id": "pose.eye_05",
     "category": "pose",
     "subcategory": "Eye Contact",
-    "label": "Dreamy Skyward Look",
+    "label": {
+      "en": "Dreamy Skyward Look",
+      "th": "Dreamy Skyward ลุค"
+    },
     "ui": {
       "control": "select",
       "group": "Pose"
@@ -446,7 +617,11 @@
       "gpt-image-safe": "looking up and away with a soft dreamy gaze catching subtle light highlights in her eyes",
       "gpt-image-positive": "professional portrait photography, natural candid portrait, cinematic natural lighting, soft mood"
     },
-    "tags": ["pose", "eye contact", "dreamy gaze"],
+    "tags": [
+      "pose",
+      "eye contact",
+      "dreamy gaze"
+    ],
     "enabled": true
   }
 ]

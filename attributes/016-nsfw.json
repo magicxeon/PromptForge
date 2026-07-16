@@ -3,7 +3,10 @@
     "id": "nsfw.001",
     "category": "nsfw",
     "subcategory": "Nudity Level",
-    "label": "Implied Nudity",
+    "label": {
+      "en": "Implied Nudity",
+      "th": "สื่อถึงภาพเปลือยโดยไม่เปิดเผยชัดเจน"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -22,7 +25,10 @@
     "id": "nsfw.002",
     "category": "nsfw",
     "subcategory": "Nudity Level",
-    "label": "Semi-nude / Bikini",
+    "label": {
+      "en": "Semi-nude / Bikini",
+      "th": "กึ่งเปลือยหรือบิกินี"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -42,7 +48,10 @@
     "id": "nsfw.003",
     "category": "nsfw",
     "subcategory": "Nudity Level",
-    "label": "Sensual Lingerie",
+    "label": {
+      "en": "Sensual Lingerie",
+      "th": "ชุดชั้นในเย้ายวน"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -62,7 +71,10 @@
     "id": "nsfw.004",
     "category": "nsfw",
     "subcategory": "Nudity Level",
-    "label": "Topless",
+    "label": {
+      "en": "Topless",
+      "th": "เปลือยท่อนบน"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -81,7 +93,10 @@
     "id": "nsfw.005",
     "category": "nsfw",
     "subcategory": "Nudity Level",
-    "label": "Full Nudity",
+    "label": {
+      "en": "Full Nudity",
+      "th": "เปลือยทั้งตัว"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -100,7 +115,10 @@
     "id": "nsfw_pose.001",
     "category": "nsfw",
     "subcategory": "Sensual Pose",
-    "label": "Leaning back seductively",
+    "label": {
+      "en": "Leaning back seductively",
+      "th": "เอนตัวไปด้านหลังอย่างเย้ายวน"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -119,7 +137,10 @@
     "id": "nsfw_pose.002",
     "category": "nsfw",
     "subcategory": "Sensual Pose",
-    "label": "Sensual over-the-shoulder gaze",
+    "label": {
+      "en": "Sensual over-the-shoulder gaze",
+      "th": "Sensual over-the-shoulder สายตา"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -138,7 +159,10 @@
     "id": "nsfw_pose.003",
     "category": "nsfw",
     "subcategory": "Sensual Pose",
-    "label": "Arching back gently",
+    "label": {
+      "en": "Arching back gently",
+      "th": "แอ่นหลังอย่างนุ่มนวล"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"
@@ -157,7 +181,10 @@
     "id": "nsfw_pose.004",
     "category": "nsfw",
     "subcategory": "Sensual Pose",
-    "label": "Lying on bed, looking at camera",
+    "label": {
+      "en": "Lying on bed, looking at camera",
+      "th": "Lying on bed, looking at กล้อง"
+    },
     "ui": {
       "control": "select",
       "group": "NSFW"

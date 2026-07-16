@@ -3,471 +3,846 @@
     "id": "character.001",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Female",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Female",
+      "th": "ผู้หญิง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "female",
       "gpt-image": "female woman"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.002",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Male",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Male",
+      "th": "ผู้ชาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "male",
       "gpt-image": "male man"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.002_nb",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Non-binary",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Non-binary",
+      "th": "นอนไบนารี (Non-binary)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "non-binary person",
       "gpt-image": "non-binary person with androgenous features"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.003",
     "category": "character",
     "subcategory": "Gender",
-    "label": "Child",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Child",
+      "th": "เด็ก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "child",
       "gpt-image": "child"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
-
   {
     "id": "character.004_teen",
     "category": "character",
     "subcategory": "Age",
-    "label": "Teenager (15-19)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Teenager (15-19)",
+      "th": "วัยรุ่น (15-19)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "teenager aged 18",
       "gpt-image": "teenager in late teens around 18 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.004_e20",
     "category": "character",
     "subcategory": "Age",
-    "label": "Early Twenties (20-23)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Early Twenties (20-23)",
+      "th": "วัยต้นยี่สิบ (20-23)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "21-year-old young adult",
       "gpt-image": "young adult in early twenties, 21 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.004",
     "category": "character",
     "subcategory": "Age",
-    "label": "Young Adult (24-27)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Young Adult (24-27)",
+      "th": "วัยผู้ใหญ่ตอนต้น (24-27)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "young adult",
       "gpt-image": "young adult, mid-twenties"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.004_l20",
     "category": "character",
     "subcategory": "Age",
-    "label": "Late Twenties (28-29)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Late Twenties (28-29)",
+      "th": "วัยปลายยี่สิบ (28-29)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "29-year-old adult",
       "gpt-image": "adult in late twenties, 29 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.005_30s",
     "category": "character",
     "subcategory": "Age",
-    "label": "Thirties (30-39)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Thirties (30-39)",
+      "th": "วัยสามสิบ (30-39)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "35-year-old adult",
       "gpt-image": "adult in mid-thirties, 35 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.005",
     "category": "character",
     "subcategory": "Age",
-    "label": "Adult (40-49)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Adult (40-49)",
+      "th": "วัยผู้ใหญ่ (40-49)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "adult in mid-forties",
       "gpt-image": "mature adult in mid-forties, 45 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.005_50s",
     "category": "character",
     "subcategory": "Age",
-    "label": "Fifties (50-59)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Fifties (50-59)",
+      "th": "วัยห้าสิบ (50-59)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "55-year-old mature adult",
       "gpt-image": "mature adult in mid-fifties, 55 years old"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
   {
     "id": "character.006",
     "category": "character",
     "subcategory": "Age",
-    "label": "Senior (60+)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Senior (60+)",
+      "th": "ผู้สูงอายุ (60+)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "elderly senior",
       "gpt-image": "elderly senior, 65 years old, with soft natural wrinkles"
     },
-    "tags": ["character"], "enabled": true
+    "tags": [
+      "character"
+    ],
+    "enabled": true
   },
-
   {
     "id": "character.007",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Thai",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Thai",
+      "th": "ไทย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "thai ethnicity",
       "gpt-image": "thai person"
     },
-    "tags": ["character", "thai"], "enabled": true
+    "tags": [
+      "character",
+      "thai"
+    ],
+    "enabled": true
   },
   {
     "id": "character.008",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Japanese",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Japanese",
+      "th": "ญี่ปุ่น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "japanese ethnicity",
       "gpt-image": "japanese person"
     },
-    "tags": ["character", "japanese"], "enabled": true
+    "tags": [
+      "character",
+      "japanese"
+    ],
+    "enabled": true
   },
   {
     "id": "character.009",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Korean",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Korean",
+      "th": "เกาหลี"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "korean ethnicity",
       "gpt-image": "korean person"
     },
-    "tags": ["character", "korean"], "enabled": true
+    "tags": [
+      "character",
+      "korean"
+    ],
+    "enabled": true
   },
   {
     "id": "character.010",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Chinese",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Chinese",
+      "th": "จีน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "chinese ethnicity",
       "gpt-image": "chinese person"
     },
-    "tags": ["character", "chinese"], "enabled": true
+    "tags": [
+      "character",
+      "chinese"
+    ],
+    "enabled": true
   },
   {
     "id": "character.011",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Vietnamese",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Vietnamese",
+      "th": "เวียดนาม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "vietnamese ethnicity",
       "gpt-image": "vietnamese person"
     },
-    "tags": ["character", "vietnamese"], "enabled": true
+    "tags": [
+      "character",
+      "vietnamese"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_taiwan",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Taiwanese",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Taiwanese",
+      "th": "ไต้หวัน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "taiwanese ethnicity",
       "gpt-image": "taiwanese person"
     },
-    "tags": ["character", "taiwanese"], "enabled": true
+    "tags": [
+      "character",
+      "taiwanese"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_filipino",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Filipino",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Filipino",
+      "th": "ฟิลิปปินส์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "filipino ethnicity",
       "gpt-image": "filipino person"
     },
-    "tags": ["character", "filipino"], "enabled": true
+    "tags": [
+      "character",
+      "filipino"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_singapore",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Singaporean",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Singaporean",
+      "th": "สิงคโปร์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "singaporean ethnicity",
       "gpt-image": "singaporean person"
     },
-    "tags": ["character", "singaporean"], "enabled": true
+    "tags": [
+      "character",
+      "singaporean"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_malay",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Malaysian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Malaysian",
+      "th": "มาเลเซีย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "malaysian ethnicity",
       "gpt-image": "malaysian person"
     },
-    "tags": ["character", "malaysian"], "enabled": true
+    "tags": [
+      "character",
+      "malaysian"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_eurasian",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Eurasian (Mixed Asian-European)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Eurasian (Mixed Asian-European)",
+      "th": "ยูเรเชียน (เอเชีย-ยุโรปผสม)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "eurasian ethnicity, half european half asian",
       "gpt-image": "eurasian person with mixed european and asian facial characteristics"
     },
-    "tags": ["character", "eurasian"], "enabled": true
+    "tags": [
+      "character",
+      "eurasian"
+    ],
+    "enabled": true
   },
   {
     "id": "character.012",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "European",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "European",
+      "th": "ยุโรป"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "european ethnicity",
       "gpt-image": "caucasian european person"
     },
-    "tags": ["character", "european"], "enabled": true
+    "tags": [
+      "character",
+      "european"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_nordic",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Nordic / Scandinavian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Nordic / Scandinavian",
+      "th": "นอร์ดิก / สแกนดิเนเวีย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "scandinavian nordic ethnicity",
       "gpt-image": "scandinavian person with nordic facial characteristics"
     },
-    "tags": ["character", "nordic"], "enabled": true
+    "tags": [
+      "character",
+      "nordic"
+    ],
+    "enabled": true
   },
   {
     "id": "character.eth_latina",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Latina / Hispanic",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Latina / Hispanic",
+      "th": "ลาตินา / ฮิสแปนิก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "hispanic latina ethnicity",
       "gpt-image": "latina person with hispanic facial characteristics"
     },
-    "tags": ["character", "latina"], "enabled": true
+    "tags": [
+      "character",
+      "latina"
+    ],
+    "enabled": true
   },
   {
     "id": "character.013",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "African",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "African",
+      "th": "แอฟริกัน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "black african ethnicity",
       "gpt-image": "black person of african descent"
     },
-    "tags": ["character", "african"], "enabled": true
+    "tags": [
+      "character",
+      "african"
+    ],
+    "enabled": true
   },
   {
     "id": "character.014",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Middle Eastern",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Middle Eastern",
+      "th": "ตะวันออกกลาง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "middle eastern ethnicity",
       "gpt-image": "middle eastern person"
     },
-    "tags": ["character", "middle eastern"], "enabled": true
+    "tags": [
+      "character",
+      "middle eastern"
+    ],
+    "enabled": true
   },
   {
     "id": "character.015",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "South Asian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "South Asian",
+      "th": "เอเชียใต้"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "south asian ethnicity",
       "gpt-image": "south asian indian person"
     },
-    "tags": ["character", "south asian"], "enabled": true
+    "tags": [
+      "character",
+      "south asian"
+    ],
+    "enabled": true
   },
   {
     "id": "character.016",
     "category": "character",
     "subcategory": "Ethnicity",
-    "label": "Southeast Asian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Southeast Asian",
+      "th": "เอเชียตะวันออกเฉียงใต้"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "southeast asian ethnicity",
       "gpt-image": "southeast asian person"
     },
-    "tags": ["character", "southeast asian"], "enabled": true
+    "tags": [
+      "character",
+      "southeast asian"
+    ],
+    "enabled": true
   },
-
   {
     "id": "character.022",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Beautiful young Asian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Beautiful young Asian",
+      "th": "ชาวเอเชียสาวสวย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "beautiful young Asian features",
       "gpt-image": "beautiful young Asian face with delicate features"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.023",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Cute doll-like Asian",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Cute doll-like Asian",
+      "th": "ชาวเอเชียลุคตุ๊กตาน่ารัก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "cute doll-like Asian features",
       "gpt-image": "cute doll-like Asian face, extremely adorable and pretty"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_elegant",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Delicate and elegant features",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Delicate and elegant features",
+      "th": "โครงหน้าละมุนและสง่างาม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "delicate and elegant facial features",
       "gpt-image": "elegant facial features, sophisticated and graceful look, soft details"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_editorial",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Sleek high-fashion editorial face",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Sleek high-fashion editorial face",
+      "th": "Sleek สูง-แฟชั่น editorial หน้า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "sleek high-fashion editorial face",
       "gpt-image": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_natural",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Raw natural look (minimal makeup)",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Raw natural look (minimal makeup)",
+      "th": "Raw ธรรมชาติ ลุค(minimal makeup)"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "raw natural look, minimal makeup",
       "gpt-image": "completely natural face with zero or minimal makeup, honest expression, soft skin textures"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_symmetrical",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Photogenic symmetrical features",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Photogenic symmetrical features",
+      "th": "ใบหน้าสมมาตรที่ขึ้นกล้อง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "photogenic symmetrical features",
       "gpt-image": "highly photogenic and balanced face, near-symmetrical features with natural organic variations"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_sharp",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Sharp defined jawline",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Sharp defined jawline",
+      "th": "แนวกรามคมชัด"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "sharp defined jawline, high cheekbones",
       "gpt-image": "face with a sharp defined jawline, high cheekbones, strong structured jaw"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_youthful",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Soft innocent youthful appearance",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Soft innocent youthful appearance",
+      "th": "นุ่มนวล innocent youthful appearance"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "soft innocent youthful appearance",
       "gpt-image": "soft innocent face, youthful glowing appearance, gentle friendly expression"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_mature",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Mature sophisticated elegance",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Mature sophisticated elegance",
+      "th": "ความสง่างามแบบผู้ใหญ่ที่มีรสนิยม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "mature sophisticated elegance",
       "gpt-image": "mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   },
   {
     "id": "character.beauty_expressive",
     "category": "character",
     "subcategory": "Beauty",
-    "label": "Mesmerizing expressive eyes",
-    "ui": { "control": "select", "group": "Character" },
+    "label": {
+      "en": "Mesmerizing expressive eyes",
+      "th": "Mesmerizing expressive ดวงตา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Character"
+    },
     "prompt": {
       "default": "mesmerizing expressive eyes",
       "gpt-image": "striking expressive eyes with deep emotional clarity, capturing focus naturally"
     },
-    "tags": ["character", "beauty"], "enabled": true
+    "tags": [
+      "character",
+      "beauty"
+    ],
+    "enabled": true
   }
 ]

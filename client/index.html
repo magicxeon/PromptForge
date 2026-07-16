@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ModelPromptForge - Premium AI Character Generator</title>
+  <!-- Google Fonts: Outfit for Headers, Inter for Body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header glass-card">
+      <div class="header-main-row">
+        <div class="logo-area">
+          <h1>ModelPromptForge</h1>
+          <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
+        </div>
+
+        <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
+        <div class="header-status-area">
+          <!-- Language Toggle Pill Selector -->
+          <div class="header-toggle-group">
+            <span class="toggle-group-label">Language</span>
+            <div class="pill-selector" id="language-pill-selector">
+              <button class="pill-btn active" data-value="th">TH</button>
+              <button class="pill-btn" data-value="en">EN</button>
+            </div>
+          </div>
+
+          <!-- Profile/Role Toggle Pill Selector -->
+          <div class="header-toggle-group">
+            <span class="toggle-group-label">Profile</span>
+            <div class="pill-selector" id="profile-pill-selector">
+              <button class="pill-btn active" data-value="user_demo">User</button>
+              <button class="pill-btn" data-value="admin_demo">Admin</button>
+            </div>
+          </div>
+
+          <div class="credits-display-compact">
+            <div class="credits-count-row">
+              <span class="credits-count" id="credits-value">20</span>
+              <span class="coin-icon">🪙</span>
+              <button id="btn-recharge" class="btn-recharge-compact" title="Recharge 10 Credits">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without
+        policy violations.</p>
+    </header>
+
+    <div class="application-nav-shell glass-card">
+      <button id="application-menu-button" class="application-menu-button" type="button"
+        aria-expanded="false" aria-controls="application-navigation">
+        <span aria-hidden="true">&#9776;</span>
+        <span>Menu</span>
+      </button>
+      <nav id="application-navigation" class="application-navigation" aria-label="Primary navigation"></nav>
+      <button id="application-menu-backdrop" class="application-menu-backdrop" type="button"
+        aria-label="Close navigation" hidden></button>
+    </div>
+
+    <!-- Main Workspace -->
+    <main class="app-workspace">
+
+      <!-- Top Section: Visual Workspace & History Dashboard (Collapsible) -->
+      <section class="visual-dashboard glass-card" id="visual-dashboard">
+        <div class="dashboard-header-row">
+          <div class="dashboard-title">
+            <h2><span class="header-icon">🖼️</span> Visual Viewport & Queue</h2>
+            <span class="sub-label">View current render stream, background queues, and history</span>
+          </div>
+          <button id="btn-toggle-dashboard" class="btn-dashboard-toggle" title="Minimize/Maximize Visual Panel">
+            <span class="toggle-icon">▼</span> Toggle Panel
+          </button>
+        </div>
+
+        <div class="dashboard-layout-grid">
+          <!-- Viewport Column (Active render screen) -->
+          <div class="viewport-column">
+            <div class="viewport-card-header">
+              <h3>Active Render Screen</h3>
+              <button id="btn-download-image" class="btn-download" title="Download Generated Image"
+                style="display: none;">
+                <span>📥 Download Image</span>
+              </button>
+            </div>
+
+            <div class="viewport-screen" id="viewport-screen">
+              <div class="image-loading-overlay" id="image-loading-overlay">
+                <div class="loading-pulse-ring"></div>
+                <p class="loading-text">Generating character details...</p>
+              </div>
+
+              <div class="viewport-placeholder-content" id="viewport-placeholder">
+                <span class="viewport-placeholder-icon">✨</span>
+                <p class="placeholder-main-text">Ready to render character</p>
+                <p class="sub-placeholder">Configure attributes below and click Generate Image</p>
+              </div>
+
+              <div class="viewport-error-banner" id="viewport-error" style="display: none;">
+                <span class="error-icon">⚠️</span>
+                <div class="error-content">
+                  <p class="error-msg" id="error-message">Generation failed</p>
+                  <details class="error-details" id="error-details" style="display: none;">
+                    <summary>Technical details</summary>
+                    <span id="error-technical-message"></span>
+                  </details>
+                </div>
+              </div>
+
+              <img id="generated-image" src="" alt="Generated Character Output">
+            </div>
+
+            <!-- Loopback viewport controls (Step 9) -->
+            <div class="viewport-actions-row" id="viewport-loopback-actions"
+              style="display: none; gap: 0.5rem; margin-top: 0.5rem; width: 100%;">
+              <button id="btn-viewport-use-face" class="btn-compact-neon btn-use-face-ref"
+                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
+              <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref"
+                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+              <button id="btn-viewport-use-character" class="btn-compact-neon btn-use-character-ref"
+                style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
+            </div>
+
+            <!-- Telemetry Bar -->
+            <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
+              <div class="telemetry-item"><span class="tel-label">Model:</span> <span id="tel-model">-</span></div>
+              <div class="telemetry-item"><span class="tel-label">Time:</span> <span id="tel-time">-</span></div>
+              <div class="telemetry-item"><span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span></div>
+            </div>
+          </div>
+
+          <!-- History / Queue Column -->
+          <div class="history-column">
+            <div class="history-header">
+              <h3>Background Queue & History</h3>
+            </div>
+
+            <div class="collection-toolbar" id="collection-toolbar">
+              <div class="collection-select-wrap">
+                <label for="collection-select">Collection</label>
+                <select id="collection-select" class="collection-select">
+                  <option value="all">All Images</option>
+                </select>
+              </div>
+              <span class="collection-count" id="collection-count">0 images</span>
+              <button id="btn-new-collection" class="btn-collection-action" type="button">+ New</button>
+              <button id="btn-edit-collection" class="btn-collection-action" type="button" disabled>Edit</button>
+            </div>
+
+            <!-- Active Pending Job Queue list -->
+            <div class="active-queue-section">
+              <div class="queue-list" id="active-queue-list">
+                <!-- Dynamic queue items -->
+              </div>
+            </div>
+
+            <!-- Static Generation History grid -->
+            <div class="history-grid-container">
+              <div class="history-grid" id="history-grid">
+                <!-- Rendered history thumbnails -->
+                <p class="no-history-text" id="no-history-placeholder">No history found</p>
+              </div>
+            </div>
+            <div class="history-pagination" id="history-pagination" hidden>
+              <button id="btn-history-newer" class="btn-history-page" type="button" hidden>Newer Images</button>
+              <span id="history-page-status" class="history-page-status" aria-live="polite"></span>
+              <button id="btn-history-load-more" class="btn-history-page" type="button" hidden>Load More</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Floating control panel trigger when configurator is closed -->
+      <button id="btn-floating-config" class="btn-floating-config btn-neon-yellow-glow" type="button"
+        style="display: none;">
+        <span>⚙️ Open Studio Configurator</span>
+      </button>
+
+      <!-- Bottom Section: Creative Configurator Studio (Collapsible) -->
+      <section class="creative-configurator glass-card" id="creative-configurator">
+        <div class="config-header-row">
+          <h2><span class="header-icon">🎨</span> Studio Creative Configurator</h2>
+          <span class="sub-label">Custom attribute maps, mode configurations, and API selector pipeline</span>
+        </div>
+
+        <div class="configurator-pipeline">
+          <!-- Step 1 Group -->
+          <div class="step-card step-1-card">
+            <div class="step-header">
+              <span class="step-badge">Step 1</span>
+              <h3>Character Aesthetic Options</h3>
+            </div>
+
+            <!-- Mode selections & Presets group -->
+            <div class="form-mode-presets-row">
+              <div class="mode-selector-section">
+                <label class="control-label">Generation Mode</label>
+                <div class="mode-chip-group">
+                  <button class="mode-chip" data-mode="headshot">Headshot Grid</button>
+                  <button class="mode-chip" data-mode="character-sheet">Character Sheet</button>
+                  <button class="mode-chip active" data-mode="normal">Story Mode</button>
+                </div>
+
+                <div id="image-upload-container" class="mode-sub-control"
+                  style="display: none; padding: 0.5rem 0; border-top: 1px dashed rgba(255, 255, 255, 0.05); margin-top: 0.5rem;">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="story-use-character-reference">
+                    <span class="checkmark"></span>
+                    <span class="label-text">Use Character Sheet Reference</span>
+                  </label>
+                  <p class="sub-label" style="margin: 0.35rem 0 0;">
+                    Story Mode only. Both slots must show the same character. Use Face Match below for facial identity.
+                  </p>
+
+                  <!-- Slot Previews Dock (Step 9) -->
+                  <div class="reference-slots-dock" id="character-ref-slots-dock"
+                    style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                    <div class="ref-slot-card" id="character-slot-a-card"
+                      style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                      <img id="character-slot-a-img" src="" alt="Primary character sheet reference"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                      <span class="slot-badge"
+                        style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
+                        A</span>
+                      <button type="button" class="btn-clear-slot" data-slot="characterA"
+                        style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                    </div>
+                    <div class="ref-slot-card" id="character-slot-b-card"
+                      style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                      <img id="character-slot-b-img" src="" alt="Secondary character sheet reference of the same character"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                      <span class="slot-badge"
+                        style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(236, 72, 153, 0.85); color: #000; font-weight: 800;">Slot
+                        B</span>
+                      <button type="button" class="btn-clear-slot" data-slot="characterB"
+                        style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="file" id="character-reference-file" accept="image/*" class="custom-select"
+                      style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
+                    <button id="btn-clear-character-reference" class="btn-compact-neon"
+                      style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
+                      type="button">Clear All</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="presets-section">
+                <label class="control-label" for="preset-select">Aesthetic Presets Quickload</label>
+                <div class="preset-dropdown-row">
+                  <select id="preset-select" class="custom-select">
+                    <option value="">-- Choose Preset --</option>
+                    <option value="nightclub">Nightclub Aura Red</option>
+                    <option value="studio">Studio Porcelain</option>
+                    <option value="street">Street Dewy Waves</option>
+                    <option value="thaiSilk">Thai Silk Elegance</option>
+                    <option value="cheongsam">Cheongsam Vintage</option>
+                    <option value="minimalistCafe">Minimalist Cafe</option>
+                    <option value="beachCasual">Sunny Beach Casual</option>
+                    <option value="restaurantSitting">Rooftop Restaurant</option>
+                    <option value="barSitting">Vibrant Bar</option>
+                    <option value="resortSitting">Luxury Resort</option>
+                    <option value="naturePhoto">Nature Forest</option>
+                    <option value="mallWaiting">Shopping Mall</option>
+                  </select>
+                  <button id="btn-load-preset" class="btn-neon-action">Load Preset</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Accordions Form builder -->
+            <div id="form-container" class="accordions-container">
+              <div class="loading-placeholder">
+                <div class="spinner"></div>
+                <p>Loading attribute schemas...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 & 3 Group -->
+          <div class="step-card step-2-card">
+            <div class="step-header engine-step-header">
+              <div class="step-title-group">
+                <span class="step-badge">Step 2</span>
+                <h3>Engine & Target Output</h3>
+              </div>
+              <div class="comparison-model-actions" aria-label="Model comparison actions">
+                <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
+                  <span class="comparison-active-dot" aria-hidden="true"></span>
+                  <span id="comparison-active-run-label">Comparison 0/2</span>
+                </button>
+                <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
+                  aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
+                  <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
+                  <span class="compare-label">Compare</span>
+                  <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="engine-settings-grid">
+              <div class="form-field">
+                <label for="api-provider-select">Provider Engine</label>
+                <select id="api-provider-select" class="custom-select">
+                  <!-- Dynamically populated from the server provider registry -->
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="api-submodel-select">Submodel Version</label>
+                <select id="api-submodel-select" class="custom-select">
+                  <!-- Dynamically populated -->
+                </select>
+                <small id="model-capability-summary" class="field-option-help" aria-live="polite"></small>
+              </div>
+
+              <div id="image-resolution-field" class="form-field" style="display: none;">
+                <label for="image-resolution-select">Output Resolution</label>
+                <select id="image-resolution-select" class="custom-select"></select>
+              </div>
+
+              <div class="form-field" style="display: none;">
+                <label for="template-select">Prompt Template</label>
+                <select id="template-select" class="custom-select">
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+
+              <!-- Linked Dimension Inputs (Step 7) -->
+              <div class="form-field">
+                <label for="input-width">Width (px)</label>
+                <input type="number" id="input-width" class="custom-select" value="768" min="720" max="4096" step="8">
+              </div>
+
+              <div class="form-field">
+                <label for="input-height">Height (px)</label>
+                <input type="number" id="input-height" class="custom-select" value="1024" min="720" max="4096" step="8">
+              </div>
+
+              <div class="form-field full-width">
+                <label>Aspect Ratio</label>
+                <div class="chip-group" id="aspect-ratio-group">
+                  <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
+                  <button class="option-chip" data-ratio="1:1">1:1 Square</button>
+                  <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
+                  <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
+                  <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
+                </div>
+              </div>
+            </div>
+
+            <section id="comparison-model-tray" class="comparison-model-tray" hidden
+              aria-labelledby="comparison-tray-title">
+              <div class="comparison-tray-header">
+                <div>
+                  <span class="comparison-kicker">FAIR COMPARISON</span>
+                  <h4 id="comparison-tray-title">AI Model Comparison</h4>
+                </div>
+                <span id="comparison-slot-count" class="comparison-slot-count">2 of 4</span>
+              </div>
+              <div id="comparison-slot-list" class="comparison-slot-list"></div>
+              <div class="comparison-tray-footer">
+                <button id="btn-add-comparison-slot" class="btn-neon-outline" type="button">+ Add Model</button>
+                <div class="comparison-estimate-total">
+                  <span>Estimated total</span>
+                  <strong id="comparison-total-credits">2 credits</strong>
+                </div>
+              </div>
+              <p id="comparison-tray-error" class="comparison-inline-error" role="alert"></p>
+            </section>
+
+            <div class="matching-options-row">
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-face-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Face Match</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-style-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Style Match</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="ref-pose-match">
+                <span class="checkmark"></span>
+                <span class="label-text">Pose Match</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="toggle-nsfw">
+                <span class="checkmark"></span>
+                <span class="label-text">NSFW Options</span>
+              </label>
+              <label class="checkbox-container">
+                <input type="checkbox" id="toggle-gpt-safe">
+                <span class="checkmark"></span>
+                <span class="label-text">GPT-Safe Mode</span>
+              </label>
+            </div>
+
+            <!-- Dynamic Face Match reference upload container -->
+            <div id="face-match-upload-container" class="mode-sub-control"
+              style="display: none; padding: 0.75rem; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 8px; margin-top: 0.5rem;">
+              <label class="control-label"
+                style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">🔒
+                Face Match Reference (Up to 2 slots for Face Lock)</label>
+
+              <!-- Slot Previews Dock (Step 9) -->
+              <div class="reference-slots-dock" id="face-ref-slots-dock"
+                style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <div class="ref-slot-card" id="face-slot-a-card"
+                  style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                  <img id="face-slot-a-img" src=""
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                  <span class="slot-badge"
+                    style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot
+                    A</span>
+                  <button type="button" class="btn-clear-slot" data-slot="faceA"
+                    style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                </div>
+                <div class="ref-slot-card" id="face-slot-b-card"
+                  style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+                  <img id="face-slot-b-img" src=""
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                  <span class="slot-badge"
+                    style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(6, 182, 212, 0.85); color: #000; font-weight: 800;">Slot
+                    B</span>
+                  <button type="button" class="btn-clear-slot" data-slot="faceB"
+                    style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="file" id="face-match-file" accept="image/*" class="custom-select"
+                  style="flex: 1; border-style: dashed; padding: 0.25rem 0.5rem;">
+                <button id="btn-clear-face-match" class="btn-compact-neon"
+                  style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
+                  type="button">Clear All</button>
+              </div>
+            </div>
+
+            <!-- Live prompt preview box inside configurator for instant feedback -->
+            <div class="inner-preview-box" id="preview-outer-container">
+              <div class="preview-header-compact">
+                <h4>Live Prompt Preview</h4>
+                <div class="action-buttons-compact">
+                  <button id="btn-copy" class="btn-compact-neon">Copy Text</button>
+                  <button id="btn-copy-json" class="btn-compact-neon">Copy JSON</button>
+                </div>
+              </div>
+              <div id="prompt-preview" class="prompt-preview-box-compact">
+                <span class="placeholder-text">Prompt will compile here once attributes are selected...</span>
+              </div>
+              <div id="buzzword-warnings" class="buzzword-warnings-box-compact" style="display: none;"></div>
+            </div>
+
+            <div class="step-header render-action-header">
+              <span class="step-badge neon-pink-badge">Step 3</span>
+              <h3>Render Active Prompt</h3>
+            </div>
+
+            <!-- Configuration Actions -->
+            <div class="studio-action-row">
+              <button id="btn-reset" class="btn-neon-outline">Reset Form</button>
+              <button id="btn-random" class="btn-neon-cyan">🎲 Surprise Me</button>
+              <button id="btn-export" class="btn-neon-action-preset">Export Config</button>
+            </div>
+
+            <!-- Dedicated Generate Action Section (Step 7) -->
+            <div class="generate-action-section" style="margin-top: 0.85rem; width: 100%;">
+              <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span
+                  class="btn-credit-cost-dark">(1 Credit)</span></button>
+            </div>
+
+            <div class="import-section-studio">
+              <label class="file-upload-label-compact">
+                <input type="file" id="btn-import" accept=".json" style="display: none;">
+                <span>📂 Import Configuration JSON</span>
+              </label>
+              <button id="btn-scroll-viewport" class="btn-scroll-viewport" type="button"
+                aria-label="Scroll to Visual Viewport and Queue" title="Back to Visual Viewport & Queue">
+                <span aria-hidden="true">&#8593;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main id="comparison-dashboard" class="comparison-dashboard" hidden aria-labelledby="comparison-dashboard-title">
+      <section class="comparison-dashboard-hero glass-card">
+        <div>
+          <span class="comparison-dashboard-kicker" data-dashboard-text="kicker">SAVED MODEL TESTS</span>
+          <h2 id="comparison-dashboard-title" data-dashboard-text="title">Comparison History</h2>
+          <p data-dashboard-text="subtitle">Find and reopen model comparisons without loading full generation details.</p>
+        </div>
+        <button id="comparison-dashboard-studio" class="comparison-dashboard-studio" type="button"
+          data-route="/studio" data-dashboard-text="backStudio">Back to Studio</button>
+      </section>
+
+      <section class="comparison-dashboard-content glass-card" aria-busy="false">
+        <form id="comparison-dashboard-filters" class="comparison-dashboard-filters" role="search">
+          <label class="comparison-dashboard-search">
+            <span class="sr-only" data-dashboard-text="searchLabel">Search comparisons</span>
+            <input id="comparison-dashboard-search" type="search" maxlength="100" autocomplete="off"
+              placeholder="Search name, provider or model...">
+            <button id="comparison-dashboard-clear-search" type="button" aria-label="Clear search" hidden>&times;</button>
+          </label>
+          <label>
+            <span data-dashboard-text="statusLabel">Status</span>
+            <select id="comparison-dashboard-status" class="collection-select">
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="issues">Partial / Failed</option>
+              <option value="processing">Processing</option>
+            </select>
+          </label>
+          <label>
+            <span data-dashboard-text="dateLabel">Date</span>
+            <select id="comparison-dashboard-date" class="collection-select">
+              <option value="all">All time</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+            </select>
+          </label>
+        </form>
+
+        <div id="comparison-dashboard-message" class="comparison-dashboard-message" role="status" aria-live="polite" hidden></div>
+        <div id="comparison-dashboard-grid" class="comparison-dashboard-grid" aria-live="polite"></div>
+        <div class="comparison-dashboard-pagination">
+          <button id="comparison-dashboard-retry" class="comparison-dashboard-load" type="button" hidden>Retry</button>
+          <button id="comparison-dashboard-load-more" class="comparison-dashboard-load" type="button" hidden>Load More</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="app-footer-bar glass-card">
+      <div class="footer-status-indicators">
+        <div class="status-indicator-item">
+          <span class="status-dot neon-green-dot"></span>
+          <span class="status-label">API Engine: Modular Strategy</span>
+        </div>
+        <div class="status-indicator-item">
+          <span class="status-dot neon-green-dot"></span>
+          <span class="status-label">Active Job Queue: Operational</span>
+        </div>
+        <div class="status-indicator-item">
+          <span class="status-dot neon-cyan-dot"></span>
+          <span class="status-label">History Sync: Active JSON</span>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        <p>&copy; 2026 ModelPromptForge. All rights reserved. Premium character generation engine.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Full-screen Lightbox Modal -->
+  <div id="lightbox-modal" class="lightbox-modal" style="display: none;">
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Close image viewer">&times;</button>
+    <div class="lightbox-content-container">
+      <button id="lightbox-previous" class="lightbox-nav-control lightbox-nav-previous" type="button"
+        aria-label="Previous image" title="Previous image" hidden>
+        <span aria-hidden="true">&lt;</span>
+      </button>
+      <div class="lightbox-image-stage" id="lightbox-image-stage">
+        <img id="lightbox-image" src="" alt="Full Resolution Output">
+        <p id="lightbox-position-status" class="lightbox-position-status" aria-live="polite"></p>
+      </div>
+      <div class="lightbox-metadata-panel">
+        <h4 id="lightbox-meta-title">Generation Reference</h4>
+        <p class="lightbox-meta-prompt" id="lightbox-meta-prompt">-</p>
+        <div class="lightbox-meta-details">
+          <span>Engine: <strong id="lightbox-meta-engine">-</strong></span>
+          <span>Model: <strong id="lightbox-meta-model">-</strong></span>
+          <span>Time: <strong id="lightbox-meta-time">-</strong></span>
+          <span>Gen Duration: <strong id="lightbox-meta-duration">-</strong></span>
+        </div>
+
+        <!-- Reference Lineage Container (Step 9) -->
+        <div id="lightbox-lineage-container"
+          style="display: none; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.75rem; margin-top: 0.5rem;">
+          <h5
+            style="font-size: 0.7rem; color: var(--neon-cyan); margin-bottom: 0.35rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+            Parent Lineage</h5>
+          <div id="lightbox-lineage-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+        </div>
+
+        <div class="lightbox-collections" id="lightbox-collections">
+          <h5>Collections</h5>
+          <div id="lightbox-collection-list" class="collection-chip-list"></div>
+          <button id="btn-lightbox-add-collection" class="btn-compact-neon" type="button">Add to Collection</button>
+        </div>
+
+        <div class="lightbox-action-row"
+          style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.85rem; margin-bottom: 0.5rem;">
+          <button id="btn-lightbox-use-face" class="btn-compact-neon btn-use-face-ref"
+            style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
+          <button id="btn-lightbox-use-style" class="btn-compact-neon btn-use-style-ref"
+            style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
+          <button id="btn-lightbox-use-character" class="btn-compact-neon btn-use-character-ref"
+            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
+        </div>
+
+        <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
+      </div>
+      <button id="lightbox-next" class="lightbox-nav-control lightbox-nav-next" type="button"
+        aria-label="Next image" title="Next image" hidden>
+        <span aria-hidden="true">&gt;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Collection Create/Edit Modal -->
+  <div id="collection-editor-modal" class="collection-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="collection-editor-title">
+    <div class="collection-modal-card glass-card">
+      <div class="collection-modal-header">
+        <div>
+          <span class="collection-kicker">IMAGE COLLECTION</span>
+          <h3 id="collection-editor-title">New Collection</h3>
+        </div>
+        <button id="btn-close-collection-editor" class="collection-modal-close" type="button"
+          aria-label="Close collection editor">&times;</button>
+      </div>
+      <form id="collection-editor-form">
+        <input id="collection-editor-id" type="hidden">
+        <label class="collection-field">
+          <span>Name <strong>*</strong></span>
+          <input id="collection-name" type="text" maxlength="100" required placeholder="Character set or story name">
+          <small><span id="collection-name-count">0</span>/100</small>
+        </label>
+        <label class="collection-field">
+          <span>Description</span>
+          <textarea id="collection-description" maxlength="1000" rows="3"
+            placeholder="What belongs in this collection?"></textarea>
+          <small><span id="collection-description-count">0</span>/1000</small>
+        </label>
+        <label class="collection-field">
+          <span>Story</span>
+          <textarea id="collection-story" maxlength="20000" rows="6"
+            placeholder="Optional story context for this character set"></textarea>
+          <small><span id="collection-story-count">0</span>/20000</small>
+        </label>
+        <label class="collection-default-toggle">
+          <input id="collection-set-default" type="checkbox">
+          <span>Set as default for new generated images</span>
+        </label>
+        <label class="collection-field" id="collection-cover-field" style="display: none;">
+          <span>Cover Image</span>
+          <select id="collection-cover" class="collection-select"></select>
+        </label>
+        <p id="collection-editor-error" class="collection-form-error" role="alert"></p>
+        <div class="collection-modal-actions">
+          <button id="btn-delete-collection" class="btn-collection-danger" type="button" style="display: none;">Delete</button>
+          <span class="collection-action-spacer"></span>
+          <button id="btn-cancel-collection" class="btn-neon-outline" type="button">Cancel</button>
+          <button class="btn-collection-primary" type="submit">Save Collection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Collection Membership Modal -->
+  <div id="collection-membership-modal" class="collection-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="collection-membership-title">
+    <div class="collection-modal-card collection-membership-card glass-card">
+      <div class="collection-modal-header">
+        <div>
+          <span class="collection-kicker">ORGANIZE IMAGE</span>
+          <h3 id="collection-membership-title">Add to Collection</h3>
+        </div>
+        <button id="btn-close-membership" class="collection-modal-close" type="button"
+          aria-label="Close collection membership editor">&times;</button>
+      </div>
+      <div id="collection-membership-list" class="collection-membership-list"></div>
+      <p id="collection-membership-error" class="collection-form-error" role="alert"></p>
+      <div class="collection-modal-actions">
+        <button id="btn-membership-new" class="btn-neon-outline" type="button">+ New Collection</button>
+        <span class="collection-action-spacer"></span>
+        <button id="btn-membership-done" class="btn-collection-primary" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared application dialog: replaces native alert, confirm, and prompt. -->
+  <div id="app-dialog-modal" class="collection-modal app-dialog-modal" style="display: none;" role="dialog"
+    aria-modal="true" aria-labelledby="app-dialog-title" aria-describedby="app-dialog-message">
+    <div class="collection-modal-card app-dialog-card glass-card" tabindex="-1">
+      <div class="collection-modal-header">
+        <div>
+          <span id="app-dialog-kicker" class="collection-kicker">MODEL PROMPT FORGE</span>
+          <h3 id="app-dialog-title">Notice</h3>
+        </div>
+        <button id="app-dialog-close" class="collection-modal-close" type="button"
+          aria-label="Close dialog">&times;</button>
+      </div>
+      <p id="app-dialog-message" class="app-dialog-message"></p>
+      <label id="app-dialog-input-field" class="collection-field app-dialog-field" hidden>
+        <span id="app-dialog-input-label">Value</span>
+        <input id="app-dialog-input" type="text" maxlength="1000" autocomplete="off">
+      </label>
+      <label id="app-dialog-select-field" class="collection-field app-dialog-field" hidden>
+        <span id="app-dialog-select-label">Choose an option</span>
+        <select id="app-dialog-select" class="collection-select"></select>
+      </label>
+      <p id="app-dialog-error" class="collection-form-error" role="alert"></p>
+      <div class="collection-modal-actions">
+        <span class="collection-action-spacer"></span>
+        <button id="app-dialog-cancel" class="btn-neon-outline" type="button">Cancel</button>
+        <button id="app-dialog-confirm" class="btn-collection-primary" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="comparison-workspace" class="comparison-workspace" hidden
+    aria-labelledby="comparison-workspace-title">
+    <header class="comparison-workspace-header">
+      <div class="comparison-workspace-title-group">
+        <span class="comparison-kicker">AI COMPARISON WORKSPACE</span>
+        <h2 id="comparison-workspace-title">Model comparison</h2>
+        <span id="comparison-workspace-status" class="comparison-run-status">Queued</span>
+      </div>
+      <div class="comparison-workspace-actions">
+        <button id="btn-comparison-history" class="comparison-tool-button" type="button">Previous Sets</button>
+        <button id="btn-comparison-add-all" class="comparison-tool-button" type="button">Add All</button>
+        <button id="btn-close-comparison-workspace" class="comparison-close-button" type="button"
+          aria-label="Close Comparison Workspace">&times;</button>
+      </div>
+    </header>
+    <div class="comparison-workspace-toolbar" role="toolbar" aria-label="Comparison viewport controls">
+      <label class="comparison-sync-toggle"><input id="comparison-sync-view" type="checkbox" checked> Sync view</label>
+      <button class="comparison-tool-button" type="button" data-comparison-view="zoom-out">−</button>
+      <span id="comparison-zoom-label" class="comparison-zoom-label">Fit</span>
+      <button class="comparison-tool-button" type="button" data-comparison-view="zoom-in">+</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="fit">Fit</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="actual">100%</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="reset">Reset</button>
+      <button class="comparison-tool-button" type="button" data-comparison-view="fullscreen">Fullscreen</button>
+    </div>
+    <div class="comparison-workspace-body">
+      <aside id="comparison-set-drawer" class="comparison-set-drawer" hidden>
+        <div class="comparison-drawer-header">
+          <h3>Comparison Sets</h3>
+          <button id="btn-close-comparison-drawer" type="button" aria-label="Close Comparison Sets">&times;</button>
+        </div>
+        <div id="comparison-set-list" class="comparison-set-list"></div>
+      </aside>
+      <div id="comparison-result-grid" class="comparison-result-grid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <script src="/app-dialog.js"></script>
+  <script src="/app.js"></script>
+  <script src="/comparison.js"></script>
+  <script src="/shell/navigationRegistry.js"></script>
+  <script src="/shell/router.js"></script>
+  <script src="/shell/applicationShell.js"></script>
+  <script src="/comparisons/comparisonApi.js"></script>
+  <script src="/comparisons/comparisonSummaryCard.js"></script>
+  <script src="/comparisons/comparisonDashboard.js"></script>
+</body>
+
+</html>

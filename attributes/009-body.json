@@ -3,240 +3,383 @@
     "id": "body.height_01",
     "category": "body",
     "subcategory": "Height",
-    "label": "Petite",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Petite",
+      "th": "ตัวเล็ก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "petite height",
       "gpt-image": "petite height, cute and compact stature",
       "gpt-image-safe": "petite height, well-proportioned stature",
       "gpt-image-positive": "fashion editorial, beautiful composition"
     },
-    "tags": ["body", "height", "petite"],
+    "tags": [
+      "body",
+      "height",
+      "petite"
+    ],
     "enabled": true
   },
   {
     "id": "body.height_02",
     "category": "body",
     "subcategory": "Height",
-    "label": "Tall",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Tall",
+      "th": "สูง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "tall stature",
       "gpt-image": "tall and elegant stature, model-like height",
       "gpt-image-safe": "tall and elegant stature",
       "gpt-image-positive": "fashion model, elegant, beautiful composition"
     },
-    "tags": ["body", "height", "tall"],
+    "tags": [
+      "body",
+      "height",
+      "tall"
+    ],
     "enabled": true
   },
   {
     "id": "body.001",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Curvy figure",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Curvy figure",
+      "th": "โค้งเว้า รูปร่าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "curvy figure",
       "gpt-image": "curvy figure with defined lines and proportions",
       "gpt-image-safe": "well-balanced figure with natural proportions",
       "gpt-image-positive": "editorial fashion photography, tasteful styling, elegant tailoring, balanced proportions"
     },
-    "tags": ["body", "curves"],
+    "tags": [
+      "body",
+      "curves"
+    ],
     "enabled": true
   },
   {
     "id": "body.002",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Hourglass silhouette",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Hourglass silhouette",
+      "th": "รูปร่างทรงนาฬิกาทราย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "hourglass silhouette",
       "gpt-image": "curvy hourglass silhouette with a narrow waist and balanced proportions",
       "gpt-image-safe": "balanced hourglass-inspired silhouette with natural proportions",
       "gpt-image-positive": "refined silhouette, structured garment construction, editorial fashion photography, tasteful composition"
     },
-    "tags": ["body", "curves", "hourglass"],
+    "tags": [
+      "body",
+      "curves",
+      "hourglass"
+    ],
     "enabled": true
   },
   {
     "id": "body.003",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Voluptuous figure",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Voluptuous figure",
+      "th": "อวบอิ่ม รูปร่าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "voluptuous figure",
       "gpt-image": "voluptuous figure with soft, natural curves and defined silhouette",
       "gpt-image-safe": "natural figure with balanced proportions",
       "gpt-image-positive": "editorial fashion photography, elegant tailoring, tasteful styling, natural beauty, refined composition"
     },
-    "tags": ["body", "curves"],
+    "tags": [
+      "body",
+      "curves"
+    ],
     "enabled": true
   },
   {
     "id": "body.004",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Shapely body",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Shapely body",
+      "th": "Shapely รูปร่าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "shapely body",
       "gpt-image": "shapely body highlighting well-proportioned athletic contours",
       "gpt-image-safe": "athletic well-proportioned body with elegant posture",
       "gpt-image-positive": "professional portrait photography, lifestyle portrait, tasteful composition, balanced proportions"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.005",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Full-figured shape",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Full-figured shape",
+      "th": "รูปร่างอวบอิ่ม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "full-figured shape",
       "gpt-image": "full-figured shape with natural, full-bodied curves",
       "gpt-image-safe": "full-figured shape with balanced proportions",
       "gpt-image-positive": "editorial fashion photography, tasteful styling, natural beauty, refined composition, elegant visual storytelling"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.006",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Pear-shaped silhouette",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Pear-shaped silhouette",
+      "th": "รูปร่างทรงลูกแพร์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "pear-shaped silhouette",
       "gpt-image": "pear-shaped silhouette, showcasing curves with a defined waist and full hips",
       "gpt-image-safe": "pear-shaped silhouette with balanced natural proportions",
       "gpt-image-positive": "editorial fashion photography, structured silhouette, tasteful composition, balanced proportions"
     },
-    "tags": ["body", "hips"],
+    "tags": [
+      "body",
+      "hips"
+    ],
     "enabled": true
   },
   {
     "id": "body.007",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Graceful posture",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Graceful posture",
+      "th": "บุคลิกท่าทางสง่างาม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "graceful posture",
       "gpt-image": "graceful posture with natural shoulder and collarbone definition",
       "gpt-image-safe": "graceful natural posture with elegant stance",
       "gpt-image-positive": "graceful posture, professional portrait photography, refined artistic direction, elegant visual storytelling"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.008",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Well-proportioned torso",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Well-proportioned torso",
+      "th": "ช่วงลำตัวได้สัดส่วน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "well-proportioned torso",
       "gpt-image": "well-proportioned torso with an elegant and defined silhouette",
       "gpt-image-safe": "well-proportioned natural torso with elegant stance",
       "gpt-image-positive": "well-balanced proportions, editorial fashion photography, tasteful composition, structured garment construction"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.009",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "Defined collarbone and neckline",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Defined collarbone and neckline",
+      "th": "ชัดเจน collarbone and neckline"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "defined collarbone and neckline",
       "gpt-image": "defined collarbone and elegant neckline highlighted by clothing fit",
       "gpt-image-safe": "elegant neckline and natural collarbone definition",
       "gpt-image-positive": "editorial fashion photography, refined styling, elegant tailoring, natural beauty"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.010",
     "category": "body",
     "subcategory": "Body Shape",
-    "label": "S-curve body alignment",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "S-curve body alignment",
+      "th": "S-curve รูปร่าง alignment"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "subtle S-curve body alignment",
       "gpt-image": "subtle S-curve body alignment outlining natural curves in a high-fashion pose",
       "gpt-image-safe": "subtle S-curve posture creating an elegant high-fashion pose",
       "gpt-image-positive": "high-fashion editorial, elegant tailoring, tasteful fashion styling, contemporary fashion, refined composition"
     },
-    "tags": ["body"],
+    "tags": [
+      "body"
+    ],
     "enabled": true
   },
   {
     "id": "body.build_01",
     "category": "body",
     "subcategory": "Build",
-    "label": "Slim build",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Slim build",
+      "th": "ผอมเพรียว รูปร่าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "slim build",
       "gpt-image": "slim and slender build, delicate frame",
       "gpt-image-safe": "slim and slender build",
       "gpt-image-positive": "elegant styling, fashion editorial"
     },
-    "tags": ["body", "build", "slim"],
+    "tags": [
+      "body",
+      "build",
+      "slim"
+    ],
     "enabled": true
   },
   {
     "id": "body.build_02",
     "category": "body",
     "subcategory": "Build",
-    "label": "Athletic build",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Athletic build",
+      "th": "ล่ำสมส่วน รูปร่าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "athletic build",
       "gpt-image": "athletic build, slightly toned muscles",
       "gpt-image-safe": "athletic build with healthy proportions",
       "gpt-image-positive": "healthy lifestyle, activewear editorial"
     },
-    "tags": ["body", "build", "athletic"],
+    "tags": [
+      "body",
+      "build",
+      "athletic"
+    ],
     "enabled": true
   },
   {
     "id": "body.hands_01",
     "category": "body",
     "subcategory": "Hands",
-    "label": "Delicate hands",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Delicate hands",
+      "th": "ละมุน hands"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "delicate hands",
       "gpt-image": "delicate hands with long elegant fingers, perfectly manicured",
       "gpt-image-safe": "delicate hands with long elegant fingers",
       "gpt-image-positive": "beauty editorial, elegant details"
     },
-    "tags": ["body", "hands"],
+    "tags": [
+      "body",
+      "hands"
+    ],
     "enabled": true
   },
   {
     "id": "body.legs_01",
     "category": "body",
     "subcategory": "Legs",
-    "label": "Long slender legs",
-    "ui": { "control": "select", "group": "Body" },
+    "label": {
+      "en": "Long slender legs",
+      "th": "ยาว slender legs"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
     "prompt": {
       "default": "long slender legs",
       "gpt-image": "long slender beautiful legs",
       "gpt-image-safe": "long slender legs",
       "gpt-image-positive": "fashion model proportions, full body portrait"
     },
-    "tags": ["body", "legs"],
+    "tags": [
+      "body",
+      "legs"
+    ],
     "enabled": true
   }
 ]

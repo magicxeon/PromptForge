@@ -18,9 +18,15 @@
       {
         "name": "Beauty",
         "control": "select"
-      },
+      }
+    ]
+  },
+  {
+    "group": "Fashion Direction",
+    "layout": "accordion",
+    "fields": [
       {
-        "name": "Reference Image",
+        "name": "Fashion Direction",
         "control": "select"
       }
     ]
@@ -30,7 +36,7 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Story Event",
+        "name": "Fashion Story",
         "control": "select"
       }
     ]
@@ -40,7 +46,7 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Context Type",
+        "name": "Fashion Photography Context",
         "control": "select"
       }
     ]
@@ -88,7 +94,7 @@
         "control": "select"
       },
       {
-        "name": "Style",
+        "name": "Cut / Style",
         "control": "select"
       },
       {
@@ -96,11 +102,15 @@
         "control": "select"
       },
       {
+        "name": "Parting / Fringe",
+        "control": "select"
+      },
+      {
         "name": "Color",
         "control": "select"
       },
       {
-        "name": "Bangs",
+        "name": "Finish",
         "control": "select"
       }
     ]
@@ -114,7 +124,7 @@
         "control": "select"
       },
       {
-        "name": "Texture",
+        "name": "Skin Texture",
         "control": "select"
       },
       {
@@ -132,23 +142,15 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Height",
+        "name": "Height Impression",
         "control": "select"
       },
       {
-        "name": "Body Shape",
+        "name": "Model Build",
         "control": "select"
       },
       {
-        "name": "Build",
-        "control": "select"
-      },
-      {
-        "name": "Hands",
-        "control": "select"
-      },
-      {
-        "name": "Legs",
+        "name": "Body Silhouette",
         "control": "select"
       }
     ]
@@ -158,23 +160,23 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Top",
+        "name": "Product Type",
         "control": "select"
       },
       {
-        "name": "Bottom",
+        "name": "Garment Silhouette",
         "control": "select"
       },
       {
-        "name": "Dress",
+        "name": "Material / Surface",
         "control": "select"
       },
       {
-        "name": "Shoes",
+        "name": "Construction / Detail",
         "control": "select"
       },
       {
-        "name": "Accessories",
+        "name": "Styling",
         "control": "select"
       }
     ]
@@ -184,23 +186,15 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Standing",
+        "name": "Pose Intent",
         "control": "select"
       },
       {
-        "name": "Sitting",
+        "name": "Fashion Hand Position",
         "control": "select"
       },
       {
-        "name": "Walking",
-        "control": "select"
-      },
-      {
-        "name": "Hand Position",
-        "control": "select"
-      },
-      {
-        "name": "Eye Contact",
+        "name": "Fashion Gaze",
         "control": "select"
       }
     ]
@@ -210,35 +204,15 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Location",
+        "name": "Fashion Venue",
         "control": "select"
       },
       {
-        "name": "Foreground Layer",
+        "name": "Set Design",
         "control": "select"
       },
       {
-        "name": "Background Activity",
-        "control": "select"
-      },
-      {
-        "name": "Architecture",
-        "control": "select"
-      },
-      {
-        "name": "Props",
-        "control": "select"
-      },
-      {
-        "name": "Weather",
-        "control": "select"
-      },
-      {
-        "name": "Time of Day",
-        "control": "select"
-      },
-      {
-        "name": "Season",
+        "name": "Atmosphere",
         "control": "select"
       }
     ]
@@ -248,31 +222,23 @@
     "layout": "accordion",
     "fields": [
       {
-        "name": "Key Light",
+        "name": "Lighting Setup",
         "control": "select"
       },
       {
-        "name": "Fill Light",
+        "name": "Contrast",
         "control": "select"
       },
       {
-        "name": "Back Light",
+        "name": "Color Temperature",
         "control": "select"
       },
       {
-        "name": "Flash",
+        "name": "Shadow Character",
         "control": "select"
       },
       {
-        "name": "Neon",
-        "control": "select"
-      },
-      {
-        "name": "Ambient",
-        "control": "select"
-      },
-      {
-        "name": "Golden Hour",
+        "name": "Lighting Accent",
         "control": "select"
       }
     ]

@@ -960,6 +960,110 @@
       "examples": [],
       "weight": 90,
       "enabled": true
+    },
+    {
+      "id": "hair.text_01",
+      "category": "hair",
+      "subcategory": "Hair Texture",
+      "label": {
+        "en": "Silky Smooth Hair",
+        "th": "ผมเรียบลื่นดุจแพรไหม"
+      },
+      "ui": {
+        "control": "select",
+        "group": "Hair"
+      },
+      "prompt": {
+        "default": "silky smooth hair",
+        "gpt-image": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "flux": "silky smooth hair",
+        "sdxl": "silky smooth hair",
+        "midjourney": "silky smooth hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["texture"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair.text_02",
+      "category": "hair",
+      "subcategory": "Hair Texture",
+      "label": {
+        "en": "Coarse & Thick",
+        "th": "ผมหนาหยาบ"
+      },
+      "ui": {
+        "control": "select",
+        "group": "Hair"
+      },
+      "prompt": {
+        "default": "coarse thick hair",
+        "gpt-image": "coarse and thick hair texture, highly detailed individual strands with strong volume and organic feel",
+        "flux": "coarse thick hair",
+        "sdxl": "coarse thick hair",
+        "midjourney": "coarse thick hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["texture"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair.text_03",
+      "category": "hair",
+      "subcategory": "Hair Texture",
+      "label": {
+        "en": "Soft Glossy Waves",
+        "th": "ผมลอนเงางามนุ่มสลวย"
+      },
+      "ui": {
+        "control": "select",
+        "group": "Hair"
+      },
+      "prompt": {
+        "default": "soft glossy hair waves",
+        "gpt-image": "soft glossy hair waves, displaying brilliant specular light reflections off healthy luminous waves",
+        "flux": "soft glossy hair waves",
+        "sdxl": "soft glossy hair waves",
+        "midjourney": "soft glossy hair waves"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["texture"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair.text_04",
+      "category": "hair",
+      "subcategory": "Hair Texture",
+      "label": {
+        "en": "Frizzy & Voluminous",
+        "th": "ผมฟูหนาและมีวอลลุ่ม"
+      },
+      "ui": {
+        "control": "select",
+        "group": "Hair"
+      },
+      "prompt": {
+        "default": "frizzy voluminous hair",
+        "gpt-image": "frizzy and voluminous hair texture, with soft flyaways and highly detailed organic curl structures",
+        "flux": "frizzy voluminous hair",
+        "sdxl": "frizzy voluminous hair",
+        "midjourney": "frizzy voluminous hair"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["texture"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
     }
   ],
   "examples": [

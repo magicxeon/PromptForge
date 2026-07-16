@@ -2,7 +2,10 @@
   {
     "id": "eyebrows.001",
     "category": "eyebrows",
-    "label": "Straight eyebrows",
+    "label": {
+      "en": "Straight eyebrows",
+      "th": "คิ้วตรง"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -19,7 +22,10 @@
   {
     "id": "eyebrows.002",
     "category": "eyebrows",
-    "label": "Soft arched eyebrows",
+    "label": {
+      "en": "Soft arched eyebrows",
+      "th": "คิ้วโค้งอ่อน"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -36,7 +42,10 @@
   {
     "id": "eyebrows.003",
     "category": "eyebrows",
-    "label": "Natural thick brows",
+    "label": {
+      "en": "Natural thick brows",
+      "th": "คิ้วหนาธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -53,7 +62,10 @@
   {
     "id": "eyebrows.004",
     "category": "eyebrows",
-    "label": "Thin eyebrows",
+    "label": {
+      "en": "Thin eyebrows",
+      "th": "บาง คิ้ว"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -70,7 +82,10 @@
   {
     "id": "eyebrows.005",
     "category": "eyebrows",
-    "label": "Defined eyebrows",
+    "label": {
+      "en": "Defined eyebrows",
+      "th": "คิ้วคมชัด"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -87,7 +102,10 @@
   {
     "id": "eyebrows.006",
     "category": "eyebrows",
-    "label": "Well-groomed eyebrows",
+    "label": {
+      "en": "Well-groomed eyebrows",
+      "th": "คิ้วที่ตกแต่งอย่างเรียบร้อย"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"
@@ -104,7 +122,10 @@
   {
     "id": "eyebrows.007",
     "category": "eyebrows",
-    "label": "Natural eyebrows",
+    "label": {
+      "en": "Natural eyebrows",
+      "th": "คิ้วธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Eyebrows"

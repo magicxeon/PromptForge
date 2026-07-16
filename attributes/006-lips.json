@@ -2,7 +2,10 @@
   {
     "id": "lips.001",
     "category": "lips",
-    "label": "Natural lips",
+    "label": {
+      "en": "Natural lips",
+      "th": "ริมฝีปากธรรมชาติ"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -19,7 +22,10 @@
   {
     "id": "lips.002",
     "category": "lips",
-    "label": "Cherry lips",
+    "label": {
+      "en": "Cherry lips",
+      "th": "ริมฝีปากเชอร์รี"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -36,7 +42,10 @@
   {
     "id": "lips.003",
     "category": "lips",
-    "label": "Cupid's bow lips",
+    "label": {
+      "en": "Cupid's bow lips",
+      "th": "ริมฝีปากคิวปิดโบว์"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -53,7 +62,10 @@
   {
     "id": "lips.004",
     "category": "lips",
-    "label": "Plump lips",
+    "label": {
+      "en": "Plump lips",
+      "th": "ริมฝีปากอวบอิ่ม"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -70,7 +82,10 @@
   {
     "id": "lips.005",
     "category": "lips",
-    "label": "Thin lips",
+    "label": {
+      "en": "Thin lips",
+      "th": "บาง ริมฝีปาก"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -87,7 +102,10 @@
   {
     "id": "lips.006",
     "category": "lips",
-    "label": "Soft smile",
+    "label": {
+      "en": "Soft smile",
+      "th": "ยิ้มละมุน"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -104,7 +122,10 @@
   {
     "id": "lips.007",
     "category": "lips",
-    "label": "Closed-mouth smile",
+    "label": {
+      "en": "Closed-mouth smile",
+      "th": "ยิ้มปิดปาก"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -121,7 +142,10 @@
   {
     "id": "lips.008",
     "category": "lips",
-    "label": "Gentle smile",
+    "label": {
+      "en": "Gentle smile",
+      "th": "ยิ้มอ่อน"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"
@@ -138,7 +162,10 @@
   {
     "id": "lips.009",
     "category": "lips",
-    "label": "Neutral expression",
+    "label": {
+      "en": "Neutral expression",
+      "th": "สีหน้าเป็นกลาง"
+    },
     "ui": {
       "control": "select",
       "group": "Lips"

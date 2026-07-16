@@ -3,7 +3,10 @@
     "id": "camera.brand_01",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Modern Mirrorless Camera",
+    "label": {
+      "en": "Modern Mirrorless Camera",
+      "th": "ทันสมัย Mirrorless กล้อง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -14,14 +17,21 @@
       "gpt-image-safe": "shot on a modern mirrorless camera with crisp details",
       "gpt-image-positive": "professional digital photography, sharp focus, clean image output"
     },
-    "tags": ["camera", "brand", "mirrorless"],
+    "tags": [
+      "camera",
+      "brand",
+      "mirrorless"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_02",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Disposable Film Camera",
+    "label": {
+      "en": "Disposable Film Camera",
+      "th": "Disposable ฟิล์ม กล้อง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -32,14 +42,22 @@
       "gpt-image-safe": "captured on a disposable film camera with built-in flash, vintage colors",
       "gpt-image-positive": "analog snapshot, retro aesthetic, nostalgia, casual lifestyle photograph"
     },
-    "tags": ["camera", "brand", "film", "disposable"],
+    "tags": [
+      "camera",
+      "brand",
+      "film",
+      "disposable"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_03",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Polaroid Instant Film",
+    "label": {
+      "en": "Polaroid Instant Film",
+      "th": "Polaroid Instant ฟิล์ม"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -50,14 +68,22 @@
       "gpt-image-safe": "Polaroid instant photograph with soft faded colors and warm borders",
       "gpt-image-positive": "retro instant print, soft color rendering, nostalgic mood, polaroid border"
     },
-    "tags": ["camera", "brand", "polaroid", "film"],
+    "tags": [
+      "camera",
+      "brand",
+      "polaroid",
+      "film"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_04",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Leica 35mm Rangefinder",
+    "label": {
+      "en": "Leica 35mm Rangefinder",
+      "th": "กล้องเรนจ์ไฟน์เดอร์ Leica 35 มม."
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -68,14 +94,22 @@
       "gpt-image-safe": "shot on a Leica rangefinder camera with summicron lens, classic street photography style",
       "gpt-image-positive": "award-winning street photography, high contrast, classic photojournalism look"
     },
-    "tags": ["camera", "brand", "leica", "film"],
+    "tags": [
+      "camera",
+      "brand",
+      "leica",
+      "film"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_05",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Hasselblad Medium Format",
+    "label": {
+      "en": "Hasselblad Medium Format",
+      "th": "กล้องมีเดียมฟอร์แมต Hasselblad"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -86,14 +120,22 @@
       "gpt-image-safe": "shot on a medium format camera, rich tonality, smooth color transitions, soft analog depth",
       "gpt-image-positive": "medium format quality, professional portraiture, rich color depth, clean resolution"
     },
-    "tags": ["camera", "brand", "hasselblad", "medium format"],
+    "tags": [
+      "camera",
+      "brand",
+      "hasselblad",
+      "medium format"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_06",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Mobile Phone Selfie Flash",
+    "label": {
+      "en": "Mobile Phone Selfie Flash",
+      "th": "Mobile Phone Selfie แฟลช"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -104,14 +146,22 @@
       "gpt-image-safe": "candid selfie captured on a smartphone front-facing camera, typical social media story style",
       "gpt-image-positive": "candid snapshot, raw casual look, lifestyle smartphone photo, social media print"
     },
-    "tags": ["camera", "brand", "mobile", "selfie"],
+    "tags": [
+      "camera",
+      "brand",
+      "mobile",
+      "selfie"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_07",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "90s VHS Camcorder",
+    "label": {
+      "en": "90s VHS Camcorder",
+      "th": "กล้องวิดีโอ VHS ยุค 90"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -122,14 +172,22 @@
       "gpt-image-safe": "screen capture from a VHS camcorder, soft glow, retro colors, analog aesthetic",
       "gpt-image-positive": "VHS effect, retro video frame, nostalgic scanlines, 90s aesthetic"
     },
-    "tags": ["camera", "brand", "vhs", "camcorder"],
+    "tags": [
+      "camera",
+      "brand",
+      "vhs",
+      "camcorder"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_08",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Vintage CCD Digicam (2000s)",
+    "label": {
+      "en": "Vintage CCD Digicam (2000s)",
+      "th": "วินเทจ CCD Digicam(2000s)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -140,14 +198,23 @@
       "gpt-image-safe": "captured on a 2000s vintage digicam with a CCD sensor and direct flash",
       "gpt-image-positive": "vintage digital snapshot, nostalgic colors, digicam aesthetic"
     },
-    "tags": ["camera", "brand", "ccd", "vintage", "digicam"],
+    "tags": [
+      "camera",
+      "brand",
+      "ccd",
+      "vintage",
+      "digicam"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_09",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Black and White Film Camera",
+    "label": {
+      "en": "Black and White Film Camera",
+      "th": "Black and White ฟิล์ม กล้อง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -158,14 +225,23 @@
       "gpt-image-safe": "captured on black and white film, high contrast monochrome, rich gray tones",
       "gpt-image-positive": "classic monochrome, artistic black and white, fine film grain, retro street style"
     },
-    "tags": ["camera", "brand", "black and white", "monochrome", "film"],
+    "tags": [
+      "camera",
+      "brand",
+      "black and white",
+      "monochrome",
+      "film"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_10",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Leica M11 Digital Rangefinder",
+    "label": {
+      "en": "Leica M11 Digital Rangefinder",
+      "th": "Leica M11 ดิจิทัล Rangefinder"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -176,14 +252,23 @@
       "gpt-image-safe": "shot on a digital rangefinder camera with exceptional micro-contrast and realistic color rendering",
       "gpt-image-positive": "premium photography, professional digital rangefinder look, natural color depth"
     },
-    "tags": ["camera", "brand", "leica", "digital", "rangefinder"],
+    "tags": [
+      "camera",
+      "brand",
+      "leica",
+      "digital",
+      "rangefinder"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_11",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Pentax 67 Medium Format",
+    "label": {
+      "en": "Pentax 67 Medium Format",
+      "th": "กล้องมีเดียมฟอร์แมต Pentax 67"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -194,14 +279,23 @@
       "gpt-image-safe": "shot on a medium format film camera with rich tonality and soft background compression",
       "gpt-image-positive": "analog medium format, soft color rendering, organic background compression"
     },
-    "tags": ["camera", "brand", "pentax", "medium format", "film"],
+    "tags": [
+      "camera",
+      "brand",
+      "pentax",
+      "medium format",
+      "film"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_12",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Fujifilm GFX Digital Medium Format",
+    "label": {
+      "en": "Fujifilm GFX Digital Medium Format",
+      "th": "Fujifilm GFX ดิจิทัล Medium Format"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -212,14 +306,24 @@
       "gpt-image-safe": "shot on a digital medium format camera with high dynamic range and detailed texture rendering",
       "gpt-image-positive": "digital medium format quality, commercial portraiture, rich color depth, clean details"
     },
-    "tags": ["camera", "brand", "fujifilm", "gfx", "medium format", "digital"],
+    "tags": [
+      "camera",
+      "brand",
+      "fujifilm",
+      "gfx",
+      "medium format",
+      "digital"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_13",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Sony A7R V Full-Frame",
+    "label": {
+      "en": "Sony A7R V Full-Frame",
+      "th": "กล้องฟูลเฟรม Sony A7R V"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -230,14 +334,23 @@
       "gpt-image-safe": "captured on a modern full-frame mirrorless camera, sharp focus and detailed skin texture",
       "gpt-image-positive": "full-frame photography, modern digital rendering, professional portrait setup"
     },
-    "tags": ["camera", "brand", "sony", "full frame", "digital"],
+    "tags": [
+      "camera",
+      "brand",
+      "sony",
+      "full frame",
+      "digital"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_14",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Canon EOS R5 Full-Frame",
+    "label": {
+      "en": "Canon EOS R5 Full-Frame",
+      "th": "กล้องฟูลเฟรม Canon EOS R5"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -248,14 +361,23 @@
       "gpt-image-safe": "captured on a modern full-frame digital camera with natural warm skin tones",
       "gpt-image-positive": "warm color balance, professional commercial rendering, realistic skin tones"
     },
-    "tags": ["camera", "brand", "canon", "full frame", "digital"],
+    "tags": [
+      "camera",
+      "brand",
+      "canon",
+      "full frame",
+      "digital"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_15",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Vintage Nikon CCD DSLR",
+    "label": {
+      "en": "Vintage Nikon CCD DSLR",
+      "th": "วินเทจ Nikon CCD DSLR"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -266,14 +388,24 @@
       "gpt-image-safe": "captured on a vintage DSLR with a CCD sensor, organic colors and nostalgic digital rendering",
       "gpt-image-positive": "retro dslr, ccd sensor look, nostalgic digital snapshot, warm vintage colors"
     },
-    "tags": ["camera", "brand", "nikon", "ccd", "dslr", "vintage"],
+    "tags": [
+      "camera",
+      "brand",
+      "nikon",
+      "ccd",
+      "dslr",
+      "vintage"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_16",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Large Format Film Camera (8x10)",
+    "label": {
+      "en": "Large Format Film Camera (8x10)",
+      "th": "Large Format ฟิล์ม กล้อง(8x10)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -284,14 +416,22 @@
       "gpt-image-safe": "captured on an 8x10 large format camera with tilt-shift perspective adjustments",
       "gpt-image-positive": "large format resolution, unmatched detail rendering, soft analog bokeh, artistic bellows depth"
     },
-    "tags": ["camera", "brand", "large format", "film"],
+    "tags": [
+      "camera",
+      "brand",
+      "large format",
+      "film"
+    ],
     "enabled": true
   },
   {
     "id": "camera.brand_17",
     "category": "camera",
     "subcategory": "Brand",
-    "label": "Canon EOS 5D Mark IV (Classic DSLR)",
+    "label": {
+      "en": "Canon EOS 5D Mark IV (Classic DSLR)",
+      "th": "กล้อง Canon EOS 5D Mark IV แบบ DSLR คลาสสิก"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -302,14 +442,23 @@
       "gpt-image-safe": "shot on a professional DSLR camera with a 50mm lens and warm skin tones",
       "gpt-image-positive": "dslr photography, classic digital look, professional studio lighting, warm color rendering"
     },
-    "tags": ["camera", "brand", "canon", "dslr", "full frame"],
+    "tags": [
+      "camera",
+      "brand",
+      "canon",
+      "dslr",
+      "full frame"
+    ],
     "enabled": true
   },
   {
     "id": "camera.lens_01",
     "category": "camera",
     "subcategory": "Lens",
-    "label": "Sharp Prime Lens",
+    "label": {
+      "en": "Sharp Prime Lens",
+      "th": "คม Prime เลนส์"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -320,14 +469,21 @@
       "gpt-image-safe": "shot on a sharp prime lens with clear optical glass",
       "gpt-image-positive": "sharp details, professional lens quality, clear eye reflection, high-fidelity resolution"
     },
-    "tags": ["camera", "lens", "prime"],
+    "tags": [
+      "camera",
+      "lens",
+      "prime"
+    ],
     "enabled": true
   },
   {
     "id": "camera.lens_02",
     "category": "camera",
     "subcategory": "Lens",
-    "label": "Versatile Zoom Lens",
+    "label": {
+      "en": "Versatile Zoom Lens",
+      "th": "Versatile Zoom เลนส์"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -338,14 +494,21 @@
       "gpt-image-safe": "zoom lens capture with sharp details across the focus range",
       "gpt-image-positive": "balanced composition, sharp rendering, professional camera optics"
     },
-    "tags": ["camera", "lens", "zoom"],
+    "tags": [
+      "camera",
+      "lens",
+      "zoom"
+    ],
     "enabled": true
   },
   {
     "id": "camera.lens_03",
     "category": "camera",
     "subcategory": "Lens",
-    "label": "Anamorphic Cinematic Lens",
+    "label": {
+      "en": "Anamorphic Cinematic Lens",
+      "th": "Anamorphic แบบภาพยนตร์ เลนส์"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -356,14 +519,21 @@
       "gpt-image-safe": "anamorphic lens capture with cinematic oval bokeh and subtle horizontal lens flares",
       "gpt-image-positive": "cinematic look, movie quality frame, anamorphic blue flare, high production value"
     },
-    "tags": ["camera", "lens", "anamorphic"],
+    "tags": [
+      "camera",
+      "lens",
+      "anamorphic"
+    ],
     "enabled": true
   },
   {
     "id": "camera.lens_04",
     "category": "camera",
     "subcategory": "Lens",
-    "label": "Vintage Character Lens",
+    "label": {
+      "en": "Vintage Character Lens",
+      "th": "วินเทจ Character เลนส์"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -374,14 +544,21 @@
       "gpt-image-safe": "vintage manual focus lens with soft edge contrast and warm color rendering",
       "gpt-image-positive": "vintage glass, organic lens flares, soft retro aesthetics, warm highlights"
     },
-    "tags": ["camera", "lens", "vintage"],
+    "tags": [
+      "camera",
+      "lens",
+      "vintage"
+    ],
     "enabled": true
   },
   {
     "id": "camera.focal_01",
     "category": "camera",
     "subcategory": "Focal Length",
-    "label": "50mm (Natural View)",
+    "label": {
+      "en": "50mm (Natural View)",
+      "th": "50mm(ธรรมชาติ View)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -392,14 +569,21 @@
       "gpt-image-safe": "shot on a 50mm lens, natural perspective, zero distortion",
       "gpt-image-positive": "50mm prime, natural distortion-free rendering, professional portrait setup"
     },
-    "tags": ["camera", "focal length", "50mm"],
+    "tags": [
+      "camera",
+      "focal length",
+      "50mm"
+    ],
     "enabled": true
   },
   {
     "id": "camera.focal_02",
     "category": "camera",
     "subcategory": "Focal Length",
-    "label": "85mm (Classic Portrait)",
+    "label": {
+      "en": "85mm (Classic Portrait)",
+      "th": "85mm(Classic พอร์ตเทรต)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -410,14 +594,21 @@
       "gpt-image-safe": "shot on an 85mm lens, gentle facial compression, flattering portrait perspective",
       "gpt-image-positive": "85mm prime, classic beauty portrait, flattering lens compression"
     },
-    "tags": ["camera", "focal length", "85mm"],
+    "tags": [
+      "camera",
+      "focal length",
+      "85mm"
+    ],
     "enabled": true
   },
   {
     "id": "camera.focal_03",
     "category": "camera",
     "subcategory": "Focal Length",
-    "label": "35mm (Environmental Portrait)",
+    "label": {
+      "en": "35mm (Environmental Portrait)",
+      "th": "35mm(Environmental พอร์ตเทรต)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -428,14 +619,21 @@
       "gpt-image-safe": "shot on a 35mm lens, wide environmental portrait perspective, capturing subject and background details",
       "gpt-image-positive": "35mm focal length, street lifestyle photography, environmental composition"
     },
-    "tags": ["camera", "focal length", "35mm"],
+    "tags": [
+      "camera",
+      "focal length",
+      "35mm"
+    ],
     "enabled": true
   },
   {
     "id": "camera.focal_04",
     "category": "camera",
     "subcategory": "Focal Length",
-    "label": "135mm (Isolated Telephoto)",
+    "label": {
+      "en": "135mm (Isolated Telephoto)",
+      "th": "135 มม. เทเลโฟโต้แยกฉากหลัง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -446,14 +644,21 @@
       "gpt-image-safe": "shot on a 135mm lens, background compression, isolating the subject",
       "gpt-image-positive": "telephoto portraiture, dramatic backdrop compression, isolated subject, clean focus separation"
     },
-    "tags": ["camera", "focal length", "135mm"],
+    "tags": [
+      "camera",
+      "focal length",
+      "135mm"
+    ],
     "enabled": true
   },
   {
     "id": "camera.aperture_01",
     "category": "camera",
     "subcategory": "Aperture",
-    "label": "Shallow f/1.4 (Extreme Bokeh)",
+    "label": {
+      "en": "Shallow f/1.4 (Extreme Bokeh)",
+      "th": "Shallow f/1.4(Extreme โบเก้)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -464,14 +669,22 @@
       "gpt-image-safe": "shallow depth of field creating soft bokeh blur in the background",
       "gpt-image-positive": "creamy bokeh, shallow depth of field, soft background falloff, round light highlights"
     },
-    "tags": ["camera", "aperture", "shallow", "bokeh"],
+    "tags": [
+      "camera",
+      "aperture",
+      "shallow",
+      "bokeh"
+    ],
     "enabled": true
   },
   {
     "id": "camera.aperture_02",
     "category": "camera",
     "subcategory": "Aperture",
-    "label": "Dreamy f/0.95 (Ultra-Blur)",
+    "label": {
+      "en": "Dreamy f/0.95 (Ultra-Blur)",
+      "th": "Dreamy f/0.95(Ultra-เบลอ)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -482,14 +695,22 @@
       "gpt-image-safe": "ultra-shallow f/0.95 aperture, thin depth of field, soft background melt",
       "gpt-image-positive": "ultra-shallow focus, dreamlike background blur, soft portrait aesthetics"
     },
-    "tags": ["camera", "aperture", "ultra shallow", "bokeh"],
+    "tags": [
+      "camera",
+      "aperture",
+      "ultra shallow",
+      "bokeh"
+    ],
     "enabled": true
   },
   {
     "id": "camera.aperture_03",
     "category": "camera",
     "subcategory": "Aperture",
-    "label": "Moderate f/2.8 (Balanced Sharpness)",
+    "label": {
+      "en": "Moderate f/2.8 (Balanced Sharpness)",
+      "th": "f/2.8 ระดับปานกลาง ให้ความคมชัดสมดุล"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -500,14 +721,21 @@
       "gpt-image-safe": "moderate f/2.8 aperture, keeping the subject sharp while maintaining background separation",
       "gpt-image-positive": "balanced depth of field, sharp subject contours, realistic environment detail"
     },
-    "tags": ["camera", "aperture", "moderate"],
+    "tags": [
+      "camera",
+      "aperture",
+      "moderate"
+    ],
     "enabled": true
   },
   {
     "id": "camera.aperture_04",
     "category": "camera",
     "subcategory": "Aperture",
-    "label": "Deep f/8.0 (Maximum Detail)",
+    "label": {
+      "en": "Deep f/8.0 (Maximum Detail)",
+      "th": "f/8.0 ชัดลึก เก็บรายละเอียดสูงสุด"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -518,14 +746,21 @@
       "gpt-image-safe": "deep f/8.0 aperture, sharpness from foreground to background, rendering environmental details crisp",
       "gpt-image-positive": "sharp focus throughout, detailed background, crisp textures, deep depth of field"
     },
-    "tags": ["camera", "aperture", "deep"],
+    "tags": [
+      "camera",
+      "aperture",
+      "deep"
+    ],
     "enabled": true
   },
   {
     "id": "camera.iso_01",
     "category": "camera",
     "subcategory": "ISO",
-    "label": "Clean ISO 100",
+    "label": {
+      "en": "Clean ISO 100",
+      "th": "ISO 100 ภาพสะอาด"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -536,14 +771,21 @@
       "gpt-image-safe": "shot at ISO 100, zero digital noise, clean details",
       "gpt-image-positive": "pristine quality, noise-free image, rich color accuracy, clean shadows"
     },
-    "tags": ["camera", "iso", "clean"],
+    "tags": [
+      "camera",
+      "iso",
+      "clean"
+    ],
     "enabled": true
   },
   {
     "id": "camera.iso_02",
     "category": "camera",
     "subcategory": "ISO",
-    "label": "Low Light ISO 800",
+    "label": {
+      "en": "Low Light ISO 800",
+      "th": "ต่ำ แสง ISO 800"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -554,14 +796,21 @@
       "gpt-image-safe": "shot at ISO 800, subtle organic film grain with natural warmth",
       "gpt-image-positive": "organic film grain, low light photography, analog texture, warm color balance"
     },
-    "tags": ["camera", "iso", "grain"],
+    "tags": [
+      "camera",
+      "iso",
+      "grain"
+    ],
     "enabled": true
   },
   {
     "id": "camera.iso_03",
     "category": "camera",
     "subcategory": "ISO",
-    "label": "Gritty Grain ISO 3200",
+    "label": {
+      "en": "Gritty Grain ISO 3200",
+      "th": "ISO 3200 เกรนหยาบ"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -572,14 +821,21 @@
       "gpt-image-safe": "shot at ISO 3200, pronounced organic high-ISO grain, gritty texture and raw retro aesthetic",
       "gpt-image-positive": "gritty film grain, retro snapshot texture, raw contrast, night snapshot vibe"
     },
-    "tags": ["camera", "iso", "gritty"],
+    "tags": [
+      "camera",
+      "iso",
+      "gritty"
+    ],
     "enabled": true
   },
   {
     "id": "camera.wb_01",
     "category": "camera",
     "subcategory": "White Balance",
-    "label": "Warm Daylight (5600K)",
+    "label": {
+      "en": "Warm Daylight (5600K)",
+      "th": "อุ่น แสงกลางวัน(5600K)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -590,14 +846,21 @@
       "gpt-image-safe": "daylight white balance rendering natural golden sunlit tones",
       "gpt-image-positive": "warm color temperature, natural daylight, lifelike skin tone rendering"
     },
-    "tags": ["camera", "white balance", "daylight"],
+    "tags": [
+      "camera",
+      "white balance",
+      "daylight"
+    ],
     "enabled": true
   },
   {
     "id": "camera.wb_02",
     "category": "camera",
     "subcategory": "White Balance",
-    "label": "Cool Tungsten (3200K)",
+    "label": {
+      "en": "Cool Tungsten (3200K)",
+      "th": "เย็น Tungsten(3200K)"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -608,14 +871,22 @@
       "gpt-image-safe": "tungsten white balance creating atmospheric blue and cobalt tones",
       "gpt-image-positive": "cool twilight colors, blue-hour lighting cast, cinematic color balance"
     },
-    "tags": ["camera", "white balance", "cool", "tungsten"],
+    "tags": [
+      "camera",
+      "white balance",
+      "cool",
+      "tungsten"
+    ],
     "enabled": true
   },
   {
     "id": "camera.wb_03",
     "category": "camera",
     "subcategory": "White Balance",
-    "label": "Golden hour (4500K)",
+    "label": {
+      "en": "Golden hour (4500K)",
+      "th": "แสงโกลเดนเอาเวอร์ 4500K"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -626,14 +897,21 @@
       "gpt-image-safe": "golden hour white balance reflecting deep honey and amber tones",
       "gpt-image-positive": "warm honey highlights, sunset color cast, rich golden tones"
     },
-    "tags": ["camera", "white balance", "golden hour"],
+    "tags": [
+      "camera",
+      "white balance",
+      "golden hour"
+    ],
     "enabled": true
   },
   {
     "id": "camera.perspective_01",
     "category": "camera",
     "subcategory": "Perspective",
-    "label": "Eye-level Natural View",
+    "label": {
+      "en": "Eye-level Natural View",
+      "th": "มุมมองระดับสายตา"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -644,14 +922,21 @@
       "gpt-image-safe": "shot at eye-level, natural candid portrait perspective",
       "gpt-image-positive": "eye-level angle, balanced proportions, natural view, realistic perspective"
     },
-    "tags": ["camera", "perspective", "eye level"],
+    "tags": [
+      "camera",
+      "perspective",
+      "eye level"
+    ],
     "enabled": true
   },
   {
     "id": "camera.perspective_02",
     "category": "camera",
     "subcategory": "Perspective",
-    "label": "Slightly Low Angle",
+    "label": {
+      "en": "Slightly Low Angle",
+      "th": "มุมต่ำเล็กน้อย"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -662,14 +947,21 @@
       "gpt-image-safe": "shot captured from a slightly low camera angle highlighting posture",
       "gpt-image-positive": "low-angle portrait, majestic posture, high-fashion framing"
     },
-    "tags": ["camera", "perspective", "low angle"],
+    "tags": [
+      "camera",
+      "perspective",
+      "low angle"
+    ],
     "enabled": true
   },
   {
     "id": "camera.perspective_03",
     "category": "camera",
     "subcategory": "Perspective",
-    "label": "Slightly High Angle",
+    "label": {
+      "en": "Slightly High Angle",
+      "th": "มุมสูงเล็กน้อย"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -680,14 +972,21 @@
       "gpt-image-safe": "captured from a slightly high camera angle looking down gently",
       "gpt-image-positive": "high-angle gaze, soft perspective, delicate facial proportions"
     },
-    "tags": ["camera", "perspective", "high angle"],
+    "tags": [
+      "camera",
+      "perspective",
+      "high angle"
+    ],
     "enabled": true
   },
   {
     "id": "camera.composition_01",
     "category": "camera",
     "subcategory": "Composition",
-    "label": "Rule of Thirds",
+    "label": {
+      "en": "Rule of Thirds",
+      "th": "กฎสามส่วน"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -698,14 +997,21 @@
       "gpt-image-safe": "rule-of-thirds composition, off-center placement creating balanced visual flow",
       "gpt-image-positive": "dynamic framing, balanced off-center composition, professional photography rules"
     },
-    "tags": ["camera", "composition", "thirds"],
+    "tags": [
+      "camera",
+      "composition",
+      "thirds"
+    ],
     "enabled": true
   },
   {
     "id": "camera.composition_02",
     "category": "camera",
     "subcategory": "Composition",
-    "label": "Centered Symmetry",
+    "label": {
+      "en": "Centered Symmetry",
+      "th": "องค์ประกอบสมมาตรกึ่งกลาง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -716,14 +1022,21 @@
       "gpt-image-safe": "centered symmetrical composition, subject framed in the middle",
       "gpt-image-positive": "symmetrical portrait, clean centered framing, impactful composition"
     },
-    "tags": ["camera", "composition", "symmetrical"],
+    "tags": [
+      "camera",
+      "composition",
+      "symmetrical"
+    ],
     "enabled": true
   },
   {
-    "id": "camera.composition_03",
-    "category": "camera",
-    "subcategory": "Composition",
-    "label": "Medium Close-up Framing",
+    "id": "camera.framing_03",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": {
+      "en": "Medium Close-up Framing",
+      "th": "เฟรมระยะใกล้กลาง"
+    },
     "ui": {
       "control": "select",
       "group": "Camera"
@@ -734,209 +1047,549 @@
       "gpt-image-safe": "medium close-up framing focusing on the bust and face",
       "gpt-image-positive": "close-up portraiture, detailed facial feature rendering, high-fashion framing style"
     },
-    "tags": ["camera", "composition", "close up"],
+    "tags": [
+      "camera",
+      "framing",
+      "close up"
+    ],
     "enabled": true
   },
-
+  {
+    "id": "camera.framing_01",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Extreme Close-up", "th": "ระยะใกล้มาก เน้นรายละเอียด" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme close-up shot",
+      "gpt-image": "extreme close-up framing, filling the frame with a small facial detail such as the eyes",
+      "gpt-image-safe": "extreme close-up framing focused on fine facial detail"
+    },
+    "tags": ["camera", "framing", "extreme close up"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_02",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Close-up", "th": "ระยะใกล้ เน้นใบหน้า" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "close-up shot",
+      "gpt-image": "close-up framing from the shoulders upward, emphasizing the face and expression",
+      "gpt-image-safe": "close-up framing from the shoulders upward"
+    },
+    "tags": ["camera", "framing", "close up", "face"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_04",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Medium Shot", "th": "ระยะครึ่งตัว" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "medium shot",
+      "gpt-image": "medium shot framing from the waist upward, balancing facial expression and body language",
+      "gpt-image-safe": "medium shot framing from the waist upward"
+    },
+    "tags": ["camera", "framing", "medium shot", "half body"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_05",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Cowboy Shot", "th": "ระยะเหนือเข่า" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "cowboy shot",
+      "gpt-image": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+      "gpt-image-safe": "cowboy shot framing from above the knees upward"
+    },
+    "tags": ["camera", "framing", "cowboy shot", "three quarter"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_06",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Full-body Shot", "th": "ระยะเต็มตัว" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "full-body shot",
+      "gpt-image": "full-body framing showing the subject completely from head to toe with clear surrounding space",
+      "gpt-image-safe": "full-body framing showing the subject from head to toe"
+    },
+    "tags": ["camera", "framing", "full body"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_07",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Wide Shot", "th": "ระยะไกล เห็นตัวแบบและฉาก" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "wide shot",
+      "gpt-image": "wide shot framing showing the full subject within a clearly visible surrounding environment",
+      "gpt-image-safe": "wide shot showing the subject and surrounding environment"
+    },
+    "tags": ["camera", "framing", "wide shot", "environment"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_08",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Extreme Wide Shot", "th": "ระยะไกลมาก เน้นทิวทัศน์" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "extreme wide establishing shot",
+      "gpt-image": "extreme wide establishing shot emphasizing the expansive scenery, with the subject appearing small in the environment",
+      "gpt-image-safe": "extreme wide establishing shot emphasizing expansive scenery"
+    },
+    "tags": ["camera", "framing", "extreme wide", "scenery", "establishing shot"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_09",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Environmental Portrait", "th": "ภาพบุคคลเน้นสภาพแวดล้อม" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "environmental portrait framing",
+      "gpt-image": "environmental portrait framing balancing the subject with meaningful surroundings that tell the scene story",
+      "gpt-image-safe": "environmental portrait balancing the subject with meaningful surroundings"
+    },
+    "tags": ["camera", "framing", "environmental portrait", "scenery"],
+    "enabled": true
+  },
   {
     "id": "camera.blur_00",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "No Blur (Sharp & Frozen)",
-    "ui": { "control": "select", "group": "Camera" },
+    "label": {
+      "en": "No Blur (Sharp & Frozen)",
+      "th": "ไม่เบลอ ภาพคมและหยุดการเคลื่อนไหว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
     "prompt": {
       "default": "sharp frozen motion, no motion blur",
-      "gpt-image": "sharp crisp frozen moment with zero motion blur, all details in focus"
+      "gpt-image": "fast-shutter rendering with no motion blur, all visible motion frozen sharply"
     },
-    "tags": ["camera", "motion blur", "sharp"],
+    "tags": [
+      "camera",
+      "motion blur",
+      "sharp"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_01",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Cinematic Panning (Tracking)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism",
-      "gpt-image": "subtle panning motion blur, perfectly tracking the subject so the face and body remain tack sharp while the background stretches into smooth horizontal motion streaks, cinematic realism"
+    "label": {
+      "en": "Cinematic Panning (Tracking)",
+      "th": "แพนกล้องติดตามแบบภาพยนตร์"
     },
-    "tags": ["camera", "motion blur", "panning", "cinematic"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "tracked panning motion blur with a sharp primary subject and smooth horizontal blur across existing non-subject regions",
+      "gpt-image": "tracked panning motion blur, primary subject held sharply in focus, existing non-subject regions rendered as smooth horizontal motion streaks"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "panning",
+      "cinematic"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_02",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Background Motion Blur (Natural)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look",
-      "gpt-image": "the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look"
+    "label": {
+      "en": "Background Motion Blur (Natural)",
+      "th": "ฉากหลังเบลอจากการเคลื่อนไหวอย่างเป็นธรรมชาติ"
     },
-    "tags": ["camera", "motion blur", "background", "natural"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "sharp primary subject with subtle natural motion blur limited to existing background elements",
+      "gpt-image": "primary subject remains sharply focused while only existing background elements show subtle natural directional motion blur"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "background",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_03",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Shallow DOF + Motion",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph",
-      "gpt-image": "tack sharp subject with shallow depth of field, combined with subtle environmental motion blur in the background for a realistic cinematic photograph"
+    "label": {
+      "en": "Shallow DOF + Motion",
+      "th": "ระยะชัดตื้นร่วมกับโมชั่นเบลอ"
     },
-    "tags": ["camera", "motion blur", "dof", "cinematic"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "sharp focal plane with shallow depth of field and subtle directional motion blur outside the focal plane",
+      "gpt-image": "sharp primary focal plane, shallow depth-of-field falloff, and subtle directional motion blur confined to existing out-of-focus regions"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "dof",
+      "cinematic"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_04",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Long Exposure Street",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography",
-      "gpt-image": "slight long exposure effect where the environment shows gentle motion streaks while the subject remains completely sharp, realistic handheld street photography"
+    "label": {
+      "en": "Slow-shutter Motion Trails",
+      "th": "เส้นการเคลื่อนไหวจากชัตเตอร์ช้า"
     },
-    "tags": ["camera", "motion blur", "long exposure", "street"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "slow-shutter rendering with a stable sharp focal subject and gentle motion trails in existing moving regions",
+      "gpt-image": "controlled slow-shutter effect, focal subject held sharp, existing moving regions rendered as gentle continuous motion trails"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "long exposure",
+      "slow shutter"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_05",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Foreground Motion Blur",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism",
-      "gpt-image": "soft foreground motion blur created by passing pedestrians or nearby objects while the subject remains perfectly sharp and unobstructed, adding depth and realism"
+    "label": {
+      "en": "Foreground Motion Blur",
+      "th": "โมชั่นเบลอเฉพาะระยะหน้า"
     },
-    "tags": ["camera", "motion blur", "foreground", "depth"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "soft directional motion blur limited to existing foreground elements while the focal subject remains sharp and unobstructed",
+      "gpt-image": "existing foreground elements rendered with soft directional motion blur, focal subject remaining sharp, visible, and unobstructed"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "foreground",
+      "depth"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_06",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Wind Motion (Hair/Clothing)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze",
-      "gpt-image": "the subject remains tack sharp while loose hair strands, lightweight clothing, and nearby leaves show subtle natural motion blur from a gentle breeze"
+    "label": {
+      "en": "Localized Secondary Motion",
+      "th": "โมชั่นเบลอเฉพาะรายละเอียดที่กำลังเคลื่อนไหว"
     },
-    "tags": ["camera", "motion blur", "wind", "fashion"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "sharp primary subject with subtle motion blur limited to already-moving fine details",
+      "gpt-image": "primary subject remains sharply focused while only existing fine details that are already in motion receive subtle localized blur"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "localized",
+      "secondary motion"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_07",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Edge Motion Blur",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus",
-      "gpt-image": "subtle peripheral motion blur around the outer edges of the frame while maintaining a perfectly sharp subject in the center, creating a natural cinematic focus"
+    "label": {
+      "en": "Edge Motion Blur",
+      "th": "โมชั่นเบลอบริเวณขอบภาพ"
     },
-    "tags": ["camera", "motion blur", "edge", "cinematic"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "subtle peripheral motion blur confined to the outer frame edges with a sharp central focal region",
+      "gpt-image": "controlled peripheral motion blur confined to the outer edges of the frame, central focal region remaining sharply resolved"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "edge",
+      "cinematic"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_08",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Walking Motion",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement",
-      "gpt-image": "walking subject captured with precise autofocus, crisp facial details, while the moving surroundings display soft directional motion blur that enhances the sense of movement"
+    "label": {
+      "en": "Directional Movement Blur",
+      "th": "โมชั่นเบลอตามทิศทางการเคลื่อนไหว"
     },
-    "tags": ["camera", "motion blur", "walking", "movement"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "precise focal tracking with soft directional motion blur following the existing movement vector",
+      "gpt-image": "focal region maintained sharply while existing moving regions receive soft blur aligned with their direction of movement"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "directional",
+      "tracking"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_09",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Street Documentary (Leica Style)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism",
-      "gpt-image": "documentary street photography style, subject remains sharply focused while surrounding people and background naturally blur with movement, authentic photojournalistic realism"
+    "label": {
+      "en": "Irregular Natural Motion Blur",
+      "th": "โมชั่นเบลอธรรมชาติแบบไม่สม่ำเสมอ"
     },
-    "tags": ["camera", "motion blur", "documentary", "street"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "sharp focal subject with subtle irregular motion blur based only on movement already present in the scene",
+      "gpt-image": "focal subject remains sharp while existing moving regions receive subtle non-uniform motion blur proportional to their movement"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "irregular",
+      "natural"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_10",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Dynamic Cinematic (Frozen Subject)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture",
-      "gpt-image": "dynamic cinematic motion blur affecting only the surrounding environment while the subject remains perfectly frozen in time with razor-sharp facial details and natural skin texture"
+    "label": {
+      "en": "Dynamic Cinematic (Frozen Subject)",
+      "th": "โมชั่นเบลอแบบไดนามิกโดยตัวแบบหลักคมชัด"
     },
-    "tags": ["camera", "motion blur", "dynamic", "cinematic"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "dynamic motion blur confined to existing non-subject regions while the primary subject remains sharply frozen",
+      "gpt-image": "dynamic directional motion blur affects only existing non-subject regions, with the primary subject rendered sharply frozen"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "dynamic",
+      "cinematic"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_11",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "Continuous Eye AF (Sony/Canon Style)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph",
-      "gpt-image": "subject locked in sharp focus using continuous eye autofocus while the moving background exhibits smooth natural motion blur, creating an authentic professional lifestyle photograph"
+    "label": {
+      "en": "Continuous Tracking Focus",
+      "th": "โฟกัสติดตามต่อเนื่อง"
     },
-    "tags": ["camera", "motion blur", "autofocus", "professional"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "continuous tracking focus holding the primary subject sharp while existing moving background regions show smooth motion blur",
+      "gpt-image": "continuous tracking autofocus keeps the primary subject sharply resolved while existing moving background regions receive smooth natural motion blur"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "autofocus",
+      "professional"
+    ],
     "enabled": true
   },
   {
     "id": "camera.blur_12",
     "category": "camera",
     "subcategory": "Motion Blur",
-    "label": "AI Killer (Ultimate Realism)",
-    "ui": { "control": "select", "group": "Camera" },
-    "prompt": {
-      "default": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography",
-      "gpt-image": "subject locked in razor-sharp focus using continuous eye autofocus, subtle cinematic panning motion blur affecting only the surrounding environment, natural handheld camera movement, authentic lens rendering, realistic optical imperfections, slight rolling shutter characteristics, organic depth separation, documentary lifestyle photography"
+    "label": {
+      "en": "Advanced Realistic Motion Rendering",
+      "th": "การเรนเดอร์โมชั่นเบลอสมจริงขั้นสูง"
     },
-    "tags": ["camera", "motion blur", "ultimate", "realism"],
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "realistic tracked motion rendering with a sharp focal subject, subtle directional blur in existing moving regions, and physically plausible shutter behavior",
+      "gpt-image": "realistic tracked motion rendering, focal subject sharply resolved, existing moving regions receiving subtle directionally accurate blur with physically plausible shutter timing"
+    },
+    "tags": [
+      "camera",
+      "motion blur",
+      "advanced",
+      "realistic shutter"
+    ],
     "enabled": true
   },
-
-  { "id": "camera.imp_01", "category": "camera_imperfections", "label": "Slight Handheld Movement", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+  {
+    "id": "camera.imp_01",
+    "category": "camera_imperfections",
+    "label": {
+      "en": "Slight Handheld Movement",
+      "th": "การสั่นจากการถือกล้องเล็กน้อย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "slight handheld camera movement, natural organic framing",
       "gpt-image": "slight handheld camera movement, natural organic framing, giving the impression of an authentic photograph"
     },
-    "tags": ["camera", "imperfections", "handheld"], "enabled": true },
-  { "id": "camera.imp_02", "category": "camera_imperfections", "label": "Optical Imperfections", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "tags": [
+      "camera",
+      "imperfections",
+      "handheld"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.imp_02",
+    "category": "camera_imperfections",
+    "label": {
+      "en": "Optical Imperfections",
+      "th": "ความไม่สมบูรณ์ของระบบออปติก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
       "gpt-image": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look"
     },
-    "tags": ["camera", "imperfections", "lens"], "enabled": true },
-  { "id": "camera.imp_03", "category": "camera_imperfections", "label": "Subtle Sensor Noise", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "tags": [
+      "camera",
+      "imperfections",
+      "lens"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.imp_03",
+    "category": "camera_imperfections",
+    "label": {
+      "en": "Subtle Sensor Noise",
+      "th": "นอยส์จากเซนเซอร์เล็กน้อย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "subtle digital sensor noise, natural digital camera texture",
       "gpt-image": "subtle digital sensor noise, natural digital camera sensor texture, especially visible in shadow regions"
     },
-    "tags": ["camera", "imperfections", "noise"], "enabled": true },
-  { "id": "camera.imp_04", "category": "camera_imperfections", "label": "Gentle Halation", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "tags": [
+      "camera",
+      "imperfections",
+      "noise"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.imp_04",
+    "category": "camera_imperfections",
+    "label": {
+      "en": "Gentle Halation",
+      "th": "แสงฟุ้งรอบไฮไลต์อย่างนุ่มนวล"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "gentle highlight halation, organic highlight roll-off",
       "gpt-image": "gentle highlight halation around strong light sources, organic realistic highlight roll-off"
     },
-    "tags": ["camera", "imperfections", "halation"], "enabled": true },
-  { "id": "camera.imp_05", "category": "camera_imperfections", "label": "Subtle Lens Breathing", "ui": { "control": "select", "group": "Camera" }, "subcategory": "Camera Imperfections",
+    "tags": [
+      "camera",
+      "imperfections",
+      "halation"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.imp_05",
+    "category": "camera_imperfections",
+    "label": {
+      "en": "Subtle Lens Breathing",
+      "th": "Subtle เลนส์ Breathing"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "subtle lens breathing, natural optical falloff",
       "gpt-image": "subtle lens breathing effect, natural soft optical falloff from focus to defocus regions"
     },
-    "tags": ["camera", "imperfections", "lens"], "enabled": true }
+    "tags": [
+      "camera",
+      "imperfections",
+      "lens"
+    ],
+    "enabled": true
+  }
 ]
-
