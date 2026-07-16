@@ -22,7 +22,7 @@ Fashion users choose a model through three cost levels: ready template, paid tem
 
 ### Custom Model
 
-- User configures appearance through Visual Configurator or uploads authorized references.
+- User configures appearance through Visual Character Builder or uploads authorized references.
 - System may generate headshot and character sheet candidates.
 - User approves canonical references before Fashion batch use.
 
@@ -52,4 +52,3 @@ Fashion users choose a model through three cost levels: ready template, paid tem
 - Model creation jobs use normal durable job and ledger services.
 - Uploaded references are private and ownership-protected.
 - Archived profiles preserve historical generation lineage.
-

@@ -2,7 +2,7 @@
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** Prompt intelligence and config prefill  
-**Depends on:** Visual Configurator schema, model/provider gateway, shared audit  
+**Depends on:** Visual Character Builder schema, model/provider gateway, shared audit  
 **Created:** 2026-07-15
 
 ## 1. Objective
@@ -77,7 +77,7 @@ Prompt Composer AI should return a machine-readable proposal:
 }
 ```
 
-Exact field IDs must align with the Visual Configurator schema.
+Exact field IDs must align with the Visual Character Builder schema.
 
 ## 5. User Control
 
@@ -100,4 +100,3 @@ Exact field IDs must align with the Visual Configurator schema.
 - Composer does not create unapproved official categories or dropdown values.
 - Users can generate from the composed config without manually rebuilding the prompt.
 - Community share flow can reuse Composer classification signals.
-

@@ -54,7 +54,7 @@ Terms such as `Influencer`, `AI Idol`, `Wedding` and `Advertisement` may begin a
 
 The classifier should use structured data first:
 
-- Visual Configurator field selections.
+- Visual Character Builder field selections.
 - Prompt Composer AI output.
 - Generation workflow type.
 - Character/model metadata.
@@ -128,4 +128,3 @@ Official tags:
 - Custom tags do not pollute category navigation.
 - Low-confidence posts cannot dominate Trending.
 - Taxonomy assignments can be corrected after publish with audit history.
-

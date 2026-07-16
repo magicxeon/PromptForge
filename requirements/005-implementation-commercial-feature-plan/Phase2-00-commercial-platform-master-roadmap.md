@@ -14,7 +14,8 @@
 - AI models support ready templates, paid template variation and fully custom generation.
 - Customers buy understandable packages; internal accounting settles actual operation costs through an immutable credit ledger.
 - The complete maximum price must be displayed and confirmed before processing.
-- Existing Studio Creative Configurator remains the advanced editor and reusable visual-control foundation.
+- Visual Character Builder in `requirements/003-implementation-visual-character-builder-plan` owns character attributes, visual assets and reusable visual-control contracts.
+- Existing Studio Creative Configurator remains the advanced editor and consumes those shared contracts.
 - The product evolves from one long screen into an application shell with route-based pages as modules grow.
 - Navigation shows only available modules; future or unauthorized modules are not displayed.
 - Product concept may use a demo identity, but all service contracts must include actor, ownership and billing boundaries from the beginning.
@@ -35,7 +36,7 @@ Core Platform
   Module Registry and Audit
 
 Reusable Modules
-  Visual Configurator
+  Visual Character Builder
   Product Catalog
   Model Profiles
   Consistency Profiles
@@ -54,7 +55,7 @@ Solution modules must never call image providers, mutate balances or access pers
 
 | Phase | Requirement | Dependency |
 |---|---|---|
-| Phase2-01 | Schema-driven Visual Configurator | Existing application |
+| External foundation | Visual Character Builder (`requirements/003-implementation-visual-character-builder-plan`) | Existing application |
 | Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Existing application |
 | Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
 | Phase2-04 | Authentication, Sessions and Authorization | Phase2-03 |
@@ -66,7 +67,7 @@ Solution modules must never call image providers, mutate balances or access pers
 | Phase2-10 | Durable Jobs and Batch Orchestration | Phase2-03, Phase2-07 |
 | Phase2-11 | Model Profiles and AI Model Creation | Phase2-06, Phase2-10 |
 | Phase2-12 | Consistency Profiles and Reference Lineage | Phase2-06, Phase2-11 |
-| Phase2-13 | Fashion Selling Consumer Workflow | Phase2-01 through Phase2-12 |
+| Phase2-13 | Fashion Selling Consumer Workflow | Visual Character Builder, Phase2-02 through Phase2-12 |
 | Phase2-14 | Fashion Shot Packs and Photographer Styles | Phase2-13 |
 | Phase2-15 | Approval, Regeneration and Refund Policy | Phase2-10, Phase2-13 |
 | Phase2-16 | Marketplace Export Presets | Phase2-15 |
@@ -76,7 +77,7 @@ Solution modules must never call image providers, mutate balances or access pers
 
 ### Gate A: Product Prototype
 
-- Visual Configurator pilot accepted.
+- Visual Character Builder Face Structure pilot accepted.
 - Fashion journey and package concepts validated with demo identity and mock pricing.
 - No real payments or public launch.
 
@@ -137,7 +138,7 @@ Near-term implementation references:
 
 | Phase | Status | Review Gate |
 |---|---|---|
-| Phase2-01 | Existing requirement | UX/Technical |
+| Visual Character Builder | Separate 003 plan | Product/UX/Technical |
 | Phase2-02 | Proposed | Architecture/Application shell |
 | Phase2-03 | Proposed | Data/Migration |
 | Phase2-04 | Proposed | Security |

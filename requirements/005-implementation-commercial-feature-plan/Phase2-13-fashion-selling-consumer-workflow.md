@@ -39,7 +39,7 @@ The wizard stores a draft Project continuously. Users may leave and resume.
 
 - Visual scene and photographer-style cards.
 - One shared scene/style in initial MVP.
-- Advanced editing opens Visual Configurator within Project context.
+- Advanced editing opens Studio using Visual Character Builder contracts within Project context.
 
 ### Image Pack
 
@@ -94,4 +94,3 @@ Core Pricing, Ledger and Job Orchestrator validate and execute it.
 - Resume does not lose draft or duplicate confirmed Batch.
 - Outputs are grouped by Project/Product automatically.
 - Advanced edits compile through the same authoritative server prompt pipeline.
-

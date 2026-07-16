@@ -2,7 +2,7 @@
 
 **Status:** Proposed - Awaiting Review  
 **Target:** Prompt discovery, remix and creator community for AI image generation  
-**Architecture:** Reuse shared core platform from commercial plan; implement community as a solution module  
+**Architecture:** Reuse Visual Character Builder and shared core platform; implement community as a solution module  
 **Created:** 2026-07-15
 
 ## 1. Product Vision
@@ -32,10 +32,11 @@ The MVP must prove this loop before adding comments, paid prompts, memberships, 
 
 ## 3. Relationship to Commercial Plan
 
-Community must reuse shared platform foundations already defined in `requirements/004-implementation-commercial-feature-plan` instead of duplicating them.
+Community must reuse the character/configuration contracts defined in `requirements/003-implementation-visual-character-builder-plan` and shared platform foundations defined in `requirements/005-implementation-commercial-feature-plan` instead of duplicating them.
 
 Shared dependencies:
 
+- `003 Visual Character Builder - semantic configuration, visual controls and saved character contract`
 - `Phase2-02 Modular Core Architecture and Module Registry`
 - `Phase2-03 Database Architecture and JSON Migration`
 - `Phase2-04 Authentication, Sessions and Authorization`
@@ -60,7 +61,7 @@ Core Platform
 
 Reusable Modules
   Advanced Studio
-  Visual Configurator
+  Visual Character Builder
   Prompt Composer AI
   Character / Model Profiles
   Collections
@@ -78,7 +79,7 @@ Community module must not call image providers directly and must not mutate cred
 | Phase | Requirement | Dependency |
 |---|---|---|
 | Community-01 | Product Home and Workflow Launcher | Application shell, module registry |
-| Community-02 | Prompt Composer AI and Structured Freestyle | Visual Configurator, provider gateway for text assistant if approved |
+| Community-02 | Prompt Composer AI and Structured Freestyle | Visual Character Builder, provider gateway for text assistant if approved |
 | Community-03 | Community Taxonomy and Auto Classification | Prompt/config schema, shared moderation baseline |
 | Community-04 | Share Generated Image and Prompt Snapshot | Auth, assets, generation history, collections |
 | Community-05 | Community Explore, Post Detail and Remix | Community-03, Community-04 |
@@ -180,4 +181,3 @@ MVP should measure:
 - Saves/bookmarks.
 - Low-confidence classification rate.
 - Reports and admin removals.
-

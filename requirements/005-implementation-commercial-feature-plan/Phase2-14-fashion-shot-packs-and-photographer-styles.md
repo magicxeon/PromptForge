@@ -53,7 +53,7 @@ Initial styles:
 
 ## 5. Asset Workflow
 
-- Use Phase2-01 visual metadata and generation manifests.
+- Reuse visual metadata and generation manifests from `requirements/003-implementation-visual-character-builder-plan`.
 - Photographer-style samples require human brand/commercial approval.
 - Example assets must disclose AI generation where required internally and track provenance.
 
@@ -64,4 +64,3 @@ Initial styles:
 - Style recipes compile consistently in client preview and server execution.
 - Existing Batch keeps its original recipe after catalog updates.
 - Unsupported/conflicting combinations fail before credit reservation where possible.
-
