@@ -7,7 +7,10 @@
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
     "test": "node --test",
-    "migrate:thumbnails": "node scripts/migrate-history-thumbnails.js"
+    "migrate:thumbnails": "node scripts/migrate-history-thumbnails.js",
+    "visual-assets:check": "node scripts/slice-visual-assets.js --check",
+    "visual-assets:slice": "node scripts/slice-visual-assets.js --slice",
+    "visual-assets:contact-sheet": "node scripts/slice-visual-assets.js --contact-sheet"
   },
   "dependencies": {
     "cors": "^2.8.5",

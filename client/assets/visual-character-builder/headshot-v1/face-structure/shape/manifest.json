@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.face-structure.face-shape",
+  "fieldId": "face.shape",
+  "sectionId": "face-structure",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.face.shape.oval",
+      "optionId": "face.shape.oval",
+      "slug": "oval",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of an oval human face shape",
+        "th": "เส้นโครงหน้ามนุษย์รูปไข่"
+      },
+      "sourceHash": "f25145343a89697415e7841078415d882fc6be0d18f710cb185e7d3385770054",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/oval-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/oval-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/oval-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.square",
+      "optionId": "face.shape.square",
+      "slug": "square",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a softly square human face shape",
+        "th": "เส้นโครงหน้ามนุษย์ทรงเหลี่ยมแบบนุ่ม"
+      },
+      "sourceHash": "1a68ef7f4a28ae1b1075ae80634591c3fa5aec844ae086a3830d54d7c4d31675",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/square-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/square-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/square-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.round",
+      "optionId": "face.shape.round",
+      "slug": "round",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a round human face shape",
+        "th": "เส้นโครงหน้ามนุษย์ทรงกลม"
+      },
+      "sourceHash": "6cfaa37ffedc88528af0813ac5d29c009123102821754041378dcef19bacfe14",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/round-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/round-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/round-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.diamond",
+      "optionId": "face.shape.diamond",
+      "slug": "diamond",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a diamond-like human face shape with wider cheekbones",
+        "th": "เส้นโครงหน้ามนุษย์รูปเพชรที่ช่วงโหนกแก้มกว้างกว่า"
+      },
+      "sourceHash": "056b7d3b229cf04c64ef3c803511f69e1c489e939a762fc0c7b03e3dc659e559",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/diamond-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/diamond-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/diamond-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.rectangular",
+      "optionId": "face.shape.rectangular",
+      "slug": "rectangular",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a rectangular human face shape",
+        "th": "เส้นโครงหน้ามนุษย์ทรงสี่เหลี่ยมผืนผ้า"
+      },
+      "sourceHash": "edcf390ce77de721b2f7c570f13c059b420ac990ba84a6306d313bfe3479c0c0",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/rectangular-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/rectangular-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/rectangular-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.heart",
+      "optionId": "face.shape.heart",
+      "slug": "heart",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a heart-type human face shape with a broader upper face and soft narrow chin",
+        "th": "เส้นโครงหน้ามนุษย์รูปหัวใจที่ช่วงบนกว้างและคางแคบแบบนุ่ม"
+      },
+      "sourceHash": "e9415f42586315cd2c5c6497cdb75d68db8f17121ada6eb51af633ceffdd1820",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/heart-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/heart-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/heart-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.inverted-triangular",
+      "optionId": "face.shape.inverted_triangular",
+      "slug": "inverted-triangular",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of an inverted triangular human face shape",
+        "th": "เส้นโครงหน้ามนุษย์ทรงสามเหลี่ยมกลับหัว"
+      },
+      "sourceHash": "d02bf13f28929dedc8d695787775e966171a6640db523dc2e866a5db566606de",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/inverted-triangular-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/inverted-triangular-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/inverted-triangular-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.face.shape.long",
+      "optionId": "face.shape.long",
+      "slug": "long",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Outline of a long human face shape",
+        "th": "เส้นโครงหน้ามนุษย์ทรงยาว"
+      },
+      "sourceHash": "9f717c5b1c78dcc8ee07c77c75b5b866c794386b721a7ee65991ce6af544022f",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/shape/master/long-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/shape/preview/long-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/shape/thumb/long-r1.png"
+      }
+    }
+  ]
+}

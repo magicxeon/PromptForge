@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "manifests": [
+    {
+      "fieldId": "face.shape",
+      "manifestId": "headshot.face-structure.face-shape",
+      "url": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json"
+    }
+  ]
+}
