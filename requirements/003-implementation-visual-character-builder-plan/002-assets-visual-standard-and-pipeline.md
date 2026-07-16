@@ -1,6 +1,6 @@
 # Assets - Illustrated Set Standard and Pipeline
 
-**Status:** Pipeline Scaffolded - Waiting for Face Shape Source File  
+**Status:** Face Shape Pilot Sliced - Visual Picker Scaffolded  
 **Sequence:** 002  
 **Depends on:** Approved 001 Foundation Domain and Attribute Contract  
 **Updated:** 2026-07-17

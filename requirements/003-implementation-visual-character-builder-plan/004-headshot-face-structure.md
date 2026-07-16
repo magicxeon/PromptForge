@@ -1,6 +1,6 @@
 # Headshot - Face Structure Pilot
 
-**Status:** Pilot Scaffolded - Awaiting Source Sheet Slice  
+**Status:** Pilot Asset and Visual Picker Scaffolded  
 **Sequence:** 004  
 **Depends on:** 001-003
 
@@ -33,7 +33,7 @@ Face Shape pilot uses the approved eight-option 4x2 order from Requirement 002: 
 - One approved 4x2 source set plus optional per-item overrides
 - Eight normalized transparent runtime slices and derivatives
 - Reconstructed contact sheet for semantic comparison
-- Working visual picker connected to semantic IDs
+- Working visual picker connected to semantic IDs through legacy-compatible attribute IDs
 - Written review notes and approved visual style version
 
 ## Review Questions

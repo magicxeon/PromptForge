@@ -164,6 +164,21 @@ const MODE_CATEGORY_POLICY = {
   "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Lighting", "Quality"])
 };
 
+const VISUAL_FIELD_MANIFESTS = {
+  "Face::Face Shape": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json"
+};
+
+const VISUAL_OPTION_ATTRIBUTE_MAP = {
+  "face.shape.oval": "face.002",
+  "face.shape.square": "face.005",
+  "face.shape.round": "face.003",
+  "face.shape.diamond": "face.006",
+  "face.shape.rectangular": "face.018",
+  "face.shape.heart": "face.004",
+  "face.shape.inverted_triangular": "face.019",
+  "face.shape.long": "face.020"
+};
+
 // Global App State
 const state = {
   schema: null,
@@ -206,6 +221,7 @@ const state = {
   collections: [],
   defaultCollectionId: null,
   providerCatalog: null,
+  visualAssetManifests: {},
   selectedCollectionId: "all",
   lightboxBrowseContext: null,
   lightboxReturnFocus: null,
@@ -252,6 +268,7 @@ function restoreSelectionsToUI() {
       updateAccordionSummaryBadges(selection.group);
     }
   });
+  syncVisualPickers();
 }
 
 // Validate mandatory required fields (Step 8)
@@ -453,6 +470,7 @@ function applyCharacterReferenceAuthority() {
 function refreshReferenceAuthorityUI() {
   applyFaceMatchLockout();
   applyCharacterReferenceAuthority();
+  syncVisualPickers();
 }
 
 function applyFashionDirectionDefaults(directionItem) {
@@ -1133,6 +1151,7 @@ async function initApp() {
     state.order = bundle.order;
     state.library = bundle.library;
     state.presets = bundle.presets;
+    await loadVisualAssetManifests();
 
     // Populate templates select
     const templateSelect = document.getElementById("template-select");
@@ -1363,6 +1382,12 @@ function renderForm() {
       fieldHelp.setAttribute("aria-live", "polite");
       fieldDiv.appendChild(fieldHelp);
 
+      const visualPicker = createVisualOptionPicker(groupName, field.name, select, filteredOptions);
+      if (visualPicker) {
+        fieldDiv.classList.add("has-visual-options");
+        fieldDiv.appendChild(visualPicker);
+      }
+
       // Render color pickers for specified fields (Step 11)
       const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes", "Product Type"];
       if (colorPickerFields.includes(field.name) && (field.name !== "Color" || groupName === "Hair")) {
@@ -1561,6 +1586,88 @@ function getOptionsForField(fieldName, category, allItems) {
   return items;
 }
 
+async function loadVisualAssetManifests() {
+  const entries = await Promise.all(Object.entries(VISUAL_FIELD_MANIFESTS).map(async ([key, url]) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return [key, await response.json()];
+    } catch (error) {
+      console.warn(`Visual option manifest unavailable for ${key}:`, error.message);
+      return [key, null];
+    }
+  }));
+  state.visualAssetManifests = Object.fromEntries(entries.filter(([, manifest]) => manifest));
+}
+
+function getVisualManifestKey(groupName, fieldName) {
+  return `${groupName}::${fieldName}`;
+}
+
+function createVisualOptionPicker(groupName, fieldName, select, filteredOptions) {
+  const manifest = state.visualAssetManifests[getVisualManifestKey(groupName, fieldName)];
+  if (!manifest?.items?.length) return null;
+
+  const optionById = new Map(filteredOptions.map(option => [option.id, option]));
+  const picker = document.createElement("div");
+  picker.className = "visual-option-picker";
+  picker.setAttribute("role", "radiogroup");
+  picker.setAttribute("aria-label", fieldName);
+  picker.dataset.field = fieldName;
+  picker.dataset.group = groupName;
+
+  manifest.items.forEach(item => {
+    const attributeId = VISUAL_OPTION_ATTRIBUTE_MAP[item.optionId];
+    const attribute = optionById.get(attributeId);
+    if (!attribute) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "visual-option-card";
+    button.dataset.value = attributeId;
+    button.dataset.optionId = item.optionId;
+    button.setAttribute("role", "radio");
+    button.setAttribute("aria-checked", "false");
+    button.title = item.alt?.[state.language] || item.alt?.en || getLocalizedLabel(attribute.label);
+
+    const icon = document.createElement("span");
+    icon.className = "visual-option-icon";
+    icon.style.setProperty("--visual-option-url", `url("${item.assets?.thumb || item.assets?.preview}")`);
+    icon.setAttribute("aria-hidden", "true");
+
+    const label = document.createElement("span");
+    label.className = "visual-option-label";
+    label.textContent = getLocalizedLabel(attribute.label);
+
+    button.appendChild(icon);
+    button.appendChild(label);
+    button.addEventListener("click", () => {
+      if (select.disabled) return;
+      select.value = attributeId;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      select.focus({ preventScroll: true });
+    });
+    picker.appendChild(button);
+  });
+
+  return picker.children.length > 0 ? picker : null;
+}
+
+function syncVisualPickers() {
+  document.querySelectorAll(".visual-option-picker").forEach(picker => {
+    const fieldName = picker.dataset.field;
+    const select = document.querySelector(`.custom-select[data-field="${fieldName}"]`);
+    const activeValue = select?.value || "";
+    const disabled = Boolean(select?.disabled);
+    picker.querySelectorAll(".visual-option-card").forEach(button => {
+      const isActive = button.dataset.value === activeValue;
+      button.classList.toggle("active", isActive);
+      button.disabled = disabled;
+      button.setAttribute("aria-checked", String(isActive));
+    });
+  });
+}
+
 function bindDynamicFormEvents() {
   // Accordion Toggle Headers
   document.querySelectorAll(".accordion-header").forEach(header => {
@@ -1623,6 +1730,7 @@ function bindDynamicFormEvents() {
 
       updateAccordionSummaryBadges(groupName);
       updatePromptPreview();
+      syncVisualPickers();
     });
 
     customInput.addEventListener("input", (e) => {
@@ -3269,6 +3377,7 @@ function restoreCurrentModeState() {
       }
       updateAccordionSummaryBadges(select.getAttribute("data-group"));
     });
+    syncVisualPickers();
 
     // 4. Sync Color Pickers UI
     updateColorPickerUI();
@@ -3325,6 +3434,7 @@ function resetForm() {
     "Product Type": { enabled: false, color: "#ffffff" }
   };
   updateColorPickerUI();
+  syncVisualPickers();
 
   // Hide Face Match container
   const faceUploadContainer = document.getElementById("face-match-upload-container");

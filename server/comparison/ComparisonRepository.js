@@ -50,7 +50,12 @@ export class ComparisonRepository {
       `.${path.basename(this.comparisonsFile)}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`
     );
     await fs.writeFile(temporaryFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-    await fs.rename(temporaryFile, this.comparisonsFile);
+    try {
+      await renameWithRetry(temporaryFile, this.comparisonsFile);
+    } catch (error) {
+      await fs.unlink(temporaryFile).catch(() => {});
+      throw error;
+    }
   }
 
   mutate(operation) {
@@ -279,6 +284,23 @@ export class ComparisonRepository {
       return { success: true };
     });
   }
+}
+
+async function renameWithRetry(source, destination, attempts = 8) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      await fs.rename(source, destination);
+      return;
+    } catch (error) {
+      const canRetry = ['EBUSY', 'EPERM'].includes(error.code);
+      if (!canRetry || attempt === attempts - 1) throw error;
+      await delay(35 * (attempt + 1));
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function compareSets(a, b) {
