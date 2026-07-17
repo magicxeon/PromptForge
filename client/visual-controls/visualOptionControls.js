@@ -402,6 +402,44 @@
           alt: { en: "Radiant smooth flash skin texture swatch", th: "Radiant smooth flash skin texture swatch" }
         }
       ]
+    },
+    {
+      key: "Skin::Makeup",
+      group: "Skin",
+      field: "Makeup",
+      controlType: "swatch-picker",
+      optionMap: {
+        "skin.makeup.natural": "skin.makeup_01",
+        "skin.makeup.soft_k_beauty": "skin.makeup_02",
+        "skin.makeup.red_lips": "skin.makeup_03",
+        "skin.makeup.gold_shimmer": "skin.makeup_04"
+      },
+      items: [
+        {
+          optionId: "skin.makeup.natural",
+          slug: "natural",
+          swatch: { colors: ["#d7a088", "#f3c8b8"], pattern: "makeup-natural" },
+          alt: { en: "Natural no-makeup look swatch", th: "Natural no-makeup look swatch" }
+        },
+        {
+          optionId: "skin.makeup.soft_k_beauty",
+          slug: "soft-k-beauty",
+          swatch: { colors: ["#e7a28f", "#ffd2c8"], pattern: "makeup-peach" },
+          alt: { en: "Soft K-beauty makeup swatch", th: "Soft K-beauty makeup swatch" }
+        },
+        {
+          optionId: "skin.makeup.red_lips",
+          slug: "red-lips",
+          swatch: { colors: ["#c93b35", "#f0b7a5"], pattern: "makeup-red-lips" },
+          alt: { en: "Editorial red lips makeup swatch", th: "Editorial red lips makeup swatch" }
+        },
+        {
+          optionId: "skin.makeup.gold_shimmer",
+          slug: "gold-shimmer",
+          swatch: { colors: ["#b9822f", "#ffe0a3"], pattern: "makeup-gold" },
+          alt: { en: "Gold shimmer eyeshadow makeup swatch", th: "Gold shimmer eyeshadow makeup swatch" }
+        }
+      ]
     }
   ];
 

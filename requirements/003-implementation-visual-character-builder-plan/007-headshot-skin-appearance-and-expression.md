@@ -1,6 +1,6 @@
 # Headshot - Skin, Appearance and Expression
 
-**Status:** Skin Tone and Skin Texture Swatch Pilots Integrated  
+**Status:** Skin Tone, Skin Texture, and Makeup Swatch Pilots Integrated  
 **Sequence:** 007  
 **Depends on:** 001-006
 
@@ -66,6 +66,19 @@ The second Skin pilot is `Skin > Skin Texture` using the shared swatch-card pick
 | 6 | Radiant Smooth Skin (under flash) | `skin.text_06` |
 
 Texture swatches are abstract UI cues, not photographic skin samples. They should communicate finish/texture differences without implying that one skin texture is better than another.
+
+## Makeup Pilot
+
+The third Skin pilot is `Skin > Makeup` using the shared swatch-card picker contract with abstract makeup cues. It uses the existing makeup attributes from `attributes/007-skin.json`:
+
+| Swatch | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Natural Look (No Makeup) | `skin.makeup_01` |
+| 2 | Soft K-Beauty Makeup | `skin.makeup_02` |
+| 3 | Editorial Bold Red Lips | `skin.makeup_03` |
+| 4 | Gilded Shimmer Eyeshadow | `skin.makeup_04` |
+
+Makeup controls describe styling intensity and accents only. They must not alter age, ethnicity, facial anatomy, skin tone, or head pose.
 
 ## Asset Rules
 

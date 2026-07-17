@@ -484,6 +484,35 @@ body {
     linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
 }
 
+.visual-option-swatch-makeup-natural {
+  background:
+    radial-gradient(circle at 32% 34%, rgba(255, 255, 255, 0.24), transparent 26%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-makeup-peach {
+  background:
+    radial-gradient(circle at 34% 66%, rgba(255, 129, 113, 0.34), transparent 19%),
+    radial-gradient(circle at 67% 66%, rgba(255, 129, 113, 0.28), transparent 18%),
+    radial-gradient(circle at 33% 24%, rgba(255, 255, 255, 0.34), transparent 24%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-makeup-red-lips {
+  background:
+    radial-gradient(ellipse at 50% 72%, rgba(115, 6, 18, 0.9) 0 13%, rgba(212, 32, 45, 0.78) 14% 23%, transparent 24%),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.34), transparent 24%),
+    linear-gradient(135deg, #d9a18e, #f3c8b8);
+}
+
+.visual-option-swatch-makeup-gold {
+  background:
+    radial-gradient(ellipse at 38% 34%, rgba(255, 220, 116, 0.85) 0 12%, transparent 25%),
+    radial-gradient(ellipse at 64% 34%, rgba(255, 220, 116, 0.65) 0 11%, transparent 24%),
+    radial-gradient(circle at 31% 25%, rgba(255, 255, 255, 0.42), transparent 21%),
+    linear-gradient(135deg, #d6a080, #f4c8ad);
+}
+
 .visual-option-card.swatch-option {
   min-height: 94px;
   grid-template-rows: 54px auto;
