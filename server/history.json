@@ -1,5 +1,75 @@
 [
   {
+    "id": "job_1784280869530_lyljseucn",
+    "prompt": "headshot portrait, female woman, mature adult in mid-forties, 45 years old, southeast asian person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, oval face, almond-shaped eyes, natural nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, glossy healthy hair, jet black hair, silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow, long loose waves, beach waves hair, flowing naturally, natural look, no makeup, clean skin bare face, authentic facial details, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784280869530_lyljseucn.png",
+    "timestamp": 1784280890679,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 294,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 294
+      },
+      "output_tokens": 1584,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 0
+      },
+      "total_tokens": 1878
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "21.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784280869530_lyljseucn.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 23160,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2481061
+  },
+  {
+    "id": "job_1784280806755_9f49ydhct",
+    "prompt": "headshot portrait, female woman, mature adult in mid-forties, 45 years old, southeast asian person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, oval face, almond-shaped eyes, natural nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, glossy healthy hair, jet black hair, silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow, long loose waves, beach waves hair, flowing naturally, natural look, no makeup, clean skin bare face, authentic facial details, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784280806755_9f49ydhct.jpg",
+    "timestamp": 1784280814346,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "7.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784280806755_9f49ydhct.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19968,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 668021
+  },
+  {
     "id": "job_1784134732540_va0vt3zpm",
     "prompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784134732540_va0vt3zpm.png",

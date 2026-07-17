@@ -537,7 +537,7 @@
     manifest.items.forEach(item => {
       const attributeId = config?.optionMap?.[item.optionId];
       const attribute = optionById.get(attributeId);
-      if (!attribute && config?.hideMissingAttributes) return;
+      if (config?.hideMissingAttributes && !attribute) return;
 
       const button = document.createElement("button");
       button.type = "button";

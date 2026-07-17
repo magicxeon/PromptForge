@@ -282,7 +282,7 @@ app.post('/api/generate', async (req, res) => {
     const creditCost = Number(modelConfig.creditCost || 1);
 
     await creditManager.assertBalance(targetUser, creditCost);
-    const { context, compiledPrompt } = compileGenerationContext(req.body);
+    const { context, compiledPrompt } = compileGenerationContext({ ...req.body, userRole: req.userRole });
     providerRegistry.validateRequest(modelConfig, {
       aspectRatio: context.aspectRatio,
       referenceCount: context.referenceCount,
@@ -333,7 +333,7 @@ function sendComparisonError(res, error) {
 
 app.post('/api/comparisons/estimate', async (req, res) => {
   try {
-    res.json(await comparisonOrchestrator.estimate(req.body, getComparisonUsername(req)));
+    res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonUsername(req)));
   } catch (error) {
     sendComparisonError(res, error);
   }
@@ -341,7 +341,7 @@ app.post('/api/comparisons/estimate', async (req, res) => {
 
 app.post('/api/comparisons', async (req, res) => {
   try {
-    const result = await comparisonOrchestrator.create(req.body, getComparisonUsername(req));
+    const result = await comparisonOrchestrator.create({ ...req.body, userRole: req.userRole }, getComparisonUsername(req));
     res.status(result.idempotentReplay ? 200 : 201).json(result);
   } catch (error) {
     sendComparisonError(res, error);

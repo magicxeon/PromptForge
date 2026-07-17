@@ -107,9 +107,39 @@ export class ComparisonOrchestrator {
   }
 
   async get(setId, username) {
-    const set = await this.repository.get(setId, username);
+    let set = await this.repository.get(setId, username);
     for (const run of set.runs) await this.reconcileRun(set.id, run, set.username);
-    return this.repository.get(setId, username);
+    set = await this.repository.get(setId, username);
+    return this.hydrateSetFromHistory(set);
+  }
+
+  async hydrateSetFromHistory(set) {
+    const history = await this.repository.readHistory();
+    const historyById = new Map(history.map(item => [item.id, item]));
+    const hydrated = structuredClone(set);
+    hydrated.runs?.forEach(run => {
+      run.slots?.forEach(slot => {
+        const historyItem = historyById.get(slot.jobId);
+        if (!historyItem) return;
+        slot.result = {
+          ...(slot.result || {}),
+          imageUrl: slot.result?.imageUrl || historyItem.imageUrl || null,
+          usage: slot.result?.usage || historyItem.usage || null,
+          mimeType: slot.result?.mimeType || historyItem.mimeType || null,
+          generationDuration: slot.result?.generationDuration || historyItem.generationDuration || null
+        };
+        slot.thumbnailUrl = slot.thumbnailUrl || historyItem.thumbnailUrl || null;
+        if (slot.status !== 'completed' && historyItem.imageUrl) {
+          slot.status = 'completed';
+          slot.error = null;
+        }
+      });
+      run.status = aggregateRunStatus(run.slots || []);
+      if (['completed', 'partially_completed', 'failed', 'cancelled'].includes(run.status)) {
+        run.completedAt ||= Date.now();
+      }
+    });
+    return hydrated;
   }
 
   update(setId, username, payload) {

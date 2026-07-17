@@ -101,7 +101,8 @@ export class ComparisonValidator {
       referenceCount: context.referenceCount,
       mode: context.mode,
       selections: context.selections || {},
-      customColors: context.customColors || {}
+      customColors: context.customColors || {},
+      adminPromptOverride: context.userRole === 'admin' ? context.adminPromptOverride || null : null
     });
     return crypto.createHmac('sha256', this.secret).update(fingerprint).digest('hex');
   }

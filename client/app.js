@@ -132,6 +132,11 @@ const FIELD_TO_CATEGORY_MAP = {
   "Camera Imperfections": "camera_imperfections"
 };
 
+const FIELD_TO_PROMPT_CATEGORY_MAP = {
+  ...FIELD_TO_CATEGORY_MAP,
+  "Face Shape": "face_shape"
+};
+
 const GENDER_TO_HAIR_PRESENTATION = {
   "character.001": "feminine",
   "character.002": "masculine"
@@ -765,6 +770,16 @@ function getSelectedImageResolution() {
   return document.getElementById("image-resolution-select")?.value || model.defaults?.resolution || null;
 }
 
+function getEditablePromptText() {
+  if (state.userRole === "admin") {
+    const previewBox = document.getElementById("prompt-preview");
+    if (previewBox && typeof previewBox.value === "string") {
+      return previewBox.value.trim();
+    }
+  }
+  return generatePromptText(true);
+}
+
 function getGenerationRequestPayload() {
   const submittedReferenceJobIds = {
     face: state.imageReferences.faceMatch ? uniqueReferenceJobIds(state.faceReferenceJobIds) : [],
@@ -797,7 +812,8 @@ function getGenerationRequestPayload() {
     characterReferenceImageA: isStoryCharacterReferenceActive() ? state.characterReferenceImageA : null,
     characterReferenceImageB: isStoryCharacterReferenceActive() ? state.characterReferenceImageB : null,
     characterReferenceJobIds: submittedReferenceJobIds.character,
-    customColors: state.customColors
+    customColors: state.customColors,
+    adminPromptOverride: state.userRole === "admin" ? getEditablePromptText() : null
   };
 }
 
@@ -1225,6 +1241,7 @@ async function initApp() {
       getCatalog: () => state.providerCatalog,
       getLanguage: () => state.language,
       getUsername: () => state.username,
+      getUserRole: () => state.userRole,
       getGenerationPayload: getGenerationRequestPayload,
       validateForm,
       openLightbox: item => openLightbox(item),
@@ -1699,6 +1716,9 @@ function bindDynamicFormEvents() {
       document.querySelectorAll(".accordion").forEach(acc => acc.classList.remove("active"));
       if (!isActive) {
         accordion.classList.add("active");
+        requestAnimationFrame(() => {
+          accordion.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+        });
       }
     });
   });
@@ -2473,7 +2493,7 @@ function bindEvents() {
 
           const jobMeta = {
             id: jobId,
-            prompt: generatePromptText(true),
+            prompt: getEditablePromptText(),
             imageUrl: finalImgSrc,
             timestamp: Date.now(),
             provider,
@@ -2749,6 +2769,195 @@ function getPromptValueForSelection(selection, fieldName) {
   return baseVal;
 }
 
+function splitPromptPhrases(value) {
+  return String(value || "")
+    .split(",")
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+
+function uniquePromptParts(parts) {
+  const seen = new Set();
+  return parts.filter(part => {
+    const key = part.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function normalizeIdentityPhrase(value, fieldName) {
+  let normalized = String(value || "").trim();
+  if (fieldName === "Gender") {
+    normalized = normalized
+      .replace(/\bfemale woman\b/gi, "female")
+      .replace(/\bmale man\b/gi, "male");
+  }
+  if (fieldName === "Age") {
+    normalized = normalized.replace(/,\s*\d{1,3}\s*years?\s*old\b/gi, "");
+  }
+  return normalized;
+}
+
+function normalizeHairPhrase(value) {
+  return String(value || "")
+    .replace(/long loose waves,\s*beach waves hair,\s*flowing naturally/gi, "long loose wavy hair")
+    .replace(/perfectly groomed strands with soft healthy highlights and natural flow/gi, "polished natural hair flow")
+    .replace(/soft glossy hair waves,\s*displaying brilliant specular light reflections off healthy luminous waves/gi, "soft glossy waves")
+    .replace(/soft glossy texture waves,\s*displaying brilliant specular light reflections off healthy luminous waves/gi, "soft glossy waves")
+    .replace(/coarse and thick hair texture,\s*highly detailed individual strands with strong volume and organic feel/gi, "coarse thick texture")
+    .replace(/frizzy and voluminous hair texture,\s*with soft flyaways and highly detailed organic curl structures/gi, "frizzy voluminous texture")
+    .replace(/\bsilky smooth hair\b/gi, "silky smooth texture")
+    .replace(/\bglossy healthy hair\b/gi, "glossy healthy finish")
+    .trim();
+}
+
+function getHairAdjective(value) {
+  return String(value || "").replace(/\s*hair\b/i, "").trim();
+}
+
+function compactHairSegment(valuesByField) {
+  const length = normalizeHairPhrase(valuesByField["Length"]);
+  const legacyStyle = normalizeHairPhrase(valuesByField["Style"]);
+  const cutStyle = normalizeHairPhrase(valuesByField["Cut / Style"]);
+  const parting = normalizeHairPhrase(valuesByField["Parting / Fringe"]);
+  const color = normalizeHairPhrase(valuesByField["Color"]);
+  const texture = normalizeHairPhrase(valuesByField["Texture"]);
+  const finish = normalizeHairPhrase(valuesByField["Finish"]);
+  const lengthAdjective = getHairAdjective(length);
+  const colorAdjective = getHairAdjective(color);
+
+  let base = cutStyle || legacyStyle || length || "";
+  if (length && base && lengthAdjective && !base.toLowerCase().includes(lengthAdjective.toLowerCase())) {
+    base = `${length}, ${base}`;
+  }
+  if (color && base) {
+    if (colorAdjective && !base.toLowerCase().includes(colorAdjective.toLowerCase())) {
+      if (/\bcrew cut hairstyle\b/i.test(base)) {
+        base = base.replace(/\bcrew cut hairstyle\b/i, `${colorAdjective} crew cut hairstyle`);
+      } else if (/\bhairstyle\b/i.test(base)) {
+        base = base.replace(/\bhairstyle\b/i, `${colorAdjective} hairstyle`);
+      } else if (/\bhair\b/i.test(base)) {
+        base = base.replace(/\bhair\b/i, `${colorAdjective} hair`);
+      } else {
+        base = `${base}, ${color}`;
+      }
+    }
+  } else if (color && !base) {
+    base = color;
+  }
+
+  const textureDetail = texture
+    ? texture.replace(/\s*hair\b/i, " texture").replace(/\s*texture\s*texture\b/i, " texture")
+    : "";
+  const finishDetail = finish
+    ? finish.replace(/\s*hair\b/i, " finish").replace(/\s*finish\s*finish\b/i, " finish")
+    : "";
+
+  return uniquePromptParts([base, parting, textureDetail, finishDetail].filter(Boolean)).join(", ");
+}
+
+function sanitizeHeadshotExpression(value) {
+  return String(value || "")
+    .replace(/soft daydreaming look,\s*eyes looking slightly away from the camera,\s*/gi, "soft daydreaming look with ")
+    .replace(/eyes intently focused on something off-camera with relaxed features/gi, "focused eyes with relaxed facial features")
+    .replace(/eyes looking slightly away from the camera/gi, "soft relaxed eyes")
+    .replace(/head tilted slightly,\s*/gi, "")
+    .replace(/\bsomething off-camera\b/gi, "the camera")
+    .replace(/\boff-camera\b/gi, "direct-camera")
+    .replace(/\blooking away\b/gi, "looking directly")
+    .replace(/\s+/g, " ")
+    .replace(/\s+,/g, ",")
+    .trim();
+}
+
+function compactExpressionSegment(valuesByField) {
+  const smile = valuesByField["Smile"] || "";
+  const expression = sanitizeHeadshotExpression(valuesByField["Expression"] || "");
+  const smileLower = smile.toLowerCase();
+  const expressionLower = expression.toLowerCase();
+
+  if (expressionLower.includes("subtle warm friendly smile")) {
+    return smile && !smileLower.includes("neutral expression")
+      ? "subtle friendly expression with soft smile"
+      : "subtle friendly expression with relaxed lips";
+  }
+  if (expression) return expression;
+  return sanitizeHeadshotExpression(smile);
+}
+
+function compactSkinSegment(valuesByField) {
+  const tone = valuesByField["Tone"] || "";
+  const texture = valuesByField["Skin Texture"] || "";
+  const makeup = valuesByField["Makeup"] || "";
+  const freckles = valuesByField["Freckles"] || "";
+  const beauty = valuesByField["Beauty"] || "";
+
+  const hasNaturalBeauty = /natural face|natural look|minimal makeup|zero or minimal makeup/i.test(beauty);
+  const hasNoMakeup = /no makeup|bare face|natural look/i.test(makeup);
+  const hasNaturalTexture = /natural skin texture|visible.*pores|skin pores|fine details/i.test(texture);
+  const hasHealthyTexture = /healthy skin complexion|healthy complexion|organic skin details/i.test(texture);
+
+  const parts = [];
+  if (tone) parts.push(tone);
+  if (hasNoMakeup || hasNaturalBeauty) {
+    if (hasNaturalTexture) {
+      parts.push("natural bare-face look with realistic skin texture and visible fine pores");
+    } else if (hasHealthyTexture) {
+      parts.push("natural bare-face look with healthy organic skin details");
+    } else {
+      parts.push("natural bare-face look with authentic facial details");
+    }
+  } else if (texture) {
+    parts.push(texture);
+  }
+  if (!hasNoMakeup && makeup) parts.push(makeup);
+  if (freckles && !/^even skin with no freckles$/i.test(freckles)) parts.push(freckles);
+  return uniquePromptParts(parts).join(", ");
+}
+
+function buildCleanPromptSegments(activeSelections, getValue) {
+  const valuesByField = {};
+  Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+    if (selection.isDropped) return;
+    const value = getValue(selection, fieldName);
+    if (value && value.trim()) valuesByField[fieldName] = value.trim();
+  });
+
+  const identity = uniquePromptParts([
+    normalizeIdentityPhrase(valuesByField["Gender"], "Gender"),
+    normalizeIdentityPhrase(valuesByField["Age"], "Age"),
+    normalizeIdentityPhrase(valuesByField["Ethnicity"], "Ethnicity"),
+    /natural face|natural look|minimal makeup|zero or minimal makeup/i.test(valuesByField["Beauty"] || "")
+      ? ""
+      : valuesByField["Beauty"]
+  ].filter(Boolean)).join(", ");
+
+  const faceStructure = valuesByField["Face Shape"] || "";
+  const facialFeatures = uniquePromptParts([
+    valuesByField["Eyes"],
+    valuesByField["Eyebrows"],
+    valuesByField["Nose"],
+    valuesByField["Lips"]
+  ].filter(Boolean)).join(", ");
+
+  return {
+    identity,
+    appearance: uniquePromptParts([
+      faceStructure,
+      facialFeatures,
+      compactExpressionSegment(valuesByField)
+    ].filter(Boolean)).join(", "),
+    hair: compactHairSegment(valuesByField),
+    skin: compactSkinSegment(valuesByField)
+  };
+}
+
+function wrapPromptSegment(value, tokenClass, cleanTextOnly) {
+  if (!value || !value.trim()) return "";
+  return cleanTextOnly ? value : `<span class="${tokenClass}">${value}</span>`;
+}
+
 // Enforce mutual exclusion rules
 function enforceExclusionRules(selectedId) {
   const idsToExclude = new Set();
@@ -2963,7 +3172,7 @@ function generatePromptText(cleanTextOnly = false) {
 
     state.order.forEach(fieldId => {
       Object.entries(activeSelections).forEach(([fieldName, selection]) => {
-        const category = FIELD_TO_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
+        const category = FIELD_TO_PROMPT_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
         const matchesOrder = category.replaceAll("_", "") === fieldId.replaceAll("_", "");
         if (matchesOrder && selection.group.toLowerCase() === groupName.toLowerCase()) {
         const val = getPromptValueForSelection(selection, fieldName);
@@ -2999,8 +3208,19 @@ function generatePromptText(cleanTextOnly = false) {
     return `<span class="${tokenClass}">${combinedStr}</span>`;
   };
 
-  let subject = compileGroupSegment("Character", "token-subject");
-  let appearance = compileGroupSegment("Face", "token-appearance");
+  const shouldUsePromptCleanup = state.mode === "headshot" || state.mode === "character-sheet";
+  const cleanedPromptSegments = shouldUsePromptCleanup
+    ? buildCleanPromptSegments(activeSelections, getPromptValueForSelection)
+    : null;
+
+  let subject = cleanedPromptSegments
+    ? wrapPromptSegment(cleanedPromptSegments.identity, "token-subject", cleanTextOnly)
+    : compileGroupSegment("Character", "token-subject");
+  let appearance = cleanedPromptSegments
+    ? (state.imageReferences.faceMatch
+      ? compileGroupSegment("Face", "token-appearance")
+      : wrapPromptSegment(cleanedPromptSegments.appearance, "token-appearance", cleanTextOnly))
+    : compileGroupSegment("Face", "token-appearance");
 
   const getSelectionsForGroup = (grp) => {
     return Object.keys(activeSelections)
@@ -3016,10 +3236,14 @@ function generatePromptText(cleanTextOnly = false) {
   };
 
   let hairList = getSelectionsForGroup("Hair");
-  let hair = hairList.length > 0 ? (cleanTextOnly ? hairList.join(", ") : `<span class="token-appearance">${hairList.join(", ")}</span>`) : "";
+  let hair = cleanedPromptSegments
+    ? wrapPromptSegment(cleanedPromptSegments.hair, "token-appearance", cleanTextOnly)
+    : (hairList.length > 0 ? (cleanTextOnly ? hairList.join(", ") : `<span class="token-appearance">${hairList.join(", ")}</span>`) : "");
 
   let skinList = getSelectionsForGroup("Skin");
-  let skin = skinList.length > 0 ? (cleanTextOnly ? skinList.join(", ") : `<span class="token-appearance">${skinList.join(", ")}</span>`) : "";
+  let skin = cleanedPromptSegments
+    ? wrapPromptSegment(cleanedPromptSegments.skin, "token-appearance", cleanTextOnly)
+    : (skinList.length > 0 ? (cleanTextOnly ? skinList.join(", ") : `<span class="token-appearance">${skinList.join(", ")}</span>`) : "");
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
 
@@ -3162,15 +3386,10 @@ function updatePromptPreview() {
     if (previewOuter) previewOuter.style.display = "block";
   }
 
-  const htmlContent = generatePromptText(false);
+  const compiledPrompt = generatePromptText(true);
+  if (previewBox) previewBox.value = compiledPrompt;
 
-  if (htmlContent === "") {
-    previewBox.innerHTML = '<span class="placeholder-text">Prompt will generate here once attributes are selected...</span>';
-  } else {
-    previewBox.innerHTML = htmlContent;
-  }
-
-  const cleanPrompt = generatePromptText(true).toLowerCase();
+  const cleanPrompt = getEditablePromptText().toLowerCase();
   const BANNED_KEYWORDS = [
     { word: "masterpiece", type: "AI Buzzword", suggestion: "Describe specific photographic details instead." },
     { word: "best quality", type: "AI Buzzword", suggestion: "Specify camera brand, lens type, and lighting source." },
@@ -3200,7 +3419,7 @@ function updatePromptPreview() {
 
   const warningContainer = document.getElementById("buzzword-warnings");
   if (warningContainer) {
-    if (detected.length > 0 && htmlContent !== "") {
+    if (detected.length > 0 && cleanPrompt !== "") {
       let warningHtml = `<div class="warning-title">⚠️ Photorealistic Warnings:</div>`;
       detected.forEach(rule => {
         warningHtml += `<div class="warning-item">Avoid <strong>"${rule.word}"</strong> (${rule.type}) — ${rule.suggestion}</div>`;
@@ -3217,7 +3436,7 @@ function updatePromptPreview() {
 
 // Copy prompt
 function copyPromptToClipboard() {
-  const textVal = generatePromptText(true);
+  const textVal = getEditablePromptText();
   if (textVal === "") return;
 
   navigator.clipboard.writeText(textVal).then(() => {
@@ -3792,7 +4011,7 @@ function randomizeSelections() {
 
 // Copy prompt as JSON
 function copyPromptAsJSON() {
-  const textVal = generatePromptText(true);
+  const textVal = getEditablePromptText();
   if (textVal === "") return;
 
   const currentTemplateName = document.getElementById("template-select").value || "portrait";

@@ -42,15 +42,20 @@ export function normalizeGenerationContext(payload = {}) {
 
 export function compileGenerationContext(payload = {}) {
   const context = normalizeGenerationContext(payload);
-  const compiledPrompt = compilePromptOnServer(
-    context.selections,
-    context.aspectRatio,
-    context.imageReferences,
-    context.mode,
-    context.template,
-    context.isGptSafe,
-    context.customColors
-  );
+  const adminPromptOverride = typeof context.adminPromptOverride === 'string'
+    ? context.adminPromptOverride.trim()
+    : '';
+  const compiledPrompt = context.userRole === 'admin' && adminPromptOverride
+    ? adminPromptOverride
+    : compilePromptOnServer(
+      context.selections,
+      context.aspectRatio,
+      context.imageReferences,
+      context.mode,
+      context.template,
+      context.isGptSafe,
+      context.customColors
+    );
   return { context, compiledPrompt };
 }
 
