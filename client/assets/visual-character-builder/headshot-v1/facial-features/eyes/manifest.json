@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.eyes",
+  "fieldId": "eyes.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.eyes.shape.almond",
+      "optionId": "eyes.shape.almond",
+      "slug": "almond",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of almond-shaped eyes in clean line art",
+        "th": "เส้นภาพดวงตาทรงอัลมอนด์หนึ่งคู่"
+      },
+      "sourceHash": "f87c77834d608b0c14026fe7b30dcb130fdc2b5908717fe5f5634e0feaa5da49",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/almond-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/almond-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/almond-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.monolid",
+      "optionId": "eyes.shape.monolid",
+      "slug": "monolid",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of monolid eyes in clean line art",
+        "th": "เส้นภาพดวงตาชั้นเดียวหนึ่งคู่"
+      },
+      "sourceHash": "2a9375549464b5d504d2352eeb5e05240ed834edf0b9293f9566dc918a8ed6b4",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/monolid-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/monolid-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/monolid-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.double-eyelids",
+      "optionId": "eyes.shape.double_eyelids",
+      "slug": "double-eyelids",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of eyes with double eyelids in clean line art",
+        "th": "เส้นภาพดวงตาสองชั้นหนึ่งคู่"
+      },
+      "sourceHash": "c49095e397814a37bcca27d4377e2e1062ce55428648679e7b17a4ceeb07ab9e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/double-eyelids-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/double-eyelids-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/double-eyelids-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.round",
+      "optionId": "eyes.shape.round",
+      "slug": "round",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of round eyes in clean line art",
+        "th": "เส้นภาพดวงตาทรงกลมหนึ่งคู่"
+      },
+      "sourceHash": "aacd6062c93c96427e8c0f9274ec15712db306451be4c9e39747b1e8250c299a",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/round-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/round-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/round-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.phoenix",
+      "optionId": "eyes.shape.phoenix",
+      "slug": "phoenix",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of phoenix eyes with gently lifted outer corners in clean line art",
+        "th": "เส้นภาพดวงตาหงส์ที่หางตายกอย่างนุ่มนวลหนึ่งคู่"
+      },
+      "sourceHash": "2c14f3a749a7a25b8cf9bb691158cd63dd2309d0b046a9436a308e16a6a32056",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/phoenix-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/phoenix-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/phoenix-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.doe",
+      "optionId": "eyes.shape.doe",
+      "slug": "doe",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of soft open doe eyes in clean line art",
+        "th": "เส้นภาพดวงตากลมใสแบบ doe eyes หนึ่งคู่"
+      },
+      "sourceHash": "0e83678407c8b221f745c6835246db12689e41fc3dce5a3f248f7322df27f4dd",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/doe-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/doe-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/doe-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.puppy",
+      "optionId": "eyes.shape.puppy",
+      "slug": "puppy",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of puppy eyes with slightly lowered outer corners in clean line art",
+        "th": "เส้นภาพดวงตาแป๋วที่หางตาลดลงเล็กน้อยหนึ่งคู่"
+      },
+      "sourceHash": "d4f7a78c3267d8f50c2ad4710484037394046e0b4a1dbcb8e405d1479f6f2fce",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/puppy-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/puppy-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/puppy-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyes.shape.hooded",
+      "optionId": "eyes.shape.hooded",
+      "slug": "hooded",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pair of hooded eyes in clean line art",
+        "th": "เส้นภาพดวงตาเปลือกตาตกหนึ่งคู่"
+      },
+      "sourceHash": "a315d5cac666dd0ccee9c3a2530277de64afbc093997be11b27a023d624db33c",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/hooded-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/hooded-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/hooded-r1.png"
+      }
+    }
+  ]
+}

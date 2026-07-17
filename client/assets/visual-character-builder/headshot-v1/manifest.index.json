@@ -6,6 +6,21 @@
       "fieldId": "face.shape",
       "manifestId": "headshot.face-structure.face-shape",
       "url": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json"
+    },
+    {
+      "fieldId": "eyes.shape",
+      "manifestId": "headshot.facial-features.eyes",
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/manifest.json"
+    },
+    {
+      "fieldId": "eyebrows.shape",
+      "manifestId": "headshot.facial-features.eyebrows",
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/manifest.json"
+    },
+    {
+      "fieldId": "nose.shape",
+      "manifestId": "headshot.facial-features.nose",
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/nose/manifest.json"
     }
   ]
 }

@@ -9,11 +9,43 @@ const AUTHORING_DIR = path.join(ROOT_DIR, 'visual-assets/character-builder');
 const RUNTIME_ROOT = path.join(ROOT_DIR, 'client/assets/visual-character-builder');
 
 const FIELD_MANIFESTS = {
-  'face.shape': path.join(AUTHORING_DIR, 'manifests/headshot/face-structure/face-shape.manifest.json')
+  'face.shape': path.join(AUTHORING_DIR, 'manifests/headshot/face-structure/face-shape.manifest.json'),
+  'eyes.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyes.manifest.json'),
+  'eyebrows.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyebrows.manifest.json'),
+  'nose.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/nose.manifest.json')
 };
 const FIELD_FOLDERS = {
-  'face.shape': 'face-shape'
+  'face.shape': 'face-shape',
+  'eyes.shape': 'eyes',
+  'eyebrows.shape': 'eyebrows',
+  'nose.shape': 'nose'
 };
+const RUNTIME_MANIFESTS = [
+  {
+    fieldId: 'face.shape',
+    manifestId: 'headshot.face-structure.face-shape',
+    sectionId: 'face-structure',
+    folder: 'face-shape'
+  },
+  {
+    fieldId: 'eyes.shape',
+    manifestId: 'headshot.facial-features.eyes',
+    sectionId: 'facial-features',
+    folder: 'eyes'
+  },
+  {
+    fieldId: 'eyebrows.shape',
+    manifestId: 'headshot.facial-features.eyebrows',
+    sectionId: 'facial-features',
+    folder: 'eyebrows'
+  },
+  {
+    fieldId: 'nose.shape',
+    manifestId: 'headshot.facial-features.nose',
+    sectionId: 'facial-features',
+    folder: 'nose'
+  }
+];
 
 export function parseArgs(argv) {
   const fieldEqualsArg = argv.find(arg => arg.startsWith('--field='));
@@ -344,16 +376,20 @@ async function createContactSheetFromRuntime(manifest, paths) {
 async function writeManifestIndex(style) {
   const styleDirectory = path.join(RUNTIME_ROOT, style);
   const indexPath = path.join(styleDirectory, 'manifest.index.json');
+  const manifests = [];
+  for (const manifest of RUNTIME_MANIFESTS) {
+    const runtimeManifestPath = path.join(styleDirectory, manifest.sectionId, manifest.folder, 'manifest.json');
+    if (!await fileExists(runtimeManifestPath)) continue;
+    manifests.push({
+      fieldId: manifest.fieldId,
+      manifestId: manifest.manifestId,
+      url: `/assets/visual-character-builder/${style}/${manifest.sectionId}/${manifest.folder}/manifest.json`
+    });
+  }
   const index = {
     schemaVersion: 1,
     visualStyleVersion: 'headshot-illustrated-v1',
-    manifests: [
-      {
-        fieldId: 'face.shape',
-        manifestId: 'headshot.face-structure.face-shape',
-        url: `/assets/visual-character-builder/${style}/face-structure/face-shape/manifest.json`
-      }
-    ]
+    manifests
   };
   await fs.mkdir(styleDirectory, { recursive: true });
   await atomicWriteJson(indexPath, index);

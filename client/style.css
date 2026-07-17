@@ -344,6 +344,24 @@ body {
   align-items: center;
 }
 
+.visual-option-select-fallback {
+  opacity: 0.72;
+}
+
+.visual-option-select-fallback::before {
+  content: "Fallback";
+  position: absolute;
+  top: -0.55rem;
+  right: 0.55rem;
+  padding: 0 0.25rem;
+  background: #0d0d12;
+  color: var(--text-muted);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .visual-option-picker {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
@@ -369,6 +387,10 @@ body {
   transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
+.visual-option-card:not(:disabled):active {
+  transform: translateY(1px);
+}
+
 .visual-option-card:hover,
 .visual-option-card:focus-visible {
   border-color: rgba(6, 182, 212, 0.38);
@@ -390,6 +412,12 @@ body {
   transform: none;
 }
 
+.visual-option-card.missing-asset,
+.visual-option-card.missing-attribute {
+  border-style: dashed;
+  color: #fca5a5;
+}
+
 .visual-option-icon {
   width: 74px;
   height: 74px;
@@ -397,6 +425,28 @@ body {
   background-color: currentColor;
   mask: var(--visual-option-url) center / contain no-repeat;
   -webkit-mask: var(--visual-option-url) center / contain no-repeat;
+}
+
+.visual-option-card.missing-asset .visual-option-icon,
+.visual-option-card.missing-attribute .visual-option-icon {
+  width: 42px;
+  height: 42px;
+  mask: none;
+  -webkit-mask: none;
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.visual-option-card.missing-asset .visual-option-icon::before,
+.visual-option-card.missing-attribute .visual-option-icon::before {
+  content: "?";
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: currentColor;
+  font-weight: 900;
 }
 
 .visual-option-label {
@@ -407,6 +457,28 @@ body {
   font-weight: 800;
   line-height: 1.18;
   text-align: center;
+}
+
+@media (max-width: 560px) {
+  .visual-option-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .visual-option-card {
+    min-height: 108px;
+    grid-template-rows: 66px auto;
+  }
+
+  .visual-option-icon {
+    width: 66px;
+    height: 66px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual-option-card {
+    transition: none;
+  }
 }
 
 .loading-placeholder {

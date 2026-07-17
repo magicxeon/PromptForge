@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 13
+      "credits": 43
     },
     "admin_demo": {
       "role": "admin",
@@ -359,6 +359,36 @@
       "comparisonSetId": "cmp_set_1784134732537_meaetl",
       "comparisonRunId": "cmp_run_1784134732537_8d7tqx",
       "createdAt": 1784134744726
+    },
+    {
+      "id": "credit_1784247444042_orreki",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444042
+    },
+    {
+      "id": "credit_1784247444082_p1x8jp",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444082
+    },
+    {
+      "id": "credit_1784247444299_7es49q",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444299
     }
   ]
 }

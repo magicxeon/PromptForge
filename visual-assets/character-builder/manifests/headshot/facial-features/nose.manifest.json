@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.nose",
+  "fieldId": "nose.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "nose-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 6,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.nose.shape.small-button",
+      "optionId": "nose.shape.small_button",
+      "slug": "small-button",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Small button nose in clean line art", "th": "จมูกหัวกลมเล็กแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.nose.shape.high-bridge",
+      "optionId": "nose.shape.high_bridge",
+      "slug": "high-bridge",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "High nose bridge in clean line art", "th": "จมูกสันโด่งแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.nose.shape.delicate-narrow",
+      "optionId": "nose.shape.delicate_narrow",
+      "slug": "delicate-narrow",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Delicate narrow nose in clean line art", "th": "จมูกเรียวบางแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.nose.shape.soft-rounded-tip",
+      "optionId": "nose.shape.soft_rounded_tip",
+      "slug": "soft-rounded-tip",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Soft rounded nose tip in clean line art", "th": "ปลายจมูกมนละมุนแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.nose.shape.straight",
+      "optionId": "nose.shape.straight",
+      "slug": "straight",
+      "row": 1,
+      "column": 5,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Straight nose in clean line art", "th": "จมูกตรงแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.nose.shape.natural",
+      "optionId": "nose.shape.natural",
+      "slug": "natural",
+      "row": 1,
+      "column": 6,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Natural nose in clean line art", "th": "จมูกธรรมชาติแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

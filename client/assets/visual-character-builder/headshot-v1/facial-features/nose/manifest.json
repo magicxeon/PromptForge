@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.nose",
+  "fieldId": "nose.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.nose.shape.small-button",
+      "optionId": "nose.shape.small_button",
+      "slug": "small-button",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Small button nose in clean line art",
+        "th": "จมูกหัวกลมเล็กแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "873757f64b3d3aebbad8f4c7f311ab4295efe23108b91ff349c2cd7c30cf7db5",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/small-button-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/small-button-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/small-button-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.nose.shape.high-bridge",
+      "optionId": "nose.shape.high_bridge",
+      "slug": "high-bridge",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "High nose bridge in clean line art",
+        "th": "จมูกสันโด่งแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "62c0b207bffbe93b3a71b55f8a5008fd314757888890c0427c57b1221a5c1704",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/high-bridge-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/high-bridge-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/high-bridge-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.nose.shape.delicate-narrow",
+      "optionId": "nose.shape.delicate_narrow",
+      "slug": "delicate-narrow",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Delicate narrow nose in clean line art",
+        "th": "จมูกเรียวบางแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "288e74da921e08630fb42ea521401763165ab93b3ef59fa93945fd11fea4203d",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/delicate-narrow-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/delicate-narrow-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/delicate-narrow-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.nose.shape.soft-rounded-tip",
+      "optionId": "nose.shape.soft_rounded_tip",
+      "slug": "soft-rounded-tip",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Soft rounded nose tip in clean line art",
+        "th": "ปลายจมูกมนละมุนแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "2a569262706e3ceb9552c546f58e1af192804a7c125becea3a037032057a5a95",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/soft-rounded-tip-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/soft-rounded-tip-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/soft-rounded-tip-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.nose.shape.straight",
+      "optionId": "nose.shape.straight",
+      "slug": "straight",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Straight nose in clean line art",
+        "th": "จมูกตรงแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "5b0803c36053f20844128d824be3d68412da98ead11df6c4fafaa6b2b3a64081",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/straight-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/straight-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/straight-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.nose.shape.natural",
+      "optionId": "nose.shape.natural",
+      "slug": "natural",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Natural nose in clean line art",
+        "th": "จมูกธรรมชาติแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "a32b90be86da3aac7135da86424be6e6490ea9515243db1572ae0fa16fd82b3f",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/natural-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/natural-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/natural-r1.png"
+      }
+    }
+  ]
+}

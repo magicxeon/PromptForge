@@ -164,21 +164,6 @@ const MODE_CATEGORY_POLICY = {
   "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Lighting", "Quality"])
 };
 
-const VISUAL_FIELD_MANIFESTS = {
-  "Face::Face Shape": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json"
-};
-
-const VISUAL_OPTION_ATTRIBUTE_MAP = {
-  "face.shape.oval": "face.002",
-  "face.shape.square": "face.005",
-  "face.shape.round": "face.003",
-  "face.shape.diamond": "face.006",
-  "face.shape.rectangular": "face.018",
-  "face.shape.heart": "face.004",
-  "face.shape.inverted_triangular": "face.019",
-  "face.shape.long": "face.020"
-};
-
 // Global App State
 const state = {
   schema: null,
@@ -222,6 +207,7 @@ const state = {
   defaultCollectionId: null,
   providerCatalog: null,
   visualAssetManifests: {},
+  visualControlFields: {},
   selectedCollectionId: "all",
   lightboxBrowseContext: null,
   lightboxReturnFocus: null,
@@ -1385,6 +1371,7 @@ function renderForm() {
       const visualPicker = createVisualOptionPicker(groupName, field.name, select, filteredOptions);
       if (visualPicker) {
         fieldDiv.classList.add("has-visual-options");
+        selectWrapper.classList.add("visual-option-select-fallback");
         fieldDiv.appendChild(visualPicker);
       }
 
@@ -1587,85 +1574,33 @@ function getOptionsForField(fieldName, category, allItems) {
 }
 
 async function loadVisualAssetManifests() {
-  const entries = await Promise.all(Object.entries(VISUAL_FIELD_MANIFESTS).map(async ([key, url]) => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return [key, await response.json()];
-    } catch (error) {
-      console.warn(`Visual option manifest unavailable for ${key}:`, error.message);
-      return [key, null];
-    }
-  }));
-  state.visualAssetManifests = Object.fromEntries(entries.filter(([, manifest]) => manifest));
-}
-
-function getVisualManifestKey(groupName, fieldName) {
-  return `${groupName}::${fieldName}`;
+  const controls = window.ModelPromptForgeVisualOptionControls;
+  if (!controls) {
+    console.warn("Visual option controls module is not loaded.");
+    state.visualControlFields = {};
+    state.visualAssetManifests = {};
+    return;
+  }
+  const result = await controls.loadManifests();
+  state.visualControlFields = result.fieldsByKey;
+  state.visualAssetManifests = result.manifestsByKey;
 }
 
 function createVisualOptionPicker(groupName, fieldName, select, filteredOptions) {
-  const manifest = state.visualAssetManifests[getVisualManifestKey(groupName, fieldName)];
-  if (!manifest?.items?.length) return null;
-
-  const optionById = new Map(filteredOptions.map(option => [option.id, option]));
-  const picker = document.createElement("div");
-  picker.className = "visual-option-picker";
-  picker.setAttribute("role", "radiogroup");
-  picker.setAttribute("aria-label", fieldName);
-  picker.dataset.field = fieldName;
-  picker.dataset.group = groupName;
-
-  manifest.items.forEach(item => {
-    const attributeId = VISUAL_OPTION_ATTRIBUTE_MAP[item.optionId];
-    const attribute = optionById.get(attributeId);
-    if (!attribute) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "visual-option-card";
-    button.dataset.value = attributeId;
-    button.dataset.optionId = item.optionId;
-    button.setAttribute("role", "radio");
-    button.setAttribute("aria-checked", "false");
-    button.title = item.alt?.[state.language] || item.alt?.en || getLocalizedLabel(attribute.label);
-
-    const icon = document.createElement("span");
-    icon.className = "visual-option-icon";
-    icon.style.setProperty("--visual-option-url", `url("${item.assets?.thumb || item.assets?.preview}")`);
-    icon.setAttribute("aria-hidden", "true");
-
-    const label = document.createElement("span");
-    label.className = "visual-option-label";
-    label.textContent = getLocalizedLabel(attribute.label);
-
-    button.appendChild(icon);
-    button.appendChild(label);
-    button.addEventListener("click", () => {
-      if (select.disabled) return;
-      select.value = attributeId;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-      select.focus({ preventScroll: true });
-    });
-    picker.appendChild(button);
-  });
-
-  return picker.children.length > 0 ? picker : null;
+  return window.ModelPromptForgeVisualOptionControls?.createVisualOptionPicker({
+    groupName,
+    fieldName,
+    select,
+    filteredOptions,
+    manifestsByKey: state.visualAssetManifests,
+    fieldsByKey: state.visualControlFields,
+    language: state.language,
+    getLocalizedLabel
+  }) || null;
 }
 
 function syncVisualPickers() {
-  document.querySelectorAll(".visual-option-picker").forEach(picker => {
-    const fieldName = picker.dataset.field;
-    const select = document.querySelector(`.custom-select[data-field="${fieldName}"]`);
-    const activeValue = select?.value || "";
-    const disabled = Boolean(select?.disabled);
-    picker.querySelectorAll(".visual-option-card").forEach(button => {
-      const isActive = button.dataset.value === activeValue;
-      button.classList.toggle("active", isActive);
-      button.disabled = disabled;
-      button.setAttribute("aria-checked", String(isActive));
-    });
-  });
+  window.ModelPromptForgeVisualOptionControls?.syncVisualPickers(document);
 }
 
 function bindDynamicFormEvents() {
