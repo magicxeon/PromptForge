@@ -16,7 +16,8 @@ const FIELD_MANIFESTS = {
   'lips.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/lips.manifest.json'),
   'hair.length': path.join(AUTHORING_DIR, 'manifests/headshot/hair/length.manifest.json'),
   'hair.cut_style': path.join(AUTHORING_DIR, 'manifests/headshot/hair/cut-style.manifest.json'),
-  'hair.texture': path.join(AUTHORING_DIR, 'manifests/headshot/hair/texture.manifest.json')
+  'hair.texture': path.join(AUTHORING_DIR, 'manifests/headshot/hair/texture.manifest.json'),
+  'hair.parting_fringe': path.join(AUTHORING_DIR, 'manifests/headshot/hair/parting-fringe.manifest.json')
 };
 const FIELD_FOLDERS = {
   'face.shape': 'face-shape',
@@ -26,7 +27,8 @@ const FIELD_FOLDERS = {
   'lips.shape': 'lips',
   'hair.length': 'length',
   'hair.cut_style': 'cut-style',
-  'hair.texture': 'texture'
+  'hair.texture': 'texture',
+  'hair.parting_fringe': 'parting-fringe'
 };
 const RUNTIME_MANIFESTS = [
   {
@@ -76,6 +78,12 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'headshot.hair.texture',
     sectionId: 'hair',
     folder: 'texture'
+  },
+  {
+    fieldId: 'hair.parting_fringe',
+    manifestId: 'headshot.hair.parting-fringe',
+    sectionId: 'hair',
+    folder: 'parting-fringe'
   }
 ];
 

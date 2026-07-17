@@ -1,6 +1,6 @@
 # Headshot - Hair and Color
 
-**Status:** Hair Length, Presentation-Aware Cut / Style, and Texture Pilots Sliced and Runtime-Integrated  
+**Status:** Hair Length, Presentation-Aware Cut / Style, Texture, and Parting / Fringe Pilots Sliced and Runtime-Integrated  
 **Sequence:** 006  
 **Depends on:** 001-003 and approved Headshot visual style
 
@@ -95,6 +95,27 @@ Review contact sheet:
 - `visual-assets/character-builder/reviews/headshot-v1/texture/contact-sheet-r1.png`
 
 Texture controls should communicate strand density, smoothness, wave pattern, gloss, and flyaways. They must not replace the separate `Hair > Cut / Style` or `Hair > Length` controls.
+
+## Hair Parting / Fringe Pilot
+
+The fourth Hair pilot is `Hair > Parting / Fringe` using the shared visual-card picker contract. It combines parting and bangs/fringe options because both answer how hair sits around the forehead:
+
+| Row | Column | Visual option | Current attribute ID |
+|---:|---:|---|---|
+| 1 | 1 | Center Part | `hair_037` |
+| 1 | 2 | Side Parting | `hair_038` |
+| 1 | 3 | Swept Back | `hair_039` |
+| 2 | 1 | Curtain Bangs | `hair_011` |
+| 2 | 2 | Blunt Bangs | `hair_012` |
+| 2 | 3 | See-through Bangs | `hair_027` |
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/hair/parting-fringe/hair-parting-fringe-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/hair/parting-fringe/`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/parting-fringe/contact-sheet-r1.png`
+
+Parting / Fringe should stay independent from `Hair > Cut / Style`, `Hair > Length`, and `Hair > Texture`. If a future style option strongly implies bangs, prefer a compatibility rule rather than duplicating the visual option.
 
 ## Composition Rules
 

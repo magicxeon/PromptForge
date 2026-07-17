@@ -41,6 +41,11 @@
       "fieldId": "hair.texture",
       "manifestId": "headshot.hair.texture",
       "url": "/assets/visual-character-builder/headshot-v1/hair/texture/manifest.json"
+    },
+    {
+      "fieldId": "hair.parting_fringe",
+      "manifestId": "headshot.hair.parting-fringe",
+      "url": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/manifest.json"
     }
   ]
 }

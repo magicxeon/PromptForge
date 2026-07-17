@@ -1170,6 +1170,84 @@
       "enabled": true
     },
     {
+      "id": "hair_037",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "Center Part",
+      "aliases": [],
+      "description": "Center-parted hair with no bangs.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "center-parted hair, no bangs",
+        "gpt-image": "center-parted hair with the forehead open, no bangs",
+        "flux": "center-parted hair, no bangs",
+        "sdxl": "center-parted hair, no bangs",
+        "midjourney": "center-parted hair, no bangs"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": ["Curtain Bangs", "Blunt Bangs", "See-through Bangs"],
+      "tags": ["bangs", "parting"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_038",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "Side Parting",
+      "aliases": [],
+      "description": "Side-parted hair with no bangs.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "side-parted hair, no bangs",
+        "gpt-image": "side-parted hair with the forehead mostly open, no bangs",
+        "flux": "side-parted hair, no bangs",
+        "sdxl": "side-parted hair, no bangs",
+        "midjourney": "side-parted hair, no bangs"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": ["Curtain Bangs", "Blunt Bangs", "See-through Bangs"],
+      "tags": ["bangs", "parting"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_039",
+      "category": "hair",
+      "subcategory": "Bangs",
+      "label": "Swept Back",
+      "aliases": [],
+      "description": "Hair swept back with no visible part or bangs.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "swept-back hair, no bangs",
+        "gpt-image": "hair swept back away from the forehead, no visible part, no bangs",
+        "flux": "swept-back hair, no bangs",
+        "sdxl": "swept-back hair, no bangs",
+        "midjourney": "swept-back hair, no bangs"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": ["Curtain Bangs", "Blunt Bangs", "See-through Bangs"],
+      "tags": ["bangs", "parting"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
       "id": "hair.text_01",
       "category": "hair",
       "subcategory": "Hair Texture",

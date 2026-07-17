@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.parting-fringe",
+  "fieldId": "hair.parting_fringe",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.hair.parting-fringe.center-part",
+      "optionId": "hair.parting_fringe.center_part",
+      "slug": "center-part",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Center-parted hair with no bangs in clean line art",
+        "th": "Center-parted hair with no bangs in clean line art"
+      },
+      "sourceHash": "3e70789a40877996b0659993206136e90d3d94e1be984dffde5780d855cb4f3c",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/center-part-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/center-part-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/center-part-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.side-parting",
+      "optionId": "hair.parting_fringe.side_parting",
+      "slug": "side-parting",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Side-parted hair with no bangs in clean line art",
+        "th": "Side-parted hair with no bangs in clean line art"
+      },
+      "sourceHash": "4b8d9569fc6deb08371e4b2347c545441454213cc40ba74985e8c5da512989d2",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/side-parting-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/side-parting-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/side-parting-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.swept-back",
+      "optionId": "hair.parting_fringe.swept_back",
+      "slug": "swept-back",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Swept-back hair with no bangs in clean line art",
+        "th": "Swept-back hair with no bangs in clean line art"
+      },
+      "sourceHash": "521dd8cd04a1ef8c8f1d4d5adff79bbffa7acfef6eaee1081f899cf8a1e2a46a",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/swept-back-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/swept-back-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/swept-back-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.curtain-bangs",
+      "optionId": "hair.parting_fringe.curtain_bangs",
+      "slug": "curtain-bangs",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Curtain bangs in clean line art",
+        "th": "Curtain bangs in clean line art"
+      },
+      "sourceHash": "9ad7a44193d5af453db9bdaffefbf6392ae4f495b35964dae2698ce83f38df69",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/curtain-bangs-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/curtain-bangs-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/curtain-bangs-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.blunt-bangs",
+      "optionId": "hair.parting_fringe.blunt_bangs",
+      "slug": "blunt-bangs",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Blunt full bangs in clean line art",
+        "th": "Blunt full bangs in clean line art"
+      },
+      "sourceHash": "d63d63cf90a4bd35889cc4dcc3b21db4f29da4d3a50401f9e13c7732d02b192e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/blunt-bangs-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/blunt-bangs-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/blunt-bangs-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.see-through-bangs",
+      "optionId": "hair.parting_fringe.see_through_bangs",
+      "slug": "see-through-bangs",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "See-through wispy bangs in clean line art",
+        "th": "See-through wispy bangs in clean line art"
+      },
+      "sourceHash": "4ad0727859c8513a9868b0aafe550a3a8392d0229cf3197871b5c37b5961c840",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/master/see-through-bangs-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/preview/see-through-bangs-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/thumb/see-through-bangs-r1.png"
+      }
+    }
+  ]
+}

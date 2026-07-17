@@ -133,6 +133,21 @@
         "hair.texture.soft_glossy_waves": "hair.text_03",
         "hair.texture.frizzy_voluminous": "hair.text_04"
       }
+    },
+    {
+      key: "Hair::Parting / Fringe",
+      group: "Hair",
+      field: "Parting / Fringe",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/manifest.json",
+      optionMap: {
+        "hair.parting_fringe.center_part": "hair_037",
+        "hair.parting_fringe.side_parting": "hair_038",
+        "hair.parting_fringe.swept_back": "hair_039",
+        "hair.parting_fringe.curtain_bangs": "hair_011",
+        "hair.parting_fringe.blunt_bangs": "hair_012",
+        "hair.parting_fringe.see_through_bangs": "hair_027"
+      }
     }
   ];
 
