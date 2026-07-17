@@ -455,6 +455,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = compileGroupSegment("Clothing");
+  if (mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
+    clothing = "wearing a plain white tank top and simple white shorts for clear character sheet visibility";
+  }
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");
   let photoContext = compileGroupSegment("Photographic Context");

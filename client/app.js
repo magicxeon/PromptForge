@@ -194,7 +194,7 @@ const CATEGORY_PRIORITIES = {
 const MODE_CATEGORY_POLICY = {
   normal: null,
   headshot: new Set(["Character", "Face", "Hair", "Skin", "Camera", "Lighting", "Quality"]),
-  "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Lighting", "Quality"])
+  "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Quality"])
 };
 
 // Global App State
@@ -1214,7 +1214,7 @@ async function initApp() {
 
     // Restore active mode from localStorage (Step 12)
     const savedMode = localStorage.getItem("model_prompt_forge_active_mode") || "normal";
-    state.mode = savedMode;
+    state.mode = Object.prototype.hasOwnProperty.call(MODE_CATEGORY_POLICY, savedMode) ? savedMode : "normal";
 
     // Sync mode chips in DOM
     document.querySelectorAll(".mode-chip").forEach(chip => {
@@ -3249,9 +3249,9 @@ function generatePromptText(cleanTextOnly = false) {
 
   let clothing = compileGroupSegment("Clothing", "token-clothing");
 
-  // FULFILLS REQ 1: If clothing is empty in Character Sheet Mode, force tank top and shorts
+  // Baseline outfit fallback until visible Character Sheet outfit presets are implemented.
   if (state.mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
-    const clText = "wearing a tight white tank top and white shorts to clearly show the model's body shape and physique";
+    const clText = "wearing a plain white tank top and simple white shorts for clear character sheet visibility";
     clothing = cleanTextOnly ? clText : `<span class="token-clothing">${clText}</span>`;
   }
 
