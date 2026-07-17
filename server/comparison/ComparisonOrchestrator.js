@@ -268,6 +268,7 @@ function createConfigurationSnapshot(context) {
     aspectRatio: context.aspectRatio,
     imageResolution: context.imageResolution || null,
     imageReferences: structuredClone(context.imageReferences || {}),
+    sourceOwnership: structuredClone(context.sourceOwnership || null),
     referenceJobIds: {
       face: [...(context.faceReferenceJobIds || [])],
       style: [...(context.styleReferenceJobIds || [])],

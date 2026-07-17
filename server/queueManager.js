@@ -292,6 +292,8 @@ class QueueManager {
         timestamp: Date.now(),
         provider: job.provider,
         submodel: job.submodel,
+        mode: job.options.mode || null,
+        sourceOwnership: job.options.sourceOwnership || null,
         resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
         providerConfigVersion: job.options.providerConfigVersion || null,
         creditCost,

@@ -1,6 +1,6 @@
 # 010-002 Canonical Identity and Source Priority
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001
 
@@ -51,3 +51,19 @@ Sheet layout: Front / Side / Back
 - Outfit source is deterministic.
 - Prompt builder knows which source owns each segment.
 - History records source ownership for Story Mode reuse.
+
+## Implementation Log
+
+### 2026-07-17 - Source Ownership Baseline
+
+- Added derived Character Sheet source ownership state on the client.
+- Added a Character Sheet Builder source summary under the mode selector:
+  - Identity source
+  - Body source
+  - Outfit source
+  - Sheet layout
+- Sent `sourceOwnership` in generation payload for `character-sheet` mode.
+- Normalized and preserved `sourceOwnership` on the server generation context.
+- Stored `mode` and `sourceOwnership` in generated history entries.
+- Included `sourceOwnership` in comparison configuration snapshots.
+- Deferred real saved-headshot selection and outfit front/back upload ownership to later 010 sub-requirements.

@@ -443,6 +443,52 @@ function isStoryCharacterReferenceActive() {
     && Boolean(state.characterReferenceImageA || state.characterReferenceImageB);
 }
 
+function getCharacterSheetSourceOwnership() {
+  const selections = getModeCompatibleSelections(state.selections, "character-sheet");
+  const hasBodySelection = Object.values(selections).some(selection => selection?.group === "Body");
+  const hasClothingSelection = Object.values(selections).some(selection => selection?.group === "Clothing");
+  return {
+    mode: "character-sheet",
+    identity: {
+      source: "visual-character-selections",
+      label: "Current visual character selections",
+      owns: ["gender", "age", "visual heritage", "face", "hair", "skin"]
+    },
+    body: {
+      source: hasBodySelection ? "body-visual-attributes" : "not-selected",
+      label: hasBodySelection ? "Body visual attributes" : "Not selected yet",
+      owns: ["body silhouette", "proportion"]
+    },
+    outfit: {
+      source: hasClothingSelection ? "outfit-preset-selections" : "character-sheet-baseline",
+      label: hasClothingSelection ? "Outfit preset selections" : "Character Sheet Baseline",
+      owns: ["outfit"]
+    },
+    layout: {
+      source: "default-front-side-back",
+      label: "Front / Side / Back",
+      owns: ["sheet layout"]
+    }
+  };
+}
+
+function updateCharacterSheetSourceStatus() {
+  const panel = document.getElementById("character-sheet-source-status");
+  const summary = document.getElementById("character-sheet-source-summary");
+  if (!panel || !summary) return;
+  const isActive = state.mode === "character-sheet";
+  panel.style.display = isActive ? "block" : "none";
+  if (!isActive) return;
+
+  const ownership = getCharacterSheetSourceOwnership();
+  summary.textContent = [
+    `Identity source: ${ownership.identity.label}`,
+    `Body source: ${ownership.body.label}`,
+    `Outfit source: ${ownership.outfit.label}`,
+    `Sheet layout: ${ownership.layout.label}`
+  ].join(" • ");
+}
+
 const REFERENCE_OWNED_GROUPS = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
 const FACE_MATCH_OWNED_FIELDS = new Set(["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"]);
 
@@ -781,6 +827,9 @@ function getEditablePromptText() {
 }
 
 function getGenerationRequestPayload() {
+  const sourceOwnership = state.mode === "character-sheet"
+    ? getCharacterSheetSourceOwnership()
+    : null;
   const submittedReferenceJobIds = {
     face: state.imageReferences.faceMatch ? uniqueReferenceJobIds(state.faceReferenceJobIds) : [],
     style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
@@ -797,6 +846,7 @@ function getGenerationRequestPayload() {
     selections: state.selections,
     aspectRatio: state.aspectRatio,
     imageReferences: { ...state.imageReferences, characterOverrides: state.characterReferenceOverrides },
+    sourceOwnership,
     mode: state.mode,
     template: document.getElementById("template-select")?.value || "portrait",
     isGptSafe: document.getElementById("toggle-gpt-safe")?.checked === true,
@@ -2659,6 +2709,7 @@ function toggleUIForMode() {
   const mode = state.mode;
   const imageUpload = document.getElementById("image-upload-container");
   pruneSelectionsForMode(state.selections, mode);
+  updateCharacterSheetSourceStatus();
 
   if (imageUpload) {
     imageUpload.style.display = mode === "normal" ? "block" : "none";
@@ -3369,6 +3420,7 @@ function updatePromptPreview() {
   if (state.mode && !state.isRestoringState) {
     saveCurrentModeState();
   }
+  updateCharacterSheetSourceStatus();
 
   const previewBox = document.getElementById("prompt-preview");
   const previewOuter = document.getElementById("preview-outer-container");

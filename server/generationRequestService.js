@@ -36,6 +36,9 @@ export function normalizeGenerationContext(payload = {}) {
     template: payload.template || 'portrait',
     aspectRatio: payload.aspectRatio || '1:1',
     imageReferences,
+    sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
+      ? payload.sourceOwnership
+      : null,
     referenceCount: new Set(activeReferenceValues).size
   };
 }
@@ -72,6 +75,7 @@ export function createQueueOptions(context, {
   return {
     aspectRatio: context.aspectRatio,
     imageReferences: references,
+    sourceOwnership: context.sourceOwnership || null,
     mode: context.mode,
     template: context.template,
     isGptSafe: context.isGptSafe,
