@@ -1,67 +1,66 @@
-# 010-008 Persistence, History and Lineage
+# 010-008 Character Sheet Persistence, History and Story Handoff
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-002, 010-005, 010-007
 
 ## Objective
 
-Define how Character Reference configurations and generated outputs are saved and reconstructed.
+Define how generated character sheets are saved and handed off to Story Mode.
 
-## Saved Configuration
+## Saved Sheet Configuration
 
 Store semantic IDs:
 
 ```json
 {
   "version": 1,
-  "mode": "character-reference",
-  "canonicalCharacterId": "saved-headshot-id",
+  "mode": "character-sheet",
+  "sourceHeadshotId": "history-or-saved-character-id",
   "identitySelectionIds": {},
   "bodySelectionIds": {},
-  "clothingSelectionIds": {},
-  "clothingSource": {
+  "outfitSource": {
     "type": "preset",
-    "uploadedReferenceId": null
+    "frontReferenceId": null,
+    "backReferenceId": null
   },
+  "outfitSelectionIds": {},
   "layout": {
     "type": "front-side-back"
-  },
-  "colorOverrides": {}
+  }
 }
 ```
 
-Avoid storing labels as source of truth.
-
 ## History Metadata
 
-Each generated result should record:
+Generated sheet result should record:
 
-- mode
-- source headshot/history ID
-- selected canonical character ID
-- selected semantic IDs
-- uploaded clothing reference ID
+- source headshot/config ID
+- identity selections
+- body selections
+- outfit source
+- uploaded outfit reference IDs
+- sheet layout
 - provider/model
-- provider reference payload summary
 - final submitted prompt
-- admin override flag
-- generation duration/status
+- generated image URL
+- Story Mode reusable reference flag
 
-## Lineage Rules
+## Story Mode Handoff
 
-- A generated Character Reference should link back to source headshot.
-- Uploaded clothing reference should list generated jobs that used it.
-- Future community/marketplace sharing should be able to include or exclude uploaded private references.
+Story Mode should be able to consume the generated sheet as:
 
-## Migration Rules
-
-- Legacy character-sheet results without visible clothing preset should map to `Character Sheet Baseline` when possible.
-- Missing attributes should restore as text fallback, not crash.
-- Deprecated IDs should migrate through explicit mapping.
+```json
+{
+  "referenceType": "character-sheet",
+  "sourceJobId": "job-id",
+  "identityLocked": true,
+  "outfitLocked": true
+}
+```
 
 ## Acceptance Criteria
 
-- History can reconstruct the visible Character Reference setup.
-- Private uploaded references are not exposed accidentally in future sharing.
-- Saved configurations survive option label changes.
+- Generated sheet can be selected as Story Mode character reference.
+- History reconstructs the sheet setup.
+- Raw outfit uploads remain private inputs unless explicitly shared later.

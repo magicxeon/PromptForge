@@ -1,78 +1,59 @@
-# 010-005 Clothing Reference Upload and Ownership
+# 010-005 Outfit Reference Front/Back Upload
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-002, provider capability contracts
 
 ## Objective
 
-Define uploaded clothing reference behavior, including provider limitations and source lineage.
+Define outfit reference upload support for Character Sheet Builder, especially front and back clothing views.
 
-## Upload Scope
+## MVP Upload Slots
 
-MVP supports one uploaded clothing reference image.
+| Slot | Required | Purpose |
+| --- | --- | --- |
+| Outfit Front | Optional | main clothing shape, color and styling |
+| Outfit Back | Optional | back-view garment details |
 
-Allowed:
+Side view upload is deferred.
 
-- clothing product photo
-- outfit photo
-- flat lay
-- mannequin image
-- generated clothing reference image
+## Upload Rules
 
-Not promised:
-
-- exact virtual try-on
-- exact fabric drape
-- exact logo reproduction
-- exact body pose transfer
-
-## Upload Metadata
-
-Store:
-
-```json
-{
-  "referenceId": "ref_clothing_001",
-  "sourceType": "clothing-reference",
-  "originalFilename": "outfit.png",
-  "storedPath": "/uploads/references/ref_clothing_001.png",
-  "thumbnailPath": "/uploads/references/thumbs/ref_clothing_001.webp",
-  "createdAt": "2026-07-17T00:00:00.000Z",
-  "ownerId": "session-or-user-id",
-  "usedByJobIds": []
-}
-```
-
-## Provider Capability Rules
-
-| Provider Capability | Behavior |
-| --- | --- |
-| Supports image references | send clothing reference according to provider adapter |
-| Supports limited references | count canonical face plus clothing reference before submit |
-| Does not support references | store upload but do not send; show warning |
-| Supports reference type weights | canonical face gets identity weight, clothing gets style/outfit weight |
-
-## UI Rules
-
-- Show uploaded preview.
-- Provide clear remove/replace action.
-- Show whether current provider will use the reference.
-- Disable clothing preset controls or mark them as secondary hints when upload owns clothing.
+- Uploads describe outfit only.
+- Uploads do not own face identity.
+- If front and back are present, both should be sent as outfit references when provider supports references.
+- If only front exists, prompt may infer back view but must not promise exact back reconstruction.
+- Uploaded outfit references override outfit preset text.
 
 ## Prompt Segment
 
-When uploaded clothing owns outfit:
+Front only:
 
 ```text
-matching the clothing outfit, garment silhouette, colors, and styling from the uploaded clothing reference
+matching the clothing outfit, garment silhouette, colors, and styling from the uploaded front outfit reference, inferring unseen back details naturally
 ```
 
-Do not additionally list preset clothing unless advanced override is active.
+Front and back:
+
+```text
+matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, and visible details across all sheet views
+```
+
+## Provider Capability
+
+If provider supports references:
+
+- send canonical face reference if available
+- send outfit front/back references within max image count
+
+If provider does not support references:
+
+- store uploads
+- show warning
+- do not silently claim reference matching
 
 ## Acceptance Criteria
 
-- Upload ownership is visible.
-- Provider limitation is visible before generation.
-- Reference lineage is stored in history.
-- Removing upload restores clothing preset controls.
+- Front/back upload ownership is clear.
+- Outfit uploads can support multi-angle sheet generation.
+- Story Mode can later reuse the generated sheet, not the raw outfit uploads alone.

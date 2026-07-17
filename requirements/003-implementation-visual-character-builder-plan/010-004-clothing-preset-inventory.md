@@ -1,74 +1,59 @@
-# 010-004 Clothing Preset Inventory
+# 010-004 Outfit Preset Inventory
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001, 010-002
 
 ## Objective
 
-Define the first small clothing preset inventory for Character Reference MVP.
+Define a small outfit preset set for Character Sheet Builder when the user does not upload front/back outfit references.
 
 ## MVP Presets
 
 | Preset ID Draft | Label | Purpose |
 | --- | --- | --- |
-| `clothing.preset.casual_tshirt_jeans` | T-shirt and Jeans | casual baseline |
-| `clothing.preset.sheet_tank_shorts` | Tank Top and Shorts | character sheet clarity |
-| `clothing.preset.simple_dress` | Simple Dress | fashion/feminine baseline |
-| `clothing.preset.blazer_trousers` | Blazer and Trousers | commercial/professional |
-| `clothing.preset.hoodie_pants` | Hoodie and Pants | street/casual |
-| `clothing.preset.activewear` | Activewear Set | fitness/commercial |
-
-## MVP Clothing Fields
-
-| Field | Control | Notes |
-| --- | --- | --- |
-| Clothing Preset | Visual card picker | primary MVP outfit selector |
-| Top Color | Swatch picker | only if preset includes top |
-| Bottom Color | Swatch picker | only if preset includes bottom |
-| Dress Color | Swatch picker | only if preset includes dress |
-| Material / Surface | Visual card picker | optional first pass |
-| Styling | Dropdown or visual card | tucked, oversized, fitted; deferred if not needed |
-
-## Prompt Phrase Examples
-
-```text
-wearing a plain fitted white t-shirt and straight-leg dark denim jeans
-wearing a simple knee-length dress
-wearing a clean blazer with tailored trousers
-wearing a casual hoodie and relaxed pants
-```
-
-## Preset Rules
-
-- Presets should be generic and brand-free.
-- Presets should not imply copyrighted designs.
-- Presets should not require exact garment reconstruction.
-- Color overrides should replace or augment preset colors cleanly.
+| `outfit.preset.sheet_baseline` | Character Sheet Baseline | clear full-body model sheet |
+| `outfit.preset.casual_tshirt_jeans` | T-shirt and Jeans | casual story baseline |
+| `outfit.preset.simple_dress` | Simple Dress | simple fashion/story baseline |
+| `outfit.preset.blazer_trousers` | Blazer and Trousers | commercial/professional |
+| `outfit.preset.hoodie_pants` | Hoodie and Pants | street/casual |
 
 ## Character Sheet Baseline
 
-The current hidden fallback:
+Replace hidden fallback wording with a visible preset.
 
-```text
-wearing a tight white tank top and white shorts to clearly show the model's body shape and physique
-```
-
-should become a visible preset:
-
-```text
-Character Sheet Baseline
-```
-
-The wording should be revised to be less body-emphasizing:
+Preferred wording:
 
 ```text
 wearing a plain white tank top and simple white shorts for clear character sheet visibility
 ```
 
+Avoid:
+
+```text
+tight
+to clearly show body shape and physique
+```
+
+## Outfit Fields
+
+| Field | Control | Notes |
+| --- | --- | --- |
+| Outfit Preset | Visual card picker | main selector |
+| Top Color | Swatch | only when preset has top |
+| Bottom Color | Swatch | only when preset has bottom |
+| Dress Color | Swatch | only when preset has dress |
+| Material / Surface | Optional visual card | deferred if not needed |
+
+## Rules
+
+- Presets must be brand-free.
+- Presets should be simple enough for multi-angle sheet consistency.
+- Color overrides should not duplicate prompt phrases.
+- Uploaded outfit references disable or override preset outfit text.
+
 ## Acceptance Criteria
 
-- MVP can launch with 4-6 clothing presets.
-- Every preset has a concise prompt phrase.
-- Preset labels are understandable without fashion expertise.
-- Color swatches do not create duplicate or contradictory prompt phrases.
+- First preset set is small and practical.
+- Every preset supports clean sheet generation.
+- Presets support later Story Mode reuse.

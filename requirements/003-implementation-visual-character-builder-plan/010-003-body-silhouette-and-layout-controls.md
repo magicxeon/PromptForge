@@ -1,43 +1,41 @@
-# 010-003 Body Silhouette and Layout Controls
+# 010-003 Body Proportion and Sheet Layout Controls
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001, 010-002
 
 ## Objective
 
-Define the first body and layout controls for full-body character reference generation.
+Define visual body/proportion attributes and sheet layout controls for generating a reusable multi-angle character model.
 
 ## MVP Body Fields
 
-Keep body controls neutral and visual.
-
-| Field | Control | Notes |
+| Field | Control | Purpose |
 | --- | --- | --- |
-| Body Silhouette | Visual card picker | broad, non-sexualized silhouette |
-| Height Impression | Visual card picker or dropdown | petite, average, tall impression |
-| Build | Visual card picker | slim, average, athletic, plus-size; wording must be respectful |
-| Posture Baseline | Segmented control | neutral standing, relaxed standing |
+| Height Impression | Visual card / simple selector | petite, average, tall impression |
+| Body Silhouette | Visual card picker | broad full-body silhouette |
+| Build | Visual card picker | slim, average, athletic, plus-size; respectful wording |
+| Shoulder/Waist/Hip Balance | Deferred or advanced | only if needed after first sheet tests |
 
-Avoid:
+## Body Wording Rules
 
-- medical body-type labels
-- sexualized descriptors
-- weight-judgment language
-- unrealistic anatomy promises
+- Use neutral, descriptive language.
+- Avoid sexualized body descriptors.
+- Avoid medical or judgmental labels.
+- For minors, use only age-safe neutral body wording.
 
 ## MVP Layout Fields
 
-| Layout | Prompt Meaning |
+| Layout | Use |
 | --- | --- |
-| Full-body single view | one full character reference image |
-| Front/side/back sheet | character sheet with three views |
-| Front/back sheet | simpler production-friendly sheet |
+| Front / Side / Back | default character sheet |
+| Front / Back | simpler outfit reference sheet |
+| Front Only Full Body | fallback/test mode |
 
 Default:
 
 ```text
-front/side/back character sheet
+front view, side view, and back view of the same character
 ```
 
 ## Prompt Phrase Examples
@@ -46,23 +44,19 @@ front/side/back character sheet
 balanced natural adult body silhouette
 average height impression
 standing straight in a neutral pose
-front view, side view, and back view
+front view, side view, and back view of the same character
 ```
 
-## Asset Requirements
+## Visual Asset Requirements
 
-- body icons should not include detailed face or outfit
-- silhouette differences should be visible at card size
-- use neutral clothing or outline-only diagrams
-- support text fallback if asset is missing
-
-## Safety Rules
-
-- If audience class is minor, body wording must be minimal and age-safe.
-- Body controls should not produce glamour, sensual or adult fashion wording by themselves.
+- generic body diagrams
+- no detailed face
+- no distracting clothing detail
+- consistent scale across cards
+- readable on mobile
 
 ## Acceptance Criteria
 
-- The user can choose a body silhouette without reading technical anatomy terms.
-- Prompt output remains respectful and neutral.
-- Layout controls produce predictable prompt segments.
+- User can choose body/proportion without anatomy expertise.
+- Sheet layout is explicit in prompt.
+- Body controls support Story Mode consistency.

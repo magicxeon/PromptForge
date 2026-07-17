@@ -1,75 +1,61 @@
 # 010-010 Future Admin Configuration Contract
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** manual visual setup, 010-001 through 010-009
 
 ## Objective
 
-Define how Character Reference body/clothing options can later move from manual JSON and manifests into an admin-managed configuration system.
+Define how Character Sheet visual attributes can later move from manual JSON/manifests into admin-managed configuration.
 
 ## Admin-Managed Entities
 
 | Entity | Purpose |
 | --- | --- |
-| Attribute option | semantic ID, labels, prompt phrase |
-| Visual option | manifest option ID and asset |
-| Clothing preset | grouped outfit semantic bundle |
-| Body preset | grouped silhouette/body defaults |
-| Reference policy | source ownership and provider behavior |
-| Migration rule | deprecated ID replacement |
+| Body visual attribute | silhouette/build/proportion option |
+| Outfit preset | reusable sheet outfit |
+| Sheet layout | front/back/view configuration |
+| Visual asset | icon/preview for selection |
+| Outfit reference policy | upload slot and ownership rules |
+| Story handoff policy | how sheet output becomes Story reference |
 
 ## Admin Fields
 
 - stable attribute ID
 - visual option ID
-- category
-- subcategory
-- English label
-- Thai label
+- category/subcategory
+- English/Thai label
 - prompt phrase
-- provider prompt overrides
 - enabled status
-- visibility filters
-- gender/presentation filters
 - asset upload
 - swatch values
+- minor-safe visibility
+- gender/presentation visibility if needed
 - migration target
 
 ## Validation Rules
 
-Admin save must reject:
+Reject:
 
 - duplicate IDs
 - missing prompt phrase
-- missing label
-- missing asset and missing fallback
-- clothing preset with no clothing phrase
-- body option with unsafe wording
-- enabled option not mapped to any UI field
+- outfit preset with scene/environment language
+- body option with unsafe/sexualized wording
+- enabled option without asset or fallback
+- sheet layout without prompt segment
 
 ## Publishing Flow
 
 1. Draft option.
-2. Upload or assign asset.
-3. Preview in admin.
-4. Run validation.
-5. Publish to staging.
-6. Run prompt snapshot tests.
+2. Upload visual asset.
+3. Preview card.
+4. Validate prompt phrase.
+5. Run sheet prompt tests.
+6. Publish to staging.
 7. Enable for users.
-
-## Relationship to Manual Setup
-
-The manual file remains the source of operational rules until admin exists:
-
-```text
-manual-visual-characters-setup.md
-```
-
-Admin configuration should preserve the same conceptual layers rather than inventing a second schema.
 
 ## Acceptance Criteria
 
-- Future admin can manage the same IDs and manifests used manually.
-- Manual JSON can be migrated to database rows without changing saved user configurations.
-- Published admin options remain compatible with deterministic prompt tests.
+- Admin config can manage sheet-building options without changing saved user configs.
+- Manual files can migrate to database-backed options later.
+- Published options remain compatible with Story Mode handoff.

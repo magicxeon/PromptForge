@@ -1,92 +1,78 @@
-# 010-009 QA Test Cases and Release Gates
+# 010-009 Character Sheet QA Test Cases and Release Gates
 
-**Status:** Draft  
+**Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001 through 010-008
 
 ## Objective
 
-Define the QA matrix and release gate for Character Reference MVP.
+Define QA for Character Sheet Builder and Story Mode reuse readiness.
 
-## Deterministic Test Cases
+## Test Cases
 
-### CR-001 Preset Casual Baseline
+### CS-001 Baseline Sheet
 
-Saved headshot plus T-shirt and jeans preset.
-
-Expected:
-
-- preserves canonical identity
-- includes casual preset clothing
-- no uploaded clothing reference text
-
-### CR-002 Uploaded Clothing Reference Owns Outfit
-
-Saved headshot plus uploaded clothing image.
+Saved headshot plus Character Sheet Baseline outfit.
 
 Expected:
 
-- clothing upload ownership visible
-- preset outfit text omitted unless advanced override active
-- reference lineage stored
+- prompt includes front/side/back
+- prompt preserves identity
+- prompt uses clean sheet background
 
-### CR-003 Provider Without References
+### CS-002 Outfit Preset Sheet
 
-Current provider does not support image references.
-
-Expected:
-
-- upload stored but not sent
-- UI warning visible
-- generation either blocked or proceeds without reference only after explicit acknowledgement
-
-### CR-004 Front Side Back Sheet
-
-Character sheet layout selected.
+Saved headshot plus outfit preset.
 
 Expected:
 
-- prompt includes front view, side view, back view
-- neutral pose
-- solid background
+- prompt includes outfit preset
+- no uploaded outfit reference text
+- result is suitable as Story Mode reference
 
-### CR-005 Minor-Safe Character Reference
+### CS-003 Outfit Front Upload
 
-Child/minor source selected.
+Saved headshot plus front outfit upload.
 
 Expected:
 
-- no adult glamour/fashion model language
-- no sexualized body language
-- age-safe outfit wording
+- prompt references front outfit upload
+- prompt does not promise exact unseen back details
+- preset outfit text omitted
 
-## Manual QA Matrix
+### CS-004 Outfit Front and Back Upload
 
-- desktop
-- mobile
-- Thai and English
-- mouse/touch/keyboard
-- reduced motion
-- missing/corrupt visual asset
-- provider with references
-- provider without references
-- saved config restore
-- uploaded reference remove/replace
-- admin prompt override
+Saved headshot plus front and back outfit uploads.
+
+Expected:
+
+- prompt references both views
+- back-view sheet instruction is supported
+- lineage records both uploads
+
+### CS-005 Story Mode Handoff
+
+Generated character sheet selected in Story Mode.
+
+Expected:
+
+- Story Mode receives sheet reference
+- identity/outfit lock metadata preserved
+- story prompt does not rebuild sheet instructions
 
 ## Release Gate
 
 Do not release until:
 
-- source ownership labels are clear
+- category reduction is complete
 - prompt tests pass
-- at least one provider with references is manually tested
-- one provider without references is manually tested
-- history reconstruction works
-- product owner accepts first body/clothing option inventory
+- generated sheet is visually usable as Story reference
+- at least one provider with reference-image support is tested
+- unsupported provider path shows clear warning
+- history handoff works
 
 ## Acceptance Criteria
 
-- QA cases cover source priority, prompt output, provider capability and history lineage.
+- QA verifies sheet consistency, not only prompt syntax.
 - Known issues are logged before release.
-- Character Reference can be disabled independently if release gate fails.
+- Character Sheet Builder can be disabled independently if gate fails.
