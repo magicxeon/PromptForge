@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette",
+  "fieldId": "body.silhouette",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "body-silhouette-set-r1.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.straight",
+      "optionId": "body.silhouette.straight",
+      "slug": "straight",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Straight body silhouette diagram", "th": "ภาพโครงรูปร่างทรงตรง" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.silhouette.curvy",
+      "optionId": "body.silhouette.curvy",
+      "slug": "curvy",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Curvy natural body silhouette diagram", "th": "ภาพโครงรูปร่างโค้งเว้าธรรมชาติ" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.silhouette.hourglass",
+      "optionId": "body.silhouette.hourglass",
+      "slug": "hourglass",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Hourglass body silhouette diagram", "th": "ภาพโครงรูปร่างทรงนาฬิกาทราย" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.silhouette.pear",
+      "optionId": "body.silhouette.pear",
+      "slug": "pear",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Pear-shaped natural body silhouette diagram", "th": "ภาพโครงรูปร่างทรงลูกแพร์" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.silhouette.inverted",
+      "optionId": "body.silhouette.inverted",
+      "slug": "inverted",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Inverted triangle body silhouette diagram", "th": "ภาพโครงรูปร่างทรงสามเหลี่ยมคว่ำ" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.silhouette.plus",
+      "optionId": "body.silhouette.plus",
+      "slug": "plus",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Plus-size natural fashion silhouette diagram", "th": "ภาพโครงรูปร่างพลัสไซซ์แบบธรรมชาติ" },
+      "reviewStatus": "planned"
+    }
+  ]
+}
