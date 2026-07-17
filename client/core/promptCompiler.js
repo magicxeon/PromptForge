@@ -453,6 +453,7 @@
 
       state.order.forEach(fieldId => {
         Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+          if (groupName === "Body" && fieldName === "Sheet Layout") return;
           const category = window.FIELD_TO_PROMPT_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
           const matchesOrder = category.replaceAll("_", "") === fieldId.replaceAll("_", "");
           if (matchesOrder && selection.group.toLowerCase() === groupName.toLowerCase()) {
@@ -471,6 +472,7 @@
       if (segmentValues.length === 0) {
         segmentValues = Object.keys(activeSelections)
           .filter(key => activeSelections[key].group.toLowerCase() === groupName.toLowerCase())
+          .filter(key => !(groupName === "Body" && key === "Sheet Layout"))
           .map(key => {
             const s = activeSelections[key];
             const val = getPromptValueForSelection(s, key);
@@ -487,6 +489,15 @@
       const combinedStr = segmentValues.join(", ");
       if (cleanTextOnly) return combinedStr;
       return `<span class="${tokenClass}">${combinedStr}</span>`;
+    };
+
+    const getCharacterSheetLayoutSegment = () => {
+      const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
+      const selectedLayout = getPromptValueForSelection(activeSelections["Sheet Layout"], "Sheet Layout");
+      const layoutText = selectedLayout && selectedLayout.trim() !== ""
+        ? `character model sheet, character design sheet, ${selectedLayout}`
+        : defaultLayout;
+      return cleanTextOnly ? layoutText : `<span class="token-pose">${layoutText}</span>`;
     };
 
     const shouldUsePromptCleanup = state.mode === "headshot" || state.mode === "character-sheet";
@@ -568,9 +579,9 @@
       ].filter(s => s && s.toString().trim() !== "");
       prompt = elements.join(", ");
     } else if (state.mode === "character-sheet") {
-      let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
+      let sheetLayout = getCharacterSheetLayoutSegment();
       let elements = [
-        cleanTextOnly ? sheetLayout : `<span class="token-pose">${sheetLayout}</span>`,
+        sheetLayout,
         fullSubject,
         appearance,
         hair,

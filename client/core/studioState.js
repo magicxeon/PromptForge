@@ -63,6 +63,7 @@ window.FIELD_TO_CATEGORY_MAP = {
   "Height Impression": "body",
   "Model Build": "body",
   "Body Silhouette": "body",
+  "Sheet Layout": "body",
   "Top": "clothing",
   "Bottom": "clothing",
   "Dress": "clothing",

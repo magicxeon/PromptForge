@@ -42,8 +42,17 @@
   function getCharacterSheetSourceOwnership() {
     // Need to resolve selections dynamically
     const selections = getModeCompatibleSelections(state.selections, "character-sheet");
-    const hasBodySelection = Object.values(selections).some(selection => selection?.group === "Body");
+    const hasBodySelection = Object.entries(selections).some(([fieldName, selection]) => {
+      return fieldName !== "Sheet Layout" && selection?.group === "Body";
+    });
     const hasClothingSelection = Object.values(selections).some(selection => selection?.group === "Clothing");
+    const layoutSelection = selections["Sheet Layout"];
+    const layoutItem = layoutSelection && !layoutSelection.isCustom
+      ? state.library.find(item => item.id === layoutSelection.id)
+      : null;
+    const layoutLabel = layoutSelection?.isCustom
+      ? layoutSelection.value
+      : getLocalizedLabel(layoutItem?.label) || "Front / Side / Back";
     return {
       mode: "character-sheet",
       identity: {
@@ -62,8 +71,8 @@
         owns: ["outfit"]
       },
       layout: {
-        source: "default-front-side-back",
-        label: "Front / Side / Back",
+        source: layoutSelection ? "selected-sheet-layout" : "default-front-side-back",
+        label: layoutLabel,
         owns: ["sheet layout"]
       }
     };

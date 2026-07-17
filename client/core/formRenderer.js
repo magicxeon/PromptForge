@@ -70,8 +70,8 @@
         select.setAttribute("data-field", field.name);
         select.setAttribute("data-group", groupName);
 
-        const category = window.FIELD_TO_CATEGORY_MAP[field.name] || groupName.toLowerCase();
-        const filteredOptions = getOptionsForField(field.name, category, state.library);
+        const category = getCategoryForField(groupName, field.name);
+        const filteredOptions = getOptionsForField(field.name, category, state.library, groupName);
 
         const defaultOpt = document.createElement("option");
         defaultOpt.value = "";
@@ -322,18 +322,29 @@
     }
   }
 
-  function getOptionsForField(fieldName, category, allItems) {
+  function getCategoryForField(groupName, fieldName) {
+    if (groupName === "Hair" && fieldName === "Texture") return "hair";
+    return window.FIELD_TO_CATEGORY_MAP[fieldName] || groupName.toLowerCase();
+  }
+
+  function getOptionsForField(fieldName, category, allItems, groupName = "") {
     const items = allItems.filter(item => {
       if (item.category === "nsfw" && category !== "nsfw") return false;
       return item.category === category;
     });
     const lowerField = fieldName.toLowerCase();
+    const subcategoryAliases = {
+      "Hair::Texture": ["Hair Texture", "Texture"],
+      "Hair::Parting / Fringe": ["Bangs", "Parting / Fringe"]
+    };
+    const aliasKey = `${groupName}::${fieldName}`;
+    const aliases = subcategoryAliases[aliasKey]?.map(item => item.toLowerCase()) || [lowerField];
 
     const itemsWithSubcat = items.filter(item => item.subcategory);
     const hasSubcategory = itemsWithSubcat.length > 0 && (itemsWithSubcat.length / items.length) > 0.5;
     let matched = items;
     if (hasSubcategory) {
-      matched = items.filter(item => item.subcategory && item.subcategory.toLowerCase() === lowerField);
+      matched = items.filter(item => item.subcategory && aliases.includes(item.subcategory.toLowerCase()));
     }
 
     if (fieldName === "Cut / Style") {

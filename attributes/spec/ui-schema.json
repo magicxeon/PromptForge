@@ -152,6 +152,10 @@
       {
         "name": "Body Silhouette",
         "control": "select"
+      },
+      {
+        "name": "Sheet Layout",
+        "control": "select"
       }
     ]
   },

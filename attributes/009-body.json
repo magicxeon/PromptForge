@@ -381,5 +381,80 @@
       "legs"
     ],
     "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_side_back",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front / Side / Back",
+      "th": "หน้า / ข้าง / หลัง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "character model sheet, consistent identity, clean turnaround sheet"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "turnaround"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_back",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front / Back",
+      "th": "หน้า / หลัง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "character model sheet, consistent outfit view, clean reference sheet"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "front-back"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_only_full_body",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front Only Full Body",
+      "th": "เต็มตัวด้านหน้า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "full-body character reference, consistent identity, clean white background"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "front-only"
+    ],
+    "enabled": true
   }
 ]

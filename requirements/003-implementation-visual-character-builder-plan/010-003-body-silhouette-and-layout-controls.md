@@ -1,6 +1,6 @@
 # 010-003 Body Proportion and Sheet Layout Controls
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001, 010-002
 
@@ -60,3 +60,22 @@ front view, side view, and back view of the same character
 - User can choose body/proportion without anatomy expertise.
 - Sheet layout is explicit in prompt.
 - Body controls support Story Mode consistency.
+
+## Implementation Log
+
+### 2026-07-18 - Layout Control Baseline
+
+- Added `Sheet Layout` to the Body section as a selectable Character Sheet control.
+- Added MVP layout options:
+  - `Front / Side / Back`
+  - `Front / Back`
+  - `Front Only Full Body`
+- Updated the client prompt compiler so `Sheet Layout` controls the opening Character Sheet layout phrase.
+- Updated the server prompt compiler with the same layout behavior so submitted generation prompts match Live Prompt Preview.
+- Kept `Sheet Layout` out of the body/proportion subject segment to avoid duplicated or awkward body wording.
+- Updated Character Sheet source ownership summary so it reports the selected layout instead of a hardcoded default.
+
+Deferred:
+
+- Body silhouette/build visual-card assets are not generated in this step.
+- Before slicing or wiring body diagram images, create a source-sheet preview and wait for review approval.

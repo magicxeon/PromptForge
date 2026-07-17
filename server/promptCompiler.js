@@ -34,7 +34,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Smile": "lips", "Expression": "expression",
   "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
   "Tone": "skin", "Texture": "skin", "Makeup": "skin", "Freckles": "skin",
-  "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body",
+  "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body", "Sheet Layout": "body",
   "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
   "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose", "Pose Intent": "pose", "Fashion Hand Position": "pose", "Fashion Gaze": "pose",
   "Location": "environment", "Architecture": "environment", "Props": "environment", "Weather": "environment", "Time of Day": "environment", "Season": "environment", "Fashion Venue": "environment", "Set Design": "environment", "Atmosphere": "environment",
@@ -393,6 +393,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     // Get order mappings for attributes within this segment
     promptOrder.forEach(fieldId => {
       Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+        if (groupName === "Body" && fieldName === "Sheet Layout") return;
         const category = FIELD_TO_PROMPT_CATEGORY_MAP[fieldName] || selection.category || selection.group.toLowerCase();
         const matchesOrder = category.replaceAll("_", "") === fieldId.replaceAll("_", "");
         if (matchesOrder && selection.group.toLowerCase() === groupName.toLowerCase()) {
@@ -408,6 +409,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     if (segmentValues.length === 0) {
       segmentValues = Object.keys(activeSelections)
         .filter(key => activeSelections[key].group.toLowerCase() === groupName.toLowerCase())
+        .filter(key => !(groupName === "Body" && key === "Sheet Layout"))
         .map(key => {
           const s = activeSelections[key];
           if (s.isDropped) return null;
@@ -419,6 +421,14 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     // Deduplicate
     segmentValues = [...new Set(segmentValues)];
     return segmentValues.join(", ");
+  };
+
+  const getCharacterSheetLayoutSegment = () => {
+    const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
+    const selectedLayout = getPromptValueWithColor(activeSelections["Sheet Layout"], "Sheet Layout");
+    return selectedLayout && selectedLayout.trim() !== ""
+      ? `character model sheet, character design sheet, ${selectedLayout}`
+      : defaultLayout;
   };
 
   // Compile individual templates
@@ -491,7 +501,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     ].filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else if (mode === "character-sheet") {
-    let sheetLayout = `character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose`;
+    let sheetLayout = getCharacterSheetLayoutSegment();
     let elements = [
       sheetLayout,
       fullSubject,
