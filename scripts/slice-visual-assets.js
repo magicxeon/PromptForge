@@ -14,6 +14,7 @@ const FIELD_MANIFESTS = {
   'eyebrows.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyebrows.manifest.json'),
   'nose.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/nose.manifest.json'),
   'lips.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/lips.manifest.json'),
+  'expression.face': path.join(AUTHORING_DIR, 'manifests/headshot/expression/face-expression.manifest.json'),
   'hair.length': path.join(AUTHORING_DIR, 'manifests/headshot/hair/length.manifest.json'),
   'hair.cut_style': path.join(AUTHORING_DIR, 'manifests/headshot/hair/cut-style.manifest.json'),
   'hair.texture': path.join(AUTHORING_DIR, 'manifests/headshot/hair/texture.manifest.json'),
@@ -25,6 +26,7 @@ const FIELD_FOLDERS = {
   'eyebrows.shape': 'eyebrows',
   'nose.shape': 'nose',
   'lips.shape': 'lips',
+  'expression.face': 'face-expression',
   'hair.length': 'length',
   'hair.cut_style': 'cut-style',
   'hair.texture': 'texture',
@@ -60,6 +62,12 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'headshot.facial-features.lips',
     sectionId: 'facial-features',
     folder: 'lips'
+  },
+  {
+    fieldId: 'expression.face',
+    manifestId: 'headshot.expression.face-expression',
+    sectionId: 'expression',
+    folder: 'face-expression'
   },
   {
     fieldId: 'hair.length',

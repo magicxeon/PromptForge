@@ -83,6 +83,21 @@
       }
     },
     {
+      key: "Face::Expression",
+      group: "Face",
+      field: "Expression",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/expression/face-expression/manifest.json",
+      optionMap: {
+        "expression.face.subtle_micro": "expression.001",
+        "expression.face.thoughtful": "expression.002",
+        "expression.face.friendly_smile": "expression.004",
+        "expression.face.gentle_laugh": "expression.003",
+        "expression.face.playful_smirk": "expression.008",
+        "expression.face.reflective_mood": "expression.010"
+      }
+    },
+    {
       key: "Hair::Length",
       group: "Hair",
       field: "Length",
@@ -438,6 +453,37 @@
           slug: "gold-shimmer",
           swatch: { colors: ["#b9822f", "#ffe0a3"], pattern: "makeup-gold" },
           alt: { en: "Gold shimmer eyeshadow makeup swatch", th: "Gold shimmer eyeshadow makeup swatch" }
+        }
+      ]
+    },
+    {
+      key: "Skin::Freckles",
+      group: "Skin",
+      field: "Freckles",
+      controlType: "swatch-picker",
+      optionMap: {
+        "skin.freckles.none": "skin.freckles_01",
+        "skin.freckles.subtle": "skin.freckles_02",
+        "skin.freckles.prominent": "skin.freckles_03"
+      },
+      items: [
+        {
+          optionId: "skin.freckles.none",
+          slug: "no-freckles",
+          swatch: { colors: ["#dea58b", "#f5cab4"], pattern: "freckles-none" },
+          alt: { en: "No freckles swatch", th: "No freckles swatch" }
+        },
+        {
+          optionId: "skin.freckles.subtle",
+          slug: "subtle-freckles",
+          swatch: { colors: ["#dda185", "#f4c5ad"], pattern: "freckles-subtle" },
+          alt: { en: "Subtle light freckles swatch", th: "Subtle light freckles swatch" }
+        },
+        {
+          optionId: "skin.freckles.prominent",
+          slug: "prominent-freckles",
+          swatch: { colors: ["#d89a7d", "#efb99e"], pattern: "freckles-prominent" },
+          alt: { en: "Prominent natural freckles swatch", th: "Prominent natural freckles swatch" }
         }
       ]
     }

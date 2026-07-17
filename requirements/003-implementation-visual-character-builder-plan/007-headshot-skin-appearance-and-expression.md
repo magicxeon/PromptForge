@@ -1,6 +1,6 @@
 # Headshot - Skin, Appearance and Expression
 
-**Status:** Skin Tone, Skin Texture, and Makeup Swatch Pilots Integrated  
+**Status:** Skin Tone, Skin Texture, Makeup, Freckles, and Expression Pilots Integrated  
 **Sequence:** 007  
 **Depends on:** 001-006
 
@@ -79,6 +79,39 @@ The third Skin pilot is `Skin > Makeup` using the shared swatch-card picker cont
 | 4 | Gilded Shimmer Eyeshadow | `skin.makeup_04` |
 
 Makeup controls describe styling intensity and accents only. They must not alter age, ethnicity, facial anatomy, skin tone, or head pose.
+
+## Freckles Pilot
+
+The fourth Skin pilot is `Skin > Freckles` using the shared swatch-card picker contract with abstract natural-detail cues. It uses the existing freckles attributes from `attributes/007-skin.json`:
+
+| Swatch | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | No Freckles | `skin.freckles_01` |
+| 2 | Subtle Light Freckles | `skin.freckles_02` |
+| 3 | Prominent Youthful Freckles | `skin.freckles_03` |
+
+Freckles are presented as optional natural details, not blemishes or defects. The UI should communicate density only: none, subtle, and prominent.
+
+## Expression Pilot
+
+The fifth pilot is `Face > Expression` using the shared visual-card picker contract. It uses a generic bald face-outline so users can compare mood without inheriting a gender, hairstyle, beard, makeup, or identity cue from the icon:
+
+| Row | Column | Visual option | Current attribute ID |
+|---:|---:|---|---|
+| 1 | 1 | Subtle Micro-Expression | `expression.001` |
+| 1 | 2 | Slightly Thoughtful | `expression.002` |
+| 1 | 3 | Soft Friendly Smile | `expression.004` |
+| 2 | 1 | Candid Gentle Laugh | `expression.003` |
+| 2 | 2 | Playful Mild Smirk | `expression.008` |
+| 2 | 3 | Reflective Mood | `expression.010` |
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/expression/face-expression/face-expression-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/expression/face-expression/`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/face-expression/contact-sheet-r1.png`
+
+Expression controls emotion only. Options that imply head tilt or a changed camera angle are excluded from the first visual pilot. Expression icons must stay generic so they work for female, male, and future presentation variants.
 
 ## Asset Rules
 

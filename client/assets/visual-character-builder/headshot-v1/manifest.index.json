@@ -28,6 +28,11 @@
       "url": "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json"
     },
     {
+      "fieldId": "expression.face",
+      "manifestId": "headshot.expression.face-expression",
+      "url": "/assets/visual-character-builder/headshot-v1/expression/face-expression/manifest.json"
+    },
+    {
       "fieldId": "hair.length",
       "manifestId": "headshot.hair.length",
       "url": "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json"

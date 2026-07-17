@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.expression.face-expression",
+  "fieldId": "expression.face",
+  "sectionId": "expression",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.expression.face.subtle-micro-expression",
+      "optionId": "expression.face.subtle_micro",
+      "slug": "subtle-micro-expression",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Relaxed neutral micro-expression in clean line art",
+        "th": "Relaxed neutral micro-expression in clean line art"
+      },
+      "sourceHash": "2d093fd0188b3b27490f6f8c2fbd19db9c47f388b8f28085f74777afeb841003",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/subtle-micro-expression-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/subtle-micro-expression-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/subtle-micro-expression-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.expression.face.thoughtful",
+      "optionId": "expression.face.thoughtful",
+      "slug": "thoughtful",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Soft thoughtful expression in clean line art",
+        "th": "Soft thoughtful expression in clean line art"
+      },
+      "sourceHash": "625ee529897eca675804dc9d4b7cb969b5fe9fe21362cc7a0469c3eb58cc71f1",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/thoughtful-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/thoughtful-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/thoughtful-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.expression.face.friendly-smile",
+      "optionId": "expression.face.friendly_smile",
+      "slug": "friendly-smile",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Soft friendly smile in clean line art",
+        "th": "Soft friendly smile in clean line art"
+      },
+      "sourceHash": "fa04839ab38c9cf2a4527d809eadbcf0106e4c94461d5b7747fccf792c35c8cf",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/friendly-smile-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/friendly-smile-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/friendly-smile-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.expression.face.gentle-laugh",
+      "optionId": "expression.face.gentle_laugh",
+      "slug": "gentle-laugh",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Candid gentle laugh in clean line art",
+        "th": "Candid gentle laugh in clean line art"
+      },
+      "sourceHash": "8fa8379a91e36dabfc509d0cbc8de319e143e87d5af59a4a2303fc4ba39d5be1",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/gentle-laugh-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/gentle-laugh-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/gentle-laugh-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.expression.face.playful-smirk",
+      "optionId": "expression.face.playful_smirk",
+      "slug": "playful-smirk",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Playful mild smirk in clean line art",
+        "th": "Playful mild smirk in clean line art"
+      },
+      "sourceHash": "cd6e9eb1556443e5e9a55aaa4c1858752b2696670e2fce4540e25b1ec999d01b",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/playful-smirk-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/playful-smirk-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/playful-smirk-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.expression.face.reflective-mood",
+      "optionId": "expression.face.reflective_mood",
+      "slug": "reflective-mood",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 44%",
+      "alt": {
+        "en": "Reflective neutral mood in clean line art",
+        "th": "Reflective neutral mood in clean line art"
+      },
+      "sourceHash": "fea81f143833facc61f7a121d181140353f32d352ac576601d98786bf5936a75",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/expression/face-expression/master/reflective-mood-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/expression/face-expression/preview/reflective-mood-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/expression/face-expression/thumb/reflective-mood-r1.png"
+      }
+    }
+  ]
+}
