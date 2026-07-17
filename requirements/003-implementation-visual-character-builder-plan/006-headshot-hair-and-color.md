@@ -1,6 +1,6 @@
 # Headshot - Hair and Color
 
-**Status:** Hair Length, Presentation-Aware Cut / Style, Texture, and Parting / Fringe Pilots Sliced and Runtime-Integrated  
+**Status:** Hair Length, Presentation-Aware Cut / Style, Texture, Parting / Fringe, and Color Pilots Integrated  
 **Sequence:** 006  
 **Depends on:** 001-003 and approved Headshot visual style
 
@@ -116,6 +116,32 @@ Review contact sheet:
 - `visual-assets/character-builder/reviews/headshot-v1/parting-fringe/contact-sheet-r1.png`
 
 Parting / Fringe should stay independent from `Hair > Cut / Style`, `Hair > Length`, and `Hair > Texture`. If a future style option strongly implies bangs, prefer a compatibility rule rather than duplicating the visual option.
+
+## Hair Color Pilot
+
+The fifth Hair pilot is `Hair > Color` using a swatch-card picker rather than raster source sheets. It uses the existing color attributes from `attributes/008-hair.json`:
+
+| Swatch | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Jet Black | `hair_013` |
+| 2 | Dark Brown | `hair_014` |
+| 3 | Platinum Blonde | `hair_015` |
+| 4 | Copper | `hair_016` |
+| 5 | Reddish-orange | `hair_021` |
+| 6 | Reddish Brown | `hair_040` |
+| 7 | Dark Blond | `hair_041` |
+| 8 | Reddish Mahogany | `hair_042` |
+| 9 | Burgundy | `hair_043` |
+| 10 | Red Wine | `hair_044` |
+| 11 | Golden Blond | `hair_045` |
+| 12 | Golden Brown | `hair_046` |
+| 13 | Chocolate Brown | `hair_047` |
+| 14 | Ash Blond | `hair_048` |
+| 15 | Grey | `hair_049` |
+| 16 | Ash Green Blond | `hair_050` |
+| 17 | Intense Blue | `hair_051` |
+
+Color swatches are defined directly in the shared visual control registry because color is better represented by CSS swatches than generated bitmap assets. The existing custom color picker remains available for advanced base/highlight color overrides.
 
 ## Composition Rules
 

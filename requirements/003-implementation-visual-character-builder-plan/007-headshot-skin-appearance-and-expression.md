@@ -1,6 +1,6 @@
 # Headshot - Skin, Appearance and Expression
 
-**Status:** Proposed  
+**Status:** Skin Tone and Skin Texture Swatch Pilots Integrated  
 **Sequence:** 007  
 **Depends on:** 001-006
 
@@ -33,6 +33,39 @@
 - Freckles/details: optional visual cards or toggles
 - Makeup level: segmented control or labeled slider
 - Expression: Visual Option cards using one fixed identity
+
+## Skin Tone Pilot
+
+The first Skin pilot is `Skin > Tone` using the shared swatch-card picker contract. It uses the existing tone attributes from `attributes/007-skin.json`:
+
+| Swatch | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Fair skin | `skin.tone_01` |
+| 2 | Porcelain skin | `skin.tone_02` |
+| 3 | Honey skin | `skin.tone_03` |
+| 4 | Warm Olive skin | `skin.tone_04` |
+| 5 | Rosy Fair skin | `skin.tone_05` |
+| 6 | Translucent Glass skin | `skin.tone_06` |
+| 7 | Milky White skin | `skin.tone_07` |
+| 8 | Ivory White skin | `skin.tone_08` |
+| 9 | Aura Glowing White skin | `skin.tone_09` |
+
+Tone swatches are UI guidance only. They are not exact provider output guarantees and must not be inferred from ethnicity or visual heritage.
+
+## Skin Texture Pilot
+
+The second Skin pilot is `Skin > Skin Texture` using the shared swatch-card picker contract with abstract texture patterns. It uses the existing skin texture attributes from `attributes/007-skin.json`:
+
+| Swatch | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Natural Skin Texture | `skin.text_01` |
+| 2 | Dewy Complexion | `skin.text_02` |
+| 3 | Healthy Complexion | `skin.text_03` |
+| 4 | Even Skin Tone | `skin.text_04` |
+| 5 | Soft Smooth Skin | `skin.text_05` |
+| 6 | Radiant Smooth Skin (under flash) | `skin.text_06` |
+
+Texture swatches are abstract UI cues, not photographic skin samples. They should communicate finish/texture differences without implying that one skin texture is better than another.
 
 ## Asset Rules
 

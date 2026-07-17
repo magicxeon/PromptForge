@@ -780,6 +780,318 @@
       "enabled": true
     },
     {
+      "id": "hair_040",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Reddish Brown",
+      "aliases": [],
+      "description": "Reddish brown hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "reddish brown hair",
+        "gpt-image": "reddish brown hair",
+        "flux": "reddish brown hair",
+        "sdxl": "reddish brown hair",
+        "midjourney": "reddish brown hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_041",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Dark Blond",
+      "aliases": [],
+      "description": "Dark blond hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "dark blond hair",
+        "gpt-image": "dark blond hair",
+        "flux": "dark blond hair",
+        "sdxl": "dark blond hair",
+        "midjourney": "dark blond hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_042",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Reddish Mahogany",
+      "aliases": [],
+      "description": "Reddish mahogany hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "reddish mahogany hair",
+        "gpt-image": "reddish mahogany hair",
+        "flux": "reddish mahogany hair",
+        "sdxl": "reddish mahogany hair",
+        "midjourney": "reddish mahogany hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_043",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Burgundy",
+      "aliases": [],
+      "description": "Burgundy hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "burgundy hair",
+        "gpt-image": "burgundy hair",
+        "flux": "burgundy hair",
+        "sdxl": "burgundy hair",
+        "midjourney": "burgundy hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_044",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Red Wine",
+      "aliases": [],
+      "description": "Red wine hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "red wine hair",
+        "gpt-image": "deep red wine hair",
+        "flux": "red wine hair",
+        "sdxl": "red wine hair",
+        "midjourney": "red wine hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_045",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Golden Blond",
+      "aliases": [],
+      "description": "Golden blond hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "golden blond hair",
+        "gpt-image": "golden blond hair",
+        "flux": "golden blond hair",
+        "sdxl": "golden blond hair",
+        "midjourney": "golden blond hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_046",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Golden Brown",
+      "aliases": [],
+      "description": "Golden brown hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "golden brown hair",
+        "gpt-image": "golden brown hair",
+        "flux": "golden brown hair",
+        "sdxl": "golden brown hair",
+        "midjourney": "golden brown hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_047",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Chocolate Brown",
+      "aliases": [],
+      "description": "Chocolate brown hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "chocolate brown hair",
+        "gpt-image": "chocolate brown hair",
+        "flux": "chocolate brown hair",
+        "sdxl": "chocolate brown hair",
+        "midjourney": "chocolate brown hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_048",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Ash Blond",
+      "aliases": [],
+      "description": "Ash blond hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "ash blond hair",
+        "gpt-image": "ash blond hair with muted cool beige tones",
+        "flux": "ash blond hair",
+        "sdxl": "ash blond hair",
+        "midjourney": "ash blond hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_049",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Grey",
+      "aliases": [],
+      "description": "Grey hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "grey hair",
+        "gpt-image": "silver grey hair",
+        "flux": "grey hair",
+        "sdxl": "grey hair",
+        "midjourney": "grey hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_050",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Ash Green Blond",
+      "aliases": [],
+      "description": "Ash green blond hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "ash green blond hair",
+        "gpt-image": "ash green blond hair with muted olive beige tones",
+        "flux": "ash green blond hair",
+        "sdxl": "ash green blond hair",
+        "midjourney": "ash green blond hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_051",
+      "category": "hair",
+      "subcategory": "Color",
+      "label": "Intense Blue",
+      "aliases": [],
+      "description": "Intense blue hair color.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "intense blue hair",
+        "gpt-image": "intense blue hair",
+        "flux": "intense blue hair",
+        "sdxl": "intense blue hair",
+        "midjourney": "intense blue hair"
+      },
+      "compatible": ["portrait", "fashion", "beauty", "editorial", "studio", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["color"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
       "id": "hair_022",
       "category": "hair",
       "subcategory": "Style",

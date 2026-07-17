@@ -427,6 +427,68 @@ body {
   -webkit-mask: var(--visual-option-url) center / contain no-repeat;
 }
 
+.visual-option-swatch {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.36), transparent 28%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22), 0 8px 22px rgba(0, 0, 0, 0.22);
+  mask: none;
+  -webkit-mask: none;
+}
+
+.visual-option-swatch-pores {
+  background:
+    radial-gradient(circle at 24% 30%, rgba(70, 35, 24, 0.22) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 66% 62%, rgba(70, 35, 24, 0.18) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 38% 74%, rgba(255, 255, 255, 0.24), transparent 24%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+  background-size: 14px 14px, 18px 18px, auto, auto;
+}
+
+.visual-option-swatch-dewy {
+  background:
+    radial-gradient(circle at 30% 24%, rgba(255, 255, 255, 0.62), transparent 21%),
+    radial-gradient(circle at 68% 70%, rgba(255, 255, 255, 0.42), transparent 18%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-healthy {
+  background:
+    radial-gradient(circle at 32% 34%, rgba(255, 120, 120, 0.24), transparent 28%),
+    radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.25), transparent 22%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-even {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.26), transparent 28%),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-soft {
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.34), transparent 28%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0 1px, transparent 1px 7px),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-swatch-radiant {
+  background:
+    radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.75), transparent 18%),
+    radial-gradient(circle at 72% 66%, rgba(255, 255, 255, 0.5), transparent 18%),
+    conic-gradient(from 45deg, rgba(255, 255, 255, 0.22), transparent 24%, rgba(255, 255, 255, 0.18), transparent 58%, rgba(255, 255, 255, 0.22)),
+    linear-gradient(135deg, var(--swatch-primary), var(--swatch-secondary));
+}
+
+.visual-option-card.swatch-option {
+  min-height: 94px;
+  grid-template-rows: 54px auto;
+}
+
 .visual-option-card.missing-asset .visual-option-icon,
 .visual-option-card.missing-attribute .visual-option-icon {
   width: 42px;

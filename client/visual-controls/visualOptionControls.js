@@ -148,12 +148,269 @@
         "hair.parting_fringe.blunt_bangs": "hair_012",
         "hair.parting_fringe.see_through_bangs": "hair_027"
       }
+    },
+    {
+      key: "Hair::Color",
+      group: "Hair",
+      field: "Color",
+      controlType: "swatch-picker",
+      optionMap: {
+        "hair.color.jet_black": "hair_013",
+        "hair.color.dark_brown": "hair_014",
+        "hair.color.platinum_blonde": "hair_015",
+        "hair.color.copper": "hair_016",
+        "hair.color.reddish_orange": "hair_021",
+        "hair.color.reddish_brown": "hair_040",
+        "hair.color.dark_blond": "hair_041",
+        "hair.color.reddish_mahogany": "hair_042",
+        "hair.color.burgundy": "hair_043",
+        "hair.color.red_wine": "hair_044",
+        "hair.color.golden_blond": "hair_045",
+        "hair.color.golden_brown": "hair_046",
+        "hair.color.chocolate_brown": "hair_047",
+        "hair.color.ash_blond": "hair_048",
+        "hair.color.grey": "hair_049",
+        "hair.color.ash_green_blond": "hair_050",
+        "hair.color.intense_blue": "hair_051"
+      },
+      items: [
+        {
+          optionId: "hair.color.jet_black",
+          slug: "jet-black",
+          swatch: { colors: ["#050505", "#242424"] },
+          alt: { en: "Jet black hair color swatch", th: "Jet black hair color swatch" }
+        },
+        {
+          optionId: "hair.color.dark_brown",
+          slug: "dark-brown",
+          swatch: { colors: ["#2a1710", "#5a3323"] },
+          alt: { en: "Dark brown hair color swatch", th: "Dark brown hair color swatch" }
+        },
+        {
+          optionId: "hair.color.platinum_blonde",
+          slug: "platinum-blonde",
+          swatch: { colors: ["#f5efd8", "#d8c99c"] },
+          alt: { en: "Platinum blonde hair color swatch", th: "Platinum blonde hair color swatch" }
+        },
+        {
+          optionId: "hair.color.copper",
+          slug: "copper",
+          swatch: { colors: ["#a94718", "#d87a2c"] },
+          alt: { en: "Copper hair color swatch", th: "Copper hair color swatch" }
+        },
+        {
+          optionId: "hair.color.reddish_orange",
+          slug: "reddish-orange",
+          swatch: { colors: ["#b72d1a", "#f26a2e"] },
+          alt: { en: "Reddish-orange hair color swatch", th: "Reddish-orange hair color swatch" }
+        },
+        {
+          optionId: "hair.color.reddish_brown",
+          slug: "reddish-brown",
+          swatch: { colors: ["#6b2d20", "#b75a3a"] },
+          alt: { en: "Reddish brown hair color swatch", th: "Reddish brown hair color swatch" }
+        },
+        {
+          optionId: "hair.color.dark_blond",
+          slug: "dark-blond",
+          swatch: { colors: ["#5b4327", "#9b7442"] },
+          alt: { en: "Dark blond hair color swatch", th: "Dark blond hair color swatch" }
+        },
+        {
+          optionId: "hair.color.reddish_mahogany",
+          slug: "reddish-mahogany",
+          swatch: { colors: ["#4b1820", "#8c3c45"] },
+          alt: { en: "Reddish mahogany hair color swatch", th: "Reddish mahogany hair color swatch" }
+        },
+        {
+          optionId: "hair.color.burgundy",
+          slug: "burgundy",
+          swatch: { colors: ["#321021", "#6f2147"] },
+          alt: { en: "Burgundy hair color swatch", th: "Burgundy hair color swatch" }
+        },
+        {
+          optionId: "hair.color.red_wine",
+          slug: "red-wine",
+          swatch: { colors: ["#5e0710", "#b31325"] },
+          alt: { en: "Red wine hair color swatch", th: "Red wine hair color swatch" }
+        },
+        {
+          optionId: "hair.color.golden_blond",
+          slug: "golden-blond",
+          swatch: { colors: ["#e8b95e", "#ffe2a0"] },
+          alt: { en: "Golden blond hair color swatch", th: "Golden blond hair color swatch" }
+        },
+        {
+          optionId: "hair.color.golden_brown",
+          slug: "golden-brown",
+          swatch: { colors: ["#8a4f22", "#d89a4f"] },
+          alt: { en: "Golden brown hair color swatch", th: "Golden brown hair color swatch" }
+        },
+        {
+          optionId: "hair.color.chocolate_brown",
+          slug: "chocolate-brown",
+          swatch: { colors: ["#21120f", "#58352d"] },
+          alt: { en: "Chocolate brown hair color swatch", th: "Chocolate brown hair color swatch" }
+        },
+        {
+          optionId: "hair.color.ash_blond",
+          slug: "ash-blond",
+          swatch: { colors: ["#817866", "#c2b899"] },
+          alt: { en: "Ash blond hair color swatch", th: "Ash blond hair color swatch" }
+        },
+        {
+          optionId: "hair.color.grey",
+          slug: "grey",
+          swatch: { colors: ["#8c9298", "#d7dce0"] },
+          alt: { en: "Grey hair color swatch", th: "Grey hair color swatch" }
+        },
+        {
+          optionId: "hair.color.ash_green_blond",
+          slug: "ash-green-blond",
+          swatch: { colors: ["#56604a", "#a9ad77"] },
+          alt: { en: "Ash green blond hair color swatch", th: "Ash green blond hair color swatch" }
+        },
+        {
+          optionId: "hair.color.intense_blue",
+          slug: "intense-blue",
+          swatch: { colors: ["#07153f", "#284b9d"] },
+          alt: { en: "Intense blue hair color swatch", th: "Intense blue hair color swatch" }
+        }
+      ]
+    },
+    {
+      key: "Skin::Tone",
+      group: "Skin",
+      field: "Tone",
+      controlType: "swatch-picker",
+      optionMap: {
+        "skin.tone.fair": "skin.tone_01",
+        "skin.tone.porcelain": "skin.tone_02",
+        "skin.tone.honey": "skin.tone_03",
+        "skin.tone.warm_olive": "skin.tone_04",
+        "skin.tone.rosy_fair": "skin.tone_05",
+        "skin.tone.translucent_glass": "skin.tone_06",
+        "skin.tone.milky_white": "skin.tone_07",
+        "skin.tone.ivory_white": "skin.tone_08",
+        "skin.tone.aura_glowing_white": "skin.tone_09"
+      },
+      items: [
+        {
+          optionId: "skin.tone.fair",
+          slug: "fair",
+          swatch: { colors: ["#f0c7ad", "#f8dcc9"] },
+          alt: { en: "Fair skin tone swatch", th: "Fair skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.porcelain",
+          slug: "porcelain",
+          swatch: { colors: ["#f7d8c8", "#fff0e7"] },
+          alt: { en: "Porcelain skin tone swatch", th: "Porcelain skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.honey",
+          slug: "honey",
+          swatch: { colors: ["#b97945", "#dca66e"] },
+          alt: { en: "Honey skin tone swatch", th: "Honey skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.warm_olive",
+          slug: "warm-olive",
+          swatch: { colors: ["#9b6d4c", "#c1956b"] },
+          alt: { en: "Warm olive skin tone swatch", th: "Warm olive skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.rosy_fair",
+          slug: "rosy-fair",
+          swatch: { colors: ["#edbba9", "#ffd5cc"] },
+          alt: { en: "Rosy fair skin tone swatch", th: "Rosy fair skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.translucent_glass",
+          slug: "translucent-glass",
+          swatch: { colors: ["#f5cbbb", "#fff6ee"] },
+          alt: { en: "Translucent glass skin tone swatch", th: "Translucent glass skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.milky_white",
+          slug: "milky-white",
+          swatch: { colors: ["#f1d1bd", "#fff0df"] },
+          alt: { en: "Milky white skin tone swatch", th: "Milky white skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.ivory_white",
+          slug: "ivory-white",
+          swatch: { colors: ["#e7c5a9", "#f8e6d1"] },
+          alt: { en: "Ivory white skin tone swatch", th: "Ivory white skin tone swatch" }
+        },
+        {
+          optionId: "skin.tone.aura_glowing_white",
+          slug: "aura-glowing-white",
+          swatch: { colors: ["#f3c9b8", "#fff8f1"] },
+          alt: { en: "Aura glowing white skin tone swatch", th: "Aura glowing white skin tone swatch" }
+        }
+      ]
+    },
+    {
+      key: "Skin::Skin Texture",
+      group: "Skin",
+      field: "Skin Texture",
+      controlType: "swatch-picker",
+      optionMap: {
+        "skin.texture.natural": "skin.text_01",
+        "skin.texture.dewy": "skin.text_02",
+        "skin.texture.healthy": "skin.text_03",
+        "skin.texture.even": "skin.text_04",
+        "skin.texture.soft": "skin.text_05",
+        "skin.texture.radiant_flash": "skin.text_06"
+      },
+      items: [
+        {
+          optionId: "skin.texture.natural",
+          slug: "natural",
+          swatch: { colors: ["#dca383", "#f1c7ad"], pattern: "pores" },
+          alt: { en: "Natural skin texture swatch", th: "Natural skin texture swatch" }
+        },
+        {
+          optionId: "skin.texture.dewy",
+          slug: "dewy",
+          swatch: { colors: ["#e4aa8f", "#ffe0cf"], pattern: "dewy" },
+          alt: { en: "Dewy complexion texture swatch", th: "Dewy complexion texture swatch" }
+        },
+        {
+          optionId: "skin.texture.healthy",
+          slug: "healthy",
+          swatch: { colors: ["#d59072", "#f3bca2"], pattern: "healthy" },
+          alt: { en: "Healthy complexion texture swatch", th: "Healthy complexion texture swatch" }
+        },
+        {
+          optionId: "skin.texture.even",
+          slug: "even",
+          swatch: { colors: ["#d9a184", "#f0c7ad"], pattern: "even" },
+          alt: { en: "Even skin tone texture swatch", th: "Even skin tone texture swatch" }
+        },
+        {
+          optionId: "skin.texture.soft",
+          slug: "soft",
+          swatch: { colors: ["#e2ad96", "#fad7c8"], pattern: "soft" },
+          alt: { en: "Soft smooth skin texture swatch", th: "Soft smooth skin texture swatch" }
+        },
+        {
+          optionId: "skin.texture.radiant_flash",
+          slug: "radiant-flash",
+          swatch: { colors: ["#ebb59d", "#fff1e7"], pattern: "radiant" },
+          alt: { en: "Radiant smooth flash skin texture swatch", th: "Radiant smooth flash skin texture swatch" }
+        }
+      ]
     }
   ];
 
   async function loadManifests({ fetchImpl = window.fetch } = {}) {
     const fieldsByKey = Object.fromEntries(VISUAL_CONTROL_FIELDS.map(config => [config.key, config]));
     const manifestEntries = await Promise.all(VISUAL_CONTROL_FIELDS.map(async config => {
+      if (config.items?.length) {
+        return [config.key, { items: config.items }];
+      }
       try {
         const response = await fetchImpl(config.manifestUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -211,7 +468,16 @@
       const icon = document.createElement("span");
       icon.className = "visual-option-icon";
       const iconUrl = item.assets?.thumb || item.assets?.preview;
-      if (iconUrl) {
+      if (item.swatch?.colors?.length) {
+        button.classList.add("swatch-option");
+        const [firstColor, secondColor = firstColor] = item.swatch.colors;
+        icon.classList.add("visual-option-swatch");
+        if (item.swatch.pattern) {
+          icon.classList.add(`visual-option-swatch-${item.swatch.pattern}`);
+        }
+        icon.style.setProperty("--swatch-primary", firstColor);
+        icon.style.setProperty("--swatch-secondary", secondColor);
+      } else if (iconUrl) {
         icon.style.setProperty("--visual-option-url", `url("${iconUrl}")`);
       } else {
         button.classList.add("missing-asset");
