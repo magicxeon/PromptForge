@@ -36,6 +36,11 @@
       "fieldId": "hair.cut_style",
       "manifestId": "headshot.hair.cut-style",
       "url": "/assets/visual-character-builder/headshot-v1/hair/cut-style/manifest.json"
+    },
+    {
+      "fieldId": "hair.texture",
+      "manifestId": "headshot.hair.texture",
+      "url": "/assets/visual-character-builder/headshot-v1/hair/texture/manifest.json"
     }
   ]
 }

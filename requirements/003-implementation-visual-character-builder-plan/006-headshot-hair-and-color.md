@@ -1,6 +1,6 @@
 # Headshot - Hair and Color
 
-**Status:** Hair Length and Presentation-Aware Cut / Style Pilots Sliced and Runtime-Integrated  
+**Status:** Hair Length, Presentation-Aware Cut / Style, and Texture Pilots Sliced and Runtime-Integrated  
 **Sequence:** 006  
 **Depends on:** 001-003 and approved Headshot visual style
 
@@ -76,6 +76,25 @@ Review contact sheet:
 - `visual-assets/character-builder/reviews/headshot-v1/cut-style/contact-sheet-r1.png`
 
 Implementation note: the UI field-to-subcategory filter must map `Cut / Style` to `Style`, `Texture` to `Hair Texture`, and `Parting / Fringe` to `Bangs` so hair axes do not fall back to the full hair catalog.
+
+## Hair Texture Pilot
+
+The third Hair pilot is `Hair > Texture` using the shared visual-card picker contract. It uses the existing texture attributes from `attributes/008-hair.json`:
+
+| Column | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Silky Smooth Hair | `hair.text_01` |
+| 2 | Coarse & Thick | `hair.text_02` |
+| 3 | Soft Glossy Waves | `hair.text_03` |
+| 4 | Frizzy & Voluminous | `hair.text_04` |
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/hair/texture/hair-texture-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/hair/texture/`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/texture/contact-sheet-r1.png`
+
+Texture controls should communicate strand density, smoothness, wave pattern, gloss, and flyaways. They must not replace the separate `Hair > Cut / Style` or `Hair > Length` controls.
 
 ## Composition Rules
 

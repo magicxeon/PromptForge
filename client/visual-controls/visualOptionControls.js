@@ -120,6 +120,19 @@
         "hair.cut_style.caesar_cut": "hair_035",
         "hair.cut_style.short_curly_crop": "hair_036"
       }
+    },
+    {
+      key: "Hair::Texture",
+      group: "Hair",
+      field: "Texture",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/hair/texture/manifest.json",
+      optionMap: {
+        "hair.texture.silky_smooth": "hair.text_01",
+        "hair.texture.coarse_thick": "hair.text_02",
+        "hair.texture.soft_glossy_waves": "hair.text_03",
+        "hair.texture.frizzy_voluminous": "hair.text_04"
+      }
     }
   ];
 
