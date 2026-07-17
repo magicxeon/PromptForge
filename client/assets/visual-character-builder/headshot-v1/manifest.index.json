@@ -26,6 +26,11 @@
       "fieldId": "lips.shape",
       "manifestId": "headshot.facial-features.lips",
       "url": "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json"
+    },
+    {
+      "fieldId": "hair.length",
+      "manifestId": "headshot.hair.length",
+      "url": "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json"
     }
   ]
 }

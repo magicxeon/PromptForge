@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.length",
+  "fieldId": "hair.length",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "hair-length-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 4,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.hair.length.buzz-cut",
+      "optionId": "hair.length.buzz_cut",
+      "slug": "buzz-cut",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 45%",
+      "alt": { "en": "Buzz cut hair length in clean line art", "th": "ความยาวผมแบบบัซคัตในเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.length.short",
+      "optionId": "hair.length.short",
+      "slug": "short",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 45%",
+      "alt": { "en": "Short hair length in clean line art", "th": "ความยาวผมสั้นในเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.length.long",
+      "optionId": "hair.length.long",
+      "slug": "long",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": { "left": 980, "top": 0, "width": 420, "height": 819 },
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 48%",
+      "alt": { "en": "Long hair length in clean line art", "th": "ความยาวผมยาวในเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.length.extra-long",
+      "optionId": "hair.length.extra_long",
+      "slug": "extra-long",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Extra long hair length in clean line art", "th": "ความยาวผมยาวมากในเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

@@ -81,6 +81,19 @@
         "lips.shape.heavy_upper": "lips.011",
         "lips.shape.wide": "lips.012"
       }
+    },
+    {
+      key: "Hair::Length",
+      group: "Hair",
+      field: "Length",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json",
+      optionMap: {
+        "hair.length.buzz_cut": "hair_001",
+        "hair.length.short": "hair_002",
+        "hair.length.long": "hair_003",
+        "hair.length.extra_long": "hair_004"
+      }
     }
   ];
 

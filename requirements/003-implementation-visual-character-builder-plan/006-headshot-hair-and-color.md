@@ -1,6 +1,6 @@
 # Headshot - Hair and Color
 
-**Status:** Proposed  
+**Status:** Hair Length Pilot Sliced and Runtime-Integrated  
 **Sequence:** 006  
 **Depends on:** 001-003 and approved Headshot visual style
 
@@ -18,6 +18,25 @@
 - Optional Highlight Color
 
 Finish, elaborate updo, trend libraries and fashion-specific hair direction are deferred unless required by a reviewed preset.
+
+## Hair Length Pilot
+
+The first Hair pilot is `Hair > Length` using the shared visual-card picker contract. It uses the existing length attribute inventory from `attributes/008-hair.json`:
+
+| Column | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Buzz Cut | `hair_001` |
+| 2 | Short Hair | `hair_002` |
+| 3 | Long Hair | `hair_003` |
+| 4 | Extra Long Hair | `hair_004` |
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/hair/length/hair-length-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/hair/length/`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/length/contact-sheet-r1.png`
+
+Hair length intentionally does not decide cut/style, texture, finish, parting/fringe, or color. Those remain separate semantic axes.
 
 ## Composition Rules
 
