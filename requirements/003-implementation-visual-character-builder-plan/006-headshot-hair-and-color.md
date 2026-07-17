@@ -1,6 +1,6 @@
 # Headshot - Hair and Color
 
-**Status:** Hair Length Pilot Sliced and Runtime-Integrated  
+**Status:** Hair Length and Presentation-Aware Cut / Style Pilots Sliced and Runtime-Integrated  
 **Sequence:** 006  
 **Depends on:** 001-003 and approved Headshot visual style
 
@@ -37,6 +37,45 @@ Review contact sheet:
 - `visual-assets/character-builder/reviews/headshot-v1/length/contact-sheet-r1.png`
 
 Hair length intentionally does not decide cut/style, texture, finish, parting/fringe, or color. Those remain separate semantic axes.
+
+## Hair Cut / Style Pilot
+
+The second Hair pilot is `Hair > Cut / Style` using the shared visual-card picker contract. It uses reviewed cut/style options from `attributes/008-hair.json` and filters the visible set by selected character presentation for MVP.
+
+| Row | Column | Visual option | Current attribute ID |
+|---:|---:|---|---|
+| 1 | 1 | Ponytail | `hair_008` |
+| 1 | 2 | Messy Bun | `hair_009` |
+| 1 | 3 | French Braid | `hair_010` |
+| 1 | 4 | Layered Hush Cut | `hair_022` |
+| 2 | 1 | Long Loose Waves | `hair_023` |
+| 2 | 2 | Side-swept Hair | `hair_024` |
+| 2 | 3 | Wet Look Hair | `hair_025` |
+| 2 | 4 | Wolf Cut | `hair_026` |
+| 3 | 1 | Crew Cut | `hair_029` |
+| 3 | 2 | Side Part | `hair_030` |
+| 3 | 3 | Undercut | `hair_031` |
+| 3 | 4 | Pompadour | `hair_032` |
+| 4 | 1 | Quiff | `hair_033` |
+| 4 | 2 | Textured Crop | `hair_034` |
+| 4 | 3 | Caesar Cut | `hair_035` |
+| 4 | 4 | Short Curly Crop | `hair_036` |
+
+Presentation filtering for MVP:
+
+- Female character selection shows the feminine/unisex first-pass set: `hair_008`, `hair_009`, `hair_010`, `hair_022`, `hair_023`, `hair_024`, `hair_025`, `hair_026`.
+- Male character selection shows the masculine first-pass set only: `hair_029`, `hair_030`, `hair_031`, `hair_032`, `hair_033`, `hair_034`, `hair_035`, `hair_036`.
+- Unspecified or custom gender selection may show all cut/style options until the character presentation contract is formalized.
+
+`Straight Hair`, `Wavy Hair`, and `Curly Hair` are not part of this visual set because they describe hair texture rather than cut/style. They should be handled by the `Hair > Texture` control.
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/hair/cut-style/hair-cut-style-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/hair/cut-style/`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/cut-style/contact-sheet-r1.png`
+
+Implementation note: the UI field-to-subcategory filter must map `Cut / Style` to `Style`, `Texture` to `Hair Texture`, and `Parting / Fringe` to `Bangs` so hair axes do not fall back to the full hair catalog.
 
 ## Composition Rules
 

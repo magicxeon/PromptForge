@@ -132,6 +132,34 @@ const FIELD_TO_CATEGORY_MAP = {
   "Camera Imperfections": "camera_imperfections"
 };
 
+const GENDER_TO_HAIR_PRESENTATION = {
+  "character.001": "feminine",
+  "character.002": "masculine"
+};
+
+const HAIR_CUT_STYLE_PRESENTATION_OPTIONS = {
+  feminine: new Set([
+    "hair_008",
+    "hair_009",
+    "hair_010",
+    "hair_022",
+    "hair_023",
+    "hair_024",
+    "hair_025",
+    "hair_026"
+  ]),
+  masculine: new Set([
+    "hair_029",
+    "hair_030",
+    "hair_031",
+    "hair_032",
+    "hair_033",
+    "hair_034",
+    "hair_035",
+    "hair_036"
+  ])
+};
+
 // Presets are loaded dynamically from server bundle via state.presets
 
 // Unified exclusions declaration
@@ -246,6 +274,13 @@ function restoreSelectionsToUI() {
           customInput.style.display = "block";
         }
       } else {
+        const hasMatchingOption = Array.from(selectEl.options).some(option => option.value === selection.id);
+        if (!hasMatchingOption) {
+          delete state.selections[fieldName];
+          const fieldHelp = selectEl.closest(".form-field")?.querySelector(".field-option-help");
+          if (fieldHelp) fieldHelp.textContent = "";
+          return;
+        }
         selectEl.value = selection.id;
       }
       const selectedItem = state.library.find(item => item.id === selection.id);
@@ -1519,18 +1554,52 @@ function renderForm() {
 }
 
 // Logic Helper: Filter attributes
+function getSelectedHairPresentation() {
+  const selectedGenderId = state.selections?.Gender?.id;
+  return GENDER_TO_HAIR_PRESENTATION[selectedGenderId] || null;
+}
+
+function filterHairCutStyleByPresentation(options) {
+  const presentation = getSelectedHairPresentation();
+  const allowed = HAIR_CUT_STYLE_PRESENTATION_OPTIONS[presentation];
+  if (!allowed) return options;
+
+  return options.filter(item => allowed.has(item.id));
+}
+
+function clearInvalidHairCutStyleSelection() {
+  const current = state.selections["Cut / Style"];
+  if (!current?.id) return;
+
+  const validHairStyles = getOptionsForField("Cut / Style", "hair", state.library);
+  if (!validHairStyles.some(item => item.id === current.id)) {
+    delete state.selections["Cut / Style"];
+  }
+}
+
 function getOptionsForField(fieldName, category, allItems) {
   const items = allItems.filter(item => {
     if (item.category === "nsfw" && category !== "nsfw") return false;
     return item.category === category;
   });
   const lowerField = fieldName.toLowerCase();
+  const subcategoryAliases = {
+    "cut / style": "style",
+    "texture": "hair texture",
+    "parting / fringe": "bangs"
+  };
+  const matchedSubcategory = subcategoryAliases[lowerField] || lowerField;
 
   const itemsWithSubcat = items.filter(item => item.subcategory);
   const hasSubcategory = itemsWithSubcat.length > 0 && (itemsWithSubcat.length / items.length) > 0.5;
   if (hasSubcategory) {
-    const matched = items.filter(item => item.subcategory && item.subcategory.toLowerCase() === lowerField);
-    if (matched.length > 0) return matched;
+    const matched = items.filter(item => item.subcategory && item.subcategory.toLowerCase() === matchedSubcategory);
+    if (matched.length > 0) {
+      if (category === "hair" && lowerField === "cut / style") {
+        return filterHairCutStyleByPresentation(matched);
+      }
+      return matched;
+    }
   }
 
   const getEngLabel = (item) => {
@@ -1603,6 +1672,24 @@ function syncVisualPickers() {
   window.ModelPromptForgeVisualOptionControls?.syncVisualPickers(document);
 }
 
+function rerenderDynamicForm({ preserveOpenAccordions = true } = {}) {
+  const openAccordionIds = preserveOpenAccordions
+    ? [...document.querySelectorAll("#form-container .accordion.active")]
+      .map(accordion => accordion.id)
+      .filter(Boolean)
+    : [];
+
+  renderForm();
+  bindDynamicFormEvents();
+  restoreSelectionsToUI();
+  openAccordionIds.forEach(id => document.getElementById(id)?.classList.add("active"));
+  updateColorPickerUI();
+  enforceModeReferencePolicy({ updateUI: false });
+  toggleUIForMode();
+  refreshReferenceAuthorityUI();
+  updateReferencePreviewsUI();
+}
+
 function bindDynamicFormEvents() {
   // Accordion Toggle Headers
   document.querySelectorAll(".accordion-header").forEach(header => {
@@ -1663,8 +1750,16 @@ function bindDynamicFormEvents() {
         }
       }
 
+      if (fieldName === "Gender") {
+        clearInvalidHairCutStyleSelection();
+      }
       updateAccordionSummaryBadges(groupName);
       updatePromptPreview();
+      if (fieldName === "Gender") {
+        rerenderDynamicForm();
+        updatePromptPreview();
+        return;
+      }
       syncVisualPickers();
     });
 

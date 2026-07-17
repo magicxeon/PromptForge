@@ -31,6 +31,11 @@
       "fieldId": "hair.length",
       "manifestId": "headshot.hair.length",
       "url": "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json"
+    },
+    {
+      "fieldId": "hair.cut_style",
+      "manifestId": "headshot.hair.cut-style",
+      "url": "/assets/visual-character-builder/headshot-v1/hair/cut-style/manifest.json"
     }
   ]
 }

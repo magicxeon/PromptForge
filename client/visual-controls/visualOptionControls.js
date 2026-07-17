@@ -94,6 +94,32 @@
         "hair.length.long": "hair_003",
         "hair.length.extra_long": "hair_004"
       }
+    },
+    {
+      key: "Hair::Cut / Style",
+      group: "Hair",
+      field: "Cut / Style",
+      controlType: "visual-card-picker",
+      hideMissingAttributes: true,
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/hair/cut-style/manifest.json",
+      optionMap: {
+        "hair.cut_style.ponytail": "hair_008",
+        "hair.cut_style.messy_bun": "hair_009",
+        "hair.cut_style.french_braid": "hair_010",
+        "hair.cut_style.layered_hush_cut": "hair_022",
+        "hair.cut_style.long_loose_waves": "hair_023",
+        "hair.cut_style.side_swept": "hair_024",
+        "hair.cut_style.wet_look": "hair_025",
+        "hair.cut_style.wolf_cut": "hair_026",
+        "hair.cut_style.crew_cut": "hair_029",
+        "hair.cut_style.side_part": "hair_030",
+        "hair.cut_style.undercut": "hair_031",
+        "hair.cut_style.pompadour": "hair_032",
+        "hair.cut_style.quiff": "hair_033",
+        "hair.cut_style.textured_crop": "hair_034",
+        "hair.cut_style.caesar_cut": "hair_035",
+        "hair.cut_style.short_curly_crop": "hair_036"
+      }
     }
   ];
 
@@ -142,6 +168,7 @@
     manifest.items.forEach(item => {
       const attributeId = config?.optionMap?.[item.optionId];
       const attribute = optionById.get(attributeId);
+      if (!attribute && config?.hideMissingAttributes) return;
 
       const button = document.createElement("button");
       button.type = "button";

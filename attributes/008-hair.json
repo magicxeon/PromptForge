@@ -962,6 +962,214 @@
       "enabled": true
     },
     {
+      "id": "hair_029",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Crew Cut",
+      "aliases": [],
+      "description": "Short crew cut hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "crew cut hairstyle",
+        "gpt-image": "short clean crew cut hairstyle",
+        "flux": "crew cut hairstyle",
+        "sdxl": "crew cut hairstyle",
+        "midjourney": "crew cut hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_030",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Side Part",
+      "aliases": [],
+      "description": "Classic side part hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "side part hairstyle",
+        "gpt-image": "classic side part hairstyle, neat and polished",
+        "flux": "side part hairstyle",
+        "sdxl": "side part hairstyle",
+        "midjourney": "side part hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_031",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Undercut",
+      "aliases": [],
+      "description": "Undercut hairstyle with short sides.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "undercut hairstyle",
+        "gpt-image": "undercut hairstyle with short sides and styled top",
+        "flux": "undercut hairstyle",
+        "sdxl": "undercut hairstyle",
+        "midjourney": "undercut hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_032",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Pompadour",
+      "aliases": [],
+      "description": "Pompadour hairstyle with lifted volume.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "pompadour hairstyle",
+        "gpt-image": "pompadour hairstyle with lifted volume and neat sides",
+        "flux": "pompadour hairstyle",
+        "sdxl": "pompadour hairstyle",
+        "midjourney": "pompadour hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_033",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Quiff",
+      "aliases": [],
+      "description": "Quiff hairstyle with forward-lifted volume.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "quiff hairstyle",
+        "gpt-image": "quiff hairstyle with textured lifted front",
+        "flux": "quiff hairstyle",
+        "sdxl": "quiff hairstyle",
+        "midjourney": "quiff hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_034",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Textured Crop",
+      "aliases": [],
+      "description": "Short textured crop hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "textured crop hairstyle",
+        "gpt-image": "short textured crop hairstyle with natural tousled texture",
+        "flux": "textured crop hairstyle",
+        "sdxl": "textured crop hairstyle",
+        "midjourney": "textured crop hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_035",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Caesar Cut",
+      "aliases": [],
+      "description": "Short Caesar cut hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "Caesar cut hairstyle",
+        "gpt-image": "short Caesar cut hairstyle with a neat straight fringe",
+        "flux": "Caesar cut hairstyle",
+        "sdxl": "Caesar cut hairstyle",
+        "midjourney": "Caesar cut hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "id": "hair_036",
+      "category": "hair",
+      "subcategory": "Style",
+      "label": "Short Curly Crop",
+      "aliases": [],
+      "description": "Short curly crop hairstyle.",
+      "ui": {
+        "group": "Hair",
+        "control": "select",
+        "icon": "hair"
+      },
+      "prompt": {
+        "default": "short curly crop hairstyle",
+        "gpt-image": "short curly crop hairstyle with compact natural curls",
+        "flux": "short curly crop hairstyle",
+        "sdxl": "short curly crop hairstyle",
+        "midjourney": "short curly crop hairstyle"
+      },
+      "compatible": ["portrait", "fashion", "indoor", "outdoor"],
+      "conflicts": [],
+      "tags": ["style"],
+      "examples": [],
+      "weight": 90,
+      "enabled": true
+    },
+    {
       "id": "hair.text_01",
       "category": "hair",
       "subcategory": "Hair Texture",
