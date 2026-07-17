@@ -285,10 +285,58 @@
         inner.appendChild(authorityPanel);
       }
 
+      if (groupName === "Clothing") {
+        inner.appendChild(createOutfitReferenceUploadControl());
+      }
+
       content.appendChild(inner);
       accordion.appendChild(content);
       container.appendChild(accordion);
     });
+  }
+
+  function createOutfitReferenceUploadControl() {
+    const panel = document.createElement("div");
+    panel.id = "outfit-reference-upload-container";
+    panel.className = "mode-sub-control outfit-reference-control";
+    panel.style.display = state.mode === "character-sheet" ? "block" : "none";
+    panel.innerHTML = `
+      <label class="control-label" style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">Outfit Reference (Front / Back)</label>
+      <p class="sub-label" style="margin: 0.35rem 0 0;">
+        Character Sheet only. These images describe clothing shape, colors, and visible garment details.
+      </p>
+      <div class="reference-slots-dock" id="outfit-ref-slots-dock"
+        style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+        <div class="ref-slot-card" id="outfit-front-card"
+          style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+          <img id="outfit-front-img" src="" alt="Front outfit reference"
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+          <span class="slot-badge"
+            style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(250, 204, 21, 0.85); color: #000; font-weight: 800;">Front</span>
+          <button type="button" class="btn-clear-slot" data-slot="outfitFront"
+            style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+        <div class="ref-slot-card" id="outfit-back-card"
+          style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
+          <img id="outfit-back-img" src="" alt="Back outfit reference"
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+          <span class="slot-badge"
+            style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(250, 204, 21, 0.85); color: #000; font-weight: 800;">Back</span>
+          <button type="button" class="btn-clear-slot" data-slot="outfitBack"
+            style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.5rem; align-items: center;">
+        <input type="file" id="outfit-front-file" accept="image/*" class="custom-select"
+          style="border-style: dashed; padding: 0.25rem 0.5rem;">
+        <input type="file" id="outfit-back-file" accept="image/*" class="custom-select"
+          style="border-style: dashed; padding: 0.25rem 0.5rem;">
+        <button id="btn-clear-outfit-reference" class="btn-compact-neon"
+          style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
+          type="button">Clear</button>
+      </div>
+    `;
+    return panel;
   }
 
   function getSelectedHairPresentation() {
@@ -418,7 +466,7 @@
     });
 
     // Dropdown Select Inputs
-    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       const fieldName = select.getAttribute("data-field");
       const groupName = select.getAttribute("data-group");
       const customInput = select.closest(".form-field").querySelector(".custom-writein-input");

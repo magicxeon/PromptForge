@@ -422,9 +422,6 @@ function bindEvents() {
   const storyCharacterReference = document.getElementById("story-use-character-reference");
   const characterReferenceFile = document.getElementById("character-reference-file");
   const btnClearCharacterReference = document.getElementById("btn-clear-character-reference");
-  const outfitFrontFile = document.getElementById("outfit-front-file");
-  const outfitBackFile = document.getElementById("outfit-back-file");
-  const btnClearOutfitReference = document.getElementById("btn-clear-outfit-reference");
   if (storyCharacterReference) {
     storyCharacterReference.addEventListener("change", () => {
       state.imageReferences.characterReference = storyCharacterReference.checked && state.mode === "normal";
@@ -488,29 +485,23 @@ function bindEvents() {
     reader.readAsDataURL(file);
   };
 
-  if (outfitFrontFile) {
-    outfitFrontFile.addEventListener("change", (event) => {
+  document.addEventListener("change", (event) => {
+    if (event.target?.id === "outfit-front-file") {
       readOutfitReferenceFile(event.target.files[0], "front");
-      outfitFrontFile.value = "";
-    });
-  }
-
-  if (outfitBackFile) {
-    outfitBackFile.addEventListener("change", (event) => {
+      event.target.value = "";
+    } else if (event.target?.id === "outfit-back-file") {
       readOutfitReferenceFile(event.target.files[0], "back");
-      outfitBackFile.value = "";
-    });
-  }
-
-  if (btnClearOutfitReference) {
-    btnClearOutfitReference.addEventListener("click", () => {
-      clearOutfitReferenceState();
-      updatePromptPreview();
-    });
-  }
+      event.target.value = "";
+    }
+  });
 
   // Handle slot close/clear button clicks (Step 9)
   document.addEventListener("click", (e) => {
+    if (e.target?.id === "btn-clear-outfit-reference") {
+      clearOutfitReferenceState();
+      updatePromptPreview();
+      return;
+    }
     if (e.target.classList.contains("btn-clear-slot")) {
       const slot = e.target.getAttribute("data-slot");
       if (slot === "faceA") {
@@ -1160,7 +1151,7 @@ function randomizeSelections() {
     }
   });
 
-  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+  document.querySelectorAll("#form-container select.custom-select").forEach(select => {
     const fieldName = select.getAttribute("data-field");
     if (!state.lockedFields.has(fieldName)) {
       select.value = "";
@@ -1180,7 +1171,7 @@ function randomizeSelections() {
   const isFaceLocked = state.imageReferences.faceMatch;
   const faceFields = ["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile", "Expression"];
 
-  document.querySelectorAll("#form-container .custom-select").forEach(select => {
+  document.querySelectorAll("#form-container select.custom-select").forEach(select => {
     const fieldName = select.getAttribute("data-field");
     const groupName = select.getAttribute("data-group");
 

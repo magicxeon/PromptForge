@@ -270,7 +270,7 @@
       delete state.selections[conflictingField];
 
       const conflictingSelect = document.querySelector(
-        `#form-container .custom-select[data-field="${conflictingField}"]`
+        `#form-container select.custom-select[data-field="${conflictingField}"]`
       );
       if (conflictingSelect) {
         conflictingSelect.value = "";
@@ -315,7 +315,7 @@
 
     selectedIds.forEach(id => activeExclusions.delete(id));
 
-    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       Array.from(select.options).forEach(option => {
         if (option.value === "" || option.value === "__custom__") return;
         const originalText = option.getAttribute("data-original-text") || option.textContent;

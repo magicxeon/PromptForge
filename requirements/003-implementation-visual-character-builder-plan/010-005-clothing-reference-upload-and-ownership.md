@@ -65,6 +65,7 @@ If provider does not support references:
 - Added Character Sheet-only outfit reference upload slots:
   - Outfit Front
   - Outfit Back
+- Placed the outfit reference upload control inside the Clothing section because the upload owns clothing, not the global mode.
 - Added slot previews and clear controls for front/back outfit references.
 - Added `outfitReference` ownership state separate from Face Match, Style Match, Pose Match and Story Character Reference.
 - Updated Character Sheet source ownership summary:

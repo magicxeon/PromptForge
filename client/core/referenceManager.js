@@ -130,7 +130,7 @@
 
   function applyCharacterReferenceAuthority() {
     const isReferenceOwned = isStoryCharacterReferenceActive() && !state.characterReferenceOverrides;
-    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       const groupName = select.getAttribute("data-group");
       if (!REFERENCE_OWNED_GROUPS.has(groupName)) return;
       const fieldName = select.getAttribute("data-field");

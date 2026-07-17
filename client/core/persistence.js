@@ -155,7 +155,7 @@
       if (templateSelect && payload.template) templateSelect.value = payload.template;
 
       // 3. Re-render attributes form fields (sync DOM selects with state.selections)
-      document.querySelectorAll("#form-container .custom-select").forEach(select => {
+      document.querySelectorAll("#form-container select.custom-select").forEach(select => {
         const fieldName = select.getAttribute("data-field");
         const customInput = select.closest(".form-field").querySelector(".custom-writein-input");
 
@@ -201,7 +201,7 @@
   }
 
   function resetForm() {
-    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       select.value = "";
       const formField = select.closest(".form-field");
       if (formField) {
@@ -444,7 +444,7 @@
       faceMatchUploadContainer.style.display = state.imageReferences.faceMatch ? "block" : "none";
     }
 
-    document.querySelectorAll("#form-container .custom-select").forEach(select => {
+    document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       const formField = select.closest(".form-field");
       const customInput = formField ? formField.querySelector(".custom-writein-input") : null;
       select.value = "";
