@@ -1,6 +1,6 @@
 # 010-004 Outfit Preset Inventory
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001, 010-002
 
@@ -57,3 +57,23 @@ to clearly show body shape and physique
 - First preset set is small and practical.
 - Every preset supports clean sheet generation.
 - Presets support later Story Mode reuse.
+
+## Implementation Log
+
+### 2026-07-18 - Outfit Preset Baseline
+
+- Added `Outfit Preset` as the first field in the Clothing section.
+- Added five brand-free MVP outfit presets:
+  - `outfit.preset.sheet_baseline`
+  - `outfit.preset.casual_tshirt_jeans`
+  - `outfit.preset.simple_dress`
+  - `outfit.preset.blazer_trousers`
+  - `outfit.preset.hoodie_pants`
+- Preset wording is neutral and sheet-friendly.
+- Preserved the existing Character Sheet fallback phrase when no clothing selection exists, so older/sparse configs still generate usable sheets.
+- Added `Outfit Preset` to client and server field-category maps.
+
+Deferred:
+
+- Outfit visual-card images/icons are not generated in this step.
+- Color visibility per preset remains future UI work; existing clothing color overrides are left unchanged.

@@ -69,6 +69,7 @@ window.FIELD_TO_CATEGORY_MAP = {
   "Dress": "clothing",
   "Shoes": "clothing",
   "Accessories": "clothing",
+  "Outfit Preset": "clothing",
   "Product Type": "clothing",
   "Garment Silhouette": "clothing",
   "Material / Surface": "clothing",

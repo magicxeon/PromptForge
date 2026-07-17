@@ -1430,5 +1430,155 @@
       "shirt"
     ],
     "enabled": true
+  },
+  {
+    "id": "outfit.preset.sheet_baseline",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Character Sheet Baseline",
+      "th": "ชุดพื้นฐานสำหรับ Character Sheet"
+    },
+    "description": {
+      "en": "Plain neutral outfit for clean full-body model sheets.",
+      "th": "ชุดเรียบกลางๆ สำหรับสร้างภาพตัวละครเต็มตัวหลายมุม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image-safe": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image-positive": "clean model sheet outfit, visible full-body reference, neutral wardrobe"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "character-sheet",
+      "baseline"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.casual_tshirt_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "T-shirt and Jeans",
+      "th": "เสื้อยืดและยีนส์"
+    },
+    "description": {
+      "en": "Simple casual outfit for reusable story characters.",
+      "th": "ชุดลำลองเรียบง่ายสำหรับตัวละครที่นำไปใช้ต่อใน Story Mode"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers",
+      "gpt-image": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers, clean readable outfit construction",
+      "gpt-image-safe": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers",
+      "gpt-image-positive": "casual character reference outfit, clean wardrobe continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "casual",
+      "story-ready"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.simple_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Simple Dress",
+      "th": "เดรสเรียบง่าย"
+    },
+    "description": {
+      "en": "Minimal one-piece outfit with clear silhouette.",
+      "th": "ชุดเดรสชิ้นเดียวแบบเรียบง่าย เห็นทรงชุดชัด"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple knee-length day dress with clean lines and minimal details",
+      "gpt-image": "wearing a simple knee-length day dress with clean lines, minimal details, and clear full-body silhouette",
+      "gpt-image-safe": "wearing a simple knee-length day dress with clean lines and minimal details",
+      "gpt-image-positive": "simple fashion character reference, readable dress silhouette"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "dress",
+      "story-ready"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.blazer_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Blazer and Trousers",
+      "th": "เบลเซอร์และกางเกงขายาว"
+    },
+    "description": {
+      "en": "Professional commercial outfit with structured tailoring.",
+      "th": "ชุดเชิงพาณิชย์/มืออาชีพที่มีโครงสร้างตัดเย็บชัดเจน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes",
+      "gpt-image": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes, structured professional outfit",
+      "gpt-image-safe": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes",
+      "gpt-image-positive": "professional character reference outfit, structured tailoring, commercial wardrobe continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "professional",
+      "commercial"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.hoodie_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Hoodie and Pants",
+      "th": "ฮู้ดดี้และกางเกง"
+    },
+    "description": {
+      "en": "Relaxed street/casual outfit for everyday characters.",
+      "th": "ชุดสตรีท/ลำลองสำหรับตัวละครในชีวิตประจำวัน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers",
+      "gpt-image": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers, readable casual outfit layers",
+      "gpt-image-safe": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers",
+      "gpt-image-positive": "street casual character reference, clean outfit continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "street",
+      "casual"
+    ],
+    "enabled": true
   }
 ]
