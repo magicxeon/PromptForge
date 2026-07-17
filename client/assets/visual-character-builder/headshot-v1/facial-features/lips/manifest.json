@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.lips",
+  "fieldId": "lips.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.lips.shape.natural",
+      "optionId": "lips.shape.natural",
+      "slug": "natural",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Natural lips in clean line art",
+        "th": "ริมฝีปากธรรมชาติแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "15ccfab9714618859c3771e31ced74d81018cc2114a283eed1baf0664429b57a",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/natural-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/natural-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/natural-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.cherry",
+      "optionId": "lips.shape.cherry",
+      "slug": "cherry",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Cherry lips in clean line art",
+        "th": "ริมฝีปากเชอร์รีแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "e99f2463d36dca118ee00cf6a4dde71880cd0863d93728366a9933ed33718792",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/cherry-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/cherry-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/cherry-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.cupids-bow",
+      "optionId": "lips.shape.cupids_bow",
+      "slug": "cupids-bow",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Cupid's bow lips in clean line art",
+        "th": "ริมฝีปากคิวปิดโบว์แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "ba1c414527cbec1df06a3dcc477c3eb88b37b125855aebd9717b9f3f2e302dce",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/cupids-bow-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/cupids-bow-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/cupids-bow-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.plump",
+      "optionId": "lips.shape.plump",
+      "slug": "plump",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Plump lips in clean line art",
+        "th": "ริมฝีปากอวบอิ่มแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "f8a1a19fe7726df3d202004a57ccbe19f39ec06e9b31b863a067ee2bdfa5e9e1",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/plump-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/plump-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/plump-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.thin",
+      "optionId": "lips.shape.thin",
+      "slug": "thin",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Thin lips in clean line art",
+        "th": "ริมฝีปากบางแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "bf0da32fc3808731d775e6b0c5c3bffa41e6aae9871b7f97fe77b19c9809e5a0",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/thin-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/thin-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/thin-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.heart-shaped",
+      "optionId": "lips.shape.heart_shaped",
+      "slug": "heart-shaped",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Heart-shaped lips in clean line art",
+        "th": "ริมฝีปากทรงหัวใจแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "561c0b552fbe50e5879a8f98e437522a122f7776c01534a19e5412e1acffcf86",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/heart-shaped-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/heart-shaped-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/heart-shaped-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.heavy-upper",
+      "optionId": "lips.shape.heavy_upper",
+      "slug": "heavy-upper",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Heavy upper lip in clean line art",
+        "th": "ริมฝีปากบนเด่นแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "b8ea1d3ee812e30d251ba828c5ef95f9b529ed89e8893544e3cc9241ce3fad9f",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/heavy-upper-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/heavy-upper-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/heavy-upper-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.lips.shape.wide",
+      "optionId": "lips.shape.wide",
+      "slug": "wide",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Wide lips in clean line art",
+        "th": "ริมฝีปากกว้างแบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "5f103fc8ea18e394c543c4b436d998a89a45f0965e1262b0a61a33e2496c54e1",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/wide-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/wide-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/wide-r1.png"
+      }
+    }
+  ]
+}

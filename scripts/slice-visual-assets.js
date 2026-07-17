@@ -12,13 +12,15 @@ const FIELD_MANIFESTS = {
   'face.shape': path.join(AUTHORING_DIR, 'manifests/headshot/face-structure/face-shape.manifest.json'),
   'eyes.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyes.manifest.json'),
   'eyebrows.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyebrows.manifest.json'),
-  'nose.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/nose.manifest.json')
+  'nose.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/nose.manifest.json'),
+  'lips.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/lips.manifest.json')
 };
 const FIELD_FOLDERS = {
   'face.shape': 'face-shape',
   'eyes.shape': 'eyes',
   'eyebrows.shape': 'eyebrows',
-  'nose.shape': 'nose'
+  'nose.shape': 'nose',
+  'lips.shape': 'lips'
 };
 const RUNTIME_MANIFESTS = [
   {
@@ -44,6 +46,12 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'headshot.facial-features.nose',
     sectionId: 'facial-features',
     folder: 'nose'
+  },
+  {
+    fieldId: 'lips.shape',
+    manifestId: 'headshot.facial-features.lips',
+    sectionId: 'facial-features',
+    folder: 'lips'
   }
 ];
 

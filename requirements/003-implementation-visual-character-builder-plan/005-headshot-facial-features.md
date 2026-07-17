@@ -1,6 +1,6 @@
 # Headshot - Facial Features
 
-**Status:** Eyes, Eyebrows, and Nose Pilots Sliced and Runtime-Integrated  
+**Status:** Eyes, Eyebrows, Nose, and Lips Pilots Sliced and Runtime-Integrated  
 **Sequence:** 005  
 **Depends on:** Approved Face Structure pilot
 
@@ -87,6 +87,31 @@ The runtime manifest index now includes `face.shape`, `eyes.shape`, `eyebrows.sh
 Review contact sheet:
 
 - `visual-assets/character-builder/reviews/headshot-v1/nose/contact-sheet-r1.png`
+
+## Lips Pilot
+
+The fourth Facial Features pilot is `Face > Lips` using the same shared visual-card picker contract. It intentionally includes only neutral lip-shape options from the current `attributes/006-lips.json` file:
+
+| Column | Visual option | Current attribute ID |
+|---:|---|---|
+| 1 | Natural | `lips.001` |
+| 2 | Cherry | `lips.002` |
+| 3 | Cupid's Bow | `lips.003` |
+| 4 | Plump | `lips.004` |
+| 5 | Thin | `lips.005` |
+| 6 | Heart-Shaped | `lips.010` |
+| 7 | Heavy Upper | `lips.011` |
+| 8 | Wide | `lips.012` |
+
+`Soft smile`, `Closed-mouth smile`, `Gentle smile`, and `Neutral expression` are not part of the Lips Shape visual set because they describe expression rather than anatomy. They can become a separate smile/expression control later.
+
+The source sheet is stored at `visual-assets/character-builder/source-sets/headshot-v1/facial-features/lips/lips-set-r1.png` and sliced into runtime assets under `client/assets/visual-character-builder/headshot-v1/facial-features/lips/`.
+
+The runtime manifest index now includes `face.shape`, `eyes.shape`, `eyebrows.shape`, `nose.shape`, and `lips.shape`.
+
+Review contact sheet:
+
+- `visual-assets/character-builder/reviews/headshot-v1/lips/contact-sheet-r1.png`
 
 ## Scope Rules
 

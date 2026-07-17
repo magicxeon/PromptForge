@@ -64,6 +64,23 @@
         "nose.shape.straight": "nose.005",
         "nose.shape.natural": "nose.006"
       }
+    },
+    {
+      key: "Face::Lips",
+      group: "Face",
+      field: "Lips",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json",
+      optionMap: {
+        "lips.shape.natural": "lips.001",
+        "lips.shape.cherry": "lips.002",
+        "lips.shape.cupids_bow": "lips.003",
+        "lips.shape.plump": "lips.004",
+        "lips.shape.thin": "lips.005",
+        "lips.shape.heart_shaped": "lips.010",
+        "lips.shape.heavy_upper": "lips.011",
+        "lips.shape.wide": "lips.012"
+      }
     }
   ];
 

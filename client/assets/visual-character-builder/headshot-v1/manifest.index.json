@@ -21,6 +21,11 @@
       "fieldId": "nose.shape",
       "manifestId": "headshot.facial-features.nose",
       "url": "/assets/visual-character-builder/headshot-v1/facial-features/nose/manifest.json"
+    },
+    {
+      "fieldId": "lips.shape",
+      "manifestId": "headshot.facial-features.lips",
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json"
     }
   ]
 }
