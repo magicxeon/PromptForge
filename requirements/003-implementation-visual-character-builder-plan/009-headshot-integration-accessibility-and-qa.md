@@ -361,3 +361,21 @@ Generated image QA must additionally confirm:
 - Prompt cleanup produces compact, non-contradictory prompts for TC-001 through TC-008.
 - Admin can inspect and edit the cleaned prompt before generation.
 
+## Implementation Log
+
+### 2026-07-17 - Deterministic Prompt Cleanup Pass
+
+- Added deterministic Node prompt cleanup coverage with `npm run test:prompt-cleanup`.
+- Added fixtures under `tests/prompt-cleanup/` for TC-001 through TC-006 plus edge cases for hair color insertion and off-camera expression cleanup.
+- Cleanup now normalizes:
+  - gender labels such as `female woman` and `male man`
+  - age phrases that duplicate exact age numbers
+  - long hair texture phrases such as specular glossy wave descriptions
+  - repeated natural/no-makeup skin phrases
+  - headshot expressions that mention `off-camera` or `looking away`
+- Fixed client-side Live Prompt Preview mismatch where `Smile = Neutral expression` plus `Expression = Soft Friendly Smile` produced `neutral-friendly micro smile`.
+- Current known issue:
+  - Hair visual UI state can still miss selected `Cut / Style` or `Color` after refresh/reselect, producing prompts such as `long hair, wavy hair` without the expected `layered hush cut burgundy hairstyle`.
+  - This is treated as a UI selection sync issue, not a cleanup/compiler issue, because the Node cleanup cases pass when `Color = hair_043` and `Cut / Style = hair_022` are present in selections.
+- Decision: do not block the next section on this hair sync issue; revisit when the Hair visual picker receives its next UX pass.
+

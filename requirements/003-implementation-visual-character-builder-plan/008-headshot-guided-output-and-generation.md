@@ -444,3 +444,14 @@ Result log:
 - Unsupported provider resolution receives a valid model-specific fallback or clear correction.
 - History can reconstruct the visible selections used for the result.
 
+## Implementation Log
+
+### 2026-07-17 - TC-001 to TC-003 Manual Prompt Preview
+
+- TC-001 generated a compact baseline prompt with face shape, natural bare-face skin detail, and hair texture preserved.
+- TC-002 exposed a headshot conflict where an expression option could emit `off-camera` language despite the fixed front-facing headshot layout.
+- TC-003 exposed two cleanup/state issues:
+  - `neutral-friendly micro smile` could appear when a neutral Smile value remained selected while Expression was Soft Friendly Smile.
+  - Hair visual selections could fail to carry the selected cut/style or color into Live Prompt Preview after refresh/reselect.
+- Decision: continue with deterministic cleanup and Node test coverage in `009`; keep the remaining Hair UI state sync issue as a known follow-up instead of blocking the next requirement section.
+
