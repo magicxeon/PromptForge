@@ -33,6 +33,21 @@
     }
   }
 
+  function clearOutfitReferenceState({ updateUI = true } = {}) {
+    state.outfitReferenceImageFront = null;
+    state.outfitReferenceImageBack = null;
+    state.outfitReferenceJobIds = [];
+    state.imageReferences.outfitReference = false;
+    const frontFileInput = document.getElementById("outfit-front-file");
+    const backFileInput = document.getElementById("outfit-back-file");
+    if (frontFileInput) frontFileInput.value = "";
+    if (backFileInput) backFileInput.value = "";
+    if (updateUI) {
+      updateReferencePreviewsUI();
+      updateCharacterSheetSourceStatus();
+    }
+  }
+
   function isStoryCharacterReferenceActive() {
     return state.mode === "normal"
       && state.imageReferences.characterReference === true
@@ -46,6 +61,9 @@
       return fieldName !== "Sheet Layout" && selection?.group === "Body";
     });
     const hasClothingSelection = Object.values(selections).some(selection => selection?.group === "Clothing");
+    const hasOutfitReference = state.mode === "character-sheet"
+      && state.imageReferences.outfitReference === true
+      && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
     const layoutSelection = selections["Sheet Layout"];
     const layoutItem = layoutSelection && !layoutSelection.isCustom
       ? state.library.find(item => item.id === layoutSelection.id)
@@ -66,9 +84,13 @@
         owns: ["body silhouette", "proportion"]
       },
       outfit: {
-        source: hasClothingSelection ? "outfit-preset-selections" : "character-sheet-baseline",
-        label: hasClothingSelection ? "Outfit preset selections" : "Character Sheet Baseline",
-        owns: ["outfit"]
+        source: hasOutfitReference
+          ? (state.outfitReferenceImageBack ? "outfit-front-back-reference" : "outfit-front-reference")
+          : (hasClothingSelection ? "outfit-preset-selections" : "character-sheet-baseline"),
+        label: hasOutfitReference
+          ? (state.outfitReferenceImageBack ? "Front/Back Upload" : "Front Upload")
+          : (hasClothingSelection ? "Outfit preset selections" : "Character Sheet Baseline"),
+        owns: ["outfit", "garment silhouette", "colors", "visible details"]
       },
       layout: {
         source: layoutSelection ? "selected-sheet-layout" : "default-front-side-back",
@@ -240,6 +262,9 @@
       if (styleCheckbox) styleCheckbox.checked = false;
       if (poseCheckbox) poseCheckbox.checked = false;
     }
+    if (state.mode !== "character-sheet") {
+      clearOutfitReferenceState({ updateUI });
+    }
   }
 
   function enforceFaceMatchInvariant({ updateUI = true } = {}) {
@@ -321,6 +346,39 @@
       } else {
         styleSlotBCard.style.display = "none";
         styleSlotBImg.src = "";
+      }
+    }
+
+    const outfitFrontCard = document.getElementById("outfit-front-card");
+    const outfitFrontImg = document.getElementById("outfit-front-img");
+    const outfitBackCard = document.getElementById("outfit-back-card");
+    const outfitBackImg = document.getElementById("outfit-back-img");
+
+    if (outfitFrontCard && outfitFrontImg) {
+      if (state.outfitReferenceImageFront) {
+        outfitFrontImg.src = state.outfitReferenceImageFront.startsWith("data:")
+          ? state.outfitReferenceImageFront
+          : (state.outfitReferenceImageFront.startsWith("/outputs/")
+            ? state.outfitReferenceImageFront
+            : `data:image/png;base64,${state.outfitReferenceImageFront}`);
+        outfitFrontCard.style.display = "flex";
+      } else {
+        outfitFrontCard.style.display = "none";
+        outfitFrontImg.src = "";
+      }
+    }
+
+    if (outfitBackCard && outfitBackImg) {
+      if (state.outfitReferenceImageBack) {
+        outfitBackImg.src = state.outfitReferenceImageBack.startsWith("data:")
+          ? state.outfitReferenceImageBack
+          : (state.outfitReferenceImageBack.startsWith("/outputs/")
+            ? state.outfitReferenceImageBack
+            : `data:image/png;base64,${state.outfitReferenceImageBack}`);
+        outfitBackCard.style.display = "flex";
+      } else {
+        outfitBackCard.style.display = "none";
+        outfitBackImg.src = "";
       }
     }
   }
@@ -424,6 +482,7 @@
   // Expose to window
   window.clearFaceReferenceState = clearFaceReferenceState;
   window.clearCharacterReferenceState = clearCharacterReferenceState;
+  window.clearOutfitReferenceState = clearOutfitReferenceState;
   window.isStoryCharacterReferenceActive = isStoryCharacterReferenceActive;
   window.getCharacterSheetSourceOwnership = getCharacterSheetSourceOwnership;
   window.updateCharacterSheetSourceStatus = updateCharacterSheetSourceStatus;

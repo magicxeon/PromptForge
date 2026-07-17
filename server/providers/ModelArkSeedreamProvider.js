@@ -47,6 +47,8 @@ function collectReferences(options) {
   return [
     options.resolvedCharacterReferenceImageA,
     options.resolvedCharacterReferenceImageB,
+    options.resolvedOutfitReferenceImageFront,
+    options.resolvedOutfitReferenceImageBack,
     options.resolvedFaceReferenceImageA,
     options.resolvedFaceReferenceImageB,
     options.resolvedStyleReferenceImageA,

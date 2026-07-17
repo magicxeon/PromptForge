@@ -211,6 +211,9 @@ function validateForm() {
     const capabilities = activeModel.capabilities || {};
     const activeReferences = [
       ...(state.imageReferences.faceMatch ? [state.faceReferenceImageA, state.faceReferenceImageB] : []),
+      ...(state.mode === "character-sheet" && state.imageReferences.outfitReference
+        ? [state.outfitReferenceImageFront, state.outfitReferenceImageBack]
+        : []),
       ...((state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch))
         ? [state.styleReferenceImageA, state.styleReferenceImageB]
         : []),
@@ -419,6 +422,9 @@ function bindEvents() {
   const storyCharacterReference = document.getElementById("story-use-character-reference");
   const characterReferenceFile = document.getElementById("character-reference-file");
   const btnClearCharacterReference = document.getElementById("btn-clear-character-reference");
+  const outfitFrontFile = document.getElementById("outfit-front-file");
+  const outfitBackFile = document.getElementById("outfit-back-file");
+  const btnClearOutfitReference = document.getElementById("btn-clear-outfit-reference");
   if (storyCharacterReference) {
     storyCharacterReference.addEventListener("change", () => {
       state.imageReferences.characterReference = storyCharacterReference.checked && state.mode === "normal";
@@ -462,6 +468,47 @@ function bindEvents() {
     });
   }
 
+  const readOutfitReferenceFile = (file, slot) => {
+    if (!file || state.mode !== "character-sheet") return;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const base64 = loadEvent.target.result.split(',')[1];
+      if (slot === "front") {
+        state.outfitReferenceImageFront = base64;
+        state.outfitReferenceJobIds[0] = null;
+      } else {
+        state.outfitReferenceImageBack = base64;
+        state.outfitReferenceJobIds[1] = null;
+      }
+      state.imageReferences.outfitReference = Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
+      updateReferencePreviewsUI();
+      updateCharacterSheetSourceStatus();
+      updatePromptPreview();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  if (outfitFrontFile) {
+    outfitFrontFile.addEventListener("change", (event) => {
+      readOutfitReferenceFile(event.target.files[0], "front");
+      outfitFrontFile.value = "";
+    });
+  }
+
+  if (outfitBackFile) {
+    outfitBackFile.addEventListener("change", (event) => {
+      readOutfitReferenceFile(event.target.files[0], "back");
+      outfitBackFile.value = "";
+    });
+  }
+
+  if (btnClearOutfitReference) {
+    btnClearOutfitReference.addEventListener("click", () => {
+      clearOutfitReferenceState();
+      updatePromptPreview();
+    });
+  }
+
   // Handle slot close/clear button clicks (Step 9)
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("btn-clear-slot")) {
@@ -484,10 +531,18 @@ function bindEvents() {
       } else if (slot === "characterB") {
         state.characterReferenceImageB = null;
         state.characterReferenceJobIds[1] = null;
+      } else if (slot === "outfitFront") {
+        state.outfitReferenceImageFront = null;
+        state.outfitReferenceJobIds[0] = null;
+      } else if (slot === "outfitBack") {
+        state.outfitReferenceImageBack = null;
+        state.outfitReferenceJobIds[1] = null;
       }
       if (!state.characterReferenceImageA && !state.characterReferenceImageB) {
         clearCharacterReferenceState({ updateUI: false });
       }
+      state.imageReferences.outfitReference = state.mode === "character-sheet"
+        && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
       updateReferencePreviewsUI();
       refreshReferenceAuthorityUI();
       updatePromptPreview();
@@ -1225,11 +1280,15 @@ function copyPromptToClipboard() {
 function toggleUIForMode() {
   const mode = state.mode;
   const imageUpload = document.getElementById("image-upload-container");
+  const outfitUpload = document.getElementById("outfit-reference-upload-container");
   pruneSelectionsForMode(state.selections, mode);
   updateCharacterSheetSourceStatus();
 
   if (imageUpload) {
     imageUpload.style.display = mode === "normal" ? "block" : "none";
+  }
+  if (outfitUpload) {
+    outfitUpload.style.display = mode === "character-sheet" ? "block" : "none";
   }
   document.querySelectorAll(".btn-use-character-ref").forEach(button => {
     button.style.display = mode === "normal" ? "inline-flex" : "none";

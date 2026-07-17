@@ -33,6 +33,9 @@
       characterReferenceImageA: state.characterReferenceImageA,
       characterReferenceImageB: state.characterReferenceImageB,
       characterReferenceJobIds: state.characterReferenceJobIds,
+      outfitReferenceImageFront: state.outfitReferenceImageFront,
+      outfitReferenceImageBack: state.outfitReferenceImageBack,
+      outfitReferenceJobIds: state.outfitReferenceJobIds,
       characterReferenceOverrides: state.characterReferenceOverrides
     };
 
@@ -73,6 +76,7 @@
         styleMatch: false,
         poseMatch: false,
         characterReference: false,
+        outfitReference: false,
         ...(payload.imageReferences || {})
       };
       state.aspectRatio = payload.aspectRatio || "6:8";
@@ -85,6 +89,9 @@
       state.characterReferenceImageA = payload.characterReferenceImageA || null;
       state.characterReferenceImageB = payload.characterReferenceImageB || null;
       state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
+      state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
+      state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
+      state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
       state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
       if (payload.provider) {
@@ -219,9 +226,10 @@
     if (toggleGptSafe) toggleGptSafe.checked = false;
 
     state.selections = {};
-    state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false, characterReference: false };
+    state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false, characterReference: false, outfitReference: false };
     if (window.clearFaceReferenceState) window.clearFaceReferenceState({ updateUI: false });
     if (window.clearCharacterReferenceState) window.clearCharacterReferenceState({ updateUI: false });
+    if (window.clearOutfitReferenceState) window.clearOutfitReferenceState({ updateUI: false });
     state.aspectRatio = "6:8";
     state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -344,6 +352,9 @@
       characterReferenceImageA: state.characterReferenceImageA,
       characterReferenceImageB: state.characterReferenceImageB,
       characterReferenceJobIds: state.characterReferenceJobIds,
+      outfitReferenceImageFront: state.outfitReferenceImageFront,
+      outfitReferenceImageBack: state.outfitReferenceImageBack,
+      outfitReferenceJobIds: state.outfitReferenceJobIds,
       characterReferenceOverrides: state.characterReferenceOverrides,
       sourceOwnership: window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null
     };
@@ -383,6 +394,7 @@
       styleMatch: false,
       poseMatch: false,
       characterReference: false,
+      outfitReference: false,
       ...(payload.imageReferences || {})
     };
     state.aspectRatio = payload.aspectRatio || state.aspectRatio || "6:8";
@@ -395,6 +407,9 @@
     state.characterReferenceImageA = payload.characterReferenceImageA || null;
     state.characterReferenceImageB = payload.characterReferenceImageB || null;
     state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
+    state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
+    state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
+    state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
     state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
     const inputWidth = document.getElementById("input-width");

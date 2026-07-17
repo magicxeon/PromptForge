@@ -437,6 +437,18 @@
         }
       }
       if (groupName.toLowerCase() === "clothing") {
+        if (state.mode === "character-sheet" && state.imageReferences.outfitReference) {
+          const hasFront = Boolean(state.outfitReferenceImageFront);
+          const hasBack = Boolean(state.outfitReferenceImageBack);
+          if (hasFront && hasBack) {
+            const txt = "matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, and visible details across all sheet views";
+            return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+          }
+          if (hasFront) {
+            const txt = "matching the clothing outfit, garment silhouette, colors, and styling from the uploaded front outfit reference, inferring unseen back details naturally";
+            return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+          }
+        }
         if (state.imageReferences.styleMatch && !referenceOwnsAppearance) {
           const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;

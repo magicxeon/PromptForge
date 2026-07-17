@@ -1,6 +1,6 @@
 # 010-005 Outfit Reference Front/Back Upload
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-002, provider capability contracts
 
@@ -57,3 +57,29 @@ If provider does not support references:
 - Front/back upload ownership is clear.
 - Outfit uploads can support multi-angle sheet generation.
 - Story Mode can later reuse the generated sheet, not the raw outfit uploads alone.
+
+## Implementation Log
+
+### 2026-07-18 - Outfit Front/Back Upload Baseline
+
+- Added Character Sheet-only outfit reference upload slots:
+  - Outfit Front
+  - Outfit Back
+- Added slot previews and clear controls for front/back outfit references.
+- Added `outfitReference` ownership state separate from Face Match, Style Match, Pose Match and Story Character Reference.
+- Updated Character Sheet source ownership summary:
+  - front-only upload reports `Front Upload`
+  - front/back upload reports `Front/Back Upload`
+  - upload ownership overrides outfit preset ownership
+- Updated prompt compiler behavior:
+  - front-only upload uses the front reference phrase and explicitly allows natural inferred back details
+  - front/back upload uses the front/back reference phrase and preserves visible garment details across sheet views
+  - uploaded outfit references override outfit preset text
+- Added outfit references to generation payload, server context normalization, queue options, comparison snapshots and history reference ids.
+- Added outfit reference images to provider reference image arrays for providers that already support image references.
+
+Deferred:
+
+- Provider-specific UX warnings beyond existing max-reference/capability validation.
+- Side outfit reference upload.
+- Story Mode reuse of raw outfit uploads; MVP still expects Story Mode to reuse the generated character sheet.

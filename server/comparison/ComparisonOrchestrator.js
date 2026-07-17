@@ -272,7 +272,8 @@ function createConfigurationSnapshot(context) {
     referenceJobIds: {
       face: [...(context.faceReferenceJobIds || [])],
       style: [...(context.styleReferenceJobIds || [])],
-      character: [...(context.characterReferenceJobIds || [])]
+      character: [...(context.characterReferenceJobIds || [])],
+      outfit: [...(context.outfitReferenceJobIds || [])]
     },
     customColors: structuredClone(context.customColors || {}),
     isGptSafe: context.isGptSafe === true

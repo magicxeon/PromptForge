@@ -228,10 +228,14 @@ class QueueManager {
       const resolvedStyleB = await resolveLocalImageToBase64(job.options.styleReferenceImageB);
       const resolvedCharacterA = await resolveLocalImageToBase64(job.options.characterReferenceImageA);
       const resolvedCharacterB = await resolveLocalImageToBase64(job.options.characterReferenceImageB);
+      const resolvedOutfitFront = await resolveLocalImageToBase64(job.options.outfitReferenceImageFront);
+      const resolvedOutfitBack = await resolveLocalImageToBase64(job.options.outfitReferenceImageBack);
 
       const uniqueReferences = dedupeResolvedReferenceImages([
         ['characterA', resolvedCharacterA],
         ['characterB', resolvedCharacterB],
+        ['outfitFront', resolvedOutfitFront],
+        ['outfitBack', resolvedOutfitBack],
         ['faceA', resolvedFaceA],
         ['faceB', resolvedFaceB],
         ['styleA', resolvedStyleA],
@@ -245,6 +249,8 @@ class QueueManager {
       job.options.resolvedStyleReferenceImageB = uniqueReferences.styleB;
       job.options.resolvedCharacterReferenceImageA = uniqueReferences.characterA;
       job.options.resolvedCharacterReferenceImageB = uniqueReferences.characterB;
+      job.options.resolvedOutfitReferenceImageFront = uniqueReferences.outfitFront;
+      job.options.resolvedOutfitReferenceImageBack = uniqueReferences.outfitBack;
 
       let result;
       if (job.options.stream) {
@@ -302,6 +308,7 @@ class QueueManager {
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
         referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
         referencedCharacterJobIds: normalizeReferenceJobIds(job.options.characterReferenceJobIds),
+        referencedOutfitJobIds: normalizeReferenceJobIds(job.options.outfitReferenceJobIds),
         generationDuration: durationSec,
         comparisonSetId: job.options.comparisonSetId || null,
         comparisonRunId: job.options.comparisonRunId || null,

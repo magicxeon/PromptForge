@@ -37,6 +37,9 @@
       : null;
     const submittedReferenceJobIds = {
       face: state.imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],
+      outfit: state.mode === "character-sheet" && state.imageReferences.outfitReference
+        ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.outfitReferenceJobIds) : state.outfitReferenceJobIds)
+        : [],
       style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.styleReferenceJobIds) : state.styleReferenceJobIds)
         : [],
@@ -59,6 +62,9 @@
       faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
       faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
       faceReferenceJobIds: submittedReferenceJobIds.face,
+      outfitReferenceImageFront: state.mode === "character-sheet" && state.imageReferences.outfitReference ? state.outfitReferenceImageFront : null,
+      outfitReferenceImageBack: state.mode === "character-sheet" && state.imageReferences.outfitReference ? state.outfitReferenceImageBack : null,
+      outfitReferenceJobIds: submittedReferenceJobIds.outfit,
       styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
         ? state.styleReferenceImageA : null,
       styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)

@@ -378,6 +378,12 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       }
     }
     if (groupName.toLowerCase() === "clothing") {
+      if (mode === "character-sheet" && imageReferences?.outfitReference) {
+        if (imageReferences?.outfitReferenceBack) {
+          return "matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, and visible details across all sheet views";
+        }
+        return "matching the clothing outfit, garment silhouette, colors, and styling from the uploaded front outfit reference, inferring unseen back details naturally";
+      }
       if (imageReferences && imageReferences.styleMatch && !referenceOwnsAppearance) {
         return "matching the style, colors, and clothing outfit from the original uploaded image";
       }

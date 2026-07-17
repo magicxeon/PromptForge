@@ -205,7 +205,8 @@ window.state = {
     faceMatch: false,
     styleMatch: false,
     poseMatch: false,
-    characterReference: false
+    characterReference: false,
+    outfitReference: false
   },
   faceReferenceImageA: null,
   faceReferenceImageB: null,
@@ -216,6 +217,9 @@ window.state = {
   characterReferenceImageA: null,
   characterReferenceImageB: null,
   characterReferenceJobIds: [],
+  outfitReferenceImageFront: null,
+  outfitReferenceImageBack: null,
+  outfitReferenceJobIds: [],
   characterReferenceOverrides: false,
   hasInitializedHistoryCollapse: false,
   language: "th",

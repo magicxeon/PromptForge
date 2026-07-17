@@ -5,6 +5,7 @@ export function normalizeGenerationContext(payload = {}) {
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
+  const hasOutfitReference = Boolean(payload.outfitReferenceImageFront || payload.outfitReferenceImageBack);
   const mode = payload.mode || 'normal';
   const imageReferences = {
     ...(payload.imageReferences || {}),
@@ -14,6 +15,15 @@ export function normalizeGenerationContext(payload = {}) {
     characterReference: mode === 'normal'
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference,
+    outfitReference: mode === 'character-sheet'
+      && payload.imageReferences?.outfitReference === true
+      && hasOutfitReference,
+    outfitReferenceFront: mode === 'character-sheet'
+      && payload.imageReferences?.outfitReference === true
+      && Boolean(payload.outfitReferenceImageFront),
+    outfitReferenceBack: mode === 'character-sheet'
+      && payload.imageReferences?.outfitReference === true
+      && Boolean(payload.outfitReferenceImageBack),
     characterOverrides: mode === 'normal'
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference
@@ -27,7 +37,9 @@ export function normalizeGenerationContext(payload = {}) {
     imageReferences.styleMatch || imageReferences.poseMatch ? payload.styleReferenceImageA : null,
     imageReferences.styleMatch || imageReferences.poseMatch ? payload.styleReferenceImageB : null,
     imageReferences.characterReference ? payload.characterReferenceImageA : null,
-    imageReferences.characterReference ? payload.characterReferenceImageB : null
+    imageReferences.characterReference ? payload.characterReferenceImageB : null,
+    imageReferences.outfitReference ? payload.outfitReferenceImageFront : null,
+    imageReferences.outfitReference ? payload.outfitReferenceImageBack : null
   ].filter(value => typeof value === 'string' && value.trim());
 
   return {
@@ -97,6 +109,11 @@ export function createQueueOptions(context, {
     characterReferenceImageB: references.characterReference ? context.characterReferenceImageB : null,
     characterReferenceJobIds: references.characterReference
       ? normalizeReferenceJobIds(context.characterReferenceJobIds)
+      : [],
+    outfitReferenceImageFront: references.outfitReference ? context.outfitReferenceImageFront : null,
+    outfitReferenceImageBack: references.outfitReference ? context.outfitReferenceImageBack : null,
+    outfitReferenceJobIds: references.outfitReference
+      ? normalizeReferenceJobIds(context.outfitReferenceJobIds)
       : [],
     comparisonSetId: comparison?.setId || null,
     comparisonRunId: comparison?.runId || null,
