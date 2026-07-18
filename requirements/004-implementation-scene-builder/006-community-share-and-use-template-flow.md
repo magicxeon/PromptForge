@@ -114,3 +114,51 @@ taxonomySuggestions
 - `Remix Only` must not expose hidden prompt text through public APIs.
 - Provider/model fallback must happen before generation, not after user fills replacements.
 - Community should consume Scene Builder contracts rather than duplicating template logic.
+
+## 10. Functional Technical Specification
+
+### 10.1 Client Files
+
+```text
+client/scene-builder/sceneSharePreview.js
+client/scene-builder/sceneTemplateHydrator.js
+client/scene-builder/sceneReplacementChecklist.js
+client/community/communityTemplateActions.js
+client/community/communityPostDetail.js
+```
+
+### 10.2 Server Files
+
+```text
+server/sceneTemplates/SceneTemplateService.js
+server/sceneTemplates/sceneTemplateSanitizer.js
+server/community/CommunityPostService.js
+server/community/CommunityRemixService.js
+```
+
+### 10.3 Required Functions
+
+```text
+createSceneShareDraft(sourceGenerationId, options) -> ShareDraft
+prepareSceneSharePreview(sourceGenerationId) -> SharePreview
+publishSceneTemplateShare(draftId, publishInput) -> CommunityPost
+useSceneTemplate(postId, viewerContext) -> SceneTemplateUsePayload
+recordSceneTemplateRemix(postId, templateId, generatedJobId) -> RemixEvent
+```
+
+### 10.4 API Shape Draft
+
+```text
+POST /api/scene-templates/share-drafts
+GET /api/scene-templates/share-drafts/:id
+POST /api/community/posts/:postId/use-template
+POST /api/community/posts/:postId/remix-events
+```
+
+Endpoint names can change later, but responsibilities must remain separated.
+
+### 10.5 Concerns For Implementing Agents
+
+- Community post detail should not implement its own hydrator.
+- Share preview must run reference privacy validation before publish.
+- Remix analytics must not include uploaded image contents.

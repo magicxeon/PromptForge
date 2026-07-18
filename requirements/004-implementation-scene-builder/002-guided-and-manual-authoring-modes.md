@@ -144,3 +144,51 @@ Output:
 - Reference slots must not be cleared when switching tabs.
 - Admin editable prompt behavior must be reconciled with Manual Mode to avoid duplicate prompt sources.
 - Manual Mode still needs same moderation, provider capability and reference limits as Guided Mode.
+
+## 9. Functional Technical Specification
+
+### 9.1 Client Files To Modify
+
+```text
+client/core/studioState.js
+client/core/generationService.js
+client/core/promptCompiler.js
+client/core/formRenderer.js
+client/index.html
+client/style.css
+```
+
+### 9.2 New Client Files
+
+```text
+client/scene-builder/sceneBuilderState.js
+client/scene-builder/sceneBuilderModeSwitcher.js
+client/scene-builder/sceneManualPromptEditor.js
+client/scene-builder/sceneGuidedPromptAdapter.js
+client/scene-builder/sceneAuthoringModeControls.js
+```
+
+### 9.3 Required Functions
+
+```text
+getSceneAuthoringMode() -> guided | manual
+setSceneAuthoringMode(mode, options) -> void
+copyGuidedPromptToManual() -> string
+getSceneManualPromptText() -> string
+setSceneManualPromptText(text) -> void
+getSceneFinalPrompt(context) -> string
+buildSceneGenerationPayload(basePayload) -> GenerationPayload
+```
+
+### 9.4 UI Requirements
+
+- Add a segmented control `[ Guided ] [ Manual ]`.
+- Guided panel shows existing structured category controls.
+- Manual panel shows editable prompt textarea and reference slots.
+- Reference slots and provider/model settings stay outside destructive tab switching.
+
+### 9.5 Concerns For Implementing Agents
+
+- Manual prompt textarea must be the canonical prompt only when authoring mode is `manual`.
+- Admin prompt override and Manual Mode must not both compete as prompt source.
+- Switching modes should be reversible during the current session.

@@ -115,3 +115,66 @@ scene-builder -> direct credit mutation
 - Avoid circular globals on `window`.
 - Prefer explicit exported module functions over adding more one-off helpers to `app.js`.
 - Keep JSON schema stable so later database migration is straightforward.
+
+## 8. Functional Technical Specification
+
+### 8.1 Client File Responsibilities
+
+```text
+sceneBuilderState.js
+- owns Scene Builder authoring mode state
+- exposes state getter/patch helpers
+
+sceneBuilderModeSwitcher.js
+- owns Guided/Manual switching behavior
+- handles prompt copy confirmation
+
+sceneTemplateSerializer.js
+- creates pure Scene Template snapshots
+
+sceneTemplateHydrator.js
+- converts template snapshot plus replacements into Studio state patch
+
+sceneVariableControls.js
+- renders controls for variables
+
+sceneReferenceSlots.js
+- maps reference manager state to Scene Template slots
+
+sceneTemplateValidation.js
+- validates template, variables and required replacements
+
+sceneBuilderUi.js
+- mounts Scene Builder UI controls and delegates to modules
+```
+
+### 8.2 Server File Responsibilities
+
+```text
+SceneTemplateService.js
+- orchestrates template draft/share/use operations
+
+SceneTemplateRepository.js
+- JSON-backed storage first, database-ready interface
+
+SceneTemplateValidator.js
+- validates snapshot and replacement input
+
+sceneTemplateSnapshot.js
+- pure snapshot construction and migration helpers
+
+sceneTemplateSanitizer.js
+- public/private field filtering
+```
+
+### 8.3 Wiring Rule
+
+`client/app.js` may call:
+
+```text
+window.ModelPromptForgeSceneBuilder.init()
+window.ModelPromptForgeSceneBuilder.createSnapshot()
+window.ModelPromptForgeSceneBuilder.hydrateTemplate()
+```
+
+It must not own variable resolution, slot privacy or template serialization.

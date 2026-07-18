@@ -104,3 +104,41 @@ Prepare sample records:
 - QA must validate privacy through API responses, not only UI display.
 - Missing replacement slots should block generation deterministically.
 - Provider/model unavailable fallback must be tested with real catalog data.
+
+## 9. Functional Technical Specification
+
+### 9.1 Test Files
+
+```text
+test/sceneTemplateSnapshot.test.js
+test/sceneTemplateHydrator.test.js
+test/sceneTemplateVariables.test.js
+test/sceneReferenceSlotPolicy.test.js
+test/sceneBuilderMigration.test.js
+test/sceneShareSanitizer.test.js
+```
+
+### 9.2 Required Test Helpers
+
+```text
+createMockGuidedSceneState()
+createMockManualSceneState()
+createMockPrivateReferenceSlots()
+createMockPublicCommunityPost()
+createLegacyNormalHistoryItem()
+```
+
+### 9.3 Test Coverage Map
+
+- `sceneTemplateSnapshot.test.js`: snapshot minimum fields, version, no raw provider payload.
+- `sceneTemplateHydrator.test.js`: hydrate valid template, stale field warning, missing replacement.
+- `sceneTemplateVariables.test.js`: required variables, color variables, custom text cleanup.
+- `sceneReferenceSlotPolicy.test.js`: private face default replacement, reusable style reference.
+- `sceneBuilderMigration.test.js`: legacy normal/story history compatibility.
+- `sceneShareSanitizer.test.js`: Full Prompt, Partial Prompt, Remix Only, Private Prompt filtering.
+
+### 9.4 Concerns For Implementing Agents
+
+- Do not rely only on visual/manual QA for privacy.
+- Add tests before large refactors when touching persistence or template hydration.
+- If a provider capability test requires live catalog data, keep it as manual QA unless a stable fixture exists.

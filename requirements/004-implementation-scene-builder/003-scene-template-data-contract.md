@@ -142,3 +142,55 @@ sceneTemplateVersion
 - Published snapshots must be immutable.
 - Snapshot size can grow quickly if full base64 images are embedded; store asset IDs or replacement policies instead.
 - Old snapshots must degrade gracefully when fields/options are removed.
+
+## 10. Functional Technical Specification
+
+### 10.1 Client Files
+
+```text
+client/scene-builder/sceneTemplateSerializer.js
+client/scene-builder/sceneTemplateHydrator.js
+client/scene-builder/sceneTemplateValidation.js
+client/scene-builder/sceneTemplateVersioning.js
+```
+
+### 10.2 Server Files
+
+```text
+server/sceneTemplates/sceneTemplateSnapshot.js
+server/sceneTemplates/SceneTemplateValidator.js
+server/sceneTemplates/sceneTemplateVersioning.js
+```
+
+### 10.3 Required Functions
+
+```text
+createSceneTemplateSnapshot(context) -> SceneTemplateSnapshot
+validateSceneTemplateSnapshot(snapshot) -> ValidationResult
+sanitizeSceneTemplateSnapshot(snapshot, visibilityPolicy) -> PublicSceneTemplateSnapshot
+hydrateSceneTemplate(snapshot, replacements) -> StudioStatePatch
+migrateSceneTemplateSnapshot(snapshot) -> SceneTemplateSnapshot
+getSceneTemplateVersion() -> number
+```
+
+### 10.4 Snapshot Minimum Fields
+
+```text
+sceneTemplateVersion
+authoringMode
+finalPromptSnapshot
+structuredSelectionsSnapshot
+manualPromptSnapshot
+referenceSlotMapping
+replaceableVariables
+providerModelSnapshot
+generationSettingsSnapshot
+visibilityPolicySnapshot
+createdFromGenerationId
+```
+
+### 10.5 Concerns For Implementing Agents
+
+- Keep serializer and hydrator pure.
+- Never include private base64 images inside a public snapshot.
+- Keep `structuredSelectionsSnapshot` keyed by canonical field name and option id.

@@ -174,3 +174,55 @@ MVP can remain JSON-backed, but schema must be database-ready:
 - Avoid adding Scene Builder logic directly into `app.js`.
 - Manual Mode must not bypass safety, provider capability or reference privacy validation.
 - Product-only workflows are deferred; avoid adding product-specific fields that confuse the first MVP.
+
+## 10. Functional Technical Specification
+
+### 10.1 Required Client Files
+
+```text
+client/scene-builder/sceneBuilderState.js
+client/scene-builder/sceneBuilderModeSwitcher.js
+client/scene-builder/sceneTemplateSerializer.js
+client/scene-builder/sceneTemplateHydrator.js
+client/scene-builder/sceneVariableControls.js
+client/scene-builder/sceneReferenceSlots.js
+client/scene-builder/sceneTemplateValidation.js
+client/scene-builder/sceneBuilderUi.js
+client/scene-builder/sceneBuilderHandoff.js
+client/scene-builder/index.js
+```
+
+### 10.2 Required Server Files
+
+```text
+server/sceneTemplates/sceneTemplateSnapshot.js
+server/sceneTemplates/SceneTemplateValidator.js
+server/sceneTemplates/SceneTemplateService.js
+server/sceneTemplates/SceneTemplateRepository.js
+server/sceneTemplates/sceneTemplateSanitizer.js
+server/sceneTemplates/sceneTemplateHydration.js
+```
+
+### 10.3 Required Test Files
+
+```text
+test/sceneTemplateSnapshot.test.js
+test/sceneTemplateHydrator.test.js
+test/sceneTemplateVariables.test.js
+test/sceneReferenceSlotPolicy.test.js
+test/sceneBuilderMigration.test.js
+```
+
+### 10.4 Cross-Module Integration Points
+
+- `client/core/studioState.js`: add Scene Builder authoring state defaults and legacy mode compatibility.
+- `client/core/generationService.js`: include `sceneTemplateSnapshot`, `authoringMode`, and replacement metadata in generation payload.
+- `client/core/promptCompiler.js`: support Guided prompt compilation and Manual prompt passthrough.
+- `client/core/referenceManager.js`: expose reusable reference slot state and policy helpers.
+- `client/core/crossModeHandoff.js`: route Character Sheet output into Scene Builder as Character Reference.
+- `server/generationRequestService.js`: normalize Scene Builder template metadata before queue creation.
+- `server/queueManager.js`: persist Scene Builder snapshot into history entries.
+
+### 10.5 Global Rule For All Scene Builder Work
+
+Any agent implementing this folder must keep pure template logic testable without DOM, must avoid expanding `client/app.js` beyond wiring, and must preserve existing Headshot and Character Sheet flows.

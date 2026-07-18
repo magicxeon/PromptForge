@@ -97,3 +97,49 @@ Output: sanitized reference payload and validation warnings.
 - Sharing a generated final image is not the same as sharing its source references.
 - Deleted or hidden reference assets must not continue to be reusable from public templates.
 - Uploaded face/character references are sensitive and default to replacement-required.
+
+## 9. Functional Technical Specification
+
+### 9.1 Client Files
+
+```text
+client/core/referenceManager.js
+client/scene-builder/sceneReferenceSlots.js
+client/scene-builder/sceneReferencePolicyControls.js
+client/scene-builder/sceneReplacementChecklist.js
+```
+
+### 9.2 Server Files
+
+```text
+server/sceneTemplates/sceneReferenceSlotPolicy.js
+server/sceneTemplates/sceneTemplateSanitizer.js
+server/assets/assetAccessPolicy.js
+```
+
+### 9.3 Required Functions
+
+```text
+createSceneReferenceSlot(slotType, source) -> SceneReferenceSlot
+validateReferenceSlotPolicies(slots, actorContext) -> ReferencePolicyResult
+sanitizeReferenceSlotsForPublic(slots, visibilityPolicy) -> PublicReferenceSlot[]
+resolveReferenceSlotsForGeneration(slots, replacements) -> GenerationReferencePayload
+isReferenceReusableByViewer(slot, viewerContext) -> boolean
+```
+
+### 9.4 Slot Types
+
+```text
+character_reference
+face_reference
+outfit_front_reference
+outfit_back_reference
+style_reference
+pose_reference_later
+```
+
+### 9.5 Concerns For Implementing Agents
+
+- Treat face and character references as sensitive by default.
+- Keep preview permission separate from generation reuse permission.
+- Public template payloads must be checked by API tests, not only UI checks.

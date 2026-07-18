@@ -99,3 +99,61 @@ Output: same generation behavior with updated user-facing naming.
 - Do not break old history items or saved local storage payloads.
 - Handoff copy should describe Character Reference clearly, not generic image reference.
 - If route changes are introduced later, browser Back/Forward behavior must remain correct.
+
+## 9. Functional Technical Specification
+
+### 9.1 Client Files To Modify
+
+```text
+client/core/studioState.js
+client/core/persistence.js
+client/core/crossModeHandoff.js
+client/shell/navigationRegistry.js
+client/shell/router.js
+client/index.html
+client/style.css
+```
+
+### 9.2 New Client Files
+
+```text
+client/scene-builder/sceneModeLabels.js
+client/scene-builder/sceneBuilderNavigation.js
+```
+
+### 9.3 Required Functions
+
+```text
+resolveSceneDisplayMode(mode) -> { id, label, legacyMode }
+isSceneBuilderMode(mode) -> boolean
+getSceneBuilderRouteState(route, state) -> SceneRouteState
+applySceneBuilderNavigationState(routeState) -> void
+normalizeLegacySceneMode(payload) -> NormalizedModePayload
+```
+
+### 9.4 Input, Process, Output
+
+Input:
+
+- Current `state.mode`.
+- Saved local storage payload.
+- History item mode.
+- Router path.
+
+Process:
+
+- Detect legacy `normal` / `story` behavior.
+- Render Scene Builder label for final-image workflow.
+- Preserve internal mode value until migration is deliberate.
+
+Output:
+
+- UI label and active navigation state.
+- Safe payload for current generation flow.
+- Migration warnings only when data cannot be resolved.
+
+### 9.5 Concerns For Implementing Agents
+
+- Do not delete `normal` mode behavior.
+- Do not update all mode strings globally with search/replace.
+- Verify Character Sheet handoff still targets Scene Builder after label changes.

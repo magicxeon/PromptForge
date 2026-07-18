@@ -134,3 +134,49 @@ Use control type by variable type:
 - User custom text must be sanitized and compiled through the same prompt rules.
 - Locked identity variables should not be editable from Use Template unless creator allows it.
 - Color variables should preserve both human label and raw hex when available.
+
+## 10. Functional Technical Specification
+
+### 10.1 Client Files
+
+```text
+client/scene-builder/sceneVariableControls.js
+client/scene-builder/sceneVariableResolver.js
+client/scene-builder/sceneReplacementChecklist.js
+client/scene-builder/sceneTemplateValidation.js
+```
+
+### 10.2 Server Files
+
+```text
+server/sceneTemplates/SceneTemplateValidator.js
+server/sceneTemplates/sceneVariableResolver.js
+```
+
+### 10.3 Required Functions
+
+```text
+createSceneVariablesFromSelections(selections, policy) -> SceneVariable[]
+resolveTemplateVariables(snapshot, userInput) -> ResolvedTemplatePatch
+validateTemplateVariable(variable) -> ValidationResult
+validateReplacementInput(variable, value) -> ValidationResult
+renderSceneVariableControl(container, variable, value) -> void
+getMissingRequiredVariables(snapshot, userInput) -> SceneVariable[]
+```
+
+### 10.4 Variable Source Mapping
+
+Each variable must map back to one of:
+
+```text
+selection.fieldName
+referenceSlot.slotId
+manualPrompt.placeholderId
+generationSetting.key
+```
+
+### 10.5 Concerns For Implementing Agents
+
+- Variable ids should not be translated labels.
+- Missing required variables block generation before provider request.
+- Custom text variables must not bypass prompt cleanup and safety rules.
