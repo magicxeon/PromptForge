@@ -153,12 +153,12 @@
           ? (state.characterReferenceOverrides
             ? "เปิดการปรับแต่งขั้นสูงอยู่ ความต่อเนื่องของตัวละครอาจลดลง"
             : "กำลังใช้เอกลักษณ์ ทรงผม รูปร่าง และเสื้อผ้าจากภาพอ้างอิงตัวละคร")
-          : "ตัวเลือก Character ทำงานตามปกติเนื่องจากยังไม่ได้เลือกภาพอ้างอิงตัวละครใน Story Mode")
+          : "ตัวเลือก Character ทำงานตามปกติเนื่องจากยังไม่ได้เลือกภาพอ้างอิงตัวละครใน Scene Builder")
         : (isStoryCharacterReferenceActive()
           ? (state.characterReferenceOverrides
             ? "Advanced overrides are active. Identity consistency may be reduced."
             : "Using identity, hair, body, and clothing from Character Reference.")
-          : "Character attributes are active because no Story Character Reference is selected.");
+          : "Character attributes are active because no Character Reference is selected.");
     }
     if (overrideLabel) overrideLabel.textContent = state.language === "th" ? "เปิดการปรับ Character ขั้นสูง" : "Enable advanced character overrides";
     if (override) override.checked = state.characterReferenceOverrides;
