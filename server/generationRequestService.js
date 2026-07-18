@@ -1,6 +1,8 @@
 import { compilePromptOnServer } from './promptCompiler.js';
 import { normalizeReferenceJobIds } from './referenceUtils.js';
 
+const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
+
 export function normalizeGenerationContext(payload = {}) {
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
@@ -51,6 +53,14 @@ export function normalizeGenerationContext(payload = {}) {
     sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
       ? payload.sourceOwnership
       : null,
+    characterSheetConfig: createCharacterSheetConfigSnapshot({
+      ...payload,
+      mode,
+      imageReferences,
+      sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
+        ? payload.sourceOwnership
+        : null
+    }),
     referenceCount: new Set(activeReferenceValues).size
   };
 }
@@ -88,6 +98,15 @@ export function createQueueOptions(context, {
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,
+    characterSheetConfig: context.characterSheetConfig || null,
+    storyReferenceHandoff: context.mode === 'character-sheet'
+      ? {
+        referenceType: 'character-sheet',
+        identityLocked: true,
+        outfitLocked: true,
+        sourceJobId: null
+      }
+      : null,
     mode: context.mode,
     template: context.template,
     isGptSafe: context.isGptSafe,
@@ -119,4 +138,51 @@ export function createQueueOptions(context, {
     comparisonRunId: comparison?.runId || null,
     comparisonSlotId: comparison?.slotId || null
   };
+}
+
+export function createCharacterSheetConfigSnapshot(context = {}) {
+  if (context.mode !== 'character-sheet') return null;
+  const selections = context.selections && typeof context.selections === 'object'
+    ? context.selections
+    : {};
+  const faceReferenceIds = normalizeReferenceJobIds(context.faceReferenceJobIds);
+  const outfitReferenceIds = normalizeReferenceJobIds(context.outfitReferenceJobIds);
+  const hasOutfitReference = context.imageReferences?.outfitReference === true;
+  const hasBackReference = context.imageReferences?.outfitReferenceBack === true;
+  const outfitSelectionIds = collectSelectionIds(selections, selection => selection?.group === 'Clothing');
+  const layoutSelection = selections['Sheet Layout'];
+
+  return {
+    version: 1,
+    mode: 'character-sheet',
+    sourceHeadshotIds: faceReferenceIds,
+    identitySelectionIds: collectSelectionIds(selections, selection =>
+      CHARACTER_SHEET_IDENTITY_GROUPS.has(selection?.group)
+    ),
+    bodySelectionIds: collectSelectionIds(selections, (selection, fieldName) =>
+      selection?.group === 'Body' && fieldName !== 'Sheet Layout'
+    ),
+    outfitSource: {
+      type: hasOutfitReference
+        ? (hasBackReference ? 'front-back-reference' : 'front-reference')
+        : (Object.keys(outfitSelectionIds).length ? 'preset' : 'baseline'),
+      frontReferenceIds: hasOutfitReference ? outfitReferenceIds.slice(0, 1) : [],
+      backReferenceIds: hasBackReference ? outfitReferenceIds.slice(1, 2) : []
+    },
+    outfitSelectionIds,
+    layout: {
+      type: layoutSelection?.id || 'body.sheet_layout.front_side_back'
+    },
+    sourceOwnership: context.sourceOwnership || null
+  };
+}
+
+function collectSelectionIds(selections, predicate) {
+  return Object.fromEntries(
+    Object.entries(selections)
+      .filter(([fieldName, selection]) =>
+        selection && !selection.isCustom && selection.id && predicate(selection, fieldName)
+      )
+      .map(([fieldName, selection]) => [fieldName, selection.id])
+  );
 }

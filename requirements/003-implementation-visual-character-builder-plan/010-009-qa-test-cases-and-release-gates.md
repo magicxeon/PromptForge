@@ -1,6 +1,6 @@
 # 010-009 Character Sheet QA Test Cases and Release Gates
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Automated Gate Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001 through 010-008
 
@@ -71,8 +71,88 @@ Do not release until:
 - unsupported provider path shows clear warning
 - history handoff works
 
+## Automated Gate
+
+Run:
+
+```bash
+npm run test:character-sheet
+```
+
+This command must pass before wiring any Character Sheet visual assets into the runtime UI.
+
+Current automated coverage:
+
+- Character Sheet prompt contract tests.
+- Story/reference mode separation tests.
+- Character Sheet persistence snapshot tests.
+- Prompt cleanup regression tests.
+- Character Sheet visual manifest contract check.
+
+Expected pre-visual state:
+
+- `npm run test:character-sheet` passes.
+- `visual-assets:check:character-sheet` may warn about missing source sheets.
+- `visual-assets:check:character-sheet` may warn that `reviewStatus: planned` blocks publishing.
+- Those warnings are acceptable until a source sheet has been reviewed.
+
+## First Visual Pilot Gate
+
+Pilot field:
+
+```text
+Body > Body Silhouette
+```
+
+Before publishing the first runtime visual cards:
+
+1. Generate one 2x3 source sheet for:
+   - straight natural silhouette
+   - curvy natural silhouette
+   - hourglass silhouette
+   - pear-shaped silhouette
+   - inverted triangle silhouette
+   - full-figured / plus natural silhouette
+2. User reviews the full source sheet before slicing.
+3. If approved, update only `body-silhouette.manifest.template.json` review statuses to `source-selected` or `approved`.
+4. Run:
+
+```bash
+npm run visual-assets:slice:character-sheet
+```
+
+5. Review generated contact sheet.
+6. Only then wire `Body::Body Silhouette` into `client/visual-controls/visualOptionControls.js`.
+
+Reject source sheet if:
+
+- silhouettes are too sexualized
+- pose is not neutral enough for sheet reference
+- scale differs too much between cells
+- face/hair/clothing details distract from silhouette
+- any cell is cropped off-center
+- semantic difference is unclear at thumbnail size
+
 ## Acceptance Criteria
 
 - QA verifies sheet consistency, not only prompt syntax.
 - Known issues are logged before release.
 - Character Sheet Builder can be disabled independently if gate fails.
+
+## Implementation Log
+
+### 2026-07-18 - Automated Release Gate
+
+- Added `scripts/test-character-sheet-release-gate.js`.
+- Added npm script:
+
+```bash
+npm run test:character-sheet
+```
+
+- Gate currently runs:
+  - `node --test test/modeSpecificCharacterReference.test.js test/characterSheetPersistence.test.js`
+  - `node scripts/test-prompt-cleanup.js`
+  - `node scripts/slice-visual-assets.js --check --field=character-sheet`
+- Confirmed that missing source sheets and planned review statuses remain warnings during check mode, while publishing stays blocked by the slice guard.
+- Verified `npm run test:character-sheet` passes in the current pre-visual state.

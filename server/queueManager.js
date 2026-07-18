@@ -300,6 +300,10 @@ class QueueManager {
         submodel: job.submodel,
         mode: job.options.mode || null,
         sourceOwnership: job.options.sourceOwnership || null,
+        characterSheetConfig: job.options.characterSheetConfig || null,
+        storyReferenceHandoff: job.options.storyReferenceHandoff
+          ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
+          : null,
         resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
         providerConfigVersion: job.options.providerConfigVersion || null,
         creditCost,

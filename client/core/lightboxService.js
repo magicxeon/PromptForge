@@ -227,10 +227,12 @@
       const faceParents = item.referencedFaceJobIds || [];
       const styleParents = item.referencedStyleJobIds || [];
       const characterParents = item.referencedCharacterJobIds || [];
+      const outfitParents = item.referencedOutfitJobIds || [];
       const lineageEntries = [
         ...faceParents.map(id => ({ id, type: "Face" })),
         ...styleParents.map(id => ({ id, type: "Style" })),
-        ...characterParents.map(id => ({ id, type: "Character" }))
+        ...characterParents.map(id => ({ id, type: "Character" })),
+        ...outfitParents.map(id => ({ id, type: "Outfit" }))
       ].filter(p => p.id);
       const lineageById = new Map();
       lineageEntries.forEach(parent => {
@@ -262,14 +264,14 @@
           thumbImg.style.borderRadius = "3px";
 
           const typeBadge = document.createElement("span");
-          const typeCodes = { Face: "F", Style: "S", Character: "C" };
+          const typeCodes = { Face: "F", Style: "S", Character: "C", Outfit: "O" };
           typeBadge.textContent = p.types.map(type => typeCodes[type]).join("+");
           typeBadge.style.position = "absolute";
           typeBadge.style.bottom = "-2px";
           typeBadge.style.right = "-2px";
           typeBadge.style.background = p.types.length > 1
             ? "var(--neon-purple)"
-            : (p.types[0] === "Face" ? "var(--neon-cyan)" : (p.types[0] === "Style" ? "var(--neon-pink)" : "var(--neon-gold)"));
+            : (p.types[0] === "Face" ? "var(--neon-cyan)" : (p.types[0] === "Style" ? "var(--neon-pink)" : (p.types[0] === "Outfit" ? "var(--neon-purple)" : "var(--neon-gold)")));
           typeBadge.style.color = "#000";
           typeBadge.style.fontSize = "0.55rem";
           typeBadge.style.fontWeight = "900";
