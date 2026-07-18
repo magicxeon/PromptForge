@@ -30,7 +30,6 @@ const FIELD_MANIFESTS = {
   'clothing.outfit-base': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base.manifest.template.json'),
   'clothing.outfit-base.female': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base-female.manifest.template.json'),
   'clothing.outfit-base.male': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base-male.manifest.template.json'),
-  'outfit.preset': path.join(AUTHORING_DIR, 'manifests/character-sheet/outfit-preset.manifest.template.json'),
   'sheet.layout': path.join(AUTHORING_DIR, 'manifests/character-sheet/sheet-layout.manifest.template.json')
 };
 const FIELD_FOLDERS = {
@@ -51,7 +50,6 @@ const FIELD_FOLDERS = {
   'clothing.outfit-base': 'outfit-base',
   'clothing.outfit-base.female': 'outfit-base-female',
   'clothing.outfit-base.male': 'outfit-base-male',
-  'outfit.preset': 'outfit-preset',
   'sheet.layout': 'sheet-layout'
 };
 const FIELD_GROUPS = {
@@ -75,7 +73,6 @@ const FIELD_GROUPS = {
     'clothing.outfit-base',
     'clothing.outfit-base.female',
     'clothing.outfit-base.male',
-    'outfit.preset',
     'sheet.layout'
   ]
 };
@@ -186,12 +183,6 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'character-sheet.clothing.outfit-base-male',
     sectionId: 'clothing',
     folder: 'outfit-base-male'
-  },
-  {
-    fieldId: 'outfit.preset',
-    manifestId: 'character-sheet.outfit.outfit-preset',
-    sectionId: 'outfit',
-    folder: 'outfit-preset'
   },
   {
     fieldId: 'sheet.layout',

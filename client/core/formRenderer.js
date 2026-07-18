@@ -5,23 +5,30 @@
   const state = window.state;
   const getLocalizedLabel = window.getLocalizedLabel;
 
+  function shouldRenderGroup(groupName) {
+    return groupName.toLowerCase() !== "nsfw";
+  }
+
+  function shouldRenderField(groupName, fieldName) {
+    if (state.mode === "character-sheet" && groupName === "Clothing") {
+      return !window.CHARACTER_SHEET_HIDDEN_FIELDS?.has(fieldName);
+    }
+    return true;
+  }
+
   function renderForm() {
     const container = document.getElementById("form-container");
     container.innerHTML = "";
 
     state.schema.forEach((groupObj, groupIdx) => {
       const groupName = groupObj.group;
-      const isNsfwGroup = groupName.toLowerCase() === "nsfw";
+      if (!shouldRenderGroup(groupName)) return;
 
       const accordion = document.createElement("div");
       accordion.className = "accordion";
       accordion.id = `accordion-${groupName.toLowerCase().replace(/\s+/g, "-")}`;
       accordion.dataset.groupName = groupName;
       if (groupIdx === 0) accordion.classList.add("active");
-      if (isNsfwGroup) {
-        accordion.style.display = "none";
-        accordion.setAttribute("data-nsfw-controlled", "true");
-      }
 
       const header = document.createElement("div");
       header.className = "accordion-header";
@@ -50,7 +57,9 @@
       const inner = document.createElement("div");
       inner.className = "accordion-inner";
 
-      groupObj.fields.forEach(field => {
+      groupObj.fields
+        .filter(field => shouldRenderField(groupName, field.name))
+        .forEach(field => {
         const fieldDiv = document.createElement("div");
         fieldDiv.className = "form-field";
 
@@ -492,6 +501,12 @@
     }
     if (aliasKey === "Clothing::Outfit Base") {
       return filterOutfitBaseByPresentation(matched);
+    }
+    if (
+      state.mode === "character-sheet" &&
+      (fieldName === "Primary Color" || fieldName === "Secondary Color")
+    ) {
+      return [];
     }
     return matched;
   }

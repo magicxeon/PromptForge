@@ -57,7 +57,7 @@
       sourceOwnership,
       mode: state.mode,
       template: document.getElementById("template-select")?.value || "portrait",
-      isGptSafe: document.getElementById("toggle-gpt-safe")?.checked === true,
+      isGptSafe: false,
       username: state.username,
       faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
       faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,

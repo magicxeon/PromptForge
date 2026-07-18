@@ -29,7 +29,7 @@ test('Default fallback clothing is not injected outside Character Sheet mode', (
   assert.doesNotMatch(prompt, new RegExp(CANONICAL_FALLBACK));
 });
 
-test('Legacy Outfit Preset selection still compiles in Character Sheet mode', () => {
+test('Legacy Outfit Preset selection falls back in Character Sheet mode', () => {
   const selections = {
     'Outfit Preset': {
       id: 'outfit.preset.blazer_trousers',
@@ -48,18 +48,18 @@ test('Legacy Outfit Preset selection still compiles in Character Sheet mode', ()
     'portrait'
   );
 
-  assert.match(prompt, /tailored blazer/);
-  assert.doesNotMatch(prompt, new RegExp(CANONICAL_FALLBACK));
+  assert.match(prompt, new RegExp(CANONICAL_FALLBACK));
+  assert.doesNotMatch(prompt, /tailored blazer/);
 });
 
 test('Outfit Base modular selection tshirt_jeans compiles correctly', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
       category: 'clothing',
-      tags: ['clothing', 'outfit-base', 'casual']
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     }
   };
 
@@ -78,11 +78,11 @@ test('Outfit Base modular selection tshirt_jeans compiles correctly', () => {
 test('Outfit Base modular selection simple_dress compiles correctly', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.simple_dress',
+      id: 'outfit.base.female.simple_day_dress',
       value: 'wearing a simple knee-length day dress with clean lines',
       group: 'Clothing',
       category: 'clothing',
-      tags: ['clothing', 'outfit-base', 'dress']
+      tags: ['clothing', 'outfit-base', 'outfit-base-female', 'dress']
     }
   };
 
@@ -101,11 +101,11 @@ test('Outfit Base modular selection simple_dress compiles correctly', () => {
 test('Uploaded outfit references override Outfit Base selection and fallback', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
       category: 'clothing',
-      tags: ['clothing', 'outfit-base', 'casual']
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     }
   };
 
@@ -151,10 +151,11 @@ test('Safe clothing rules are respected, rejecting banned keywords', () => {
 test('Modular clothing with colors, patterns, and materials compiles correctly', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
-      category: 'clothing'
+      category: 'clothing',
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     },
     'Primary Color': {
       id: 'outfit.color.navy',
@@ -228,10 +229,11 @@ test('Colors, patterns, and materials are ignored when Outfit Base is modest_ref
 test('Secondary color compiles as trim accents when pattern is solid', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
-      category: 'clothing'
+      category: 'clothing',
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     },
     'Secondary Color': {
       id: 'outfit.color.white',
@@ -262,10 +264,11 @@ test('Secondary color compiles as trim accents when pattern is solid', () => {
 test('Outfit base with primary color compiles correctly', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
-      category: 'clothing'
+      category: 'clothing',
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     },
     'Primary Color': {
       id: 'outfit.color.navy',
@@ -291,10 +294,11 @@ test('Outfit base with primary color compiles correctly', () => {
 test('Outfit base with both primary and secondary colors compiles correctly', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
-      category: 'clothing'
+      category: 'clothing',
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     },
     'Primary Color': {
       id: 'outfit.color.navy',
@@ -326,10 +330,11 @@ test('Outfit base with both primary and secondary colors compiles correctly', ()
 test('Modular clothing custom color pickers compile hex colors without preset swatches', () => {
   const selections = {
     'Outfit Base': {
-      id: 'outfit.base.tshirt_jeans',
+      id: 'outfit.base.unisex.tshirt_wide_jeans',
       value: 'wearing a simple fitted T-shirt and straight-leg jeans',
       group: 'Clothing',
-      category: 'clothing'
+      category: 'clothing',
+      tags: ['clothing', 'outfit-base', 'outfit-base-unisex', 'casual']
     },
     'Pattern': {
       id: 'outfit.pattern.subtle_stripe',

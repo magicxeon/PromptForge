@@ -13,7 +13,7 @@ test('creates a semantic Character Sheet configuration snapshot without raw outf
       'Face Shape': { id: 'face.002', group: 'Face' },
       'Body Silhouette': { id: 'body.011', group: 'Body' },
       'Sheet Layout': { id: 'body.sheet_layout.front_back', group: 'Body' },
-      'Outfit Preset': { id: 'outfit.preset.casual_tshirt_jeans', group: 'Clothing' }
+      'Outfit Base': { id: 'outfit.base.unisex.tshirt_wide_jeans', group: 'Clothing' }
     },
     imageReferences: {
       faceMatch: true,
@@ -36,7 +36,7 @@ test('creates a semantic Character Sheet configuration snapshot without raw outf
   assert.equal(context.characterSheetConfig.identitySelectionIds['Face Shape'], 'face.002');
   assert.equal(context.characterSheetConfig.bodySelectionIds['Body Silhouette'], 'body.011');
   assert.equal(context.characterSheetConfig.layout.type, 'body.sheet_layout.front_back');
-  assert.equal(context.characterSheetConfig.outfitSelectionIds['Outfit Preset'], 'outfit.preset.casual_tshirt_jeans');
+  assert.equal(context.characterSheetConfig.outfitSelectionIds['Outfit Base'], 'outfit.base.unisex.tshirt_wide_jeans');
   assert.equal(context.characterSheetConfig.outfitSource.type, 'front-back-reference');
   assert.deepEqual(context.characterSheetConfig.outfitSource.frontReferenceIds, ['job_front']);
   assert.deepEqual(context.characterSheetConfig.outfitSource.backReferenceIds, ['job_back']);

@@ -198,6 +198,21 @@ window.MODE_CATEGORY_POLICY = {
   "character-sheet": new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing", "Camera", "Quality"])
 };
 
+window.CHARACTER_SHEET_HIDDEN_FIELDS = new Set([
+  "Outfit Preset",
+  "Product Type",
+  "Garment Silhouette",
+  "Material / Surface",
+  "Construction / Detail",
+  "Styling"
+]);
+
+window.CHARACTER_SHEET_REQUIRED_OUTFIT_BASE_TAGS = new Set([
+  "outfit-base-unisex",
+  "outfit-base-female",
+  "outfit-base-male"
+]);
+
 // Global App State
 window.state = {
   schema: null,
@@ -279,9 +294,36 @@ window.isGroupAllowedForMode = function(groupName, mode = window.state.mode) {
 
 window.pruneSelectionsForMode = function(selections = window.state.selections, mode = window.state.mode) {
   Object.keys(selections || {}).forEach(fieldName => {
-    const groupName = selections[fieldName]?.group;
+    const selection = selections[fieldName];
+    const groupName = selection?.group;
     if (groupName && !window.isGroupAllowedForMode(groupName, mode)) {
       delete selections[fieldName];
+      return;
+    }
+
+    if (mode === "character-sheet") {
+      if (window.CHARACTER_SHEET_HIDDEN_FIELDS.has(fieldName)) {
+        delete selections[fieldName];
+        return;
+      }
+      if (selection?.category === "nsfw" || groupName === "NSFW") {
+        delete selections[fieldName];
+        return;
+      }
+      if (
+        (fieldName === "Primary Color" || fieldName === "Secondary Color") &&
+        selection?.id?.startsWith("outfit.color.")
+      ) {
+        delete selections[fieldName];
+        return;
+      }
+      if (fieldName === "Outfit Base" && selection?.id?.startsWith("outfit.base.")) {
+        const tags = selection.tags || [];
+        const hasRequiredTag = tags.some(tag => window.CHARACTER_SHEET_REQUIRED_OUTFIT_BASE_TAGS.has(tag));
+        if (!hasRequiredTag) {
+          delete selections[fieldName];
+        }
+      }
     }
   });
   return selections;

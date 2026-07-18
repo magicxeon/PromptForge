@@ -3,6 +3,11 @@
  */
 
 const CANONICAL_FALLBACK = 'wearing modest neutral character reference clothing, an opaque light gray fitted top and matching mid-thigh shorts, non-revealing, clean and practical for character sheet visibility';
+const CANONICAL_OUTFIT_BASE_TAGS = new Set([
+  'outfit-base-unisex',
+  'outfit-base-female',
+  'outfit-base-male'
+]);
 
 export function getClothingSourceOwnership(selections, referenceState, mode) {
   if (mode !== 'character-sheet') {
@@ -15,7 +20,6 @@ export function getClothingSourceOwnership(selections, referenceState, mode) {
   
   const hasModularSelection = selections && (
     (selections['Outfit Base'] && selections['Outfit Base'].id) ||
-    (selections['Outfit Preset'] && selections['Outfit Preset'].id) ||
     (selections['Pattern'] && selections['Pattern'].id) ||
     (selections['Material'] && selections['Material'].id) ||
     (selections['Material / Surface'] && selections['Material / Surface'].id) ||
@@ -47,14 +51,14 @@ export function compileClothingPromptParts(selections, referenceState, mode) {
 
   // Priority 2: Modular Clothing
   if (ownership === 'modular') {
-    const outfitBase = selections['Outfit Base'] || selections['Outfit Preset'];
+    const outfitBase = selections['Outfit Base'];
     const pattern = selections['Pattern'];
     const material = selections['Material'] || selections['Material / Surface'];
     const primaryColor = selections['Primary Color'];
     const secondaryColor = selections['Secondary Color'];
 
     // If Outfit Base is modest_reference or not specified, colors/patterns/materials are ignored for safety
-    if (!outfitBase || outfitBase.id === 'outfit.base.modest_reference') {
+    if (!isCanonicalOutfitBase(outfitBase)) {
       return CANONICAL_FALLBACK;
     }
 
@@ -112,6 +116,13 @@ export function cleanupClothingPromptParts(parts) {
   prompt = prompt.replace(/\s*,\s*$/, '');
   
   return prompt.trim();
+}
+
+export function isCanonicalOutfitBase(outfitBase) {
+  if (!outfitBase || outfitBase.id === 'outfit.base.modest_reference') return false;
+  if (outfitBase.isCustom === true) return true;
+  const tags = outfitBase.tags || [];
+  return tags.some(tag => CANONICAL_OUTFIT_BASE_TAGS.has(tag));
 }
 
 function hasOutfitReference(referenceState) {

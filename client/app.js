@@ -20,6 +20,7 @@ const restoreCurrentModeState = () => window.restoreCurrentModeState();
 const resetForm = () => window.resetForm();
 const restoreSelectionsToUI = () => window.restoreSelectionsToUI();
 const renderForm = () => window.renderForm();
+const rerenderDynamicForm = (opts) => window.rerenderDynamicForm(opts);
 const loadVisualAssetManifests = () => window.loadVisualAssetManifests();
 const syncVisualPickers = () => window.syncVisualPickers();
 const updateColorPickerUI = () => window.updateColorPickerUI();
@@ -1153,8 +1154,7 @@ function bindEvents() {
       state.isRestoringState = false;
 
       enforceModeReferencePolicy({ updateUI: false });
-      toggleUIForMode();
-      updateReferencePreviewsUI();
+      rerenderDynamicForm({ preserveOpenAccordions: false });
       updatePromptPreview();
     });
   });
