@@ -218,6 +218,7 @@
         }
       );
       if (!confirmed) return;
+      window.scrollToActiveRenderScreen?.();
       const result = await api('/api/comparisons', {
         method: 'POST',
         body: {

@@ -888,6 +888,7 @@ function bindEvents() {
       if (btnFloatingConfig) {
         btnFloatingConfig.style.display = "block";
       }
+      scrollToActiveRenderScreen();
 
       const startTime = performance.now();
 
@@ -1433,6 +1434,41 @@ function initializeScrollToViewport() {
     }
   });
 }
+
+function scrollToActiveRenderScreen({ focusHeading = false } = {}) {
+  const visualDashboard = document.getElementById('visual-dashboard');
+  if (!visualDashboard) return;
+
+  if (visualDashboard.classList.contains('collapsed')) {
+    visualDashboard.classList.remove('collapsed');
+    const icon = document.querySelector('#btn-toggle-dashboard .toggle-icon');
+    if (icon) icon.textContent = '▼';
+  }
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  requestAnimationFrame(() => {
+    const nav = document.querySelector('.application-nav-shell');
+    const navHeight = nav ? nav.getBoundingClientRect().height : 0;
+    const targetTop = Math.max(
+      0,
+      visualDashboard.getBoundingClientRect().top + window.scrollY - navHeight - 16
+    );
+    window.scrollTo({
+      top: targetTop,
+      behavior: reducedMotion ? 'auto' : 'smooth'
+    });
+
+    if (focusHeading) {
+      const heading = visualDashboard.querySelector('h2');
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        setTimeout(() => heading.focus({ preventScroll: true }), reducedMotion ? 0 : 450);
+      }
+    }
+  });
+}
+
+window.scrollToActiveRenderScreen = scrollToActiveRenderScreen;
 
 function initializeAutoExpandConfigurator() {
   const creativeConfigurator = document.getElementById('creative-configurator');

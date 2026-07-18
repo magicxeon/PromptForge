@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 43
+      "credits": 38
     },
     "admin_demo": {
       "role": "admin",
@@ -409,6 +409,56 @@
       "comparisonSetId": null,
       "comparisonRunId": null,
       "createdAt": 1784280869532
+    },
+    {
+      "id": "credit_1784372474241_we58yt",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372474239_fkfhai8s1",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372474241
+    },
+    {
+      "id": "credit_1784372738773_snde3m",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372738767_qwxjtamqh",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372738773
+    },
+    {
+      "id": "credit_1784372987884_sg6aer",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372987883_s0iv4xrvq",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372987884
+    },
+    {
+      "id": "credit_1784373090240_5hux9k",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784373090239_0znme26py",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784373090240
+    },
+    {
+      "id": "credit_1784373431293_qd84lj",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784373431292_7k77q2s27",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784373431293
     }
   ]
 }

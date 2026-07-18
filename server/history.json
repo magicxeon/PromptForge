@@ -1,5 +1,587 @@
 [
   {
+    "id": "job_1784373431292_7k77q2s27",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, southeast asian person, beautiful young Asian face with delicate features, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., wearing a knee-length clean-line day dress with a modest waist shape, with #47629a secondary color in the pattern, subtle vertical stripe pattern, structured denim fabric, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784373431292_7k77q2s27.png",
+    "timestamp": 1784373484730,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "character-sheet",
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-preset-selections",
+        "label": "Outfit preset selections",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784372738767_qwxjtamqh"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Ethnicity": "character.016",
+        "Age": "character.004_teen",
+        "Beauty": "character.022",
+        "Expression": "expression.004"
+      },
+      "bodySelectionIds": {
+        "Height": "body.height_02",
+        "Body Shape": "body.001",
+        "Build": "body.build_02",
+        "Hands": "body.hands_01"
+      },
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitSelectionIds": {
+        "Shoes": "clothing.casual_09",
+        "Outfit Base": "outfit.base.female.simple_day_dress",
+        "Pattern": "outfit.pattern.subtle_stripe",
+        "Material": "outfit.material.denim"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-preset-selections",
+          "label": "Outfit preset selections",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784373431292_7k77q2s27"
+    },
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 4648,
+      "input_tokens_details": {
+        "image_tokens": 4354,
+        "text_tokens": 294
+      },
+      "output_tokens": 6669,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 429
+      },
+      "total_tokens": 11317
+    },
+    "referencedFaceJobIds": [
+      "job_1784372738767_qwxjtamqh"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "53.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784373431292_7k77q2s27.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 13412,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2235983
+  },
+  {
+    "id": "job_1784373090239_0znme26py",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, southeast asian person, beautiful young Asian face with delicate features, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., wearing a knee-length clean-line day dress with a modest waist shape, with #47629a secondary color in the pattern, clean two-tone color block design, structured denim fabric, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784373090239_0znme26py.png",
+    "timestamp": 1784373140279,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "character-sheet",
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-preset-selections",
+        "label": "Outfit preset selections",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784372738767_qwxjtamqh"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Ethnicity": "character.016",
+        "Age": "character.004_teen",
+        "Beauty": "character.022",
+        "Expression": "expression.004"
+      },
+      "bodySelectionIds": {
+        "Height": "body.height_02",
+        "Body Shape": "body.001",
+        "Build": "body.build_02",
+        "Hands": "body.hands_01"
+      },
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitSelectionIds": {
+        "Shoes": "clothing.casual_09",
+        "Outfit Base": "outfit.base.female.simple_day_dress",
+        "Pattern": "outfit.pattern.color_block",
+        "Material": "outfit.material.denim"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-preset-selections",
+          "label": "Outfit preset selections",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784373090239_0znme26py"
+    },
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 489,
+      "input_tokens_details": {
+        "image_tokens": 194,
+        "text_tokens": 295
+      },
+      "output_tokens": 6240,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 0
+      },
+      "total_tokens": 6729
+    },
+    "referencedFaceJobIds": [
+      "job_1784372738767_qwxjtamqh"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "50.0",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784373090239_0znme26py.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 18466,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2688676
+  },
+  {
+    "id": "job_1784372987883_s0iv4xrvq",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, southeast asian person, beautiful young Asian face with delicate features, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., wearing a simple fitted top with high-waist wide-leg jeans, with #47629a secondary color in the pattern, clean two-tone color block design, structured denim fabric, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784372987883_s0iv4xrvq.png",
+    "timestamp": 1784373011268,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "character-sheet",
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-preset-selections",
+        "label": "Outfit preset selections",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784372738767_qwxjtamqh"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Ethnicity": "character.016",
+        "Age": "character.004_teen",
+        "Beauty": "character.022",
+        "Expression": "expression.004"
+      },
+      "bodySelectionIds": {
+        "Height": "body.height_02",
+        "Body Shape": "body.001",
+        "Build": "body.build_02",
+        "Hands": "body.hands_01"
+      },
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitSelectionIds": {
+        "Shoes": "clothing.casual_09",
+        "Outfit Base": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "Pattern": "outfit.pattern.color_block",
+        "Material": "outfit.material.denim"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-preset-selections",
+          "label": "Outfit preset selections",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784372987883_s0iv4xrvq"
+    },
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 488,
+      "input_tokens_details": {
+        "image_tokens": 194,
+        "text_tokens": 294
+      },
+      "output_tokens": 1584,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 0
+      },
+      "total_tokens": 2072
+    },
+    "referencedFaceJobIds": [
+      "job_1784372738767_qwxjtamqh"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "23.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784372987883_s0iv4xrvq.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19766,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2307392
+  },
+  {
+    "id": "job_1784372738767_qwxjtamqh",
+    "prompt": "headshot portrait, female, young adult in early twenties, southeast asian person, cute doll-like Asian face, extremely adorable and pretty, square face, double eyelids, soft arched eyebrows, high nose bridge, natural lips, subtle friendly expression with relaxed lips, short dark brown hair, wavy hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, translucent glass skin, highly reflective fair skin with a clear glassy sheen, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1784372738767_qwxjtamqh.png",
+    "timestamp": 1784372753841,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "headshot",
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 280,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 280
+      },
+      "output_tokens": 1056,
+      "output_tokens_details": {
+        "image_tokens": 1056,
+        "text_tokens": 0
+      },
+      "total_tokens": 1336
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "15.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784372738767_qwxjtamqh.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22472,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1529760
+  },
+  {
+    "id": "job_1784372474239_fkfhai8s1",
+    "prompt": "headshot portrait, female, young adult in early twenties, southeast asian person, cute doll-like Asian face, extremely adorable and pretty, square face, double eyelids, soft arched eyebrows, high nose bridge, natural lips, subtle friendly expression with relaxed lips, short dark brown hair, wavy hair, hair swept back away from the forehead, no visible part, no bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, translucent glass skin, highly reflective fair skin with a clear glassy sheen, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1784372474239_fkfhai8s1.png",
+    "timestamp": 1784372490628,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "headshot",
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 282,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 282
+      },
+      "output_tokens": 1056,
+      "output_tokens_details": {
+        "image_tokens": 1056,
+        "text_tokens": 0
+      },
+      "total_tokens": 1338
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "16.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784372474239_fkfhai8s1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15942,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1390646
+  },
+  {
     "id": "job_1784280869530_lyljseucn",
     "prompt": "headshot portrait, female woman, mature adult in mid-forties, 45 years old, southeast asian person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, oval face, almond-shaped eyes, natural nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, glossy healthy hair, jet black hair, silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow, long loose waves, beach waves hair, flowing naturally, natural look, no makeup, clean skin bare face, authentic facial details, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784280869530_lyljseucn.png",
