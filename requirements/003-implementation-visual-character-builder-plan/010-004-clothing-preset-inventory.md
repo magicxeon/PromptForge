@@ -46,8 +46,8 @@ Clothing choices must remain brand-free, easy to understand visually, and stable
 | --- | --- | --- |
 | Outfit Base | Visual card picker | choose the main clothing form |
 | Pattern | Visual card picker or swatch pattern | add personality without complex editing |
-| Primary Color | Swatch picker | main garment color |
-| Secondary Color | Swatch picker | trim/accent/pattern color |
+| Primary Color | Color picker | main garment color |
+| Secondary Color | Color picker | trim/accent/pattern color |
 | Material / Surface | Small visual picker | cotton, denim, satin, knit, leather-like, etc. |
 | Modest Default Underwear | Hidden fallback / visible baseline option | safe fallback when no outfit is selected |
 
@@ -125,8 +125,8 @@ This older wording remains acceptable only as a migration phrase. New prompt out
 | --- | --- | --- |
 | Outfit Base | Visual card picker | main selector |
 | Pattern | Visual card picker | none, solid, stripes, plaid, floral, geometric |
-| Primary Color | Swatch | main garment color |
-| Secondary Color | Swatch | trim/accent/pattern color |
+| Primary Color | Native color picker | main garment color |
+| Secondary Color | Native color picker | trim/accent/pattern color |
 | Material / Surface | Visual card or swatch pattern | cotton, denim, knit, satin, leather-like, wool |
 
 ## Pattern MVP
@@ -149,7 +149,7 @@ Pattern rules:
 
 ## Color MVP
 
-Use shared swatch controls, not generated image files.
+Use native color picker controls, not generated image files and not preset swatch cards.
 
 Suggested initial palette:
 
@@ -166,12 +166,15 @@ Suggested initial palette:
 | lavender | soft fashion |
 | warm brown | natural/commercial |
 
+Suggested starter tones may be used as default picker values or documentation references only, not as fixed MVP UI options.
+
 Color rules:
 
 - Primary color applies to the dominant garment.
 - Secondary color applies to pattern/trim/accent only.
 - If no secondary color is selected, do not add secondary color language.
 - Color prompts must avoid duplicating outfit base phrases.
+- Pattern and Material swatches should use grayscale preview tones so they do not compete with the selected garment color.
 
 ## Material MVP
 

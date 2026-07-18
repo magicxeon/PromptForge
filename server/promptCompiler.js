@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { compileClothingPromptParts } from './clothing/clothingPromptParts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Constants replicated from frontend for self-contained server compiling
 const TAG_CONFLICT_RULES = [
   ["indoor", "outdoor"],
   ["day", "night"],
@@ -35,7 +35,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
   "Tone": "skin", "Texture": "skin", "Makeup": "skin", "Freckles": "skin",
   "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body", "Sheet Layout": "body",
-  "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Outfit Preset": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
+  "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Outfit Base": "clothing", "Outfit Preset": "clothing", "Primary Color": "clothing", "Secondary Color": "clothing", "Pattern": "clothing", "Material": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
   "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose", "Pose Intent": "pose", "Fashion Hand Position": "pose", "Fashion Gaze": "pose",
   "Location": "environment", "Architecture": "environment", "Props": "environment", "Weather": "environment", "Time of Day": "environment", "Season": "environment", "Fashion Venue": "environment", "Set Design": "environment", "Atmosphere": "environment",
   "Key Light": "lighting", "Fill Light": "lighting", "Back Light": "lighting", "Flash": "lighting", "Neon": "lighting", "Ambient": "lighting", "Golden Hour": "lighting", "Lighting Setup": "lighting", "Contrast": "lighting", "Color Temperature": "lighting", "Shadow Character": "lighting", "Lighting Accent": "lighting",
@@ -323,12 +323,13 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       };
     }
   }
-  ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+  ["Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"].forEach(field => {
     if (!referenceOwnsAppearance && customColors && customColors[field] && customColors[field].enabled) {
       if (!activeSelections[field]) {
+        const isModularColor = field === "Primary Color" || field === "Secondary Color";
         activeSelections[field] = {
-          id: "",
-          value: field.toLowerCase(),
+          id: isModularColor ? `custom.${field.toLowerCase().replace(/\s+/g, "-")}` : "",
+          value: isModularColor ? customColors[field].color : field.toLowerCase(),
           isCustom: false,
           group: "Clothing",
           category: "clothing",
@@ -360,6 +361,10 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
             parts.push(`accented with custom highlights in ${cfg.highlight}`);
           }
           return parts.join(", ");
+        }
+      } else if (fieldName === "Primary Color" || fieldName === "Secondary Color") {
+        if (cfg.enabled && cfg.color) {
+          return cfg.color;
         }
       } else {
         if (cfg.enabled && baseVal && baseVal.trim() !== "") {
@@ -470,10 +475,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     : (skinList.length > 0 ? skinList.join(", ") : "");
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
-  let clothing = compileGroupSegment("Clothing");
-  if (mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
-    clothing = "wearing a plain white tank top and simple white shorts for clear character sheet visibility";
-  }
+  let clothing = mode === "character-sheet"
+    ? compileClothingPromptParts(activeSelections, imageReferences, mode)
+    : compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");
   let photoContext = compileGroupSegment("Photographic Context");

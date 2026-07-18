@@ -1580,5 +1580,772 @@
       "casual"
     ],
     "enabled": true
+  },
+  {
+    "id": "outfit.base.modest_reference",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Modest Reference Wear",
+      "th": "ชุดอ้างอิงแบบสุภาพ"
+    },
+    "description": {
+      "en": "Safe fallback and visible baseline clothing.",
+      "th": "ชุดอ้างอิงแบบสุภาพ ปลอดภัยสำหรับการแสดงสัดส่วน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing modest neutral fitted reference clothing, opaque light gray top and mid-thigh shorts, non-revealing",
+      "gpt-image": "wearing modest neutral fitted reference clothing, opaque light gray top and mid-thigh shorts, non-revealing"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "fallback",
+      "modest"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.tshirt_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "T-shirt and Jeans",
+      "th": "เสื้อยืดและกางเกงยีนส์"
+    },
+    "description": {
+      "en": "Simple fitted T-shirt and straight-leg jeans.",
+      "th": "เสื้อยืดเข้ารูปและกางเกงยีนส์ขาตรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple fitted T-shirt and straight-leg jeans",
+      "gpt-image": "wearing a simple fitted T-shirt and straight-leg jeans"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "casual"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.simple_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Simple Dress",
+      "th": "ชุดเดรสเรียบง่าย"
+    },
+    "description": {
+      "en": "Simple knee-length day dress with clean lines.",
+      "th": "ชุดเดรสลำลองความยาวระดับเข่าดีไซน์เรียบง่าย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple knee-length day dress with clean lines",
+      "gpt-image": "wearing a simple knee-length day dress with clean lines"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "dress"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.blazer_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Blazer and Trousers",
+      "th": "เสื้อเบลเซอร์และกางเกงขายาว"
+    },
+    "description": {
+      "en": "Clean tailored blazer with straight trousers.",
+      "th": "เสื้อเบลเซอร์เข้ารูปกับกางเกงสแล็คขายาวตรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a clean tailored blazer with straight trousers",
+      "gpt-image": "wearing a clean tailored blazer with straight trousers"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "professional"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.hoodie_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Hoodie and Pants",
+      "th": "เสื้อฮู้ดและกางเกงขายาว"
+    },
+    "description": {
+      "en": "Simple hoodie with relaxed pants.",
+      "th": "เสื้อฮู้ดแบบเรียบง่ายและกางเกงขายาวทรงสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple hoodie with relaxed pants",
+      "gpt-image": "wearing a simple hoodie with relaxed pants"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "street"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.shirt_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Shirt and Skirt",
+      "th": "เสื้อเชิ้ตและกระโปรง"
+    },
+    "description": {
+      "en": "Neat shirt with a simple knee-length skirt.",
+      "th": "เสื้อเชิ้ตเรียบร้อยกับกระโปรงสั้นระดับเข่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a neat shirt with a simple knee-length skirt",
+      "gpt-image": "wearing a neat shirt with a simple knee-length skirt"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "formal"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.activewear_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Activewear Set",
+      "th": "ชุดออกกำลังกาย"
+    },
+    "description": {
+      "en": "Modest athletic top with full-length activewear pants.",
+      "th": "เสื้อกีฬาแบบสุภาพและกางเกงออกกำลังกายขายาว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a modest athletic top with full-length activewear pants",
+      "gpt-image": "wearing a modest athletic top with full-length activewear pants"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "sporty"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.solid",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Solid",
+      "th": "สีพื้น"
+    },
+    "description": {
+      "en": "Solid color fabric without patterns.",
+      "th": "เนื้อผ้าสีพื้นไม่มีลวดลาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "solid color fabric",
+      "gpt-image": "solid color fabric"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "solid"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.subtle_stripe",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Subtle Stripe",
+      "th": "ลายริ้วบาง"
+    },
+    "description": {
+      "en": "Subtle vertical stripe pattern.",
+      "th": "ลายทางแนวตั้งแบบบางเบาเรียบหรู"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "subtle vertical stripe pattern",
+      "gpt-image": "subtle vertical stripe pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "stripe"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.plaid",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Plaid",
+      "th": "ลายสก็อต"
+    },
+    "description": {
+      "en": "Clean plaid fabric pattern.",
+      "th": "ลายตาราง/ลายสก็อตดีไซน์สะอาดตา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "clean plaid fabric pattern",
+      "gpt-image": "clean plaid fabric pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "plaid"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.floral",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Floral",
+      "th": "ลายดอกไม้"
+    },
+    "description": {
+      "en": "Small tasteful floral pattern.",
+      "th": "ลายดอกไม้ขนาดเล็กดูดีมีรสนิยม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "small tasteful floral pattern",
+      "gpt-image": "small tasteful floral pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "floral"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.geometric",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Geometric",
+      "th": "ลายเรขาคณิต"
+    },
+    "description": {
+      "en": "Simple geometric fabric pattern.",
+      "th": "ลวดลายเรขาคณิตแบบเรียบง่าย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "simple geometric fabric pattern",
+      "gpt-image": "simple geometric fabric pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "geometric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.color_block",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Color Block",
+      "th": "สลับสี"
+    },
+    "description": {
+      "en": "Clean two-tone color block design.",
+      "th": "การออกแบบสลับบล็อกสีแบบทูโทนสะอาดตา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "clean two-tone color block design",
+      "gpt-image": "clean two-tone color block design"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "color-block"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.cotton",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Cotton",
+      "th": "ผ้าฝ้าย / คอตตอน"
+    },
+    "description": {
+      "en": "Matte cotton fabric.",
+      "th": "ผ้าคอตตอนเนื้อแมตต์เรียบสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "matte cotton fabric",
+      "gpt-image": "matte cotton fabric"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "cotton"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.denim",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Denim",
+      "th": "ผ้ายีนส์ / เดนิม"
+    },
+    "description": {
+      "en": "Structured denim fabric.",
+      "th": "ผ้ายีนส์เนื้อหนามีโครงสร้างทรงตัวดี"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "structured denim fabric",
+      "gpt-image": "structured denim fabric"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "denim"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.knit",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Knit",
+      "th": "ผ้าถัก / นิตติ้ง"
+    },
+    "description": {
+      "en": "Soft knit fabric texture.",
+      "th": "ผ้าถักนุ่มนวลมีพื้นผิวชัดเจน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft knit fabric texture",
+      "gpt-image": "soft knit fabric texture"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "knit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.satin",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Satin",
+      "th": "ผ้าซาติน"
+    },
+    "description": {
+      "en": "Subtle satin sheen.",
+      "th": "ผ้าซาตินมีความเงางามบางเบาเรียบหรู"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "subtle satin sheen",
+      "gpt-image": "subtle satin sheen"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "satin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.wool",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Wool",
+      "th": "ผ้าขนสัตว์ / วูล"
+    },
+    "description": {
+      "en": "Soft wool blend texture.",
+      "th": "ผ้าผสมวูลนุ่มอุ่นมีน้ำหนัก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft wool blend texture",
+      "gpt-image": "soft wool blend texture"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "wool"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.leather_like",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Leather-like",
+      "th": "คล้ายหนัง"
+    },
+    "description": {
+      "en": "Smooth leather-like material, brand-free.",
+      "th": "วัสดุผิวเรียบคล้ายหนังแบบไร้แบรนด์ยี่ห้อ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "smooth leather-like material, brand-free",
+      "gpt-image": "smooth leather-like material, brand-free"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "leather"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.white",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "White",
+      "th": "สีขาว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "white",
+      "gpt-image": "white"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "white"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.light_gray",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Light Gray",
+      "th": "สีเทาอ่อน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "light gray",
+      "gpt-image": "light gray"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "light-gray"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.black",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Black",
+      "th": "สีดำ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "black",
+      "gpt-image": "black"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "black"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.navy",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Navy",
+      "th": "สีน้ำเงินกรมท่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "navy",
+      "gpt-image": "navy"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "navy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.beige",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Beige",
+      "th": "สีเบจ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "beige",
+      "gpt-image": "beige"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "beige"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.denim_blue",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Denim Blue",
+      "th": "สียีนส์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "denim blue",
+      "gpt-image": "denim blue"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "denim-blue"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.soft_pink",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Soft Pink",
+      "th": "สีชมพูอ่อน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft pink",
+      "gpt-image": "soft pink"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "soft-pink"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.red",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Red",
+      "th": "สีแดง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "red",
+      "gpt-image": "red"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "red"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.forest_green",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Forest Green",
+      "th": "สีเขียวป่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "forest green",
+      "gpt-image": "forest green"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "forest-green"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.lavender",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Lavender",
+      "th": "สีลาเวนเดอร์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "lavender",
+      "gpt-image": "lavender"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "lavender"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.warm_brown",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Warm Brown",
+      "th": "สีน้ำตาลอบอุ่น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "warm brown",
+      "gpt-image": "warm brown"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "warm-brown"
+    ],
+    "enabled": true
   }
 ]

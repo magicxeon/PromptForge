@@ -136,6 +136,23 @@
         customInput.id = `custom-input-${groupName.toLowerCase()}-${field.name.toLowerCase().replace(/\s+/g, "-")}`;
         fieldDiv.appendChild(customInput);
 
+        const modularClothingColorFields = ["Primary Color", "Secondary Color"];
+        const isModularClothingColorField = groupName === "Clothing" && modularClothingColorFields.includes(field.name);
+        if (isModularClothingColorField) {
+          const fallbackColor = field.name === "Primary Color" ? "#111827" : "#e5e7eb";
+          state.customColors[field.name] = {
+            enabled: false,
+            color: fallbackColor,
+            ...(state.customColors[field.name] || {})
+          };
+          if (state.selections[field.name]?.id?.startsWith("outfit.color.")) {
+            delete state.selections[field.name];
+          }
+          fieldDiv.classList.add("has-custom-color-picker-only");
+          selectWrapper.style.display = "none";
+          lockLabel.style.display = "none";
+        }
+
         const fieldHelp = document.createElement("small");
         fieldHelp.className = "field-option-help";
         fieldHelp.setAttribute("aria-live", "polite");
@@ -149,7 +166,7 @@
         }
 
         // Render color pickers for specified fields (Step 11)
-        const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes", "Product Type"];
+        const colorPickerFields = ["Color", "Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"];
         if (colorPickerFields.includes(field.name) && (field.name !== "Color" || groupName === "Hair")) {
           const pickerRow = document.createElement("div");
           pickerRow.className = "custom-color-picker-row";
@@ -227,7 +244,7 @@
             highlightContainer.appendChild(highlightInput);
             pickerRow.appendChild(highlightContainer);
           } else {
-            // Clothing Color Picker (Top, Bottom, Dress, Shoes)
+            // Clothing Color Picker
             const clothingContainer = document.createElement("div");
             clothingContainer.className = "custom-color-picker-container";
 
@@ -245,15 +262,21 @@
             clothingInput.type = "color";
             clothingInput.id = `clothing-input-${clothingFieldSlug}`;
             clothingInput.value = state.customColors[field.name].color;
-            clothingInput.disabled = !clothingToggle.checked;
+            clothingInput.disabled = isModularClothingColorField ? false : !clothingToggle.checked;
 
             clothingToggle.addEventListener("change", (e) => {
               state.customColors[field.name].enabled = e.target.checked;
-              clothingInput.disabled = !e.target.checked;
+              clothingInput.disabled = isModularClothingColorField ? false : !e.target.checked;
+              if (isModularClothingColorField && state.selections[field.name]) delete state.selections[field.name];
               if (window.updatePromptPreview) window.updatePromptPreview();
             });
 
             clothingInput.addEventListener("input", (e) => {
+              if (isModularClothingColorField) {
+                state.customColors[field.name].enabled = true;
+                clothingToggle.checked = true;
+                if (state.selections[field.name]) delete state.selections[field.name];
+              }
               state.customColors[field.name].color = e.target.value;
               if (window.updatePromptPreview) window.updatePromptPreview();
             });
@@ -417,7 +440,10 @@
       "Hair::Parting / Fringe": ["Bangs", "Parting / Fringe"],
       "Body::Height Impression": ["Height", "Height Impression"],
       "Body::Model Build": ["Build", "Model Build"],
-      "Body::Body Silhouette": ["Body Shape", "Body Silhouette"]
+      "Body::Body Silhouette": ["Body Shape", "Body Silhouette"],
+      "Clothing::Primary Color": ["Clothing Color", "Primary Color"],
+      "Clothing::Secondary Color": ["Clothing Color", "Secondary Color"],
+      "Clothing::Material": ["Material", "Material / Surface"]
     };
     const aliasKey = `${groupName}::${fieldName}`;
     const aliases = subcategoryAliases[aliasKey]?.map(item => item.toLowerCase()) || [lowerField];
@@ -484,6 +510,9 @@
     if (window.toggleUIForMode) window.toggleUIForMode();
     if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
     if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
+    if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
+      window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
+    }
   }
 
   function bindDynamicFormEvents() {
@@ -555,6 +584,9 @@
           clearInvalidHairCutStyleSelection();
           clearInvalidBodySilhouetteSelection();
         }
+        if (groupName === "Clothing" && window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
+          window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
+        }
         if (window.updateAccordionSummaryBadges) window.updateAccordionSummaryBadges(groupName);
         if (window.updatePromptPreview) window.updatePromptPreview();
         if (fieldName === "Gender") {
@@ -607,14 +639,16 @@
       hairHighlightInput.disabled = !hairHighlightToggle.checked;
     }
 
-    ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+    ["Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"].forEach(field => {
       const fieldSlug = field.toLowerCase().replace(/\s+/g, "-");
       const toggle = document.getElementById(`clothing-toggle-${fieldSlug}`);
       const input = document.getElementById(`clothing-input-${fieldSlug}`);
       if (toggle && input) {
+        const isModularClothingColorField = field === "Primary Color" || field === "Secondary Color";
+        const fallbackColor = field === "Primary Color" ? "#111827" : field === "Secondary Color" ? "#e5e7eb" : "#ffffff";
         toggle.checked = !!(state.customColors && state.customColors[field] && state.customColors[field].enabled);
-        input.value = (state.customColors && state.customColors[field] && state.customColors[field].color) || "#ffffff";
-        input.disabled = !toggle.checked;
+        input.value = (state.customColors && state.customColors[field] && state.customColors[field].color) || fallbackColor;
+        input.disabled = isModularClothingColorField ? false : !toggle.checked;
       }
     });
   }

@@ -52,6 +52,7 @@ Use CSS swatch cards first:
 - easy to theme
 - no runtime PNG cost
 - easier to adjust before the category is stable
+- use white, gray, and black tones only so pattern/material previews do not imply a fixed garment color
 
 Use image thumbs later only if CSS swatches are not readable enough.
 

@@ -686,9 +686,14 @@
     return null;
   }
 
+  function registerFields(newFields) {
+    VISUAL_CONTROL_FIELDS.push(...newFields);
+  }
+
   window.ModelPromptForgeVisualOptionControls = {
     loadManifests,
     createVisualOptionPicker,
-    syncVisualPickers
+    syncVisualPickers,
+    registerFields
   };
 })();

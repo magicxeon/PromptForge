@@ -15,40 +15,42 @@ Define a simple color system for modular Character Sheet clothing that supports 
 | Primary Color | dominant garment color |
 | Secondary Color | trim, accent, or pattern color |
 
-## MVP Palette
+## MVP Control
 
-| Attribute ID | Label | Swatch | Prompt Phrase |
-| --- | --- | --- | --- |
-| `outfit.color.white` | White | `#f8fafc` | white |
-| `outfit.color.light_gray` | Light Gray | `#cbd5e1` | light gray |
-| `outfit.color.black` | Black | `#111827` | black |
-| `outfit.color.navy` | Navy | `#1e3a8a` | navy |
-| `outfit.color.beige` | Beige | `#c8ad7f` | beige |
-| `outfit.color.denim_blue` | Denim Blue | `#315f8f` | denim blue |
-| `outfit.color.soft_pink` | Soft Pink | `#f5a6c8` | soft pink |
-| `outfit.color.red` | Red | `#b91c1c` | red |
-| `outfit.color.forest_green` | Forest Green | `#166534` | forest green |
-| `outfit.color.lavender` | Lavender | `#a78bfa` | lavender |
-| `outfit.color.warm_brown` | Warm Brown | `#7c4a2d` | warm brown |
+Use native color picker controls, not preset color swatches.
+
+Default picker values:
+
+| Field | Default |
+| --- | --- |
+| Primary Color | `#111827` |
+| Secondary Color | `#e5e7eb` |
+
+Rules:
+
+- Picking a color should enable that color field automatically.
+- The color picker is the source of truth for modular clothing colors.
+- Preset color attributes may remain in legacy data for migration, but must not be shown as visual swatch cards in the MVP UI.
+- Pattern and Material remain visual swatches, but their UI thumbnails should use grayscale tones so users understand that color comes from the color picker.
 
 ## Prompt Rules
 
 Primary color:
 
 ```text
-in navy as the primary garment color
+in #111827 as the primary garment color
 ```
 
 Secondary color:
 
 ```text
-with white trim accents
+with #e5e7eb trim accents
 ```
 
 When pattern is selected:
 
 ```text
-with white secondary color in the pattern
+with #e5e7eb secondary color in the pattern
 ```
 
 Rules:
@@ -60,9 +62,11 @@ Rules:
 
 ## UI Recommendation
 
-Use swatch picker only.
+Use color picker controls only for Primary Color and Secondary Color.
 
 Do not generate image files for colors.
+
+Do not register Primary Color or Secondary Color as visual option swatches.
 
 ## Acceptance Criteria
 

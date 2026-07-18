@@ -69,7 +69,12 @@ window.FIELD_TO_CATEGORY_MAP = {
   "Dress": "clothing",
   "Shoes": "clothing",
   "Accessories": "clothing",
+  "Outfit Base": "clothing",
   "Outfit Preset": "clothing",
+  "Primary Color": "clothing",
+  "Secondary Color": "clothing",
+  "Pattern": "clothing",
+  "Material": "clothing",
   "Product Type": "clothing",
   "Garment Silhouette": "clothing",
   "Material / Surface": "clothing",
@@ -252,7 +257,9 @@ window.state = {
     "Bottom": { enabled: false, color: "#ffffff" },
     "Dress": { enabled: false, color: "#ffffff" },
     "Shoes": { enabled: false, color: "#ffffff" },
-    "Product Type": { enabled: false, color: "#ffffff" }
+    "Product Type": { enabled: false, color: "#ffffff" },
+    "Primary Color": { enabled: false, color: "#111827" },
+    "Secondary Color": { enabled: false, color: "#e5e7eb" }
   }
 };
 

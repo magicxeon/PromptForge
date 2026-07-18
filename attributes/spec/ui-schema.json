@@ -164,6 +164,26 @@
     "layout": "accordion",
     "fields": [
       {
+        "name": "Outfit Base",
+        "control": "select"
+      },
+      {
+        "name": "Primary Color",
+        "control": "select"
+      },
+      {
+        "name": "Secondary Color",
+        "control": "select"
+      },
+      {
+        "name": "Pattern",
+        "control": "select"
+      },
+      {
+        "name": "Material",
+        "control": "select"
+      },
+      {
         "name": "Outfit Preset",
         "control": "select"
       },

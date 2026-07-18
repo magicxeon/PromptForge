@@ -19,8 +19,8 @@
       width: document.getElementById("input-width") ? document.getElementById("input-width").value : "768",
       height: document.getElementById("input-height") ? document.getElementById("input-height").value : "1024",
       template: document.getElementById("template-select") ? document.getElementById("template-select").value : "portrait",
-      nsfwEnabled: document.getElementById("toggle-nsfw") ? document.getElementById("toggle-nsfw").checked : false,
-      gptSafeEnabled: document.getElementById("toggle-gpt-safe") ? document.getElementById("toggle-gpt-safe").checked : false,
+      nsfwEnabled: false,
+      gptSafeEnabled: false,
       provider: document.getElementById("api-provider-select")?.value || null,
       submodel: document.getElementById("api-submodel-select")?.value || null,
       imageResolution: window.getSelectedImageResolution ? window.getSelectedImageResolution() : null,
@@ -69,6 +69,8 @@
         "Dress": { enabled: false, color: "#ffffff" },
         "Shoes": { enabled: false, color: "#ffffff" },
         "Product Type": { enabled: false, color: "#ffffff" },
+        "Primary Color": { enabled: false, color: "#111827" },
+        "Secondary Color": { enabled: false, color: "#e5e7eb" },
         ...(payload.customColors || {})
       };
       state.imageReferences = {
@@ -139,15 +141,17 @@
       // Toggle NSFW & GPT-Safe
       const toggleNsfw = document.getElementById("toggle-nsfw");
       if (toggleNsfw) {
-        toggleNsfw.checked = !!payload.nsfwEnabled;
+        toggleNsfw.checked = false;
+        toggleNsfw.disabled = true;
         const nsfwAccordion = document.getElementById("accordion-nsfw");
         if (nsfwAccordion) {
-          nsfwAccordion.style.display = toggleNsfw.checked ? "block" : "none";
+          nsfwAccordion.style.display = "none";
         }
       }
       const toggleGptSafe = document.getElementById("toggle-gpt-safe");
       if (toggleGptSafe) {
-        toggleGptSafe.checked = !!payload.gptSafeEnabled;
+        toggleGptSafe.checked = false;
+        toggleGptSafe.disabled = true;
       }
 
       // Template select
@@ -237,7 +241,9 @@
       "Bottom": { enabled: false, color: "#ffffff" },
       "Dress": { enabled: false, color: "#ffffff" },
       "Shoes": { enabled: false, color: "#ffffff" },
-      "Product Type": { enabled: false, color: "#ffffff" }
+      "Product Type": { enabled: false, color: "#ffffff" },
+      "Primary Color": { enabled: false, color: "#111827" },
+      "Secondary Color": { enabled: false, color: "#e5e7eb" }
     };
     if (window.updateColorPickerUI) window.updateColorPickerUI();
     if (window.syncVisualPickers) window.syncVisualPickers();
@@ -338,8 +344,8 @@
       width: document.getElementById("input-width") ? document.getElementById("input-width").value : "768",
       height: document.getElementById("input-height") ? document.getElementById("input-height").value : "1024",
       template: document.getElementById("template-select") ? document.getElementById("template-select").value : "portrait",
-      nsfwEnabled: document.getElementById("toggle-nsfw") ? document.getElementById("toggle-nsfw").checked : false,
-      gptSafeEnabled: document.getElementById("toggle-gpt-safe") ? document.getElementById("toggle-gpt-safe").checked : false,
+      nsfwEnabled: false,
+      gptSafeEnabled: false,
       provider: document.getElementById("api-provider-select")?.value || null,
       submodel: document.getElementById("api-submodel-select")?.value || null,
       imageResolution: window.getSelectedImageResolution ? window.getSelectedImageResolution() : null,
@@ -387,6 +393,8 @@
       "Dress": { enabled: false, color: "#ffffff" },
       "Shoes": { enabled: false, color: "#ffffff" },
       "Product Type": { enabled: false, color: "#ffffff" },
+      "Primary Color": { enabled: false, color: "#111827" },
+      "Secondary Color": { enabled: false, color: "#e5e7eb" },
       ...(payload.customColors || {})
     };
     state.imageReferences = {
@@ -421,12 +429,18 @@
     if (templateSelect && payload.template) templateSelect.value = payload.template;
 
     const toggleNsfw = document.getElementById("toggle-nsfw");
-    if (toggleNsfw) toggleNsfw.checked = !!payload.nsfwEnabled;
+    if (toggleNsfw) {
+      toggleNsfw.checked = false;
+      toggleNsfw.disabled = true;
+    }
     const nsfwAccordion = document.getElementById("accordion-nsfw");
-    if (nsfwAccordion) nsfwAccordion.style.display = toggleNsfw?.checked ? "block" : "none";
+    if (nsfwAccordion) nsfwAccordion.style.display = "none";
 
     const toggleGptSafe = document.getElementById("toggle-gpt-safe");
-    if (toggleGptSafe) toggleGptSafe.checked = !!payload.gptSafeEnabled;
+    if (toggleGptSafe) {
+      toggleGptSafe.checked = false;
+      toggleGptSafe.disabled = true;
+    }
 
     if (payload.provider && window.populateProviderList) window.populateProviderList(payload.provider);
     if (window.updateSubmodelList) window.updateSubmodelList(payload.submodel || null);

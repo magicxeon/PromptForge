@@ -102,6 +102,7 @@ Do not release until:
 - no-clothing fallback is modest and non-revealing
 - modular clothing selections compile without duplicated prompt phrases
 - clothing UI changes do not add large one-off logic to `app.js` or `formRenderer.js`
+- legacy NSFW and GPT-Safe controls are hidden and forced off unless a new policy requirement explicitly re-enables them
 
 ## Automated Gate
 
@@ -200,6 +201,10 @@ Before enabling the first modular clothing UI:
    - clothing-specific dependency logic lives in a clothing module
    - compiler helper is isolated and testable
    - no new large clothing condition blocks are added to core renderer files
+6. Verify deprecated safety controls:
+   - NSFW Options is not visible in Engine / Target Output
+   - GPT-Safe Mode is not visible in Engine / Target Output
+   - saved configurations do not silently restore either control to enabled
 
 ## Implementation Log
 
@@ -239,3 +244,9 @@ npm run test:character-sheet
   - modest no-selection fallback
 - Added requirement that no-clothing fallback must remain non-revealing and provider-safe.
 - Added code organization gate to prevent clothing implementation from bloating the core app files.
+
+### 2026-07-18 - Deprecated Engine Safety Controls
+
+- Hid legacy `NSFW Options` and `GPT-Safe Mode` from Engine / Target Output.
+- Kept DOM elements temporarily for backward compatibility with older compiler/persistence code.
+- Forced both controls off during save/load/init to prevent hidden prompt changes.

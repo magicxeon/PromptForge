@@ -480,6 +480,9 @@ function bindEvents() {
       state.imageReferences.outfitReference = Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
       updateReferencePreviewsUI();
       updateCharacterSheetSourceStatus();
+      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
+        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
+      }
       updatePromptPreview();
     };
     reader.readAsDataURL(file);
@@ -499,6 +502,9 @@ function bindEvents() {
   document.addEventListener("click", (e) => {
     if (e.target?.id === "btn-clear-outfit-reference") {
       clearOutfitReferenceState();
+      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
+        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
+      }
       updatePromptPreview();
       return;
     }
@@ -572,8 +578,16 @@ function bindEvents() {
   // NSFW Toggle
   const toggleNsfw = document.getElementById("toggle-nsfw");
   const nsfwAccordion = document.getElementById("accordion-nsfw");
+  if (toggleNsfw) {
+    toggleNsfw.checked = false;
+    toggleNsfw.disabled = true;
+  }
+  if (nsfwAccordion) {
+    nsfwAccordion.style.display = "none";
+  }
 
   const updateNsfwState = () => {
+    if (!toggleNsfw) return;
     const isNsfwEnabled = toggleNsfw.checked;
     if (nsfwAccordion) {
       nsfwAccordion.style.display = isNsfwEnabled ? "block" : "none";
@@ -596,7 +610,7 @@ function bindEvents() {
     updatePromptPreview();
   };
 
-  toggleNsfw.addEventListener("change", updateNsfwState);
+  if (toggleNsfw) toggleNsfw.addEventListener("change", updateNsfwState);
 
   // Language Selector Pill Toggles (Step 8)
   const languagePills = document.querySelectorAll("#language-pill-selector .pill-btn");
@@ -1078,6 +1092,8 @@ function bindEvents() {
   // GPT-Safe Toggle
   const toggleGptSafe = document.getElementById("toggle-gpt-safe");
   if (toggleGptSafe) {
+    toggleGptSafe.checked = false;
+    toggleGptSafe.disabled = true;
     toggleGptSafe.addEventListener("change", () => {
       state.schema.forEach(groupObj => {
         updateAccordionSummaryBadges(groupObj.group);

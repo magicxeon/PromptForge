@@ -45,6 +45,10 @@
           }
           return parts.join(", ");
         }
+      } else if (fieldName === "Primary Color" || fieldName === "Secondary Color") {
+        if (cfg.enabled && cfg.color) {
+          return cfg.color;
+        }
       } else {
         if (cfg.enabled && baseVal && baseVal.trim() !== "") {
           return `${baseVal} colored in ${cfg.color}`;
@@ -412,12 +416,13 @@
         };
       }
     }
-    ["Top", "Bottom", "Dress", "Shoes", "Product Type"].forEach(field => {
+    ["Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"].forEach(field => {
       if (!referenceOwnsAppearance && window.isGroupAllowedForMode && window.isGroupAllowedForMode("Clothing") && state.customColors && state.customColors[field] && state.customColors[field].enabled) {
         if (!activeSelections[field]) {
+          const isModularColor = field === "Primary Color" || field === "Secondary Color";
           activeSelections[field] = {
-            id: "",
-            value: field.toLowerCase(),
+            id: isModularColor ? `custom.${field.toLowerCase().replace(/\s+/g, "-")}` : "",
+            value: isModularColor ? state.customColors[field].color : field.toLowerCase(),
             isCustom: false,
             group: "Clothing",
             category: "clothing",
@@ -551,12 +556,28 @@
 
     let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
 
-    let clothing = compileGroupSegment("Clothing", "token-clothing");
-
-    // Baseline outfit fallback until visible Character Sheet outfit presets are implemented.
-    if (state.mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
-      const clText = "wearing a plain white tank top and simple white shorts for clear character sheet visibility";
-      clothing = cleanTextOnly ? clText : `<span class="token-clothing">${clText}</span>`;
+    let clothing = "";
+    if (state.mode === "character-sheet" && window.ModelPromptForgeClothingPromptParts) {
+      const selectionsMap = {};
+      Object.entries(activeSelections).forEach(([fieldName, selection]) => {
+        if (selection.group === "Clothing") {
+          selectionsMap[fieldName] = {
+            id: selection.id,
+            value: getPromptValueForSelection(selection, fieldName),
+            group: selection.group,
+            category: selection.category,
+            tags: selection.tags || []
+          };
+        }
+      });
+      const rawClothingText = window.ModelPromptForgeClothingPromptParts.compileClothingPromptParts(selectionsMap, state.imageReferences, state.mode);
+      clothing = cleanTextOnly ? rawClothingText : `<span class="token-clothing">${rawClothingText}</span>`;
+    } else {
+      clothing = compileGroupSegment("Clothing", "token-clothing");
+      if (state.mode === "character-sheet" && (!clothing || clothing.trim() === "")) {
+        const clText = "wearing a plain white tank top and simple white shorts for clear character sheet visibility";
+        clothing = cleanTextOnly ? clText : `<span class="token-clothing">${clText}</span>`;
+      }
     }
 
     let pose = compileGroupSegment("Pose", "token-pose");
