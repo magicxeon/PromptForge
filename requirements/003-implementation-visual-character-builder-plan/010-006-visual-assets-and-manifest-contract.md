@@ -1,6 +1,6 @@
 # 010-006 Character Sheet Visual Assets and Manifest Contract
 
-**Status:** Implemented - Contract Baseline  
+**Status:** Implemented - Script Contract Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 002, 003, manual visual setup
 
@@ -60,6 +60,52 @@ client/assets/visual-character-builder/character-sheet-v1/
 - Missing assets do not block prompt generation.
 
 ## Implementation Log
+
+### 2026-07-18 - Character Sheet Script Contract
+
+- Extended `scripts/slice-visual-assets.js` so Character Sheet manifest templates can be checked with the same pipeline as Headshot visual assets.
+- Added supported Character Sheet field ids:
+  - `body.silhouette`
+  - `body.build`
+  - `outfit.preset`
+  - `sheet.layout`
+- Added field-folder mappings so source sheets resolve to:
+  - `visual-assets/character-builder/source-sets/character-sheet-v1/body/body-silhouette/`
+  - `visual-assets/character-builder/source-sets/character-sheet-v1/body/body-build/`
+  - `visual-assets/character-builder/source-sets/character-sheet-v1/outfit/outfit-preset/`
+  - `visual-assets/character-builder/source-sets/character-sheet-v1/layout/sheet-layout/`
+- Added runtime manifest registration for future Character Sheet publishing under:
+  - `client/assets/visual-character-builder/character-sheet-v1/`
+- Updated manifest index writing so the index uses the runtime manifest style version instead of hardcoding `headshot-illustrated-v1`.
+- Added a publish-readiness guard:
+  - `reviewStatus: planned` is allowed during `--check`.
+  - `--slice` is blocked until every item is `approved`, `source-selected`, or `override-approved`.
+  - This prevents unreviewed Character Sheet template assets from becoming runtime UI assets.
+- Added `attributeId` support to the visual manifest contract:
+  - Authoring templates can keep semantic visual `optionId` values.
+  - `attributeId` maps the visual card to the real selectable attribute.
+  - Runtime manifests preserve `attributeId` for UI wiring.
+  - The visual picker falls back to `item.attributeId` when no hardcoded `optionMap` exists.
+- Added validation that every supplied `attributeId` exists in the known attribute catalogs.
+- Added missing neutral body attributes needed by the Character Sheet visual contract:
+  - straight natural silhouette
+  - inverted triangle silhouette
+  - balanced build
+  - broad structured build
+  - soft natural build
+- Added npm script:
+
+```bash
+npm run visual-assets:check:character-sheet
+npm run visual-assets:slice:character-sheet
+```
+
+Current validation result:
+
+- Template structure passes.
+- Missing source sheets produce warnings only.
+- Planned review statuses produce publish-block warnings.
+- Runtime publishing remains blocked until source sheets are reviewed and sliced.
 
 ### 2026-07-18 - Manifest Contract Baseline
 

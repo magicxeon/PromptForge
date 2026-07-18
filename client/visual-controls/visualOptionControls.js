@@ -535,7 +535,7 @@
     picker.dataset.group = groupName;
 
     manifest.items.forEach(item => {
-      const attributeId = config?.optionMap?.[item.optionId];
+      const attributeId = config?.optionMap?.[item.optionId] || item.attributeId || item.optionId;
       const attribute = optionById.get(attributeId);
       if (config?.hideMissingAttributes && !attribute) return;
 

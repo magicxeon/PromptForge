@@ -24,6 +24,7 @@
     {
       "assetId": "visual.outfit.preset.sheet-baseline",
       "optionId": "outfit.preset.sheet_baseline",
+      "attributeId": "outfit.preset.sheet_baseline",
       "slug": "sheet-baseline",
       "row": 1,
       "column": 1,
@@ -37,6 +38,7 @@
     {
       "assetId": "visual.outfit.preset.casual-tshirt-jeans",
       "optionId": "outfit.preset.casual_tshirt_jeans",
+      "attributeId": "outfit.preset.casual_tshirt_jeans",
       "slug": "casual-tshirt-jeans",
       "row": 1,
       "column": 2,
@@ -50,6 +52,7 @@
     {
       "assetId": "visual.outfit.preset.simple-dress",
       "optionId": "outfit.preset.simple_dress",
+      "attributeId": "outfit.preset.simple_dress",
       "slug": "simple-dress",
       "row": 1,
       "column": 3,
@@ -63,6 +66,7 @@
     {
       "assetId": "visual.outfit.preset.blazer-trousers",
       "optionId": "outfit.preset.blazer_trousers",
+      "attributeId": "outfit.preset.blazer_trousers",
       "slug": "blazer-trousers",
       "row": 1,
       "column": 4,
@@ -76,6 +80,7 @@
     {
       "assetId": "visual.outfit.preset.hoodie-pants",
       "optionId": "outfit.preset.hoodie_pants",
+      "attributeId": "outfit.preset.hoodie_pants",
       "slug": "hoodie-pants",
       "row": 1,
       "column": 5,

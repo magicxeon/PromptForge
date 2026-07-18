@@ -24,6 +24,7 @@
     {
       "assetId": "visual.sheet.layout.front-side-back",
       "optionId": "body.sheet_layout.front_side_back",
+      "attributeId": "body.sheet_layout.front_side_back",
       "slug": "front-side-back",
       "row": 1,
       "column": 1,
@@ -37,6 +38,7 @@
     {
       "assetId": "visual.sheet.layout.front-back",
       "optionId": "body.sheet_layout.front_back",
+      "attributeId": "body.sheet_layout.front_back",
       "slug": "front-back",
       "row": 1,
       "column": 2,
@@ -50,6 +52,7 @@
     {
       "assetId": "visual.sheet.layout.front-only-full-body",
       "optionId": "body.sheet_layout.front_only_full_body",
+      "attributeId": "body.sheet_layout.front_only_full_body",
       "slug": "front-only-full-body",
       "row": 1,
       "column": 3,

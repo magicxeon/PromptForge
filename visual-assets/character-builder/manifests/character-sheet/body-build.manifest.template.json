@@ -24,6 +24,7 @@
     {
       "assetId": "visual.body.build.slender",
       "optionId": "body.build.slender",
+      "attributeId": "body.build_01",
       "slug": "slender",
       "row": 1,
       "column": 1,
@@ -37,6 +38,7 @@
     {
       "assetId": "visual.body.build.balanced",
       "optionId": "body.build.balanced",
+      "attributeId": "body.build_03",
       "slug": "balanced",
       "row": 1,
       "column": 2,
@@ -50,6 +52,7 @@
     {
       "assetId": "visual.body.build.athletic",
       "optionId": "body.build.athletic",
+      "attributeId": "body.build_02",
       "slug": "athletic",
       "row": 1,
       "column": 3,
@@ -63,6 +66,7 @@
     {
       "assetId": "visual.body.build.broad",
       "optionId": "body.build.broad",
+      "attributeId": "body.build_04",
       "slug": "broad",
       "row": 1,
       "column": 4,
@@ -76,6 +80,7 @@
     {
       "assetId": "visual.body.build.soft",
       "optionId": "body.build.soft",
+      "attributeId": "body.build_05",
       "slug": "soft",
       "row": 1,
       "column": 5,

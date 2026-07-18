@@ -7,6 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = path.resolve(path.dirname(__filename), '..');
 const AUTHORING_DIR = path.join(ROOT_DIR, 'visual-assets/character-builder');
 const RUNTIME_ROOT = path.join(ROOT_DIR, 'client/assets/visual-character-builder');
+const ATTRIBUTE_FILES = [
+  path.join(ROOT_DIR, 'attributes/009-body.json'),
+  path.join(ROOT_DIR, 'attributes/010-clothing.json')
+];
 
 const FIELD_MANIFESTS = {
   'face.shape': path.join(AUTHORING_DIR, 'manifests/headshot/face-structure/face-shape.manifest.json'),
@@ -18,7 +22,11 @@ const FIELD_MANIFESTS = {
   'hair.length': path.join(AUTHORING_DIR, 'manifests/headshot/hair/length.manifest.json'),
   'hair.cut_style': path.join(AUTHORING_DIR, 'manifests/headshot/hair/cut-style.manifest.json'),
   'hair.texture': path.join(AUTHORING_DIR, 'manifests/headshot/hair/texture.manifest.json'),
-  'hair.parting_fringe': path.join(AUTHORING_DIR, 'manifests/headshot/hair/parting-fringe.manifest.json')
+  'hair.parting_fringe': path.join(AUTHORING_DIR, 'manifests/headshot/hair/parting-fringe.manifest.json'),
+  'body.silhouette': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette.manifest.template.json'),
+  'body.build': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-build.manifest.template.json'),
+  'outfit.preset': path.join(AUTHORING_DIR, 'manifests/character-sheet/outfit-preset.manifest.template.json'),
+  'sheet.layout': path.join(AUTHORING_DIR, 'manifests/character-sheet/sheet-layout.manifest.template.json')
 };
 const FIELD_FOLDERS = {
   'face.shape': 'face-shape',
@@ -30,8 +38,37 @@ const FIELD_FOLDERS = {
   'hair.length': 'length',
   'hair.cut_style': 'cut-style',
   'hair.texture': 'texture',
-  'hair.parting_fringe': 'parting-fringe'
+  'hair.parting_fringe': 'parting-fringe',
+  'body.silhouette': 'body-silhouette',
+  'body.build': 'body-build',
+  'outfit.preset': 'outfit-preset',
+  'sheet.layout': 'sheet-layout'
 };
+const FIELD_GROUPS = {
+  headshot: [
+    'face.shape',
+    'eyes.shape',
+    'eyebrows.shape',
+    'nose.shape',
+    'lips.shape',
+    'expression.face',
+    'hair.length',
+    'hair.cut_style',
+    'hair.texture',
+    'hair.parting_fringe'
+  ],
+  'character-sheet': [
+    'body.silhouette',
+    'body.build',
+    'outfit.preset',
+    'sheet.layout'
+  ]
+};
+const PUBLISH_READY_REVIEW_STATUSES = new Set([
+  'approved',
+  'source-selected',
+  'override-approved'
+]);
 const RUNTIME_MANIFESTS = [
   {
     fieldId: 'face.shape',
@@ -92,6 +129,30 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'headshot.hair.parting-fringe',
     sectionId: 'hair',
     folder: 'parting-fringe'
+  },
+  {
+    fieldId: 'body.silhouette',
+    manifestId: 'character-sheet.body.body-silhouette',
+    sectionId: 'body',
+    folder: 'body-silhouette'
+  },
+  {
+    fieldId: 'body.build',
+    manifestId: 'character-sheet.body.body-build',
+    sectionId: 'body',
+    folder: 'body-build'
+  },
+  {
+    fieldId: 'outfit.preset',
+    manifestId: 'character-sheet.outfit.outfit-preset',
+    sectionId: 'outfit',
+    folder: 'outfit-preset'
+  },
+  {
+    fieldId: 'sheet.layout',
+    manifestId: 'character-sheet.layout.sheet-layout',
+    sectionId: 'layout',
+    folder: 'sheet-layout'
   }
 ];
 
@@ -111,6 +172,15 @@ export function parseArgs(argv) {
 }
 
 export async function run(options = parseArgs(process.argv.slice(2))) {
+  const groupedFieldIds = FIELD_GROUPS[options.fieldId];
+  if (groupedFieldIds) {
+    const reports = [];
+    for (const fieldId of groupedFieldIds) {
+      reports.push(await run({ ...options, fieldId }));
+    }
+    return { fieldGroup: options.fieldId, reports, ok: reports.every(report => report.ok) };
+  }
+
   const manifestPath = FIELD_MANIFESTS[options.fieldId];
   if (!manifestPath) {
     throw new Error(`Unknown visual asset field: ${options.fieldId}`);
@@ -177,6 +247,7 @@ async function validateManifest(manifest, paths) {
   const positions = new Set();
   const optionIds = new Set();
   const slugs = new Set();
+  const attributeIds = await readKnownAttributeIds();
 
   if (manifest.schemaVersion !== 1) errors.push('schemaVersion must be 1.');
   if (manifest.assetFamily !== 'illustrated-set') errors.push('assetFamily must be illustrated-set.');
@@ -199,6 +270,12 @@ async function validateManifest(manifest, paths) {
     if (!item.alt?.en || !item.alt?.th) {
       errors.push(`${item.optionId} needs bilingual alt text.`);
     }
+    if (!item.reviewStatus) {
+      errors.push(`${item.optionId} needs reviewStatus.`);
+    }
+    if (item.attributeId && !attributeIds.has(item.attributeId)) {
+      errors.push(`${item.optionId} references missing attributeId ${item.attributeId}.`);
+    }
   }
 
   const expectedCount = manifest.sourceSheet.rows * manifest.sourceSheet.columns;
@@ -209,6 +286,7 @@ async function validateManifest(manifest, paths) {
   if (!await fileExists(paths.sourcePath)) {
     warnings.push(`Source sheet not found yet: ${paths.sourcePath}`);
   }
+  warnings.push(...getPublishReadinessWarnings(manifest));
 
   return {
     fieldId: manifest.fieldId,
@@ -223,6 +301,7 @@ async function validateManifest(manifest, paths) {
 
 async function sliceManifest(manifest, paths) {
   const sharp = (await import('sharp')).default;
+  assertPublishReady(manifest);
   const sourceMetadata = await sharp(paths.sourcePath).metadata();
   const outputs = [];
 
@@ -279,6 +358,7 @@ async function sliceManifest(manifest, paths) {
     runtimeItems.push({
       assetId: item.assetId,
       optionId: item.optionId,
+      attributeId: item.attributeId || null,
       slug: item.slug,
       assetRevision: item.assetRevision,
       recolorMode: manifest.recolorMode,
@@ -381,6 +461,26 @@ function validateBounds(bounds, metadata, optionId) {
   }
 }
 
+function assertPublishReady(manifest) {
+  const blockedItems = getPublishBlockedItems(manifest);
+  if (!blockedItems.length) return;
+  const details = blockedItems.map(item => `${item.optionId}:${item.reviewStatus || 'missing'}`).join(', ');
+  throw new Error(`Manifest is not ready to publish. Review these items first: ${details}`);
+}
+
+function getPublishReadinessWarnings(manifest) {
+  const blockedItems = getPublishBlockedItems(manifest);
+  if (!blockedItems.length) return [];
+  const details = blockedItems.map(item => `${item.optionId}:${item.reviewStatus || 'missing'}`).join(', ');
+  return [`Publish blocked until reviewStatus is approved/source-selected/override-approved for: ${details}`];
+}
+
+function getPublishBlockedItems(manifest) {
+  return (manifest.items || []).filter(item =>
+    !PUBLISH_READY_REVIEW_STATUSES.has(item.reviewStatus)
+  );
+}
+
 async function createContactSheetFromRuntime(manifest, paths) {
   const sharp = (await import('sharp')).default;
   const profile = manifest.runtimeProfiles.preview;
@@ -425,18 +525,21 @@ async function writeManifestIndex(style) {
   const styleDirectory = path.join(RUNTIME_ROOT, style);
   const indexPath = path.join(styleDirectory, 'manifest.index.json');
   const manifests = [];
+  let visualStyleVersion = null;
   for (const manifest of RUNTIME_MANIFESTS) {
     const runtimeManifestPath = path.join(styleDirectory, manifest.sectionId, manifest.folder, 'manifest.json');
     if (!await fileExists(runtimeManifestPath)) continue;
+    const runtimeManifest = await readJson(runtimeManifestPath);
+    visualStyleVersion ||= runtimeManifest.visualStyleVersion;
     manifests.push({
-      fieldId: manifest.fieldId,
-      manifestId: manifest.manifestId,
+      fieldId: runtimeManifest.fieldId || manifest.fieldId,
+      manifestId: runtimeManifest.manifestId || manifest.manifestId,
       url: `/assets/visual-character-builder/${style}/${manifest.sectionId}/${manifest.folder}/manifest.json`
     });
   }
   const index = {
     schemaVersion: 1,
-    visualStyleVersion: 'headshot-illustrated-v1',
+    visualStyleVersion: visualStyleVersion || styleToVisualStyleVersion(style),
     manifests
   };
   await fs.mkdir(styleDirectory, { recursive: true });
@@ -464,6 +567,18 @@ async function readJson(filename) {
   return JSON.parse(await fs.readFile(filename, 'utf8'));
 }
 
+async function readKnownAttributeIds() {
+  const ids = new Set();
+  for (const filename of ATTRIBUTE_FILES) {
+    if (!await fileExists(filename)) continue;
+    const items = await readJson(filename);
+    for (const item of items || []) {
+      if (item?.id) ids.add(item.id);
+    }
+  }
+  return ids;
+}
+
 async function fileExists(filename) {
   try {
     await fs.access(filename);
@@ -479,6 +594,10 @@ function sha256(buffer) {
 
 function toPosix(filename) {
   return filename.split(path.sep).join('/');
+}
+
+function styleToVisualStyleVersion(style) {
+  return style.replace(/-v(\d+)$/, '-illustrated-v$1');
 }
 
 function fieldIdToFolderName(fieldId) {

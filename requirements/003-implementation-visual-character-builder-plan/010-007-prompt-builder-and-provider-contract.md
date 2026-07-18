@@ -1,6 +1,6 @@
 # 010-007 Character Sheet Prompt Builder and Provider Contract
 
-**Status:** Draft - Revised  
+**Status:** Implemented - Contract Baseline  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** 010-001 through 010-005
 
@@ -54,3 +54,25 @@ matching the clothing outfit from the uploaded front and back outfit references,
 - Prompt is optimized for reusable character sheet output.
 - Prompt is not a Story Mode scene prompt.
 - Admin can inspect/edit final prompt before generation.
+
+## Implementation Log
+
+### 2026-07-18 - Prompt Compiler Contract Baseline
+
+- Aligned client and server Character Sheet prompt assembly.
+- Character Sheet prompt now keeps identity-related skin details with face and hair identity.
+- Server Character Sheet prompt no longer includes scene context:
+  - Fashion Direction
+  - Photographic Context
+  - Scene Story
+  - Environment
+- Server Headshot prompt also matches the client by excluding scene context from the controlled headshot layout.
+- Outfit references keep priority over outfit preset wording when Character Sheet outfit reference mode is active.
+- Added regression coverage in `test/modeSpecificCharacterReference.test.js` to ensure Character Sheet output stays clean and reusable.
+
+Verified:
+
+```bash
+node --test test/modeSpecificCharacterReference.test.js
+npm run test:prompt-cleanup
+```

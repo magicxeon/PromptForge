@@ -79,3 +79,13 @@ Deferred:
 
 - Body silhouette/build visual-card assets are not generated in this step.
 - Before slicing or wiring body diagram images, create a source-sheet preview and wait for review approval.
+
+### 2026-07-18 - Visual Contract Attribute Alignment
+
+- Added missing neutral body attributes required by Character Sheet visual manifests:
+  - `body.011` Straight natural silhouette
+  - `body.012` Inverted triangle silhouette
+  - `body.build_03` Balanced build
+  - `body.build_04` Broad structured build
+  - `body.build_05` Soft natural build
+- Kept wording descriptive and non-judgmental so the visual cards can map cleanly into prompts.

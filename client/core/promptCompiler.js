@@ -597,6 +597,7 @@
         fullSubject,
         appearance,
         hair,
+        skin,
         clothing,
         cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
         cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,

@@ -24,6 +24,7 @@
     {
       "assetId": "visual.body.silhouette.straight",
       "optionId": "body.silhouette.straight",
+      "attributeId": "body.011",
       "slug": "straight",
       "row": 1,
       "column": 1,
@@ -37,6 +38,7 @@
     {
       "assetId": "visual.body.silhouette.curvy",
       "optionId": "body.silhouette.curvy",
+      "attributeId": "body.001",
       "slug": "curvy",
       "row": 1,
       "column": 2,
@@ -50,6 +52,7 @@
     {
       "assetId": "visual.body.silhouette.hourglass",
       "optionId": "body.silhouette.hourglass",
+      "attributeId": "body.002",
       "slug": "hourglass",
       "row": 1,
       "column": 3,
@@ -63,6 +66,7 @@
     {
       "assetId": "visual.body.silhouette.pear",
       "optionId": "body.silhouette.pear",
+      "attributeId": "body.006",
       "slug": "pear",
       "row": 2,
       "column": 1,
@@ -76,6 +80,7 @@
     {
       "assetId": "visual.body.silhouette.inverted",
       "optionId": "body.silhouette.inverted",
+      "attributeId": "body.012",
       "slug": "inverted",
       "row": 2,
       "column": 2,
@@ -89,6 +94,7 @@
     {
       "assetId": "visual.body.silhouette.plus",
       "optionId": "body.silhouette.plus",
+      "attributeId": "body.005",
       "slug": "plus",
       "row": 2,
       "column": 3,
