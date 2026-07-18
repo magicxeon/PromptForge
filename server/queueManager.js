@@ -300,6 +300,7 @@ class QueueManager {
         submodel: job.submodel,
         mode: job.options.mode || null,
         selections: job.options.selections || {},
+        sceneBuilder: job.options.sceneBuilder || null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
@@ -342,6 +343,7 @@ class QueueManager {
         usage: result.usage,
         mimeType,
         selections: job.options.selections || {},
+        sceneBuilder: job.options.sceneBuilder || null,
         generationDuration: durationSec,
         collectionWarning
       });

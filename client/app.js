@@ -117,7 +117,7 @@ async function initApp() {
     state.mode = Object.prototype.hasOwnProperty.call(MODE_CATEGORY_POLICY, savedMode) ? savedMode : "normal";
 
     // Sync mode chips in DOM
-    document.querySelectorAll(".mode-chip").forEach(chip => {
+    document.querySelectorAll(".mode-chip[data-mode]").forEach(chip => {
       chip.classList.remove("active");
       if (chip.getAttribute("data-mode") === state.mode) {
         chip.classList.add("active");
@@ -126,6 +126,10 @@ async function initApp() {
 
     // Restore persisted state for initial mode (Step 12)
     restoreCurrentModeState();
+
+    if (window.ModelPromptForgeSceneBuilderUi?.init) {
+      window.ModelPromptForgeSceneBuilderUi.init();
+    }
 
     enforceModeReferencePolicy({ updateUI: false });
     toggleUIForMode();
@@ -1174,9 +1178,9 @@ function bindEvents() {
   });
 
   // Mode Selection Chips
-  document.querySelectorAll(".mode-chip").forEach(chip => {
+  document.querySelectorAll(".mode-chip[data-mode]").forEach(chip => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll(".mode-chip").forEach(c => c.classList.remove("active"));
+      document.querySelectorAll(".mode-chip[data-mode]").forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
 
       saveCurrentModeState();
@@ -1370,6 +1374,10 @@ function toggleUIForMode() {
     if (firstVisible) {
       firstVisible.classList.add("active");
     }
+  }
+
+  if (window.ModelPromptForgeSceneBuilderUi?.updateUi) {
+    window.ModelPromptForgeSceneBuilderUi.updateUi();
   }
 }
 

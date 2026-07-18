@@ -1,5 +1,389 @@
 [
   {
+    "id": "job_1784393713116_u0c4jg8cc",
+    "prompt": "Preserve the character identity, facial features, body proportions, hairstyle, hair color, skin tone, clothing design, garment fit, fabric texture, and all outfit details exactly as shown in the uploaded character reference. Do not alter the person's appearance or outfit in any way.\n\nThe character is sitting comfortably on a modern sofa in an elegant contemporary living room. She holds a ceramic coffee mug naturally with both hands while relaxing. Her body is slightly angled, and her head is gently turned as she gazes toward a warm floor lamp beside the sofa with a calm, thoughtful expression. Natural seated fashion pose with realistic posture, relaxed shoulders, elegant leg placement, authentic fabric drape, and subtle clothing folds without distorting the garment.\n\nMarketplace fashion commerce photography, product-first styling, garment details, silhouette, and fabric texture remain clearly visible. Fashion marketplace product-listing photography with accurate garment readability while maintaining an attractive lifestyle presentation.\n\nLuxury interior with a refined sofa, warm ambient lighting, a modern floor lamp as the visual focal point, tasteful minimalist decoration, cozy premium atmosphere, restrained retail-inspired styling.\n\nHard directional editorial lighting combined with warm practical lamp illumination, balanced lighting contrast, clean highlights, subtle realistic shadows, natural indoor color temperature.\n\nShot on a modern high-resolution full-frame mirrorless camera with an 85mm lens, shallow depth of field, sharp focus, realistic optical rendering, minor chromatic aberration, subtle corner softness, natural filmic color grading, realistic skin texture, fine fabric detail, slight digital grain, avoiding CGI look, no AI-generated artifacts, ultra photorealistic",
+    "imageUrl": "/outputs/job_1784393713116_u0c4jg8cc.jpg",
+    "timestamp": 1784393728551,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.marketplace",
+        "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.detail-demo",
+        "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "marketplace",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.fabric-demo",
+        "value": "natural fashion pose demonstrating fabric drape and movement without distorting the garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.hard-editorial",
+        "value": "hard directional editorial fashion lighting with deliberate graphic shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "editorial",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": [
+          "professional digital photography",
+          "sharp focus",
+          "clean image output"
+        ]
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.balanced",
+        "value": "balanced lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.minimal",
+        "value": "minimal unobtrusive shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Accent": {
+        "id": "lighting.accent.practical",
+        "value": "restrained practical-light accents in the scene",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Preserve the character identity, facial features, body proportions, hairstyle, hair color, skin tone, clothing design, garment fit, fabric texture, and all outfit details exactly as shown in the uploaded character reference. Do not alter the person's appearance or outfit in any way.\n\nThe character is sitting comfortably on a modern sofa in an elegant contemporary living room. She holds a ceramic coffee mug naturally with both hands while relaxing. Her body is slightly angled, and her head is gently turned as she gazes toward a warm floor lamp beside the sofa with a calm, thoughtful expression. Natural seated fashion pose with realistic posture, relaxed shoulders, elegant leg placement, authentic fabric drape, and subtle clothing folds without distorting the garment.\n\nMarketplace fashion commerce photography, product-first styling, garment details, silhouette, and fabric texture remain clearly visible. Fashion marketplace product-listing photography with accurate garment readability while maintaining an attractive lifestyle presentation.\n\nLuxury interior with a refined sofa, warm ambient lighting, a modern floor lamp as the visual focal point, tasteful minimalist decoration, cozy premium atmosphere, restrained retail-inspired styling.\n\nHard directional editorial lighting combined with warm practical lamp illumination, balanced lighting contrast, clean highlights, subtle realistic shadows, natural indoor color temperature.\n\nShot on a modern high-resolution full-frame mirrorless camera with an 85mm lens, shallow depth of field, sharp focus, realistic optical rendering, minor chromatic aberration, subtle corner softness, natural filmic color grading, realistic skin texture, fine fabric detail, slight digital grain, avoiding CGI look, no AI-generated artifacts, ultra photorealistic",
+      "lastGuidedPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+      "templateDraft": null
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784383508344_82plsk9t3"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "15.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784393713116_u0c4jg8cc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22030,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 705148
+  },
+  {
+    "id": "job_1784392701071_avgwr0yck",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784392701071_avgwr0yck.jpg",
+    "timestamp": 1784392717424,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.marketplace",
+        "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.detail-demo",
+        "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "marketplace",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.fabric-demo",
+        "value": "natural fashion pose demonstrating fabric drape and movement without distorting the garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.hard-editorial",
+        "value": "hard directional editorial fashion lighting with deliberate graphic shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "editorial",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": [
+          "professional digital photography",
+          "sharp focus",
+          "clean image output"
+        ]
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.balanced",
+        "value": "balanced lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.minimal",
+        "value": "minimal unobtrusive shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Accent": {
+        "id": "lighting.accent.practical",
+        "value": "restrained practical-light accents in the scene",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784383508344_82plsk9t3"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "16.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784392701071_avgwr0yck.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16126,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 623992
+  },
+  {
     "id": "job_1784383508344_82plsk9t3",
     "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, wavy hair, curtain bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, wearing a soft blouse with a knee-length A-line skirt, small tasteful floral pattern, soft wool blend texture, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784383508344_82plsk9t3.png",

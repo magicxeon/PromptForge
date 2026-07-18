@@ -396,6 +396,10 @@
   }
 
   function generatePromptText(cleanTextOnly = false) {
+    if (state.mode === "normal" && window.state.sceneBuilder?.authoringMode === "manual") {
+      return window.state.sceneBuilder.manualPromptText || "";
+    }
+
     const currentTemplateName = document.getElementById("template-select").value || "portrait";
     const templateStr = state.templates[currentTemplateName];
 

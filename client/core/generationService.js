@@ -56,6 +56,14 @@
       imageReferences: { ...state.imageReferences, characterOverrides: state.characterReferenceOverrides },
       sourceOwnership,
       mode: state.mode,
+      sceneBuilder: state.mode === "normal"
+        ? {
+          authoringMode: state.sceneBuilder?.authoringMode === "manual" ? "manual" : "guided",
+          manualPromptText: typeof state.sceneBuilder?.manualPromptText === "string" ? state.sceneBuilder.manualPromptText : "",
+          lastGuidedPromptSnapshot: typeof state.sceneBuilder?.lastGuidedPromptSnapshot === "string" ? state.sceneBuilder.lastGuidedPromptSnapshot : "",
+          templateDraft: state.sceneBuilder?.templateDraft || null
+        }
+        : null,
       template: document.getElementById("template-select")?.value || "portrait",
       isGptSafe: false,
       username: state.username,

@@ -3,6 +3,17 @@ import { normalizeReferenceJobIds } from './referenceUtils.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
+function normalizeSceneBuilderState(value, mode) {
+  if (mode !== 'normal') return null;
+  const raw = value && typeof value === 'object' ? value : {};
+  return {
+    authoringMode: raw.authoringMode === 'manual' ? 'manual' : 'guided',
+    manualPromptText: typeof raw.manualPromptText === 'string' ? raw.manualPromptText : '',
+    lastGuidedPromptSnapshot: typeof raw.lastGuidedPromptSnapshot === 'string' ? raw.lastGuidedPromptSnapshot : '',
+    templateDraft: raw.templateDraft || null
+  };
+}
+
 export function normalizeGenerationContext(payload = {}) {
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
@@ -44,9 +55,12 @@ export function normalizeGenerationContext(payload = {}) {
     imageReferences.outfitReference ? payload.outfitReferenceImageBack : null
   ].filter(value => typeof value === 'string' && value.trim());
 
+  const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
+
   return {
     ...payload,
     mode,
+    sceneBuilder,
     template: payload.template || 'portrait',
     aspectRatio: payload.aspectRatio || '1:1',
     imageReferences,
@@ -70,8 +84,15 @@ export function compileGenerationContext(payload = {}) {
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
     ? context.adminPromptOverride.trim()
     : '';
+  const manualScenePrompt = context.mode === 'normal'
+    && context.sceneBuilder?.authoringMode === 'manual'
+    && typeof context.sceneBuilder.manualPromptText === 'string'
+    ? context.sceneBuilder.manualPromptText.trim()
+    : '';
   const compiledPrompt = context.userRole === 'admin' && adminPromptOverride
     ? adminPromptOverride
+    : (manualScenePrompt
+      ? manualScenePrompt
     : compilePromptOnServer(
       context.selections,
       context.aspectRatio,
@@ -80,7 +101,7 @@ export function compileGenerationContext(payload = {}) {
       context.template,
       context.isGptSafe,
       context.customColors
-    );
+    ));
   return { context, compiledPrompt };
 }
 
@@ -96,6 +117,7 @@ export function createQueueOptions(context, {
   const references = context.imageReferences;
   return {
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
+    sceneBuilder: context.sceneBuilder || null,
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,

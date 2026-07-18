@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 35
+      "credits": 33
     },
     "admin_demo": {
       "role": "admin",
@@ -499,6 +499,26 @@
       "comparisonSetId": null,
       "comparisonRunId": null,
       "createdAt": 1784383508345
+    },
+    {
+      "id": "credit_1784392701074_onvmai",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784392701071_avgwr0yck",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784392701074
+    },
+    {
+      "id": "credit_1784393713119_c2ui21",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784393713116_u0c4jg8cc",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784393713119
     }
   ]
 }

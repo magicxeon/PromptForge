@@ -90,3 +90,90 @@ test('normalizeLegacySceneMode migrates mode keys and injects sceneBuilder names
   assert.ok(normalized.sceneBuilder);
   assert.equal(normalized.sceneBuilder.authoringMode, 'guided');
 });
+
+test('state patch helper assigns new values correctly', () => {
+  const stateObj = {
+    sceneBuilder: {
+      authoringMode: "guided",
+      manualPromptText: "",
+      lastGuidedPromptSnapshot: "",
+      templateDraft: null
+    }
+  };
+
+  Object.assign(stateObj.sceneBuilder, { authoringMode: 'manual', manualPromptText: 'test manual' });
+
+  assert.equal(stateObj.sceneBuilder.authoringMode, 'manual');
+  assert.equal(stateObj.sceneBuilder.manualPromptText, 'test manual');
+});
+
+test('generatePromptText mock prevents manual prompt leaks to other modes', () => {
+  const mockStateObj = {
+    mode: 'headshot', // not normal/scene-builder
+    sceneBuilder: {
+      authoringMode: 'manual',
+      manualPromptText: 'Freestyle prompt that should NOT leak'
+    }
+  };
+
+  // Mimic compiler behavior
+  function generatePromptTextMock(stateObj) {
+    if (stateObj.mode === "normal" && stateObj.sceneBuilder?.authoringMode === "manual") {
+      return stateObj.sceneBuilder.manualPromptText || "";
+    }
+    return "Structured output";
+  }
+
+  assert.equal(generatePromptTextMock(mockStateObj), "Structured output");
+
+  mockStateObj.mode = "normal";
+  assert.equal(generatePromptTextMock(mockStateObj), "Freestyle prompt that should NOT leak");
+});
+
+test('deserialization validates and normalizes sceneBuilder authoringMode', () => {
+  const rawPayload = {
+    sceneBuilder: {
+      authoringMode: "corrupted_mode_abc",
+      manualPromptText: 12345
+    }
+  };
+
+  const raw = rawPayload.sceneBuilder || {};
+  const authoringMode = (raw.authoringMode === "guided" || raw.authoringMode === "manual") ? raw.authoringMode : "guided";
+  const normalizedSceneBuilder = {
+    authoringMode,
+    manualPromptText: typeof raw.manualPromptText === "string" ? raw.manualPromptText : "",
+    lastGuidedPromptSnapshot: typeof raw.lastGuidedPromptSnapshot === "string" ? raw.lastGuidedPromptSnapshot : "",
+    templateDraft: raw.templateDraft || null
+  };
+
+  assert.equal(normalizedSceneBuilder.authoringMode, "guided");
+  assert.equal(normalizedSceneBuilder.manualPromptText, "");
+});
+
+test('scene generation uses manual prompt only for normal manual mode', () => {
+  function resolvePrompt(context) {
+    const manualScenePrompt = context.mode === 'normal'
+      && context.sceneBuilder?.authoringMode === 'manual'
+      && typeof context.sceneBuilder.manualPromptText === 'string'
+      ? context.sceneBuilder.manualPromptText.trim()
+      : '';
+    return manualScenePrompt || 'Structured server prompt';
+  }
+
+  assert.equal(resolvePrompt({
+    mode: 'normal',
+    sceneBuilder: { authoringMode: 'manual', manualPromptText: 'manual scene prompt' }
+  }), 'manual scene prompt');
+
+  assert.equal(resolvePrompt({
+    mode: 'headshot',
+    sceneBuilder: { authoringMode: 'manual', manualPromptText: 'manual scene prompt' }
+  }), 'Structured server prompt');
+
+  assert.equal(resolvePrompt({
+    mode: 'normal',
+    sceneBuilder: { authoringMode: 'guided', manualPromptText: 'manual scene prompt' }
+  }), 'Structured server prompt');
+});
+

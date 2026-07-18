@@ -39,6 +39,15 @@
       characterReferenceOverrides: state.characterReferenceOverrides
     };
 
+    if (state.mode === "normal") {
+      payload.sceneBuilder = state.sceneBuilder || {
+        authoringMode: "guided",
+        manualPromptText: "",
+        lastGuidedPromptSnapshot: "",
+        templateDraft: null
+      };
+    }
+
     localStorage.setItem(modeKey, JSON.stringify(payload));
     localStorage.setItem("model_prompt_forge_active_mode", state.mode);
   }
@@ -57,6 +66,28 @@
     try {
       const payload = JSON.parse(saved);
       if (!payload || typeof payload !== "object") return;
+
+      if (state.mode === "normal" && payload.sceneBuilder) {
+        const raw = payload.sceneBuilder || {};
+        const authoringMode = (raw.authoringMode === "guided" || raw.authoringMode === "manual") ? raw.authoringMode : "guided";
+        state.sceneBuilder = {
+          authoringMode,
+          manualPromptText: typeof raw.manualPromptText === "string" ? raw.manualPromptText : "",
+          lastGuidedPromptSnapshot: typeof raw.lastGuidedPromptSnapshot === "string" ? raw.lastGuidedPromptSnapshot : "",
+          templateDraft: raw.templateDraft || null
+        };
+        const manualInput = document.getElementById("manual-prompt-input");
+        if (manualInput) {
+          manualInput.value = state.sceneBuilder.manualPromptText || "";
+        }
+      } else if (state.mode === "normal") {
+        state.sceneBuilder = {
+          authoringMode: "guided",
+          manualPromptText: "",
+          lastGuidedPromptSnapshot: "",
+          templateDraft: null
+        };
+      }
 
       // 1. Restore core state objects
       state.selections = window.pruneSelectionsForMode && window.migrateLegacySelections
@@ -205,6 +236,17 @@
   }
 
   function resetForm() {
+    if (state.mode === "normal") {
+      state.sceneBuilder = {
+        authoringMode: "guided",
+        manualPromptText: "",
+        lastGuidedPromptSnapshot: "",
+        templateDraft: null
+      };
+      const manualInput = document.getElementById("manual-prompt-input");
+      if (manualInput) manualInput.value = "";
+    }
+
     document.querySelectorAll("#form-container select.custom-select").forEach(select => {
       select.value = "";
       const formField = select.closest(".form-field");
@@ -374,7 +416,7 @@
     if (nextMode && nextMode !== state.mode) {
       state.mode = nextMode;
       localStorage.setItem("model_prompt_forge_active_mode", state.mode);
-      document.querySelectorAll(".mode-chip").forEach(chip => {
+      document.querySelectorAll(".mode-chip[data-mode]").forEach(chip => {
         chip.classList.toggle("active", chip.getAttribute("data-mode") === state.mode);
       });
     }

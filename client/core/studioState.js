@@ -275,6 +275,12 @@ window.state = {
     "Product Type": { enabled: false, color: "#ffffff" },
     "Primary Color": { enabled: false, color: "#111827" },
     "Secondary Color": { enabled: false, color: "#e5e7eb" }
+  },
+  sceneBuilder: {
+    authoringMode: "guided",
+    manualPromptText: "",
+    lastGuidedPromptSnapshot: "",
+    templateDraft: null
   }
 };
 

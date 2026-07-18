@@ -96,7 +96,7 @@
   function setActiveMode(mode) {
     state.mode = mode;
     localStorage.setItem("model_prompt_forge_active_mode", mode);
-    document.querySelectorAll(".mode-chip").forEach(chip => {
+    document.querySelectorAll(".mode-chip[data-mode]").forEach(chip => {
       chip.classList.toggle("active", chip.getAttribute("data-mode") === mode);
     });
   }
