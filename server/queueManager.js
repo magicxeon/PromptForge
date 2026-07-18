@@ -299,6 +299,7 @@ class QueueManager {
         provider: job.provider,
         submodel: job.submodel,
         mode: job.options.mode || null,
+        selections: job.options.selections || {},
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
@@ -340,6 +341,7 @@ class QueueManager {
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
         mimeType,
+        selections: job.options.selections || {},
         generationDuration: durationSec,
         collectionWarning
       });

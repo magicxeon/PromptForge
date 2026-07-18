@@ -95,6 +95,7 @@ export function createQueueOptions(context, {
 }) {
   const references = context.imageReferences;
   return {
+    selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,

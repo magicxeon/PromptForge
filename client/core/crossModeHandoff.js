@@ -55,6 +55,44 @@
     return model?.capabilities?.imageReferences === true;
   }
 
+  function cleanReferenceImageSrc(src) {
+    if (!src) return "";
+    const outputIndex = src.indexOf("/outputs/");
+    return outputIndex !== -1 ? src.substring(outputIndex) : src;
+  }
+
+  function syncReferenceControlState() {
+    const refFace = document.getElementById("ref-face-match");
+    const faceUploadContainer = document.getElementById("face-match-upload-container");
+    if (refFace) refFace.checked = state.imageReferences.faceMatch === true;
+    if (faceUploadContainer) {
+      faceUploadContainer.style.display = state.imageReferences.faceMatch ? "block" : "none";
+    }
+
+    const characterReference = document.getElementById("story-use-character-reference");
+    if (characterReference) {
+      characterReference.checked = state.imageReferences.characterReference === true;
+    }
+  }
+
+  function cloneSelections(selections = {}) {
+    return JSON.parse(JSON.stringify(selections || {}));
+  }
+
+  function hasSelectionPayload(selections) {
+    return selections && typeof selections === "object" && Object.keys(selections).length > 0;
+  }
+
+  function resolveSourceSelections(result = {}) {
+    if (hasSelectionPayload(result.selections)) return cloneSelections(result.selections);
+    if (result.mode && result.mode === state.mode && hasSelectionPayload(state.selections)) {
+      return window.getModeCompatibleSelections
+        ? window.getModeCompatibleSelections(state.selections, result.mode)
+        : cloneSelections(state.selections);
+    }
+    return {};
+  }
+
   function setActiveMode(mode) {
     state.mode = mode;
     localStorage.setItem("model_prompt_forge_active_mode", mode);
@@ -72,6 +110,7 @@
       if (window.restoreSelectionsToUI) window.restoreSelectionsToUI();
     }
     if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
+    syncReferenceControlState();
     if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
     if (window.updatePromptPreview) window.updatePromptPreview();
     if (window.saveCurrentModeState) window.saveCurrentModeState();
@@ -128,9 +167,9 @@
     }
 
     // 5. Assign Reference Slot
-    if (options.useAsFaceMatch && context.canAttachImageReference) {
+    if (options.useAsFaceMatch) {
       state.imageReferences.faceMatch = true;
-      state.faceReferenceImageA = context.sourceImageUrl;
+      state.faceReferenceImageA = cleanReferenceImageSrc(context.sourceImageUrl);
       state.faceReferenceImageB = null;
       state.faceReferenceJobIds = context.sourceJobId ? [context.sourceJobId] : [];
     } else {
@@ -159,9 +198,9 @@
     if (window.restoreCurrentModeState) window.restoreCurrentModeState();
 
     // 4. Assign Character Reference Slot
-    if (options.useAsCharacterRef && context.canAttachImageReference) {
+    if (options.useAsCharacterRef) {
       state.imageReferences.characterReference = true;
-      state.characterReferenceImageA = context.sourceImageUrl;
+      state.characterReferenceImageA = cleanReferenceImageSrc(context.sourceImageUrl);
       state.characterReferenceImageB = null;
       state.characterReferenceJobIds = context.sourceJobId ? [context.sourceJobId] : [];
       state.characterReferenceOverrides = false;
@@ -202,7 +241,7 @@
       
       // Update warning context if provider lacks references
       if (!action.supportsRefs) {
-        btnUseFace.title = "This model cannot use image references. Attributes will be carried, but face image reference won't attach.";
+        btnUseFace.title = "The generated image can be attached as a workspace reference. If the selected model cannot use image references, generation may ignore it until you select a compatible model.";
       } else {
         btnUseFace.removeAttribute("title");
       }
@@ -275,7 +314,7 @@
       sourceMode: result.mode,
       sourceJobId: result.id || result.jobId,
       sourceImageUrl: result.imageUrl,
-      sourceSelections: result.selections || {},
+      sourceSelections: resolveSourceSelections(result),
       canAttachImageReference: action.supportsRefs
     };
 
@@ -293,14 +332,14 @@
       
       const useImage = document.getElementById("chk-handoff-use-image");
       if (useImage) {
-        useImage.checked = action.supportsRefs;
-        useImage.disabled = !action.supportsRefs;
+        useImage.checked = true;
+        useImage.disabled = false;
         const label = useImage.closest("label");
         if (label) {
-          label.style.opacity = action.supportsRefs ? "" : "0.45";
+          label.style.opacity = "";
           label.title = action.supportsRefs
             ? ""
-            : "The active model cannot use image references. Attributes will be carried without attaching the generated image.";
+            : "This will attach the generated image to Face Match. If the selected model cannot use image references, generation may ignore it until you select a compatible model.";
         }
       }
       document.getElementById("chk-handoff-carry-attrs").checked = true;
@@ -309,7 +348,7 @@
       titleEl.textContent = "Use as Story Character";
       msgEl.textContent = action.supportsRefs
         ? "Would you like to switch to Story Mode and attach this Character Sheet as your active Character Reference?"
-        : "The active model cannot use image references. Story Mode will open, but the Character Sheet image will not be attached.";
+        : "Story Mode will open and attach this Character Sheet as your active Character Reference. If the selected model cannot use image references, generation may ignore it until you select a compatible model.";
       optionsList.style.display = "none";
     }
 

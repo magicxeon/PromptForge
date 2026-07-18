@@ -1,5 +1,887 @@
 [
   {
+    "id": "job_1784382840692_9z6z68klt",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, wavy hair, curtain bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, wearing a simple fitted top with high-waist wide-leg jeans, in #f03838 as the primary garment color, with #ffffff secondary color in the pattern, clean plaid fabric pattern, matte cotton fabric, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784382840692_9z6z68klt.png",
+    "timestamp": 1784382894638,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.004",
+        "value": "soft rounded tip",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Smile": {
+        "id": "lips.009",
+        "value": "neutral expression",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Style": {
+        "id": "hair_006",
+        "value": "wavy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "tasteful styling",
+          "refined styling",
+          "beauty editorial shoot",
+          "soft facial harmony"
+        ]
+      },
+      "Finish": {
+        "id": "hair_017",
+        "value": "glossy healthy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "finish"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_teen",
+        "value": "teenager in late teens around 18 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_editorial",
+        "value": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_011",
+        "value": "curtain bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": [
+          "professional studio lighting",
+          "smooth skin details",
+          "refined complexion"
+        ]
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "smooth even skin tone with no freckles or blemishes",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": [
+          "clean facial skin",
+          "smooth skin details",
+          "professional portrait quality"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_04",
+        "value": "adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "pear"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "clear lower-body silhouette"
+        ]
+      },
+      "Outfit Base": {
+        "id": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "value": "wearing a simple fitted top with high-waist wide-leg jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-female",
+          "casual",
+          "street"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pattern": {
+        "id": "outfit.pattern.plaid",
+        "value": "clean plaid fabric pattern",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "plaid"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.cotton",
+        "value": "matte cotton fabric",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "cotton"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-preset-selections",
+        "label": "Outfit preset selections",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784382721948_qj0u1ppjy"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Nose": "nose.004",
+        "Lips": "lips.012",
+        "Smile": "lips.009",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Style": "hair_006",
+        "Makeup": "skin.makeup_02",
+        "Finish": "hair_017",
+        "Age": "character.004_teen",
+        "Texture": "hair.text_01",
+        "Ethnicity": "character.010",
+        "Beauty": "character.beauty_editorial",
+        "Eyebrows": "eyebrows.004",
+        "Parting / Fringe": "hair_011",
+        "Color": "hair_014",
+        "Tone": "skin.tone_02",
+        "Freckles": "skin.freckles_01"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_04"
+      },
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitSelectionIds": {
+        "Outfit Base": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "Pattern": "outfit.pattern.plaid",
+        "Material": "outfit.material.cotton"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-preset-selections",
+          "label": "Outfit preset selections",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784382840692_9z6z68klt"
+    },
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 499,
+      "input_tokens_details": {
+        "image_tokens": 194,
+        "text_tokens": 305
+      },
+      "output_tokens": 6240,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 0
+      },
+      "total_tokens": 6739
+    },
+    "referencedFaceJobIds": [
+      "job_1784382721948_qj0u1ppjy"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "53.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784382840692_9z6z68klt.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 24120,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2646554
+  },
+  {
+    "id": "job_1784382721948_qj0u1ppjy",
+    "prompt": "headshot portrait, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, diamond face, almond-shaped eyes, thin eyebrows, soft rounded tip, wide lips, subtle friendly expression with relaxed lips, long dark brown hair, wavy hair, curtain bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1784382721948_qj0u1ppjy.png",
+    "timestamp": 1784382738835,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.004",
+        "value": "soft rounded tip",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Smile": {
+        "id": "lips.009",
+        "value": "neutral expression",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Style": {
+        "id": "hair_006",
+        "value": "wavy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "tasteful styling",
+          "refined styling",
+          "beauty editorial shoot",
+          "soft facial harmony"
+        ]
+      },
+      "Brand": {
+        "id": "camera.brand_14",
+        "value": "shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "canon",
+          "full frame",
+          "digital"
+        ],
+        "gptPositiveWords": [
+          "warm color balance",
+          "professional commercial rendering",
+          "realistic skin tones"
+        ]
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": [
+          "sharp details",
+          "professional lens quality",
+          "clear eye reflection",
+          "high-fidelity resolution"
+        ]
+      },
+      "Focal Length": {
+        "id": "camera.focal_02",
+        "value": "shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "85mm"
+        ],
+        "gptPositiveWords": [
+          "85mm prime",
+          "classic beauty portrait",
+          "flattering lens compression"
+        ]
+      },
+      "Finish": {
+        "id": "hair_017",
+        "value": "glossy healthy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "finish"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_teen",
+        "value": "teenager in late teens around 18 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_editorial",
+        "value": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_011",
+        "value": "curtain bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": [
+          "professional studio lighting",
+          "smooth skin details",
+          "refined complexion"
+        ]
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "smooth even skin tone with no freckles or blemishes",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": [
+          "clean facial skin",
+          "smooth skin details",
+          "professional portrait quality"
+        ]
+      }
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 267,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 267
+      },
+      "output_tokens": 1056,
+      "output_tokens_details": {
+        "image_tokens": 1056,
+        "text_tokens": 0
+      },
+      "total_tokens": 1323
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "16.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784382721948_qj0u1ppjy.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21184,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1500019
+  },
+  {
+    "id": "job_1784381682993_ni6568fla",
+    "prompt": "headshot portrait, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, diamond face, almond-shaped eyes, thin eyebrows, soft rounded tip, wide lips, subtle friendly expression with relaxed lips, long dark brown hair, wavy hair, curtain bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+    "imageUrl": "/outputs/job_1784381682993_ni6568fla.png",
+    "timestamp": 1784381700712,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "headshot",
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 263,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 263
+      },
+      "output_tokens": 1056,
+      "output_tokens_details": {
+        "image_tokens": 1056,
+        "text_tokens": 0
+      },
+      "total_tokens": 1319
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "17.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784381682993_ni6568fla.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22826,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1514729
+  },
+  {
     "id": "job_1784373431292_7k77q2s27",
     "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, southeast asian person, beautiful young Asian face with delicate features, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., wearing a knee-length clean-line day dress with a modest waist shape, with #47629a secondary color in the pattern, subtle vertical stripe pattern, structured denim fabric, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784373431292_7k77q2s27.png",
