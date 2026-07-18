@@ -4,6 +4,42 @@
 (function () {
   const CLOTHING_FIELDS = [
     {
+      key: "Clothing::Outfit Base",
+      group: "Clothing",
+      field: "Outfit Base",
+      controlType: "visual-card-picker",
+      layoutClass: "visual-option-picker-large-carousel",
+      cardClass: "visual-option-card-large-carousel visual-option-card-outfit-base",
+      showScrollControls: true,
+      assetProfile: "preview",
+      manifestUrl: "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/manifest.json",
+      manifestVariants: {
+        female: "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/manifest.json",
+        male: "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/manifest.json"
+      },
+      optionMap: {
+        "outfit.base.unisex.minimal_oversized_shirt_pants": "outfit.base.unisex.minimal_oversized_shirt_pants",
+        "outfit.base.unisex.tshirt_wide_jeans": "outfit.base.unisex.tshirt_wide_jeans",
+        "outfit.base.unisex.knit_top_relaxed_trousers": "outfit.base.unisex.knit_top_relaxed_trousers",
+        "outfit.base.unisex.smart_casual_blazer": "outfit.base.unisex.smart_casual_blazer",
+        "outfit.base.unisex.hoodie_joggers": "outfit.base.unisex.hoodie_joggers",
+        "outfit.base.unisex.thai_linen_set": "outfit.base.unisex.thai_linen_set",
+        "outfit.base.male.korean_shirt_slacks": "outfit.base.male.korean_shirt_slacks",
+        "outfit.base.male.tshirt_straight_jeans": "outfit.base.male.tshirt_straight_jeans",
+        "outfit.base.male.knit_polo_trousers": "outfit.base.male.knit_polo_trousers",
+        "outfit.base.male.smart_blazer_set": "outfit.base.male.smart_blazer_set",
+        "outfit.base.male.hoodie_cargo_pants": "outfit.base.male.hoodie_cargo_pants",
+        "outfit.base.male.thai_linen_shirt_pants": "outfit.base.male.thai_linen_shirt_pants",
+        "outfit.base.female.korean_blouse_a_line_skirt": "outfit.base.female.korean_blouse_a_line_skirt",
+        "outfit.base.female.tshirt_high_waist_wide_jeans": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "outfit.base.female.knit_cardigan_midi_skirt": "outfit.base.female.knit_cardigan_midi_skirt",
+        "outfit.base.female.simple_day_dress": "outfit.base.female.simple_day_dress",
+        "outfit.base.female.cropped_jacket_trousers": "outfit.base.female.cropped_jacket_trousers",
+        "outfit.base.female.thai_linen_blouse_wrap_skirt": "outfit.base.female.thai_linen_blouse_wrap_skirt"
+      },
+      hideMissingAttributes: true
+    },
+    {
       key: "Clothing::Pattern",
       group: "Clothing",
       field: "Pattern",

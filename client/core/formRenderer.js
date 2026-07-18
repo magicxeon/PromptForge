@@ -408,6 +408,35 @@
     }
   }
 
+  function getSelectedOutfitBasePresentation() {
+    const selection = state.selections?.Gender;
+    const value = `${selection?.id || ""} ${selection?.value || ""}`.toLowerCase();
+    if (value.includes("female") || value.includes("woman")) return "female";
+    if (value.includes("male") || value.includes("man")) return "male";
+    return "unisex";
+  }
+
+  function filterOutfitBaseByPresentation(options) {
+    const presentation = getSelectedOutfitBasePresentation();
+    const tag = presentation === "female"
+      ? "outfit-base-female"
+      : presentation === "male"
+        ? "outfit-base-male"
+        : "outfit-base-unisex";
+    return options.filter(opt => (opt.tags || []).includes(tag));
+  }
+
+  function clearInvalidOutfitBaseSelection() {
+    const options = getOptionsForField("Outfit Base", "clothing", state.library, "Clothing");
+    const allowedIds = new Set(options.map(option => option.id));
+    const currentSelection = state.selections["Outfit Base"];
+    if (currentSelection && !currentSelection.isCustom && !allowedIds.has(currentSelection.id)) {
+      delete state.selections["Outfit Base"];
+      const select = document.querySelector(`.custom-select[data-field="Outfit Base"]`);
+      if (select) select.value = "";
+    }
+  }
+
   function clearInvalidHairCutStyleSelection() {
     const selectedGenderId = state.selections?.Gender?.id;
     const presentation = window.GENDER_TO_HAIR_PRESENTATION[selectedGenderId];
@@ -460,6 +489,9 @@
     }
     if (aliasKey === "Body::Body Silhouette") {
       return filterBodySilhouetteByPresentation(matched);
+    }
+    if (aliasKey === "Clothing::Outfit Base") {
+      return filterOutfitBaseByPresentation(matched);
     }
     return matched;
   }
@@ -583,6 +615,7 @@
         if (fieldName === "Gender") {
           clearInvalidHairCutStyleSelection();
           clearInvalidBodySilhouetteSelection();
+          clearInvalidOutfitBaseSelection();
         }
         if (groupName === "Clothing" && window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
           window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
@@ -659,6 +692,7 @@
   window.filterHairCutStyleByPresentation = filterHairCutStyleByPresentation;
   window.clearInvalidHairCutStyleSelection = clearInvalidHairCutStyleSelection;
   window.clearInvalidBodySilhouetteSelection = clearInvalidBodySilhouetteSelection;
+  window.clearInvalidOutfitBaseSelection = clearInvalidOutfitBaseSelection;
   window.getOptionsForField = getOptionsForField;
   window.loadVisualAssetManifests = loadVisualAssetManifests;
   window.createVisualOptionPicker = createVisualOptionPicker;

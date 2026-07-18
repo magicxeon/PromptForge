@@ -27,6 +27,9 @@ const FIELD_MANIFESTS = {
   'body.silhouette.female': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette-female.manifest.template.json'),
   'body.silhouette.male': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette-male.manifest.template.json'),
   'body.build': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-build.manifest.template.json'),
+  'clothing.outfit-base': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base.manifest.template.json'),
+  'clothing.outfit-base.female': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base-female.manifest.template.json'),
+  'clothing.outfit-base.male': path.join(AUTHORING_DIR, 'manifests/character-sheet/clothing-outfit-base-male.manifest.template.json'),
   'outfit.preset': path.join(AUTHORING_DIR, 'manifests/character-sheet/outfit-preset.manifest.template.json'),
   'sheet.layout': path.join(AUTHORING_DIR, 'manifests/character-sheet/sheet-layout.manifest.template.json')
 };
@@ -45,6 +48,9 @@ const FIELD_FOLDERS = {
   'body.silhouette.female': 'body-silhouette-female',
   'body.silhouette.male': 'body-silhouette-male',
   'body.build': 'body-build',
+  'clothing.outfit-base': 'outfit-base',
+  'clothing.outfit-base.female': 'outfit-base-female',
+  'clothing.outfit-base.male': 'outfit-base-male',
   'outfit.preset': 'outfit-preset',
   'sheet.layout': 'sheet-layout'
 };
@@ -66,6 +72,9 @@ const FIELD_GROUPS = {
     'body.silhouette.female',
     'body.silhouette.male',
     'body.build',
+    'clothing.outfit-base',
+    'clothing.outfit-base.female',
+    'clothing.outfit-base.male',
     'outfit.preset',
     'sheet.layout'
   ]
@@ -159,6 +168,24 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'character-sheet.body.body-build',
     sectionId: 'body',
     folder: 'body-build'
+  },
+  {
+    fieldId: 'clothing.outfit-base',
+    manifestId: 'character-sheet.clothing.outfit-base',
+    sectionId: 'clothing',
+    folder: 'outfit-base'
+  },
+  {
+    fieldId: 'clothing.outfit-base.female',
+    manifestId: 'character-sheet.clothing.outfit-base-female',
+    sectionId: 'clothing',
+    folder: 'outfit-base-female'
+  },
+  {
+    fieldId: 'clothing.outfit-base.male',
+    manifestId: 'character-sheet.clothing.outfit-base-male',
+    sectionId: 'clothing',
+    folder: 'outfit-base-male'
   },
   {
     fieldId: 'outfit.preset',

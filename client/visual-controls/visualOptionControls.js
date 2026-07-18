@@ -492,6 +492,9 @@
       group: "Body",
       field: "Body Silhouette",
       controlType: "visual-card-picker",
+      layoutClass: "visual-option-picker-large-carousel",
+      cardClass: "visual-option-card-large-carousel",
+      showScrollControls: true,
       manifestUrl: "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/manifest.json",
       manifestVariants: {
         female: "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/manifest.json",
@@ -550,6 +553,7 @@
     const picker = document.createElement("div");
     picker.className = "visual-option-picker";
     picker.dataset.controlType = config?.controlType || "visual-card-picker";
+    if (config?.layoutClass) picker.classList.add(...config.layoutClass.split(/\s+/).filter(Boolean));
     picker.setAttribute("role", "radiogroup");
     picker.setAttribute("aria-label", fieldName);
     picker.dataset.field = fieldName;
@@ -563,6 +567,7 @@
       const button = document.createElement("button");
       button.type = "button";
       button.className = "visual-option-card";
+      if (config?.cardClass) button.classList.add(...config.cardClass.split(/\s+/).filter(Boolean));
       if (!attribute) button.classList.add("missing-attribute");
       button.dataset.value = attributeId || "";
       button.dataset.optionId = item.optionId;
@@ -572,7 +577,9 @@
 
       const icon = document.createElement("span");
       icon.className = "visual-option-icon";
-      const iconUrl = item.assets?.thumb || item.assets?.preview;
+      const iconUrl = config?.assetProfile
+        ? (item.assets?.[config.assetProfile] || item.assets?.preview || item.assets?.thumb)
+        : (item.assets?.thumb || item.assets?.preview);
       if (item.swatch?.colors?.length) {
         button.classList.add("swatch-option");
         const [firstColor, secondColor = firstColor] = item.swatch.colors;
@@ -602,7 +609,49 @@
     });
 
     picker.addEventListener("keydown", event => handleVisualPickerKeydown(event, picker, select));
-    return picker.children.length > 0 ? picker : null;
+    if (picker.children.length === 0) return null;
+    if (!config?.showScrollControls) return picker;
+    return createVisualCarouselShell(picker, fieldName);
+  }
+
+  function createVisualCarouselShell(picker, fieldName) {
+    const shell = document.createElement("div");
+    shell.className = "visual-option-carousel-shell";
+    shell.dataset.field = fieldName;
+
+    const previousButton = createVisualCarouselButton("previous", "‹", `Scroll ${fieldName} options left`);
+    const nextButton = createVisualCarouselButton("next", "›", `Scroll ${fieldName} options right`);
+
+    previousButton.addEventListener("click", () => scrollVisualCarousel(picker, -1));
+    nextButton.addEventListener("click", () => scrollVisualCarousel(picker, 1));
+
+    shell.appendChild(previousButton);
+    shell.appendChild(picker);
+    shell.appendChild(nextButton);
+    refreshVisualCarouselButtons(picker, previousButton, nextButton);
+    picker.addEventListener("scroll", () => refreshVisualCarouselButtons(picker, previousButton, nextButton), { passive: true });
+    window.addEventListener("resize", () => refreshVisualCarouselButtons(picker, previousButton, nextButton), { passive: true });
+    return shell;
+  }
+
+  function createVisualCarouselButton(direction, label, ariaLabel) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `visual-option-carousel-button visual-option-carousel-button-${direction}`;
+    button.textContent = label;
+    button.setAttribute("aria-label", ariaLabel);
+    return button;
+  }
+
+  function scrollVisualCarousel(picker, direction) {
+    const distance = Math.max(180, Math.floor(picker.clientWidth * 0.78));
+    picker.scrollBy({ left: distance * direction, behavior: "smooth" });
+  }
+
+  function refreshVisualCarouselButtons(picker, previousButton, nextButton) {
+    const maxScroll = Math.max(0, picker.scrollWidth - picker.clientWidth);
+    previousButton.disabled = picker.scrollLeft <= 2;
+    nextButton.disabled = picker.scrollLeft >= maxScroll - 2;
   }
 
   function syncVisualPickers(root = document) {

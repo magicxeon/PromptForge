@@ -1772,6 +1772,258 @@
     "enabled": true
   },
   {
+    "id": "outfit.base.unisex.minimal_oversized_shirt_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Minimal Oversized Shirt and Pants", "th": "Minimal Oversized Shirt and Pants" },
+    "description": { "en": "Unisex Korean/Asian minimalist oversized shirt with straight trousers.", "th": "Unisex Korean/Asian minimalist oversized shirt with straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a relaxed oversized button shirt with straight-leg trousers",
+      "gpt-image": "wearing a relaxed oversized button shirt with straight-leg trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "asian-casual", "minimal"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.tshirt_wide_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "T-shirt and Wide Jeans", "th": "T-shirt and Wide Jeans" },
+    "description": { "en": "Unisex plain T-shirt with loose wide-leg jeans.", "th": "Unisex plain T-shirt with loose wide-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a plain T-shirt with loose wide-leg jeans",
+      "gpt-image": "wearing a plain T-shirt with loose wide-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.knit_top_relaxed_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Top and Relaxed Trousers", "th": "Knit Top and Relaxed Trousers" },
+    "description": { "en": "Unisex soft knit pullover with relaxed ankle trousers.", "th": "Unisex soft knit pullover with relaxed ankle trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft knit pullover with relaxed ankle trousers",
+      "gpt-image": "wearing a soft knit pullover with relaxed ankle trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "korean-casual", "knit"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.smart_casual_blazer",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Smart Casual Blazer Set", "th": "Smart Casual Blazer Set" },
+    "description": { "en": "Unisex unstructured blazer with plain inner top and straight trousers.", "th": "Unisex unstructured blazer with plain inner top and straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers",
+      "gpt-image": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.hoodie_joggers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Hoodie and Jogger Pants", "th": "Hoodie and Jogger Pants" },
+    "description": { "en": "Unisex simple hoodie with relaxed jogger pants.", "th": "Unisex simple hoodie with relaxed jogger pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple hoodie with relaxed jogger pants",
+      "gpt-image": "wearing a simple hoodie with relaxed jogger pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "street", "casual"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.thai_linen_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Casual Linen Set", "th": "Thai Casual Linen Set" },
+    "description": { "en": "Unisex loose short-sleeve linen shirt with relaxed long pants.", "th": "Unisex loose short-sleeve linen shirt with relaxed long pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a loose short-sleeve linen shirt with relaxed long pants",
+      "gpt-image": "wearing a loose short-sleeve linen shirt with relaxed long pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.korean_shirt_slacks",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Korean Minimal Shirt and Slacks", "th": "Korean Minimal Shirt and Slacks" },
+    "description": { "en": "Male clean button-up shirt with straight tailored slacks.", "th": "Male clean button-up shirt with straight tailored slacks." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a clean button-up shirt with straight tailored slacks",
+      "gpt-image": "wearing a clean button-up shirt with straight tailored slacks"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "korean-casual", "smart"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.tshirt_straight_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "T-shirt and Straight Jeans", "th": "T-shirt and Straight Jeans" },
+    "description": { "en": "Male plain fitted T-shirt with straight-leg jeans.", "th": "Male plain fitted T-shirt with straight-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a plain fitted T-shirt with straight-leg jeans",
+      "gpt-image": "wearing a plain fitted T-shirt with straight-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.knit_polo_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Polo and Trousers", "th": "Knit Polo and Trousers" },
+    "description": { "en": "Male soft knit polo shirt with relaxed tailored trousers.", "th": "Male soft knit polo shirt with relaxed tailored trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft knit polo shirt with relaxed tailored trousers",
+      "gpt-image": "wearing a soft knit polo shirt with relaxed tailored trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "korean-casual", "smart"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.smart_blazer_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Smart Casual Blazer Set", "th": "Smart Casual Blazer Set" },
+    "description": { "en": "Male lightweight blazer with plain inner top and slim-straight trousers.", "th": "Male lightweight blazer with plain inner top and slim-straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a lightweight blazer, plain inner top, and slim-straight trousers",
+      "gpt-image": "wearing a lightweight blazer, plain inner top, and slim-straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.hoodie_cargo_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Hoodie and Cargo Pants", "th": "Hoodie and Cargo Pants" },
+    "description": { "en": "Male simple hoodie with clean cargo pants.", "th": "Male simple hoodie with clean cargo pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple hoodie with clean cargo pants",
+      "gpt-image": "wearing a simple hoodie with clean cargo pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "street", "casual"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.thai_linen_shirt_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Linen Shirt and Relaxed Pants", "th": "Thai Linen Shirt and Relaxed Pants" },
+    "description": { "en": "Male short-sleeve linen shirt with relaxed long pants.", "th": "Male short-sleeve linen shirt with relaxed long pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a short-sleeve linen shirt with relaxed long pants",
+      "gpt-image": "wearing a short-sleeve linen shirt with relaxed long pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.korean_blouse_a_line_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Korean Blouse and A-line Skirt", "th": "Korean Blouse and A-line Skirt" },
+    "description": { "en": "Female soft blouse with a knee-length A-line skirt.", "th": "Female soft blouse with a knee-length A-line skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft blouse with a knee-length A-line skirt",
+      "gpt-image": "wearing a soft blouse with a knee-length A-line skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "korean-casual", "feminine"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.tshirt_high_waist_wide_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Fitted T-shirt and High-waist Wide Jeans", "th": "Fitted T-shirt and High-waist Wide Jeans" },
+    "description": { "en": "Female fitted top with high-waist wide-leg jeans.", "th": "Female fitted top with high-waist wide-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple fitted top with high-waist wide-leg jeans",
+      "gpt-image": "wearing a simple fitted top with high-waist wide-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.knit_cardigan_midi_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Cardigan and Midi Skirt", "th": "Knit Cardigan and Midi Skirt" },
+    "description": { "en": "Female soft cardigan or knit top with a modest midi skirt.", "th": "Female soft cardigan or knit top with a modest midi skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft cardigan or knit top with a modest midi skirt",
+      "gpt-image": "wearing a soft cardigan or knit top with a modest midi skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "korean-casual", "knit"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.simple_day_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Simple Day Dress", "th": "Simple Day Dress" },
+    "description": { "en": "Female knee-length clean-line day dress with a modest waist shape.", "th": "Female knee-length clean-line day dress with a modest waist shape." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a knee-length clean-line day dress with a modest waist shape",
+      "gpt-image": "wearing a knee-length clean-line day dress with a modest waist shape"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "dress", "feminine"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.cropped_jacket_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Cropped Jacket and Straight Trousers", "th": "Cropped Jacket and Straight Trousers" },
+    "description": { "en": "Female short structured jacket with a plain inner top and straight trousers.", "th": "Female short structured jacket with a plain inner top and straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a short structured jacket, plain inner top, and straight trousers",
+      "gpt-image": "wearing a short structured jacket, plain inner top, and straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.thai_linen_blouse_wrap_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Linen Blouse and Wrap Skirt", "th": "Thai Linen Blouse and Wrap Skirt" },
+    "description": { "en": "Female airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt.", "th": "Female airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing an airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt",
+      "gpt-image": "wearing an airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
     "id": "outfit.pattern.solid",
     "category": "clothing",
     "subcategory": "Pattern",

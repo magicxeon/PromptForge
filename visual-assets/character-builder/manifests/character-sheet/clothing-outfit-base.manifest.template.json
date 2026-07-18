@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.clothing.outfit-base",
+  "fieldId": "clothing.outfit-base",
+  "sectionId": "clothing",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "folder": "outfit-base",
+    "filename": "outfit-base-set-r1-unisex.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.minimal_oversized_shirt_pants",
+      "optionId": "outfit.base.unisex.minimal_oversized_shirt_pants",
+      "attributeId": "outfit.base.unisex.minimal_oversized_shirt_pants",
+      "slug": "unisex-minimal-oversized-shirt-pants",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex minimal oversized shirt and pants outfit icon", "th": "Unisex minimal oversized shirt and pants outfit icon" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.tshirt_wide_jeans",
+      "optionId": "outfit.base.unisex.tshirt_wide_jeans",
+      "attributeId": "outfit.base.unisex.tshirt_wide_jeans",
+      "slug": "unisex-tshirt-wide-jeans",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex T-shirt and wide jeans outfit icon", "th": "Unisex T-shirt and wide jeans outfit icon" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.knit_top_relaxed_trousers",
+      "optionId": "outfit.base.unisex.knit_top_relaxed_trousers",
+      "attributeId": "outfit.base.unisex.knit_top_relaxed_trousers",
+      "slug": "unisex-knit-top-relaxed-trousers",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex knit top and relaxed trousers outfit icon", "th": "Unisex knit top and relaxed trousers outfit icon" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.smart_casual_blazer",
+      "optionId": "outfit.base.unisex.smart_casual_blazer",
+      "attributeId": "outfit.base.unisex.smart_casual_blazer",
+      "slug": "unisex-smart-casual-blazer",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex smart casual blazer outfit icon", "th": "Unisex smart casual blazer outfit icon" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.hoodie_joggers",
+      "optionId": "outfit.base.unisex.hoodie_joggers",
+      "attributeId": "outfit.base.unisex.hoodie_joggers",
+      "slug": "unisex-hoodie-joggers",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex hoodie and joggers outfit icon", "th": "Unisex hoodie and joggers outfit icon" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.thai_linen_set",
+      "optionId": "outfit.base.unisex.thai_linen_set",
+      "attributeId": "outfit.base.unisex.thai_linen_set",
+      "slug": "unisex-thai-linen-set",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Unisex Thai linen set outfit icon", "th": "Unisex Thai linen set outfit icon" },
+      "reviewStatus": "source-selected"
+    }
+  ]
+}
