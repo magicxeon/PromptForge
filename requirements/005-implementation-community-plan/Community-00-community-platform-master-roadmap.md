@@ -32,11 +32,12 @@ The MVP must prove this loop before adding comments, paid prompts, memberships, 
 
 ## 3. Relationship to Commercial Plan
 
-Community must reuse the character/configuration contracts defined in `requirements/003-implementation-visual-character-builder-plan` and shared platform foundations defined in `requirements/005-implementation-commercial-feature-plan` instead of duplicating them.
+Community must reuse the character/configuration contracts defined in `requirements/003-implementation-visual-character-builder-plan`, Scene Builder template contracts defined in `requirements/004-implementation-scene-builder`, and shared platform foundations defined in `requirements/006-implementation-commercial-feature-plan` instead of duplicating them.
 
 Shared dependencies:
 
 - `003 Visual Character Builder - semantic configuration, visual controls and saved character contract`
+- `004 Scene Builder - guided/manual final image workflow and reusable template contract`
 - `Phase2-02 Modular Core Architecture and Module Registry`
 - `Phase2-03 Database Architecture and JSON Migration`
 - `Phase2-04 Authentication, Sessions and Authorization`
@@ -116,16 +117,19 @@ Included:
 - Freestyle idea input assisted by AI Prompt Composer.
 - Structured prompt/config output that can prefill dropdowns.
 - Share generated image with prompt snapshot.
+- Share Scene Builder templates with prompt, selections and replaceable reference slot mapping.
 - Prompt visibility controls.
 - Official taxonomy tags suggested by system.
 - Explore feed with category filters and simple trending.
 - Post detail page with image, metadata and `Use / Remix Prompt`.
+- Guided and Manual Scene Builder authoring modes on the same Studio surface.
 - Creator mini profile and follow.
 - Like and save/bookmark.
 
 Deferred:
 
 - Paid prompt marketplace.
+- Product-only Scene Builder workflows.
 - Creator membership.
 - Comment threads.
 - Creator ranking leaderboard.
