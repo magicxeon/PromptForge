@@ -776,9 +776,14 @@ function bindEvents() {
     btnViewportUseFace.addEventListener("click", () => {
       const img = document.getElementById("generated-image");
       if (img && img.src && img.style.display !== "none") {
-        assignFaceReference(img.src, state.activeJobId);
-        btnViewportUseFace.textContent = "👤 Face Locked!";
-        setTimeout(() => { btnViewportUseFace.textContent = "👤 Use as Face Ref"; }, 1500);
+        const meta = state.activeViewportJobMeta;
+        if (meta && meta.mode === "headshot") {
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "build-character");
+        } else {
+          assignFaceReference(img.src, state.activeJobId);
+          btnViewportUseFace.textContent = "👤 Face Locked!";
+          setTimeout(() => { btnViewportUseFace.textContent = "👤 Use as Face Ref"; }, 1500);
+        }
       }
     });
   }
@@ -797,10 +802,15 @@ function bindEvents() {
   if (btnViewportUseCharacter) {
     btnViewportUseCharacter.addEventListener("click", () => {
       const img = document.getElementById("generated-image");
-      if (img && img.src && img.style.display !== "none" && state.mode === "normal") {
-        assignCharacterReference(img.src, state.activeJobId);
-        btnViewportUseCharacter.textContent = "📋 Character Added!";
-        setTimeout(() => { btnViewportUseCharacter.textContent = "📋 Use as Character Ref"; }, 1500);
+      if (img && img.src && img.style.display !== "none") {
+        const meta = state.activeViewportJobMeta;
+        if (meta && meta.mode === "character-sheet") {
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "use-as-story-character");
+        } else if (state.mode === "normal") {
+          assignCharacterReference(img.src, state.activeJobId);
+          btnViewportUseCharacter.textContent = "📋 Character Added!";
+          setTimeout(() => { btnViewportUseCharacter.textContent = "📋 Use as Character Ref"; }, 1500);
+        }
       }
     });
   }
@@ -815,8 +825,13 @@ function bindEvents() {
       const img = document.getElementById("lightbox-image");
       if (img && img.src && lightboxModal.style.display !== "none") {
         const activeItem = lightboxModal.activeItem;
-        assignFaceReference(img.src, activeItem ? activeItem.id : null);
-        closeLightbox();
+        if (activeItem && activeItem.mode === "headshot") {
+          closeLightbox();
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "build-character");
+        } else {
+          assignFaceReference(img.src, activeItem ? activeItem.id : null);
+          closeLightbox();
+        }
       }
     });
   }
@@ -835,10 +850,15 @@ function bindEvents() {
   if (btnLightboxUseCharacter) {
     btnLightboxUseCharacter.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none" && state.mode === "normal") {
+      if (img && img.src && lightboxModal.style.display !== "none") {
         const activeItem = lightboxModal.activeItem;
-        assignCharacterReference(img.src, activeItem ? activeItem.id : null);
-        closeLightbox();
+        if (activeItem && activeItem.mode === "character-sheet") {
+          closeLightbox();
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "use-as-story-character");
+        } else if (state.mode === "normal") {
+          assignCharacterReference(img.src, activeItem ? activeItem.id : null);
+          closeLightbox();
+        }
       }
     });
   }
@@ -878,6 +898,9 @@ function bindEvents() {
       btnDownload.style.display = "none";
       telemetryBar.style.display = "none";
       loader.style.display = "flex";
+      if (window.ModelPromptForgeCrossModeHandoff?.clearViewportHandoffActions) {
+        window.ModelPromptForgeCrossModeHandoff.clearViewportHandoffActions();
+      }
 
       if (creativeConfigurator) {
         creativeConfigurator.classList.add("collapsed");
@@ -897,7 +920,8 @@ function bindEvents() {
         const submittedReferenceJobIds = {
           face: generationPayload.faceReferenceJobIds,
           style: generationPayload.styleReferenceJobIds,
-          character: generationPayload.characterReferenceJobIds
+          character: generationPayload.characterReferenceJobIds,
+          outfit: generationPayload.outfitReferenceJobIds
         };
 
         const response = await fetch('/api/generate', {
@@ -1015,13 +1039,21 @@ function bindEvents() {
             timestamp: Date.now(),
             provider,
             submodel,
+            mode: generationPayload.mode,
+            selections: JSON.parse(JSON.stringify(generationPayload.selections || {})),
             referencedFaceJobIds: submittedReferenceJobIds.face,
             referencedStyleJobIds: submittedReferenceJobIds.style,
             referencedCharacterJobIds: submittedReferenceJobIds.character,
+            referencedOutfitJobIds: submittedReferenceJobIds.outfit,
             generationDuration: durationSec
           };
+          state.activeViewportJobMeta = jobMeta;
 
           img.onclick = () => openLightbox(jobMeta);
+
+          if (window.ModelPromptForgeCrossModeHandoff?.renderViewportHandoffActions) {
+            window.ModelPromptForgeCrossModeHandoff.renderViewportHandoffActions(jobMeta);
+          }
 
           document.getElementById("tel-model").textContent = submodel;
           document.getElementById("tel-time").textContent = `${durationSec}s`;

@@ -308,6 +308,10 @@
       }
     }
 
+    if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
+      window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
+    }
+
     renderLightboxNavigation();
     preloadLightboxNeighbors();
   }
