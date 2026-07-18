@@ -354,6 +354,37 @@
     return options.filter(opt => allowedIds.has(opt.id));
   }
 
+  function getSelectedBodySilhouettePresentation() {
+    const selection = state.selections?.Gender;
+    const value = `${selection?.id || ""} ${selection?.value || ""}`.toLowerCase();
+    if (value.includes("female") || value.includes("woman")) return "female";
+    if (value.includes("male") || value.includes("man")) return "male";
+    return "neutral";
+  }
+
+  function filterBodySilhouetteByPresentation(options) {
+    const presentation = getSelectedBodySilhouettePresentation();
+    if (presentation === "female") {
+      return options.filter(opt => (opt.tags || []).includes("female-body-silhouette"));
+    }
+    if (presentation === "male") {
+      return options.filter(opt => (opt.tags || []).includes("male-body-silhouette"));
+    }
+    const genericIds = new Set(["body.001", "body.002", "body.005", "body.006", "body.011", "body.012"]);
+    return options.filter(opt => genericIds.has(opt.id));
+  }
+
+  function clearInvalidBodySilhouetteSelection() {
+    const options = getOptionsForField("Body Silhouette", "body", state.library, "Body");
+    const allowedIds = new Set(options.map(option => option.id));
+    const currentSelection = state.selections["Body Silhouette"];
+    if (currentSelection && !currentSelection.isCustom && !allowedIds.has(currentSelection.id)) {
+      delete state.selections["Body Silhouette"];
+      const select = document.querySelector(`.custom-select[data-field="Body Silhouette"]`);
+      if (select) select.value = "";
+    }
+  }
+
   function clearInvalidHairCutStyleSelection() {
     const selectedGenderId = state.selections?.Gender?.id;
     const presentation = window.GENDER_TO_HAIR_PRESENTATION[selectedGenderId];
@@ -383,7 +414,10 @@
     const lowerField = fieldName.toLowerCase();
     const subcategoryAliases = {
       "Hair::Texture": ["Hair Texture", "Texture"],
-      "Hair::Parting / Fringe": ["Bangs", "Parting / Fringe"]
+      "Hair::Parting / Fringe": ["Bangs", "Parting / Fringe"],
+      "Body::Height Impression": ["Height", "Height Impression"],
+      "Body::Model Build": ["Build", "Model Build"],
+      "Body::Body Silhouette": ["Body Shape", "Body Silhouette"]
     };
     const aliasKey = `${groupName}::${fieldName}`;
     const aliases = subcategoryAliases[aliasKey]?.map(item => item.toLowerCase()) || [lowerField];
@@ -397,6 +431,9 @@
 
     if (fieldName === "Cut / Style") {
       return filterHairCutStyleByPresentation(matched);
+    }
+    if (aliasKey === "Body::Body Silhouette") {
+      return filterBodySilhouetteByPresentation(matched);
     }
     return matched;
   }
@@ -516,6 +553,7 @@
 
         if (fieldName === "Gender") {
           clearInvalidHairCutStyleSelection();
+          clearInvalidBodySilhouetteSelection();
         }
         if (window.updateAccordionSummaryBadges) window.updateAccordionSummaryBadges(groupName);
         if (window.updatePromptPreview) window.updatePromptPreview();
@@ -586,6 +624,7 @@
   window.getSelectedHairPresentation = getSelectedHairPresentation;
   window.filterHairCutStyleByPresentation = filterHairCutStyleByPresentation;
   window.clearInvalidHairCutStyleSelection = clearInvalidHairCutStyleSelection;
+  window.clearInvalidBodySilhouetteSelection = clearInvalidBodySilhouetteSelection;
   window.getOptionsForField = getOptionsForField;
   window.loadVisualAssetManifests = loadVisualAssetManifests;
   window.createVisualOptionPicker = createVisualOptionPicker;

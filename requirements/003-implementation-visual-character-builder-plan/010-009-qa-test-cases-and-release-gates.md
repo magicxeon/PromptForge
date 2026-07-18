@@ -156,3 +156,13 @@ npm run test:character-sheet
   - `node scripts/slice-visual-assets.js --check --field=character-sheet`
 - Confirmed that missing source sheets and planned review statuses remain warnings during check mode, while publishing stays blocked by the slice guard.
 - Verified `npm run test:character-sheet` passes in the current pre-visual state.
+
+### 2026-07-18 - First Visual Pilot Passed
+
+- Body Silhouette source sheet was accepted and sliced.
+- `Body > Body Silhouette` is now wired to the visual-card picker.
+- `npm run test:character-sheet` passes after runtime publish.
+- Remaining warnings are limited to unpublished Character Sheet visual families:
+  - Body Build
+  - Outfit Preset
+  - Sheet Layout

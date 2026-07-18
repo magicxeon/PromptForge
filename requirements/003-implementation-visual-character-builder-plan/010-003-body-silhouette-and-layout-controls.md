@@ -89,3 +89,16 @@ Deferred:
   - `body.build_04` Broad structured build
   - `body.build_05` Soft natural build
 - Kept wording descriptive and non-judgmental so the visual cards can map cleanly into prompts.
+
+### 2026-07-18 - Body Silhouette Visual Pilot
+
+- Accepted the first 2x3 Body Silhouette source sheet.
+- Published runtime visual assets for:
+  - straight natural silhouette
+  - curvy natural silhouette
+  - hourglass silhouette
+  - pear-shaped silhouette
+  - inverted triangle silhouette
+  - full-figured / plus natural silhouette
+- Wired `Body > Body Silhouette` to the shared visual-card picker.
+- Added Body field subcategory aliases so `Body Silhouette` resolves existing `Body Shape` options.

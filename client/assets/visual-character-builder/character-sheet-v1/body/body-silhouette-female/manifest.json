@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette-female",
+  "fieldId": "body.silhouette.female",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.female.beauty_slim",
+      "optionId": "body.silhouette.female.beauty_slim",
+      "attributeId": "body.female_silhouette_01",
+      "slug": "female-beauty-slim",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female beauty slim body silhouette diagram",
+        "th": "Female beauty slim body silhouette diagram"
+      },
+      "sourceHash": "a2b89299787b9d058d3593e15164c8ba5c80d5318a8b3b5ab62ef624f26e0257",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-beauty-slim-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.female.hourglass_curvy",
+      "optionId": "body.silhouette.female.hourglass_curvy",
+      "attributeId": "body.female_silhouette_02",
+      "slug": "female-hourglass-curvy",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female curvy hourglass body silhouette diagram",
+        "th": "Female curvy hourglass body silhouette diagram"
+      },
+      "sourceHash": "c415bdeab285dad11e9437d3605de4032a63490c51f3bf0dea1386c590e274e1",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-hourglass-curvy-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.female.petite_soft",
+      "optionId": "body.silhouette.female.petite_soft",
+      "attributeId": "body.female_silhouette_03",
+      "slug": "female-petite-soft",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female petite soft body silhouette diagram",
+        "th": "Female petite soft body silhouette diagram"
+      },
+      "sourceHash": "068fa071f2b7d2a9325470aa9964ce5ed019e92aa234dcafe8f7bd9bedea5077",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-petite-soft-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.female.pear_curvy",
+      "optionId": "body.silhouette.female.pear_curvy",
+      "attributeId": "body.female_silhouette_04",
+      "slug": "female-pear-curvy",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female pear curvy body silhouette diagram",
+        "th": "Female pear curvy body silhouette diagram"
+      },
+      "sourceHash": "e19b672b73c3c9b27750c932c52689330c5f5a9959248b57b0004eb9c86bb7a8",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-pear-curvy-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.female.athletic_toned",
+      "optionId": "body.silhouette.female.athletic_toned",
+      "attributeId": "body.female_silhouette_05",
+      "slug": "female-athletic-toned",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female athletic toned body silhouette diagram",
+        "th": "Female athletic toned body silhouette diagram"
+      },
+      "sourceHash": "dea5d05fc62ea606c6463d0a4185b89df2d240384c7faac2983fe26d1748d3da",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-athletic-toned-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.female.full_figured_elegant",
+      "optionId": "body.silhouette.female.full_figured_elegant",
+      "attributeId": "body.female_silhouette_06",
+      "slug": "female-full-figured-elegant",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female full-figured elegant body silhouette diagram",
+        "th": "Female full-figured elegant body silhouette diagram"
+      },
+      "sourceHash": "38c7ff679725878fca94d8437e6639574ca526a51b0b1ab51c525e3ce3ed58e8",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/thumb/female-full-figured-elegant-r1.png"
+      }
+    }
+  ]
+}

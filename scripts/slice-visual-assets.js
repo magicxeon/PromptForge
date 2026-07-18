@@ -24,6 +24,8 @@ const FIELD_MANIFESTS = {
   'hair.texture': path.join(AUTHORING_DIR, 'manifests/headshot/hair/texture.manifest.json'),
   'hair.parting_fringe': path.join(AUTHORING_DIR, 'manifests/headshot/hair/parting-fringe.manifest.json'),
   'body.silhouette': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette.manifest.template.json'),
+  'body.silhouette.female': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette-female.manifest.template.json'),
+  'body.silhouette.male': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-silhouette-male.manifest.template.json'),
   'body.build': path.join(AUTHORING_DIR, 'manifests/character-sheet/body-build.manifest.template.json'),
   'outfit.preset': path.join(AUTHORING_DIR, 'manifests/character-sheet/outfit-preset.manifest.template.json'),
   'sheet.layout': path.join(AUTHORING_DIR, 'manifests/character-sheet/sheet-layout.manifest.template.json')
@@ -40,6 +42,8 @@ const FIELD_FOLDERS = {
   'hair.texture': 'texture',
   'hair.parting_fringe': 'parting-fringe',
   'body.silhouette': 'body-silhouette',
+  'body.silhouette.female': 'body-silhouette-female',
+  'body.silhouette.male': 'body-silhouette-male',
   'body.build': 'body-build',
   'outfit.preset': 'outfit-preset',
   'sheet.layout': 'sheet-layout'
@@ -59,6 +63,8 @@ const FIELD_GROUPS = {
   ],
   'character-sheet': [
     'body.silhouette',
+    'body.silhouette.female',
+    'body.silhouette.male',
     'body.build',
     'outfit.preset',
     'sheet.layout'
@@ -135,6 +141,18 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'character-sheet.body.body-silhouette',
     sectionId: 'body',
     folder: 'body-silhouette'
+  },
+  {
+    fieldId: 'body.silhouette.female',
+    manifestId: 'character-sheet.body.body-silhouette-female',
+    sectionId: 'body',
+    folder: 'body-silhouette-female'
+  },
+  {
+    fieldId: 'body.silhouette.male',
+    manifestId: 'character-sheet.body.body-silhouette-male',
+    sectionId: 'body',
+    folder: 'body-silhouette-male'
   },
   {
     fieldId: 'body.build',
@@ -216,12 +234,13 @@ export async function run(options = parseArgs(process.argv.slice(2))) {
 function resolveManifestPaths(manifest) {
   const style = manifest.visualStyleVersion.replace('-illustrated', '');
   const fieldSlug = fieldIdToFolderName(manifest.fieldId);
+  const sourceFieldSlug = manifest.sourceSheet.folder || fieldSlug;
   const sourceDirectory = path.join(
     AUTHORING_DIR,
     'source-sets',
     style,
     manifest.sectionId,
-    fieldSlug
+    sourceFieldSlug
   );
   const runtimeDirectory = path.join(
     RUNTIME_ROOT,
@@ -331,17 +350,20 @@ async function sliceManifest(manifest, paths) {
       .toBuffer({ resolveWithObject: true });
     const alphaBuffer = whiteToAlpha(extracted.data, extracted.info);
 
-    const masterBuffer = await normalizeIcon(sharp, alphaBuffer, extracted.info, manifest.runtimeProfiles.master)
+    const baseProfileName = getBaseRuntimeProfileName(manifest.runtimeProfiles);
+    const baseProfile = manifest.runtimeProfiles[baseProfileName];
+    const baseBuffer = await normalizeIcon(sharp, alphaBuffer, extracted.info, baseProfile)
       .png()
       .toBuffer();
 
     const outputNames = {};
+    const runtimeAssets = {};
     for (const [profileName, profile] of Object.entries(manifest.runtimeProfiles)) {
       const filename = `${item.slug}-r${item.assetRevision}.png`;
       const outputPath = path.join(paths.runtimeDirectory, profileName, filename);
-      const buffer = profileName === 'master'
-        ? masterBuffer
-        : await sharp(masterBuffer)
+      const buffer = profileName === baseProfileName
+        ? baseBuffer
+        : await sharp(baseBuffer)
           .resize({
             width: profile.width,
             height: profile.height,
@@ -352,6 +374,7 @@ async function sliceManifest(manifest, paths) {
           .toBuffer();
       await atomicWriteFile(outputPath, buffer);
       outputNames[profileName] = filename;
+      runtimeAssets[profileName] = publicAssetUrl(paths, profileName, filename);
       outputs.push(path.relative(ROOT_DIR, outputPath));
     }
 
@@ -364,12 +387,8 @@ async function sliceManifest(manifest, paths) {
       recolorMode: manifest.recolorMode,
       focalPoint: item.focalPoint,
       alt: item.alt,
-      sourceHash: sha256(masterBuffer),
-      assets: {
-        master: publicAssetUrl(paths, 'master', outputNames.master),
-        preview: publicAssetUrl(paths, 'preview', outputNames.preview),
-        thumb: publicAssetUrl(paths, 'thumb', outputNames.thumb)
-      }
+      sourceHash: sha256(baseBuffer),
+      assets: runtimeAssets
     });
   }
 
@@ -461,6 +480,15 @@ function validateBounds(bounds, metadata, optionId) {
   }
 }
 
+function getBaseRuntimeProfileName(runtimeProfiles) {
+  if (runtimeProfiles.master) return 'master';
+  if (runtimeProfiles.preview) return 'preview';
+  if (runtimeProfiles.thumb) return 'thumb';
+  const [firstProfileName] = Object.keys(runtimeProfiles || {});
+  if (!firstProfileName) throw new Error('Manifest must define at least one runtime profile.');
+  return firstProfileName;
+}
+
 function assertPublishReady(manifest) {
   const blockedItems = getPublishBlockedItems(manifest);
   if (!blockedItems.length) return;
@@ -483,7 +511,8 @@ function getPublishBlockedItems(manifest) {
 
 async function createContactSheetFromRuntime(manifest, paths) {
   const sharp = (await import('sharp')).default;
-  const profile = manifest.runtimeProfiles.preview;
+  const profileName = manifest.runtimeProfiles.preview ? 'preview' : getBaseRuntimeProfileName(manifest.runtimeProfiles);
+  const profile = manifest.runtimeProfiles[profileName];
   const gap = 32;
   const labelHeight = 36;
   const width = (profile.width * manifest.sourceSheet.columns) + (gap * (manifest.sourceSheet.columns + 1));
@@ -492,7 +521,7 @@ async function createContactSheetFromRuntime(manifest, paths) {
 
   for (const item of manifest.items) {
     const filename = `${item.slug}-r${item.assetRevision}.png`;
-    const imagePath = path.join(paths.runtimeDirectory, 'preview', filename);
+    const imagePath = path.join(paths.runtimeDirectory, profileName, filename);
     if (!await fileExists(imagePath)) continue;
     const left = gap + ((item.column - 1) * (profile.width + gap));
     const top = gap + ((item.row - 1) * (profile.height + labelHeight + gap));

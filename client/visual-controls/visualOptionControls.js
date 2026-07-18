@@ -486,22 +486,43 @@
           alt: { en: "Prominent natural freckles swatch", th: "Prominent natural freckles swatch" }
         }
       ]
+    },
+    {
+      key: "Body::Body Silhouette",
+      group: "Body",
+      field: "Body Silhouette",
+      controlType: "visual-card-picker",
+      manifestUrl: "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/manifest.json",
+      manifestVariants: {
+        female: "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/manifest.json",
+        male: "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/manifest.json"
+      }
     }
   ];
 
   async function loadManifests({ fetchImpl = window.fetch } = {}) {
     const fieldsByKey = Object.fromEntries(VISUAL_CONTROL_FIELDS.map(config => [config.key, config]));
-    const manifestEntries = await Promise.all(VISUAL_CONTROL_FIELDS.map(async config => {
+    const manifestRequests = VISUAL_CONTROL_FIELDS.flatMap(config => {
       if (config.items?.length) {
-        return [config.key, { items: config.items }];
+        return [[config.key, config, null]];
+      }
+      const requests = [[config.key, config, config.manifestUrl]];
+      Object.entries(config.manifestVariants || {}).forEach(([variantKey, manifestUrl]) => {
+        requests.push([getVariantManifestKey(config.key, variantKey), config, manifestUrl]);
+      });
+      return requests;
+    });
+    const manifestEntries = await Promise.all(manifestRequests.map(async ([manifestKey, config, manifestUrl]) => {
+      if (config.items?.length && !manifestUrl) {
+        return [manifestKey, { items: config.items }];
       }
       try {
-        const response = await fetchImpl(config.manifestUrl);
+        const response = await fetchImpl(manifestUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return [config.key, await response.json()];
+        return [manifestKey, await response.json()];
       } catch (error) {
-        console.warn(`Visual option manifest unavailable for ${config.key}:`, error.message);
-        return [config.key, null];
+        console.warn(`Visual option manifest unavailable for ${manifestKey}:`, error.message);
+        return [manifestKey, null];
       }
     }));
     return {
@@ -522,7 +543,7 @@
   }) {
     const key = getVisualManifestKey(groupName, fieldName);
     const config = fieldsByKey[key];
-    const manifest = manifestsByKey[key];
+    const manifest = manifestsByKey[getActiveManifestKey(key, config, manifestsByKey)] || manifestsByKey[key];
     if (!manifest?.items?.length) return null;
 
     const optionById = new Map(filteredOptions.map(option => [option.id, option]));
@@ -644,6 +665,25 @@
 
   function getVisualManifestKey(groupName, fieldName) {
     return `${groupName}::${fieldName}`;
+  }
+
+  function getVariantManifestKey(fieldKey, variantKey) {
+    return `${fieldKey}::${variantKey}`;
+  }
+
+  function getActiveManifestKey(fieldKey, config, manifestsByKey) {
+    const variantKey = getGenderVisualVariantKey();
+    if (!variantKey || !config?.manifestVariants?.[variantKey]) return fieldKey;
+    const manifestKey = getVariantManifestKey(fieldKey, variantKey);
+    return manifestsByKey[manifestKey] ? manifestKey : fieldKey;
+  }
+
+  function getGenderVisualVariantKey() {
+    const selection = window.state?.selections?.Gender;
+    const value = `${selection?.id || ""} ${selection?.value || ""}`.toLowerCase();
+    if (value.includes("female") || value.includes("woman")) return "female";
+    if (value.includes("male") || value.includes("man")) return "male";
+    return null;
   }
 
   window.ModelPromptForgeVisualOptionControls = {

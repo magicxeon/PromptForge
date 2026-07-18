@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette-male",
+  "fieldId": "body.silhouette.male",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.male.lean_slim",
+      "optionId": "body.silhouette.male.lean_slim",
+      "attributeId": "body.male_silhouette_01",
+      "slug": "male-lean-slim",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male lean slim body silhouette diagram",
+        "th": "Male lean slim body silhouette diagram"
+      },
+      "sourceHash": "4c4b33d99bfbb387dec76ee3553b8052f7868fb833f785fee09102256f27acf4",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-lean-slim-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.male.balanced_average",
+      "optionId": "body.silhouette.male.balanced_average",
+      "attributeId": "body.male_silhouette_02",
+      "slug": "male-balanced-average",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male balanced average body silhouette diagram",
+        "th": "Male balanced average body silhouette diagram"
+      },
+      "sourceHash": "d8c86e9edbd002b1e2eaa10ccdf91d5e07fa2b2ba2c2bcacfc58b4f796042a8e",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-balanced-average-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.male.broad_strong",
+      "optionId": "body.silhouette.male.broad_strong",
+      "attributeId": "body.male_silhouette_03",
+      "slug": "male-broad-strong",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male broad strong body silhouette diagram",
+        "th": "Male broad strong body silhouette diagram"
+      },
+      "sourceHash": "ab1433e9bb18c19788245287a0e1eab8bd37232340623ceff86945692cadf63e",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-broad-strong-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.male.athletic_toned",
+      "optionId": "body.silhouette.male.athletic_toned",
+      "attributeId": "body.male_silhouette_04",
+      "slug": "male-athletic-toned",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male athletic toned body silhouette diagram",
+        "th": "Male athletic toned body silhouette diagram"
+      },
+      "sourceHash": "c1f9c1cdbd86f5b03a6929a6e8111aacba872af16f90f05cbad77d602b2c5c02",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-athletic-toned-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.male.heavy_solid",
+      "optionId": "body.silhouette.male.heavy_solid",
+      "attributeId": "body.male_silhouette_05",
+      "slug": "male-heavy-solid",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male heavy solid body silhouette diagram",
+        "th": "Male heavy solid body silhouette diagram"
+      },
+      "sourceHash": "572dec6498a9ea0d99213bff619229de535552e37ff6752e26106d0611c3733f",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-heavy-solid-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.male.very_heavy_full",
+      "optionId": "body.silhouette.male.very_heavy_full",
+      "attributeId": "body.male_silhouette_06",
+      "slug": "male-very-heavy-full",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male very heavy full body silhouette diagram",
+        "th": "Male very heavy full body silhouette diagram"
+      },
+      "sourceHash": "41414b34526651762f2a6867cce3e3fca0e7bad9663079e602d20dd42e0f1258",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-very-heavy-full-r1.png"
+      }
+    }
+  ]
+}

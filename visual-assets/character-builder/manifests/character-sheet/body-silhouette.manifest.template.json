@@ -16,8 +16,6 @@
     "height": null
   },
   "runtimeProfiles": {
-    "master": { "width": 512, "height": 512, "format": "png" },
-    "preview": { "width": 256, "height": 256, "format": "png" },
     "thumb": { "width": 128, "height": 128, "format": "png" }
   },
   "items": [
@@ -33,7 +31,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Straight body silhouette diagram", "th": "ภาพโครงรูปร่างทรงตรง" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     },
     {
       "assetId": "visual.body.silhouette.curvy",
@@ -47,7 +45,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Curvy natural body silhouette diagram", "th": "ภาพโครงรูปร่างโค้งเว้าธรรมชาติ" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     },
     {
       "assetId": "visual.body.silhouette.hourglass",
@@ -61,7 +59,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Hourglass body silhouette diagram", "th": "ภาพโครงรูปร่างทรงนาฬิกาทราย" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     },
     {
       "assetId": "visual.body.silhouette.pear",
@@ -75,7 +73,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Pear-shaped natural body silhouette diagram", "th": "ภาพโครงรูปร่างทรงลูกแพร์" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     },
     {
       "assetId": "visual.body.silhouette.inverted",
@@ -89,7 +87,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Inverted triangle body silhouette diagram", "th": "ภาพโครงรูปร่างทรงสามเหลี่ยมคว่ำ" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     },
     {
       "assetId": "visual.body.silhouette.plus",
@@ -103,7 +101,7 @@
       "overrideFilename": null,
       "focalPoint": "50% 52%",
       "alt": { "en": "Plus-size natural fashion silhouette diagram", "th": "ภาพโครงรูปร่างพลัสไซซ์แบบธรรมชาติ" },
-      "reviewStatus": "planned"
+      "reviewStatus": "source-selected"
     }
   ]
 }

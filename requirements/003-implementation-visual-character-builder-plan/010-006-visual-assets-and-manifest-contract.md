@@ -107,6 +107,17 @@ Current validation result:
 - Planned review statuses produce publish-block warnings.
 - Runtime publishing remains blocked until source sheets are reviewed and sliced.
 
+### 2026-07-18 - Body Silhouette Runtime Publish
+
+- Moved accepted source sheet to:
+  - `visual-assets/character-builder/source-sets/character-sheet-v1/body/body-silhouette/body-silhouette-set-r1.png`
+- Updated `body-silhouette.manifest.template.json` review statuses to `source-selected`.
+- Sliced `body.silhouette` into runtime assets under:
+  - `client/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/`
+- Generated review contact sheet:
+  - `visual-assets/character-builder/reviews/character-sheet-v1/body-silhouette/contact-sheet-r1.png`
+- Runtime manifest index now includes only the published Body Silhouette manifest.
+
 ### 2026-07-18 - Manifest Contract Baseline
 
 - Added authoring manifest templates for:
