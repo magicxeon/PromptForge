@@ -30,6 +30,35 @@ Expected:
 - no uploaded outfit reference text
 - result is suitable as Story Mode reference
 
+### CS-002B Modular Clothing Sheet
+
+Saved headshot plus:
+
+- Outfit Base
+- Primary Color
+- Secondary Color
+- Pattern
+- Material
+
+Expected:
+
+- prompt combines clothing parts in deterministic order
+- prompt does not duplicate color phrases
+- prompt does not mention pattern when no pattern is selected
+- visual output keeps clothing consistent across sheet views
+- generated sheet is suitable as Story Mode reference
+
+### CS-002C No Clothing Selection Fallback
+
+Saved headshot with no outfit preset, no modular clothing selection, and no outfit upload.
+
+Expected:
+
+- prompt uses modest neutral reference clothing
+- prompt does not use lingerie, bikini, transparent, lace, sexy, revealing, or erotic wording
+- output remains practical for character-sheet visibility
+- fallback works for adult female and adult male silhouettes
+
 ### CS-003 Outfit Front Upload
 
 Saved headshot plus front outfit upload.
@@ -70,6 +99,9 @@ Do not release until:
 - at least one provider with reference-image support is tested
 - unsupported provider path shows clear warning
 - history handoff works
+- no-clothing fallback is modest and non-revealing
+- modular clothing selections compile without duplicated prompt phrases
+- clothing UI changes do not add large one-off logic to `app.js` or `formRenderer.js`
 
 ## Automated Gate
 
@@ -138,6 +170,36 @@ Reject source sheet if:
 - QA verifies sheet consistency, not only prompt syntax.
 - Known issues are logged before release.
 - Character Sheet Builder can be disabled independently if gate fails.
+- Clothing QA covers outfit base, pattern, color, material and fallback behavior.
+
+## Clothing-Specific Release Gate
+
+Before enabling the first modular clothing UI:
+
+1. Define semantic attributes for:
+   - Outfit Base
+   - Pattern
+   - Material
+   - Primary Color
+   - Secondary Color
+2. Add prompt cleanup tests for:
+   - no clothing fallback
+   - solid/no pattern omission
+   - primary color only
+   - primary + secondary color
+   - uploaded outfit reference overriding modular clothing
+3. Verify the browser UI:
+   - selected state is visible
+   - controls are understandable without fashion vocabulary
+   - changing Outfit Base does not leave invalid color/pattern state
+4. Verify runtime assets:
+   - outfit visual assets are thumb-only
+   - source sheets stay under `visual-assets`
+   - browser manifests do not reference `master` or `preview` unless required
+5. Verify code organization:
+   - clothing-specific dependency logic lives in a clothing module
+   - compiler helper is isolated and testable
+   - no new large clothing condition blocks are added to core renderer files
 
 ## Implementation Log
 
@@ -166,3 +228,14 @@ npm run test:character-sheet
   - Body Build
   - Outfit Preset
   - Sheet Layout
+
+### 2026-07-18 - Clothing QA Scope Revision
+
+- Added modular clothing test scope:
+  - Outfit Base
+  - Pattern
+  - Primary/Secondary Color
+  - Material
+  - modest no-selection fallback
+- Added requirement that no-clothing fallback must remain non-revealing and provider-safe.
+- Added code organization gate to prevent clothing implementation from bloating the core app files.
