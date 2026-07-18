@@ -118,6 +118,7 @@ export function createQueueOptions(context, {
   return {
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
     sceneBuilder: context.sceneBuilder || null,
+    sceneTemplateSnapshot: context.sceneTemplateSnapshot || null,
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,

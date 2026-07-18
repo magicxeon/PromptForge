@@ -1,5 +1,1104 @@
 [
   {
+    "id": "job_1784396107581_824dekr6l",
+    "prompt": "Preserve the character identity, facial features, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene.\n\nThe model is in a relaxed low squat pose with both feet flat on the ground, balanced naturally and comfortably. Upper body leaning slightly forward in a casual fashion pose. She looks directly into the camera with soft eye contact and a gentle natural smile. Her head is tilted slightly to one side, creating a warm, approachable expression. Both arms rest naturally without covering the garment. Clothing remains smooth with realistic fabric folds and the outfit stays fully readable.\n\nHalf-body framing, cropped around the waist, focusing on the upper body, face, pose, and garment details. Fashion lifestyle portrait with natural body language.\n\nMarketplace fashion commerce photography, product-first styling, garment details, fabric texture, and silhouette clearly visible. Fashion marketplace product-listing photography with accurate garment readability and unobstructed outfit presentation.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment colors, realistic fabric texture, soft lighting contrast, minimal distracting shadows, warm practical lighting accents.\n\nShot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens. Sharp focus on the eyes, realistic optical rendering, natural perspective, subtle corner softness, slight chromatic aberration, shallow depth of field, ultra photorealistic, avoiding CGI look, no AI-generated artifacts.\n\nRelaxed Korean fashion editorial pose, candid lifestyle feeling, effortless elegance, subtle asymmetrical posture.",
+    "imageUrl": "/outputs/job_1784396107581_824dekr6l.jpg",
+    "timestamp": 1784396118029,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.marketplace",
+        "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.detail-demo",
+        "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "marketplace",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": [
+          "professional digital photography",
+          "sharp focus",
+          "clean image output"
+        ]
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.minimal",
+        "value": "minimal unobtrusive shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Accent": {
+        "id": "lighting.accent.practical",
+        "value": "restrained practical-light accents in the scene",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color Temperature": {
+        "id": "lighting.temp.warm",
+        "value": "warm lighting color temperature",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": [
+          "sharp details",
+          "professional lens quality",
+          "clear eye reflection",
+          "high-fidelity resolution"
+        ]
+      },
+      "Focal Length": {
+        "id": "camera.focal_01",
+        "value": "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "50mm"
+        ],
+        "gptPositiveWords": [
+          "50mm prime",
+          "natural distortion-free rendering",
+          "professional portrait setup"
+        ]
+      },
+      "Framing": {
+        "id": "camera.framing_05",
+        "value": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "cowboy shot",
+          "three quarter"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+      "lastGuidedPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, warm lighting color temperature, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on a 50mm lens, natural perspective matching standard human vision, zero distortion, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "Preserve the character identity, facial features, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene.\n\nThe model is in a relaxed low squat pose with both feet flat on the ground, balanced naturally and comfortably. Upper body leaning slightly forward in a casual fashion pose. She looks directly into the camera with soft eye contact and a gentle natural smile. Her head is tilted slightly to one side, creating a warm, approachable expression. Both arms rest naturally without covering the garment. Clothing remains smooth with realistic fabric folds and the outfit stays fully readable.\n\nHalf-body framing, cropped around the waist, focusing on the upper body, face, pose, and garment details. Fashion lifestyle portrait with natural body language.\n\nMarketplace fashion commerce photography, product-first styling, garment details, fabric texture, and silhouette clearly visible. Fashion marketplace product-listing photography with accurate garment readability and unobstructed outfit presentation.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment colors, realistic fabric texture, soft lighting contrast, minimal distracting shadows, warm practical lighting accents.\n\nShot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens. Sharp focus on the eyes, realistic optical rendering, natural perspective, subtle corner softness, slight chromatic aberration, shallow depth of field, ultra photorealistic, avoiding CGI look, no AI-generated artifacts.\n\nRelaxed Korean fashion editorial pose, candid lifestyle feeling, effortless elegance, subtle asymmetrical posture.",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+      "referenceSlotMapping": {
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement"
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784396107581_824dekr6l",
+      "createdAt": 1784396118029
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784382840692_9z6z68klt"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784396107581_824dekr6l.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 21154,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 646214
+  },
+  {
+    "id": "job_1784395952459_c6iqhg281",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+    "imageUrl": "/outputs/job_1784395952459_c6iqhg281.jpg",
+    "timestamp": 1784395964932,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.marketplace",
+        "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.detail-demo",
+        "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "marketplace",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": [
+          "professional digital photography",
+          "sharp focus",
+          "clean image output"
+        ]
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.minimal",
+        "value": "minimal unobtrusive shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Accent": {
+        "id": "lighting.accent.practical",
+        "value": "restrained practical-light accents in the scene",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color Temperature": {
+        "id": "lighting.temp.warm",
+        "value": "warm lighting color temperature",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": [
+          "sharp details",
+          "professional lens quality",
+          "clear eye reflection",
+          "high-fidelity resolution"
+        ]
+      },
+      "Focal Length": {
+        "id": "camera.focal_01",
+        "value": "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "50mm"
+        ],
+        "gptPositiveWords": [
+          "50mm prime",
+          "natural distortion-free rendering",
+          "professional portrait setup"
+        ]
+      },
+      "Framing": {
+        "id": "camera.framing_05",
+        "value": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "cowboy shot",
+          "three quarter"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+      "lastGuidedPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, warm lighting color temperature, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on a 50mm lens, natural perspective matching standard human vision, zero distortion, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
+      "referenceSlotMapping": {
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement"
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784395952459_c6iqhg281",
+      "createdAt": 1784395964932
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784382840692_9z6z68klt"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "12.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784395952459_c6iqhg281.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19530,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 704556
+  },
+  {
+    "id": "job_1784395766413_in5xvqzqa",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, warm lighting color temperature, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on a 50mm lens, natural perspective matching standard human vision, zero distortion, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784395766413_in5xvqzqa.jpg",
+    "timestamp": 1784395778056,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.marketplace",
+        "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.detail-demo",
+        "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "marketplace",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": [
+          "professional digital photography",
+          "sharp focus",
+          "clean image output"
+        ]
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.minimal",
+        "value": "minimal unobtrusive shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Accent": {
+        "id": "lighting.accent.practical",
+        "value": "restrained practical-light accents in the scene",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color Temperature": {
+        "id": "lighting.temp.warm",
+        "value": "warm lighting color temperature",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": [
+          "sharp details",
+          "professional lens quality",
+          "clear eye reflection",
+          "high-fidelity resolution"
+        ]
+      },
+      "Focal Length": {
+        "id": "camera.focal_01",
+        "value": "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "50mm"
+        ],
+        "gptPositiveWords": [
+          "50mm prime",
+          "natural distortion-free rendering",
+          "professional portrait setup"
+        ]
+      },
+      "Framing": {
+        "id": "camera.framing_05",
+        "value": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "cowboy shot",
+          "three quarter"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "Preserve the character identity, facial features, body proportions, hairstyle, hair color, skin tone, clothing design, garment fit, fabric texture, and all outfit details exactly as shown in the uploaded character reference. Do not alter the person's appearance or outfit in any way.\n\nThe character is sitting comfortably on a modern sofa in an elegant contemporary living room. She holds a ceramic coffee mug naturally with both hands while relaxing. Her body is slightly angled, and her head is gently turned as she gazes toward a warm floor lamp beside the sofa with a calm, thoughtful expression. Natural seated fashion pose with realistic posture, relaxed shoulders, elegant leg placement, authentic fabric drape, and subtle clothing folds without distorting the garment.\n\nMarketplace fashion commerce photography, product-first styling, garment details, silhouette, and fabric texture remain clearly visible. Fashion marketplace product-listing photography with accurate garment readability while maintaining an attractive lifestyle presentation.\n\nLuxury interior with a refined sofa, warm ambient lighting, a modern floor lamp as the visual focal point, tasteful minimalist decoration, cozy premium atmosphere, restrained retail-inspired styling.\n\nHard directional editorial lighting combined with warm practical lamp illumination, balanced lighting contrast, clean highlights, subtle realistic shadows, natural indoor color temperature.\n\nShot on a modern high-resolution full-frame mirrorless camera with an 85mm lens, shallow depth of field, sharp focus, realistic optical rendering, minor chromatic aberration, subtle corner softness, natural filmic color grading, realistic skin texture, fine fabric detail, slight digital grain, avoiding CGI look, no AI-generated artifacts, ultra photorealistic",
+      "lastGuidedPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, warm lighting color temperature, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on a 50mm lens, natural perspective matching standard human vision, zero distortion, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts",
+      "structuredSelectionsSnapshot": {
+        "Fashion Direction": {
+          "id": "fashion.marketplace",
+          "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Photography Context": {
+          "id": "photo_context.fashion.marketplace",
+          "value": "fashion marketplace product-listing photography, product-first visual communication, accurate garment readability",
+          "isCustom": false,
+          "group": "Photographic Context",
+          "category": "photo_context",
+          "tags": [
+            "photo_context",
+            "fashion",
+            "marketplace",
+            "commerce-safe"
+          ]
+        },
+        "Fashion Story": {
+          "id": "scene_story.fashion.detail-demo",
+          "value": "demonstrating one important garment detail naturally while keeping the overall product visible",
+          "isCustom": false,
+          "group": "Scene Story",
+          "category": "scene_story",
+          "tags": [
+            "scene_story",
+            "fashion",
+            "marketplace",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.front-product",
+          "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.boutique",
+          "value": "in a refined fashion boutique corner with restrained retail context",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Brand": {
+          "id": "camera.brand_01",
+          "value": "shot on a modern high-resolution mirrorless camera, sharp focus",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "brand",
+            "mirrorless"
+          ],
+          "gptPositiveWords": [
+            "professional digital photography",
+            "sharp focus",
+            "clean image output"
+          ]
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_02",
+          "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "lens"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.minimal",
+          "value": "minimal unobtrusive shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Accent": {
+          "id": "lighting.accent.practical",
+          "value": "restrained practical-light accents in the scene",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color Temperature": {
+          "id": "lighting.temp.warm",
+          "value": "warm lighting color temperature",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lens": {
+          "id": "camera.lens_01",
+          "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "lens",
+            "prime"
+          ],
+          "gptPositiveWords": [
+            "sharp details",
+            "professional lens quality",
+            "clear eye reflection",
+            "high-fidelity resolution"
+          ]
+        },
+        "Focal Length": {
+          "id": "camera.focal_01",
+          "value": "shot on a 50mm lens, natural perspective matching standard human vision, zero distortion",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "50mm"
+          ],
+          "gptPositiveWords": [
+            "50mm prime",
+            "natural distortion-free rendering",
+            "professional portrait setup"
+          ]
+        },
+        "Framing": {
+          "id": "camera.framing_05",
+          "value": "cowboy shot framing from slightly above the knees upward, showing pose and hand placement",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "cowboy shot",
+            "three quarter"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement"
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784395766413_in5xvqzqa",
+      "createdAt": 1784395778056
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784382840692_9z6z68klt"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784395766413_in5xvqzqa.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16108,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 616709
+  },
+  {
     "id": "job_1784393713116_u0c4jg8cc",
     "prompt": "Preserve the character identity, facial features, body proportions, hairstyle, hair color, skin tone, clothing design, garment fit, fabric texture, and all outfit details exactly as shown in the uploaded character reference. Do not alter the person's appearance or outfit in any way.\n\nThe character is sitting comfortably on a modern sofa in an elegant contemporary living room. She holds a ceramic coffee mug naturally with both hands while relaxing. Her body is slightly angled, and her head is gently turned as she gazes toward a warm floor lamp beside the sofa with a calm, thoughtful expression. Natural seated fashion pose with realistic posture, relaxed shoulders, elegant leg placement, authentic fabric drape, and subtle clothing folds without distorting the garment.\n\nMarketplace fashion commerce photography, product-first styling, garment details, silhouette, and fabric texture remain clearly visible. Fashion marketplace product-listing photography with accurate garment readability while maintaining an attractive lifestyle presentation.\n\nLuxury interior with a refined sofa, warm ambient lighting, a modern floor lamp as the visual focal point, tasteful minimalist decoration, cozy premium atmosphere, restrained retail-inspired styling.\n\nHard directional editorial lighting combined with warm practical lamp illumination, balanced lighting contrast, clean highlights, subtle realistic shadows, natural indoor color temperature.\n\nShot on a modern high-resolution full-frame mirrorless camera with an 85mm lens, shallow depth of field, sharp focus, realistic optical rendering, minor chromatic aberration, subtle corner softness, natural filmic color grading, realistic skin texture, fine fabric detail, slight digital grain, avoiding CGI look, no AI-generated artifacts, ultra photorealistic",
     "imageUrl": "/outputs/job_1784393713116_u0c4jg8cc.jpg",

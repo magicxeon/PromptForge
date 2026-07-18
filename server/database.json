@@ -2,11 +2,11 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 33
+      "credits": 31
     },
     "admin_demo": {
       "role": "admin",
-      "credits": 9974
+      "credits": 9973
     }
   },
   "creditLedger": [
@@ -519,6 +519,36 @@
       "comparisonSetId": null,
       "comparisonRunId": null,
       "createdAt": 1784393713119
+    },
+    {
+      "id": "credit_1784395766416_vnq5c2",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784395766413_in5xvqzqa",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784395766416
+    },
+    {
+      "id": "credit_1784395952461_wq9vvn",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784395952459_c6iqhg281",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784395952461
+    },
+    {
+      "id": "credit_1784396107584_ul3o65",
+      "username": "admin_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784396107581_824dekr6l",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784396107584
     }
   ]
 }

@@ -64,6 +64,34 @@
           templateDraft: state.sceneBuilder?.templateDraft || null
         }
         : null,
+      sceneTemplateSnapshot: state.mode === "normal" && window.ModelPromptForgeSceneTemplateSerializer
+        ? (() => {
+            const activeModel = getActiveModelConfig();
+            const activeProvider = getActiveProviderConfig();
+            const resVal = getSelectedImageResolution();
+            
+            const serializerInput = {
+              authoringMode: state.sceneBuilder?.authoringMode || "guided",
+              manualPromptText: state.sceneBuilder?.manualPromptText || "",
+              finalPrompt: getEditablePromptText(),
+              selections: state.selections,
+              imageReferences: state.imageReferences,
+              customColors: state.customColors,
+              providerId: activeProvider?.id || null,
+              providerDisplayName: activeProvider?.displayName ? (typeof activeProvider.displayName === "object" ? activeProvider.displayName[state.language] || activeProvider.displayName.en : activeProvider.displayName) : null,
+              modelId: activeModel?.id || null,
+              modelDisplayName: activeModel?.displayName ? (typeof activeModel.displayName === "object" ? activeModel.displayName[state.language] || activeModel.displayName.en : activeModel.displayName) : null,
+              resolutionAspectRatios: activeModel?.capabilities?.aspectRatios || [],
+              referenceSupportSummary: activeModel?.capabilities?.imageReferences ? `up to ${activeModel.capabilities.maxReferenceImages || 0} references` : "text-to-image only",
+              estimatedCreditCost: activeModel?.estimatedCredits || 1,
+              aspectRatio: state.aspectRatio || "6:8",
+              width: document.getElementById("input-width")?.value || "768",
+              height: document.getElementById("input-height")?.value || "1024",
+              resolution: resVal || null
+            };
+            return window.ModelPromptForgeSceneTemplateSerializer.createSceneTemplateSnapshot(serializerInput);
+          })()
+        : null,
       template: document.getElementById("template-select")?.value || "portrait",
       isGptSafe: false,
       username: state.username,

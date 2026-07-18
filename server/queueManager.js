@@ -301,6 +301,13 @@ class QueueManager {
         mode: job.options.mode || null,
         selections: job.options.selections || {},
         sceneBuilder: job.options.sceneBuilder || null,
+        sceneTemplateSnapshot: job.options.sceneTemplateSnapshot
+          ? {
+            ...job.options.sceneTemplateSnapshot,
+            createdFromGenerationId: jobId,
+            createdAt: Date.now()
+          }
+          : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
@@ -344,6 +351,7 @@ class QueueManager {
         mimeType,
         selections: job.options.selections || {},
         sceneBuilder: job.options.sceneBuilder || null,
+        sceneTemplateSnapshot: historyEntry.sceneTemplateSnapshot || null,
         generationDuration: durationSec,
         collectionWarning
       });
