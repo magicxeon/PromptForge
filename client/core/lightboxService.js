@@ -327,6 +327,22 @@
       }
     }
 
+    const btnAddToTemplate = document.getElementById("btn-lightbox-add-to-template");
+    if (btnAddToTemplate) {
+      const isTemplateActive = window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive?.();
+      if (isTemplateActive) {
+        btnAddToTemplate.style.display = "block";
+        btnAddToTemplate.onclick = () => {
+          if (window.ModelPromptForgeSceneHistorySlotPicker?.openTemplateSlotPicker) {
+            window.ModelPromptForgeSceneHistorySlotPicker.openTemplateSlotPicker(item);
+          }
+        };
+      } else {
+        btnAddToTemplate.style.display = "none";
+        btnAddToTemplate.onclick = null;
+      }
+    }
+
     if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
       window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
     }

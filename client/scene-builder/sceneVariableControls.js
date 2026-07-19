@@ -77,12 +77,28 @@
       previewImg.style.objectFit = "cover";
       previewImg.style.borderRadius = "4px";
       previewImg.style.border = "1px solid rgba(255, 255, 255, 0.1)";
-      previewImg.style.display = value ? "block" : "none";
-      if (value) previewImg.src = value;
+      let imgSrc = "";
+      let labelText = "Drag & Drop or Click to Upload Image";
+      if (value) {
+        if (typeof value === "string") {
+          imgSrc = value;
+          labelText = "Click to change reference image";
+        } else if (typeof value === "object") {
+          imgSrc = value.thumbnailUrl || value.imageUrl || "";
+          if (value.source === "history") {
+            labelText = `Selected from History (#${value.jobId ? value.jobId.substring(4, 9) : 'image'})`;
+          } else {
+            labelText = "Click to change reference image";
+          }
+        }
+      }
+
+      previewImg.style.display = imgSrc ? "block" : "none";
+      if (imgSrc) previewImg.src = imgSrc;
 
       const placeholderText = document.createElement("span");
       placeholderText.className = "sub-label";
-      placeholderText.innerText = value ? "Click to change reference image" : "Drag & Drop or Click to Upload Image";
+      placeholderText.innerText = labelText;
 
       const fileInput = document.createElement("input");
       fileInput.type = "file";

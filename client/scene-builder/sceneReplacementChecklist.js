@@ -194,7 +194,10 @@
     exitTemplateWorkflow,
     isTemplateWorkflowActive,
     getActiveTemplateSnapshot,
-    getResolvedPayload
+    getResolvedPayload,
+    renderChecklist,
+    updateGenerateButtonState,
+    userInputValues
   };
 
   // Wire cancel button
