@@ -1,4 +1,4 @@
-# Scene-007 Client Module Architecture
+# Scene-009 Client Module Architecture
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** Frontend modularization and maintainability  

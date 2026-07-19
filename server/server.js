@@ -29,7 +29,7 @@ const comparisonOrchestrator = new ComparisonOrchestrator({
 });
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
 
 // Serve static frontend files from client directory (relative to root)
 app.use(express.static(pathModule.join(__dirname, '../client')));

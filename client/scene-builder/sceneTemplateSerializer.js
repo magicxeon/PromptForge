@@ -44,7 +44,11 @@
       };
     }
     if (imgRefs.outfitReference) {
-      referenceSlotMapping["outfit_reference"] = {
+      referenceSlotMapping["outfit_front_reference"] = {
+        required: false,
+        policy: "optional_user_replacement"
+      };
+      referenceSlotMapping["outfit_back_reference"] = {
         required: false,
         policy: "optional_user_replacement"
       };
@@ -73,7 +77,8 @@
             label: `${colorKey} Color`,
             type: "color",
             sourceFieldName: colorKey,
-            required: false
+            required: false,
+            defaultValue: colorConfig.color || "#000000"
           });
         }
       });

@@ -308,6 +308,25 @@
       }
     }
 
+    const btnUseTemplate = document.getElementById("btn-lightbox-use-template");
+    if (btnUseTemplate) {
+      if (item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object") {
+        btnUseTemplate.style.display = "block";
+        btnUseTemplate.onclick = () => {
+          closeLightbox();
+          if (state.mode !== "normal") {
+            if (window.ModelPromptForgeCrossModeHandoff?.applyCharacterSheetToStoryMode) {
+              window.ModelPromptForgeCrossModeHandoff.applyCharacterSheetToStoryMode({ sourceImageUrl: "" }, { useAsCharacterRef: false });
+            }
+          }
+          window.ModelPromptForgeSceneReplacementChecklist.startTemplateWorkflow(item.sceneTemplateSnapshot);
+        };
+      } else {
+        btnUseTemplate.style.display = "none";
+        btnUseTemplate.onclick = null;
+      }
+    }
+
     if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
       window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
     }

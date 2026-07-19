@@ -307,6 +307,16 @@
                 <p>Loading attribute schemas...</p>
               </div>
             </div>
+
+            <!-- Template Replacement Checklist Panel (Scene-004) -->
+            <div id="template-replacement-panel" class="accordions-container" style="display: none; padding: 1rem; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; background: rgba(0, 0, 0, 0.2); margin-top: 1rem;">
+              <h3 style="margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>📋 Template Variable Replacements</span>
+                <button type="button" id="btn-cancel-template-mode" class="mode-chip" style="font-size: 0.75rem; padding: 2px 8px; margin: 0; cursor: pointer;">Exit Template Mode</button>
+              </h3>
+              <p class="sub-label" style="margin-bottom: 1rem;">Fill in the required reference images and customizable variables to generate using this template.</p>
+              <div id="template-variables-list" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+            </div>
           </div>
 
           <!-- Step 2 & 3 Group -->
@@ -621,6 +631,8 @@
             style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
           <button id="btn-lightbox-use-character" class="btn-compact-neon btn-use-character-ref"
             style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
+          <button id="btn-lightbox-use-template" class="btn-compact-neon btn-use-template-ref"
+            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-gold); color: #000;" type="button">📋 Use Template</button>
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
@@ -825,6 +837,10 @@
   <script src="/scene-builder/sceneBuilderUi.js"></script>
   <script src="/scene-builder/sceneTemplateSerializer.js"></script>
   <script src="/scene-builder/sceneTemplateHydrator.js"></script>
+  <script src="/scene-builder/sceneVariableResolver.js"></script>
+  <script src="/scene-builder/sceneTemplateValidation.js"></script>
+  <script src="/scene-builder/sceneVariableControls.js"></script>
+  <script src="/scene-builder/sceneReplacementChecklist.js"></script>
   <script src="/scene-builder/sceneModeLabels.js"></script>
   <script src="/app.js"></script>
   <script src="/comparison.js"></script>

@@ -1,4 +1,4 @@
-# Scene-005 Reference Slot Ownership and Privacy
+# Scene-007 Reference Slot Ownership and Privacy
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** Reference image permissions and public reuse policy  

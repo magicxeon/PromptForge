@@ -389,6 +389,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
         }
         return "matching the clothing outfit, garment silhouette, colors, and styling from the uploaded front outfit reference, inferring unseen back details naturally";
       }
+      if (mode === "normal" && imageReferences?.outfitReference) {
+        return "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
+      }
       if (imageReferences && imageReferences.styleMatch && !referenceOwnsAppearance) {
         return "matching the style, colors, and clothing outfit from the original uploaded image";
       }

@@ -211,6 +211,16 @@ function validateForm() {
     return false;
   }
 
+  // If a template is active, bypass standard selections validations (Scene-004)
+  if (state.mode === "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive()) {
+    const resolved = window.ModelPromptForgeSceneReplacementChecklist.getResolvedPayload();
+    if (!resolved || !resolved.success) {
+      void AppDialog.alert("Please fill in all required template variables first.", { title: "Template Incomplete" });
+      return false;
+    }
+    return true;
+  }
+
   const activeModel = getActiveModelConfig();
   if (activeModel) {
     const capabilities = activeModel.capabilities || {};
@@ -1323,6 +1333,9 @@ function copyPromptToClipboard() {
 
 function toggleUIForMode() {
   const mode = state.mode;
+  if (mode !== "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive()) {
+    window.ModelPromptForgeSceneReplacementChecklist.exitTemplateWorkflow();
+  }
   const imageUpload = document.getElementById("image-upload-container");
   const outfitUpload = document.getElementById("outfit-reference-upload-container");
   pruneSelectionsForMode(state.selections, mode);

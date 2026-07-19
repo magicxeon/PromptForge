@@ -1,8 +1,8 @@
-# Scene-008 QA, Migration and Release Gates
+# Scene-010 QA, Migration and Release Gates
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** QA, compatibility and launch gates  
-**Depends on:** Scene-001 through Scene-007  
+**Depends on:** Scene-001 through Scene-009  
 **Created:** 2026-07-18
 
 ## 1. Objective

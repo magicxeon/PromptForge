@@ -35,34 +35,98 @@
     const sourceOwnership = state.mode === "character-sheet"
       ? (window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null)
       : null;
+
+    let selections = state.selections;
+    let customColors = state.customColors;
+    let faceReferenceImageA = state.faceReferenceImageA;
+    let faceReferenceImageB = state.faceReferenceImageB;
+    let characterReferenceImageA = state.characterReferenceImageA;
+    let characterReferenceImageB = state.characterReferenceImageB;
+    let styleReferenceImageA = state.styleReferenceImageA;
+    let styleReferenceImageB = state.styleReferenceImageB;
+    let outfitReferenceImageFront = state.outfitReferenceImageFront;
+    let outfitReferenceImageBack = state.outfitReferenceImageBack;
+
+    let imageReferences = { ...state.imageReferences, characterOverrides: state.characterReferenceOverrides };
+
+    const isTemplateActive = state.mode === "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive();
+    if (isTemplateActive) {
+      const resolved = window.ModelPromptForgeSceneReplacementChecklist.getResolvedPayload();
+      if (resolved && resolved.success && resolved.patch) {
+        selections = { ...selections, ...resolved.patch.selections };
+        customColors = { ...customColors, ...resolved.patch.customColors };
+        const refs = resolved.patch.references || {};
+        if (refs.face_reference) faceReferenceImageA = refs.face_reference;
+        if (refs.character_reference) characterReferenceImageA = refs.character_reference;
+        if (refs.style_reference) styleReferenceImageA = refs.style_reference;
+        if (refs.outfit_front_reference) outfitReferenceImageFront = refs.outfit_front_reference;
+        if (refs.outfit_back_reference) outfitReferenceImageBack = refs.outfit_back_reference;
+
+        // Force enable references based on template mapping
+        const mapping = window.ModelPromptForgeSceneReplacementChecklist.getActiveTemplateSnapshot()?.referenceSlotMapping || {};
+        if (mapping.face_reference) imageReferences.faceMatch = true;
+        if (mapping.character_reference) imageReferences.characterReference = true;
+        if (mapping.style_reference) imageReferences.styleMatch = true;
+        if (mapping.outfit_front_reference || mapping.outfit_back_reference) imageReferences.outfitReference = true;
+      }
+    }
+
+    const isCharacterRefActive = (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
+      || (isTemplateActive && imageReferences.characterReference && Boolean(characterReferenceImageA || characterReferenceImageB));
+
     const submittedReferenceJobIds = {
-      face: state.imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],
-      outfit: state.mode === "character-sheet" && state.imageReferences.outfitReference
+      face: imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],
+      outfit: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.outfitReferenceJobIds) : state.outfitReferenceJobIds)
         : [],
-      style: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
+      style: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.styleReferenceJobIds) : state.styleReferenceJobIds)
         : [],
-      character: (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
+      character: isCharacterRefActive
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.characterReferenceJobIds) : state.characterReferenceJobIds)
         : []
     };
+
+    // Swap state temporarily to compile final prompt matching resolved selections/colors
+    const oldSelections = state.selections;
+    const oldCustomColors = state.customColors;
+    const oldImageReferences = state.imageReferences;
+    const oldCharacterRefImageA = state.characterReferenceImageA;
+    const oldCharacterRefImageB = state.characterReferenceImageB;
+
+    state.selections = selections;
+    state.customColors = customColors;
+    state.imageReferences = imageReferences;
+    state.characterReferenceImageA = characterReferenceImageA;
+    state.characterReferenceImageB = characterReferenceImageB;
+
+    let finalPrompt = "";
+    try {
+      finalPrompt = getEditablePromptText();
+    } finally {
+      state.selections = oldSelections;
+      state.customColors = oldCustomColors;
+      state.imageReferences = oldImageReferences;
+      state.characterReferenceImageA = oldCharacterRefImageA;
+      state.characterReferenceImageB = oldCharacterRefImageB;
+    }
+
     return {
       provider: document.getElementById("api-provider-select")?.value || null,
       submodel: document.getElementById("api-submodel-select")?.value || null,
       imageResolution: getSelectedImageResolution(),
-      selections: state.selections,
+      selections,
       aspectRatio: state.aspectRatio,
-      imageReferences: { ...state.imageReferences, characterOverrides: state.characterReferenceOverrides },
+      imageReferences,
       sourceOwnership,
       mode: state.mode,
       sceneBuilder: state.mode === "normal"
         ? {
-          authoringMode: state.sceneBuilder?.authoringMode === "manual" ? "manual" : "guided",
-          manualPromptText: typeof state.sceneBuilder?.manualPromptText === "string" ? state.sceneBuilder.manualPromptText : "",
-          lastGuidedPromptSnapshot: typeof state.sceneBuilder?.lastGuidedPromptSnapshot === "string" ? state.sceneBuilder.lastGuidedPromptSnapshot : "",
-          templateDraft: state.sceneBuilder?.templateDraft || null
-        }
+            authoringMode: state.sceneBuilder?.authoringMode === "manual" ? "manual" : "guided",
+            manualPromptText: typeof state.sceneBuilder?.manualPromptText === "string" ? state.sceneBuilder.manualPromptText : "",
+            lastGuidedPromptSnapshot: typeof state.sceneBuilder?.lastGuidedPromptSnapshot === "string" ? state.sceneBuilder.lastGuidedPromptSnapshot : "",
+            templateDraft: state.sceneBuilder?.templateDraft || null
+          }
         : null,
       sceneTemplateSnapshot: state.mode === "normal" && window.ModelPromptForgeSceneTemplateSerializer
         ? (() => {
@@ -73,10 +137,10 @@
             const serializerInput = {
               authoringMode: state.sceneBuilder?.authoringMode || "guided",
               manualPromptText: state.sceneBuilder?.manualPromptText || "",
-              finalPrompt: getEditablePromptText(),
-              selections: state.selections,
-              imageReferences: state.imageReferences,
-              customColors: state.customColors,
+              finalPrompt: finalPrompt,
+              selections: selections,
+              imageReferences: imageReferences,
+              customColors: customColors,
               providerId: activeProvider?.id || null,
               providerDisplayName: activeProvider?.displayName ? (typeof activeProvider.displayName === "object" ? activeProvider.displayName[state.language] || activeProvider.displayName.en : activeProvider.displayName) : null,
               modelId: activeModel?.id || null,
@@ -95,22 +159,22 @@
       template: document.getElementById("template-select")?.value || "portrait",
       isGptSafe: false,
       username: state.username,
-      faceReferenceImageA: state.imageReferences.faceMatch ? state.faceReferenceImageA : null,
-      faceReferenceImageB: state.imageReferences.faceMatch ? state.faceReferenceImageB : null,
+      faceReferenceImageA: imageReferences.faceMatch ? faceReferenceImageA : null,
+      faceReferenceImageB: imageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: submittedReferenceJobIds.face,
-      outfitReferenceImageFront: state.mode === "character-sheet" && state.imageReferences.outfitReference ? state.outfitReferenceImageFront : null,
-      outfitReferenceImageBack: state.mode === "character-sheet" && state.imageReferences.outfitReference ? state.outfitReferenceImageBack : null,
+      outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
+      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageBack : null,
       outfitReferenceJobIds: submittedReferenceJobIds.outfit,
-      styleReferenceImageA: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
-        ? state.styleReferenceImageA : null,
-      styleReferenceImageB: state.mode === "normal" && (state.imageReferences.styleMatch || state.imageReferences.poseMatch)
-        ? state.styleReferenceImageB : null,
+      styleReferenceImageA: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
+        ? styleReferenceImageA : null,
+      styleReferenceImageB: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
+        ? styleReferenceImageB : null,
       styleReferenceJobIds: submittedReferenceJobIds.style,
-      characterReferenceImageA: (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive()) ? state.characterReferenceImageA : null,
-      characterReferenceImageB: (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive()) ? state.characterReferenceImageB : null,
+      characterReferenceImageA: isCharacterRefActive ? characterReferenceImageA : null,
+      characterReferenceImageB: isCharacterRefActive ? characterReferenceImageB : null,
       characterReferenceJobIds: submittedReferenceJobIds.character,
-      customColors: state.customColors,
-      adminPromptOverride: state.userRole === "admin" ? getEditablePromptText() : null
+      customColors,
+      adminPromptOverride: state.userRole === "admin" ? finalPrompt : null
     };
   }
 

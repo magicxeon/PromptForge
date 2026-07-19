@@ -120,6 +120,21 @@ test('validateSceneTemplateSnapshot validates snapshot structure correctly', () 
   const res2 = validateSceneTemplateSnapshot(valid);
   assert.ok(res2.success);
   assert.equal(res2.errors.length, 0);
+
+  const duplicateId = {
+    sceneTemplateVersion: 1,
+    authoringMode: 'guided',
+    finalPromptSnapshot: 'A prompt',
+    replaceableVariables: [
+      { id: 'gender', type: 'select_option', sourceFieldName: 'Gender' },
+      { id: 'gender', type: 'select_option', sourceFieldName: 'Gender2' }
+    ],
+    providerModelSnapshot: { providerId: 'gemini', modelId: 'nano' },
+    generationSettingsSnapshot: { aspectRatio: '6:8', width: '768', height: '1024' }
+  };
+  const res3 = validateSceneTemplateSnapshot(duplicateId);
+  assert.ok(!res3.success);
+  assert.ok(res3.errors.some(err => err.includes("Duplicate variable id")));
 });
 
 test('sanitizeSceneTemplateSnapshot applies visibility policy correctly', () => {

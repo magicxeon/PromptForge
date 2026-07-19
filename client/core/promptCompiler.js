@@ -458,6 +458,10 @@
             return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
           }
         }
+        if (state.mode === "normal" && state.imageReferences.outfitReference) {
+          const txt = "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
+          return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
+        }
         if (state.imageReferences.styleMatch && !referenceOwnsAppearance) {
           const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;

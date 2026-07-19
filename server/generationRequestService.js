@@ -20,6 +20,11 @@ export function normalizeGenerationContext(payload = {}) {
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
   const hasOutfitReference = Boolean(payload.outfitReferenceImageFront || payload.outfitReferenceImageBack);
   const mode = payload.mode || 'normal';
+  const hasTemplateOutfit = payload.sceneTemplateSnapshot
+    && payload.sceneTemplateSnapshot.referenceSlotMapping
+    && (payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_front_reference !== undefined
+        || payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_back_reference !== undefined);
+  const allowOutfit = mode === 'character-sheet' || hasTemplateOutfit;
   const imageReferences = {
     ...(payload.imageReferences || {}),
     faceMatch: payload.imageReferences?.faceMatch === true && hasFaceReference,
@@ -28,13 +33,13 @@ export function normalizeGenerationContext(payload = {}) {
     characterReference: mode === 'normal'
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference,
-    outfitReference: mode === 'character-sheet'
+    outfitReference: allowOutfit
       && payload.imageReferences?.outfitReference === true
       && hasOutfitReference,
-    outfitReferenceFront: mode === 'character-sheet'
+    outfitReferenceFront: allowOutfit
       && payload.imageReferences?.outfitReference === true
       && Boolean(payload.outfitReferenceImageFront),
-    outfitReferenceBack: mode === 'character-sheet'
+    outfitReferenceBack: allowOutfit
       && payload.imageReferences?.outfitReference === true
       && Boolean(payload.outfitReferenceImageBack),
     characterOverrides: mode === 'normal'

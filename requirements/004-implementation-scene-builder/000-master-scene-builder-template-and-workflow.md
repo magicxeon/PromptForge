@@ -55,10 +55,12 @@ The long-term commercial path is selling templates or workflow packs. MVP only n
 | Scene-002 | Guided and Manual Authoring Modes | Define two mode UX and shared output contract |
 | Scene-003 | Scene Template Data Contract | Define reusable template schema |
 | Scene-004 | Replaceable Variables and Slot Mapping | Define what users can replace when using a template |
-| Scene-005 | Reference Slot Ownership and Privacy | Define attach/share/replace behavior for images |
-| Scene-006 | Community Share and Use Template Flow | Connect Scene Template to community sharing/remix |
-| Scene-007 | Client Module Architecture | Keep Scene Builder modular and avoid app.js growth |
-| Scene-008 | QA, Migration and Release Gates | Validate compatibility and MVP launch readiness |
+| Scene-005 | Reference Payload Optimization | Reduce base64 payload size and define lightweight reference transport |
+| Scene-006 | History Image Slot Picker for Template Mode | Reuse History images as template slot inputs |
+| Scene-007 | Reference Slot Ownership and Privacy | Define attach/share/replace behavior for images |
+| Scene-008 | Community Share and Use Template Flow | Connect Scene Template to community sharing/remix |
+| Scene-009 | Client Module Architecture | Keep Scene Builder modular and avoid app.js growth |
+| Scene-010 | QA, Migration and Release Gates | Validate compatibility and MVP launch readiness |
 
 ## 5. MVP Scope
 
@@ -68,6 +70,8 @@ Included:
 - Guided / Manual tabs or segmented control in the same workspace.
 - Template snapshot from generated Scene Builder output.
 - Replaceable fields for face, character, outfit, style, color, text and selected options.
+- Lightweight reference payload strategy for History/job references.
+- History image assignment into Template Mode reference slots.
 - Community share-ready template payload.
 - Use Template flow that opens Scene Builder with required replacement slots.
 - Prompt visibility policy aligned with Community-04 in requirements/005-implementation-community-plan.

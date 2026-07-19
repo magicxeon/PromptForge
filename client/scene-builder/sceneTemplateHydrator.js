@@ -60,6 +60,24 @@
 
     patch.selections = targetSelections;
 
+    // Extract customColors from template variables
+    const targetCustomColors = {};
+    (snapshot.replaceableVariables || []).forEach(variable => {
+      if (variable.type === "color") {
+        targetCustomColors[variable.sourceFieldName] = {
+          enabled: true,
+          color: variable.defaultValue || "#000000"
+        };
+      }
+    });
+
+    // Apply replacements for custom colors if provided
+    Object.keys(replacements.customColors || {}).forEach(colorKey => {
+      targetCustomColors[colorKey] = replacements.customColors[colorKey];
+    });
+
+    patch.customColors = targetCustomColors;
+
     // 3. Aspect Ratio and settings
     const settings = snapshot.generationSettingsSnapshot || {};
     patch.aspectRatio = settings.aspectRatio || "6:8";
@@ -91,6 +109,9 @@
     }
     if (patch.selections) {
       state.selections = JSON.parse(JSON.stringify(patch.selections));
+    }
+    if (patch.customColors) {
+      state.customColors = JSON.parse(JSON.stringify(patch.customColors));
     }
     if (patch.aspectRatio) {
       state.aspectRatio = patch.aspectRatio;
