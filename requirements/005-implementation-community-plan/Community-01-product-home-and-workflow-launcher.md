@@ -103,3 +103,40 @@ Navigation items must come from the module registry. Do not hardcode community n
 - Selecting a character from Home can route into a workflow with that character preselected.
 - Home does not duplicate Studio controls; it launches the correct workflow.
 
+## 8. Implementation Plan
+
+### User Review Required
+
+- Home is a product workflow launcher, not a marketing landing page.
+- It must show only enabled modules from the registry.
+- Community entry can point to local/mock Community during development.
+- Mock user switcher from Community-10 may be visible in development builds.
+
+### Proposed Files
+
+```text
+client/home/homePage.js
+client/home/workflowLauncher.js
+client/home/recentActivityPanel.js
+client/shell/navigationRegistry.js
+client/shell/moduleRegistry.js
+client/app.js
+client/index.html
+client/style.css
+```
+
+### Process
+
+1. Register `/home` through the application shell.
+2. Read enabled modules from module registry.
+3. Render workflow launcher cards for Studio, Freestyle, Character, Community and History.
+4. Route each card into an existing workflow with optional handoff payload.
+5. Hide unavailable modules instead of showing disabled fake features.
+
+### Testing
+
+- Verify `/home` renders without requiring generated history.
+- Verify workflow cards route to correct sections.
+- Verify disabled Community module does not appear.
+- Verify active mock user is visible only in development mode.
+

@@ -263,3 +263,45 @@ Regression tests:
 - `Use Template` does not appear for view-only gallery items.
 - Community handoff does not embed base64 image data.
 - Existing Scene Builder template replacement flow still works without Community.
+
+## 10. Implementation Plan
+
+### User Review Required
+
+- Gallery is curated by owner; generated history is not public by default.
+- Character assets are separate from normal gallery images.
+- Handoff always routes to Scene Builder and reuses Scene Builder modules.
+- Private face/outfit references must become required replacements for other users.
+
+### Proposed Files
+
+```text
+client/community/communityGalleryPage.js
+client/community/communityGalleryCard.js
+client/community/communityCharacterTab.js
+client/community/communityTemplateActions.js
+client/community/communitySceneBuilderHandoff.js
+server/community/CommunityGalleryRepository.js
+server/community/CommunityCharacterRepository.js
+server/community/CommunityTemplatePolicyService.js
+server/community/CommunitySceneBuilderHandoffService.js
+server/community/routes/galleryRoutes.js
+server/community/routes/characterRoutes.js
+test/communityGalleryHandoff.test.js
+```
+
+### Process
+
+1. Owner selects generated image and adds it to gallery.
+2. Owner chooses visibility and reuse policy.
+3. Server stores gallery record with sanitized snapshot references.
+4. Public viewer opens gallery or character tab.
+5. `Use Template` or `Use Character` requests handoff payload.
+6. Scene Builder opens replacement checklist and hydrates safe fields.
+
+### Testing
+
+- Alice public gallery shows only Alice-approved records.
+- Bob cannot see Alice private gallery record.
+- Bob using Alice character receives required replacement for private face reference.
+- Handoff payload contains no base64 or private provider payload.

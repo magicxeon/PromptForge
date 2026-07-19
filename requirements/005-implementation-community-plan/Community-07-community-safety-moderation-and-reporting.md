@@ -77,3 +77,37 @@ Rules:
 - Prompt visibility cannot be bypassed through post detail or remix APIs.
 - Public assets are served through the approved asset delivery policy.
 
+## 7. Implementation Plan
+
+### User Review Required
+
+- MVP moderation is basic but must be auditable.
+- `admin_demo` from Community-10 can be used for local moderation testing.
+- Safety must apply to API responses, not only hidden UI fields.
+
+### Proposed Files
+
+```text
+client/community/reportPostDialog.js
+client/community/moderationBanner.js
+server/community/CommunityReportRepository.js
+server/community/CommunityModerationService.js
+server/community/CommunityAuditRepository.js
+server/community/routes/moderationRoutes.js
+```
+
+### Process
+
+1. Authenticated viewer reports a post.
+2. Service stores report with reason and actor.
+3. Admin/support can hide/remove with reason.
+4. Feed and trending services filter hidden/removed posts.
+5. Public detail returns generic unavailable state when removed.
+
+### Testing
+
+- Report requires actor context.
+- Hidden post disappears from feed/trending.
+- Removed post does not expose prompt or asset data.
+- Admin action stores actor, target, reason and timestamp.
+

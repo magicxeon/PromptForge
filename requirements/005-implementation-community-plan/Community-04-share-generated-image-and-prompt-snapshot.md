@@ -139,3 +139,42 @@ All mutating requests require actor context and authorization.
 - Published snapshots remain stable even if the original project/config later changes.
 - Hidden or removed posts no longer appear in public feeds.
 
+## 9. Implementation Plan
+
+### User Review Required
+
+- Development can start from local JSON posts, but service boundaries must match future DB repositories.
+- Published snapshot must reuse Scene Builder `SceneTemplateSnapshot` when available.
+- Actor context comes from Community-10 mock user until real auth exists.
+- Credit deduction is not done here; sharing a generated result is not generation.
+
+### Proposed Files
+
+```text
+client/community/communitySharePreview.js
+client/community/communityShareApi.js
+client/core/lightboxService.js
+client/comparisons/comparisonDashboard.js
+server/community/CommunityPostRepository.js
+server/community/CommunityShareService.js
+server/community/CommunityPostSanitizer.js
+server/community/communityRoutes.js
+server/sceneTemplates/sceneTemplateSanitizer.js
+```
+
+### Process
+
+1. User selects Share from History, Comparison, Collection or active result.
+2. Server creates draft from source generation result and actor context.
+3. Draft is sanitized using prompt visibility and reference policy.
+4. User edits title, description, tags and visibility.
+5. Publish creates immutable public snapshot.
+
+### Testing
+
+- Alice can share Alice's generated result.
+- Bob cannot share Alice's private result.
+- `Remix Only` hides final prompt but preserves guided selections.
+- Manual prompt cannot be hidden as Remix Only unless policy explicitly supports it.
+- Public API does not return private asset URLs or provider payloads.
+

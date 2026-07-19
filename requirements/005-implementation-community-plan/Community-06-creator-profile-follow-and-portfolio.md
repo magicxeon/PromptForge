@@ -92,3 +92,38 @@ MVP may auto-create a minimal creator profile using account display name, but us
 - Private account details are not exposed.
 - First-time sharers can create/confirm creator identity before publishing.
 
+## 7. Implementation Plan
+
+### User Review Required
+
+- Creator profile is lightweight in MVP.
+- Follow is a simple social graph, not membership.
+- Mock users can auto-create mock creator profiles for local testing.
+
+### Proposed Files
+
+```text
+client/community/creatorProfilePage.js
+client/community/followButton.js
+client/community/creatorPortfolioGrid.js
+server/community/CreatorProfileRepository.js
+server/community/CreatorFollowRepository.js
+server/community/CreatorProfileService.js
+server/community/routes/creatorRoutes.js
+```
+
+### Process
+
+1. Ensure creator profile exists when user first publishes.
+2. Link posts to `creatorProfileId`.
+3. Render public portfolio from published posts only.
+4. Follow/unfollow creates or removes follow record.
+5. Aggregate counts through service layer.
+
+### Testing
+
+- First share prompts creator profile creation/confirmation.
+- Creator profile excludes private and hidden posts.
+- Bob can follow/unfollow Alice.
+- Private user account fields are not returned in public creator API.
+

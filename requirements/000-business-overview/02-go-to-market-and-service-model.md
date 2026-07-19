@@ -62,7 +62,50 @@ ModelPromptForge ควรรองรับ 3 ระดับบริการ
 - Case study ก่อน/หลัง โดยขอสิทธิจากร้านค้า
 - Referral credit หลังเพื่อนซื้อครั้งแรก ไม่ให้ทันทีตอนสมัคร
 
-## 6. Marketplace phase
+## 6. Simple And Advanced Service Modes
+
+ModelPromptForge should support two service modes because the target users have different levels of AI provider knowledge.
+
+### Simple Mode
+
+Simple Mode is for users who want an outcome, not provider control.
+
+Expected behavior:
+
+- User chooses workflow intent, quality tier and references.
+- Platform shows a predictable credit estimate.
+- Platform can later route to the best available provider/model behind the scenes.
+- User does not need to understand provider-specific settings.
+
+Simple Mode is important for shop owners, fashion sellers and commercial users who want repeatable outputs without becoming prompt engineers.
+
+### Advanced Mode
+
+Advanced Mode is for creators and power users.
+
+Expected behavior:
+
+- User chooses provider, model, resolution and reference strategy.
+- Platform shows a more exact credit estimate.
+- User accepts model-specific tradeoffs and cost.
+- Community templates may preserve the original provider/model as a recommendation, but the active user can change it before generation.
+
+### Business Decision
+
+In the current phase, build the data structure and credit/routing contracts first. Do not build automatic provider routing yet.
+
+Required foundation:
+
+- `routingMode: simple | advanced`
+- provider/model snapshot
+- credit estimate snapshot
+- pricing policy version
+- provider fallback warning
+- active user credit deduction
+
+This makes Community remix, Scene Builder templates and future commercial workflows compatible with provider routing when the product has enough usage data to route intelligently.
+
+## 7. Marketplace phase
 
 เมื่อ workflow หลักพิสูจน์แล้วจึงเปิด:
 
@@ -73,4 +116,3 @@ ModelPromptForge ควรรองรับ 3 ระดับบริการ
 - Revenue sharing และ commission 20-30%
 
 ก่อนเปิด marketplace ต้องมี ownership, versioning, remix lineage, moderation, payout และ dispute policy
-

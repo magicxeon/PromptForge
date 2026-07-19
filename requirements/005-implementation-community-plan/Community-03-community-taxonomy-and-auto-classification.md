@@ -128,3 +128,39 @@ Official tags:
 - Custom tags do not pollute category navigation.
 - Low-confidence posts cannot dominate Trending.
 - Taxonomy assignments can be corrected after publish with audit history.
+
+## 9. Implementation Plan
+
+### User Review Required
+
+- Users confirm suggested taxonomy; they do not manage official categories.
+- Custom tags are searchable only and do not affect official trending in MVP.
+- Prompt text is fallback input; structured selections are preferred.
+
+### Proposed Files
+
+```text
+attributes/community-taxonomy.json
+server/taxonomy/CommunityTaxonomyRepository.js
+server/taxonomy/CommunityClassificationService.js
+server/taxonomy/communityTaxonomyRoutes.js
+client/community/communityTagPicker.js
+client/community/communitySharePreview.js
+test/communityTaxonomy.test.js
+```
+
+### Process
+
+1. Load official taxonomy from versioned config.
+2. Classify from structured selections, workflow mode and prompt composer signals.
+3. Produce confidence per official tag.
+4. Show high/medium confidence tags in Share Preview.
+5. Store official tags separately from custom tags.
+6. Exclude low-confidence posts from category trending.
+
+### Testing
+
+- Fashion Scene Builder selections produce Fashion/Commercial tags.
+- Custom tags do not become official categories.
+- Low-confidence tags exclude post from trending.
+- Admin correction creates audit metadata.

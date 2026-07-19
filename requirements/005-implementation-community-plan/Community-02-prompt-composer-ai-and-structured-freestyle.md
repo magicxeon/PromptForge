@@ -100,3 +100,63 @@ Exact field IDs must align with the Visual Character Builder schema.
 - Composer does not create unapproved official categories or dropdown values.
 - Users can generate from the composed config without manually rebuilding the prompt.
 - Community share flow can reuse Composer classification signals.
+
+## 8. Implementation Plan
+
+### User Review Required
+
+- AI prompt assistance is optional for Community MVP and can be stubbed until approved.
+- Manual Freestyle and Guided Scene Builder must stay on the same Studio surface.
+- Composer output must map into existing attribute/schema fields and must not invent official options.
+- Composer cost must route through the future credit policy if paid models are used.
+
+### Proposed Files
+
+```text
+client/prompt-composer/promptComposerPanel.js
+client/prompt-composer/promptComposerApi.js
+client/prompt-composer/structuredProposalReview.js
+client/core/promptCompiler.js
+client/core/studioState.js
+server/promptComposer/PromptComposerService.js
+server/promptComposer/PromptComposerMapper.js
+server/promptComposer/promptComposerRoutes.js
+server/taxonomy/CommunityClassificationService.js
+```
+
+### Input / Process / Output
+
+Input:
+
+```text
+freeTextIdea
+activeCharacterId
+generationMode
+language
+```
+
+Process:
+
+1. Parse user intent.
+2. Map known entities to existing schema/options.
+3. Put unsupported details into custom prompt parts.
+4. Produce suggested taxonomy signals.
+5. Let user review before applying to Studio state.
+
+Output:
+
+```text
+StructuredPromptProposal
+- fieldSelections
+- customPromptParts
+- missingFields
+- classificationSignals
+- finalPromptDraft
+```
+
+### Testing
+
+- Map a Thai fashion prompt to outfit/scene/style fields.
+- Keep unmapped text as custom prompt part.
+- Reject creation of unofficial official tags.
+- Confirm applying proposal updates Studio state without triggering generation.

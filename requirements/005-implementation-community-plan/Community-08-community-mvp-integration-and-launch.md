@@ -85,3 +85,39 @@ Events must avoid storing raw private prompt text unless explicitly required by 
 - Moderated posts are removed from discovery.
 - MVP can be disabled through module registry without breaking Studio.
 
+## 7. Implementation Plan
+
+### User Review Required
+
+- Launch gate can pass as private beta with mock user only; public MVP requires real auth.
+- Community must be feature-flagged through module registry.
+- Credit deduction foundation should exist before opening remix to non-test users.
+
+### Proposed Files
+
+```text
+client/community/communityModule.js
+client/community/communityRoutes.js
+client/community/communityMetrics.js
+server/community/communityRoutes.js
+server/community/CommunityMetricsService.js
+server/community/CommunityLaunchReadinessService.js
+server/config/moduleFlags.json
+test/communityMvpIntegration.test.js
+```
+
+### Process
+
+1. Register Community module behind feature flag.
+2. Wire Home, Feed, Share, Detail, Remix, Creator and Report flows.
+3. Verify Scene Builder and History still work when Community is disabled.
+4. Emit MVP metrics without raw private prompts.
+5. Run private beta launch checklist.
+
+### Testing
+
+- End-to-end mock user flow: Alice shares, Bob remixes, admin hides.
+- Module disabled state removes navigation and routes gracefully.
+- Metrics events avoid raw prompt text.
+- Studio, History, Comparison and Scene Builder still load without Community module.
+

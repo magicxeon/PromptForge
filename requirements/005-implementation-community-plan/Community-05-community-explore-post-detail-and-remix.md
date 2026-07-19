@@ -120,3 +120,43 @@ Comments and voting separate from likes are deferred.
 - Remix opens Studio with a usable prefilled config.
 - Provider/model fallback is handled without breaking the flow.
 
+## 9. Implementation Plan
+
+### User Review Required
+
+- Explore can begin as a local/mock feed, but route and data contracts should match future Community module.
+- `Use / Remix Prompt` should route into Scene Builder, not duplicate generation UI inside Community.
+- Remix generation pays from the active viewer's credits once Community-11 is implemented.
+
+### Proposed Files
+
+```text
+client/community/communityFeed.js
+client/community/communityPostDetail.js
+client/community/communityRemixActions.js
+client/community/communityApi.js
+client/scene-builder/sceneTemplateHydrator.js
+client/scene-builder/sceneReplacementChecklist.js
+server/community/CommunityFeedService.js
+server/community/CommunityRemixService.js
+server/community/CommunityEventRepository.js
+server/community/communityRoutes.js
+```
+
+### Process
+
+1. Feed loads published, non-hidden posts.
+2. User opens post detail.
+3. Prompt/snapshot display follows visibility policy.
+4. `Use Template` requests a sanitized remix handoff.
+5. Scene Builder hydrates selections and replacement slots.
+6. Remix event is recorded after successful generation, not merely on click.
+
+### Testing
+
+- Latest feed excludes private/unlisted/hidden posts.
+- Post detail hides prompt according to visibility.
+- Use Template opens Scene Builder checklist.
+- Missing required replacement blocks generation.
+- Provider unavailable state shows warning or asks user to select an available model.
+
