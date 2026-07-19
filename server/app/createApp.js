@@ -2,20 +2,20 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { CLIENT_ROOT, PROJECT_ROOT } from '../config/paths.js';
-import { collectionManager } from '../collectionManager.js';
+import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
-import { queueManager } from '../queueManager.js';
-import { creditManager } from '../creditManager.js';
+import { queueManager } from '../domain/generation/QueueManager.js';
+import { creditManager } from '../domain/credits/CreditManager.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
-import { historyRepository } from '../historyRepository.js';
+import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import {
   createSceneShareDraft,
   publishSceneTemplateShare,
   communityPostRepo,
   communityRemixRepo
-} from '../communityServices.js';
+} from '../domain/community/CommunityShareService.js';
 import { actorContextMiddleware } from '../middleware/actorContextMiddleware.js';
-import { mockUserRepo } from '../identity/MockUserRepository.js';
+import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 import { createAttributesBundleLoader, registerAttributesRoutes } from './routes/attributesRoutes.js';
 import { registerIdentityRoutes } from './routes/identityRoutes.js';
 import { registerCreditRoutes } from './routes/creditRoutes.js';

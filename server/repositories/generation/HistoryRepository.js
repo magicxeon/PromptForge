@@ -1,6 +1,7 @@
 import crypto from 'crypto';
-import { promises as fs } from 'fs';
+import path from 'path';
 import { resolveDataFile } from '../../config/paths.js';
+import { ensureJsonFile, mutateJsonFile, readJsonFile } from '../json/jsonFileStore.js';
 
 export class HistoryCursorError extends Error {
   constructor(message) {
@@ -20,18 +21,43 @@ export class HistoryRepository {
     this.cursorSecret = cursorSecret;
   }
 
+  async init() {
+    await ensureJsonFile(this.historyFile, []);
+  }
+
   async readAll() {
-    try {
-      const raw = await fs.readFile(this.historyFile, 'utf8');
-      const history = JSON.parse(raw);
-      return Array.isArray(history) ? history : [];
-    } catch {
-      return [];
-    }
+    const history = await readJsonFile(this.historyFile, []);
+    return Array.isArray(history) ? history : [];
   }
 
   async getById(jobId) {
     return (await this.readAll()).find(item => item.id === jobId) || null;
+  }
+
+  async prepend(entry) {
+    return mutateJsonFile(this.historyFile, [], async history => {
+      if (!Array.isArray(history)) {
+        throw new TypeError('History data must be an array.');
+      }
+      history.unshift(entry);
+      return entry;
+    });
+  }
+
+  async removeById(jobId) {
+    return mutateJsonFile(this.historyFile, [], async history => {
+      if (!Array.isArray(history)) {
+        throw new TypeError('History data must be an array.');
+      }
+      const entryIdx = history.findIndex(item => item.id === jobId);
+      if (entryIdx === -1) return null;
+      const [entry] = history.splice(entryIdx, 1);
+      return entry || null;
+    });
+  }
+
+  getOutputFilename(entry) {
+    return entry?.imageUrl ? path.basename(entry.imageUrl) : null;
   }
 
   async listPage({ cursor = null, limit = 24, collectionId = 'all', allowedJobIds = null, username = null } = {}) {

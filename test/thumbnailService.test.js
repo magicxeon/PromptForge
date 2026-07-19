@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import sharp from 'sharp';
-import { ThumbnailService } from '../server/thumbnailService.js';
+import { ThumbnailService } from '../server/domain/generation/thumbnailService.js';
 
 test('thumbnail service creates metadata and cleans up the derived image', async t => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'thumbnail-service-'));

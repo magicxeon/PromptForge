@@ -115,7 +115,7 @@ node --test test/sceneVariableResolver.test.js
 6. Confirm Demo history disappears.
 7. Generate one image.
 8. Confirm active queue completes.
-9. Confirm generated result writes under server/data.
+9. Confirm generated image writes under client/outputs and its metadata writes under server/data/generation.
 10. Create collection and add image.
 11. Open image lightbox.
 12. Share as Scene Template.
@@ -134,3 +134,76 @@ restore documentation-only changes if confusing
 ```
 
 Do not move data back to root unless the app cannot start and the issue cannot be fixed in path config.
+
+## 12. Implementation Record
+
+Completed cleanup actions:
+
+```text
+server/data/README.md created.
+server/domain/README.md created.
+server/repositories/README.md created.
+requirements/requirements.md updated with the current server architecture.
+requirements/007-technical-dept/000-master.md updated with the final Step 2 structure.
+server/config/paths.js now resolves canonical server/data/* files only.
+temporary root compatibility re-export files were removed.
+server/app/* imports now point to domain/repository modules directly.
+tests that imported removed wrappers were updated to direct domain/repository paths.
+maintenance scripts now resolve canonical data files through server/config/paths.js.
+QueueManager history JSON mutations now go through HistoryRepository.
+```
+
+Removed compatibility wrapper files:
+
+```text
+server/collectionManager.js
+server/communityServices.js
+server/creditManager.js
+server/generationRequestService.js
+server/historyRepository.js
+server/imageUtils.js
+server/promptCompiler.js
+server/queueManager.js
+server/referenceUtils.js
+server/thumbnailService.js
+server/identity/MockUserRepository.js
+server/identity/mockActorContext.js
+server/comparison/*
+server/sceneTemplates/*
+```
+
+Expected remaining direct filesystem writes:
+
+```text
+server/repositories/json/jsonFileStore.js
+server/domain/generation/QueueManager.js output image binary writes
+server/domain/generation/thumbnailService.js thumbnail binary writes
+```
+
+These are allowed because JSON state is centralized through repositories, while generated images and thumbnails are static output assets.
+
+## 13. Static Validation Record
+
+Validation date: 2026-07-20
+
+Completed without executing Node:
+
+```text
+PASS: server root contains only server.js as a regular source file.
+PASS: no runtime JSON file remains directly under server/.
+PASS: stale .comparisons.*.tmp file from the previous EPERM rename failure was removed.
+PASS: compatibility re-export files no longer exist.
+PASS: server, test, and maintenance-script imports point to domain/repository modules.
+PASS: migration scripts resolve history, comparisons, and migration storage through server/config/paths.js.
+PASS: oldPath fallback and duplicate safeWriteJson helpers are absent.
+PASS: remaining fs.writeFile/fs.rename calls are limited to the shared atomic JSON store and image/thumbnail asset writes.
+PASS: git diff --check reports no whitespace errors.
+```
+
+Pending user-executed validation:
+
+```text
+node syntax checks
+targeted repository/domain tests
+manual application smoke test
+```

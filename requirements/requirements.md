@@ -583,11 +583,15 @@ Key client areas:
 
 Key server areas:
 
-- `server/server.js`: HTTP/API entrypoint
-- `server/promptCompiler.js`: server-side prompt compiler
-- `server/generationRequestService.js`: request normalization and lineage context
-- `server/queueManager.js`: background generation queue
-- `server/comparison/*`: model comparison orchestration and storage
+- `server/server.js`: process bootstrap and HTTP listener
+- `server/app/createApp.js`: Express composition and dependency wiring
+- `server/app/routes/*`: capability-oriented HTTP routes
+- `server/domain/generation/promptCompiler.js`: server-side prompt compiler
+- `server/domain/generation/generationRequestService.js`: request normalization and lineage context
+- `server/domain/generation/QueueManager.js`: background generation queue
+- `server/domain/comparisons/*`: model comparison orchestration and validation
+- `server/repositories/*`: JSON persistence adapters and future database boundary
+- `server/data/*`: canonical local runtime data
 - provider adapters/registry: provider-specific image generation behavior
 
 Future platform modules:
@@ -631,7 +635,28 @@ Important manual QA flows:
 11. Future: create Fashion Project and generate a batch product image set.
 12. Future: share generated image to Community and remix it back into Studio.
 
-## 18. Roadmap Priorities
+## 18. Server Architecture
+
+The server is organized around clear runtime, domain, repository and route boundaries.
+
+Current structure:
+
+- `server/server.js` is the bootstrap file only: load environment, create app, listen and run startup warmers
+- `server/app/createApp.js` composes Express middleware, route modules and shared dependencies
+- `server/app/routes/*` owns HTTP endpoint registration by capability
+- `server/domain/*` owns business behavior such as generation, credits, comparisons, collections, community sharing and scene-template rules
+- `server/repositories/*` owns storage access and JSON adapter contracts
+- `server/data/*` is the canonical local JSON runtime state root
+- `server/config/paths.js` resolves canonical data paths and no longer falls back to old root JSON locations
+
+Storage rules:
+
+- no runtime JSON should live directly under `server/`
+- JSON state should go through repositories or `server/repositories/json/jsonFileStore.js`
+- root compatibility re-export files should not be reintroduced
+- future database adapters should preserve current repository method contracts before changing route behavior
+
+## 19. Roadmap Priorities
 
 Near-term:
 

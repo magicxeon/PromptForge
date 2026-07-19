@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { actorContextMiddleware } from '../server/middleware/actorContextMiddleware.js';
-import { mockUserRepo } from '../server/identity/MockUserRepository.js';
-import { createSystemActorContext, normalizeActorContext } from '../server/identity/mockActorContext.js';
+import { mockUserRepo } from '../server/repositories/identity/MockUserRepository.js';
+import { createSystemActorContext, normalizeActorContext } from '../server/domain/identity/mockActorContext.js';
 
 test('MockUserRepository resolves usr_demo properties correctly', async () => {
   const user = await mockUserRepo.findById('usr_demo');

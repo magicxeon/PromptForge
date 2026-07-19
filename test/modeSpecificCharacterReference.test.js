@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compilePromptOnServer } from '../server/promptCompiler.js';
+import { compilePromptOnServer } from '../server/domain/generation/promptCompiler.js';
 
 const characterSheetInstruction =
   'Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';

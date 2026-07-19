@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   createCharacterSheetConfigSnapshot,
   normalizeGenerationContext
-} from '../server/generationRequestService.js';
+} from '../server/domain/generation/generationRequestService.js';
 
 test('creates a semantic Character Sheet configuration snapshot without raw outfit images', () => {
   const context = normalizeGenerationContext({

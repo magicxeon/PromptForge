@@ -1,4 +1,4 @@
-import { CollectionError } from '../collectionManager.js';
+import { CollectionError } from '../domain/collections/CollectionManager.js';
 import { ComparisonError } from '../repositories/comparisons/ComparisonRepository.js';
 
 export function sendCollectionError(res, error) {

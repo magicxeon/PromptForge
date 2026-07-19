@@ -1,4 +1,4 @@
-import { compileGenerationContext, createQueueOptions } from '../../generationRequestService.js';
+import { compileGenerationContext, createQueueOptions } from '../../domain/generation/generationRequestService.js';
 
 export function registerGenerationRoutes(app, {
   providerRegistry,

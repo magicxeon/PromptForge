@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { historyRepository } from '../server/historyRepository.js';
+import { historyRepository } from '../server/repositories/generation/HistoryRepository.js';
 import {
   createSceneShareDraft,
   publishSceneTemplateShare,
   communityPostRepo,
   communityRemixRepo
-} from '../server/communityServices.js';
+} from '../server/domain/community/CommunityShareService.js';
 
 // Setup in-memory stubs for repositories to avoid polluting production json files
 const testPosts = [];

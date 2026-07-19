@@ -7,10 +7,9 @@ import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferen
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditManager } from '../credits/CreditManager.js';
 import { thumbnailService } from './thumbnailService.js';
+import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
 
-import { OUTPUTS_DIR, resolveDataFile } from '../../config/paths.js';
-
-const HISTORY_FILE = resolveDataFile('history');
+import { OUTPUTS_DIR } from '../../config/paths.js';
 
 // Ensure directories exist
 async function ensureDir(dir) {
@@ -60,7 +59,6 @@ class QueueManager {
     this.queue = [];       // Array of pending jobIds
     this.activeCount = 0;
     this.lifecycleSubscribers = new Set();
-    this.historyMutationChain = Promise.resolve();
     this.concurrencyLimit = parseInt(process.env.MAX_CONCURRENT_GENERATIONS || '2', 10);
     
     // Init history file if not exists
@@ -69,11 +67,7 @@ class QueueManager {
 
   async initHistory() {
     await ensureDir(OUTPUTS_DIR);
-    try {
-      await fs.access(HISTORY_FILE);
-    } catch {
-      await fs.writeFile(HISTORY_FILE, '[]', 'utf-8');
-    }
+    await historyRepository.init();
   }
 
   /**
@@ -407,15 +401,8 @@ class QueueManager {
    * Save successful generation record to history.json
    */
   async saveToHistory(entry) {
-    const mutation = this.historyMutationChain.then(async () => {
-      const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
-      const history = JSON.parse(dataStr);
-      history.unshift(entry); // add to top
-      await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
-    });
-    this.historyMutationChain = mutation.catch(() => {});
     try {
-      await mutation;
+      await historyRepository.prepend(entry);
     } catch (err) {
       console.error('[Queue] Failed to save history:', err);
     }
@@ -426,21 +413,13 @@ class QueueManager {
    */
   async deleteHistoryEntry(jobId) {
     try {
-      const mutation = this.historyMutationChain.then(async () => {
-        const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
-        const history = JSON.parse(dataStr);
-        const entryIdx = history.findIndex(item => item.id === jobId);
-        if (entryIdx === -1) return null;
-        const [entry] = history.splice(entryIdx, 1);
-        await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
-        return entry;
-      });
-      this.historyMutationChain = mutation.catch(() => {});
-      const entry = await mutation;
+      const entry = await historyRepository.removeById(jobId);
       if (entry) {
-        const filename = path.basename(entry.imageUrl);
-        const filePath = path.join(OUTPUTS_DIR, filename);
-        await fs.unlink(filePath).catch(e => console.warn(`[Queue] Image file not found for deletion: ${filePath}`, e));
+        const filename = historyRepository.getOutputFilename(entry);
+        if (filename) {
+          const filePath = path.join(OUTPUTS_DIR, filename);
+          await fs.unlink(filePath).catch(e => console.warn(`[Queue] Image file not found for deletion: ${filePath}`, e));
+        }
         await thumbnailService.removeForHistoryItem(entry).catch(thumbnailError => {
           console.warn(`[Queue] Thumbnail cleanup failed for ${jobId}:`, thumbnailError.message);
         });
@@ -468,12 +447,7 @@ class QueueManager {
    * Get all history records
    */
   async getHistory() {
-    try {
-      const dataStr = await fs.readFile(HISTORY_FILE, 'utf-8');
-      return JSON.parse(dataStr);
-    } catch (err) {
-      return [];
-    }
+    return historyRepository.readAll();
   }
 
   async getJobStatus(jobId) {

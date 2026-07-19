@@ -30,9 +30,32 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
     *   Standardize JSON read/write through a shared repository file store.
     *   Group domain services by business capability.
     *   Extract repositories and route modules in safe phases.
+    *   Final cleanup removes root-level compatibility re-export files and old data path fallbacks.
     *   Sub-phases:
         *   [002-001 Data Relocation And Path Resolver](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-001-server-data-relocation-and-path-resolver.md)
         *   [002-002 Shared JSON Store And Repository Write Contract](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-002-shared-json-store-and-repository-write-contract.md)
         *   [002-003 Domain And Repository Folder Extraction](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-003-domain-and-repository-folder-extraction.md)
         *   [002-004 Route Extraction And Server Bootstrap Cleanup](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-004-route-extraction-and-server-bootstrap-cleanup.md)
         *   [002-005 Cleanup Documentation And Final Validation](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-005-cleanup-documentation-and-final-validation.md)
+
+## 3. Current Server Architecture After Step 2
+
+```text
+server/
+  app/                 Express app composition and route registration
+  config/              Path and provider configuration
+  data/                Local JSON runtime state only
+  domain/              Business behavior grouped by capability
+  middleware/          Express middleware
+  providers/           AI provider adapters and provider registry
+  repositories/        Storage adapters and shared JSON file store
+  server.js            Bootstrap, env loading, listen, startup warmers
+```
+
+Rules after cleanup:
+
+*   Runtime JSON belongs under `server/data/`.
+*   Root-level compatibility re-export files should not be reintroduced.
+*   Route modules receive dependencies from `server/app/createApp.js`.
+*   Domain modules should use repository contracts for JSON state.
+*   New JSON writes should use `server/repositories/json/jsonFileStore.js`.

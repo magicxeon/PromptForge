@@ -1,4 +1,4 @@
-import { HistoryCursorError } from '../../historyRepository.js';
+import { HistoryCursorError } from '../../repositories/generation/HistoryRepository.js';
 
 export function registerHistoryRoutes(app, {
   historyRepository,

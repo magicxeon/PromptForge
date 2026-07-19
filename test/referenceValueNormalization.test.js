@@ -8,8 +8,8 @@ import {
   normalizeReferenceValue,
   resolveReferenceForProvider,
   stripEmbeddedReferenceDataFromSnapshot
-} from '../server/referenceUtils.js';
-import { historyRepository } from '../server/historyRepository.js';
+} from '../server/domain/generation/referenceUtils.js';
+import { historyRepository } from '../server/repositories/generation/HistoryRepository.js';
 
 // Setup historyRepository stub for resolution testing
 const originalGetById = historyRepository.getById;

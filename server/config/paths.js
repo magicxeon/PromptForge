@@ -1,5 +1,4 @@
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,53 +19,20 @@ export const COMPARISONS_DATA_DIR = path.resolve(DATA_ROOT, 'comparisons');
 export const MIGRATIONS_DATA_DIR = path.resolve(DATA_ROOT, 'migrations');
 
 export const DATA_FILES = {
-  mockUsers: {
-    newPath: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'identity/mockUsers.json')
-  },
-  history: {
-    newPath: path.resolve(GENERATION_DATA_DIR, 'history.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'history.json')
-  },
-  collections: {
-    newPath: path.resolve(COLLECTIONS_DATA_DIR, 'collections.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'collections.json')
-  },
-  database: {
-    newPath: path.resolve(CREDITS_DATA_DIR, 'database.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'database.json')
-  },
-  communityPosts: {
-    newPath: path.resolve(COMMUNITY_DATA_DIR, 'communityPosts.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'communityPosts.json')
-  },
-  remixEvents: {
-    newPath: path.resolve(COMMUNITY_DATA_DIR, 'remixEvents.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'remixEvents.json')
-  },
-  comparisons: {
-    newPath: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json'),
-    oldPath: path.resolve(SERVER_ROOT, 'comparisons.json')
-  }
+  mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
+  history: path.resolve(GENERATION_DATA_DIR, 'history.json'),
+  collections: path.resolve(COLLECTIONS_DATA_DIR, 'collections.json'),
+  database: path.resolve(CREDITS_DATA_DIR, 'database.json'),
+  communityPosts: path.resolve(COMMUNITY_DATA_DIR, 'communityPosts.json'),
+  remixEvents: path.resolve(COMMUNITY_DATA_DIR, 'remixEvents.json'),
+  comparisons: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json')
 };
 
 export function resolveDataFile(name) {
-  const config = DATA_FILES[name];
-  if (!config) {
+  const filePath = DATA_FILES[name];
+  if (!filePath) {
     throw new Error(`[paths] Unknown data file name key: ${name}`);
   }
 
-  // Compatibility Path Rule
-  if (fs.existsSync(config.newPath)) {
-    return config.newPath;
-  } else if (fs.existsSync(config.oldPath)) {
-    return config.oldPath;
-  } else {
-    // Ensure parent directory of new path exists
-    const dir = path.dirname(config.newPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    return config.newPath;
-  }
+  return filePath;
 }

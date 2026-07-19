@@ -1,4 +1,4 @@
-import { mockUserRepo } from '../identity/MockUserRepository.js';
+import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 
 export async function actorContextMiddleware(req, res, next) {
   const isProduction = process.env.NODE_ENV === 'production';

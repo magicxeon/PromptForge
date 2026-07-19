@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compilePromptOnServer } from '../server/promptCompiler.js';
+import { compilePromptOnServer } from '../server/domain/generation/promptCompiler.js';
 
 const CANONICAL_FALLBACK = 'wearing modest neutral character reference clothing, an opaque light gray fitted top and matching mid-thigh shorts, non-revealing, clean and practical for character sheet visibility';
 

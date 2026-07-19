@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { HistoryCursorError, HistoryRepository } from '../server/historyRepository.js';
+import { HistoryCursorError, HistoryRepository } from '../server/repositories/generation/HistoryRepository.js';
 
 async function createRepository() {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'history-repository-'));
