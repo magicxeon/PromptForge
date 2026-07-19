@@ -1,5 +1,6 @@
 import { compilePromptOnServer } from './promptCompiler.js';
 import { normalizeReferenceJobIds, stripEmbeddedReferenceDataFromSnapshot } from './referenceUtils.js';
+import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
@@ -61,9 +62,15 @@ export function normalizeGenerationContext(payload = {}) {
   ].filter(value => typeof value === 'string' && value.trim());
 
   const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
-  const sceneTemplateSnapshot = payload.sceneTemplateSnapshot
+  let sceneTemplateSnapshot = payload.sceneTemplateSnapshot
     ? stripEmbeddedReferenceDataFromSnapshot(payload.sceneTemplateSnapshot)
     : null;
+
+  if (sceneTemplateSnapshot) {
+    const ownerUsername = payload.sourceOwnership?.username || null;
+    const viewerContext = { username: payload.username || 'user_demo' };
+    sceneTemplateSnapshot = sanitizeReferenceSlotsForPublic(sceneTemplateSnapshot, viewerContext, ownerUsername);
+  }
 
   return {
     ...payload,

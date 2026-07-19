@@ -28,29 +28,34 @@
     if (imgRefs.faceMatch) {
       referenceSlotMapping["face_reference"] = {
         required: true,
-        policy: "required_user_replacement"
+        policy: "required_user_replacement",
+        sharePolicy: "required_user_replacement"
       };
     }
     if (imgRefs.characterReference) {
       referenceSlotMapping["character_reference"] = {
         required: true,
-        policy: "required_user_replacement"
+        policy: "required_user_replacement",
+        sharePolicy: "required_user_replacement"
       };
     }
     if (imgRefs.styleMatch) {
       referenceSlotMapping["style_reference"] = {
         required: false,
-        policy: "shared_as_reusable_reference"
+        policy: "shared_as_reusable_reference",
+        sharePolicy: "shared_as_reusable_reference"
       };
     }
     if (imgRefs.outfitReference) {
       referenceSlotMapping["outfit_front_reference"] = {
         required: false,
-        policy: "optional_user_replacement"
+        policy: "optional_user_replacement",
+        sharePolicy: "shared_preview_only"
       };
       referenceSlotMapping["outfit_back_reference"] = {
         required: false,
-        policy: "optional_user_replacement"
+        policy: "optional_user_replacement",
+        sharePolicy: "shared_preview_only"
       };
     }
 
