@@ -4,47 +4,17 @@ import { fileURLToPath } from 'url';
 import { resolveDataFile } from './config/paths.js';
 import { historyRepository } from './historyRepository.js';
 import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
+import { readJsonFile, mutateJsonFile } from './repositories/json/jsonFileStore.js';
 
 const POSTS_FILE = resolveDataFile('communityPosts');
 const REMIX_FILE = resolveDataFile('remixEvents');
-
-// Safe atomic file-writer with rename
-async function safeWriteJson(filePath, data) {
-  const tempPath = `${filePath}.${Date.now()}.${Math.random().toString(36).substring(2, 7)}.tmp`;
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf8');
-
-  let retries = 5;
-  while (retries > 0) {
-    try {
-      await fs.rename(tempPath, filePath);
-      return;
-    } catch (err) {
-      if ((err.code === 'EPERM' || err.code === 'EBUSY') && retries > 1) {
-        retries--;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } else {
-        throw err;
-      }
-    }
-  }
-}
 
 // In-memory drafts registry
 const shareDrafts = new Map();
 
 export class CommunityPostLocalRepository {
   async readAll() {
-    try {
-      const raw = await fs.readFile(POSTS_FILE, 'utf8');
-      return JSON.parse(raw) || [];
-    } catch {
-      return [];
-    }
-  }
-
-  async saveAll(posts) {
-    await safeWriteJson(POSTS_FILE, posts);
+    return readJsonFile(POSTS_FILE, []);
   }
 
   async getById(postId) {
@@ -52,35 +22,27 @@ export class CommunityPostLocalRepository {
   }
 
   async createPost(post) {
-    const posts = await this.readAll();
-    posts.unshift(post);
-    await this.saveAll(posts);
-    return post;
+    return mutateJsonFile(POSTS_FILE, [], async (posts) => {
+      posts.unshift(post);
+      return post;
+    });
   }
 }
 
 export class CommunityRemixLocalRepository {
   async readAll() {
-    try {
-      const raw = await fs.readFile(REMIX_FILE, 'utf8');
-      return JSON.parse(raw) || [];
-    } catch {
-      return [];
-    }
-  }
-
-  async saveAll(events) {
-    await safeWriteJson(REMIX_FILE, events);
+    return readJsonFile(REMIX_FILE, []);
   }
 
   async recordRemix(event) {
-    const events = await this.readAll();
-    events.push({
-      ...event,
-      timestamp: Date.now()
+    return mutateJsonFile(REMIX_FILE, [], async (events) => {
+      const entry = {
+        ...event,
+        timestamp: Date.now()
+      };
+      events.push(entry);
+      return entry;
     });
-    await this.saveAll(events);
-    return event;
   }
 }
 

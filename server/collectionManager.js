@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { resolveDataFile } from './config/paths.js';
+import { readJsonFile, mutateJsonFile } from './repositories/json/jsonFileStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,25 +23,14 @@ export class CollectionManager {
   } = {}) {
     this.collectionsFile = collectionsFile;
     this.historyFile = historyFile;
-    this.mutationChain = Promise.resolve();
   }
 
   async init() {
-    try {
-      await fs.access(this.collectionsFile);
-    } catch {
-      await this.writeData({
-        version: 1,
-        defaultCollectionId: null,
-        collections: []
-      });
-    }
+    // No-op for compatibility: path resolver and shared store handle init on-demand
   }
 
   async readData() {
-    await this.init();
-    const raw = await fs.readFile(this.collectionsFile, 'utf8');
-    const data = JSON.parse(raw);
+    const data = await readJsonFile(this.collectionsFile, { version: 1, defaultCollectionId: null, collections: [] });
     return {
       version: Number(data.version) || 1,
       defaultCollectionId: data.defaultCollectionId || null,
@@ -48,36 +38,16 @@ export class CollectionManager {
     };
   }
 
-  async writeData(data) {
-    const directory = path.dirname(this.collectionsFile);
-    await fs.mkdir(directory, { recursive: true });
-    const temporaryFile = path.join(
-      directory,
-      `.${path.basename(this.collectionsFile)}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`
-    );
-    await fs.writeFile(temporaryFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-    await fs.rename(temporaryFile, this.collectionsFile);
-  }
-
   mutate(operation) {
-    const mutation = this.mutationChain.then(async () => {
-      const data = await this.readData();
-      const result = await operation(data);
-      await this.writeData(data);
-      return result;
+    return mutateJsonFile(this.collectionsFile, { version: 1, defaultCollectionId: null, collections: [] }, async (data) => {
+      if (!data.version) data.version = 1;
+      if (!Array.isArray(data.collections)) data.collections = [];
+      return operation(data);
     });
-    this.mutationChain = mutation.catch(() => {});
-    return mutation;
   }
 
   async readHistory() {
-    try {
-      const raw = await fs.readFile(this.historyFile, 'utf8');
-      const history = JSON.parse(raw);
-      return Array.isArray(history) ? history : [];
-    } catch {
-      return [];
-    }
+    return readJsonFile(this.historyFile, []);
   }
 
   normalizeText(value, field, maxLength, { required = false } = {}) {

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import { resolveDataFile } from '../config/paths.js';
+import { readJsonFile, mutateJsonFile } from '../repositories/json/jsonFileStore.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,49 +26,23 @@ export class ComparisonRepository {
     this.comparisonsFile = comparisonsFile;
     this.historyFile = historyFile;
     this.cursorSecret = cursorSecret;
-    this.mutationChain = Promise.resolve();
   }
 
   async init() {
-    try {
-      await fs.access(this.comparisonsFile);
-    } catch {
-      await this.writeData({ version: 1, sets: [] });
-    }
+    // No-op for compatibility: path resolver and shared store handle init on-demand
   }
 
   async readData() {
-    await this.init();
-    const raw = await fs.readFile(this.comparisonsFile, 'utf8');
-    const data = JSON.parse(raw);
+    const data = await readJsonFile(this.comparisonsFile, { version: 1, sets: [] });
     return { version: Number(data.version) || 1, sets: Array.isArray(data.sets) ? data.sets : [] };
   }
 
-  async writeData(data) {
-    const directory = path.dirname(this.comparisonsFile);
-    await fs.mkdir(directory, { recursive: true });
-    const temporaryFile = path.join(
-      directory,
-      `.${path.basename(this.comparisonsFile)}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`
-    );
-    await fs.writeFile(temporaryFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-    try {
-      await renameWithRetry(temporaryFile, this.comparisonsFile);
-    } catch (error) {
-      await fs.unlink(temporaryFile).catch(() => {});
-      throw error;
-    }
-  }
-
   mutate(operation) {
-    const mutation = this.mutationChain.then(async () => {
-      const data = await this.readData();
-      const result = await operation(data);
-      await this.writeData(data);
-      return result;
+    return mutateJsonFile(this.comparisonsFile, { version: 1, sets: [] }, async (data) => {
+      if (!data.version) data.version = 1;
+      if (!Array.isArray(data.sets)) data.sets = [];
+      return operation(data);
     });
-    this.mutationChain = mutation.catch(() => {});
-    return mutation;
   }
 
   getSetOrThrow(data, setId) {
@@ -287,22 +262,7 @@ export class ComparisonRepository {
   }
 }
 
-async function renameWithRetry(source, destination, attempts = 8) {
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    try {
-      await fs.rename(source, destination);
-      return;
-    } catch (error) {
-      const canRetry = ['EBUSY', 'EPERM'].includes(error.code);
-      if (!canRetry || attempt === attempts - 1) throw error;
-      await delay(35 * (attempt + 1));
-    }
-  }
-}
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 function compareSets(a, b) {
   const updatedDifference = Number(b.updatedAt || 0) - Number(a.updatedAt || 0);
