@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createSceneTemplateSnapshot as createServerSnapshot, sanitizeSceneTemplateSnapshot } from '../server/sceneTemplates/sceneTemplateSnapshot.js';
-import { validateSceneTemplateSnapshot } from '../server/sceneTemplates/SceneTemplateValidator.js';
+import { createSceneTemplateSnapshot as createServerSnapshot, sanitizeSceneTemplateSnapshot } from '../server/domain/scene-templates/sceneTemplateSnapshot.js';
+import { validateSceneTemplateSnapshot } from '../server/domain/scene-templates/SceneTemplateValidator.js';
 
 // Setup browser window mock environment for client serializer
 global.window = { state: {} };

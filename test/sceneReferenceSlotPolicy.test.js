@@ -3,10 +3,10 @@ import test from 'node:test';
 import {
   isReferenceReusableByViewer,
   validateReferenceSlotPolicies
-} from '../server/sceneTemplates/sceneReferenceSlotPolicy.js';
+} from '../server/domain/scene-templates/sceneReferenceSlotPolicy.js';
 import {
   sanitizeReferenceSlotsForPublic
-} from '../server/sceneTemplates/sceneTemplateSanitizer.js';
+} from '../server/domain/scene-templates/sceneTemplateSanitizer.js';
 import { createMockPrivateReferenceSlots } from './sceneQaFixtures.js';
 
 test('isReferenceReusableByViewer permits owner or reusable policy only', () => {

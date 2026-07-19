@@ -10,8 +10,8 @@ import { getProviderRegistry } from './providers/ProviderRegistry.js';
 import { queueManager } from './queueManager.js';
 import { creditManager } from './creditManager.js';
 import { compileGenerationContext, createQueueOptions } from './generationRequestService.js';
-import { ComparisonOrchestrator } from './comparison/ComparisonOrchestrator.js';
-import { ComparisonError } from './comparison/ComparisonRepository.js';
+import { ComparisonOrchestrator } from './domain/comparisons/ComparisonOrchestrator.js';
+import { ComparisonError } from './repositories/comparisons/ComparisonRepository.js';
 import { historyRepository, HistoryCursorError } from './historyRepository.js';
 import {
   createSceneShareDraft,
@@ -19,7 +19,7 @@ import {
   communityPostRepo,
   communityRemixRepo
 } from './communityServices.js';
-import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
+import { sanitizeReferenceSlotsForPublic } from './domain/scene-templates/sceneTemplateSanitizer.js';
 import { actorContextMiddleware } from './middleware/actorContextMiddleware.js';
 import { mockUserRepo } from './identity/MockUserRepository.js';
 

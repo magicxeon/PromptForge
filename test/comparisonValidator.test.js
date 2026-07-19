@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ComparisonValidator, aggregateRunStatus } from '../server/comparison/ComparisonValidator.js';
+import { ComparisonValidator, aggregateRunStatus } from '../server/domain/comparisons/ComparisonValidator.js';
 import { ProviderRegistry } from '../server/providers/ProviderRegistry.js';
 
 function createRegistry() {
