@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import fs from 'node:fs';
+import path from 'node:path';
+import { createMockGuidedSceneState, createMockManualSceneState } from './sceneQaFixtures.js';
+
+// Load legacy data structures from JSON fixtures (Scene-010 Integration Gates)
+const legacyItem = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'test/fixtures/scene-history-legacy-normal.json'), 'utf8'));
+const guidedItem = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'test/fixtures/scene-history-guided-template.json'), 'utf8'));
+const manualItem = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'test/fixtures/scene-history-manual-template.json'), 'utf8'));
 
 // Replicate or mock state context for pure tests
 const mockState = { language: 'en' };
@@ -108,13 +116,9 @@ test('state patch helper assigns new values correctly', () => {
 });
 
 test('generatePromptText mock prevents manual prompt leaks to other modes', () => {
-  const mockStateObj = {
-    mode: 'headshot', // not normal/scene-builder
-    sceneBuilder: {
-      authoringMode: 'manual',
-      manualPromptText: 'Freestyle prompt that should NOT leak'
-    }
-  };
+  const mockStateObj = createMockManualSceneState();
+  mockStateObj.mode = 'headshot'; // override mode to non-normal
+  mockStateObj.sceneBuilder.manualPromptText = 'Freestyle prompt that should NOT leak';
 
   // Mimic compiler behavior
   function generatePromptTextMock(stateObj) {
@@ -175,5 +179,26 @@ test('scene generation uses manual prompt only for normal manual mode', () => {
     mode: 'normal',
     sceneBuilder: { authoringMode: 'guided', manualPromptText: 'manual scene prompt' }
   }), 'Structured server prompt');
+});
+
+test('normalizeLegacySceneMode migrates real JSON legacy, guided, and manual fixture files', () => {
+  // 1. Legacy item (normal mode without sceneBuilder)
+  const normLegacy = normalizeLegacySceneMode(legacyItem);
+  assert.equal(normLegacy.mode, 'normal');
+  assert.ok(normLegacy.sceneBuilder);
+  assert.equal(normLegacy.sceneBuilder.authoringMode, 'guided');
+
+  // 2. Guided item (already contains sceneTemplateSnapshot)
+  const normGuided = normalizeLegacySceneMode(guidedItem);
+  assert.equal(normGuided.mode, 'normal');
+  assert.ok(normGuided.sceneTemplateSnapshot);
+  assert.equal(normGuided.sceneTemplateSnapshot.authoringMode, 'guided');
+
+  // 3. Manual item (already contains sceneTemplateSnapshot in manual mode)
+  const normManual = normalizeLegacySceneMode(manualItem);
+  assert.equal(normManual.mode, 'normal');
+  assert.ok(normManual.sceneTemplateSnapshot);
+  assert.equal(normManual.sceneTemplateSnapshot.authoringMode, 'manual');
+  assert.equal(normManual.sceneTemplateSnapshot.finalPromptSnapshot, 'A manual template freestyle output scene');
 });
 

@@ -7,6 +7,7 @@ import {
 import {
   sanitizeReferenceSlotsForPublic
 } from '../server/sceneTemplates/sceneTemplateSanitizer.js';
+import { createMockPrivateReferenceSlots } from './sceneQaFixtures.js';
 
 test('isReferenceReusableByViewer permits owner or reusable policy only', () => {
   const slot = { sharePolicy: 'shared_as_reusable_reference' };
@@ -107,13 +108,14 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values and mappin
 });
 
 test('sanitizeReferenceSlotsForPublic preserves snapshot entirely for the owner', () => {
+  // Use shared fixture to build private slot mapping
+  const privateSlots = createMockPrivateReferenceSlots();
   const snapshot = {
     replaceableVariables: [
-      { id: 'face_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_1', imageUrl: '/outputs/1.png' } }
+      { id: 'face_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_1', imageUrl: '/outputs/1.png' } },
+      { id: 'character_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_2', imageUrl: '/outputs/2.png' } }
     ],
-    referenceSlotMapping: {
-      face_ref: { required: true, sharePolicy: 'required_user_replacement' }
-    }
+    referenceSlotMapping: privateSlots
   };
 
   const ownerContext = { username: 'user_alice' };
@@ -122,4 +124,32 @@ test('sanitizeReferenceSlotsForPublic preserves snapshot entirely for the owner'
   const faceVar = sanitized.replaceableVariables.find(v => v.id === 'face_ref');
   assert.ok(faceVar.defaultValue);
   assert.equal(faceVar.defaultValue.jobId, 'job_1');
+
+  const charVar = sanitized.replaceableVariables.find(v => v.id === 'character_ref');
+  assert.ok(charVar.defaultValue);
+  assert.equal(charVar.defaultValue.jobId, 'job_2');
 });
+
+// ---
+// DEFERRED: Provider / Model Unavailable Fallback (Scene-010 § 218)
+// ---
+// Requirement: When the model/provider in a sceneTemplateSnapshot is no longer
+// available in the provider catalog, the server should produce a warning or
+// fallback state instead of crashing.
+//
+// Coverage status: ** Manual QA only for MVP **
+//
+// Reason: Testing this case deterministically would require either:
+//   a) Injecting a live provider catalog into a unit-test environment, or
+//   b) Mocking the full ProviderFactory + catalog in the test runner.
+// Neither is stable enough for automated CI at this stage.
+//
+// When to automate:
+//   - After ProviderFactory exposes a testable catalog interface.
+//   - Or after a stable provider fixture file exists (test/fixtures/provider-catalog.json).
+//
+// Manual QA steps:
+//   1. Edit a generated image's sceneTemplateSnapshot.providerModelSnapshot.providerId
+//      to a non-existent value (e.g. "provider_deleted").
+//   2. Click "Use Template" and attempt to Generate.
+//   3. Confirm the server returns a descriptive error, not a crash.
