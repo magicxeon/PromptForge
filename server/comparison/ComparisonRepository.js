@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import { resolveDataFile } from '../config/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,8 +18,8 @@ export class ComparisonError extends Error {
 
 export class ComparisonRepository {
   constructor({
-    comparisonsFile = path.join(__dirname, '../comparisons.json'),
-    historyFile = path.join(__dirname, '../history.json'),
+    comparisonsFile = resolveDataFile('comparisons'),
+    historyFile = resolveDataFile('history'),
     cursorSecret = process.env.COMPARISON_CURSOR_SECRET || 'local-comparison-cursor'
   } = {}) {
     this.comparisonsFile = comparisonsFile;

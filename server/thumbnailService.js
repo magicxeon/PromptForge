@@ -1,14 +1,15 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { OUTPUTS_DIR } from './config/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export class ThumbnailService {
   constructor({
-    outputsDir = path.join(__dirname, '../client/outputs'),
-    thumbnailDir = path.join(__dirname, '../client/outputs/thumbnails'),
+    outputsDir = OUTPUTS_DIR,
+    thumbnailDir = path.join(OUTPUTS_DIR, 'thumbnails'),
     maxDimension = 640,
     quality = 78
   } = {}) {

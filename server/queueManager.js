@@ -8,11 +8,9 @@ import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditManager } from './creditManager.js';
 import { thumbnailService } from './thumbnailService.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { OUTPUTS_DIR, resolveDataFile } from './config/paths.js';
 
-const OUTPUTS_DIR = path.join(__dirname, '../client/outputs');
-const HISTORY_FILE = path.join(__dirname, 'history.json');
+const HISTORY_FILE = resolveDataFile('history');
 
 // Ensure directories exist
 async function ensureDir(dir) {

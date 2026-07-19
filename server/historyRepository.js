@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolveDataFile } from './config/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +18,7 @@ export class HistoryCursorError extends Error {
 
 export class HistoryRepository {
   constructor({
-    historyFile = path.join(__dirname, 'history.json'),
+    historyFile = resolveDataFile('history'),
     cursorSecret = process.env.HISTORY_CURSOR_SECRET || 'local-history-cursor'
   } = {}) {
     this.historyFile = historyFile;

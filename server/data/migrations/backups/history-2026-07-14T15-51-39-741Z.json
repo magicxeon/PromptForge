@@ -1,0 +1,729 @@
+[
+  {
+    "id": "job_1784018588965_nnx9bcch3",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588965_nnx9bcch3.png",
+    "timestamp": 1784018614262,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 273,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 273
+      },
+      "output_tokens": 1936,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 352
+      },
+      "total_tokens": 2209
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "25.2",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016595519_qxkb"
+  },
+  {
+    "id": "job_1784018588966_3imm3v9z7",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588966_3imm3v9z7.jpg",
+    "timestamp": 1784018608925,
+    "provider": "xai",
+    "submodel": "grok-imagine-image",
+    "resolvedSubmodel": "grok-imagine-image-quality",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "cost_in_usd_ticks": 500000000
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "7.2",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016719250_us6x"
+  },
+  {
+    "id": "job_1784018588964_qzx1wt6n5",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784018588964_qzx1wt6n5.jpg",
+    "timestamp": 1784018601717,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "12.7",
+    "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+    "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+    "comparisonSlotId": "slot_1784016593146_fplb"
+  },
+  {
+    "id": "job_1784012629295_xmbv3qasf",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, soft rounded tip, natural lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012629295_xmbv3qasf.png",
+    "timestamp": 1784012656619,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 278,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 278
+      },
+      "output_tokens": 1953,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 369
+      },
+      "total_tokens": 2231
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "27.3"
+  },
+  {
+    "id": "job_1784012593956_0r5v3vvnt",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, soft rounded tip, natural lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012593956_0r5v3vvnt.jpg",
+    "timestamp": 1784012607013,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "generationDuration": "13.0"
+  },
+  {
+    "id": "job_1784012382527_kbrtl4i0o",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784012382527_kbrtl4i0o.jpg",
+    "timestamp": 1784012399054,
+    "provider": "xai",
+    "submodel": "grok-imagine-image",
+    "resolvedSubmodel": "grok-imagine-image-quality",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "cost_in_usd_ticks": 600000000
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "16.5"
+  },
+  {
+    "id": "job_1783960976853_jdqjqvrmn",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960976853_jdqjqvrmn.png",
+    "timestamp": 1783961033858,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "57.0"
+  },
+  {
+    "id": "job_1783960856901_stuksfpgk",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960856901_stuksfpgk.png",
+    "timestamp": 1783960914889,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "58.0"
+  },
+  {
+    "id": "job_1783960799080_b77ssewa5",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, natural fashion pose demonstrating fabric drape and movement without distorting the garment, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, hard directional editorial fashion lighting with deliberate graphic shadows, balanced lighting contrast, minimal unobtrusive shadows, restrained practical-light accents in the scene, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960799080_b77ssewa5.png",
+    "timestamp": 1783960818208,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "19.1"
+  },
+  {
+    "id": "job_1783960701221_ozib2xaf2",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled back-view fashion pose showing rear garment construction, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960701221_ozib2xaf2.png",
+    "timestamp": 1783960718813,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.6"
+  },
+  {
+    "id": "job_1783960597057_0i9ak47g0",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled back-view fashion pose showing rear garment construction, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a minimal clean product photography corner, minimal uncluttered set design that keeps attention on the garment, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783960597057_0i9ak47g0.png",
+    "timestamp": 1783960613181,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "16.1"
+  },
+  {
+    "id": "job_1783959909967_3w2rm5zv5",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, demonstrating one important garment detail naturally while keeping the overall product visible, in a clean seamless commerce studio with an unobtrusive neutral background, minimal uncluttered set design that keeps attention on the garment, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern high-resolution mirrorless camera, sharp focus, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783959909967_3w2rm5zv5.png",
+    "timestamp": 1783959928021,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "18.0"
+  },
+  {
+    "id": "job_1783959456658_3yacydt4q",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, arriving with confident presence as the central character of a luxury fashion campaign, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, in a clean seamless commerce studio with an unobtrusive neutral background, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at clean ISO 100, zero digital noise, maximum color fidelity and clean shadow details, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783959456658_3yacydt4q.png",
+    "timestamp": 1783959473626,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.0"
+  },
+  {
+    "id": "job_1783958954159_8h71lt84z",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, arriving with confident presence as the central character of a luxury fashion campaign, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, in a clean seamless commerce studio with an unobtrusive neutral background, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at clean ISO 100, zero digital noise, maximum color fidelity and clean shadow details, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783958954159_8h71lt84z.png",
+    "timestamp": 1783959030745,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx",
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "76.6"
+  },
+  {
+    "id": "job_1783953313793_ijj4zmz2g",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, standing in a classical contrapposto posture, shifting weight to one hip for a natural fluid body line, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, soft professional studio key light positioned at a 45-degree angle, gently defining facial contours with smooth transitions, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783953313793_ijj4zmz2g.png",
+    "timestamp": 1783953332682,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "18.9"
+  },
+  {
+    "id": "job_1783953126829_500vvvoar",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783953126829_500vvvoar.png",
+    "timestamp": 1783953186722,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "59.9"
+  },
+  {
+    "id": "job_1783952720991_y1m3chkxl",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, candid lifestyle photograph, capturing a natural and spontaneous moment with realistic expressions, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952720991_y1m3chkxl.png",
+    "timestamp": 1783952738323,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.3"
+  },
+  {
+    "id": "job_1783952255988_630p2j76u",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952255988_630p2j76u.png",
+    "timestamp": 1783952321944,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "65.9"
+  },
+  {
+    "id": "job_1783952067082_zcmayskxc",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, traditional Thai architecture with ornate teak wooden structures and soft warm lighting, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783952067082_zcmayskxc.png",
+    "timestamp": 1783952084797,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "17.7"
+  },
+  {
+    "id": "job_1783951280717_ao9rytlxt",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, matching the style, colors, and clothing outfit from the original uploaded image, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, rustic old stone wall thickly covered in lush green vines and ivy, dappled sunlight filtering through, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783951280717_ao9rytlxt.png",
+    "timestamp": 1783951343276,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "62.5"
+  },
+  {
+    "id": "job_1783951153800_zm84dszor",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, jet black hair, matching the style, colors, and clothing outfit from the original uploaded image, Preserve the character design, body proportions, hairstyle, and clothing details from the uploaded character sheet while adapting the pose and scene, unposed snapshot, imperfect natural posture, authentic facial expression, real life captured instantly, strolling relaxed and taking in the ambient atmosphere of the scene, natural candid movement, inside a lush botanical garden greenhouse with sunbeams passing through glass panels and tropical green plants, rustic old stone wall thickly covered in lush green vines and ivy, dappled sunlight filtering through, holding a classic vintage film camera up to eye level with a candid shooting gesture, dappled sunlight filtering through tree leaves, creating intricate soft shadows and highlights on the subject, cowboy shot framing from slightly above the knees upward, showing pose and hand placement, shot on a vintage Nikon D200 DSLR with a CCD sensor, rich and organic color rendering, smooth highlight roll-off, nostalgic mid-2000s digital look, minor noise in shadows, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, shot at ISO 800, subtle organic film grain, clean skin tones with natural analog warmth, the subject remains perfectly sharp while pedestrians, vehicles, and the distant background exhibit subtle natural motion blur, creating an authentic candid street photography look, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783951153800_zm84dszor.png",
+    "timestamp": 1783951186975,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "referencedCharacterJobIds": [
+      "job_1783937710329_wef6teqsx"
+    ],
+    "generationDuration": "33.2"
+  },
+  {
+    "id": "job_1783937710329_wef6teqsx",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female woman, thai person, tall and elegant stature, model-like height, curvy figure with defined lines and proportions, athletic build, slightly toned muscles, delicate hands with long elegant fingers, perfectly manicured, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., เสื้อสไตร์วัยร่นเอเชีย มีลายและแบรน ดูกระชับทะมัดทะแมง, กางเกงยีนรัดรูป, comfortable athletic running sneakers with thick soft soles, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783937710329_wef6teqsx.png",
+    "timestamp": 1783937774715,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783937205872_e29xk7xi2"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "64.4"
+  },
+  {
+    "id": "job_1783937205872_e29xk7xi2",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, striking expressive eyes with deep emotional clarity, capturing focus naturally, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, healthy skin complexion, natural facial blood flow color, organic skin details, aura glowing white skin, brilliant radiant fair complexion that reflects ambient light sources with high luminous intensity, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783937205872_e29xk7xi2.png",
+    "timestamp": 1783937230592,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.7"
+  },
+  {
+    "id": "job_1783935573216_cl42vpru8",
+    "prompt": "headshot portrait, female woman, mature adult in mid-fifties, 55 years old, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, ivory white skin, smooth fair ivory complexion, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783935573216_cl42vpru8.png",
+    "timestamp": 1783935597198,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.0"
+  },
+  {
+    "id": "job_1783934997247_a8lnbz7iw",
+    "prompt": "headshot portrait, female woman, mature adult in mid-fifties, 55 years old, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, double eyelids, natural thick brows, soft rounded tip, thin lips, soft smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, wavy hair, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, ivory white skin, smooth fair ivory complexion, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783934997247_a8lnbz7iw.png",
+    "timestamp": 1783935011950,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "14.7"
+  },
+  {
+    "id": "job_1783870598727_ui633u481",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short hair, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, relaxed loose-fit breathable linen shirt with rolled-up sleeves, comfy high-waisted frayed denim shorts, leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders, gently holding the frame of her designer sunglasses with slender fingers, elegant style, candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment, at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background, soft diffused fill light to gently soften shadows without losing facial definition, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783870598727_ui633u481.png",
+    "timestamp": 1783870685549,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783864845137_hwbgdq8jl"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "86.8"
+  },
+  {
+    "id": "job_1783870510972_6y99q7kgr",
+    "prompt": "female woman, teenager in late teens around 18 years old, thai person, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short hair, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, relaxed loose-fit breathable linen shirt with rolled-up sleeves, comfy high-waisted frayed denim shorts, leaning casually against a modern textured wall, one knee slightly bent, relaxed shoulders, gently holding the frame of her designer sunglasses with slender fingers, elegant style, candid gaze looking slightly off-camera, as if lost in thought or captured in a natural moment, at a vibrant Seoul night market street with glowing food stalls, colourful lanterns and shallow depth of field crowd in background, soft diffused fill light to gently soften shadows without losing facial definition, shot on a Sony A7R V full-frame mirrorless camera, 61-megapixel resolution, incredible skin texture detail, razor-sharp focus on the eyes, professional modern rendering (Image aspect ratio 9:16)",
+    "imageUrl": "/outputs/job_1783870510972_6y99q7kgr.png",
+    "timestamp": 1783870530293,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      "job_1783864845137_hwbgdq8jl"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "19.3"
+  },
+  {
+    "id": "job_1783864845137_hwbgdq8jl",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783864845137_hwbgdq8jl.png",
+    "timestamp": 1783864881202,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "36.1"
+  },
+  {
+    "id": "job_1783861772868_5d21lrtew",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783861772868_5d21lrtew.png",
+    "timestamp": 1783861788159,
+    "provider": "gemini",
+    "submodel": "gemini-2.5-flash-image",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.3"
+  },
+  {
+    "id": "job_1783860975681_xhajeq0i4",
+    "prompt": "thai person, female woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., plain casual organic cotton crewneck t-shirt in soft neutral tones colored in #f599ed, classic tailored pleated office trousers colored in #fa0000, in a cozy modern cafe with warm wooden decors and soft background chatter, soft diffused fill light to gently soften shadows without losing facial definition, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 16:9)",
+    "imageUrl": "/outputs/job_1783860975681_xhajeq0i4.png",
+    "timestamp": 1783860990830,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      "job_1783860717836_95bml9qg8"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.1"
+  },
+  {
+    "id": "job_1783860717836_95bml9qg8",
+    "prompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, balanced facial proportions, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, long hair, high ponytail, hair, colored in #c83c8e, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860717836_95bml9qg8.png",
+    "timestamp": 1783860734007,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "16.2"
+  },
+  {
+    "id": "job_1783860597662_gei6lrddd",
+    "prompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, soft innocent face, youthful glowing appearance, gentle friendly expression, round face, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, hair, colored in #030303, accented with custom highlights in #fe71e4, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860597662_gei6lrddd.png",
+    "timestamp": 1783860610103,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "12.4"
+  },
+  {
+    "id": "job_1783860574102_ivoyi6lw7",
+    "prompt": "headshot portrait, male man, young adult in early twenties, 21 years old, vietnamese person, soft innocent face, youthful glowing appearance, gentle friendly expression, round face, double eyelids, natural thick brows, soft rounded tip, thin lips, gentle smile, reflective neutral expression, soft focus gaze, serious but gentle facial features, authentic everyday mood, short hair, hair, colored in #030303, accented with custom highlights in #fe71e4, highly realistic natural skin texture, visible fine skin pores, natural skin sheen, realistic skin wrinkles and lines, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783860574102_ivoyi6lw7.png",
+    "timestamp": 1783860585865,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "11.8"
+  },
+  {
+    "id": "job_1783836058642_wlb8342d2",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, defined jaw, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, long loose waves, beach waves hair, flowing naturally, long hair, hair, colored in #0e0102, accented with custom highlights in #a28f16, milky white skin, smooth porcelain skin with soft cream undertones, healthy skin complexion, natural facial blood flow color, organic skin details, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783836058642_wlb8342d2.png",
+    "timestamp": 1783836086920,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783834479379_9qd5mry7r"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "28.3"
+  },
+  {
+    "id": "job_1783836049841_slqm9v9ka",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, completely natural face with zero or minimal makeup, honest expression, soft skin textures, defined jaw, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, long loose waves, beach waves hair, flowing naturally, long hair, hair, colored in #0e0102, accented with custom highlights in #a28f16, milky white skin, smooth porcelain skin with soft cream undertones, healthy skin complexion, natural facial blood flow color, organic skin details, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783836049841_slqm9v9ka.png",
+    "timestamp": 1783836067235,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783834479379_9qd5mry7r"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "17.4"
+  },
+  {
+    "id": "job_1783835805770_6yffx00fc",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, corset top, tight leggings, hand touching cheek, standing in a contrapposto posture, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783835805770_6yffx00fc.png",
+    "timestamp": 1783835821622,
+    "provider": "gemini",
+    "submodel": "gemini-3-pro-image",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783834479379_9qd5mry7r"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.8"
+  },
+  {
+    "id": "job_1783835790942_napg874kn",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, corset top, tight leggings, hand touching cheek, standing in a contrapposto posture, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783835790942_napg874kn.png",
+    "timestamp": 1783835818595,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783834479379_9qd5mry7r"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "27.6"
+  },
+  {
+    "id": "job_1783835538188_v4yzzqtfi",
+    "prompt": "studio portrait of female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, เสื้อทำงานสไตร์วัยรุ่น แต่ดูเรียบร้อย colored in #21163c, classic tailored pleated office trousers colored in #ffffff, touching collarbone, กำลัง ชงเครื่องเดื่มอยู่หน้า counter ชงกาแฟ ใน office, in a photography studio setting, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783835538188_v4yzzqtfi.png",
+    "timestamp": 1783835595193,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "referencedFaceJobIds": [
+      "job_1783834418376_h5dvc3v5q"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "57.0"
+  },
+  {
+    "id": "job_1783835526999_69zfazvr0",
+    "prompt": "studio portrait of female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, เสื้อทำงานสไตร์วัยรุ่น แต่ดูเรียบร้อย colored in #21163c, classic tailored pleated office trousers colored in #ffffff, touching collarbone, กำลัง ชงเครื่องเดื่มอยู่หน้า counter ชงกาแฟ ใน office, in a photography studio setting, shot on a 2000s vintage compact digicam, CCD sensor colors, harsh direct flash, retro digital snapshot look, slight noise (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783835526999_69zfazvr0.png",
+    "timestamp": 1783835552152,
+    "provider": "gemini",
+    "submodel": "gemini-3-pro-image",
+    "referencedFaceJobIds": [
+      "job_1783834418376_h5dvc3v5q"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "25.1"
+  },
+  {
+    "id": "job_1783834479379_9qd5mry7r",
+    "prompt": "headshot portrait, female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, soft jawline, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, calm and confident expression, straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834479379_9qd5mry7r.png",
+    "timestamp": 1783834501121,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "21.7"
+  },
+  {
+    "id": "job_1783834418376_h5dvc3v5q",
+    "prompt": "headshot portrait, female, young adult, thai person, cute doll-like Asian face, extremely adorable and pretty, soft jawline, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, calm and confident expression, straight hair, short hair, hair, colored in #301c0d, accented with custom highlights in #741616, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834418376_h5dvc3v5q.png",
+    "timestamp": 1783834433950,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.6"
+  },
+  {
+    "id": "job_1783834037466_cts32n135",
+    "prompt": "headshot portrait, female, young adult, korean, beautiful young Asian woman, delicate doll-like face structure, highly symmetrical and refined, monolid eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, layered hush cut hairstyle, short hair, hair, colored in #090501, accented with custom highlights in #5e0d0d, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834037466_cts32n135.png",
+    "timestamp": 1783834061848,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "24.4"
+  },
+  {
+    "id": "job_1783834029445_ztxpbs0ef",
+    "prompt": "headshot portrait, female, young adult, korean, beautiful young Asian woman, delicate doll-like face structure, highly symmetrical and refined, monolid eyes, soft arched eyebrows, high nose bridge, plump lips, completely serene and calm expression, relaxed jaw, breathing softly, radiating deep peace, layered hush cut hairstyle, short hair, hair, colored in #090501, accented with custom highlights in #5e0d0d, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783834029445_ztxpbs0ef.png",
+    "timestamp": 1783834041939,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "12.5"
+  },
+  {
+    "id": "job_1783831362086_93nayu1n1",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, beautiful young Asian woman, balanced facial proportions, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, gentle spark of delight in expression, straight hair, short hair, soft glossy hair waves, displaying brilliant specular light reflections off healthy luminous waves, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783831362086_93nayu1n1.png",
+    "timestamp": 1783831388699,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "26.6"
+  },
+  {
+    "id": "job_1783831373185_e3l5d3ozc",
+    "prompt": "headshot portrait, female, young adult in early twenties, 21 years old, thai person, beautiful young Asian woman, balanced facial proportions, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, gentle spark of delight in expression, straight hair, short hair, soft glossy hair waves, displaying brilliant specular light reflections off healthy luminous waves, milky white skin, smooth porcelain skin with soft cream undertones, dewy complexion reflecting soft ambient lights, hydrated skin look, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783831373185_e3l5d3ozc.png",
+    "timestamp": 1783831388696,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "generationDuration": "15.4"
+  },
+  {
+    "id": "job_1783794785110_6bmhbm14l",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, hand near mouth, walking down stairs, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794785110_6bmhbm14l.png",
+    "timestamp": 1783794801994,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783794360711_2k9gsi48d"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "16.9"
+  },
+  {
+    "id": "job_1783794669467_rc5cd1pk6",
+    "prompt": "studio portrait of female, young adult, korean, beautiful young Asian woman, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, hand near mouth, walking down stairs, in a photography studio setting, soft highlights on the subject's skin and hair, with rich saturated ambient red environment, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794669467_rc5cd1pk6.png",
+    "timestamp": 1783794697201,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      null,
+      "job_1783794360711_2k9gsi48d"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "27.7"
+  },
+  {
+    "id": "job_1783794360711_2k9gsi48d",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, young adult, korean, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, subtle friendly smile, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, plain casual organic cotton crewneck t-shirt in soft neutral tones, loose relaxed fit breathable linen lounge pants, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1783794360711_2k9gsi48d.png",
+    "timestamp": 1783794421567,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "referencedFaceJobIds": [
+      "job_1783781951473_frhn6tnol"
+    ],
+    "referencedStyleJobIds": [],
+    "generationDuration": "60.8"
+  },
+  {
+    "id": "job_1783781951473_frhn6tnol",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783781951473_frhn6tnol.png",
+    "timestamp": 1783781970204,
+    "provider": "openai",
+    "submodel": "gpt-image-2"
+  },
+  {
+    "id": "job_1783781520261_aorulybi1",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783781520261_aorulybi1.png",
+    "timestamp": 1783781541225,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini"
+  },
+  {
+    "id": "job_1783780830452_dpp0dzjou",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783780830452_dpp0dzjou.png",
+    "timestamp": 1783780842738,
+    "provider": "gemini",
+    "submodel": "imagen-3.0-generate-002"
+  },
+  {
+    "id": "job_1783780788608_sy5eyw0pd",
+    "prompt": "headshot portrait, female, young adult, taiwanese person, beautiful young Asian woman, oval face, almond-shaped eyes, soft arched eyebrows, high nose bridge, plump lips, soft daydreaming look, layered hush cut hairstyle, dewy complexion reflecting soft ambient lights, hydrated skin look, milky white skin, smooth porcelain skin with soft cream undertones, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a modern high-resolution mirrorless camera, sharp focus (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1783780788608_sy5eyw0pd.png",
+    "timestamp": 1783780800460,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image"
+  }
+]

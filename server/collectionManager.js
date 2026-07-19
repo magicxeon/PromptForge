@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolveDataFile } from './config/paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,8 +17,8 @@ export class CollectionError extends Error {
 
 export class CollectionManager {
   constructor({
-    collectionsFile = path.join(__dirname, 'collections.json'),
-    historyFile = path.join(__dirname, 'history.json')
+    collectionsFile = resolveDataFile('collections'),
+    historyFile = resolveDataFile('history')
   } = {}) {
     this.collectionsFile = collectionsFile;
     this.historyFile = historyFile;

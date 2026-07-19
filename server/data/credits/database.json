@@ -1,0 +1,642 @@
+{
+  "users": {
+    "user_demo": {
+      "role": "user",
+      "credits": 78
+    },
+    "admin_demo": {
+      "role": "admin",
+      "credits": 9973
+    },
+    "user_alice": {
+      "role": "creator",
+      "credits": 1000
+    },
+    "user_bob": {
+      "role": "user",
+      "credits": 700
+    }
+  },
+  "creditLedger": [
+    {
+      "id": "credit_1784017303553_mc8ohf",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784017303550_urrb96i44",
+      "comparisonSetId": "cmp_set_1784017303546_hw51e6",
+      "comparisonRunId": "cmp_run_1784017303546_vz8hgn",
+      "createdAt": 1784017303553
+    },
+    {
+      "id": "credit_1784017303609_o7k4m1",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784017303552_qzdbqm4ks",
+      "comparisonSetId": "cmp_set_1784017303546_hw51e6",
+      "comparisonRunId": "cmp_run_1784017303546_vz8hgn",
+      "createdAt": 1784017303609
+    },
+    {
+      "id": "credit_1784017340499_p211hf",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784017340496_n4wb10qk5",
+      "comparisonSetId": "cmp_set_1784017340493_g46zqy",
+      "comparisonRunId": "cmp_run_1784017340493_01kavu",
+      "createdAt": 1784017340499
+    },
+    {
+      "id": "credit_1784017340546_b7pr32",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784017340498_5my6fmfbm",
+      "comparisonSetId": "cmp_set_1784017340493_g46zqy",
+      "comparisonRunId": "cmp_run_1784017340493_01kavu",
+      "createdAt": 1784017340546
+    },
+    {
+      "id": "credit_1784018036005_dxu96a",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018036003_jmlou5nyz",
+      "comparisonSetId": "cmp_set_1784018036000_dwwbmr",
+      "comparisonRunId": "cmp_run_1784018036000_7wwv4c",
+      "createdAt": 1784018036005
+    },
+    {
+      "id": "credit_1784018036053_21m4ey",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018036004_w6keyjkew",
+      "comparisonSetId": "cmp_set_1784018036000_dwwbmr",
+      "comparisonRunId": "cmp_run_1784018036000_7wwv4c",
+      "createdAt": 1784018036053
+    },
+    {
+      "id": "credit_1784018530413_huou1i",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018530410_iwn3ubrrz",
+      "comparisonSetId": "cmp_set_1784018530407_fv8i4x",
+      "comparisonRunId": "cmp_run_1784018530407_wbz7kw",
+      "createdAt": 1784018530413
+    },
+    {
+      "id": "credit_1784018530466_9xl853",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018530412_kb4s2x8hy",
+      "comparisonSetId": "cmp_set_1784018530407_fv8i4x",
+      "comparisonRunId": "cmp_run_1784018530407_wbz7kw",
+      "createdAt": 1784018530466
+    },
+    {
+      "id": "credit_1784018531007_zge763",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784018530410_iwn3ubrrz",
+      "comparisonSetId": "cmp_set_1784018530407_fv8i4x",
+      "comparisonRunId": "cmp_run_1784018530407_wbz7kw",
+      "createdAt": 1784018531007
+    },
+    {
+      "id": "credit_1784018531019_juca98",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784018530412_kb4s2x8hy",
+      "comparisonSetId": "cmp_set_1784018530407_fv8i4x",
+      "comparisonRunId": "cmp_run_1784018530407_wbz7kw",
+      "createdAt": 1784018531019
+    },
+    {
+      "id": "credit_1784018588966_uj341p",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018588964_qzx1wt6n5",
+      "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+      "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+      "createdAt": 1784018588967
+    },
+    {
+      "id": "credit_1784018589005_uv1ux9",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018588965_nnx9bcch3",
+      "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+      "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+      "createdAt": 1784018589005
+    },
+    {
+      "id": "credit_1784018601721_xum52f",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784018588966_3imm3v9z7",
+      "comparisonSetId": "cmp_set_1784018588952_ihyd5s",
+      "comparisonRunId": "cmp_run_1784018588952_n69nqo",
+      "createdAt": 1784018601721
+    },
+    {
+      "id": "credit_1784019117027_yk25ej",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784018036003_jmlou5nyz",
+      "comparisonSetId": "cmp_set_1784018036000_dwwbmr",
+      "comparisonRunId": "cmp_run_1784018036000_7wwv4c",
+      "createdAt": 1784019117027
+    },
+    {
+      "id": "credit_1784019117036_knzcdc",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784018036004_w6keyjkew",
+      "comparisonSetId": "cmp_set_1784018036000_dwwbmr",
+      "comparisonRunId": "cmp_run_1784018036000_7wwv4c",
+      "createdAt": 1784019117036
+    },
+    {
+      "id": "credit_1784019117892_lp9f2x",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784017340496_n4wb10qk5",
+      "comparisonSetId": "cmp_set_1784017340493_g46zqy",
+      "comparisonRunId": "cmp_run_1784017340493_01kavu",
+      "createdAt": 1784019117892
+    },
+    {
+      "id": "credit_1784019117905_2iccrr",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "lost_job_refund",
+      "jobId": "job_1784017340498_5my6fmfbm",
+      "comparisonSetId": "cmp_set_1784017340493_g46zqy",
+      "comparisonRunId": "cmp_run_1784017340493_01kavu",
+      "createdAt": 1784019117905
+    },
+    {
+      "id": "credit_1784129866143_86nede",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784129866140_r0bzbva6n",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784129866143
+    },
+    {
+      "id": "credit_1784130396405_tkhs3b",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784130396402_dar43ni91",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784130396405
+    },
+    {
+      "id": "credit_1784131729565_6giz4f",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784131729563_lt56mb19v",
+      "comparisonSetId": "cmp_set_1784131729560_epplah",
+      "comparisonRunId": "cmp_run_1784131729560_ki2shs",
+      "createdAt": 1784131729565
+    },
+    {
+      "id": "credit_1784131729615_hzme93",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784131729564_m6yvmxwas",
+      "comparisonSetId": "cmp_set_1784131729560_epplah",
+      "comparisonRunId": "cmp_run_1784131729560_ki2shs",
+      "createdAt": 1784131729615
+    },
+    {
+      "id": "credit_1784131739676_xnua6x",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784131729564_lgvrgu907",
+      "comparisonSetId": "cmp_set_1784131729560_epplah",
+      "comparisonRunId": "cmp_run_1784131729560_ki2shs",
+      "createdAt": 1784131739676
+    },
+    {
+      "id": "credit_1784132614213_vswvwl",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784132614210_666xszzyv",
+      "comparisonSetId": "cmp_set_1784132614207_zwyv0k",
+      "comparisonRunId": "cmp_run_1784132614207_ut0gzl",
+      "createdAt": 1784132614213
+    },
+    {
+      "id": "credit_1784132614264_k6pr8t",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784132614211_vm5fw7nno",
+      "comparisonSetId": "cmp_set_1784132614207_zwyv0k",
+      "comparisonRunId": "cmp_run_1784132614207_ut0gzl",
+      "createdAt": 1784132614264
+    },
+    {
+      "id": "credit_1784132623741_8isepw",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "generation_refund",
+      "jobId": "job_1784132614210_666xszzyv",
+      "comparisonSetId": "cmp_set_1784132614207_zwyv0k",
+      "comparisonRunId": "cmp_run_1784132614207_ut0gzl",
+      "createdAt": 1784132623741
+    },
+    {
+      "id": "credit_1784132623752_nmblki",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784132614212_r54viivkp",
+      "comparisonSetId": "cmp_set_1784132614207_zwyv0k",
+      "comparisonRunId": "cmp_run_1784132614207_ut0gzl",
+      "createdAt": 1784132623752
+    },
+    {
+      "id": "credit_1784132624654_zofws5",
+      "username": "user_demo",
+      "amount": 1,
+      "type": "generation_refund",
+      "jobId": "job_1784132614211_vm5fw7nno",
+      "comparisonSetId": "cmp_set_1784132614207_zwyv0k",
+      "comparisonRunId": "cmp_run_1784132614207_ut0gzl",
+      "createdAt": 1784132624654
+    },
+    {
+      "id": "credit_1784134151038_42mh8h",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134151037_dldirerf0",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784134151038
+    },
+    {
+      "id": "credit_1784134168460_pa4wte",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134168459_wsdotze3a",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784134168460
+    },
+    {
+      "id": "credit_1784134371395_hppye5",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134371393_diwcn2sl7",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784134371395
+    },
+    {
+      "id": "credit_1784134467399_rduckb",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134467398_80ps6zj9d",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784134467399
+    },
+    {
+      "id": "credit_1784134503600_ey7rg3",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134503598_awi4s047e",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784134503600
+    },
+    {
+      "id": "credit_1784134732540_s2d588",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134732539_6fwwyqmzx",
+      "comparisonSetId": "cmp_set_1784134732537_meaetl",
+      "comparisonRunId": "cmp_run_1784134732537_8d7tqx",
+      "createdAt": 1784134732540
+    },
+    {
+      "id": "credit_1784134732552_5xup5z",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134732539_nfe82h1h8",
+      "comparisonSetId": "cmp_set_1784134732537_meaetl",
+      "comparisonRunId": "cmp_run_1784134732537_8d7tqx",
+      "createdAt": 1784134732552
+    },
+    {
+      "id": "credit_1784134744726_lau7vh",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784134732540_va0vt3zpm",
+      "comparisonSetId": "cmp_set_1784134732537_meaetl",
+      "comparisonRunId": "cmp_run_1784134732537_8d7tqx",
+      "createdAt": 1784134744726
+    },
+    {
+      "id": "credit_1784247444042_orreki",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444042
+    },
+    {
+      "id": "credit_1784247444082_p1x8jp",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444082
+    },
+    {
+      "id": "credit_1784247444299_7es49q",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784247444299
+    },
+    {
+      "id": "credit_1784280806756_z8qth3",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784280806755_9f49ydhct",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784280806756
+    },
+    {
+      "id": "credit_1784280869532_vic1wj",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784280869530_lyljseucn",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784280869532
+    },
+    {
+      "id": "credit_1784372474241_we58yt",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372474239_fkfhai8s1",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372474241
+    },
+    {
+      "id": "credit_1784372738773_snde3m",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372738767_qwxjtamqh",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372738773
+    },
+    {
+      "id": "credit_1784372987884_sg6aer",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784372987883_s0iv4xrvq",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784372987884
+    },
+    {
+      "id": "credit_1784373090240_5hux9k",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784373090239_0znme26py",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784373090240
+    },
+    {
+      "id": "credit_1784373431293_qd84lj",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784373431292_7k77q2s27",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784373431293
+    },
+    {
+      "id": "credit_1784381682995_jolco3",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784381682993_ni6568fla",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784381682995
+    },
+    {
+      "id": "credit_1784382721950_c32ivl",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784382721948_qj0u1ppjy",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784382721950
+    },
+    {
+      "id": "credit_1784382840694_k8us0y",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784382840692_9z6z68klt",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784382840694
+    },
+    {
+      "id": "credit_1784383508345_qm4ufk",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784383508344_82plsk9t3",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784383508345
+    },
+    {
+      "id": "credit_1784392701074_onvmai",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784392701071_avgwr0yck",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784392701074
+    },
+    {
+      "id": "credit_1784393713119_c2ui21",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784393713116_u0c4jg8cc",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784393713119
+    },
+    {
+      "id": "credit_1784395766416_vnq5c2",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784395766413_in5xvqzqa",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784395766416
+    },
+    {
+      "id": "credit_1784395952461_wq9vvn",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784395952459_c6iqhg281",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784395952461
+    },
+    {
+      "id": "credit_1784396107584_ul3o65",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784396107581_824dekr6l",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784396107584
+    },
+    {
+      "id": "credit_1784435741066_3pf0mq",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784435741064_88ntzueh0",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784435741066
+    },
+    {
+      "id": "credit_1784443959199_u93haq",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784443959195_ybxc2hkzl",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784443959199
+    },
+    {
+      "id": "credit_1784444057130_y9c10s",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784444057129_bhj9emy4n",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784444057130
+    },
+    {
+      "id": "credit_1784477115151_rgyg37",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115151
+    },
+    {
+      "id": "credit_1784477115205_26cm0s",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115205
+    },
+    {
+      "id": "credit_1784477115407_jd2g3k",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115407
+    },
+    {
+      "id": "credit_1784477115922_ked1pz",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115922
+    },
+    {
+      "id": "credit_1784477116163_i3l28c",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477116163
+    }
+  ]
+}

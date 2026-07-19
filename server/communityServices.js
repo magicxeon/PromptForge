@@ -1,14 +1,12 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolveDataFile } from './config/paths.js';
 import { historyRepository } from './historyRepository.js';
 import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const POSTS_FILE = path.join(__dirname, 'communityPosts.json');
-const REMIX_FILE = path.join(__dirname, 'remixEvents.json');
+const POSTS_FILE = resolveDataFile('communityPosts');
+const REMIX_FILE = resolveDataFile('remixEvents');
 
 // Safe atomic file-writer with rename
 async function safeWriteJson(filePath, data) {

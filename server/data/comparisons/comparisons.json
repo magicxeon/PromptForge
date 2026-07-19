@@ -1,0 +1,978 @@
+{
+  "version": 1,
+  "sets": [
+    {
+      "id": "cmp_set_1784134732537_meaetl",
+      "username": "user_demo",
+      "name": "เปรียบเทียบโมเดล AI",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": "job_1784134732540_va0vt3zpm",
+      "createdAt": 1784134732537,
+      "updatedAt": 1784479773756,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784134732529_up8qnqlz",
+          "status": "completed",
+          "sourcePrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+          "configurationSnapshot": {
+            "selections": {
+              "Gender": {
+                "id": "character.001",
+                "value": "female woman",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character"
+                ],
+                "gptPositiveWords": []
+              },
+              "Age": {
+                "id": "character.004_e20",
+                "value": "young adult in early twenties, 21 years old",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character"
+                ],
+                "gptPositiveWords": []
+              },
+              "Ethnicity": {
+                "id": "character.011",
+                "value": "vietnamese person",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character",
+                  "vietnamese"
+                ],
+                "gptPositiveWords": []
+              },
+              "Beauty": {
+                "id": "character.beauty_elegant",
+                "value": "elegant facial features, sophisticated and graceful look, soft details",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character",
+                  "beauty"
+                ],
+                "gptPositiveWords": []
+              },
+              "Face Shape": {
+                "id": "face.006",
+                "value": "diamond face",
+                "isCustom": false,
+                "group": "Face",
+                "category": "face",
+                "tags": [
+                  "face"
+                ],
+                "gptPositiveWords": []
+              },
+              "Eyes": {
+                "id": "eyes.003",
+                "value": "double eyelids",
+                "isCustom": false,
+                "group": "Face",
+                "category": "eyes",
+                "tags": [
+                  "eyes"
+                ],
+                "gptPositiveWords": []
+              },
+              "Eyebrows": {
+                "id": "eyebrows.005",
+                "value": "defined eyebrows",
+                "isCustom": false,
+                "group": "Face",
+                "category": "eyebrows",
+                "tags": [
+                  "eyebrows"
+                ],
+                "gptPositiveWords": []
+              },
+              "Nose": {
+                "id": "nose.003",
+                "value": "delicate narrow nose",
+                "isCustom": false,
+                "group": "Face",
+                "category": "nose",
+                "tags": [
+                  "nose"
+                ],
+                "gptPositiveWords": []
+              },
+              "Lips": {
+                "id": "lips.001",
+                "value": "natural lips",
+                "isCustom": false,
+                "group": "Face",
+                "category": "lips",
+                "tags": [
+                  "lips"
+                ],
+                "gptPositiveWords": []
+              },
+              "Smile": {
+                "id": "lips.009",
+                "value": "neutral expression",
+                "isCustom": false,
+                "group": "Face",
+                "category": "lips",
+                "tags": [
+                  "lips"
+                ],
+                "gptPositiveWords": []
+              },
+              "Expression": {
+                "id": "expression.004",
+                "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+                "isCustom": false,
+                "group": "Face",
+                "category": "expression",
+                "tags": [
+                  "expression",
+                  "smile",
+                  "friendly"
+                ],
+                "gptPositiveWords": []
+              },
+              "Length": {
+                "id": "hair_003",
+                "value": "long hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "length"
+                ],
+                "gptPositiveWords": []
+              },
+              "Skin Texture": {
+                "id": "skin.text_03",
+                "value": "healthy skin complexion, natural facial blood flow color, organic skin details",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "texture",
+                  "healthy"
+                ],
+                "gptPositiveWords": [
+                  "lifestyle portrait",
+                  "natural candid portrait",
+                  "authentic appearance"
+                ]
+              },
+              "Camera Imperfections": {
+                "id": "camera.imp_02",
+                "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera_imperfections",
+                "tags": [
+                  "camera",
+                  "imperfections",
+                  "lens"
+                ],
+                "gptPositiveWords": []
+              },
+              "Style": {
+                "id": "hair_006",
+                "value": "wavy hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "style"
+                ],
+                "gptPositiveWords": []
+              },
+              "Tone": {
+                "id": "skin.tone_07",
+                "value": "milky white skin, smooth porcelain skin with soft cream undertones",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "tone",
+                  "milky",
+                  "asian"
+                ],
+                "gptPositiveWords": [
+                  "milky white skin",
+                  "professional makeup light",
+                  "commercial fashion photography"
+                ]
+              },
+              "Makeup": {
+                "id": "skin.makeup_01",
+                "value": "natural look, no makeup, clean skin bare face, authentic facial details",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "makeup",
+                  "natural"
+                ],
+                "gptPositiveWords": [
+                  "natural candid portrait",
+                  "authentic appearance",
+                  "lifestyle portrait",
+                  "raw skin details"
+                ]
+              },
+              "Brand": {
+                "id": "camera.brand_14",
+                "value": "shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "brand",
+                  "canon",
+                  "full frame",
+                  "digital"
+                ],
+                "gptPositiveWords": [
+                  "warm color balance",
+                  "professional commercial rendering",
+                  "realistic skin tones"
+                ]
+              },
+              "Lens": {
+                "id": "camera.lens_01",
+                "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "lens",
+                  "prime"
+                ],
+                "gptPositiveWords": [
+                  "sharp details",
+                  "professional lens quality",
+                  "clear eye reflection",
+                  "high-fidelity resolution"
+                ]
+              },
+              "Focal Length": {
+                "id": "camera.focal_02",
+                "value": "shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "focal length",
+                  "85mm"
+                ],
+                "gptPositiveWords": [
+                  "85mm prime",
+                  "classic beauty portrait",
+                  "flattering lens compression"
+                ]
+              },
+              "Texture": {
+                "id": "hair.texture.straight",
+                "value": "smooth straight hair texture",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "fashion",
+                  "commerce-safe"
+                ],
+                "gptPositiveWords": []
+              },
+              "Finish": {
+                "id": "hair_017",
+                "value": "glossy healthy hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "finish"
+                ],
+                "gptPositiveWords": []
+              },
+              "Parting / Fringe": {
+                "id": "hair.part.curtain",
+                "value": "soft curtain fringe framing the face",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "fashion",
+                  "social"
+                ],
+                "gptPositiveWords": []
+              },
+              "Color": {
+                "id": "hair_013",
+                "value": "jet black hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "color"
+                ],
+                "gptPositiveWords": []
+              }
+            },
+            "mode": "headshot",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": "2K",
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "characterOverrides": false
+            },
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#000000",
+                "highlightEnabled": false,
+                "highlight": "#ff7591"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 3,
+          "actualTotalCredit": 3,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784134732535,
+          "completedAt": 1784134779651,
+          "slots": [
+            {
+              "id": "slot_1784016593146_fplb",
+              "position": 1,
+              "provider": "modelark",
+              "model": "seedream-5-0-lite-260128",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 5.0 Lite",
+                "th": "Seedream 5.0 Lite"
+              },
+              "estimatedCredit": 1,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784134732539_6fwwyqmzx",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784134732539_6fwwyqmzx.png",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/png",
+                "generationDuration": "35.6"
+              },
+              "error": null
+            },
+            {
+              "id": "slot_1784016719250_us6x",
+              "position": 2,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 (Generalist)",
+                "th": "Nano Banana 2 (ใช้งานทั่วไป)"
+              },
+              "estimatedCredit": 1,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784134732539_nfe82h1h8",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784134732539_nfe82h1h8.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "12.1"
+              },
+              "error": null
+            },
+            {
+              "id": "slot_1784134706429_mbfv",
+              "position": 3,
+              "provider": "openai",
+              "model": "gpt-image-1.5",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1.5 (Enhanced)",
+                "th": "GPT-Image 1.5 (คุณภาพสูง)"
+              },
+              "estimatedCredit": 1,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784134732540_va0vt3zpm",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784134732540_va0vt3zpm.png",
+                "usage": {
+                  "input_tokens": 281,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 281
+                  },
+                  "output_tokens": 1908,
+                  "output_tokens_details": {
+                    "image_tokens": 1584,
+                    "text_tokens": 324
+                  },
+                  "total_tokens": 2189
+                },
+                "mimeType": "image/png",
+                "generationDuration": "34.8"
+              },
+              "error": null
+            }
+          ],
+          "id": "cmp_run_1784134732537_8d7tqx"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1784018588952_ihyd5s",
+      "username": "user_demo",
+      "name": "Prototype 01",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": "job_1784018588965_nnx9bcch3",
+      "createdAt": 1784018588952,
+      "updatedAt": 1784131692469,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784018588864_ki0y65af",
+          "status": "completed",
+          "sourcePrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+          "configurationSnapshot": {
+            "selections": {
+              "Gender": {
+                "id": "character.001",
+                "value": "female woman",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character"
+                ],
+                "gptPositiveWords": []
+              },
+              "Age": {
+                "id": "character.004_teen",
+                "value": "teenager in late teens around 18 years old",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character"
+                ],
+                "gptPositiveWords": []
+              },
+              "Ethnicity": {
+                "id": "character.007",
+                "value": "thai person",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character",
+                  "thai"
+                ],
+                "gptPositiveWords": []
+              },
+              "Beauty": {
+                "id": "character.023",
+                "value": "cute doll-like Asian face, extremely adorable and pretty",
+                "isCustom": false,
+                "group": "Character",
+                "category": "character",
+                "tags": [
+                  "character",
+                  "beauty"
+                ],
+                "gptPositiveWords": []
+              },
+              "Face Shape": {
+                "id": "face.006",
+                "value": "diamond face",
+                "isCustom": false,
+                "group": "Face",
+                "category": "face",
+                "tags": [
+                  "face"
+                ],
+                "gptPositiveWords": []
+              },
+              "Eyes": {
+                "id": "eyes.003",
+                "value": "double eyelids",
+                "isCustom": false,
+                "group": "Face",
+                "category": "eyes",
+                "tags": [
+                  "eyes"
+                ],
+                "gptPositiveWords": []
+              },
+              "Eyebrows": {
+                "id": "eyebrows.005",
+                "value": "defined eyebrows",
+                "isCustom": false,
+                "group": "Face",
+                "category": "eyebrows",
+                "tags": [
+                  "eyebrows"
+                ],
+                "gptPositiveWords": []
+              },
+              "Nose": {
+                "id": "nose.003",
+                "value": "delicate narrow nose",
+                "isCustom": false,
+                "group": "Face",
+                "category": "nose",
+                "tags": [
+                  "nose"
+                ],
+                "gptPositiveWords": []
+              },
+              "Lips": {
+                "id": "lips.001",
+                "value": "natural lips",
+                "isCustom": false,
+                "group": "Face",
+                "category": "lips",
+                "tags": [
+                  "lips"
+                ],
+                "gptPositiveWords": []
+              },
+              "Smile": {
+                "id": "lips.009",
+                "value": "neutral expression",
+                "isCustom": false,
+                "group": "Face",
+                "category": "lips",
+                "tags": [
+                  "lips"
+                ],
+                "gptPositiveWords": []
+              },
+              "Expression": {
+                "id": "expression.004",
+                "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+                "isCustom": false,
+                "group": "Face",
+                "category": "expression",
+                "tags": [
+                  "expression",
+                  "smile",
+                  "friendly"
+                ],
+                "gptPositiveWords": []
+              },
+              "Length": {
+                "id": "hair_003",
+                "value": "long hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "length"
+                ],
+                "gptPositiveWords": []
+              },
+              "Skin Texture": {
+                "id": "skin.text_03",
+                "value": "healthy skin complexion, natural facial blood flow color, organic skin details",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "texture",
+                  "healthy"
+                ],
+                "gptPositiveWords": [
+                  "lifestyle portrait",
+                  "natural candid portrait",
+                  "authentic appearance"
+                ]
+              },
+              "Camera Imperfections": {
+                "id": "camera.imp_02",
+                "value": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera_imperfections",
+                "tags": [
+                  "camera",
+                  "imperfections",
+                  "lens"
+                ],
+                "gptPositiveWords": []
+              },
+              "Style": {
+                "id": "hair_006",
+                "value": "wavy hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "style"
+                ],
+                "gptPositiveWords": []
+              },
+              "Tone": {
+                "id": "skin.tone_02",
+                "value": "porcelain skin",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "tone",
+                  "porcelain"
+                ],
+                "gptPositiveWords": [
+                  "professional studio lighting",
+                  "smooth skin details",
+                  "refined complexion"
+                ]
+              },
+              "Makeup": {
+                "id": "skin.makeup_01",
+                "value": "natural look, no makeup, clean skin bare face, authentic facial details",
+                "isCustom": false,
+                "group": "Skin",
+                "category": "skin",
+                "tags": [
+                  "skin",
+                  "makeup",
+                  "natural"
+                ],
+                "gptPositiveWords": [
+                  "natural candid portrait",
+                  "authentic appearance",
+                  "lifestyle portrait",
+                  "raw skin details"
+                ]
+              },
+              "Brand": {
+                "id": "camera.brand_14",
+                "value": "shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "brand",
+                  "canon",
+                  "full frame",
+                  "digital"
+                ],
+                "gptPositiveWords": [
+                  "warm color balance",
+                  "professional commercial rendering",
+                  "realistic skin tones"
+                ]
+              },
+              "Lens": {
+                "id": "camera.lens_01",
+                "value": "shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "lens",
+                  "prime"
+                ],
+                "gptPositiveWords": [
+                  "sharp details",
+                  "professional lens quality",
+                  "clear eye reflection",
+                  "high-fidelity resolution"
+                ]
+              },
+              "Focal Length": {
+                "id": "camera.focal_02",
+                "value": "shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective",
+                "isCustom": false,
+                "group": "Camera",
+                "category": "camera",
+                "tags": [
+                  "camera",
+                  "focal length",
+                  "85mm"
+                ],
+                "gptPositiveWords": [
+                  "85mm prime",
+                  "classic beauty portrait",
+                  "flattering lens compression"
+                ]
+              },
+              "Cut / Style": {
+                "id": "hair.fashion.clean-ponytail",
+                "value": "clean polished ponytail, hair kept clear of the garment neckline",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "fashion",
+                  "marketplace",
+                  "commerce-safe"
+                ],
+                "gptPositiveWords": []
+              },
+              "Texture": {
+                "id": "hair.texture.wave",
+                "value": "soft controlled wave texture",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "fashion",
+                  "social",
+                  "lookbook"
+                ],
+                "gptPositiveWords": []
+              },
+              "Color": {
+                "id": "hair_014",
+                "value": "dark brown hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "color"
+                ],
+                "gptPositiveWords": []
+              },
+              "Finish": {
+                "id": "hair_017",
+                "value": "glossy healthy hair",
+                "isCustom": false,
+                "group": "Hair",
+                "category": "hair",
+                "tags": [
+                  "finish"
+                ],
+                "gptPositiveWords": []
+              }
+            },
+            "mode": "headshot",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "characterOverrides": false
+            },
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#c83c8e",
+                "highlightEnabled": false,
+                "highlight": "#fe71e4"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 3,
+          "actualTotalCredit": 3,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784018588951,
+          "completedAt": 1784018614270,
+          "slots": [
+            {
+              "id": "slot_1784016593146_fplb",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 1,
+              "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784018588964_qzx1wt6n5",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784018588964_qzx1wt6n5.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "12.7"
+              },
+              "error": null
+            },
+            {
+              "id": "slot_1784016595519_qxkb",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 1,
+              "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784018588965_nnx9bcch3",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784018588965_nnx9bcch3.png",
+                "usage": {
+                  "input_tokens": 273,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 273
+                  },
+                  "output_tokens": 1936,
+                  "output_tokens_details": {
+                    "image_tokens": 1584,
+                    "text_tokens": 352
+                  },
+                  "total_tokens": 2209
+                },
+                "mimeType": "image/png",
+                "generationDuration": "25.2"
+              },
+              "error": null
+            },
+            {
+              "id": "slot_1784016719250_us6x",
+              "position": 3,
+              "provider": "xai",
+              "model": "grok-imagine-image",
+              "providerDisplayName": {
+                "en": "xAI Grok Imagine",
+                "th": "xAI Grok Imagine"
+              },
+              "modelDisplayName": {
+                "en": "Grok Imagine Image (Cheapest)",
+                "th": "Grok Imagine Image (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 1,
+              "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
+              "jobId": "job_1784018588966_3imm3v9z7",
+              "status": "completed",
+              "actualCredit": 1,
+              "result": {
+                "imageUrl": "/outputs/job_1784018588966_3imm3v9z7.jpg",
+                "usage": {
+                  "cost_in_usd_ticks": 500000000
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.2"
+              },
+              "error": null
+            }
+          ],
+          "id": "cmp_run_1784018588952_n69nqo"
+        }
+      ]
+    }
+  ]
+}

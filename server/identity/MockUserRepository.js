@@ -1,10 +1,9 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolveDataFile } from '../config/paths.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const USERS_FILE = path.join(__dirname, 'mockUsers.json');
+const USERS_FILE = resolveDataFile('mockUsers');
 
 export class MockUserRepository {
   async readAll() {
