@@ -105,8 +105,8 @@
       };
 
       // Load template into replacement checklist flow
-      if (window.ModelPromptForgeSceneReplacementChecklist?.startTemplateWorkflow) {
-        window.ModelPromptForgeSceneReplacementChecklist.startTemplateWorkflow(payload.sceneTemplateSnapshot);
+      if (window.ModelPromptForgeSceneBuilder?.startTemplateWorkflow) {
+        window.ModelPromptForgeSceneBuilder.startTemplateWorkflow(payload.sceneTemplateSnapshot);
       }
 
     } catch (err) {

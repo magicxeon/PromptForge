@@ -127,8 +127,8 @@ async function initApp() {
     // Restore persisted state for initial mode (Step 12)
     restoreCurrentModeState();
 
-    if (window.ModelPromptForgeSceneBuilderUi?.init) {
-      window.ModelPromptForgeSceneBuilderUi.init();
+    if (window.ModelPromptForgeSceneBuilder?.init) {
+      window.ModelPromptForgeSceneBuilder.init();
     }
 
     enforceModeReferencePolicy({ updateUI: false });
@@ -1414,8 +1414,8 @@ function toggleUIForMode() {
     }
   }
 
-  if (window.ModelPromptForgeSceneBuilderUi?.updateUi) {
-    window.ModelPromptForgeSceneBuilderUi.updateUi();
+  if (window.ModelPromptForgeSceneBuilder?.updateUi) {
+    window.ModelPromptForgeSceneBuilder.updateUi();
   }
 }
 
