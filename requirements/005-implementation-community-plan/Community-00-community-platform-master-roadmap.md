@@ -87,6 +87,7 @@ Community module must not call image providers directly and must not mutate cred
 | Community-06 | Creator Profile, Follow and Portfolio | Auth, Community-04 |
 | Community-07 | Community Safety, Moderation and Reporting | Auth, audit, asset scan |
 | Community-08 | Community MVP Integration and Launch | All Community MVP phases |
+| Community-09 | User Gallery, Character Showcase and Template Handoff | Community-04, Community-06, Scene Builder |
 
 ## 6. MVP Navigation
 
@@ -125,6 +126,9 @@ Included:
 - Guided and Manual Scene Builder authoring modes on the same Studio surface.
 - Creator mini profile and follow.
 - Like and save/bookmark.
+- User-curated creator gallery that shows only selected public images.
+- Separate creator character area for headshot/full-character reusable assets.
+- Community `Use Template` and `Use Character` entry points that route into Scene Builder.
 
 Deferred:
 
