@@ -21,8 +21,11 @@ test('client createSceneTemplateSnapshot produces enriched metadata and slots pu
       Gender: { id: 'gender.female', group: 'Character' }
     },
     imageReferences: {
-      faceMatch: true
+      faceMatch: true,
+      styleMatch: true
     },
+    faceReferenceImageA: 'data:image/png;base64,iVBORw0KGgo...',
+    styleReferenceImageA: '/outputs/job_abc123.png',
     customColors: {
       Color: { enabled: true }
     },
@@ -45,6 +48,14 @@ test('client createSceneTemplateSnapshot produces enriched metadata and slots pu
   assert.equal(snapshot.finalPromptSnapshot, 'A highly photorealistic scene');
   assert.equal(snapshot.structuredSelectionsSnapshot.Gender.id, 'gender.female');
   
+  // Reference slots default values verification (Phase 5)
+  const faceVar = snapshot.replaceableVariables.find(v => v.id === 'face_reference');
+  const styleVar = snapshot.replaceableVariables.find(v => v.id === 'style_reference');
+  assert.ok(faceVar);
+  assert.equal(faceVar.defaultValue, null); // Base64 stripped!
+  assert.ok(styleVar);
+  assert.equal(styleVar.defaultValue, '/outputs/job_abc123.png'); // History URL preserved!
+
   // Reference slots
   assert.ok(snapshot.referenceSlotMapping.face_reference);
   assert.equal(snapshot.referenceSlotMapping.face_reference.policy, 'required_user_replacement');

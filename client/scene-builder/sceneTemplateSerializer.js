@@ -86,12 +86,27 @@
 
     // Reference images are always replaceable if active
     Object.keys(referenceSlotMapping).forEach(slotId => {
+      let refVal = null;
+      if (slotId === "face_reference") refVal = input.faceReferenceImageA || input.faceReferenceImageB;
+      else if (slotId === "style_reference") refVal = input.styleReferenceImageA || input.styleReferenceImageB;
+      else if (slotId === "character_reference") refVal = input.characterReferenceImageA || input.characterReferenceImageB;
+      else if (slotId === "outfit_front_reference") refVal = input.outfitReferenceImageFront;
+      else if (slotId === "outfit_back_reference") refVal = input.outfitReferenceImageBack;
+
+      let defaultValue = null;
+      if (refVal && typeof refVal === "string") {
+        if (!refVal.startsWith("data:image/")) {
+          defaultValue = refVal;
+        }
+      }
+
       replaceableVariables.push({
         id: slotId,
         label: slotId.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
         type: "reference_image",
         sourceFieldName: slotId,
-        required: referenceSlotMapping[slotId].required
+        required: referenceSlotMapping[slotId].required,
+        defaultValue
       });
     });
 

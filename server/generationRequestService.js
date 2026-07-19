@@ -1,5 +1,5 @@
 import { compilePromptOnServer } from './promptCompiler.js';
-import { normalizeReferenceJobIds } from './referenceUtils.js';
+import { normalizeReferenceJobIds, stripEmbeddedReferenceDataFromSnapshot } from './referenceUtils.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
@@ -61,11 +61,15 @@ export function normalizeGenerationContext(payload = {}) {
   ].filter(value => typeof value === 'string' && value.trim());
 
   const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
+  const sceneTemplateSnapshot = payload.sceneTemplateSnapshot
+    ? stripEmbeddedReferenceDataFromSnapshot(payload.sceneTemplateSnapshot)
+    : null;
 
   return {
     ...payload,
     mode,
     sceneBuilder,
+    sceneTemplateSnapshot,
     template: payload.template || 'portrait',
     aspectRatio: payload.aspectRatio || '1:1',
     imageReferences,
