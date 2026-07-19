@@ -79,6 +79,7 @@
       previewImg.style.border = "1px solid rgba(255, 255, 255, 0.1)";
       let imgSrc = "";
       let labelText = "Drag & Drop or Click to Upload Image";
+      let isPreviewOnly = false;
       if (value) {
         if (typeof value === "string") {
           imgSrc = value;
@@ -91,9 +92,14 @@
             labelText = "Click to change reference image";
           }
         }
+      } else if (variable && variable.previewValue) {
+        imgSrc = variable.previewValue.thumbnailUrl || variable.previewValue.imageUrl || "";
+        labelText = "Template Preview Only (Upload required)";
+        isPreviewOnly = true;
       }
 
       previewImg.style.display = imgSrc ? "block" : "none";
+      previewImg.style.opacity = isPreviewOnly ? "0.45" : "1";
       if (imgSrc) previewImg.src = imgSrc;
 
       const placeholderText = document.createElement("span");

@@ -13,6 +13,13 @@ import { compileGenerationContext, createQueueOptions } from './generationReques
 import { ComparisonOrchestrator } from './comparison/ComparisonOrchestrator.js';
 import { ComparisonError } from './comparison/ComparisonRepository.js';
 import { historyRepository, HistoryCursorError } from './historyRepository.js';
+import {
+  createSceneShareDraft,
+  publishSceneTemplateShare,
+  communityPostRepo,
+  communityRemixRepo
+} from './communityServices.js';
+import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
 
 dotenv.config();
 
@@ -454,6 +461,93 @@ app.delete('/api/history/:id', async (req, res) => {
   }
   await comparisonOrchestrator.removeHistoryJob(req.params.id);
   res.json({ success: true });
+});
+
+// POST /api/scene-templates/share-drafts
+app.post('/api/scene-templates/share-drafts', async (req, res) => {
+  try {
+    const { sourceGenerationId, username } = req.body || {};
+    const identity = username || 'user_demo';
+    const draft = await createSceneShareDraft(sourceGenerationId, identity);
+    res.json(draft);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/scene-templates/share-drafts/:draftId/publish
+app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
+  try {
+    const { title, description, promptVisibility } = req.body || {};
+    const post = await publishSceneTemplateShare(req.params.draftId, title, description, promptVisibility);
+    res.json(post);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET /api/scene-templates/shared
+app.get('/api/scene-templates/shared', async (req, res) => {
+  try {
+    const posts = await communityPostRepo.readAll();
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/scene-templates/shared/:postId
+app.get('/api/scene-templates/shared/:postId', async (req, res) => {
+  try {
+    const post = await communityPostRepo.getById(req.params.postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/scene-templates/shared/:postId/use-template
+app.post('/api/scene-templates/shared/:postId/use-template', async (req, res) => {
+  try {
+    const post = await communityPostRepo.getById(req.params.postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    const viewerContext = { username: req.body?.username || 'user_demo' };
+    const ownerUsername = post.ownerUsername || 'user_demo';
+    const sanitizedSnapshot = sanitizeReferenceSlotsForPublic(
+      post.sceneTemplateSnapshot, 
+      viewerContext, 
+      ownerUsername
+    );
+
+    res.json({
+      postId: post.id,
+      title: post.title,
+      description: post.description,
+      ownerUsername: post.ownerUsername,
+      sceneTemplateSnapshot: sanitizedSnapshot
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/scene-templates/remix-events
+app.post('/api/scene-templates/remix-events', async (req, res) => {
+  try {
+    const { templateId, sourcePostId, username, generatedJobId } = req.body || {};
+    const identity = username || 'user_demo';
+    const event = await communityRemixRepo.recordRemix({
+      templateId,
+      sourcePostId,
+      username: identity,
+      generatedJobId
+    });
+    res.json(event);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 // Static SPA routes must return the application shell for direct links and refreshes.

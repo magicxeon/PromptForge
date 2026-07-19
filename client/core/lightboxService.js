@@ -343,6 +343,23 @@
       }
     }
 
+    const btnShareTemplate = document.getElementById("btn-lightbox-share-template");
+    if (btnShareTemplate) {
+      const hasTemplate = item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object";
+      const isOwner = !item.username || item.username === (window.state?.username || 'user_demo');
+      if (hasTemplate && isOwner) {
+        btnShareTemplate.style.display = "block";
+        btnShareTemplate.onclick = () => {
+          if (window.ModelPromptForgeSceneSharePreview?.openSharePreview) {
+            window.ModelPromptForgeSceneSharePreview.openSharePreview(item.id);
+          }
+        };
+      } else {
+        btnShareTemplate.style.display = "none";
+        btnShareTemplate.onclick = null;
+      }
+    }
+
     if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
       window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
     }

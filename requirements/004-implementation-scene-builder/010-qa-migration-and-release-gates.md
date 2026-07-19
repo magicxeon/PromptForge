@@ -142,3 +142,168 @@ createLegacyNormalHistoryItem()
 - Do not rely only on visual/manual QA for privacy.
 - Add tests before large refactors when touching persistence or template hydration.
 - If a provider capability test requires live catalog data, keep it as manual QA unless a stable fixture exists.
+
+## 10. Implementation Plan: QA Matrix, Migration Fixtures and Release Gates
+
+This plan defines how Scene Builder QA should be implemented before calling the local template/share foundation ready. It is intentionally split between automated node tests and manual UI checks because some provider and browser interactions are not stable enough for pure automated coverage yet.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> - **No live provider generation in automated tests**:
+>   - Node tests should validate payloads, snapshots, sanitization, hydration and migration.
+>   - Real image generation remains manual QA.
+> - **Cross-user tests are mocked until real user/auth exists**:
+>   - Use `username` as the temporary actor key.
+>   - Mark true owner/viewer UI flows as blocked until user management is implemented.
+> - **Community-public release is not part of Scene-010**:
+>   - Scene-010 can gate local shared templates and mock remix events.
+>   - Real Community public feed, creator profile and public gallery require the Community/User/Auth modules.
+> - **Privacy must be tested through data, not screenshots**:
+>   - Tests must inspect sanitized API payloads and stored JSON snapshots.
+>   - UI hiding alone is not sufficient.
+
+---
+
+## Open Questions
+
+> [!NOTE]
+> None for MVP. If an implementation agent finds that a manual QA case requires user/auth, mark it as `Blocked until User/Auth module` instead of expanding Scene Builder scope.
+
+---
+
+## Proposed Changes
+
+### Automated Test Layer
+
+#### [NEW or EXTEND] `test/sceneQaFixtures.js`
+
+Create shared fixture builders:
+
+```text
+createMockGuidedSceneState()
+createMockManualSceneState()
+createMockSceneTemplateSnapshot(overrides)
+createMockPrivateReferenceSlots()
+createMockPreviewOnlyReferenceSlot()
+createMockReusableStyleReference()
+createLegacyNormalHistoryItem()
+createMockLocalCommunityPost()
+```
+
+Fixtures must avoid embedding large base64 image data.
+
+#### [EXTEND] Existing Tests
+
+```text
+test/sceneTemplateSnapshot.test.js
+test/sceneTemplateHydrator.test.js
+test/sceneVariableResolver.test.js
+test/sceneReferenceSlotPolicy.test.js
+test/sceneBuilderMigration.test.js
+test/sceneShareFlow.test.js
+```
+
+Minimum required coverage:
+
+- Guided template serializes required fields.
+- Manual template serializes prompt text and blocks Remix Only hiding when required by Scene-008.
+- Missing required reference blocks generation.
+- `required_user_replacement` strips private reference values.
+- `shared_preview_only` is visible as preview but not used as generation reference.
+- `shared_as_reusable_reference` remains reusable.
+- Old history items without `sceneTemplateSnapshot` still render/open.
+- Provider/model fallback produces a warning or fallback state instead of crashing.
+
+### Migration Fixture Layer
+
+#### [NEW] `test/fixtures/scene-history-legacy-normal.json`
+
+Legacy normal/story image history without Scene Builder fields.
+
+#### [NEW] `test/fixtures/scene-history-guided-template.json`
+
+New guided Scene Builder history item with sanitized `sceneTemplateSnapshot`.
+
+#### [NEW] `test/fixtures/scene-history-manual-template.json`
+
+Manual Scene Builder history item with prompt visibility test data.
+
+These fixtures should be small and should not point to real private user assets.
+
+### Manual QA Layer
+
+Add a manual checklist section to implementation notes or release documentation:
+
+```text
+Guided Scene generate
+Manual Scene generate
+Guided -> Manual prompt copy confirmation
+Manual -> Guided without form reset
+Headshot -> Character Builder handoff
+Character Sheet -> Scene Builder handoff
+Use Template from local shared templates
+History image -> template slot picker
+Required replacement blocks Generate button
+Shared Preview Only does not become generation reference
+```
+
+---
+
+## Release Gate Decisions
+
+### Gate A: Local Prototype Ready
+
+Required:
+
+- Scene Builder name and navigation route are stable.
+- Guided/Manual switching works without reset bugs.
+- Snapshot serialize/hydrate tests pass.
+- Manual QA confirms basic Guided and Manual generation.
+
+### Gate B: Local Template Beta Ready
+
+Required:
+
+- Local share preview works.
+- Local shared templates list works.
+- `Use Template` opens Scene Builder replacement checklist.
+- Reference slot privacy tests pass.
+- Remix event mock logging works after successful generation.
+
+### Gate C: Community MVP Ready Later
+
+Blocked until:
+
+- User/auth module exists.
+- Creator profile and ownership records exist.
+- Community gallery/feed endpoints exist.
+- Public asset visibility policy exists.
+- Cross-user permission UI tests are possible.
+
+---
+
+## Verification Plan
+
+Ask the user to run relevant node checks after implementation:
+
+```powershell
+node --test test/sceneTemplateSnapshot.test.js
+node --test test/sceneTemplateHydrator.test.js
+node --test test/sceneVariableResolver.test.js
+node --test test/sceneReferenceSlotPolicy.test.js
+node --test test/sceneBuilderMigration.test.js
+node --test test/sceneShareFlow.test.js
+```
+
+Manual smoke test:
+
+1. Create a Guided Scene image.
+2. Share it as a local template.
+3. Use the local template.
+4. Fill required references.
+5. Generate from template.
+6. Confirm history stores a sanitized `sceneTemplateSnapshot`.
+7. Confirm old history items still open in lightbox.

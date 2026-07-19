@@ -159,6 +159,9 @@ async function initApp() {
       getCollections: () => state.collections,
       getHistory: () => state.history
     };
+    if (window.ModelPromptForgeSharedTemplatesPanel?.init) {
+      window.ModelPromptForgeSharedTemplatesPanel.init();
+    }
     window.dispatchEvent(new CustomEvent('modelpromptforge:ready'));
 
   } catch (error) {
@@ -1077,6 +1080,28 @@ function bindEvents() {
           updateCredits();
           loadCollections();
           loadHistory();
+
+          // Log remix event if template remix is active
+          if (window.activeRemixContext) {
+            const remixPayload = {
+              templateId: window.activeRemixContext.templateId,
+              sourcePostId: window.activeRemixContext.sourcePostId,
+              username: state.username || 'user_demo',
+              generatedJobId: jobId
+            };
+            fetch('/api/scene-templates/remix-events', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(remixPayload)
+            }).then(r => {
+              if (r.ok) {
+                console.log('[Remix Analytics] Successfully logged remix event for job:', jobId);
+              }
+            }).catch(err => {
+              console.error('[Remix Analytics] Failed to log remix event:', err);
+            });
+            window.activeRemixContext = null;
+          }
         });
 
         sseSource.addEventListener('job.failed', (e) => {
@@ -1416,7 +1441,17 @@ function updatePromptPreview() {
     if (previewOuter) previewOuter.style.display = "block";
   }
 
-  const compiledPrompt = generatePromptText(true);
+  let compiledPrompt = generatePromptText(true);
+  const checklistObj = window.ModelPromptForgeSceneReplacementChecklist;
+  if (checklistObj?.isTemplateWorkflowActive?.()) {
+    const snapshot = checklistObj.getActiveTemplateSnapshot();
+    if (snapshot && (snapshot.promptVisibility === 'remix_only' || !snapshot.finalPromptSnapshot && snapshot.promptVisibility === 'remix_only')) {
+      compiledPrompt = "(Prompt text hidden by creator - Remix Only)";
+      if (copyBtn) copyBtn.disabled = true;
+      if (copyJsonBtn) copyJsonBtn.disabled = true;
+    }
+  }
+
   if (previewBox) previewBox.value = compiledPrompt;
 
   const cleanPrompt = getEditablePromptText().toLowerCase();

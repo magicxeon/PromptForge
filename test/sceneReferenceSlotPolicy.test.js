@@ -47,7 +47,7 @@ test('validateReferenceSlotPolicies aggregates slots correctly', () => {
   assert.deepEqual(result.requiredReplacements, ['face_ref']);
 });
 
-test('sanitizeReferenceSlotsForPublic strips or cleans default values for other viewers', () => {
+test('sanitizeReferenceSlotsForPublic strips or cleans default values and mapping properties for other viewers', () => {
   const snapshot = {
     replaceableVariables: [
       { id: 'face_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_1', imageUrl: '/outputs/1.png' } },
@@ -55,9 +55,9 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values for other 
       { id: 'style_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_3', imageUrl: '/outputs/3.png' } }
     ],
     referenceSlotMapping: {
-      face_ref: { required: true, sharePolicy: 'required_user_replacement' },
-      outfit_ref: { required: false, sharePolicy: 'shared_preview_only' },
-      style_ref: { required: false, sharePolicy: 'shared_as_reusable_reference' }
+      face_ref: { required: true, sharePolicy: 'required_user_replacement', sourceJobId: 'job_1', imageUrl: '/outputs/1.png', thumbnailUrl: '/outputs/1_thumb.png' },
+      outfit_ref: { required: false, sharePolicy: 'shared_preview_only', sourceJobId: 'job_2', imageUrl: '/outputs/2.png', thumbnailUrl: '/outputs/2_thumb.png' },
+      style_ref: { required: false, sharePolicy: 'shared_as_reusable_reference', sourceJobId: 'job_3', imageUrl: '/outputs/3.png', thumbnailUrl: '/outputs/3_thumb.png' }
     }
   };
 
@@ -68,18 +68,42 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values for other 
   const faceVar = sanitized.replaceableVariables.find(v => v.id === 'face_ref');
   assert.equal(faceVar.defaultValue, null);
 
-  // 2. outfit_ref (shared_preview_only) -> defaultValue strips jobId and provider details
+  // Assert face_ref mapping sanitation
+  const faceMap = sanitized.referenceSlotMapping.face_ref;
+  assert.equal(faceMap.reuseAllowed, false);
+  assert.equal(faceMap.previewAllowed, false);
+  assert.equal(faceMap.sourceJobId, undefined);
+  assert.equal(faceMap.imageUrl, undefined);
+  assert.equal(faceMap.thumbnailUrl, undefined);
+
+  // 2. outfit_ref (shared_preview_only) -> defaultValue is nullified, previewValue has imagery
   const outfitVar = sanitized.replaceableVariables.find(v => v.id === 'outfit_ref');
-  assert.ok(outfitVar.defaultValue);
-  assert.equal(outfitVar.defaultValue.jobId, null);
-  assert.equal(outfitVar.defaultValue.imageUrl, '/outputs/2.png');
-  assert.equal(outfitVar.defaultValue.thumbnailUrl, '/outputs/2_thumb.png');
+  assert.equal(outfitVar.defaultValue, null);
+  assert.ok(outfitVar.previewValue);
+  assert.equal(outfitVar.previewValue.imageUrl, '/outputs/2.png');
+  assert.equal(outfitVar.previewValue.thumbnailUrl, '/outputs/2_thumb.png');
+
+  // Assert outfit_ref mapping sanitation
+  const outfitMap = sanitized.referenceSlotMapping.outfit_ref;
+  assert.equal(outfitMap.reuseAllowed, false);
+  assert.equal(outfitMap.previewAllowed, true);
+  assert.equal(outfitMap.sourceJobId, undefined);
+  assert.equal(outfitMap.imageUrl, undefined);
+  assert.equal(outfitMap.thumbnailUrl, '/outputs/2_thumb.png'); // Keep thumbnail for preview-only mapping
 
   // 3. style_ref (shared_as_reusable_reference) -> defaultValue is intact
   const styleVar = sanitized.replaceableVariables.find(v => v.id === 'style_ref');
   assert.ok(styleVar.defaultValue);
   assert.equal(styleVar.defaultValue.jobId, 'job_3');
   assert.equal(styleVar.defaultValue.imageUrl, '/outputs/3.png');
+
+  // Assert style_ref mapping sanitation (preserved)
+  const styleMap = sanitized.referenceSlotMapping.style_ref;
+  assert.equal(styleMap.reuseAllowed, true);
+  assert.equal(styleMap.previewAllowed, true);
+  assert.equal(styleMap.sourceJobId, 'job_3');
+  assert.equal(styleMap.imageUrl, '/outputs/3.png');
+  assert.equal(styleMap.thumbnailUrl, '/outputs/3_thumb.png');
 });
 
 test('sanitizeReferenceSlotsForPublic preserves snapshot entirely for the owner', () => {
