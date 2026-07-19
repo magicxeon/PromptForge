@@ -7,6 +7,14 @@
     "admin_demo": {
       "role": "admin",
       "credits": 9973
+    },
+    "user_alice": {
+      "role": "creator",
+      "credits": 1000
+    },
+    "user_bob": {
+      "role": "user",
+      "credits": 700
     }
   },
   "creditLedger": [

@@ -8,13 +8,12 @@
     if (!sourceGenerationId) return;
 
     try {
-      const username = window.state?.username || 'user_demo';
-      
       // 1. Fetch/Create Share Draft on Server
-      const res = await fetch('/api/scene-templates/share-drafts', {
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch('/api/scene-templates/share-drafts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceGenerationId, username })
+        body: JSON.stringify({ sourceGenerationId })
       });
 
       if (!res.ok) {
@@ -159,7 +158,8 @@
     }
 
     try {
-      const res = await fetch(`/api/scene-templates/share-drafts/${activeDraft.id}/publish`, {
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch(`/api/scene-templates/share-drafts/${activeDraft.id}/publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, promptVisibility })

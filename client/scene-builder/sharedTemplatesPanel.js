@@ -7,7 +7,8 @@
     if (!listContainer) return;
 
     try {
-      const res = await fetch('/api/scene-templates/shared');
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch('/api/scene-templates/shared');
       if (!res.ok) throw new Error('Failed to fetch shared templates');
 
       const posts = await res.json();
@@ -84,11 +85,11 @@
     if (!confirm) return;
 
     try {
-      const username = window.state?.username || 'user_demo';
-      const res = await fetch(`/api/scene-templates/shared/${postId}/use-template`, {
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch(`/api/scene-templates/shared/${postId}/use-template`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({})
       });
 
       if (!res.ok) {

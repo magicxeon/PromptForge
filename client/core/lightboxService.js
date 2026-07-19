@@ -315,8 +315,8 @@
         btnUseTemplate.onclick = () => {
           closeLightbox();
           if (state.mode !== "normal") {
-            if (window.ModelPromptForgeCrossModeHandoff?.applyCharacterSheetToStoryMode) {
-              window.ModelPromptForgeCrossModeHandoff.applyCharacterSheetToStoryMode({ sourceImageUrl: "" }, { useAsCharacterRef: false });
+            if (window.ModelPromptForgeCrossModeHandoff?.applyCharacterSheetToSceneBuilder) {
+              window.ModelPromptForgeCrossModeHandoff.applyCharacterSheetToSceneBuilder({ sourceImageUrl: "" }, { useAsCharacterRef: false });
             }
           }
           window.ModelPromptForgeSceneReplacementChecklist.startTemplateWorkflow(item.sceneTemplateSnapshot);

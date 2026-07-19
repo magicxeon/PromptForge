@@ -64,8 +64,12 @@
     }
 
     try {
-      const payload = JSON.parse(saved);
+      let payload = JSON.parse(saved);
       if (!payload || typeof payload !== "object") return;
+
+      if (window.ModelPromptForgeSceneBuilder?.normalizeLegacySceneMode) {
+        payload = window.ModelPromptForgeSceneBuilder.normalizeLegacySceneMode(payload);
+      }
 
       if (state.mode === "normal" && payload.sceneBuilder) {
         const raw = payload.sceneBuilder || {};
@@ -409,6 +413,10 @@
   }
 
   function restorePortableConfigPayload(payload) {
+    if (window.ModelPromptForgeSceneBuilder?.normalizeLegacySceneMode) {
+      payload = window.ModelPromptForgeSceneBuilder.normalizeLegacySceneMode(payload);
+    }
+
     const nextMode = payload.mode && window.MODE_CATEGORY_POLICY && window.MODE_CATEGORY_POLICY[payload.mode]
       ? payload.mode
       : state.mode;

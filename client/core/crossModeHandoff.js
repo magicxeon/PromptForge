@@ -29,14 +29,14 @@
       };
     } else if (mode === "character-sheet") {
       return {
-        id: "use-as-story-character",
-        label: "📋 Use as Story Character",
+        id: "use-as-scene-character",
+        label: "📋 Use in Scene Builder",
         targetMode: "normal",
         enabled: true,
         supportsRefs
       };
     } else {
-      // Normal/Story mode result
+      // Normal/Scene Builder mode result
       return {
         id: "use-style-ref",
         label: "🖼️ Use as Style Reference",
@@ -187,13 +187,13 @@
   }
 
   /**
-   * Switch to Story Mode and assign generated Character Sheet as Reference
+   * Switch to Scene Builder and assign generated Character Sheet as Reference
    */
-  function applyCharacterSheetToStoryMode(context, options) {
+  function applyCharacterSheetToSceneBuilder(context, options) {
     // 1. Save current mode state before transitioning
     if (window.saveCurrentModeState) window.saveCurrentModeState();
 
-    // 2. Transition state mode to Story (normal)
+    // 2. Transition state mode to Scene Builder (normal)
     setActiveMode("normal");
     if (window.restoreCurrentModeState) window.restoreCurrentModeState();
 
@@ -247,7 +247,7 @@
       }
     } else if (result.mode === "character-sheet") {
       btnUseCharacter.style.display = "block";
-      btnUseCharacter.textContent = "Use as Story Character";
+      btnUseCharacter.textContent = "Use in Scene Builder";
     } else {
       // normal mode result
       btnUseFace.style.display = "block";
@@ -295,7 +295,7 @@
       btnUseFace.textContent = "Build Character";
     } else if (result.mode === "character-sheet") {
       btnUseCharacter.style.display = "block";
-      btnUseCharacter.textContent = "Use as Story Character";
+      btnUseCharacter.textContent = "Use in Scene Builder";
     } else {
       // normal mode result
       btnUseFace.style.display = "block";
@@ -344,11 +344,11 @@
       }
       document.getElementById("chk-handoff-carry-attrs").checked = true;
       document.getElementById("chk-handoff-fresh-body-clothing").checked = true;
-    } else if (actionId === "use-as-story-character") {
-      titleEl.textContent = "Use as Story Character";
+    } else if (actionId === "use-as-scene-character") {
+      titleEl.textContent = "Use in Scene Builder";
       msgEl.textContent = action.supportsRefs
-        ? "Would you like to switch to Story Mode and attach this Character Sheet as your active Character Reference?"
-        : "Story Mode will open and attach this Character Sheet as your active Character Reference. If the selected model cannot use image references, generation may ignore it until you select a compatible model.";
+        ? "Would you like to switch to Scene Builder and attach this Character Sheet as your active Character Reference?"
+        : "Scene Builder will open and attach this Character Sheet as your active Character Reference. If the selected model cannot use image references, generation may ignore it until you select a compatible model.";
       optionsList.style.display = "none";
     }
 
@@ -372,8 +372,8 @@
         freshBodyClothing: document.getElementById("chk-handoff-fresh-body-clothing").checked
       };
       applyHeadshotToCharacterSheet(activeHandoffContext, options);
-    } else if (action.id === "use-as-story-character") {
-      applyCharacterSheetToStoryMode(activeHandoffContext, { useAsCharacterRef: true });
+    } else if (action.id === "use-as-scene-character") {
+      applyCharacterSheetToSceneBuilder(activeHandoffContext, { useAsCharacterRef: true });
     }
 
     closeHandoffDialog();
@@ -404,7 +404,7 @@
     supportsImageReferences,
     carrySelectionsForHandoff,
     applyHeadshotToCharacterSheet,
-    applyCharacterSheetToStoryMode,
+    applyCharacterSheetToSceneBuilder,
     renderViewportHandoffActions,
     clearViewportHandoffActions,
     renderLightboxHandoffActions,

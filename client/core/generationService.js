@@ -416,18 +416,12 @@
 
   async function updateCredits() {
     try {
-      const res = await fetch(`/api/credits?user=${state.username}`);
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch(`/api/credits?user=${state.username}`);
       const data = await res.json();
       const creditsVal = document.getElementById("credits-value");
       if (creditsVal) creditsVal.textContent = data.credits;
       state.userRole = data.role;
-
-      // Auto switch selector UI value if credentials fetched externally
-      const activePill = document.querySelector(`#profile-pill-selector .pill-btn[data-value="${state.username}"]`);
-      if (activePill) {
-        document.querySelectorAll("#profile-pill-selector .pill-btn").forEach(b => b.classList.remove("active"));
-        activePill.classList.add("active");
-      }
 
       if (window.updatePromptPreview) window.updatePromptPreview();
     } catch (err) {

@@ -663,20 +663,10 @@ function bindEvents() {
     });
   });
 
-  // Profile Selector Pill Toggles (Step 8)
-  const profilePills = document.querySelectorAll("#profile-pill-selector .pill-btn");
-  profilePills.forEach(btn => {
-    btn.addEventListener("click", () => {
-      profilePills.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      const newUsername = btn.getAttribute("data-value");
-      if (state.username !== newUsername) {
-        state.username = newUsername;
-        updateCredits();
-      }
-    });
-  });
+  // Initialize Mock User Switcher UI
+  if (window.ModelPromptForgeMockUserSwitcher?.init) {
+    window.ModelPromptForgeMockUserSwitcher.init();
+  }
 
   // Simulated Credits Top-up
   const btnRecharge = document.getElementById("btn-recharge");
@@ -822,7 +812,7 @@ function bindEvents() {
       if (img && img.src && img.style.display !== "none") {
         const meta = state.activeViewportJobMeta;
         if (meta && meta.mode === "character-sheet") {
-          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "use-as-story-character");
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "use-as-scene-character");
         } else if (state.mode === "normal") {
           assignCharacterReference(img.src, state.activeJobId);
           btnViewportUseCharacter.textContent = "📋 Character Added!";
@@ -871,7 +861,7 @@ function bindEvents() {
         const activeItem = lightboxModal.activeItem;
         if (activeItem && activeItem.mode === "character-sheet") {
           closeLightbox();
-          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "use-as-story-character");
+          window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "use-as-scene-character");
         } else if (state.mode === "normal") {
           assignCharacterReference(img.src, activeItem ? activeItem.id : null);
           closeLightbox();

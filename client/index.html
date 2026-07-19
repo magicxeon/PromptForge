@@ -35,13 +35,10 @@
             </div>
           </div>
 
-          <!-- Profile/Role Toggle Pill Selector -->
+          <!-- Profile/Role Toggle Dropdown -->
           <div class="header-toggle-group">
-            <span class="toggle-group-label">Profile</span>
-            <div class="pill-selector" id="profile-pill-selector">
-              <button class="pill-btn active" data-value="user_demo">User</button>
-              <button class="pill-btn" data-value="admin_demo">Admin</button>
-            </div>
+            <span class="toggle-group-label">Active Mock User</span>
+            <select class="custom-select" id="mock-user-select" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; background: rgba(0, 0, 0, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; outline: none; cursor: pointer; min-width: 140px;"></select>
           </div>
 
           <div class="credits-display-compact">
@@ -896,6 +893,9 @@
   <script src="/clothing/clothingOptionRules.js"></script>
   <script src="/clothing/clothingVisualConfig.js"></script>
   <script src="/core/promptCompiler.js"></script>
+  <script src="/core/actorContext.js"></script>
+  <script src="/core/apiClient.js"></script>
+  <script src="/community/communityMockUserSwitcher.js"></script>
   <script src="/core/persistence.js"></script>
   <script src="/core/formRenderer.js"></script>
   <script src="/core/generationService.js"></script>

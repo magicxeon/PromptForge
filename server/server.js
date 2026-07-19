@@ -20,6 +20,8 @@ import {
   communityRemixRepo
 } from './communityServices.js';
 import { sanitizeReferenceSlotsForPublic } from './sceneTemplates/sceneTemplateSanitizer.js';
+import { actorContextMiddleware } from './middleware/actorContextMiddleware.js';
+import { mockUserRepo } from './identity/MockUserRepository.js';
 
 dotenv.config();
 
@@ -37,6 +39,7 @@ const comparisonOrchestrator = new ComparisonOrchestrator({
 
 app.use(cors());
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
+app.use(actorContextMiddleware);
 
 // Serve static frontend files from client directory (relative to root)
 app.use(express.static(pathModule.join(__dirname, '../client')));
@@ -44,11 +47,30 @@ app.use(express.static(pathModule.join(__dirname, '../client')));
 // Serve sub-app-game-character static files from root if they exist there
 app.use('/sub-app-game-character', express.static(pathModule.join(__dirname, '../sub-app-game-character')));
 
-// Mock user role middleware (reads X-User-Role header, default to 'user')
+// Mock user role middleware (reads active role from server-resolved ActorContext)
 app.use((req, res, next) => {
-  req.userRole = req.headers['x-user-role'] || 'user';
+  req.userRole = req.actorContext?.role || 'user';
   next();
 });
+
+function resolveRequestUsername(req, {
+  allowQuery = true,
+  allowBody = true,
+  rejectMismatch = true
+} = {}) {
+  const contextUser = req.actorContext?.username || null;
+  const bodyUser = allowBody ? req.body?.username : null;
+  const queryUser = allowQuery ? req.query?.user || req.query?.username : null;
+  const legacyUser = bodyUser || queryUser || null;
+
+  if (rejectMismatch && contextUser && legacyUser && contextUser !== legacyUser) {
+    const err = new Error(`Identity mismatch: actor is ${contextUser} but request specified ${legacyUser}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  return contextUser || legacyUser || 'user_demo';
+}
 
 app.get('/api/providers', (req, res) => {
   res.json(providerRegistry.getPublicCatalog());
@@ -169,18 +191,41 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date() });
 });
 
+// Mock Auth endpoints
+app.get('/api/me', (req, res) => {
+  res.json(req.actorContext || null);
+});
+
+app.get('/api/mock-users', async (req, res) => {
+  try {
+    const activeUsers = await mockUserRepo.listActiveUsers();
+    const sanitized = activeUsers.map(u => ({
+      id: u.id,
+      username: u.username,
+      displayName: u.displayName,
+      role: u.role
+    }));
+    res.json({ enabled: true, users: sanitized });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch mock users' });
+  }
+});
+
 // Endpoint to fetch current user's credits and role
 app.get('/api/credits', async (req, res) => {
-  const username = req.query.user || 'user_demo';
-  const info = await creditManager.getUserInfo(username);
-  res.json(info);
+  try {
+    const username = resolveRequestUsername(req, { allowBody: false });
+    const info = await creditManager.getUserInfo(username);
+    res.json(info);
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ error: err.message });
+  }
 });
 
 // Simulated Credit Recharge Route
 app.post('/api/credits/recharge', async (req, res) => {
-  const { username } = req.body;
-  const targetUser = username || 'user_demo';
   try {
+    const targetUser = resolveRequestUsername(req, { allowQuery: false });
     res.json(await creditManager.recharge(targetUser, 10));
   } catch (err) {
     res.status(err.statusCode || 500).json({ error: `Recharge failed: ${err.message}` });
@@ -280,9 +325,9 @@ app.put('/api/collections/:id/default', async (req, res) => {
 // Secret API Generation Route (Queue-based)
 app.post('/api/generate', async (req, res) => {
   const { provider, submodel } = req.body;
-  const targetUser = req.body.username || 'user_demo';
   
   try {
+    const targetUser = resolveRequestUsername(req, { allowQuery: false });
     const { provider: providerConfig, model: modelConfig } = providerRegistry.resolveSelection(provider, submodel);
     const activeProvider = providerConfig.id;
     const activeSubmodel = modelConfig.id;
@@ -323,7 +368,7 @@ app.post('/api/generate', async (req, res) => {
 });
 
 function getComparisonUsername(req) {
-  return req.body?.username || req.query?.username || 'user_demo';
+  return resolveRequestUsername(req);
 }
 
 function sendComparisonError(res, error) {
@@ -466,12 +511,12 @@ app.delete('/api/history/:id', async (req, res) => {
 // POST /api/scene-templates/share-drafts
 app.post('/api/scene-templates/share-drafts', async (req, res) => {
   try {
-    const { sourceGenerationId, username } = req.body || {};
-    const identity = username || 'user_demo';
+    const { sourceGenerationId } = req.body || {};
+    const identity = resolveRequestUsername(req, { allowQuery: false });
     const draft = await createSceneShareDraft(sourceGenerationId, identity);
     res.json(draft);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(err.statusCode || 400).json({ error: err.message });
   }
 });
 
@@ -513,7 +558,7 @@ app.post('/api/scene-templates/shared/:postId/use-template', async (req, res) =>
     const post = await communityPostRepo.getById(req.params.postId);
     if (!post) return res.status(404).json({ error: 'Post not found' });
     
-    const viewerContext = { username: req.body?.username || 'user_demo' };
+    const viewerContext = { username: resolveRequestUsername(req, { allowQuery: false }) };
     const ownerUsername = post.ownerUsername || 'user_demo';
     const sanitizedSnapshot = sanitizeReferenceSlotsForPublic(
       post.sceneTemplateSnapshot, 
@@ -529,15 +574,15 @@ app.post('/api/scene-templates/shared/:postId/use-template', async (req, res) =>
       sceneTemplateSnapshot: sanitizedSnapshot
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(err.statusCode || 500).json({ error: err.message });
   }
 });
 
 // POST /api/scene-templates/remix-events
 app.post('/api/scene-templates/remix-events', async (req, res) => {
   try {
-    const { templateId, sourcePostId, username, generatedJobId } = req.body || {};
-    const identity = username || 'user_demo';
+    const { templateId, sourcePostId, generatedJobId } = req.body || {};
+    const identity = resolveRequestUsername(req, { allowQuery: false });
     const event = await communityRemixRepo.recordRemix({
       templateId,
       sourcePostId,
@@ -546,7 +591,7 @@ app.post('/api/scene-templates/remix-events', async (req, res) => {
     });
     res.json(event);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(err.statusCode || 400).json({ error: err.message });
   }
 });
 
