@@ -58,6 +58,11 @@ const exportConfigJSON = () => window.exportConfigJSON();
 const importConfigJSON = (json) => window.importConfigJSON(json);
 const getApiErrorMessage = (p, f) => window.getApiErrorMessage(p, f);
 const uniqueReferenceJobIds = (ids) => window.uniqueReferenceJobIds(ids);
+const apiFetch = (url, options) => (window.ModelPromptForgeApiClient?.apiFetch || fetch)(url, options);
+const appendActorQuery = (url) => window.ModelPromptForgeActorContext?.appendActorQuery
+  ? window.ModelPromptForgeActorContext.appendActorQuery(url)
+  : url;
+const getActiveActorId = () => window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || 'usr_demo';
 
 const MODE_CATEGORY_POLICY = window.MODE_CATEGORY_POLICY;
 const FACE_MATCH_OWNED_FIELDS = new Set(["Face Shape", "Eyes", "Eyebrows", "Nose", "Lips", "Smile"]);
@@ -673,10 +678,9 @@ function bindEvents() {
   if (btnRecharge) {
     btnRecharge.addEventListener("click", async () => {
       try {
-        const response = await fetch('/api/credits/recharge', {
+        const response = await apiFetch('/api/credits/recharge', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: state.username })
+          body: {}
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Recharge failed");
@@ -921,6 +925,8 @@ function bindEvents() {
       scrollToActiveRenderScreen();
 
       const startTime = performance.now();
+      const generationActorId = getActiveActorId();
+      const isSameGenerationActor = () => getActiveActorId() === generationActorId;
 
       try {
         const generationPayload = getGenerationRequestPayload();
@@ -931,13 +937,12 @@ function bindEvents() {
           outfit: generationPayload.outfitReferenceJobIds
         };
 
-        const response = await fetch('/api/generate', {
+        const response = await apiFetch('/api/generate', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-User-Role': state.userRole
           },
-          body: JSON.stringify(generationPayload)
+          body: generationPayload
         });
 
         const data = await response.json();
@@ -962,7 +967,7 @@ function bindEvents() {
         let pollTimer = null;
         let sseSource;
         if (data.providerStreaming === true) {
-          sseSource = new EventSource(`/api/jobs/${jobId}/stream`);
+          sseSource = new EventSource(appendActorQuery(`/api/jobs/${jobId}/stream`));
         } else {
           sseSource = new EventTarget();
           sseSource.close = () => {
@@ -972,7 +977,12 @@ function bindEvents() {
 
           const pollJobStatus = async () => {
             try {
-              const statusResponse = await fetch(`/api/jobs/${jobId}`);
+              if (!isSameGenerationActor()) {
+                sseSource.close();
+                jobCard.remove();
+                return;
+              }
+              const statusResponse = await apiFetch(`/api/jobs/${jobId}`);
               if (!statusResponse.ok) return;
               const statusPayload = await statusResponse.json();
 
@@ -1000,6 +1010,11 @@ function bindEvents() {
         }
 
         sseSource.addEventListener('status', (e) => {
+          if (!isSameGenerationActor()) {
+            sseSource.close();
+            jobCard.remove();
+            return;
+          }
           const payload = JSON.parse(e.data);
           const label = jobCard.querySelector("span");
           if (label) {
@@ -1008,6 +1023,11 @@ function bindEvents() {
         });
 
         const renderPartialImage = (e) => {
+          if (!isSameGenerationActor()) {
+            sseSource.close();
+            jobCard.remove();
+            return;
+          }
           const payload = JSON.parse(e.data);
           if (payload.b64_json) {
             loader.style.display = "none";
@@ -1025,6 +1045,10 @@ function bindEvents() {
           const payload = JSON.parse(e.data);
           sseSource.close();
           jobCard.remove();
+          if (!isSameGenerationActor()) {
+            loader.style.display = "none";
+            return;
+          }
 
           const endTime = performance.now();
           const durationSec = ((endTime - startTime) / 1000).toFixed(1);
@@ -1079,10 +1103,9 @@ function bindEvents() {
               username: state.username || 'user_demo',
               generatedJobId: jobId
             };
-            fetch('/api/scene-templates/remix-events', {
+            apiFetch('/api/scene-templates/remix-events', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(remixPayload)
+              body: remixPayload
             }).then(r => {
               if (r.ok) {
                 console.log('[Remix Analytics] Successfully logged remix event for job:', jobId);
@@ -1095,6 +1118,12 @@ function bindEvents() {
         });
 
         sseSource.addEventListener('job.failed', (e) => {
+          if (!isSameGenerationActor()) {
+            sseSource.close();
+            jobCard.remove();
+            loader.style.display = "none";
+            return;
+          }
           let errorMsg = "Generation failed";
           let technicalMessage = "";
           let creditRefunded = false;

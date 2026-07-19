@@ -44,13 +44,17 @@
           window.ModelPromptForgeActorContext.setActiveMockUserId(nextUserId);
         }
         await refreshActiveActorContext();
+        clearUserScopedWorkspaceState();
 
         // 6. Trigger refresh hooks
         if (window.updateCredits) {
           window.updateCredits();
         }
+        if (window.loadCollections) {
+          await window.loadCollections({ preserveSelection: false });
+        }
         if (window.loadHistory) {
-          window.loadHistory({ reset: true });
+          await window.loadHistory({ reset: true });
         }
         if (window.ModelPromptForgeSharedTemplatesPanel?.refreshSharedTemplates) {
           window.ModelPromptForgeSharedTemplatesPanel.refreshSharedTemplates();
@@ -79,9 +83,43 @@
     }
   }
 
+  function clearUserScopedWorkspaceState() {
+    const queueList = document.getElementById('active-queue-list');
+    if (queueList) queueList.innerHTML = '';
+
+    if (state) {
+      state.historyAbortController?.abort?.();
+      state.history = [];
+      state.historyCursor = null;
+      state.historyHasMore = false;
+      state.historyWindowed = false;
+      state.historyError = null;
+      state.selectedCollectionId = 'all';
+      state.activeJobId = null;
+      state.activeViewportJobMeta = null;
+      state.collectionMembershipJobId = null;
+    }
+
+    const generatedImage = document.getElementById('generated-image');
+    const viewportPlaceholder = document.getElementById('viewport-placeholder');
+    const telemetryBar = document.getElementById('telemetry-bar');
+    if (generatedImage) {
+      generatedImage.removeAttribute('src');
+      generatedImage.style.display = 'none';
+    }
+    if (viewportPlaceholder) viewportPlaceholder.style.display = '';
+    if (telemetryBar) telemetryBar.style.display = 'none';
+
+    if (window.renderHistory) window.renderHistory([]);
+    if (window.ModelPromptForgeCrossModeHandoff?.clearViewportHandoffActions) {
+      window.ModelPromptForgeCrossModeHandoff.clearViewportHandoffActions();
+    }
+  }
+
   // Expose to window
   window.ModelPromptForgeMockUserSwitcher = {
     init: initMockUserSwitcher,
-    refreshActiveActorContext
+    refreshActiveActorContext,
+    clearUserScopedWorkspaceState
   };
 })();

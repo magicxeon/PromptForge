@@ -3,12 +3,13 @@ import { mockUserRepo } from '../identity/MockUserRepository.js';
 export async function actorContextMiddleware(req, res, next) {
   const isProduction = process.env.NODE_ENV === 'production';
   const userIdHeader = req.headers['x-mpf-user-id'] || req.headers['x-mpf-user-id'.toLowerCase()];
+  const userIdQuery = req.query?.mpfUserId || req.query?.mpf_user_id || null;
   const requestIdHeader = req.headers['x-mpf-request-id'] || req.headers['x-mpf-request-id'.toLowerCase()];
 
   const requestId = requestIdHeader || 'req_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
   req.requestId = requestId;
 
-  let targetUserId = userIdHeader;
+  let targetUserId = userIdHeader || userIdQuery;
   
   if (!targetUserId) {
     if (isProduction) {

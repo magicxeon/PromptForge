@@ -96,7 +96,7 @@ export async function createSceneShareDraft(sourceGenerationId, username) {
   if (!historyItem) throw new Error('Source generation result not found');
 
   // Verify ownership (Phase 8 draft check)
-  if (historyItem.username && historyItem.username !== username) {
+  if ((historyItem.username || 'user_demo') !== username) {
     throw new Error('Unauthorized: You do not own this image reference');
   }
 

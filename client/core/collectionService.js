@@ -3,6 +3,7 @@
  */
 (() => {
   const state = window.state;
+  const apiFetch = (url, options) => (window.ModelPromptForgeApiClient?.apiFetch || fetch)(url, options);
 
   function getApiErrorMessage(payload, fallback) {
     return payload?.error?.message || payload?.error || payload?.message || fallback;
@@ -18,7 +19,7 @@
 
   async function loadCollections({ preserveSelection = true } = {}) {
     try {
-      const response = await fetch('/api/collections');
+      const response = await apiFetch('/api/collections');
       const payload = await response.json();
       if (!response.ok) throw new Error(getApiErrorMessage(payload, 'Failed to load collections.'));
       state.collections = payload.collections || [];
@@ -143,10 +144,9 @@
     error.textContent = '';
 
     try {
-      const response = await fetch(id ? `/api/collections/${id}` : '/api/collections', {
+      const response = await apiFetch(id ? `/api/collections/${id}` : '/api/collections', {
         method: id ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(id ? payload : { ...payload, setAsDefault })
+        body: id ? payload : { ...payload, setAsDefault }
       });
       const result = await response.json();
       if (!response.ok) throw new Error(getApiErrorMessage(result, 'Could not save collection.'));
@@ -155,17 +155,16 @@
 
       if (id) {
         if (setAsDefault && state.defaultCollectionId !== collectionId) {
-          await fetch(`/api/collections/${collectionId}/default`, { method: 'PUT' });
+          await apiFetch(`/api/collections/${collectionId}/default`, { method: 'PUT' });
         } else if (!setAsDefault && state.defaultCollectionId === collectionId) {
-          await fetch('/api/collections/default', { method: 'DELETE' });
+          await apiFetch('/api/collections/default', { method: 'DELETE' });
         }
       }
 
       if (state.pendingCollectionJobId) {
-        const addResponse = await fetch(`/api/collections/${collectionId}/images`, {
+        const addResponse = await apiFetch(`/api/collections/${collectionId}/images`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobIds: [state.pendingCollectionJobId] })
+          body: { jobIds: [state.pendingCollectionJobId] }
         });
         if (!addResponse.ok) {
           const addPayload = await addResponse.json();
@@ -191,7 +190,7 @@
       { title: "Delete Collection", confirmLabel: "Delete" }
     );
     if (!confirmed) return;
-    const response = await fetch(`/api/collections/${id}`, { method: 'DELETE' });
+    const response = await apiFetch(`/api/collections/${id}`, { method: 'DELETE' });
     const payload = await response.json();
     if (!response.ok) {
       document.getElementById('collection-editor-error').textContent =
@@ -229,15 +228,14 @@
         checkbox.disabled = true;
         error.textContent = '';
         try {
-          const response = await fetch(
+          const response = await apiFetch(
             checkbox.checked
               ? `/api/collections/${collection.id}/images`
               : `/api/collections/${collection.id}/images/${state.collectionMembershipJobId}`,
             checkbox.checked
               ? {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ jobIds: [state.collectionMembershipJobId] })
+                body: { jobIds: [state.collectionMembershipJobId] }
               }
               : { method: 'DELETE' }
           );

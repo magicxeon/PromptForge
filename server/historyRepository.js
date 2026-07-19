@@ -38,11 +38,17 @@ export class HistoryRepository {
     return (await this.readAll()).find(item => item.id === jobId) || null;
   }
 
-  async listPage({ cursor = null, limit = 24, collectionId = 'all', allowedJobIds = null } = {}) {
+  async listPage({ cursor = null, limit = 24, collectionId = 'all', allowedJobIds = null, username = null } = {}) {
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 24));
-    const scope = collectionId || 'all';
+    const scope = JSON.stringify({ collectionId: collectionId || 'all', username: username || 'all' });
     const decodedCursor = cursor ? this.decodeCursor(cursor, scope) : null;
     let items = await this.readAll();
+    if (username) {
+      items = items.filter(item => {
+        if (!item.username) return username === 'user_demo';
+        return item.username === username;
+      });
+    }
     if (allowedJobIds instanceof Set) items = items.filter(item => allowedJobIds.has(item.id));
     items.sort(compareHistoryItems);
     if (decodedCursor) {

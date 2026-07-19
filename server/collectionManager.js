@@ -111,10 +111,15 @@ export class CollectionManager {
     return value;
   }
 
-  getCollectionOrThrow(data, collectionId) {
+  isOwnedBy(collection, username) {
+    if (!username) return true;
+    return (collection.ownerUsername || 'user_demo') === username;
+  }
+
+  getCollectionOrThrow(data, collectionId, username = null) {
     this.validateCollectionId(collectionId);
     const collection = data.collections.find(item => item.id === collectionId);
-    if (!collection) {
+    if (!collection || !this.isOwnedBy(collection, username)) {
       throw new CollectionError('collection_not_found', 'Collection not found.', 404);
     }
     return collection;
@@ -128,20 +133,24 @@ export class CollectionManager {
     };
   }
 
-  async list() {
+  async list(username = null) {
     const data = await this.readData();
+    const collections = username
+      ? data.collections.filter(collection => this.isOwnedBy(collection, username))
+      : data.collections;
+    const defaultCollection = collections.find(collection => collection.id === data.defaultCollectionId);
     return {
       version: data.version,
-      defaultCollectionId: data.defaultCollectionId,
-      collections: data.collections.map(collection =>
+      defaultCollectionId: defaultCollection ? data.defaultCollectionId : null,
+      collections: collections.map(collection =>
         this.toSummary(collection, data.defaultCollectionId)
       )
     };
   }
 
-  async get(collectionId) {
+  async get(collectionId, username = null) {
     const data = await this.readData();
-    const collection = this.getCollectionOrThrow(data, collectionId);
+    const collection = this.getCollectionOrThrow(data, collectionId, username);
     const history = await this.readHistory();
     const historyById = new Map(history.map(item => [item.id, item]));
     const members = collection.jobIds
@@ -158,7 +167,7 @@ export class CollectionManager {
     };
   }
 
-  async create(payload = {}) {
+  async create(payload = {}, username = 'user_demo') {
     const name = this.normalizeText(payload.name, 'name', 100, { required: true });
     const description = this.normalizeText(payload.description ?? '', 'description', 1000);
     const story = this.normalizeText(payload.story ?? '', 'story', 20000);
@@ -169,6 +178,7 @@ export class CollectionManager {
         name,
         description,
         story,
+        ownerUsername: username || 'user_demo',
         coverJobId: null,
         jobIds: [],
         createdAt: timestamp,
@@ -187,14 +197,14 @@ export class CollectionManager {
     });
   }
 
-  async update(collectionId, payload = {}) {
+  async update(collectionId, payload = {}, username = null) {
     const allowedFields = new Set(['name', 'description', 'story', 'coverJobId']);
     const requestedFields = Object.keys(payload);
     if (!requestedFields.some(field => allowedFields.has(field))) {
       throw new CollectionError('invalid_payload', 'No editable collection fields were provided.');
     }
     return this.mutate(async data => {
-      const collection = this.getCollectionOrThrow(data, collectionId);
+      const collection = this.getCollectionOrThrow(data, collectionId, username);
       if (payload.name !== undefined) {
         collection.name = this.normalizeText(payload.name, 'name', 100, { required: true });
       }
@@ -223,9 +233,9 @@ export class CollectionManager {
     });
   }
 
-  async remove(collectionId) {
+  async remove(collectionId, username = null) {
     return this.mutate(async data => {
-      this.getCollectionOrThrow(data, collectionId);
+      this.getCollectionOrThrow(data, collectionId, username);
       data.collections = data.collections.filter(item => item.id !== collectionId);
       if (data.defaultCollectionId === collectionId) {
         data.defaultCollectionId = null;
@@ -234,13 +244,15 @@ export class CollectionManager {
     });
   }
 
-  async addImages(collectionId, jobIds) {
+  async addImages(collectionId, jobIds, username = null) {
     if (!Array.isArray(jobIds) || jobIds.length === 0) {
       throw new CollectionError('invalid_payload', 'jobIds must be a non-empty array.');
     }
     const normalizedIds = [...new Set(jobIds.map(jobId => this.validateJobId(jobId)))];
     const history = await this.readHistory();
-    const historyIds = new Set(history.map(item => item.id));
+    const historyIds = new Set(history
+      .filter(item => !username || (item.username || 'user_demo') === username)
+      .map(item => item.id));
     const unknownIds = normalizedIds.filter(jobId => !historyIds.has(jobId));
     if (unknownIds.length > 0) {
       throw new CollectionError(
@@ -250,7 +262,7 @@ export class CollectionManager {
       );
     }
     return this.mutate(async data => {
-      const collection = this.getCollectionOrThrow(data, collectionId);
+      const collection = this.getCollectionOrThrow(data, collectionId, username);
       normalizedIds.forEach(jobId => {
         if (!collection.jobIds.includes(jobId)) collection.jobIds.push(jobId);
       });
@@ -260,10 +272,10 @@ export class CollectionManager {
     });
   }
 
-  async removeImage(collectionId, jobId) {
+  async removeImage(collectionId, jobId, username = null) {
     this.validateJobId(jobId);
     return this.mutate(async data => {
-      const collection = this.getCollectionOrThrow(data, collectionId);
+      const collection = this.getCollectionOrThrow(data, collectionId, username);
       collection.jobIds = collection.jobIds.filter(id => id !== jobId);
       if (collection.coverJobId === jobId) {
         collection.coverJobId = collection.jobIds[0] || null;
@@ -273,27 +285,36 @@ export class CollectionManager {
     });
   }
 
-  async setDefault(collectionId) {
+  async setDefault(collectionId, username = null) {
     return this.mutate(async data => {
-      const collection = this.getCollectionOrThrow(data, collectionId);
+      const collection = this.getCollectionOrThrow(data, collectionId, username);
       data.defaultCollectionId = collection.id;
       collection.updatedAt = Date.now();
       return this.toSummary(collection, data.defaultCollectionId);
     });
   }
 
-  async clearDefault() {
+  async clearDefault(username = null) {
     return this.mutate(async data => {
-      data.defaultCollectionId = null;
+      if (!username) {
+        data.defaultCollectionId = null;
+      } else {
+        const currentDefault = data.collections.find(collection => collection.id === data.defaultCollectionId);
+        if (currentDefault && this.isOwnedBy(currentDefault, username)) {
+          data.defaultCollectionId = null;
+        }
+      }
       return { success: true, defaultCollectionId: null };
     });
   }
 
-  async addToDefault(jobId) {
+  async addToDefault(jobId, username = null) {
     this.validateJobId(jobId);
     return this.mutate(async data => {
       if (!data.defaultCollectionId) return null;
-      const collection = data.collections.find(item => item.id === data.defaultCollectionId);
+      const collection = data.collections.find(item =>
+        item.id === data.defaultCollectionId && this.isOwnedBy(item, username)
+      );
       if (!collection) {
         data.defaultCollectionId = null;
         return null;

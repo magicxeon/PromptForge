@@ -21,7 +21,8 @@
         collectionId: state.selectedCollectionId || 'all'
       });
       if (!reset && state.historyCursor) params.set('cursor', state.historyCursor);
-      const res = await fetch(`/api/history?${params}`, { signal: controller.signal });
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch(`/api/history?${params}`, { signal: controller.signal });
       const payload = await res.json();
       if (!res.ok && !reset && payload?.error?.code === 'invalid_history_cursor') {
         return loadHistory({ reset: true });
@@ -222,7 +223,8 @@
 
   async function deleteHistory(jobId) {
     try {
-      const res = await fetch(`/api/history/${jobId}`, {
+      const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
+      const res = await apiFetch(`/api/history/${jobId}`, {
         method: 'DELETE'
       });
       if (res.ok) {

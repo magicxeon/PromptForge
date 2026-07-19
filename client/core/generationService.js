@@ -417,7 +417,7 @@
   async function updateCredits() {
     try {
       const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
-      const res = await apiFetch(`/api/credits?user=${state.username}`);
+      const res = await apiFetch('/api/credits');
       const data = await res.json();
       const creditsVal = document.getElementById("credits-value");
       if (creditsVal) creditsVal.textContent = data.credits;

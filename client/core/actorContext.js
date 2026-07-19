@@ -32,6 +32,12 @@
     };
   }
 
+  function appendActorQuery(url) {
+    const activeUserId = getActiveMockUserId();
+    const separator = String(url).includes('?') ? '&' : '?';
+    return `${url}${separator}mpfUserId=${encodeURIComponent(activeUserId)}`;
+  }
+
   function subscribeActorChange(listener) {
     if (typeof listener === 'function') {
       listeners.add(listener);
@@ -45,6 +51,7 @@
     getActiveMockUserId,
     setActiveMockUserId,
     getActorHeader,
+    appendActorQuery,
     subscribeActorChange
   };
 })();

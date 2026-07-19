@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 28
+      "credits": 78
     },
     "admin_demo": {
       "role": "admin",
@@ -400,7 +400,7 @@
     },
     {
       "id": "credit_1784280806756_z8qth3",
-      "username": "admin_demo",
+      "username": "user_demo",
       "amount": -1,
       "type": "generation_charge",
       "jobId": "job_1784280806755_9f49ydhct",
@@ -410,7 +410,7 @@
     },
     {
       "id": "credit_1784280869532_vic1wj",
-      "username": "admin_demo",
+      "username": "user_demo",
       "amount": -1,
       "type": "generation_charge",
       "jobId": "job_1784280869530_lyljseucn",
@@ -470,7 +470,7 @@
     },
     {
       "id": "credit_1784381682995_jolco3",
-      "username": "admin_demo",
+      "username": "user_demo",
       "amount": -1,
       "type": "generation_charge",
       "jobId": "job_1784381682993_ni6568fla",
@@ -550,7 +550,7 @@
     },
     {
       "id": "credit_1784396107584_ul3o65",
-      "username": "admin_demo",
+      "username": "user_demo",
       "amount": -1,
       "type": "generation_charge",
       "jobId": "job_1784396107581_824dekr6l",
@@ -587,6 +587,56 @@
       "comparisonSetId": null,
       "comparisonRunId": null,
       "createdAt": 1784444057130
+    },
+    {
+      "id": "credit_1784477115151_rgyg37",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115151
+    },
+    {
+      "id": "credit_1784477115205_26cm0s",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115205
+    },
+    {
+      "id": "credit_1784477115407_jd2g3k",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115407
+    },
+    {
+      "id": "credit_1784477115922_ked1pz",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477115922
+    },
+    {
+      "id": "credit_1784477116163_i3l28c",
+      "username": "user_demo",
+      "amount": 10,
+      "type": "recharge",
+      "jobId": null,
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784477116163
     }
   ]
 }

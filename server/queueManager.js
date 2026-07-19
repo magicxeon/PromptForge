@@ -125,9 +125,10 @@ class QueueManager {
   /**
    * Add SSE listener for a specific job
    */
-  addListener(jobId, res) {
+  addListener(jobId, res, username = null) {
     const job = this.jobs.get(jobId);
     if (!job) return false;
+    if (username && job.options?.username && job.options.username !== username) return false;
 
     // Set headers for Server-Sent Events (SSE)
     res.setHeader('Content-Type', 'text/event-stream');
@@ -337,7 +338,7 @@ class QueueManager {
 
       let collectionWarning = null;
       try {
-        await collectionManager.addToDefault(jobId);
+        await collectionManager.addToDefault(jobId, job.options.username || 'user_demo');
       } catch (collectionError) {
         collectionWarning = 'The image was saved, but it could not be added to the default collection.';
         console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
@@ -459,6 +460,12 @@ class QueueManager {
     }
   }
 
+  async deleteHistoryEntryForUser(jobId, username) {
+    const entry = await this.getHistoryEntryForUser(jobId, username);
+    if (!entry) return false;
+    return this.deleteHistoryEntry(jobId);
+  }
+
   /**
    * Get all history records
    */
@@ -503,6 +510,32 @@ class QueueManager {
       error: null,
       recoveredFromHistory: true
     };
+  }
+
+  async getJobStatusForUser(jobId, username) {
+    const job = this.jobs.get(jobId);
+    if (job && job.options?.username && username && job.options.username !== username) {
+      return null;
+    }
+
+    const status = await this.getJobStatus(jobId);
+    if (!status) return null;
+
+    if (status.recoveredFromHistory) {
+      const entry = await this.getHistoryEntryForUser(jobId, username);
+      return entry ? status : null;
+    }
+
+    return status;
+  }
+
+  async getHistoryEntryForUser(jobId, username) {
+    const history = await this.getHistory();
+    const entry = history.find(item => item.id === jobId);
+    if (!entry) return null;
+    if (!username) return entry;
+    if (!entry.username) return username === 'user_demo' ? entry : null;
+    return entry.username === username ? entry : null;
   }
 }
 

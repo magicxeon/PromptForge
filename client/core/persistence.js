@@ -4,12 +4,25 @@
 (() => {
   const state = window.state;
 
+  function getActiveActorStoragePrefix() {
+    const userId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || "usr_demo";
+    return String(userId).replace(/[^a-zA-Z0-9_-]/g, "_");
+  }
+
+  function getModeStorageKey(mode) {
+    return `model_prompt_forge_state_${getActiveActorStoragePrefix()}_${mode.replace("-", "_")}`;
+  }
+
+  function getLegacyModeStorageKey(mode) {
+    return `model_prompt_forge_state_${mode.replace("-", "_")}`;
+  }
+
   function saveCurrentModeState() {
     if (!state.mode) return;
     if (window.enforceFaceMatchInvariant) window.enforceFaceMatchInvariant({ updateUI: false });
     if (window.enforceModeReferencePolicy) window.enforceModeReferencePolicy({ updateUI: false });
     if (window.pruneSelectionsForMode) window.pruneSelectionsForMode(state.selections, state.mode);
-    const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
+    const modeKey = getModeStorageKey(state.mode);
 
     const payload = {
       selections: window.getModeCompatibleSelections ? window.getModeCompatibleSelections(state.selections, state.mode) : state.selections,
@@ -54,8 +67,10 @@
 
   function restoreCurrentModeState() {
     if (!state.mode) return;
-    const modeKey = `model_prompt_forge_state_${state.mode.replace("-", "_")}`;
-    const saved = localStorage.getItem(modeKey);
+    const modeKey = getModeStorageKey(state.mode);
+    const legacyModeKey = getLegacyModeStorageKey(state.mode);
+    const isDemoActor = getActiveActorStoragePrefix() === "usr_demo";
+    const saved = localStorage.getItem(modeKey) || (isDemoActor ? localStorage.getItem(legacyModeKey) : null);
     if (!saved) {
       state.isRestoringState = true;
       resetForm();

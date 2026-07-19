@@ -282,7 +282,7 @@
           parentThumb.appendChild(typeBadge);
 
           if (!parentItem) {
-            fetch(`/api/history/${encodeURIComponent(p.id)}`)
+            (window.ModelPromptForgeApiClient?.apiFetch || fetch)(`/api/history/${encodeURIComponent(p.id)}`)
               .then(response => response.ok ? response.json() : null)
               .then(loadedParent => {
                 if (!loadedParent) return;
