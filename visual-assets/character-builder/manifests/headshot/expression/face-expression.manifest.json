@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.expression.face-expression",
+  "fieldId": "expression.face",
+  "sectionId": "expression",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "face-expression-set-r1.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.expression.face.subtle-micro-expression",
+      "optionId": "expression.face.subtle_micro",
+      "slug": "subtle-micro-expression",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Relaxed neutral micro-expression in clean line art", "th": "Relaxed neutral micro-expression in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.expression.face.thoughtful",
+      "optionId": "expression.face.thoughtful",
+      "slug": "thoughtful",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Soft thoughtful expression in clean line art", "th": "Soft thoughtful expression in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.expression.face.friendly-smile",
+      "optionId": "expression.face.friendly_smile",
+      "slug": "friendly-smile",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Soft friendly smile in clean line art", "th": "Soft friendly smile in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.expression.face.gentle-laugh",
+      "optionId": "expression.face.gentle_laugh",
+      "slug": "gentle-laugh",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Candid gentle laugh in clean line art", "th": "Candid gentle laugh in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.expression.face.playful-smirk",
+      "optionId": "expression.face.playful_smirk",
+      "slug": "playful-smirk",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Playful mild smirk in clean line art", "th": "Playful mild smirk in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.expression.face.reflective-mood",
+      "optionId": "expression.face.reflective_mood",
+      "slug": "reflective-mood",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 44%",
+      "alt": { "en": "Reflective neutral mood in clean line art", "th": "Reflective neutral mood in clean line art" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

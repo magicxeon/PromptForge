@@ -1,0 +1,28 @@
+{
+  "id": "job_guided123",
+  "username": "user_demo",
+  "mode": "normal",
+  "prompt": "A guided template output scene",
+  "imageUrl": "/outputs/job_guided123.png",
+  "timestamp": 1784366700000,
+  "sceneTemplateSnapshot": {
+    "sceneTemplateVersion": 1,
+    "title": "Guided Sample",
+    "description": "Sample description",
+    "authoringMode": "guided",
+    "finalPromptSnapshot": "A guided template output scene",
+    "replaceableVariables": [
+      {
+        "id": "face_reference",
+        "type": "reference_image",
+        "required": true
+      }
+    ],
+    "referenceSlotMapping": {
+      "face_reference": {
+        "required": true,
+        "sharePolicy": "required_user_replacement"
+      }
+    }
+  }
+}

@@ -1514,7 +1514,7 @@
     "subcategory": "Camera Imperfections",
     "prompt": {
       "default": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
-      "gpt-image": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look"
+      "gpt-image": "minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look, no AI-generated artifacts"
     },
     "tags": [
       "camera",

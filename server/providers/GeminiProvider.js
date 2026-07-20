@@ -81,6 +81,23 @@ export class GeminiProvider extends BaseProvider {
         });
       }
 
+      if (options.resolvedOutfitReferenceImageFront) {
+        const image = normalizeImage(options.resolvedOutfitReferenceImageFront);
+        input.push({
+          type: 'image',
+          mime_type: image.mimeType,
+          data: image.data
+        });
+      }
+      if (options.resolvedOutfitReferenceImageBack) {
+        const image = normalizeImage(options.resolvedOutfitReferenceImageBack);
+        input.push({
+          type: 'image',
+          mime_type: image.mimeType,
+          data: image.data
+        });
+      }
+
       // Append style/character references if provided (Slot A & Slot B) (Step 9)
       if (options.resolvedStyleReferenceImageA) {
         const image = normalizeImage(options.resolvedStyleReferenceImageA);

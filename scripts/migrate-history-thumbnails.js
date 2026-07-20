@@ -1,14 +1,13 @@
 import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
-import { ThumbnailService } from '../server/thumbnailService.js';
+import { pathToFileURL } from 'url';
+import { MIGRATIONS_DATA_DIR, resolveDataFile } from '../server/config/paths.js';
+import { ThumbnailService } from '../server/domain/generation/thumbnailService.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const ROOT_DIR = path.resolve(path.dirname(__filename), '..');
-const HISTORY_FILE = path.join(ROOT_DIR, 'server/history.json');
-const COMPARISONS_FILE = path.join(ROOT_DIR, 'server/comparisons.json');
-const MIGRATIONS_DIR = path.join(ROOT_DIR, 'server/migrations');
+const HISTORY_FILE = resolveDataFile('history');
+const COMPARISONS_FILE = resolveDataFile('comparisons');
+const MIGRATIONS_DIR = MIGRATIONS_DATA_DIR;
 const BACKUP_DIR = path.join(MIGRATIONS_DIR, 'backups');
 const CHECKPOINT_DIR = path.join(MIGRATIONS_DIR, 'checkpoints');
 const REPORT_DIR = path.join(MIGRATIONS_DIR, 'reports');

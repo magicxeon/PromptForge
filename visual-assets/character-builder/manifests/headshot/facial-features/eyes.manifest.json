@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.eyes",
+  "fieldId": "eyes.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "eyes-set-r1.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 4,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.eyes.shape.almond",
+      "optionId": "eyes.shape.almond",
+      "slug": "almond",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of almond-shaped eyes in clean line art", "th": "เส้นภาพดวงตาทรงอัลมอนด์หนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.monolid",
+      "optionId": "eyes.shape.monolid",
+      "slug": "monolid",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of monolid eyes in clean line art", "th": "เส้นภาพดวงตาชั้นเดียวหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.double-eyelids",
+      "optionId": "eyes.shape.double_eyelids",
+      "slug": "double-eyelids",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of eyes with double eyelids in clean line art", "th": "เส้นภาพดวงตาสองชั้นหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.round",
+      "optionId": "eyes.shape.round",
+      "slug": "round",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of round eyes in clean line art", "th": "เส้นภาพดวงตาทรงกลมหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.phoenix",
+      "optionId": "eyes.shape.phoenix",
+      "slug": "phoenix",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of phoenix eyes with gently lifted outer corners in clean line art", "th": "เส้นภาพดวงตาหงส์ที่หางตายกอย่างนุ่มนวลหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.doe",
+      "optionId": "eyes.shape.doe",
+      "slug": "doe",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of soft open doe eyes in clean line art", "th": "เส้นภาพดวงตากลมใสแบบ doe eyes หนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.puppy",
+      "optionId": "eyes.shape.puppy",
+      "slug": "puppy",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of puppy eyes with slightly lowered outer corners in clean line art", "th": "เส้นภาพดวงตาแป๋วที่หางตาลดลงเล็กน้อยหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyes.shape.hooded",
+      "optionId": "eyes.shape.hooded",
+      "slug": "hooded",
+      "row": 2,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Pair of hooded eyes in clean line art", "th": "เส้นภาพดวงตาเปลือกตาตกหนึ่งคู่" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

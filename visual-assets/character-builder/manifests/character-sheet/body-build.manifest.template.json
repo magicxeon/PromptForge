@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-build",
+  "fieldId": "body.build",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "body-build-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 5,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.body.build.slender",
+      "optionId": "body.build.slender",
+      "attributeId": "body.build_01",
+      "slug": "slender",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Slender natural build diagram", "th": "ภาพโครงรูปร่างเพรียวธรรมชาติ" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.build.balanced",
+      "optionId": "body.build.balanced",
+      "attributeId": "body.build_03",
+      "slug": "balanced",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Balanced natural build diagram", "th": "ภาพโครงรูปร่างสมส่วนธรรมชาติ" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.build.athletic",
+      "optionId": "body.build.athletic",
+      "attributeId": "body.build_02",
+      "slug": "athletic",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Athletic natural build diagram", "th": "ภาพโครงรูปร่างแข็งแรงแบบธรรมชาติ" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.build.broad",
+      "optionId": "body.build.broad",
+      "attributeId": "body.build_04",
+      "slug": "broad",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Broad structured natural build diagram", "th": "ภาพโครงรูปร่างกว้างมีโครงสร้าง" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.body.build.soft",
+      "optionId": "body.build.soft",
+      "attributeId": "body.build_05",
+      "slug": "soft",
+      "row": 1,
+      "column": 5,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Soft natural build diagram", "th": "ภาพโครงรูปร่างนุ่มนวลเป็นธรรมชาติ" },
+      "reviewStatus": "planned"
+    }
+  ]
+}

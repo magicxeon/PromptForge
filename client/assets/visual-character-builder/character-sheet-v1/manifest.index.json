@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "manifests": [
+    {
+      "fieldId": "body.silhouette",
+      "manifestId": "character-sheet.body.body-silhouette",
+      "url": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/manifest.json"
+    },
+    {
+      "fieldId": "body.silhouette.female",
+      "manifestId": "character-sheet.body.body-silhouette-female",
+      "url": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-female/manifest.json"
+    },
+    {
+      "fieldId": "body.silhouette.male",
+      "manifestId": "character-sheet.body.body-silhouette-male",
+      "url": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/manifest.json"
+    },
+    {
+      "fieldId": "clothing.outfit-base",
+      "manifestId": "character-sheet.clothing.outfit-base",
+      "url": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/manifest.json"
+    },
+    {
+      "fieldId": "clothing.outfit-base.female",
+      "manifestId": "character-sheet.clothing.outfit-base-female",
+      "url": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/manifest.json"
+    },
+    {
+      "fieldId": "clothing.outfit-base.male",
+      "manifestId": "character-sheet.clothing.outfit-base-male",
+      "url": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/manifest.json"
+    }
+  ]
+}

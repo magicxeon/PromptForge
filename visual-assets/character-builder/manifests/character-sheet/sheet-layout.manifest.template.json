@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.layout.sheet-layout",
+  "fieldId": "sheet.layout",
+  "sectionId": "layout",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "sheet-layout-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.sheet.layout.front-side-back",
+      "optionId": "body.sheet_layout.front_side_back",
+      "attributeId": "body.sheet_layout.front_side_back",
+      "slug": "front-side-back",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Front side back character sheet layout diagram", "th": "ภาพผัง Character Sheet แบบหน้า ข้าง หลัง" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.sheet.layout.front-back",
+      "optionId": "body.sheet_layout.front_back",
+      "attributeId": "body.sheet_layout.front_back",
+      "slug": "front-back",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Front back character sheet layout diagram", "th": "ภาพผัง Character Sheet แบบหน้า หลัง" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.sheet.layout.front-only-full-body",
+      "optionId": "body.sheet_layout.front_only_full_body",
+      "attributeId": "body.sheet_layout.front_only_full_body",
+      "slug": "front-only-full-body",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Front only full-body character sheet layout diagram", "th": "ภาพผัง Character Sheet แบบเต็มตัวด้านหน้า" },
+      "reviewStatus": "planned"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "status": "template-only",
+  "publishTarget": "/assets/visual-character-builder/character-sheet-v1/manifest.index.json",
+  "manifests": [
+    {
+      "fieldId": "body.silhouette",
+      "manifestId": "character-sheet.body.body-silhouette",
+      "template": "body-silhouette.manifest.template.json",
+      "runtimeUrl": "/assets/visual-character-builder/character-sheet-v1/body-silhouette/manifest.json"
+    },
+    {
+      "fieldId": "body.build",
+      "manifestId": "character-sheet.body.body-build",
+      "template": "body-build.manifest.template.json",
+      "runtimeUrl": "/assets/visual-character-builder/character-sheet-v1/body-build/manifest.json"
+    },
+    {
+      "fieldId": "outfit.preset",
+      "manifestId": "character-sheet.outfit.outfit-preset",
+      "template": "outfit-preset.manifest.template.json",
+      "runtimeUrl": "/assets/visual-character-builder/character-sheet-v1/outfit-preset/manifest.json"
+    },
+    {
+      "fieldId": "sheet.layout",
+      "manifestId": "character-sheet.layout.sheet-layout",
+      "template": "sheet-layout.manifest.template.json",
+      "runtimeUrl": "/assets/visual-character-builder/character-sheet-v1/sheet-layout/manifest.json"
+    }
+  ]
+}

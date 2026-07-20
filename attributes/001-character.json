@@ -42,27 +42,6 @@
     "enabled": true
   },
   {
-    "id": "character.002_nb",
-    "category": "character",
-    "subcategory": "Gender",
-    "label": {
-      "en": "Non-binary",
-      "th": "นอนไบนารี (Non-binary)"
-    },
-    "ui": {
-      "control": "select",
-      "group": "Character"
-    },
-    "prompt": {
-      "default": "non-binary person",
-      "gpt-image": "non-binary person with androgenous features"
-    },
-    "tags": [
-      "character"
-    ],
-    "enabled": true
-  },
-  {
     "id": "character.003",
     "category": "character",
     "subcategory": "Gender",

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modelpromptforge.local/schemas/illustrated-set-manifest.schema.json",
+  "title": "Illustrated Set Manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "manifestId",
+    "fieldId",
+    "sectionId",
+    "visualStyleVersion",
+    "assetFamily",
+    "recolorMode",
+    "sourceSheet",
+    "runtimeProfiles",
+    "items"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "manifestId": { "type": "string", "minLength": 1 },
+    "fieldId": { "type": "string", "minLength": 1 },
+    "sectionId": { "type": "string", "minLength": 1 },
+    "visualStyleVersion": { "type": "string", "minLength": 1 },
+    "assetFamily": { "const": "illustrated-set" },
+    "recolorMode": { "enum": ["mask"] },
+    "sourceSheet": {
+      "type": "object",
+      "required": ["filename", "revision", "rows", "columns", "sliceStrategy"],
+      "properties": {
+        "filename": { "type": "string", "minLength": 1 },
+        "revision": { "type": "integer", "minimum": 1 },
+        "rows": { "type": "integer", "minimum": 1 },
+        "columns": { "type": "integer", "minimum": 1 },
+        "sliceStrategy": { "enum": ["grid", "explicit-bounds"] },
+        "width": { "type": ["integer", "null"], "minimum": 1 },
+        "height": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "runtimeProfiles": {
+      "type": "object",
+      "required": ["master", "preview", "thumb"],
+      "properties": {
+        "master": { "$ref": "#/$defs/profile" },
+        "preview": { "$ref": "#/$defs/profile" },
+        "thumb": { "$ref": "#/$defs/profile" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "required": ["width", "height", "format"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "format": { "enum": ["png"] }
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "required": ["left", "top", "width", "height"],
+      "properties": {
+        "left": { "type": "integer", "minimum": 0 },
+        "top": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": [
+        "assetId",
+        "optionId",
+        "slug",
+        "row",
+        "column",
+        "assetRevision",
+        "focalPoint",
+        "alt",
+        "reviewStatus"
+      ],
+      "properties": {
+        "assetId": { "type": "string", "minLength": 1 },
+        "optionId": { "type": "string", "minLength": 1 },
+        "attributeId": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "row": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "sourceBounds": { "anyOf": [{ "$ref": "#/$defs/bounds" }, { "type": "null" }] },
+        "assetRevision": { "type": "integer", "minimum": 1 },
+        "overrideFilename": { "type": ["string", "null"] },
+        "focalPoint": { "type": "string" },
+        "alt": {
+          "type": "object",
+          "required": ["en", "th"],
+          "properties": {
+            "en": { "type": "string", "minLength": 1 },
+            "th": { "type": "string", "minLength": 1 }
+          }
+        },
+        "reviewStatus": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -89,6 +89,8 @@ export class GrokImagineProvider extends BaseProvider {
     const references = [
       options.resolvedCharacterReferenceImageA,
       options.resolvedCharacterReferenceImageB,
+      options.resolvedOutfitReferenceImageFront,
+      options.resolvedOutfitReferenceImageBack,
       options.resolvedFaceReferenceImageA,
       options.resolvedFaceReferenceImageB,
       options.resolvedStyleReferenceImageA,

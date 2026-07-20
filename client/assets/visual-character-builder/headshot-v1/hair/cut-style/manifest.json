@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.cut-style",
+  "fieldId": "hair.cut_style",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.hair.cut-style.ponytail",
+      "optionId": "hair.cut_style.ponytail",
+      "slug": "ponytail",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "High ponytail hairstyle in clean line art",
+        "th": "High ponytail hairstyle in clean line art"
+      },
+      "sourceHash": "ab9f73ee2e20c18b56acda1942ff825d41c3fcdb586ac2682568720eb1101e2e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/ponytail-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/ponytail-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/ponytail-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.messy-bun",
+      "optionId": "hair.cut_style.messy_bun",
+      "slug": "messy-bun",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Messy bun hairstyle in clean line art",
+        "th": "Messy bun hairstyle in clean line art"
+      },
+      "sourceHash": "0ddb4c6a9bd31f66f7b124a027b47b21fcd97c2a8a6c2bba719049e76cf605d0",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/messy-bun-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/messy-bun-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/messy-bun-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.french-braid",
+      "optionId": "hair.cut_style.french_braid",
+      "slug": "french-braid",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "French braid hairstyle in clean line art",
+        "th": "French braid hairstyle in clean line art"
+      },
+      "sourceHash": "6f840457647b8793b7634fc228458f7ca6ac76531579196a8998e4cf3890aef5",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/french-braid-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/french-braid-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/french-braid-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.layered-hush-cut",
+      "optionId": "hair.cut_style.layered_hush_cut",
+      "slug": "layered-hush-cut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Layered hush cut hairstyle in clean line art",
+        "th": "Layered hush cut hairstyle in clean line art"
+      },
+      "sourceHash": "f8e60dd7c59f2e164b813992ab6656371b1e94a7cc4b6dd67762d10c776d59da",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/layered-hush-cut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/layered-hush-cut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/layered-hush-cut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.long-loose-waves",
+      "optionId": "hair.cut_style.long_loose_waves",
+      "slug": "long-loose-waves",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 54%",
+      "alt": {
+        "en": "Long loose waves hairstyle in clean line art",
+        "th": "Long loose waves hairstyle in clean line art"
+      },
+      "sourceHash": "9a6e819764049303e9a545aba19b55611155cf24eac038a8108d70f68a18d9a8",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/long-loose-waves-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/long-loose-waves-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/long-loose-waves-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.side-swept",
+      "optionId": "hair.cut_style.side_swept",
+      "slug": "side-swept",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 54%",
+      "alt": {
+        "en": "Side-swept hairstyle in clean line art",
+        "th": "Side-swept hairstyle in clean line art"
+      },
+      "sourceHash": "0c7654d4afaf3fc40cbd69e7d348176e5513f60a151cb14cbeecde9acba5034b",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/side-swept-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/side-swept-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/side-swept-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.wet-look",
+      "optionId": "hair.cut_style.wet_look",
+      "slug": "wet-look",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Wet look hairstyle in clean line art",
+        "th": "Wet look hairstyle in clean line art"
+      },
+      "sourceHash": "10de1b69a6c2e1ab9ae4414ab9baf9d3552be6a5d22b18260654fefb54766be4",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/wet-look-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/wet-look-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/wet-look-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.wolf-cut",
+      "optionId": "hair.cut_style.wolf_cut",
+      "slug": "wolf-cut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Wolf cut hairstyle in clean line art",
+        "th": "Wolf cut hairstyle in clean line art"
+      },
+      "sourceHash": "20132c1f5f25bc3a7bf35e65d49ba93726e1fd708cc48262e9e6163c819746ab",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/wolf-cut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/wolf-cut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/wolf-cut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.crew-cut",
+      "optionId": "hair.cut_style.crew_cut",
+      "slug": "crew-cut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Crew cut hairstyle in clean line art",
+        "th": "Crew cut hairstyle in clean line art"
+      },
+      "sourceHash": "f12dbfc0bb0ae1adbf4e22116ce5c41554f9abdd760096d81de30ce51ecb9dd5",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/crew-cut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/crew-cut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/crew-cut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.side-part",
+      "optionId": "hair.cut_style.side_part",
+      "slug": "side-part",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Side part hairstyle in clean line art",
+        "th": "Side part hairstyle in clean line art"
+      },
+      "sourceHash": "57a8f40b32befd910d7aca310b163858af269aaf0866ec4c297f47ee54af76cf",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/side-part-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/side-part-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/side-part-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.undercut",
+      "optionId": "hair.cut_style.undercut",
+      "slug": "undercut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Undercut hairstyle in clean line art",
+        "th": "Undercut hairstyle in clean line art"
+      },
+      "sourceHash": "678e13ab18d83e178ef21fcd650369edba042baec68d151b5ee11de6ea8c2640",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/undercut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/undercut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/undercut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.pompadour",
+      "optionId": "hair.cut_style.pompadour",
+      "slug": "pompadour",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Pompadour hairstyle in clean line art",
+        "th": "Pompadour hairstyle in clean line art"
+      },
+      "sourceHash": "a73e94573124ba3c21b564a8f58133c878ab5c1f0e70bb8915d8442a2648a3df",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/pompadour-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/pompadour-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/pompadour-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.quiff",
+      "optionId": "hair.cut_style.quiff",
+      "slug": "quiff",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Quiff hairstyle in clean line art",
+        "th": "Quiff hairstyle in clean line art"
+      },
+      "sourceHash": "86ae495dcc182f6812ea88a0ffb4a754b3996ddcfee24a5735aab1e960fe8edc",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/quiff-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/quiff-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/quiff-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.textured-crop",
+      "optionId": "hair.cut_style.textured_crop",
+      "slug": "textured-crop",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Textured crop hairstyle in clean line art",
+        "th": "Textured crop hairstyle in clean line art"
+      },
+      "sourceHash": "c6c3d40ad8fda35dbd4121d76593b56e3dfec09f991be6baba17453bfa9bbd7e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/textured-crop-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/textured-crop-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/textured-crop-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.caesar-cut",
+      "optionId": "hair.cut_style.caesar_cut",
+      "slug": "caesar-cut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Caesar cut hairstyle in clean line art",
+        "th": "Caesar cut hairstyle in clean line art"
+      },
+      "sourceHash": "72cfba038093545c0ee04ea3a8d4e2261f9020feb78100001bccc8d9a7d6a19b",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/caesar-cut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/caesar-cut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/caesar-cut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.cut-style.short-curly-crop",
+      "optionId": "hair.cut_style.short_curly_crop",
+      "slug": "short-curly-crop",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Short curly crop hairstyle in clean line art",
+        "th": "Short curly crop hairstyle in clean line art"
+      },
+      "sourceHash": "a36e237b09f9340eee1d85d346bdd562823880a686c24fabc8a1c3e532745ff4",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/cut-style/master/short-curly-crop-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/cut-style/preview/short-curly-crop-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/cut-style/thumb/short-curly-crop-r1.png"
+      }
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.outfit.outfit-preset",
+  "fieldId": "outfit.preset",
+  "sectionId": "outfit",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "outfit-preset-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 5,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.outfit.preset.sheet-baseline",
+      "optionId": "outfit.preset.sheet_baseline",
+      "attributeId": "outfit.preset.sheet_baseline",
+      "slug": "sheet-baseline",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Plain baseline character sheet outfit diagram", "th": "ภาพชุดพื้นฐานสำหรับ Character Sheet" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.outfit.preset.casual-tshirt-jeans",
+      "optionId": "outfit.preset.casual_tshirt_jeans",
+      "attributeId": "outfit.preset.casual_tshirt_jeans",
+      "slug": "casual-tshirt-jeans",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "T-shirt and jeans outfit diagram", "th": "ภาพชุดเสื้อยืดและยีนส์" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.outfit.preset.simple-dress",
+      "optionId": "outfit.preset.simple_dress",
+      "attributeId": "outfit.preset.simple_dress",
+      "slug": "simple-dress",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Simple dress outfit diagram", "th": "ภาพชุดเดรสเรียบง่าย" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.outfit.preset.blazer-trousers",
+      "optionId": "outfit.preset.blazer_trousers",
+      "attributeId": "outfit.preset.blazer_trousers",
+      "slug": "blazer-trousers",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Blazer and trousers outfit diagram", "th": "ภาพชุดเบลเซอร์และกางเกงขายาว" },
+      "reviewStatus": "planned"
+    },
+    {
+      "assetId": "visual.outfit.preset.hoodie-pants",
+      "optionId": "outfit.preset.hoodie_pants",
+      "attributeId": "outfit.preset.hoodie_pants",
+      "slug": "hoodie-pants",
+      "row": 1,
+      "column": 5,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Hoodie and pants outfit diagram", "th": "ภาพชุดฮู้ดดี้และกางเกง" },
+      "reviewStatus": "planned"
+    }
+  ]
+}

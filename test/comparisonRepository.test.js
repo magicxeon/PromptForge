@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { ComparisonRepository } from '../server/comparison/ComparisonRepository.js';
+import { ComparisonRepository } from '../server/repositories/comparisons/ComparisonRepository.js';
 
 async function createRepository() {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'comparison-repository-'));
@@ -112,6 +112,43 @@ test('serialized slot updates do not overwrite sibling results', async t => {
   ]);
   const set = await repository.get(created.set.id, 'user_demo');
   assert.deepEqual(set.runs[0].slots.map(slot => slot.jobId), ['job_one', 'job_two']);
+});
+
+test('comparison writes retry transient Windows rename locks', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'comparison-repository-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const historyFile = path.join(directory, 'history.json');
+  const comparisonsFile = path.join(directory, 'comparisons.json');
+  await fs.writeFile(historyFile, '[]', 'utf8');
+  await fs.writeFile(comparisonsFile, JSON.stringify({ version: 1, sets: [] }), 'utf8');
+
+  const originalRename = fs.rename;
+  let renameCalls = 0;
+  t.mock.method(fs, 'rename', async (source, destination) => {
+    renameCalls += 1;
+    if (renameCalls === 1 && destination === comparisonsFile) {
+      const error = new Error('simulated transient file lock');
+      error.code = 'EPERM';
+      throw error;
+    }
+    return originalRename(source, destination);
+  });
+
+  const repository = new ComparisonRepository({
+    comparisonsFile,
+    historyFile,
+    cursorSecret: 'comparison-test-secret'
+  });
+  await repository.createSetWithRun({
+    username: 'user_demo',
+    name: 'Retry rename',
+    description: '',
+    idempotencyKey: 'retry_rename',
+    run: run('retry_rename')
+  });
+
+  assert.equal((await repository.list('user_demo')).length, 1);
+  assert.equal(renameCalls >= 2, true);
 });
 
 test('history cleanup clears a comparison winner without deleting the set', async t => {

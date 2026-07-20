@@ -1,0 +1,295 @@
+[
+  {
+    "id": "TC-001-baseline-natural-female",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.005",
+      "Ethnicity": "character.016",
+      "Beauty": "character.beauty_natural",
+      "Face Shape": "face.002",
+      "Eyes": "eyes.001",
+      "Nose": "nose.006",
+      "Lips": "lips.001",
+      "Expression": "expression.004",
+      "Cut / Style": "hair_023",
+      "Texture": "hair.text_01",
+      "Color": "hair_013",
+      "Finish": "hair_017",
+      "Skin Texture": "skin.text_01",
+      "Makeup": "skin.makeup_01"
+    },
+    "mustInclude": [
+      "female",
+      "mature adult in mid-forties",
+      "southeast asian person",
+      "oval face",
+      "almond-shaped eyes",
+      "natural nose",
+      "natural lips",
+      "subtle friendly expression",
+      "long loose wavy jet black hair",
+      "silky smooth texture",
+      "glossy healthy finish",
+      "natural bare-face look with realistic skin texture and visible fine pores"
+    ],
+    "mustNotInclude": [
+      "female woman",
+      "45 years old",
+      "beach waves hair",
+      "displaying brilliant specular light reflections",
+      "off-camera"
+    ]
+  },
+  {
+    "id": "TC-002-male-crew-direct-focus",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.002",
+      "Age": "character.005_30s",
+      "Ethnicity": "character.007",
+      "Face Shape": "face.018",
+      "Eyes": "eyes.008",
+      "Eyebrows": "eyebrows.003",
+      "Nose": "nose.005",
+      "Lips": "lips.001",
+      "Expression": "expression.015",
+      "Cut / Style": "hair_029",
+      "Texture": "hair.text_02",
+      "Color": "hair_014",
+      "Finish": "hair_017",
+      "Skin Texture": "skin.text_03",
+      "Makeup": "skin.makeup_01"
+    },
+    "mustInclude": [
+      "male",
+      "adult in mid-thirties",
+      "thai person",
+      "rectangular face",
+      "hooded eyes",
+      "natural thick brows",
+      "straight nose",
+      "natural lips",
+      "focused eyes with relaxed facial features",
+      "short clean dark brown crew cut hairstyle",
+      "coarse thick texture",
+      "natural bare-face look with healthy organic skin details"
+    ],
+    "mustNotInclude": [
+      "male man",
+      "off-camera",
+      "something off-camera",
+      "highly detailed individual strands"
+    ]
+  },
+  {
+    "id": "TC-003-female-fashion-hair-color",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.004_e20",
+      "Ethnicity": "character.009",
+      "Beauty": "character.beauty_elegant",
+      "Face Shape": "face.006",
+      "Eyes": "eyes.006",
+      "Eyebrows": "eyebrows.002",
+      "Nose": "nose.001",
+      "Lips": "lips.003",
+      "Smile": "lips.006",
+      "Expression": "expression.004",
+      "Length": "hair_003",
+      "Cut / Style": "hair_022",
+      "Texture": "hair.text_03",
+      "Parting / Fringe": "hair_011",
+      "Color": "hair_043",
+      "Finish": "hair_017",
+      "Skin Texture": "skin.text_02",
+      "Makeup": "skin.makeup_02"
+    },
+    "mustInclude": [
+      "female",
+      "young adult in early twenties",
+      "korean person",
+      "elegant facial features",
+      "diamond face",
+      "doe eyes",
+      "soft arched eyebrows",
+      "small button nose",
+      "cupid's bow lips",
+      "subtle friendly expression with soft smile",
+      "long hair",
+      "layered hush cut burgundy hairstyle",
+      "curtain bangs",
+      "soft glossy waves",
+      "soft peach K-beauty makeup"
+    ],
+    "mustNotInclude": [
+      "neutral-friendly micro smile",
+      "off-camera",
+      "beach waves hair",
+      "displaying brilliant specular light reflections"
+    ]
+  },
+  {
+    "id": "TC-004-skin-freckles-no-makeup",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.004",
+      "Ethnicity": "character.008",
+      "Beauty": "character.beauty_natural",
+      "Face Shape": "face.003",
+      "Eyes": "eyes.004",
+      "Nose": "nose.006",
+      "Lips": "lips.009",
+      "Expression": "expression.001",
+      "Cut / Style": "hair_024",
+      "Color": "hair_014",
+      "Skin Texture": "skin.text_01",
+      "Makeup": "skin.makeup_01",
+      "Freckles": "skin.freckles_02"
+    },
+    "mustInclude": [
+      "female",
+      "japanese person",
+      "round face",
+      "natural bare-face look with realistic skin texture and visible fine pores",
+      "subtle light freckles"
+    ],
+    "mustNotInclude": [
+      "no makeup, clean skin bare face",
+      "completely natural face with zero or minimal makeup, honest expression, soft skin textures",
+      "off-camera"
+    ]
+  },
+  {
+    "id": "TC-005-expression-friendly-no-neutral-collapse",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.004_e20",
+      "Ethnicity": "character.009",
+      "Face Shape": "face.006",
+      "Eyes": "eyes.006",
+      "Nose": "nose.001",
+      "Lips": "lips.003",
+      "Smile": "lips.006",
+      "Expression": "expression.004",
+      "Cut / Style": "hair_022",
+      "Color": "hair_043"
+    },
+    "mustInclude": [
+      "subtle friendly expression with soft smile",
+      "layered hush cut burgundy hairstyle"
+    ],
+    "mustNotInclude": [
+      "neutral-friendly micro smile",
+      "relaxed lips, eyes showing a gentle sparkle of comfort"
+    ]
+  },
+  {
+    "id": "TC-005B-expression-friendly-overrides-neutral-smile",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.004_e20",
+      "Ethnicity": "character.009",
+      "Face Shape": "face.006",
+      "Eyes": "eyes.006",
+      "Nose": "nose.001",
+      "Lips": "lips.003",
+      "Smile": "lips.009",
+      "Expression": "expression.004",
+      "Length": "hair_003",
+      "Cut / Style": "hair_022",
+      "Texture": "hair.text_03",
+      "Parting / Fringe": "hair_011",
+      "Color": "hair_043",
+      "Finish": "hair_017"
+    },
+    "mustInclude": [
+      "subtle friendly expression with relaxed lips",
+      "long hair",
+      "layered hush cut burgundy hairstyle",
+      "soft glossy waves"
+    ],
+    "mustNotInclude": [
+      "neutral-friendly micro smile",
+      "displaying brilliant specular light reflections"
+    ]
+  },
+  {
+    "id": "TC-006-child-safe-neutral-portrait",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.003",
+      "Age": "character.004_teen",
+      "Ethnicity": "character.016",
+      "Face Shape": "face.002",
+      "Eyes": "eyes.001",
+      "Nose": "nose.006",
+      "Lips": "lips.001",
+      "Expression": "expression.001",
+      "Cut / Style": "hair_030",
+      "Color": "hair_013",
+      "Skin Texture": "skin.text_03",
+      "Makeup": "skin.makeup_01"
+    },
+    "mustInclude": [
+      "child",
+      "teenager in late teens around 18 years old",
+      "southeast asian person",
+      "oval face",
+      "natural lips",
+      "subtle relaxed facial micro-expressions",
+      "jet black"
+    ],
+    "mustNotInclude": [
+      "off-camera",
+      "looking away"
+    ]
+  },
+  {
+    "id": "EDGE-hair-color-hairstyle-word",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.001",
+      "Age": "character.004_e20",
+      "Ethnicity": "character.009",
+      "Cut / Style": "hair_022",
+      "Color": "hair_043"
+    },
+    "mustInclude": [
+      "layered hush cut burgundy hairstyle"
+    ],
+    "mustNotInclude": [
+      "layered hush cut hairstyle, burgundy hair"
+    ]
+  },
+  {
+    "id": "EDGE-expression-no-off-camera",
+    "mode": "headshot",
+    "aspectRatio": "6:8",
+    "selections": {
+      "Gender": "character.002",
+      "Age": "character.005_30s",
+      "Ethnicity": "character.007",
+      "Expression": "expression.015"
+    },
+    "mustInclude": [
+      "focused eyes with relaxed facial features"
+    ],
+    "mustNotInclude": [
+      "off-camera",
+      "something off-camera"
+    ]
+  }
+]

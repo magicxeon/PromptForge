@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mimeTypeFromFilename, resolveImageOutputType } from '../server/imageUtils.js';
+import { mimeTypeFromFilename, resolveImageOutputType } from '../server/domain/generation/imageUtils.js';
 
 test('resolves provider output MIME type and file extension', () => {
   assert.deepEqual(resolveImageOutputType({ mimeType: 'image/jpeg' }), {

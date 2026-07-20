@@ -233,7 +233,7 @@ Attribute bundle ถูก cache ใน memory และ gzip เมื่อ cl
 มี prompt logic สองชุด:
 
 - `client/app.js`: สร้าง live preview และ export
-- `server/promptCompiler.js`: compile prompt ที่ส่งให้ providerจริง
+- `server/domain/generation/promptCompiler.js`: compile prompt ที่ส่งให้ providerจริง
 
 Server compiler เป็น authoritative path สำหรับ image generation
 
@@ -284,7 +284,7 @@ Conflict pairs ปัจจุบัน:
 
 ## 9. Queue, Credits และ History
 
-`server/queueManager.js` รับผิดชอบ:
+`server/domain/generation/QueueManager.js` รับผิดชอบ:
 
 - เก็บ queue และ active jobs ใน memory
 - จำกัด concurrency จาก `MAX_CONCURRENT_GENERATIONS`
@@ -292,7 +292,7 @@ Conflict pairs ปัจจุบัน:
 - resolve `/outputs/...` reference paths กลับเป็น Base64
 - เรียก provider แบบ stream หรือ non-stream
 - เขียนภาพสำเร็จที่ `client/outputs/<jobId>.png`
-- บันทึก metadata ใน `server/history.json`
+- บันทึก metadata ผ่าน `server/repositories/generation/HistoryRepository.js` ลง `server/data/generation/history.json`
 - ส่ง completion/error ไป SSE listeners
 - คืน credit หนึ่งครั้งเมื่อ OpenAI ตอบ `moderation_blocked`
 
@@ -300,7 +300,7 @@ History เก็บเฉพาะงานสำเร็จ พร้อม p
 
 Queue ไม่ durable: หาก restart process งาน queued/processing และ job status ใน memory จะหาย แต่ output/history ที่เขียนแล้วจะยังอยู่
 
-Collection metadata เก็บใน `server/collections.json` ผ่าน `server/collectionManager.js` โดยอ้าง history job IDs แทนการ duplicate รูป มี default Collection ได้หนึ่งรายการ และ successful generation ใหม่จะถูกเพิ่มเข้า default แบบ idempotent
+Collection metadata เก็บใน `server/data/collections/collections.json` ผ่าน `server/domain/collections/CollectionManager.js` โดยอ้าง history job IDs แทนการ duplicate รูป มี default Collection ได้หนึ่งรายการ และ successful generation ใหม่จะถูกเพิ่มเข้า default แบบ idempotent
 
 ## 10. Provider Architecture
 
@@ -423,8 +423,8 @@ Verification ขั้นต่ำ:
 ```bash
 node --check client/app.js
 node --check server/server.js
-node --check server/promptCompiler.js
-node --check server/queueManager.js
+node --check server/domain/generation/promptCompiler.js
+node --check server/domain/generation/QueueManager.js
 node --check server/providers/OpenAIProvider.js
 node --check server/providers/GeminiProvider.js
 ```

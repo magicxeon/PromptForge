@@ -1,9 +1,10 @@
 # Visual Character Builder Master Plan
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Illustrated Asset Direction Approved - Face Shape Pilot Selected  
 **Product area:** Studio / character creation  
-**MVP:** Guided Headshot Character Builder  
-**Created:** 2026-07-16
+**MVP:** Photorealistic Guided Headshot Character Builder for adults and minors  
+**Created:** 2026-07-16  
+**Updated:** 2026-07-16
 
 ## 1. Product Goal
 
@@ -33,11 +34,24 @@ Community และ Commercial ต้องอ้าง contract จาก folde
 
 ## 3. MVP Decision
 
-MVP แรกคือ **Guided Headshot Character Builder** เท่านั้น
+MVP แรกคือ **Photorealistic Guided Headshot Character Builder** สำหรับคนจริง ทั้งผู้ใหญ่และผู้เยาว์ โดยมี age-aware safety rules
+
+### 3.1 Confirmed Product Decisions
+
+- Visual output เริ่มจากมนุษย์สมจริงเท่านั้น
+- รองรับ Child, Preteen, Teen, Adult และ Senior ตามช่วงอายุที่กำหนดใน Requirement 001
+- Anime, illustration, fantasy และ rendering style อื่นจะเพิ่มภายหลังในฐานะ Style Filter ไม่ปะปนกับ anatomy attributes
+- ใช้ `Visual Heritage` เพื่อสื่อถึงเชื้อสาย/ลักษณะเชิงภูมิภาค ไม่ถือเป็น nationality และไม่กำหนด skin tone อัตโนมัติ
+- UI ใช้ control แบบผสม: visual cards, diagram, swatch, segmented control, slider และ dropdown ตามชนิดข้อมูล
+- Dropdown เดิมคงไว้ได้เมื่อรายการยาว, อ่อนไหว, เป็นศัพท์เฉพาะ หรือภาพไม่ได้ช่วยให้เลือกแม่นขึ้น
+- Attribute เดิมตัดหรือรวมได้ แต่ต้องมี migration, legacy fallback หรือคำเตือนที่ตรวจสอบได้
+- `Non-binary` ไม่อยู่ในตัวเลือกของ MVP และค่าเก่าต้องให้ผู้ใช้เลือก Character Presentation ใหม่ ห้าม map เป็น Androgynous อัตโนมัติ
 
 Included:
 
 - Character foundation ที่จำเป็นต่อ headshot
+- Age-aware field filtering และ server-side protection สำหรับผู้เยาว์
+- Visual Heritage แบบ grouped searchable dropdown
 - Face structure
 - Facial features
 - Hair and hair color
@@ -58,6 +72,7 @@ Deferred:
 - Community publishing และ marketplace
 - Real-time composite avatar preview
 - Character sheet หลายมุม
+- Style filters เช่น Anime, illustration, fantasy และ non-photorealistic rendering
 
 ## 4. User Journey
 
@@ -76,6 +91,8 @@ Start Headshot
 
 ผู้ใช้ไม่ต้องเห็นคำอย่าง focal length, key light, chromatic aberration หรือ prompt weighting ในเส้นทางปกติ ระบบใช้ reviewed presets แปลง intent ให้เป็นค่าทางเทคนิคที่เหมาะสม
 
+เมื่อผู้ใช้เลือกอายุต่ำกว่า 18 ปี ระบบต้อง derive `audienceClass: minor`, จำกัด appearance/expression ที่ไม่เหมาะสม และบังคับใช้ข้อจำกัดอีกครั้งบน server ห้ามพึ่งการซ่อน control ฝั่ง UI เพียงอย่างเดียว
+
 ## 5. Shared Architecture
 
 ### 5.1 Single Sources of Truth
@@ -85,6 +102,8 @@ Start Headshot
 - UI schema เป็นเจ้าของ control type และ section placement
 - Prompt compiler เป็นเจ้าของลำดับและ provider prompt mapping
 - Saved configuration เก็บ semantic IDs ไม่เก็บ label หรือ filename เป็นค่าหลัก
+- Age classification เป็น derived domain state จาก Age option ไม่ใช่ค่าที่ client กำหนดเอง
+- Style Filter เป็นคนละแกนกับ anatomy และ Visual Heritage
 
 ห้าม hardcode option ซ้ำใน HTML, CSS หรือ component เฉพาะ category
 
@@ -93,13 +112,14 @@ Start Headshot
 - Option ที่มี visual asset ใช้ visual control
 - Option ที่ asset ขาดหรือโหลดไม่ได้ยังเลือกผ่าน text fallback ได้
 - Attribute เดิมยัง compile prompt ได้ระหว่างทยอย migrate
+- Legacy value ที่ไม่มี safe replacement แสดงผ่าน text/dropdown fallback พร้อมคำเตือนแทนการลบทิ้งเงียบ ๆ
 - แต่ละ section เปิดใช้งานได้ด้วย feature flag โดยไม่ต้องรอ asset ครบทุก category
 
 ### 5.3 Asset Families
 
 | Family | Primary use | Preferred format |
 |---|---|---|
-| Visual Option | Face, eyes, nose, lips, hair | WebP/PNG |
+| Illustrated Visual Option | Face, eyes, nose, lips, hair | Monochrome PNG/WebP derived from source sets |
 | Diagram | Face geometry, framing, body silhouette | SVG or WebP |
 | Recolorable UI icon | Control/state/abstract silhouette | SVG `currentColor` or monochrome PNG mask |
 | Swatch | Hair, eyes, skin, clothing color | CSS color/gradient |
@@ -149,6 +169,7 @@ The user should not need to invent filenames or directory placement. Engineering
 ### Gate A: Contract Review
 
 - Attribute IDs and section boundaries approved
+- Adult/minor age bands, Visual Heritage terminology และ server safety rules approved
 - Asset standard and naming approved
 - No duplicate source of truth remains
 
@@ -177,7 +198,7 @@ The user should not need to invent filenames or directory placement. Engineering
 - One asset validator checks every category.
 - One manifest schema serves generated and user-supplied assets.
 - Color options use swatches instead of producing duplicate color images unless color changes the form materially.
-- Full preview and thumbnail are derived from one approved source asset.
+- Runtime icons are sliced from one approved category source set; an individual override may replace one slice without regenerating the set.
 - Category prompts inherit a shared visual master; per-option prompts describe only the changing property.
 - Community remix stores semantic configuration IDs, not copied UI definitions.
 - Commercial model profiles reference saved character configurations, not a separate character builder.
@@ -189,4 +210,3 @@ The user should not need to invent filenames or directory placement. Engineering
 - Adding a new option normally requires data and an asset, not new UI code.
 - Missing assets never block generation.
 - The same saved character can later become the canonical face for Character Reference and commercial workflows.
-

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette-female",
+  "fieldId": "body.silhouette.female",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "folder": "body-silhouette",
+    "filename": "body-silhouette-set-r1-female.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.female.beauty_slim",
+      "optionId": "body.silhouette.female.beauty_slim",
+      "attributeId": "body.female_silhouette_01",
+      "slug": "female-beauty-slim",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female beauty slim body silhouette diagram", "th": "Female beauty slim body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.female.hourglass_curvy",
+      "optionId": "body.silhouette.female.hourglass_curvy",
+      "attributeId": "body.female_silhouette_02",
+      "slug": "female-hourglass-curvy",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female curvy hourglass body silhouette diagram", "th": "Female curvy hourglass body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.female.petite_soft",
+      "optionId": "body.silhouette.female.petite_soft",
+      "attributeId": "body.female_silhouette_03",
+      "slug": "female-petite-soft",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female petite soft body silhouette diagram", "th": "Female petite soft body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.female.pear_curvy",
+      "optionId": "body.silhouette.female.pear_curvy",
+      "attributeId": "body.female_silhouette_04",
+      "slug": "female-pear-curvy",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female pear curvy body silhouette diagram", "th": "Female pear curvy body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.female.athletic_toned",
+      "optionId": "body.silhouette.female.athletic_toned",
+      "attributeId": "body.female_silhouette_05",
+      "slug": "female-athletic-toned",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female athletic toned body silhouette diagram", "th": "Female athletic toned body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.female.full_figured_elegant",
+      "optionId": "body.silhouette.female.full_figured_elegant",
+      "attributeId": "body.female_silhouette_06",
+      "slug": "female-full-figured-elegant",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female full-figured elegant body silhouette diagram", "th": "Female full-figured elegant body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    }
+  ]
+}

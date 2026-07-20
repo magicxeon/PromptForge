@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.length",
+  "fieldId": "hair.length",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.hair.length.buzz-cut",
+      "optionId": "hair.length.buzz_cut",
+      "slug": "buzz-cut",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 45%",
+      "alt": {
+        "en": "Buzz cut hair length in clean line art",
+        "th": "ความยาวผมแบบบัซคัตในเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "6caa42360f3116c95c82f0b69ed37a34a54c01e002e1968348eb08ab99a41854",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/length/master/buzz-cut-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/length/preview/buzz-cut-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/length/thumb/buzz-cut-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.length.short",
+      "optionId": "hair.length.short",
+      "slug": "short",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 45%",
+      "alt": {
+        "en": "Short hair length in clean line art",
+        "th": "ความยาวผมสั้นในเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "5f08f1f98f34f2c4f92eea8aec1401be786d37d6dbe253081517df61bb5b756a",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/length/master/short-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/length/preview/short-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/length/thumb/short-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.length.long",
+      "optionId": "hair.length.long",
+      "slug": "long",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Long hair length in clean line art",
+        "th": "ความยาวผมยาวในเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "63d039163f8e671f882d14a057076dd44bb2c4062d60f4ff7adf7411831f4cbc",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/length/master/long-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/length/preview/long-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/length/thumb/long-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.length.extra-long",
+      "optionId": "hair.length.extra_long",
+      "slug": "extra-long",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Extra long hair length in clean line art",
+        "th": "ความยาวผมยาวมากในเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "94a19b9f8db59841f7006b75c102c13eb29b55ff9af2bb1d41bd01c55f683ae3",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/length/master/extra-long-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/length/preview/extra-long-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/length/thumb/extra-long-r1.png"
+      }
+    }
+  ]
+}

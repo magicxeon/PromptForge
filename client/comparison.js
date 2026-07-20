@@ -218,6 +218,7 @@
         }
       );
       if (!confirmed) return;
+      window.scrollToActiveRenderScreen?.();
       const result = await api('/api/comparisons', {
         method: 'POST',
         body: {
@@ -369,7 +370,7 @@
     const card = document.createElement('article');
     card.className = `comparison-result-card${winner ? ' winner' : ''}`;
     card.dataset.slotId = slot.id;
-    const imageUrl = slot.result?.imageUrl;
+    const imageUrl = getSlotImageUrl(slot);
     card.innerHTML = `
       <header class="comparison-result-header">
         <div><span>${label(slot.providerDisplayName)}</span><strong>${label(slot.modelDisplayName)}</strong></div>
@@ -406,6 +407,10 @@
       bindViewport(card.querySelector('.comparison-image-viewport'), slot.id);
     }
     return card;
+  }
+
+  function getSlotImageUrl(slot) {
+    return slot?.result?.imageUrl || slot?.imageUrl || slot?.thumbnailUrl || '';
   }
 
   function renderSlotPlaceholder(slot) {
@@ -587,7 +592,9 @@
   async function api(url, options = {}) {
     const response = await fetch(url, {
       ...options,
-      headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: options.body
+        ? { 'Content-Type': 'application/json', 'X-User-Role': bridge()?.getUserRole?.() || 'user' }
+        : undefined,
       body: options.body ? JSON.stringify({ ...options.body, username: options.body.username || bridge()?.getUsername() }) : undefined
     });
     const payload = await response.json().catch(() => ({}));

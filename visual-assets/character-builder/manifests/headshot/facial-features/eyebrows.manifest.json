@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.eyebrows",
+  "fieldId": "eyebrows.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "eyebrows-set-r1.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 7,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.eyebrows.shape.straight",
+      "optionId": "eyebrows.shape.straight",
+      "slug": "straight",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Straight eyebrow pair in clean line art", "th": "คิ้วตรงหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.soft-arched",
+      "optionId": "eyebrows.shape.soft_arched",
+      "slug": "soft-arched",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Soft arched eyebrow pair in clean line art", "th": "คิ้วโค้งอ่อนหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.natural-thick",
+      "optionId": "eyebrows.shape.natural_thick",
+      "slug": "natural-thick",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Natural thick eyebrow pair in clean line art", "th": "คิ้วหนาธรรมชาติหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.thin",
+      "optionId": "eyebrows.shape.thin",
+      "slug": "thin",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Thin eyebrow pair in clean line art", "th": "คิ้วบางหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.defined",
+      "optionId": "eyebrows.shape.defined",
+      "slug": "defined",
+      "row": 1,
+      "column": 5,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Defined eyebrow pair in clean line art", "th": "คิ้วคมชัดหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.well-groomed",
+      "optionId": "eyebrows.shape.well_groomed",
+      "slug": "well-groomed",
+      "row": 1,
+      "column": 6,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Well-groomed eyebrow pair in clean line art", "th": "คิ้วตกแต่งเรียบร้อยหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.eyebrows.shape.natural",
+      "optionId": "eyebrows.shape.natural",
+      "slug": "natural",
+      "row": 1,
+      "column": 7,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Natural eyebrow pair in clean line art", "th": "คิ้วธรรมชาติหนึ่งคู่แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

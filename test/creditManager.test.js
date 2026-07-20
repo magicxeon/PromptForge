@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { CreditManager } from '../server/creditManager.js';
+import { CreditManager } from '../server/domain/credits/CreditManager.js';
 
 test('serialized comparison charges create an auditable net job cost', async t => {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'credit-manager-'));

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.eyebrows",
+  "fieldId": "eyebrows.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.eyebrows.shape.straight",
+      "optionId": "eyebrows.shape.straight",
+      "slug": "straight",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Straight eyebrow pair in clean line art",
+        "th": "คิ้วตรงหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "8ff1d334a1aebefab77e296e00e4123527bb86876fbd923cab492eb990169514",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/straight-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/straight-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/straight-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.soft-arched",
+      "optionId": "eyebrows.shape.soft_arched",
+      "slug": "soft-arched",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Soft arched eyebrow pair in clean line art",
+        "th": "คิ้วโค้งอ่อนหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "2673323d0bcf21f95d8ea6de2b2ddb7b302928e0d3ea1bd4e76f0a2e5e36276a",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/soft-arched-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/soft-arched-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/soft-arched-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.natural-thick",
+      "optionId": "eyebrows.shape.natural_thick",
+      "slug": "natural-thick",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Natural thick eyebrow pair in clean line art",
+        "th": "คิ้วหนาธรรมชาติหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "91d850c86d07c94acb96df23f52d8a77c075ed57dae85e8be66c062082e45b4e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/natural-thick-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/natural-thick-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/natural-thick-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.thin",
+      "optionId": "eyebrows.shape.thin",
+      "slug": "thin",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Thin eyebrow pair in clean line art",
+        "th": "คิ้วบางหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "d574852c5c4f259a7035651e4c8280a7fa6781b6e8d5d338e3a5790d04a22819",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/thin-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/thin-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/thin-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.defined",
+      "optionId": "eyebrows.shape.defined",
+      "slug": "defined",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Defined eyebrow pair in clean line art",
+        "th": "คิ้วคมชัดหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "ea47aa6f3f2995216d2cdbca38e85e6406ea3941ddf5e49997e88975cc3c7b36",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/defined-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/defined-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/defined-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.well-groomed",
+      "optionId": "eyebrows.shape.well_groomed",
+      "slug": "well-groomed",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Well-groomed eyebrow pair in clean line art",
+        "th": "คิ้วตกแต่งเรียบร้อยหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "59fa24f5247920ce785af8b36cae86839fdb87e7f62f0b42060f810266ee73f3",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/well-groomed-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/well-groomed-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/well-groomed-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.natural",
+      "optionId": "eyebrows.shape.natural",
+      "slug": "natural",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Natural eyebrow pair in clean line art",
+        "th": "คิ้วธรรมชาติหนึ่งคู่แบบเส้นภาพเรียบง่าย"
+      },
+      "sourceHash": "f7ef27c3366de8a5da57cfaac88145d89997d0e230386fb3b63c69168099637e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/natural-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/natural-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/natural-r1.png"
+      }
+    }
+  ]
+}

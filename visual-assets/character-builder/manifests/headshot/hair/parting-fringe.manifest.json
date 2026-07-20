@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.parting-fringe",
+  "fieldId": "hair.parting_fringe",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "hair-parting-fringe-set-r1.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.hair.parting-fringe.center-part",
+      "optionId": "hair.parting_fringe.center_part",
+      "slug": "center-part",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Center-parted hair with no bangs in clean line art", "th": "Center-parted hair with no bangs in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.side-parting",
+      "optionId": "hair.parting_fringe.side_parting",
+      "slug": "side-parting",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Side-parted hair with no bangs in clean line art", "th": "Side-parted hair with no bangs in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.swept-back",
+      "optionId": "hair.parting_fringe.swept_back",
+      "slug": "swept-back",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Swept-back hair with no bangs in clean line art", "th": "Swept-back hair with no bangs in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.curtain-bangs",
+      "optionId": "hair.parting_fringe.curtain_bangs",
+      "slug": "curtain-bangs",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Curtain bangs in clean line art", "th": "Curtain bangs in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.blunt-bangs",
+      "optionId": "hair.parting_fringe.blunt_bangs",
+      "slug": "blunt-bangs",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Blunt full bangs in clean line art", "th": "Blunt full bangs in clean line art" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.hair.parting-fringe.see-through-bangs",
+      "optionId": "hair.parting_fringe.see_through_bangs",
+      "slug": "see-through-bangs",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "See-through wispy bangs in clean line art", "th": "See-through wispy bangs in clean line art" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

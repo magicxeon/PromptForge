@@ -7,7 +7,14 @@
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
     "test": "node --test",
-    "migrate:thumbnails": "node scripts/migrate-history-thumbnails.js"
+    "test:character-sheet": "node scripts/test-character-sheet-release-gate.js",
+    "test:prompt-cleanup": "node scripts/test-prompt-cleanup.js",
+    "migrate:thumbnails": "node scripts/migrate-history-thumbnails.js",
+    "visual-assets:check": "node scripts/slice-visual-assets.js --check",
+    "visual-assets:check:character-sheet": "node scripts/slice-visual-assets.js --check --field=character-sheet",
+    "visual-assets:slice": "node scripts/slice-visual-assets.js --slice",
+    "visual-assets:slice:character-sheet": "node scripts/slice-visual-assets.js --slice --field=character-sheet",
+    "visual-assets:contact-sheet": "node scripts/slice-visual-assets.js --contact-sheet"
   },
   "dependencies": {
     "cors": "^2.8.5",

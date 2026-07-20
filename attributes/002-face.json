@@ -340,5 +340,65 @@
       "beauty"
     ],
     "enabled": true
+  },
+  {
+    "id": "face.018",
+    "category": "face",
+    "label": {
+      "en": "Rectangular face",
+      "th": "หน้าทรงสี่เหลี่ยมผืนผ้า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "rectangular face",
+      "gpt-image": "rectangular face with a softly structured jaw"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.019",
+    "category": "face",
+    "label": {
+      "en": "Inverted triangular face",
+      "th": "หน้าทรงสามเหลี่ยมกลับหัว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "inverted triangular face",
+      "gpt-image": "inverted triangular face with a broader upper face tapering toward a narrower jaw and chin"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "face.020",
+    "category": "face",
+    "label": {
+      "en": "Long face",
+      "th": "หน้ายาว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Face"
+    },
+    "prompt": {
+      "default": "long face",
+      "gpt-image": "long elongated human face with natural proportions"
+    },
+    "tags": [
+      "face"
+    ],
+    "enabled": true
   }
 ]

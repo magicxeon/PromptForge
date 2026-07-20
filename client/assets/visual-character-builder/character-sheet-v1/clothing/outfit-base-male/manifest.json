@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.clothing.outfit-base-male",
+  "fieldId": "clothing.outfit-base.male",
+  "sectionId": "clothing",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.clothing.outfit_base.male.korean_shirt_slacks",
+      "optionId": "outfit.base.male.korean_shirt_slacks",
+      "attributeId": "outfit.base.male.korean_shirt_slacks",
+      "slug": "male-korean-shirt-slacks",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male Korean minimal shirt and slacks outfit icon",
+        "th": "Male Korean minimal shirt and slacks outfit icon"
+      },
+      "sourceHash": "224616875a3eadbd30e2c8bc25374356b820cdb0c1f4cf61f794aa2a970c4482",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-korean-shirt-slacks-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-korean-shirt-slacks-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.tshirt_straight_jeans",
+      "optionId": "outfit.base.male.tshirt_straight_jeans",
+      "attributeId": "outfit.base.male.tshirt_straight_jeans",
+      "slug": "male-tshirt-straight-jeans",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male T-shirt and straight jeans outfit icon",
+        "th": "Male T-shirt and straight jeans outfit icon"
+      },
+      "sourceHash": "21556834694aecdf9c8a5666d431537d2a3f80f9cea179ddd4eb5fe8cf395672",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-tshirt-straight-jeans-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-tshirt-straight-jeans-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.knit_polo_trousers",
+      "optionId": "outfit.base.male.knit_polo_trousers",
+      "attributeId": "outfit.base.male.knit_polo_trousers",
+      "slug": "male-knit-polo-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male knit polo and trousers outfit icon",
+        "th": "Male knit polo and trousers outfit icon"
+      },
+      "sourceHash": "91479ecd1685c1c2d1e2a42a24a344782c7d3c14a7fd08ec41fda9db350c94b1",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-knit-polo-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-knit-polo-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.smart_blazer_set",
+      "optionId": "outfit.base.male.smart_blazer_set",
+      "attributeId": "outfit.base.male.smart_blazer_set",
+      "slug": "male-smart-blazer-set",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male smart casual blazer set outfit icon",
+        "th": "Male smart casual blazer set outfit icon"
+      },
+      "sourceHash": "37c43493b38f5537097ae647a87c2b1663ecbbc5b4a7416aa8af04e57d767561",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-smart-blazer-set-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-smart-blazer-set-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.hoodie_cargo_pants",
+      "optionId": "outfit.base.male.hoodie_cargo_pants",
+      "attributeId": "outfit.base.male.hoodie_cargo_pants",
+      "slug": "male-hoodie-cargo-pants",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male hoodie and cargo pants outfit icon",
+        "th": "Male hoodie and cargo pants outfit icon"
+      },
+      "sourceHash": "fc0830c200fff920ca2395739ed77e6eeb9de90383b3cf95eae07fe5248456c5",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-hoodie-cargo-pants-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-hoodie-cargo-pants-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.thai_linen_shirt_pants",
+      "optionId": "outfit.base.male.thai_linen_shirt_pants",
+      "attributeId": "outfit.base.male.thai_linen_shirt_pants",
+      "slug": "male-thai-linen-shirt-pants",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male Thai linen shirt and relaxed pants outfit icon",
+        "th": "Male Thai linen shirt and relaxed pants outfit icon"
+      },
+      "sourceHash": "eae2d95d6052a6ff8eaeab1ead8c0c0f5c76d1bc29a78d6ed00f3511b47c2da3",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-thai-linen-shirt-pants-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-thai-linen-shirt-pants-r1.png"
+      }
+    }
+  ]
+}

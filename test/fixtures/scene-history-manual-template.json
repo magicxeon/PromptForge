@@ -1,0 +1,16 @@
+{
+  "id": "job_manual123",
+  "username": "user_demo",
+  "mode": "normal",
+  "prompt": "A manual template freestyle output scene",
+  "imageUrl": "/outputs/job_manual123.png",
+  "timestamp": 1784366800000,
+  "sceneTemplateSnapshot": {
+    "sceneTemplateVersion": 1,
+    "title": "Manual Sample",
+    "description": "Manual template",
+    "authoringMode": "manual",
+    "finalPromptSnapshot": "A manual template freestyle output scene",
+    "replaceableVariables": []
+  }
+}

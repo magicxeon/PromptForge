@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.clothing.outfit-base-female",
+  "fieldId": "clothing.outfit-base.female",
+  "sectionId": "clothing",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.clothing.outfit_base.female.korean_blouse_a_line_skirt",
+      "optionId": "outfit.base.female.korean_blouse_a_line_skirt",
+      "attributeId": "outfit.base.female.korean_blouse_a_line_skirt",
+      "slug": "female-korean-blouse-a-line-skirt",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female Korean blouse and A-line skirt outfit icon",
+        "th": "Female Korean blouse and A-line skirt outfit icon"
+      },
+      "sourceHash": "728e433119ee7e0b1950d9be6bb87cab434f843c6f9ffbf3369e88f774bd759c",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-korean-blouse-a-line-skirt-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-korean-blouse-a-line-skirt-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.tshirt_high_waist_wide_jeans",
+      "optionId": "outfit.base.female.tshirt_high_waist_wide_jeans",
+      "attributeId": "outfit.base.female.tshirt_high_waist_wide_jeans",
+      "slug": "female-tshirt-high-waist-wide-jeans",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female fitted T-shirt and high-waist wide jeans outfit icon",
+        "th": "Female fitted T-shirt and high-waist wide jeans outfit icon"
+      },
+      "sourceHash": "c80848197b886d0a0c3b531305c065a70d0520b712bd35c853e79f36b66e9e68",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-tshirt-high-waist-wide-jeans-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-tshirt-high-waist-wide-jeans-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.knit_cardigan_midi_skirt",
+      "optionId": "outfit.base.female.knit_cardigan_midi_skirt",
+      "attributeId": "outfit.base.female.knit_cardigan_midi_skirt",
+      "slug": "female-knit-cardigan-midi-skirt",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female knit cardigan and midi skirt outfit icon",
+        "th": "Female knit cardigan and midi skirt outfit icon"
+      },
+      "sourceHash": "657421b68cd85f1cc366b53dbea352e59a43086d09ade60b48436e051f2f85c7",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-knit-cardigan-midi-skirt-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-knit-cardigan-midi-skirt-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.simple_day_dress",
+      "optionId": "outfit.base.female.simple_day_dress",
+      "attributeId": "outfit.base.female.simple_day_dress",
+      "slug": "female-simple-day-dress",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female simple day dress outfit icon",
+        "th": "Female simple day dress outfit icon"
+      },
+      "sourceHash": "ed064d37303cbfc381a10fa2a545f880a41f205363a1aa44eef67ca06a049556",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-simple-day-dress-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-simple-day-dress-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.cropped_jacket_trousers",
+      "optionId": "outfit.base.female.cropped_jacket_trousers",
+      "attributeId": "outfit.base.female.cropped_jacket_trousers",
+      "slug": "female-cropped-jacket-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female cropped jacket and straight trousers outfit icon",
+        "th": "Female cropped jacket and straight trousers outfit icon"
+      },
+      "sourceHash": "e4d664cc1f7b6a4c962b2e69258d5a794cab39786bbc60d11f4a3543279f4e2d",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-cropped-jacket-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-cropped-jacket-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.thai_linen_blouse_wrap_skirt",
+      "optionId": "outfit.base.female.thai_linen_blouse_wrap_skirt",
+      "attributeId": "outfit.base.female.thai_linen_blouse_wrap_skirt",
+      "slug": "female-thai-linen-blouse-wrap-skirt",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female Thai linen blouse and wrap skirt outfit icon",
+        "th": "Female Thai linen blouse and wrap skirt outfit icon"
+      },
+      "sourceHash": "4dca94083e50b7f126155c66e2690175ece73274122eb54c925bb3e738790b9f",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-thai-linen-blouse-wrap-skirt-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-thai-linen-blouse-wrap-skirt-r1.png"
+      }
+    }
+  ]
+}

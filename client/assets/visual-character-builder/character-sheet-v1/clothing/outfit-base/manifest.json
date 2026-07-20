@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.clothing.outfit-base",
+  "fieldId": "clothing.outfit-base",
+  "sectionId": "clothing",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.minimal_oversized_shirt_pants",
+      "optionId": "outfit.base.unisex.minimal_oversized_shirt_pants",
+      "attributeId": "outfit.base.unisex.minimal_oversized_shirt_pants",
+      "slug": "unisex-minimal-oversized-shirt-pants",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex minimal oversized shirt and pants outfit icon",
+        "th": "Unisex minimal oversized shirt and pants outfit icon"
+      },
+      "sourceHash": "1864a876812423f479568fe2d50f7f7beed152322298b0b8a23f6e92156d8b00",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-minimal-oversized-shirt-pants-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-minimal-oversized-shirt-pants-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.tshirt_wide_jeans",
+      "optionId": "outfit.base.unisex.tshirt_wide_jeans",
+      "attributeId": "outfit.base.unisex.tshirt_wide_jeans",
+      "slug": "unisex-tshirt-wide-jeans",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex T-shirt and wide jeans outfit icon",
+        "th": "Unisex T-shirt and wide jeans outfit icon"
+      },
+      "sourceHash": "7bcd4779a288160ad2947d13b7ae151ed5b4aab029687c15557a0c023945d76b",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-tshirt-wide-jeans-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-tshirt-wide-jeans-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.knit_top_relaxed_trousers",
+      "optionId": "outfit.base.unisex.knit_top_relaxed_trousers",
+      "attributeId": "outfit.base.unisex.knit_top_relaxed_trousers",
+      "slug": "unisex-knit-top-relaxed-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex knit top and relaxed trousers outfit icon",
+        "th": "Unisex knit top and relaxed trousers outfit icon"
+      },
+      "sourceHash": "c8ec2b2befc1c3f852c3bd206034560fa9cfe6e721ac7d94c71d3db3e8dcfdd5",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-knit-top-relaxed-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-knit-top-relaxed-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.smart_casual_blazer",
+      "optionId": "outfit.base.unisex.smart_casual_blazer",
+      "attributeId": "outfit.base.unisex.smart_casual_blazer",
+      "slug": "unisex-smart-casual-blazer",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex smart casual blazer outfit icon",
+        "th": "Unisex smart casual blazer outfit icon"
+      },
+      "sourceHash": "2d40c2738ee9c78cf1d2164ebe5d31098ffad909f75fd1375ae1aa4001a43481",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-smart-casual-blazer-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-smart-casual-blazer-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.hoodie_joggers",
+      "optionId": "outfit.base.unisex.hoodie_joggers",
+      "attributeId": "outfit.base.unisex.hoodie_joggers",
+      "slug": "unisex-hoodie-joggers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex hoodie and joggers outfit icon",
+        "th": "Unisex hoodie and joggers outfit icon"
+      },
+      "sourceHash": "4bed8d13a221f77f5fd7f830bf1691db03cae400dd519c76b5500f01a4e44d50",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-hoodie-joggers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-hoodie-joggers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.unisex.thai_linen_set",
+      "optionId": "outfit.base.unisex.thai_linen_set",
+      "attributeId": "outfit.base.unisex.thai_linen_set",
+      "slug": "unisex-thai-linen-set",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Unisex Thai linen set outfit icon",
+        "th": "Unisex Thai linen set outfit icon"
+      },
+      "sourceHash": "a1b3c1c0a548a77f0ebd8eb20fb9397a493c058391021004345f1f8b9006de2c",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-thai-linen-set-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/thumb/unisex-thai-linen-set-r1.png"
+      }
+    }
+  ]
+}

@@ -100,6 +100,66 @@
     "enabled": true
   },
   {
+    "id": "lips.010",
+    "category": "lips",
+    "label": {
+      "en": "Heart-shaped lips",
+      "th": "ริมฝีปากทรงหัวใจ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "heart-shaped lips",
+      "gpt-image": "heart-shaped lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.011",
+    "category": "lips",
+    "label": {
+      "en": "Heavy upper lip",
+      "th": "ริมฝีปากบนเด่น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "heavy upper lip",
+      "gpt-image": "heavy upper lip"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "lips.012",
+    "category": "lips",
+    "label": {
+      "en": "Wide lips",
+      "th": "ริมฝีปากกว้าง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Lips"
+    },
+    "prompt": {
+      "default": "wide lips",
+      "gpt-image": "wide lips"
+    },
+    "tags": [
+      "lips"
+    ],
+    "enabled": true
+  },
+  {
     "id": "lips.006",
     "category": "lips",
     "label": {

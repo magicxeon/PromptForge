@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette",
+  "fieldId": "body.silhouette",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.straight",
+      "optionId": "body.silhouette.straight",
+      "attributeId": "body.011",
+      "slug": "straight",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Straight body silhouette diagram",
+        "th": "ภาพโครงรูปร่างทรงตรง"
+      },
+      "sourceHash": "7c57034d45f70523aa299f20ef7c3b8fc80dc8657dc148eb660e6b931fb5be56",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/straight-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.curvy",
+      "optionId": "body.silhouette.curvy",
+      "attributeId": "body.001",
+      "slug": "curvy",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Curvy natural body silhouette diagram",
+        "th": "ภาพโครงรูปร่างโค้งเว้าธรรมชาติ"
+      },
+      "sourceHash": "9344d4cc6a9770a57d70c3d65b92573fab0e2814c08456a17e603b4a4260b5e4",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/curvy-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.hourglass",
+      "optionId": "body.silhouette.hourglass",
+      "attributeId": "body.002",
+      "slug": "hourglass",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Hourglass body silhouette diagram",
+        "th": "ภาพโครงรูปร่างทรงนาฬิกาทราย"
+      },
+      "sourceHash": "dd55b57d86370312a9dac5354c2a992bd9a817fbafe1293ea4b66f5c60bca096",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/hourglass-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.pear",
+      "optionId": "body.silhouette.pear",
+      "attributeId": "body.006",
+      "slug": "pear",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Pear-shaped natural body silhouette diagram",
+        "th": "ภาพโครงรูปร่างทรงลูกแพร์"
+      },
+      "sourceHash": "6776c32c38b29c31fc7a62979f4adb030a4949976d6fdad0426568fed97176c5",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/pear-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.inverted",
+      "optionId": "body.silhouette.inverted",
+      "attributeId": "body.012",
+      "slug": "inverted",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Inverted triangle body silhouette diagram",
+        "th": "ภาพโครงรูปร่างทรงสามเหลี่ยมคว่ำ"
+      },
+      "sourceHash": "d34bbe1eea9d2916a46751c4fb9e3551f5be63eefcab9140943b42d61820564b",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/inverted-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.body.silhouette.plus",
+      "optionId": "body.silhouette.plus",
+      "attributeId": "body.005",
+      "slug": "plus",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Plus-size natural fashion silhouette diagram",
+        "th": "ภาพโครงรูปร่างพลัสไซซ์แบบธรรมชาติ"
+      },
+      "sourceHash": "5628af6ff18bff40add28a671aadf8e19a5a9523544ca502545ee3c52263ca59",
+      "assets": {
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/thumb/plus-r1.png"
+      }
+    }
+  ]
+}

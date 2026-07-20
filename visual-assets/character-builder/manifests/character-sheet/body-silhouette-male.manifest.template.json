@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-silhouette-male",
+  "fieldId": "body.silhouette.male",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "folder": "body-silhouette",
+    "filename": "body-silhouette-set-r1-male.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 3,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.body.silhouette.male.lean_slim",
+      "optionId": "body.silhouette.male.lean_slim",
+      "attributeId": "body.male_silhouette_01",
+      "slug": "male-lean-slim",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male lean slim body silhouette diagram", "th": "Male lean slim body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.male.balanced_average",
+      "optionId": "body.silhouette.male.balanced_average",
+      "attributeId": "body.male_silhouette_02",
+      "slug": "male-balanced-average",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male balanced average body silhouette diagram", "th": "Male balanced average body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.male.broad_strong",
+      "optionId": "body.silhouette.male.broad_strong",
+      "attributeId": "body.male_silhouette_03",
+      "slug": "male-broad-strong",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male broad strong body silhouette diagram", "th": "Male broad strong body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.male.athletic_toned",
+      "optionId": "body.silhouette.male.athletic_toned",
+      "attributeId": "body.male_silhouette_04",
+      "slug": "male-athletic-toned",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male athletic toned body silhouette diagram", "th": "Male athletic toned body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.male.heavy_solid",
+      "optionId": "body.silhouette.male.heavy_solid",
+      "attributeId": "body.male_silhouette_05",
+      "slug": "male-heavy-solid",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male heavy solid body silhouette diagram", "th": "Male heavy solid body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.body.silhouette.male.very_heavy_full",
+      "optionId": "body.silhouette.male.very_heavy_full",
+      "attributeId": "body.male_silhouette_06",
+      "slug": "male-very-heavy-full",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male very heavy full body silhouette diagram", "th": "Male very heavy full body silhouette diagram" },
+      "reviewStatus": "source-selected"
+    }
+  ]
+}

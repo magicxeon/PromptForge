@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { compilePromptOnServer } from '../server/promptCompiler.js';
+import { compilePromptOnServer } from '../server/domain/generation/promptCompiler.js';
 
 const characterSheetInstruction =
   'Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';
@@ -122,4 +122,41 @@ test('Fashion Story and Photography Context are compiled together', () => {
 
   assert.match(prompt, /luxury fashion campaign key visual/);
   assert.match(prompt, /arriving as the central campaign character/);
+});
+
+test('Character Sheet mode excludes scene context and environment language', () => {
+  const prompt = compilePromptOnServer(
+    {
+      'Fashion Photography Context': {
+        value: 'luxury fashion campaign key visual',
+        group: 'Photographic Context',
+        category: 'photo_context'
+      },
+      'Fashion Story': {
+        value: 'walking through a neon city street',
+        group: 'Scene Story',
+        category: 'scene_story'
+      },
+      Location: {
+        value: 'inside a glossy shopping mall atrium',
+        group: 'Environment',
+        category: 'environment'
+      },
+      'Skin Texture': {
+        value: 'natural bare-face look with realistic skin texture and visible fine pores',
+        group: 'Skin',
+        category: 'skin'
+      }
+    },
+    '6:8',
+    {},
+    'character-sheet',
+    'portrait'
+  );
+
+  assert.match(prompt, /character model sheet/);
+  assert.match(prompt, /natural bare-face look with realistic skin texture and visible fine pores/);
+  assert.doesNotMatch(prompt, /luxury fashion campaign key visual/);
+  assert.doesNotMatch(prompt, /walking through a neon city street/);
+  assert.doesNotMatch(prompt, /shopping mall atrium/);
 });

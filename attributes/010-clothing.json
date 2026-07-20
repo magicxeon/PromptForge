@@ -1430,5 +1430,1174 @@
       "shirt"
     ],
     "enabled": true
+  },
+  {
+    "id": "outfit.preset.sheet_baseline",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Character Sheet Baseline",
+      "th": "ชุดพื้นฐานสำหรับ Character Sheet"
+    },
+    "description": {
+      "en": "Plain neutral outfit for clean full-body model sheets.",
+      "th": "ชุดเรียบกลางๆ สำหรับสร้างภาพตัวละครเต็มตัวหลายมุม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image-safe": "wearing a plain white tank top and simple white shorts for clear character sheet visibility",
+      "gpt-image-positive": "clean model sheet outfit, visible full-body reference, neutral wardrobe"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "character-sheet",
+      "baseline"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.casual_tshirt_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "T-shirt and Jeans",
+      "th": "เสื้อยืดและยีนส์"
+    },
+    "description": {
+      "en": "Simple casual outfit for reusable story characters.",
+      "th": "ชุดลำลองเรียบง่ายสำหรับตัวละครที่นำไปใช้ต่อใน Story Mode"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers",
+      "gpt-image": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers, clean readable outfit construction",
+      "gpt-image-safe": "wearing a plain casual T-shirt, straight-leg blue jeans, and simple sneakers",
+      "gpt-image-positive": "casual character reference outfit, clean wardrobe continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "casual",
+      "story-ready"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.simple_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Simple Dress",
+      "th": "เดรสเรียบง่าย"
+    },
+    "description": {
+      "en": "Minimal one-piece outfit with clear silhouette.",
+      "th": "ชุดเดรสชิ้นเดียวแบบเรียบง่าย เห็นทรงชุดชัด"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple knee-length day dress with clean lines and minimal details",
+      "gpt-image": "wearing a simple knee-length day dress with clean lines, minimal details, and clear full-body silhouette",
+      "gpt-image-safe": "wearing a simple knee-length day dress with clean lines and minimal details",
+      "gpt-image-positive": "simple fashion character reference, readable dress silhouette"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "dress",
+      "story-ready"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.blazer_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Blazer and Trousers",
+      "th": "เบลเซอร์และกางเกงขายาว"
+    },
+    "description": {
+      "en": "Professional commercial outfit with structured tailoring.",
+      "th": "ชุดเชิงพาณิชย์/มืออาชีพที่มีโครงสร้างตัดเย็บชัดเจน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes",
+      "gpt-image": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes, structured professional outfit",
+      "gpt-image-safe": "wearing a clean tailored blazer, simple inner top, straight tailored trousers, and simple dress shoes",
+      "gpt-image-positive": "professional character reference outfit, structured tailoring, commercial wardrobe continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "professional",
+      "commercial"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.preset.hoodie_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Preset",
+    "label": {
+      "en": "Hoodie and Pants",
+      "th": "ฮู้ดดี้และกางเกง"
+    },
+    "description": {
+      "en": "Relaxed street/casual outfit for everyday characters.",
+      "th": "ชุดสตรีท/ลำลองสำหรับตัวละครในชีวิตประจำวัน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers",
+      "gpt-image": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers, readable casual outfit layers",
+      "gpt-image-safe": "wearing a plain relaxed hoodie, casual straight pants, and simple sneakers",
+      "gpt-image-positive": "street casual character reference, clean outfit continuity"
+    },
+    "tags": [
+      "clothing",
+      "outfit-preset",
+      "street",
+      "casual"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.modest_reference",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Modest Reference Wear",
+      "th": "ชุดอ้างอิงแบบสุภาพ"
+    },
+    "description": {
+      "en": "Safe fallback and visible baseline clothing.",
+      "th": "ชุดอ้างอิงแบบสุภาพ ปลอดภัยสำหรับการแสดงสัดส่วน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing modest neutral fitted reference clothing, opaque light gray top and mid-thigh shorts, non-revealing",
+      "gpt-image": "wearing modest neutral fitted reference clothing, opaque light gray top and mid-thigh shorts, non-revealing"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "fallback",
+      "modest"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.tshirt_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "T-shirt and Jeans",
+      "th": "เสื้อยืดและกางเกงยีนส์"
+    },
+    "description": {
+      "en": "Simple fitted T-shirt and straight-leg jeans.",
+      "th": "เสื้อยืดเข้ารูปและกางเกงยีนส์ขาตรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple fitted T-shirt and straight-leg jeans",
+      "gpt-image": "wearing a simple fitted T-shirt and straight-leg jeans"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "casual"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.simple_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Simple Dress",
+      "th": "ชุดเดรสเรียบง่าย"
+    },
+    "description": {
+      "en": "Simple knee-length day dress with clean lines.",
+      "th": "ชุดเดรสลำลองความยาวระดับเข่าดีไซน์เรียบง่าย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple knee-length day dress with clean lines",
+      "gpt-image": "wearing a simple knee-length day dress with clean lines"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "dress"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.blazer_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Blazer and Trousers",
+      "th": "เสื้อเบลเซอร์และกางเกงขายาว"
+    },
+    "description": {
+      "en": "Clean tailored blazer with straight trousers.",
+      "th": "เสื้อเบลเซอร์เข้ารูปกับกางเกงสแล็คขายาวตรง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a clean tailored blazer with straight trousers",
+      "gpt-image": "wearing a clean tailored blazer with straight trousers"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "professional"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.hoodie_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Hoodie and Pants",
+      "th": "เสื้อฮู้ดและกางเกงขายาว"
+    },
+    "description": {
+      "en": "Simple hoodie with relaxed pants.",
+      "th": "เสื้อฮู้ดแบบเรียบง่ายและกางเกงขายาวทรงสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a simple hoodie with relaxed pants",
+      "gpt-image": "wearing a simple hoodie with relaxed pants"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "street"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.shirt_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Shirt and Skirt",
+      "th": "เสื้อเชิ้ตและกระโปรง"
+    },
+    "description": {
+      "en": "Neat shirt with a simple knee-length skirt.",
+      "th": "เสื้อเชิ้ตเรียบร้อยกับกระโปรงสั้นระดับเข่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a neat shirt with a simple knee-length skirt",
+      "gpt-image": "wearing a neat shirt with a simple knee-length skirt"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "formal"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.activewear_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": {
+      "en": "Activewear Set",
+      "th": "ชุดออกกำลังกาย"
+    },
+    "description": {
+      "en": "Modest athletic top with full-length activewear pants.",
+      "th": "เสื้อกีฬาแบบสุภาพและกางเกงออกกำลังกายขายาว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "wearing a modest athletic top with full-length activewear pants",
+      "gpt-image": "wearing a modest athletic top with full-length activewear pants"
+    },
+    "tags": [
+      "clothing",
+      "outfit-base",
+      "sporty"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.minimal_oversized_shirt_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Minimal Oversized Shirt and Pants", "th": "Minimal Oversized Shirt and Pants" },
+    "description": { "en": "Unisex Korean/Asian minimalist oversized shirt with straight trousers.", "th": "Unisex Korean/Asian minimalist oversized shirt with straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a relaxed oversized button shirt with straight-leg trousers",
+      "gpt-image": "wearing a relaxed oversized button shirt with straight-leg trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "asian-casual", "minimal"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.tshirt_wide_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "T-shirt and Wide Jeans", "th": "T-shirt and Wide Jeans" },
+    "description": { "en": "Unisex plain T-shirt with loose wide-leg jeans.", "th": "Unisex plain T-shirt with loose wide-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a plain T-shirt with loose wide-leg jeans",
+      "gpt-image": "wearing a plain T-shirt with loose wide-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.knit_top_relaxed_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Top and Relaxed Trousers", "th": "Knit Top and Relaxed Trousers" },
+    "description": { "en": "Unisex soft knit pullover with relaxed ankle trousers.", "th": "Unisex soft knit pullover with relaxed ankle trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft knit pullover with relaxed ankle trousers",
+      "gpt-image": "wearing a soft knit pullover with relaxed ankle trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "korean-casual", "knit"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.smart_casual_blazer",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Smart Casual Blazer Set", "th": "Smart Casual Blazer Set" },
+    "description": { "en": "Unisex unstructured blazer with plain inner top and straight trousers.", "th": "Unisex unstructured blazer with plain inner top and straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers",
+      "gpt-image": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.hoodie_joggers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Hoodie and Jogger Pants", "th": "Hoodie and Jogger Pants" },
+    "description": { "en": "Unisex simple hoodie with relaxed jogger pants.", "th": "Unisex simple hoodie with relaxed jogger pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple hoodie with relaxed jogger pants",
+      "gpt-image": "wearing a simple hoodie with relaxed jogger pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "street", "casual"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.unisex.thai_linen_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Casual Linen Set", "th": "Thai Casual Linen Set" },
+    "description": { "en": "Unisex loose short-sleeve linen shirt with relaxed long pants.", "th": "Unisex loose short-sleeve linen shirt with relaxed long pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a loose short-sleeve linen shirt with relaxed long pants",
+      "gpt-image": "wearing a loose short-sleeve linen shirt with relaxed long pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-unisex", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.korean_shirt_slacks",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Korean Minimal Shirt and Slacks", "th": "Korean Minimal Shirt and Slacks" },
+    "description": { "en": "Male clean button-up shirt with straight tailored slacks.", "th": "Male clean button-up shirt with straight tailored slacks." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a clean button-up shirt with straight tailored slacks",
+      "gpt-image": "wearing a clean button-up shirt with straight tailored slacks"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "korean-casual", "smart"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.tshirt_straight_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "T-shirt and Straight Jeans", "th": "T-shirt and Straight Jeans" },
+    "description": { "en": "Male plain fitted T-shirt with straight-leg jeans.", "th": "Male plain fitted T-shirt with straight-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a plain fitted T-shirt with straight-leg jeans",
+      "gpt-image": "wearing a plain fitted T-shirt with straight-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.knit_polo_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Polo and Trousers", "th": "Knit Polo and Trousers" },
+    "description": { "en": "Male soft knit polo shirt with relaxed tailored trousers.", "th": "Male soft knit polo shirt with relaxed tailored trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft knit polo shirt with relaxed tailored trousers",
+      "gpt-image": "wearing a soft knit polo shirt with relaxed tailored trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "korean-casual", "smart"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.smart_blazer_set",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Smart Casual Blazer Set", "th": "Smart Casual Blazer Set" },
+    "description": { "en": "Male lightweight blazer with plain inner top and slim-straight trousers.", "th": "Male lightweight blazer with plain inner top and slim-straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a lightweight blazer, plain inner top, and slim-straight trousers",
+      "gpt-image": "wearing a lightweight blazer, plain inner top, and slim-straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.hoodie_cargo_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Hoodie and Cargo Pants", "th": "Hoodie and Cargo Pants" },
+    "description": { "en": "Male simple hoodie with clean cargo pants.", "th": "Male simple hoodie with clean cargo pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple hoodie with clean cargo pants",
+      "gpt-image": "wearing a simple hoodie with clean cargo pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "street", "casual"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.thai_linen_shirt_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Linen Shirt and Relaxed Pants", "th": "Thai Linen Shirt and Relaxed Pants" },
+    "description": { "en": "Male short-sleeve linen shirt with relaxed long pants.", "th": "Male short-sleeve linen shirt with relaxed long pants." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a short-sleeve linen shirt with relaxed long pants",
+      "gpt-image": "wearing a short-sleeve linen shirt with relaxed long pants"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.korean_blouse_a_line_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Korean Blouse and A-line Skirt", "th": "Korean Blouse and A-line Skirt" },
+    "description": { "en": "Female soft blouse with a knee-length A-line skirt.", "th": "Female soft blouse with a knee-length A-line skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft blouse with a knee-length A-line skirt",
+      "gpt-image": "wearing a soft blouse with a knee-length A-line skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "korean-casual", "feminine"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.tshirt_high_waist_wide_jeans",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Fitted T-shirt and High-waist Wide Jeans", "th": "Fitted T-shirt and High-waist Wide Jeans" },
+    "description": { "en": "Female fitted top with high-waist wide-leg jeans.", "th": "Female fitted top with high-waist wide-leg jeans." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a simple fitted top with high-waist wide-leg jeans",
+      "gpt-image": "wearing a simple fitted top with high-waist wide-leg jeans"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "casual", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.knit_cardigan_midi_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Knit Cardigan and Midi Skirt", "th": "Knit Cardigan and Midi Skirt" },
+    "description": { "en": "Female soft cardigan or knit top with a modest midi skirt.", "th": "Female soft cardigan or knit top with a modest midi skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a soft cardigan or knit top with a modest midi skirt",
+      "gpt-image": "wearing a soft cardigan or knit top with a modest midi skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "korean-casual", "knit"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.simple_day_dress",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Simple Day Dress", "th": "Simple Day Dress" },
+    "description": { "en": "Female knee-length clean-line day dress with a modest waist shape.", "th": "Female knee-length clean-line day dress with a modest waist shape." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a knee-length clean-line day dress with a modest waist shape",
+      "gpt-image": "wearing a knee-length clean-line day dress with a modest waist shape"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "dress", "feminine"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.cropped_jacket_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Cropped Jacket and Straight Trousers", "th": "Cropped Jacket and Straight Trousers" },
+    "description": { "en": "Female short structured jacket with a plain inner top and straight trousers.", "th": "Female short structured jacket with a plain inner top and straight trousers." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing a short structured jacket, plain inner top, and straight trousers",
+      "gpt-image": "wearing a short structured jacket, plain inner top, and straight trousers"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "smart-casual", "professional"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.thai_linen_blouse_wrap_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Thai Linen Blouse and Wrap Skirt", "th": "Thai Linen Blouse and Wrap Skirt" },
+    "description": { "en": "Female airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt.", "th": "Female airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt." },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": {
+      "default": "wearing an airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt",
+      "gpt-image": "wearing an airy short-sleeve linen blouse with a modest knee-to-midi wrap skirt"
+    },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "thai-casual", "linen"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.solid",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Solid",
+      "th": "สีพื้น"
+    },
+    "description": {
+      "en": "Solid color fabric without patterns.",
+      "th": "เนื้อผ้าสีพื้นไม่มีลวดลาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "solid color fabric",
+      "gpt-image": "solid color fabric"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "solid"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.subtle_stripe",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Subtle Stripe",
+      "th": "ลายริ้วบาง"
+    },
+    "description": {
+      "en": "Subtle vertical stripe pattern.",
+      "th": "ลายทางแนวตั้งแบบบางเบาเรียบหรู"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "subtle vertical stripe pattern",
+      "gpt-image": "subtle vertical stripe pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "stripe"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.plaid",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Plaid",
+      "th": "ลายสก็อต"
+    },
+    "description": {
+      "en": "Clean plaid fabric pattern.",
+      "th": "ลายตาราง/ลายสก็อตดีไซน์สะอาดตา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "clean plaid fabric pattern",
+      "gpt-image": "clean plaid fabric pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "plaid"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.floral",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Floral",
+      "th": "ลายดอกไม้"
+    },
+    "description": {
+      "en": "Small tasteful floral pattern.",
+      "th": "ลายดอกไม้ขนาดเล็กดูดีมีรสนิยม"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "small tasteful floral pattern",
+      "gpt-image": "small tasteful floral pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "floral"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.geometric",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Geometric",
+      "th": "ลายเรขาคณิต"
+    },
+    "description": {
+      "en": "Simple geometric fabric pattern.",
+      "th": "ลวดลายเรขาคณิตแบบเรียบง่าย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "simple geometric fabric pattern",
+      "gpt-image": "simple geometric fabric pattern"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "geometric"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.pattern.color_block",
+    "category": "clothing",
+    "subcategory": "Pattern",
+    "label": {
+      "en": "Color Block",
+      "th": "สลับสี"
+    },
+    "description": {
+      "en": "Clean two-tone color block design.",
+      "th": "การออกแบบสลับบล็อกสีแบบทูโทนสะอาดตา"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "clean two-tone color block design",
+      "gpt-image": "clean two-tone color block design"
+    },
+    "tags": [
+      "clothing",
+      "pattern",
+      "color-block"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.cotton",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Cotton",
+      "th": "ผ้าฝ้าย / คอตตอน"
+    },
+    "description": {
+      "en": "Matte cotton fabric.",
+      "th": "ผ้าคอตตอนเนื้อแมตต์เรียบสบาย"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "matte cotton fabric",
+      "gpt-image": "matte cotton fabric"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "cotton"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.denim",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Denim",
+      "th": "ผ้ายีนส์ / เดนิม"
+    },
+    "description": {
+      "en": "Structured denim fabric.",
+      "th": "ผ้ายีนส์เนื้อหนามีโครงสร้างทรงตัวดี"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "structured denim fabric",
+      "gpt-image": "structured denim fabric"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "denim"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.knit",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Knit",
+      "th": "ผ้าถัก / นิตติ้ง"
+    },
+    "description": {
+      "en": "Soft knit fabric texture.",
+      "th": "ผ้าถักนุ่มนวลมีพื้นผิวชัดเจน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft knit fabric texture",
+      "gpt-image": "soft knit fabric texture"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "knit"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.satin",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Satin",
+      "th": "ผ้าซาติน"
+    },
+    "description": {
+      "en": "Subtle satin sheen.",
+      "th": "ผ้าซาตินมีความเงางามบางเบาเรียบหรู"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "subtle satin sheen",
+      "gpt-image": "subtle satin sheen"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "satin"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.wool",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Wool",
+      "th": "ผ้าขนสัตว์ / วูล"
+    },
+    "description": {
+      "en": "Soft wool blend texture.",
+      "th": "ผ้าผสมวูลนุ่มอุ่นมีน้ำหนัก"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft wool blend texture",
+      "gpt-image": "soft wool blend texture"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "wool"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.material.leather_like",
+    "category": "clothing",
+    "subcategory": "Material",
+    "label": {
+      "en": "Leather-like",
+      "th": "คล้ายหนัง"
+    },
+    "description": {
+      "en": "Smooth leather-like material, brand-free.",
+      "th": "วัสดุผิวเรียบคล้ายหนังแบบไร้แบรนด์ยี่ห้อ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "smooth leather-like material, brand-free",
+      "gpt-image": "smooth leather-like material, brand-free"
+    },
+    "tags": [
+      "clothing",
+      "material",
+      "leather"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.white",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "White",
+      "th": "สีขาว"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "white",
+      "gpt-image": "white"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "white"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.light_gray",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Light Gray",
+      "th": "สีเทาอ่อน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "light gray",
+      "gpt-image": "light gray"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "light-gray"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.black",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Black",
+      "th": "สีดำ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "black",
+      "gpt-image": "black"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "black"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.navy",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Navy",
+      "th": "สีน้ำเงินกรมท่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "navy",
+      "gpt-image": "navy"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "navy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.beige",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Beige",
+      "th": "สีเบจ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "beige",
+      "gpt-image": "beige"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "beige"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.denim_blue",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Denim Blue",
+      "th": "สียีนส์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "denim blue",
+      "gpt-image": "denim blue"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "denim-blue"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.soft_pink",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Soft Pink",
+      "th": "สีชมพูอ่อน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "soft pink",
+      "gpt-image": "soft pink"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "soft-pink"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.red",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Red",
+      "th": "สีแดง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "red",
+      "gpt-image": "red"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "red"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.forest_green",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Forest Green",
+      "th": "สีเขียวป่า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "forest green",
+      "gpt-image": "forest green"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "forest-green"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.lavender",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Lavender",
+      "th": "สีลาเวนเดอร์"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "lavender",
+      "gpt-image": "lavender"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "lavender"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "outfit.color.warm_brown",
+    "category": "clothing",
+    "subcategory": "Clothing Color",
+    "label": {
+      "en": "Warm Brown",
+      "th": "สีน้ำตาลอบอุ่น"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Clothing"
+    },
+    "prompt": {
+      "default": "warm brown",
+      "gpt-image": "warm brown"
+    },
+    "tags": [
+      "clothing",
+      "color",
+      "warm-brown"
+    ],
+    "enabled": true
   }
 ]

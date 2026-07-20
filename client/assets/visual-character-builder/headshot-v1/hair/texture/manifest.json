@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.hair.texture",
+  "fieldId": "hair.texture",
+  "sectionId": "hair",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.hair.texture.silky-smooth",
+      "optionId": "hair.texture.silky_smooth",
+      "slug": "silky-smooth",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Silky smooth hair texture in clean line art",
+        "th": "Silky smooth hair texture in clean line art"
+      },
+      "sourceHash": "0acf9f7762877fe2cb6d16ca6fd2d0f4c6e56492d9840549f789b970fd936363",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/texture/master/silky-smooth-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/texture/preview/silky-smooth-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/texture/thumb/silky-smooth-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.texture.coarse-thick",
+      "optionId": "hair.texture.coarse_thick",
+      "slug": "coarse-thick",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Coarse thick hair texture in clean line art",
+        "th": "Coarse thick hair texture in clean line art"
+      },
+      "sourceHash": "b016c85826a05a3d386d02b0ef72646acede0e0f342eb9caef6f94504c4f056f",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/texture/master/coarse-thick-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/texture/preview/coarse-thick-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/texture/thumb/coarse-thick-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.texture.soft-glossy-waves",
+      "optionId": "hair.texture.soft_glossy_waves",
+      "slug": "soft-glossy-waves",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Soft glossy wave hair texture in clean line art",
+        "th": "Soft glossy wave hair texture in clean line art"
+      },
+      "sourceHash": "a6f74b43a19d3522d710fa6129016c933d9453aa906fd3a6bf5a1437765043cf",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/texture/master/soft-glossy-waves-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/texture/preview/soft-glossy-waves-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/texture/thumb/soft-glossy-waves-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.hair.texture.frizzy-voluminous",
+      "optionId": "hair.texture.frizzy_voluminous",
+      "slug": "frizzy-voluminous",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Frizzy voluminous hair texture in clean line art",
+        "th": "Frizzy voluminous hair texture in clean line art"
+      },
+      "sourceHash": "9f8a3be5ed96dcbc4350ff2e99c837a35e31a3f0b6410f6b8e3afddd5b6f5486",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/hair/texture/master/frizzy-voluminous-r1.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/hair/texture/preview/frizzy-voluminous-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/hair/texture/thumb/frizzy-voluminous-r1.png"
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import test from 'node:test';
 import {
   dedupeResolvedReferenceImages,
   normalizeReferenceJobIds
-} from '../server/referenceUtils.js';
+} from '../server/domain/generation/referenceUtils.js';
 
 test('normalizes duplicate and empty lineage job IDs', () => {
   assert.deepEqual(

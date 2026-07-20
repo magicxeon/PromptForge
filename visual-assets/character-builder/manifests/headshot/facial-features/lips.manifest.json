@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.lips",
+  "fieldId": "lips.shape",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "filename": "lips-set-r1.png",
+    "revision": 1,
+    "rows": 2,
+    "columns": 4,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "master": { "width": 512, "height": 512, "format": "png" },
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.lips.shape.natural",
+      "optionId": "lips.shape.natural",
+      "slug": "natural",
+      "row": 1,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Natural lips in clean line art", "th": "ริมฝีปากธรรมชาติแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.cherry",
+      "optionId": "lips.shape.cherry",
+      "slug": "cherry",
+      "row": 1,
+      "column": 2,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Cherry lips in clean line art", "th": "ริมฝีปากเชอร์รีแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.cupids-bow",
+      "optionId": "lips.shape.cupids_bow",
+      "slug": "cupids-bow",
+      "row": 1,
+      "column": 3,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Cupid's bow lips in clean line art", "th": "ริมฝีปากคิวปิดโบว์แบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.plump",
+      "optionId": "lips.shape.plump",
+      "slug": "plump",
+      "row": 1,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Plump lips in clean line art", "th": "ริมฝีปากอวบอิ่มแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.thin",
+      "optionId": "lips.shape.thin",
+      "slug": "thin",
+      "row": 2,
+      "column": 1,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Thin lips in clean line art", "th": "ริมฝีปากบางแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.heart-shaped",
+      "optionId": "lips.shape.heart_shaped",
+      "slug": "heart-shaped",
+      "row": 2,
+      "column": 2,
+      "sourceBounds": { "left": 463, "top": 443, "width": 403, "height": 444 },
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Heart-shaped lips in clean line art", "th": "ริมฝีปากทรงหัวใจแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.heavy-upper",
+      "optionId": "lips.shape.heavy_upper",
+      "slug": "heavy-upper",
+      "row": 2,
+      "column": 3,
+      "sourceBounds": { "left": 886, "top": 443, "width": 390, "height": 444 },
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Heavy upper lip in clean line art", "th": "ริมฝีปากบนเด่นแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    },
+    {
+      "assetId": "visual.lips.shape.wide",
+      "optionId": "lips.shape.wide",
+      "slug": "wide",
+      "row": 2,
+      "column": 4,
+      "sourceBounds": null,
+      "assetRevision": 1,
+      "overrideFilename": null,
+      "focalPoint": "50% 50%",
+      "alt": { "en": "Wide lips in clean line art", "th": "ริมฝีปากกว้างแบบเส้นภาพเรียบง่าย" },
+      "reviewStatus": "sliced"
+    }
+  ]
+}

@@ -285,6 +285,368 @@
     "enabled": true
   },
   {
+    "id": "body.011",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Straight natural silhouette",
+      "th": "Straight natural silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "straight natural body silhouette",
+      "gpt-image": "straight natural body silhouette with clean balanced proportions",
+      "gpt-image-safe": "straight natural body silhouette with balanced proportions",
+      "gpt-image-positive": "clean full-body character reference, balanced proportions"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "straight"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.012",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Inverted triangle silhouette",
+      "th": "Inverted triangle silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "inverted triangle body silhouette",
+      "gpt-image": "inverted triangle body silhouette with broader shoulders and narrower hips, natural balanced proportions",
+      "gpt-image-safe": "inverted triangle body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, structured silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "inverted-triangle"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_01",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female beauty slim silhouette",
+      "th": "Female beauty slim silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "beauty slim female body silhouette",
+      "gpt-image": "adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance",
+      "gpt-image-safe": "adult female slim body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, elegant proportional guide"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "beauty-slim"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_02",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female curvy hourglass silhouette",
+      "th": "Female curvy hourglass silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "curvy hourglass female body silhouette",
+      "gpt-image": "adult female curvy hourglass body silhouette, fuller bust, defined waist, balanced hips, natural elegant proportions",
+      "gpt-image-safe": "adult female hourglass body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, clear waist and balanced silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "hourglass"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_03",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female petite soft silhouette",
+      "th": "Female petite soft silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "petite soft female body silhouette",
+      "gpt-image": "adult female petite soft body silhouette, compact frame, gentle curves, balanced natural proportions",
+      "gpt-image-safe": "adult female petite body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, compact proportional guide"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "petite"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_04",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female pear curvy silhouette",
+      "th": "Female pear curvy silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "pear curvy female body silhouette",
+      "gpt-image": "adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions",
+      "gpt-image-safe": "adult female pear-shaped body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, clear lower-body silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "pear"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_05",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female athletic toned silhouette",
+      "th": "Female athletic toned silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "athletic toned female body silhouette",
+      "gpt-image": "adult female athletic toned body silhouette, firm balanced frame, subtle muscle definition, natural elegant proportions",
+      "gpt-image-safe": "adult female athletic body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, balanced athletic silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "athletic"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.female_silhouette_06",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Female full-figured elegant silhouette",
+      "th": "Female full-figured elegant silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "full-figured elegant female body silhouette",
+      "gpt-image": "adult female full-figured elegant body silhouette, soft full curves, balanced natural proportions, graceful stance",
+      "gpt-image-safe": "adult female full-figured body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, graceful inclusive silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "female-body-silhouette",
+      "full-figured"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_01",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male lean slim silhouette",
+      "th": "Male lean slim silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "lean slim male body silhouette",
+      "gpt-image": "adult male lean slim body silhouette, narrow frame, long clean lines, balanced natural proportions",
+      "gpt-image-safe": "adult male lean body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, lean proportional guide"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "lean"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_02",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male balanced average silhouette",
+      "th": "Male balanced average silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "balanced average male body silhouette",
+      "gpt-image": "adult male balanced average body silhouette, natural shoulders, natural waist, clean realistic proportions",
+      "gpt-image-safe": "adult male average body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, neutral proportional guide"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "balanced"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_03",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male broad strong silhouette",
+      "th": "Male broad strong silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "broad strong male body silhouette",
+      "gpt-image": "adult male broad strong body silhouette, wide shoulders, sturdy frame, balanced natural proportions",
+      "gpt-image-safe": "adult male broad body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, strong structured silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "broad"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_04",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male athletic toned silhouette",
+      "th": "Male athletic toned silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "athletic toned male body silhouette",
+      "gpt-image": "adult male athletic toned body silhouette, defined shoulders and chest, balanced athletic frame, natural proportions",
+      "gpt-image-safe": "adult male athletic body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, athletic proportional guide"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "athletic"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_05",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male heavy solid silhouette",
+      "th": "Male heavy solid silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "heavy solid male body silhouette",
+      "gpt-image": "adult male heavy solid body silhouette, larger torso, full waist, sturdy arms and legs, balanced natural proportions",
+      "gpt-image-safe": "adult male heavy body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, inclusive heavy silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "heavy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.male_silhouette_06",
+    "category": "body",
+    "subcategory": "Body Shape",
+    "label": {
+      "en": "Male very heavy full silhouette",
+      "th": "Male very heavy full silhouette"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "very heavy full male body silhouette",
+      "gpt-image": "adult male very heavy full body silhouette, very large rounded torso, broad full waist, thick arms and legs, balanced natural proportions",
+      "gpt-image-safe": "adult male very heavy body silhouette with balanced natural proportions",
+      "gpt-image-positive": "clean full-body character reference, inclusive very heavy silhouette"
+    },
+    "tags": [
+      "body",
+      "silhouette",
+      "male-body-silhouette",
+      "very-heavy"
+    ],
+    "enabled": true
+  },
+  {
     "id": "body.build_01",
     "category": "body",
     "subcategory": "Build",
@@ -335,6 +697,81 @@
     "enabled": true
   },
   {
+    "id": "body.build_03",
+    "category": "body",
+    "subcategory": "Build",
+    "label": {
+      "en": "Balanced build",
+      "th": "Balanced build"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "balanced natural build",
+      "gpt-image": "balanced natural build with average proportions and relaxed posture",
+      "gpt-image-safe": "balanced natural build with average proportions",
+      "gpt-image-positive": "clean full-body character reference, natural proportions"
+    },
+    "tags": [
+      "body",
+      "build",
+      "balanced"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.build_04",
+    "category": "body",
+    "subcategory": "Build",
+    "label": {
+      "en": "Broad structured build",
+      "th": "Broad structured build"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "broad structured build",
+      "gpt-image": "broad structured build with a strong natural frame and balanced proportions",
+      "gpt-image-safe": "broad structured build with balanced proportions",
+      "gpt-image-positive": "clean full-body character reference, structured proportions"
+    },
+    "tags": [
+      "body",
+      "build",
+      "broad"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.build_05",
+    "category": "body",
+    "subcategory": "Build",
+    "label": {
+      "en": "Soft natural build",
+      "th": "Soft natural build"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "soft natural build",
+      "gpt-image": "soft natural build with gentle rounded lines and balanced proportions",
+      "gpt-image-safe": "soft natural build with balanced proportions",
+      "gpt-image-positive": "clean full-body character reference, natural soft proportions"
+    },
+    "tags": [
+      "body",
+      "build",
+      "soft"
+    ],
+    "enabled": true
+  },
+  {
     "id": "body.hands_01",
     "category": "body",
     "subcategory": "Hands",
@@ -379,6 +816,81 @@
     "tags": [
       "body",
       "legs"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_side_back",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front / Side / Back",
+      "th": "หน้า / ข้าง / หลัง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "character model sheet, consistent identity, clean turnaround sheet"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "turnaround"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_back",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front / Back",
+      "th": "หน้า / หลัง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "showing front view and back view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "character model sheet, consistent outfit view, clean reference sheet"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "front-back"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "body.sheet_layout.front_only_full_body",
+    "category": "body",
+    "subcategory": "Sheet Layout",
+    "label": {
+      "en": "Front Only Full Body",
+      "th": "เต็มตัวด้านหน้า"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Body"
+    },
+    "prompt": {
+      "default": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-safe": "single front view of the same character, full-body view, standing straight in a neutral pose",
+      "gpt-image-positive": "full-body character reference, consistent identity, clean white background"
+    },
+    "tags": [
+      "body",
+      "sheet-layout",
+      "front-only"
     ],
     "enabled": true
   }
