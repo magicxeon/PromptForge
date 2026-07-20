@@ -1,11 +1,11 @@
 # Community-00-003 Repository Interface and Database Schema Map
 
-**Status:** Proposed - Ready For Implementation Planning  
+**Status:** In Implementation - JSON Repository Foundation  
 **Feature type:** JSON-to-database migration contract and repository boundary  
 **Depends on:** Community-00-002 Mock User / Actor Context, existing JSON repositories  
 **Feeds into:** Community-00-004 Ownership Policy, Community-00-005 Credit Ledger, Community-00-006 Admin Audit, Scene Builder template sharing  
 **Created:** 2026-07-19  
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-20
 
 ## 1. Business Requirement
 
@@ -34,13 +34,13 @@ The repository layer must be designed from the data already used by the app. Do 
 
 | Current file | Current owner | Current purpose | Future table family |
 | --- | --- | --- | --- |
-| `server/identity/mockUsers.json` | `MockUserRepository` | Development user identities and roles | `users`, `creator_profiles` |
-| `server/database.json` | `CreditManager` | Legacy credit balances and credit ledger | `user_credit_accounts`, `credit_ledger_entries` |
-| `server/history.json` | `HistoryRepository`, `QueueManager` | Generated image history records | `generation_results`, `assets`, `scene_template_snapshots` |
-| `server/collections.json` | `CollectionManager` | User image collections | `collections`, `collection_items` |
-| `server/comparisons.json` | `ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
-| `server/communityPosts.json` | `CommunityPostLocalRepository` | Local shared template/community post mock data | `community_posts` |
-| `server/remixEvents.json` | `CommunityRemixLocalRepository` | Local remix event analytics | `remix_events`, `audit_events` |
+| `server/data/identity/mockUsers.json` | `repositories/identity/MockUserRepository` | Development user identities and roles | `users`, `creator_profiles` |
+| `server/data/credits/database.json` | `domain/credits/CreditManager` | Legacy credit balances and credit ledger | `user_credit_accounts`, `credit_ledger_entries` |
+| `server/data/generation/history.json` | `repositories/generation/HistoryRepository`, `domain/generation/QueueManager` | Generated image history records | `generation_results`, `assets`, `scene_template_snapshots` |
+| `server/data/collections/collections.json` | `domain/collections/CollectionManager` | User image collections | `collections`, `collection_items` |
+| `server/data/comparisons/comparisons.json` | `repositories/comparisons/ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
+| `server/data/community/communityPosts.json` | `repositories/community/CommunityPostRepository` | Local shared template/community post mock data | `community_posts` |
+| `server/data/community/remixEvents.json` | `repositories/community/RemixEventRepository` | Local remix event analytics | `remix_events`, `audit_events` |
 
 ### 2.2 Current Client Sources
 
@@ -100,7 +100,7 @@ server/server.js
   -> service/orchestrator module
     -> policy module
       -> repository contract
-        -> JSON repository adapter
+  -> JSON repository adapter under server/repositories/<capability>/
         -> future PostgreSQL repository adapter
 ```
 
@@ -110,7 +110,7 @@ Example:
 POST /api/scene-templates/share-drafts
   -> SceneTemplateShareService.createDraft(actorContext, sourceGenerationId)
     -> ReferenceSlotPolicy.sanitizeForPublic(...)
-      -> GenerationResultRepository.findByIdForOwner(...)
+  -> GenerationResultRepository.findByIdForOwner(...)
       -> SceneTemplateSnapshotRepository.createDraft(...)
 ```
 
@@ -192,7 +192,7 @@ This schema map is the DB target. JSON repositories may store a simplified shape
 Source now:
 
 ```text
-server/identity/mockUsers.json
+server/data/identity/mockUsers.json
 ```
 
 Columns:
@@ -221,7 +221,7 @@ Migration notes:
 Source now:
 
 ```text
-server/identity/mockUsers.json.activeCreatorProfileId
+server/data/identity/mockUsers.json.activeCreatorProfileId
 future Community creator profile settings
 ```
 
@@ -286,7 +286,7 @@ Rules:
 Source now:
 
 ```text
-server/history.json
+server/data/generation/history.json
 QueueManager.saveToHistory(entry)
 client/core/generationService.js job metadata
 ```
@@ -320,7 +320,7 @@ updated_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
 
-Mapping from `server/history.json`:
+Mapping from `server/data/generation/history.json`:
 
 ```text
 history.id -> generation_results.id and job_id
@@ -348,7 +348,7 @@ Source now:
 history.sceneTemplateSnapshot
 client/scene-builder/sceneTemplateSerializer.js
 client/scene-builder/sceneTemplateHydrator.js
-server/sceneTemplates/*
+server/domain/scene-templates/*
 ```
 
 Columns:
@@ -399,8 +399,8 @@ replaceable_variables must preserve:
 Source now:
 
 ```text
-server/communityPosts.json
-server/communityServices.js publishSceneTemplateShare()
+server/data/community/communityPosts.json
+server/domain/community/CommunityShareService.js publishSceneTemplateShare()
 client/scene-builder/sceneSharePreview.js
 ```
 
@@ -429,14 +429,14 @@ scene_template_snapshot: jsonb null          // JSON phase compatibility
 workflow_snapshot: jsonb not null default {}
 visibility: text not null                    // public | unlisted | members_only | private
 reuse_policy: text not null                  // view_only | use_template | remix_allowed | paid_template
-status: text not null                        // active | hidden | deleted | blocked
+status: text not null                        // draft | published | hidden | removed
 counts: jsonb not null default {}
 created_at: timestamptz not null
 updated_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
 
-Mapping from `server/communityPosts.json`:
+Mapping from `server/data/community/communityPosts.json`:
 
 ```text
 post.id -> id
@@ -516,8 +516,8 @@ metadata: jsonb not null default {}
 Source now:
 
 ```text
-server/collections.json
-server/collectionManager.js
+server/data/collections/collections.json
+server/domain/collections/CollectionManager.js
 ```
 
 Columns:
@@ -545,7 +545,7 @@ collection_items
 - added_at: timestamptz not null
 ```
 
-Mapping from `server/collections.json`:
+Mapping from `server/data/collections/collections.json`:
 
 ```text
 collection.ownerUsername -> owner_username -> owner_user_id
@@ -559,9 +559,9 @@ defaultCollectionId -> collection.is_default
 Source now:
 
 ```text
-server/comparisons.json
-server/comparison/ComparisonRepository.js
-server/comparison/ComparisonOrchestrator.js
+server/data/comparisons/comparisons.json
+server/repositories/comparisons/ComparisonRepository.js
+server/domain/comparisons/ComparisonOrchestrator.js
 ```
 
 Columns:
@@ -599,9 +599,9 @@ comparison_runs
 Source now:
 
 ```text
-server/database.json.users
-server/database.json.creditLedger
-server/creditManager.js
+server/data/credits/database.json.users
+server/data/credits/database.json.creditLedger
+server/domain/credits/CreditManager.js
 ```
 
 Columns:
@@ -636,7 +636,7 @@ Rules:
 Source now:
 
 ```text
-server/database.json.users[username].credits
+server/data/credits/database.json.users[username].credits
 ```
 
 Columns:
@@ -684,7 +684,7 @@ metadata: jsonb not null default {}
 Source now:
 
 ```text
-server/remixEvents.json
+server/data/community/remixEvents.json
 ```
 
 Columns:
@@ -708,20 +708,22 @@ metadata: jsonb not null default {}
 New repository modules should live under:
 
 ```text
-server/repositories/
-server/community/
-server/credits/
-server/audit/
-server/identity/
+server/repositories/json/
+server/repositories/generation/
+server/repositories/community/
+server/repositories/identity/
+server/repositories/collections/
+server/repositories/credits/
+server/repositories/audit/
 ```
 
 Existing modules may be wrapped gradually:
 
 ```text
-server/historyRepository.js -> future server/repositories/GenerationResultRepository.js
-server/collectionManager.js -> future server/repositories/CollectionRepository.js
-server/communityServices.js -> split into service + repositories
-server/creditManager.js -> split into CreditAccountRepository + CreditLedgerRepository
+server/repositories/generation/HistoryRepository.js -> GenerationResultRepository read facade
+server/domain/collections/CollectionManager.js -> future CollectionRepository adapter
+server/domain/community/CommunityShareService.js -> service using community repositories
+server/domain/credits/CreditManager.js -> future CreditAccountRepository + CreditLedgerRepository
 ```
 
 ### 7.2 Atomic JSON Writes
@@ -737,10 +739,10 @@ Reason:
 - The app already hit Windows `EPERM rename` when writing JSON.
 - Each repository should not duplicate its own slightly different file writer.
 
-Proposed shared file:
+Canonical shared file:
 
 ```text
-server/repositories/jsonFileStore.js
+server/repositories/json/jsonFileStore.js
 ```
 
 Required functions:
@@ -829,30 +831,30 @@ schemaVersion
 ### 9.1 Proposed Files
 
 ```text
-server/repositories/jsonFileStore.js
+server/repositories/json/jsonFileStore.js
 server/repositories/repositoryContracts.js
 server/repositories/schemaVersioning.js
 server/repositories/recordNormalizer.js
 server/repositories/RepositoryCursor.js
 
-server/repositories/GenerationResultRepository.js
-server/repositories/AssetRepository.js
-server/repositories/SceneTemplateSnapshotRepository.js
-server/repositories/CollectionRepository.js
-server/repositories/ComparisonRepositoryAdapter.js
+server/repositories/generation/GenerationResultRepository.js
+server/repositories/assets/AssetRepository.js
+server/repositories/scene-templates/SceneTemplateSnapshotRepository.js
+server/repositories/collections/CollectionRepository.js
+server/repositories/comparisons/ComparisonRepositoryAdapter.js
 
-server/community/CommunityPostRepository.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/RemixEventRepository.js
+server/repositories/community/CommunityPostRepository.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/repositories/community/RemixEventRepository.js
 
-server/credits/CreditAccountRepository.js
-server/credits/CreditLedgerRepository.js
-server/audit/AuditLogRepository.js
+server/repositories/credits/CreditAccountRepository.js
+server/repositories/credits/CreditLedgerRepository.js
+server/repositories/audit/AuditLogRepository.js
 
 test/repositoryContracts.test.js
 test/repositorySchemaNormalization.test.js
-test/repositoryJsonFileStore.test.js
+test/jsonFileStore.test.js
 ```
 
 ### 9.2 `repositoryContracts.js`
@@ -867,7 +869,7 @@ VISIBILITY
 REUSE_POLICY
 PROMPT_VISIBILITY
 assertActorContext(actorContext)
-assertOwnerScope(ownerUserId)
+assertOwnerScope(record, ownerUserId)
 ```
 
 ### 9.3 `recordNormalizer.js`
@@ -908,16 +910,14 @@ Every repository implementation must:
 
 ### 10.2 Step-by-Step Implementation
 
-1. Create `server/repositories/jsonFileStore.js`.
-2. Move duplicated safe JSON write behavior into `jsonFileStore`.
-3. Create `repositoryContracts.js` with shared enums and actor assertions.
-4. Create `recordNormalizer.js` with owner and date normalization helpers.
-5. Add repository tests using temporary JSON files.
-6. Wrap `server/communityPosts.json` behind `CommunityPostRepository`.
-7. Wrap `server/remixEvents.json` behind `RemixEventRepository`.
-8. Add `GenerationResultRepository` wrapper around `server/history.json` without breaking `HistoryRepository` API.
-9. Add `CollectionRepository` wrapper around `server/collections.json` or refactor `CollectionManager` to use the shared store.
-10. Update `Community-00-004`, `00-005`, and `00-006` implementations to use these contracts when they are implemented.
+1. Reuse the existing `server/repositories/json/jsonFileStore.js`; do not create another writer.
+2. Create `repositoryContracts.js`, `schemaVersioning.js`, `recordNormalizer.js`, and `RepositoryCursor.js` as storage-neutral helpers.
+3. Add repository tests using temporary JSON files and a temporary mock-user fixture.
+4. Replace the CommunityShareService embedded JSON classes with `repositories/community/CommunityPostRepository` and `RemixEventRepository`.
+5. Add a read-only `repositories/generation/GenerationResultRepository` facade without changing `HistoryRepository` or QueueManager write APIs.
+6. Update CommunityShareService and Scene Template routes to pass `ActorContext` into repository/service calls while preserving existing endpoint response fields.
+7. Defer Collection, Asset, Scene Template Snapshot, Credit, Audit, and Comparison adapters until their owning requirement changes behavior.
+8. Update Community-00-004, `00-005`, and `00-006` implementations to use these contracts when they are implemented.
 
 ### 10.3 First-Pass Scope
 
@@ -928,7 +928,7 @@ CommunityPostRepository
 RemixEventRepository
 GenerationResultRepository read-only wrapper
 recordNormalizer owner/date helpers
-jsonFileStore shared writer
+existing jsonFileStore shared writer
 ```
 
 Leave these as planned wrappers unless a feature touches them:
@@ -957,6 +957,33 @@ No repository imports Express req/res.
 No repository stores base64 images in public/template records.
 ```
 
+### 10.5 First-Pass Implementation Record
+
+The first pass implements the Community-critical storage boundary only:
+
+```text
+Implemented:
+  server/repositories/repositoryContracts.js
+  server/repositories/schemaVersioning.js
+  server/repositories/recordNormalizer.js
+  server/repositories/RepositoryCursor.js
+  server/repositories/community/CommunityPostRepository.js
+  server/repositories/community/RemixEventRepository.js
+  server/repositories/generation/GenerationResultRepository.js
+  server/domain/community/CommunityShareService.js updated to use repositories
+  server/app/routes/sceneTemplateRoutes.js updated to pass ActorContext
+
+Deferred intentionally:
+  AssetRepository
+  CollectionRepository
+  SceneTemplateSnapshotRepository
+  CreditAccountRepository and CreditLedgerRepository
+  AuditLogRepository
+  ComparisonRepositoryAdapter
+```
+
+The deferred adapters belong to their capability requirements. They must reuse the contracts and normalizers from this first pass rather than inventing new storage conventions.
+
 ## 11. Testing
 
 ### 11.1 Automated Tests
@@ -970,6 +997,7 @@ TC-00-003-005 list public records hides deleted/hidden posts
 TC-00-003-006 jsonFileStore write survives repeated writes and preserves valid JSON
 TC-00-003-007 repository methods work with temp file path overrides
 TC-00-003-008 base64 reference values are rejected or stripped from public template snapshots
+TC-00-003-009 generation facade returns only records owned by the requested ownerUserId
 ```
 
 ### 11.2 Manual Verification
@@ -1015,30 +1043,30 @@ Use these files as canonical inputs:
 
 ```text
 Identity:
-  server/identity/mockUsers.json
+  server/data/identity/mockUsers.json
 
 Generation history:
-  server/history.json
-  server/historyRepository.js
-  server/queueManager.js
+  server/data/generation/history.json
+  server/repositories/generation/HistoryRepository.js
+  server/domain/generation/QueueManager.js
 
 Collections:
-  server/collections.json
-  server/collectionManager.js
+  server/data/collections/collections.json
+  server/domain/collections/CollectionManager.js
 
 Credits:
-  server/database.json
-  server/creditManager.js
+  server/data/credits/database.json
+  server/domain/credits/CreditManager.js
 
 Community sharing:
-  server/communityPosts.json
-  server/remixEvents.json
-  server/communityServices.js
+  server/data/community/communityPosts.json
+  server/data/community/remixEvents.json
+  server/domain/community/CommunityShareService.js
 
 Scene template snapshots:
   client/scene-builder/sceneTemplateSerializer.js
   client/scene-builder/sceneTemplateHydrator.js
-  server/sceneTemplates/*
+  server/domain/scene-templates/*
 ```
 
 The guiding rule:

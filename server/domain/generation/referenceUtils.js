@@ -42,6 +42,24 @@ export function isBase64Reference(value) {
   return value.trim().startsWith('data:image/');
 }
 
+function isLegacyRawBase64Reference(value) {
+  if (typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  return trimmed.length >= 256
+    && trimmed.length % 4 === 0
+    && /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(trimmed);
+}
+
+function legacyRawBase64DataUrl(value) {
+  const trimmed = value.trim();
+  const mimeType = trimmed.startsWith('/9j/')
+    ? 'image/jpeg'
+    : trimmed.startsWith('UklGR')
+      ? 'image/webp'
+      : 'image/png';
+  return `data:${mimeType};base64,${trimmed}`;
+}
+
 export function isHistoryReference(value) {
   if (typeof value !== 'string') return false;
   const trimmed = value.trim();
@@ -87,6 +105,14 @@ export function normalizeReferenceValue(value) {
       referenceId: null
     };
   }
+  if (isLegacyRawBase64Reference(value)) {
+    return {
+      source: 'upload',
+      jobId: null,
+      imageUrl: null,
+      referenceId: null
+    };
+  }
   if (isHistoryReference(value)) {
     const trimmed = value.trim();
     let jobId = null;
@@ -119,8 +145,8 @@ export async function resolveReferenceForProvider(value, username) {
   if (!norm) return null;
 
   // 1. If it's a legacy base64 upload
-  if (norm.source === 'upload' && typeof value === 'string' && isBase64Reference(value)) {
-    return value;
+  if (norm.source === 'upload' && typeof value === 'string') {
+    return isBase64Reference(value) ? value : legacyRawBase64DataUrl(value);
   }
 
   // 2. If it's a history reference

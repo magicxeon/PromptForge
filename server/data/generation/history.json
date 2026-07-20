@@ -1,5 +1,2223 @@
 [
   {
+    "id": "job_1784522928613_0kw7pmycn",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784522928613_0kw7pmycn.png",
+    "timestamp": 1784522985051,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "normal",
+    "selections": {
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.cross-step",
+        "value": "controlled cross-step fashion pose with a long clean garment line",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "structuredSelectionsSnapshot": {
+        "Fashion Venue": {
+          "id": "environment.fashion.boutique",
+          "value": "in a refined fashion boutique corner with restrained retail context",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.cross-step",
+          "value": "controlled cross-step fashion pose with a long clean garment line",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": true,
+          "defaultValue": null
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "openai",
+        "providerDisplayName": "OpenAI",
+        "modelId": "gpt-image-1.5",
+        "modelDisplayName": "GPT-Image 1.5 (Enhanced)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784522928613_0kw7pmycn",
+      "createdAt": 1784522985051
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 6692,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 129
+      },
+      "output_tokens": 6625,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 385
+      },
+      "total_tokens": 13317
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784522185315_svjx13vdy"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "56.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784522928613_0kw7pmycn.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16484,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2444903
+  },
+  {
+    "id": "job_1784522840103_2g8tdorbq",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784522840103_2g8tdorbq.jpg",
+    "timestamp": 1784522851307,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.cross-step",
+        "value": "controlled cross-step fashion pose with a long clean garment line",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "structuredSelectionsSnapshot": {
+        "Fashion Venue": {
+          "id": "environment.fashion.boutique",
+          "value": "in a refined fashion boutique corner with restrained retail context",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.cross-step",
+          "value": "controlled cross-step fashion pose with a long clean garment line",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": true,
+          "defaultValue": null
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784522840103_2g8tdorbq",
+      "createdAt": 1784522851307
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784522185315_svjx13vdy"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784522840103_2g8tdorbq.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 18548,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 642841
+  },
+  {
+    "id": "job_1784522432696_m0n07i307",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, on a spacious rooftop with a distant city skyline, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784522432696_m0n07i307.jpg",
+    "timestamp": 1784522443798,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Venue": {
+        "id": "environment.fashion.rooftop",
+        "value": "on a spacious rooftop with a distant city skyline",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "outdoor",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, on a spacious rooftop with a distant city skyline, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "structuredSelectionsSnapshot": {
+        "Fashion Venue": {
+          "id": "environment.fashion.rooftop",
+          "value": "on a spacious rooftop with a distant city skyline",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "outdoor",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.front-product",
+          "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": true,
+          "defaultValue": null
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784522432696_m0n07i307",
+      "createdAt": 1784522443798
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784522185315_svjx13vdy"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784522432696_m0n07i307.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22112,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 608454
+  },
+  {
+    "id": "job_1784522185315_svjx13vdy",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, wavy hair, curtain bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, pattern, material appearance, construction, and visible details across all character sheet views, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784522185315_svjx13vdy.png",
+    "timestamp": 1784522259889,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.004",
+        "value": "soft rounded tip",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Smile": {
+        "id": "lips.009",
+        "value": "neutral expression",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Style": {
+        "id": "hair_006",
+        "value": "wavy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "tasteful styling",
+          "refined styling",
+          "beauty editorial shoot",
+          "soft facial harmony"
+        ]
+      },
+      "Finish": {
+        "id": "hair_017",
+        "value": "glossy healthy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "finish"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_teen",
+        "value": "teenager in late teens around 18 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_editorial",
+        "value": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_011",
+        "value": "curtain bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": [
+          "professional studio lighting",
+          "smooth skin details",
+          "refined complexion"
+        ]
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "smooth even skin tone with no freckles or blemishes",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": [
+          "clean facial skin",
+          "smooth skin details",
+          "professional portrait quality"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_04",
+        "value": "adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "pear"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "clear lower-body silhouette"
+        ]
+      },
+      "Material": {
+        "id": "outfit.material.wool",
+        "value": "soft wool blend texture",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "wool"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-front-back-reference",
+        "label": "Front/Back Upload",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784382721948_qj0u1ppjy"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Nose": "nose.004",
+        "Lips": "lips.012",
+        "Smile": "lips.009",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Style": "hair_006",
+        "Makeup": "skin.makeup_02",
+        "Finish": "hair_017",
+        "Age": "character.004_teen",
+        "Texture": "hair.text_01",
+        "Ethnicity": "character.010",
+        "Beauty": "character.beauty_editorial",
+        "Eyebrows": "eyebrows.004",
+        "Parting / Fringe": "hair_011",
+        "Color": "hair_014",
+        "Tone": "skin.tone_02",
+        "Freckles": "skin.freckles_01"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_04"
+      },
+      "outfitSource": {
+        "type": "front-back-reference",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {
+        "Material": "outfit.material.wool"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-front-back-reference",
+          "label": "Front/Back Upload",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784522185315_svjx13vdy"
+    },
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 17835,
+      "input_tokens_details": {
+        "image_tokens": 17480,
+        "text_tokens": 355
+      },
+      "output_tokens": 6693,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 453
+      },
+      "total_tokens": 24528
+    },
+    "referencedFaceJobIds": [
+      "job_1784382721948_qj0u1ppjy"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "74.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784522185315_svjx13vdy.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 32374,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2229002
+  },
+  {
+    "id": "job_1784522049427_hm0nzgmfq",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short dark brown hair, wavy hair, hair swept back away from the forehead, no visible part, no bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, pattern, material appearance, construction, and visible details across all character sheet views, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784522049427_hm0nzgmfq.png",
+    "timestamp": 1784522073936,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.004",
+        "value": "soft rounded tip",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Smile": {
+        "id": "lips.009",
+        "value": "neutral expression",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_002",
+        "value": "short hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Style": {
+        "id": "hair_006",
+        "value": "wavy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "tasteful styling",
+          "refined styling",
+          "beauty editorial shoot",
+          "soft facial harmony"
+        ]
+      },
+      "Finish": {
+        "id": "hair_017",
+        "value": "glossy healthy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "finish"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_teen",
+        "value": "teenager in late teens around 18 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_editorial",
+        "value": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_039",
+        "value": "hair swept back away from the forehead, no visible part, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": [
+          "professional studio lighting",
+          "smooth skin details",
+          "refined complexion"
+        ]
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "smooth even skin tone with no freckles or blemishes",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": [
+          "clean facial skin",
+          "smooth skin details",
+          "professional portrait quality"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_04",
+        "value": "adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "pear"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "clear lower-body silhouette"
+        ]
+      },
+      "Material": {
+        "id": "outfit.material.wool",
+        "value": "soft wool blend texture",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "wool"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-front-back-reference",
+        "label": "Front/Back Upload",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784382721948_qj0u1ppjy"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Nose": "nose.004",
+        "Lips": "lips.012",
+        "Smile": "lips.009",
+        "Expression": "expression.004",
+        "Length": "hair_002",
+        "Style": "hair_006",
+        "Makeup": "skin.makeup_02",
+        "Finish": "hair_017",
+        "Age": "character.004_teen",
+        "Texture": "hair.text_01",
+        "Ethnicity": "character.010",
+        "Beauty": "character.beauty_editorial",
+        "Eyebrows": "eyebrows.004",
+        "Parting / Fringe": "hair_039",
+        "Color": "hair_014",
+        "Tone": "skin.tone_02",
+        "Freckles": "skin.freckles_01"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_04"
+      },
+      "outfitSource": {
+        "type": "front-back-reference",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {
+        "Material": "outfit.material.wool"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-front-back-reference",
+          "label": "Front/Back Upload",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784522049427_hm0nzgmfq"
+    },
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 1202,
+      "input_tokens_details": {
+        "image_tokens": 840,
+        "text_tokens": 362
+      },
+      "output_tokens": 1584,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 0
+      },
+      "total_tokens": 2786
+    },
+    "referencedFaceJobIds": [
+      "job_1784382721948_qj0u1ppjy"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "24.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784522049427_hm0nzgmfq.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 36746,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2328340
+  },
+  {
+    "id": "job_1784519531365_266csyd33",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, teenager in late teens around 18 years old, chinese person, high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling, adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., short dark brown hair, wavy hair, hair swept back away from the forehead, no visible part, no bangs, silky smooth texture, polished natural texture flow, glossy healthy finish, porcelain skin, soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill, smooth even skin tone with no freckles or blemishes, matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, and visible details across all sheet views, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784519531365_266csyd33.png",
+    "timestamp": 1784519557366,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.004",
+        "value": "soft rounded tip",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Smile": {
+        "id": "lips.009",
+        "value": "neutral expression",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_002",
+        "value": "short hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Style": {
+        "id": "hair_006",
+        "value": "wavy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach K-beauty makeup, light blush, glossy lips, natural soft eyeliner, neat eyebrow fill",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "tasteful styling",
+          "refined styling",
+          "beauty editorial shoot",
+          "soft facial harmony"
+        ]
+      },
+      "Finish": {
+        "id": "hair_017",
+        "value": "glossy healthy hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "finish"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_teen",
+        "value": "teenager in late teens around 18 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_editorial",
+        "value": "high-fashion editorial model face, strong bone structure, sharp high-contrast gaze, professional styling",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_039",
+        "value": "hair swept back away from the forehead, no visible part, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": [
+          "professional studio lighting",
+          "smooth skin details",
+          "refined complexion"
+        ]
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "smooth even skin tone with no freckles or blemishes",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": [
+          "clean facial skin",
+          "smooth skin details",
+          "professional portrait quality"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_04",
+        "value": "adult female pear-shaped body silhouette, narrower shoulders, defined waist, fuller hips and thighs, natural elegant proportions",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "pear"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "clear lower-body silhouette"
+        ]
+      },
+      "Pattern": {
+        "id": "outfit.pattern.floral",
+        "value": "small tasteful floral pattern",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "floral"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.wool",
+        "value": "soft wool blend texture",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "wool"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "outfit-front-back-reference",
+        "label": "Front/Back Upload",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "sourceHeadshotIds": [
+        "job_1784382721948_qj0u1ppjy"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Nose": "nose.004",
+        "Lips": "lips.012",
+        "Smile": "lips.009",
+        "Expression": "expression.004",
+        "Length": "hair_002",
+        "Style": "hair_006",
+        "Makeup": "skin.makeup_02",
+        "Finish": "hair_017",
+        "Age": "character.004_teen",
+        "Texture": "hair.text_01",
+        "Ethnicity": "character.010",
+        "Beauty": "character.beauty_editorial",
+        "Eyebrows": "eyebrows.004",
+        "Parting / Fringe": "hair_039",
+        "Color": "hair_014",
+        "Tone": "skin.tone_02",
+        "Freckles": "skin.freckles_01"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_04"
+      },
+      "outfitSource": {
+        "type": "front-back-reference",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitSelectionIds": {
+        "Pattern": "outfit.pattern.floral",
+        "Material": "outfit.material.wool"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "outfit-front-back-reference",
+          "label": "Front/Back Upload",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1784519531365_266csyd33"
+    },
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 496,
+      "input_tokens_details": {
+        "image_tokens": 194,
+        "text_tokens": 302
+      },
+      "output_tokens": 1584,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 0
+      },
+      "total_tokens": 2080
+    },
+    "referencedFaceJobIds": [
+      "job_1784382721948_qj0u1ppjy"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "26.0",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784519531365_266csyd33.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 15916,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 1982623
+  },
+  {
     "id": "job_1784444057129_bhj9emy4n",
     "prompt": "Preserve the character identity, body proportions, hairstyle, facial features, and clothing details from the uploaded character reference while adapting only the pose and scene. Relaxed standing fashion pose, naturally shifting body weight onto one leg with the other leg casually crossed in front, creating an elegant natural contrapposto stance. Looking away from the camera with a calm, candid expression, as if observing the boutique surroundings. Arms relaxed naturally with subtle hand placement that does not obstruct the garment. Confident yet effortless posture, natural body language, authentic lifestyle fashion editorial feeling.\n\nMarketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, fashion marketplace product-listing photography, product-first visual communication, accurate garment readability, naturally showcasing the garment while keeping the entire outfit fully visible.\n\nIn a refined fashion boutique corner with restrained retail context, even neutral e-commerce softbox lighting, accurate garment color, fabric texture, stitching, and construction clearly visible, minimal distracting shadows, soft lighting contrast, restrained practical-light accents, warm lighting color temperature.\n\nCowboy shot framing from slightly above the knees upward, showing the complete pose and natural hand placement. Shot on a modern high-resolution full-frame mirrorless camera with a premium 50mm prime lens, natural perspective matching human vision, maximum sharpness, realistic lens rendering, subtle corner softness, slight chromatic aberration, realistic optical imperfections, avoiding CGI look, no AI-generated artifacts, ultra photorealistic.",
     "imageUrl": "/outputs/job_1784444057129_bhj9emy4n.jpg",

@@ -1,9 +1,6 @@
 {
   "ignore": [
-    "server/history.json",
-    "server/database.json",
-    "server/collections.json",
-    "server/comparisons.json",
-    "client/outputs/*"
+    "server/data/**",
+    "client/outputs/**"
   ]
 }

@@ -1,142 +1,121 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import fs from 'node:fs';
-import path from 'node:path';
-import { historyRepository } from '../server/repositories/generation/HistoryRepository.js';
-import {
-  createSceneShareDraft,
-  publishSceneTemplateShare,
-  communityPostRepo,
-  communityRemixRepo
-} from '../server/domain/community/CommunityShareService.js';
+import { CommunityShareService } from '../server/domain/community/CommunityShareService.js';
 
-// Setup in-memory stubs for repositories to avoid polluting production json files
-const testPosts = [];
-const testEvents = [];
+const alice = { userId: 'usr_alice', username: 'user_alice', role: 'creator' };
+const bob = { userId: 'usr_bob', username: 'user_bob', role: 'user' };
 
-communityPostRepo.readAll = async () => testPosts;
-communityPostRepo.saveAll = async (posts) => {
-  testPosts.length = 0;
-  testPosts.push(...posts);
-};
-communityPostRepo.createPost = async (post) => {
-  testPosts.unshift(post);
-  return post;
-};
-
-communityRemixRepo.readAll = async () => testEvents;
-communityRemixRepo.saveAll = async (events) => {
-  testEvents.length = 0;
-  testEvents.push(...events);
-};
-communityRemixRepo.recordRemix = async (event) => {
-  testEvents.push(event);
-  return event;
-};
-
-const originalGetById = historyRepository.getById;
-
-test('createSceneShareDraft validates owner and returns draft', async () => {
-  historyRepository.getById = async (jobId) => {
-    if (jobId === 'job_alice123') {
-      return {
-        id: 'job_alice123',
-        username: 'user_alice',
-        imageUrl: '/outputs/job_alice123.png',
-        sceneTemplateSnapshot: {
-          sceneTemplateVersion: 1,
-          authoringMode: 'guided',
-          finalPromptSnapshot: 'A beautiful sunset scene',
-          replaceableVariables: []
-        }
-      };
+function createService(generations = {}) {
+  const posts = [];
+  const events = [];
+  const generationRepository = {
+    async findByIdForOwner(id, ownerUserId) {
+      const generation = generations[id] || null;
+      return generation?.ownerUserId === ownerUserId ? structuredClone(generation) : null;
     }
-    return null;
   };
-
-  // 1. Correct owner draft creation
-  const draft = await createSceneShareDraft('job_alice123', 'user_alice');
-  assert.ok(draft);
-  assert.equal(draft.ownerUsername, 'user_alice');
-  assert.equal(draft.sceneTemplateSnapshot.finalPromptSnapshot, 'A beautiful sunset scene');
-
-  // 2. Mismatch owner creation throws error
-  await assert.rejects(
-    async () => {
-      await createSceneShareDraft('job_alice123', 'user_bob');
+  const postRepository = {
+    async create(input, actor) {
+      const post = {
+        ...structuredClone(input),
+        id: `post_${posts.length + 1}`,
+        ownerUserId: actor.userId,
+        ownerUsername: actor.username,
+        visibility: 'public',
+        status: 'published'
+      };
+      posts.push(post);
+      return structuredClone(post);
     },
-    /Unauthorized/
-  );
+    async findPublicById(id) {
+      const post = posts.find(item => item.id === id);
+      return post ? structuredClone(post) : null;
+    }
+  };
+  const remixRepository = {
+    async appendEvent(input, actor) {
+      const event = { ...structuredClone(input), actorUserId: actor.userId, actorUsername: actor.username };
+      events.push(event);
+      return structuredClone(event);
+    }
+  };
+  return {
+    service: new CommunityShareService({ generationRepository, postRepository, remixRepository }),
+    posts,
+    events
+  };
+}
 
-  historyRepository.getById = originalGetById;
+function generation(id, authoringMode = 'guided') {
+  return {
+    id,
+    ownerUserId: 'usr_alice',
+    ownerUsername: 'user_alice',
+    imageUrl: `/outputs/${id}.png`,
+    sceneTemplateSnapshot: {
+      sceneTemplateVersion: 1,
+      authoringMode,
+      finalPromptSnapshot: 'A private prompt',
+      manualPromptSnapshot: authoringMode === 'manual' ? 'A private prompt' : '',
+      referenceSlotMapping: {
+        character_reference: {
+          required: true,
+          policy: 'required_user_replacement',
+          imageUrl: 'data:image/png;base64,PRIVATE'
+        }
+      },
+      replaceableVariables: []
+    }
+  };
+}
+
+test('createSceneShareDraft accepts only the generation owner and strips embedded base64', async () => {
+  const { service } = createService({ job_alice: generation('job_alice') });
+  const draft = await service.createSceneShareDraft('job_alice', alice);
+
+  assert.equal(draft.ownerUserId, 'usr_alice');
+  assert.equal(draft.sceneTemplateSnapshot.referenceSlotMapping.character_reference.imageUrl, undefined);
+  await assert.rejects(() => service.createSceneShareDraft('job_alice', bob), /not available/);
 });
 
-test('publishSceneTemplateShare blocks manual remix_only and publishes guided remix_only templates', async () => {
-  historyRepository.getById = async (jobId) => {
-    if (jobId === 'job_manual123') {
-      return {
-        id: 'job_manual123',
-        username: 'user_alice',
-        sceneTemplateSnapshot: {
-          authoringMode: 'manual',
-          finalPromptSnapshot: 'Manual Prompt Text'
-        }
-      };
-    }
-    if (jobId === 'job_guided123') {
-      return {
-        id: 'job_guided123',
-        username: 'user_alice',
-        sceneTemplateSnapshot: {
-          authoringMode: 'guided',
-          finalPromptSnapshot: 'Guided Prompt Text'
-        }
-      };
-    }
-    return null;
-  };
-
-  // 1. Create drafts
-  const manualDraft = await createSceneShareDraft('job_manual123', 'user_alice');
-  const guidedDraft = await createSceneShareDraft('job_guided123', 'user_alice');
-
-  // 2. Publish manual draft as remix_only -> should throw error (High)
-  await assert.rejects(
-    async () => {
-      await publishSceneTemplateShare(manualDraft.id, 'My Manual Template', 'Desc', 'remix_only');
-    },
-    /Manual prompts cannot be hidden during remix/
-  );
-
-  // 3. Publish guided draft as remix_only -> should succeed and clear prompt
-  const post = await publishSceneTemplateShare(guidedDraft.id, 'My Guided Template', 'Desc', 'remix_only');
-  assert.ok(post);
-  assert.equal(post.title, 'My Guided Template');
-  assert.equal(post.promptVisibility, 'remix_only');
-  assert.equal(post.sceneTemplateSnapshot.finalPromptSnapshot, ''); // Prompt stripped!
-
-  // Clean up mock posts
-  const posts = await communityPostRepo.readAll();
-  const filtered = posts.filter(p => p.id !== post.id);
-  await communityPostRepo.saveAll(filtered);
-
-  historyRepository.getById = originalGetById;
-});
-
-test('communityRemixRepo logs remix events successfully', async () => {
-  const event = await communityRemixRepo.recordRemix({
-    templateId: 'temp_123',
-    sourcePostId: 'post_123',
-    username: 'user_bob',
-    generatedJobId: 'job_remix_completed'
+test('publish blocks manual remix_only and publishes guided snapshots without prompt text', async () => {
+  const { service, posts } = createService({
+    job_manual: generation('job_manual', 'manual'),
+    job_guided: generation('job_guided')
   });
+  const manualDraft = await service.createSceneShareDraft('job_manual', alice);
+  await assert.rejects(
+    () => service.publishSceneTemplateShare(manualDraft.id, {
+      title: 'Manual template', promptVisibility: 'remix_only'
+    }, alice),
+    /Manual prompts cannot be hidden/
+  );
 
-  assert.ok(event);
-  assert.equal(event.templateId, 'temp_123');
-  assert.equal(event.generatedJobId, 'job_remix_completed');
+  const guidedDraft = await service.createSceneShareDraft('job_guided', alice);
+  const post = await service.publishSceneTemplateShare(guidedDraft.id, {
+    title: 'Guided template', description: 'A safe template', promptVisibility: 'remix_only'
+  }, alice);
 
-  // Clean up
-  const events = await communityRemixRepo.readAll();
-  const filtered = events.filter(e => e.generatedJobId !== 'job_remix_completed');
-  await communityRemixRepo.saveAll(filtered);
+  assert.equal(post.ownerUserId, 'usr_alice');
+  assert.equal(post.sceneTemplateSnapshot.finalPromptSnapshot, '');
+  assert.equal(posts.length, 1);
+});
+
+test('template use and remix events retain actor identity separately from post ownership', async () => {
+  const { service, events } = createService({ job_guided: generation('job_guided') });
+  const draft = await service.createSceneShareDraft('job_guided', alice);
+  const post = await service.publishSceneTemplateShare(draft.id, {
+    title: 'Reusable template', promptVisibility: 'full'
+  }, alice);
+
+  const payload = await service.getTemplateForViewer(post.id, bob);
+  assert.equal(payload.ownerUserId, 'usr_alice');
+  assert.equal(payload.postId, post.id);
+
+  const event = await service.recordRemix({
+    sourcePostId: post.id,
+    generatedJobId: 'job_bob_result'
+  }, bob);
+  assert.equal(event.actorUserId, 'usr_bob');
+  assert.equal(events.length, 1);
 });

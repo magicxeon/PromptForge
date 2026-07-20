@@ -1,125 +1,167 @@
-import { resolveDataFile } from '../../config/paths.js';
-import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
 import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplateSanitizer.js';
-import { readJsonFile, mutateJsonFile } from '../../repositories/json/jsonFileStore.js';
+import { assertActorContext, RepositoryContractError } from '../../repositories/repositoryContracts.js';
+import { stripEmbeddedBase64 } from '../../repositories/recordNormalizer.js';
+import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
+import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
+import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
 
-const POSTS_FILE = resolveDataFile('communityPosts');
-const REMIX_FILE = resolveDataFile('remixEvents');
+const DRAFT_TTL_MS = 15 * 60 * 1000;
 
-// In-memory drafts registry
-const shareDrafts = new Map();
-
-export class CommunityPostLocalRepository {
-  async readAll() {
-    return readJsonFile(POSTS_FILE, []);
+export class CommunityShareService {
+  constructor({
+    generationRepository = generationResultRepo,
+    postRepository = communityPostRepo,
+    remixRepository = communityRemixRepo,
+    now = () => Date.now()
+  } = {}) {
+    this.generationRepository = generationRepository;
+    this.postRepository = postRepository;
+    this.remixRepository = remixRepository;
+    this.now = now;
+    this.shareDrafts = new Map();
   }
 
-  async getById(postId) {
-    return (await this.readAll()).find(p => p.id === postId) || null;
+  async createSceneShareDraft(sourceGenerationId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    if (!sourceGenerationId) {
+      throw new RepositoryContractError('source_generation_required', 'A source generation ID is required.');
+    }
+
+    const generation = await this.generationRepository.findByIdForOwner(sourceGenerationId, actor.userId);
+    if (!generation) {
+      throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
+    }
+    if (!generation.sceneTemplateSnapshot || typeof generation.sceneTemplateSnapshot !== 'object') {
+      throw new RepositoryContractError('scene_template_required', 'This image was not generated from a scene template.');
+    }
+
+    const publicViewer = { userId: 'community_public', username: 'community_public', role: 'user' };
+    const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
+      generation.sceneTemplateSnapshot,
+      publicViewer,
+      generation.ownerUsername
+    ));
+    const timestamp = this.now();
+    const draft = {
+      id: `draft_${timestamp}_${Math.random().toString(36).slice(2, 9)}`,
+      schemaVersion: 1,
+      sourceGenerationId: generation.id,
+      ownerUserId: actor.userId,
+      ownerUsername: actor.username,
+      imageUrl: generation.imageUrl || '',
+      thumbnailUrl: generation.thumbnailUrl || '',
+      sceneTemplateSnapshot: sanitizedSnapshot,
+      createdAt: new Date(timestamp).toISOString(),
+      expiresAt: new Date(timestamp + DRAFT_TTL_MS).toISOString()
+    };
+
+    this.removeExpiredDrafts(timestamp);
+    this.shareDrafts.set(draft.id, draft);
+    return structuredClone(draft);
   }
 
-  async createPost(post) {
-    return mutateJsonFile(POSTS_FILE, [], async (posts) => {
-      posts.unshift(post);
-      return post;
-    });
+  async publishSceneTemplateShare(draftId, payload = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const draft = this.getDraftForOwner(draftId, actor.userId);
+    if (!draft) {
+      throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
+    }
+
+    const title = String(payload.title || '').trim();
+    const promptVisibility = payload.promptVisibility;
+    if (!title) throw new RepositoryContractError('post_title_required', 'Title is required.');
+    if (!promptVisibility) throw new RepositoryContractError('prompt_visibility_required', 'Prompt visibility setting is required.');
+    if (!['full', 'hidden', 'remix_only'].includes(promptVisibility)) {
+      throw new RepositoryContractError('invalid_prompt_visibility', 'Prompt visibility setting is invalid.');
+    }
+
+    const snapshot = stripEmbeddedBase64(draft.sceneTemplateSnapshot);
+    if (snapshot.authoringMode === 'manual' && promptVisibility === 'remix_only') {
+      throw new RepositoryContractError(
+        'manual_remix_only_not_supported',
+        'Manual prompts cannot be hidden during remix. Please share as Full Prompt.'
+      );
+    }
+
+    if (promptVisibility === 'remix_only') {
+      snapshot.finalPromptSnapshot = '';
+      snapshot.manualPromptSnapshot = '';
+    }
+
+    const post = await this.postRepository.create({
+      title,
+      description: typeof payload.description === 'string' ? payload.description : '',
+      promptVisibility,
+      imageUrl: draft.imageUrl,
+      thumbnailUrl: draft.thumbnailUrl,
+      sourceGenerationResultId: draft.sourceGenerationId,
+      sourceGenerationId: draft.sourceGenerationId,
+      sceneTemplateSnapshot: snapshot,
+      visibility: 'public',
+      reusePolicy: 'remix_allowed'
+    }, actor);
+
+    this.shareDrafts.delete(draftId);
+    return post;
+  }
+
+  async getTemplateForViewer(postId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findPublicById(postId);
+    if (!post) {
+      throw new RepositoryContractError('shared_template_not_found', 'Shared template not found.', 404);
+    }
+
+    const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
+      post.sceneTemplateSnapshot,
+      actor,
+      post.ownerUsername
+    ));
+    return {
+      postId: post.id,
+      title: post.title,
+      description: post.description,
+      ownerUserId: post.ownerUserId,
+      ownerUsername: post.ownerUsername,
+      sceneTemplateSnapshot: sanitizedSnapshot
+    };
+  }
+
+  async recordRemix(eventInput = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    if (!eventInput.sourcePostId) {
+      throw new RepositoryContractError('source_post_required', 'A source post ID is required.');
+    }
+    const post = await this.postRepository.findPublicById(eventInput.sourcePostId);
+    if (!post) {
+      throw new RepositoryContractError('shared_template_not_found', 'Shared template not found.', 404);
+    }
+
+    return this.remixRepository.appendEvent({
+      sourcePostId: post.id,
+      templateId: eventInput.templateId || post.id,
+      generatedJobId: eventInput.generatedJobId || null,
+      replacementSummary: eventInput.replacementSummary || {}
+    }, actor);
+  }
+
+  getDraftForOwner(draftId, ownerUserId) {
+    this.removeExpiredDrafts(this.now());
+    const draft = this.shareDrafts.get(draftId);
+    if (!draft || draft.ownerUserId !== ownerUserId) return null;
+    return structuredClone(draft);
+  }
+
+  removeExpiredDrafts(now) {
+    for (const [draftId, draft] of this.shareDrafts.entries()) {
+      if (Date.parse(draft.expiresAt || '') <= now) this.shareDrafts.delete(draftId);
+    }
   }
 }
 
-export class CommunityRemixLocalRepository {
-  async readAll() {
-    return readJsonFile(REMIX_FILE, []);
-  }
+export const communityShareService = new CommunityShareService();
 
-  async recordRemix(event) {
-    return mutateJsonFile(REMIX_FILE, [], async (events) => {
-      const entry = {
-        ...event,
-        timestamp: Date.now()
-      };
-      events.push(entry);
-      return entry;
-    });
-  }
-}
-
-export const communityPostRepo = new CommunityPostLocalRepository();
-export const communityRemixRepo = new CommunityRemixLocalRepository();
-
-export async function createSceneShareDraft(sourceGenerationId, username) {
-  if (!sourceGenerationId) throw new Error('Missing source generation ID');
-
-  const historyItem = await historyRepository.getById(sourceGenerationId);
-  if (!historyItem) throw new Error('Source generation result not found');
-
-  // Verify ownership (Phase 8 draft check)
-  if ((historyItem.username || 'user_demo') !== username) {
-    throw new Error('Unauthorized: You do not own this image reference');
-  }
-
-  const snapshot = historyItem.sceneTemplateSnapshot;
-  if (!snapshot || typeof snapshot !== 'object') {
-    throw new Error('This image was not generated from a scene template');
-  }
-
-  // Pre-sanitize face/character reference values using Phase 7 policies for safety
-  const viewerContext = { username: 'anonymous_pre_share' }; // force sanitization
-  const sanitizedSnapshot = sanitizeReferenceSlotsForPublic(snapshot, viewerContext, username);
-
-  const draftId = 'draft_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-  const draft = {
-    id: draftId,
-    sourceGenerationId,
-    ownerUsername: username,
-    imageUrl: historyItem.imageUrl || '',
-    thumbnailUrl: historyItem.thumbnailUrl || '',
-    sceneTemplateSnapshot: sanitizedSnapshot,
-    createdAt: Date.now()
-  };
-
-  shareDrafts.set(draftId, draft);
-  return draft;
-}
-
-export function getShareDraft(draftId) {
-  return shareDrafts.get(draftId) || null;
-}
-
-export async function publishSceneTemplateShare(draftId, title, description, promptVisibility) {
-  const draft = getShareDraft(draftId);
-  if (!draft) throw new Error('Draft not found or expired');
-
-  if (!title || !title.trim()) throw new Error('Title is required');
-  if (!promptVisibility) throw new Error('Prompt visibility setting is required');
-
-  const snapshot = draft.sceneTemplateSnapshot;
-  const isManual = snapshot.authoringMode === 'manual';
-
-  // Server-side Manual Remix-Only Protection Block (High priority validation)
-  if (isManual && promptVisibility === 'remix_only') {
-    throw new Error('Manual prompts cannot be hidden during remix. Please share as Full Prompt.');
-  }
-
-  // Clone snapshot to apply visibility sanitization
-  const finalSnapshot = JSON.parse(JSON.stringify(snapshot));
-  if (promptVisibility === 'remix_only') {
-    finalSnapshot.finalPromptSnapshot = ''; // Strip prompt text completely for Remix Only
-  }
-
-  const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-  const post = {
-    id: postId,
-    title: title.trim(),
-    description: (description || '').trim(),
-    promptVisibility,
-    imageUrl: draft.imageUrl,
-    thumbnailUrl: draft.thumbnailUrl,
-    ownerUsername: draft.ownerUsername,
-    sceneTemplateSnapshot: finalSnapshot,
-    createdAt: Date.now()
-  };
-
-  await communityPostRepo.createPost(post);
-  shareDrafts.delete(draftId); // Clean up draft
-  return post;
-}
+// Compatibility exports for existing app composition while routes migrate to the service object.
+export { communityPostRepo, communityRemixRepo };
+export const createSceneShareDraft = (...args) => communityShareService.createSceneShareDraft(...args);
+export const publishSceneTemplateShare = (...args) => communityShareService.publishSceneTemplateShare(...args);

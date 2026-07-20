@@ -303,6 +303,7 @@ class QueueManager {
           : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
+        outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
           : null,

@@ -113,6 +113,7 @@ async function initApp() {
     });
     updateSubmodelList();
     bindEvents();
+    window.ModelPromptForgeOutfitReferenceController?.initOutfitReferenceController?.();
     initializeCollectionsUI();
     initializeScrollToViewport();
     initializeAutoExpandConfigurator();
@@ -139,6 +140,7 @@ async function initApp() {
     enforceModeReferencePolicy({ updateUI: false });
     toggleUIForMode();
     updateReferencePreviewsUI();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
     updateCredits();
 
     state.isRestoringState = false; // Safe to auto-save now
@@ -230,6 +232,14 @@ function validateForm() {
   }
 
   const activeModel = getActiveModelConfig();
+  const outfitValidation = window.ModelPromptForgeOutfitReferenceController
+    ?.validateOutfitReferenceState?.(activeModel);
+  if (outfitValidation && !outfitValidation.valid) {
+    const panel = document.getElementById("outfit-reference-upload-container");
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+    void AppDialog.alert(outfitValidation.message, { title: "Outfit Reference" });
+    return false;
+  }
   if (activeModel) {
     const capabilities = activeModel.capabilities || {};
     const activeReferences = [
@@ -488,51 +498,11 @@ function bindEvents() {
     });
   }
 
-  const readOutfitReferenceFile = (file, slot) => {
-    if (!file || state.mode !== "character-sheet") return;
-    const reader = new FileReader();
-    reader.onload = (loadEvent) => {
-      const base64 = loadEvent.target.result.split(',')[1];
-      if (slot === "front") {
-        state.outfitReferenceImageFront = base64;
-        state.outfitReferenceJobIds[0] = null;
-      } else {
-        state.outfitReferenceImageBack = base64;
-        state.outfitReferenceJobIds[1] = null;
-      }
-      state.imageReferences.outfitReference = Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
-      updateReferencePreviewsUI();
-      updateCharacterSheetSourceStatus();
-      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
-        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
-      }
-      updatePromptPreview();
-    };
-    reader.readAsDataURL(file);
-  };
-
-  document.addEventListener("change", (event) => {
-    if (event.target?.id === "outfit-front-file") {
-      readOutfitReferenceFile(event.target.files[0], "front");
-      event.target.value = "";
-    } else if (event.target?.id === "outfit-back-file") {
-      readOutfitReferenceFile(event.target.files[0], "back");
-      event.target.value = "";
-    }
-  });
-
   // Handle slot close/clear button clicks (Step 9)
   document.addEventListener("click", (e) => {
-    if (e.target?.id === "btn-clear-outfit-reference") {
-      clearOutfitReferenceState();
-      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
-        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
-      }
-      updatePromptPreview();
-      return;
-    }
     if (e.target.classList.contains("btn-clear-slot")) {
       const slot = e.target.getAttribute("data-slot");
+      if (slot === "outfitFront" || slot === "outfitBack") return;
       if (slot === "faceA") {
         state.faceReferenceImageA = null;
         state.faceReferenceJobIds[0] = null;
@@ -551,18 +521,10 @@ function bindEvents() {
       } else if (slot === "characterB") {
         state.characterReferenceImageB = null;
         state.characterReferenceJobIds[1] = null;
-      } else if (slot === "outfitFront") {
-        state.outfitReferenceImageFront = null;
-        state.outfitReferenceJobIds[0] = null;
-      } else if (slot === "outfitBack") {
-        state.outfitReferenceImageBack = null;
-        state.outfitReferenceJobIds[1] = null;
       }
       if (!state.characterReferenceImageA && !state.characterReferenceImageB) {
         clearCharacterReferenceState({ updateUI: false });
       }
-      state.imageReferences.outfitReference = state.mode === "character-sheet"
-        && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
       updateReferencePreviewsUI();
       refreshReferenceAuthorityUI();
       updatePromptPreview();
@@ -982,8 +944,19 @@ function bindEvents() {
                 jobCard.remove();
                 return;
               }
-              const statusResponse = await apiFetch(`/api/jobs/${jobId}`);
-              if (!statusResponse.ok) return;
+              const statusResponse = await apiFetch(appendActorQuery(`/api/jobs/${jobId}`));
+              if (!statusResponse.ok) {
+                if (statusResponse.status === 404) {
+                  sseSource.dispatchEvent(new MessageEvent('job.failed', {
+                    data: JSON.stringify({
+                      code: 'job_status_not_found',
+                      message: 'Generation status is no longer available. The local server may have restarted before this job finished.'
+                    })
+                  }));
+                  return;
+                }
+                throw new Error(`Unable to read generation status (${statusResponse.status}).`);
+              }
               const statusPayload = await statusResponse.json();
 
               if (statusPayload.status === 'completed') {
@@ -1436,6 +1409,7 @@ function toggleUIForMode() {
   if (window.ModelPromptForgeSceneBuilder?.updateUi) {
     window.ModelPromptForgeSceneBuilder.updateUi();
   }
+  window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
 }
 
 function updatePromptPreview() {

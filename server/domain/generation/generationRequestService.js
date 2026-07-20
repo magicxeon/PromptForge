@@ -4,6 +4,17 @@ import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplat
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
+function normalizeOutfitReferenceOverrides(value) {
+  const raw = value && typeof value === 'object' ? value : {};
+  return {
+    enabled: raw.enabled === true,
+    primaryColor: raw.primaryColor === true,
+    secondaryColor: raw.secondaryColor === true,
+    pattern: raw.pattern === true,
+    material: raw.material === true
+  };
+}
+
 function normalizeSceneBuilderState(value, mode) {
   if (mode !== 'normal') return null;
   const raw = value && typeof value === 'object' ? value : {};
@@ -19,13 +30,21 @@ export function normalizeGenerationContext(payload = {}) {
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
-  const hasOutfitReference = Boolean(payload.outfitReferenceImageFront || payload.outfitReferenceImageBack);
+  const hasOutfitFront = Boolean(payload.outfitReferenceImageFront);
+  const hasOutfitBack = Boolean(payload.outfitReferenceImageBack);
   const mode = payload.mode || 'normal';
   const hasTemplateOutfit = payload.sceneTemplateSnapshot
     && payload.sceneTemplateSnapshot.referenceSlotMapping
     && (payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_front_reference !== undefined
         || payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_back_reference !== undefined);
   const allowOutfit = mode === 'character-sheet' || hasTemplateOutfit;
+  if (allowOutfit && hasOutfitBack && !hasOutfitFront) {
+    const error = new Error('Outfit Front is required when an Outfit Back reference is supplied.');
+    error.statusCode = 400;
+    error.code = 'outfit_front_required';
+    throw error;
+  }
+  const outfitReferenceOverrides = normalizeOutfitReferenceOverrides(payload.outfitReferenceOverrides);
   const imageReferences = {
     ...(payload.imageReferences || {}),
     faceMatch: payload.imageReferences?.faceMatch === true && hasFaceReference,
@@ -35,14 +54,12 @@ export function normalizeGenerationContext(payload = {}) {
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference,
     outfitReference: allowOutfit
-      && payload.imageReferences?.outfitReference === true
-      && hasOutfitReference,
+      && hasOutfitFront,
     outfitReferenceFront: allowOutfit
-      && payload.imageReferences?.outfitReference === true
-      && Boolean(payload.outfitReferenceImageFront),
+      && hasOutfitFront,
     outfitReferenceBack: allowOutfit
-      && payload.imageReferences?.outfitReference === true
-      && Boolean(payload.outfitReferenceImageBack),
+      && hasOutfitFront
+      && hasOutfitBack,
     characterOverrides: mode === 'normal'
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference
@@ -80,6 +97,7 @@ export function normalizeGenerationContext(payload = {}) {
     template: payload.template || 'portrait',
     aspectRatio: payload.aspectRatio || '1:1',
     imageReferences,
+    outfitReferenceOverrides,
     sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
       ? payload.sourceOwnership
       : null,
@@ -116,7 +134,8 @@ export function compileGenerationContext(payload = {}) {
       context.mode,
       context.template,
       context.isGptSafe,
-      context.customColors
+      context.customColors,
+      context.outfitReferenceOverrides
     ));
   return { context, compiledPrompt };
 }
@@ -139,6 +158,7 @@ export function createQueueOptions(context, {
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,
     characterSheetConfig: context.characterSheetConfig || null,
+    outfitReferenceOverrides: context.outfitReferenceOverrides || normalizeOutfitReferenceOverrides(null),
     storyReferenceHandoff: context.mode === 'character-sheet'
       ? {
         referenceType: 'character-sheet',
@@ -209,6 +229,7 @@ export function createCharacterSheetConfigSnapshot(context = {}) {
       frontReferenceIds: hasOutfitReference ? outfitReferenceIds.slice(0, 1) : [],
       backReferenceIds: hasBackReference ? outfitReferenceIds.slice(1, 2) : []
     },
+    outfitReferenceOverrides: normalizeOutfitReferenceOverrides(context.outfitReferenceOverrides),
     outfitSelectionIds,
     layout: {
       type: layoutSelection?.id || 'body.sheet_layout.front_side_back'

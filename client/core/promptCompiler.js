@@ -578,7 +578,16 @@
           };
         }
       });
-      const rawClothingText = window.ModelPromptForgeClothingPromptParts.compileClothingPromptParts(selectionsMap, state.imageReferences, state.mode);
+      const rawClothingText = window.ModelPromptForgeClothingPromptParts.compileClothingPromptParts(
+        selectionsMap,
+        {
+          ...state.imageReferences,
+          outfitReferenceImageFront: state.outfitReferenceImageFront,
+          outfitReferenceImageBack: state.outfitReferenceImageBack
+        },
+        state.mode,
+        state.outfitReferenceOverrides
+      );
       clothing = cleanTextOnly ? rawClothingText : `<span class="token-clothing">${rawClothingText}</span>`;
     } else {
       clothing = compileGroupSegment("Clothing", "token-clothing");

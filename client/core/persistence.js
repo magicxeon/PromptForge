@@ -4,6 +4,29 @@
 (() => {
   const state = window.state;
 
+  function normalizeOutfitReferenceOverrides(value) {
+    return window.ModelPromptForgeOutfitReferenceController?.normalizeOverrides?.(value) || {
+      enabled: value?.enabled === true,
+      primaryColor: value?.primaryColor === true,
+      secondaryColor: value?.secondaryColor === true,
+      pattern: value?.pattern === true,
+      material: value?.material === true
+    };
+  }
+
+  function restoreOutfitReferenceState(payload) {
+    state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
+    state.outfitReferenceImageBack = state.outfitReferenceImageFront
+      ? (payload.outfitReferenceImageBack || null)
+      : null;
+    state.outfitReferenceJobIds = state.outfitReferenceImageFront
+      ? (Array.isArray(payload.outfitReferenceJobIds) ? payload.outfitReferenceJobIds.slice(0, 2) : [])
+      : [];
+    state.outfitReferenceOverrides = normalizeOutfitReferenceOverrides(payload.outfitReferenceOverrides);
+    state.imageReferences.outfitReference = state.mode === "character-sheet"
+      && Boolean(state.outfitReferenceImageFront);
+  }
+
   function getActiveActorStoragePrefix() {
     const userId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || "usr_demo";
     return String(userId).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -49,6 +72,7 @@
       outfitReferenceImageFront: state.outfitReferenceImageFront,
       outfitReferenceImageBack: state.outfitReferenceImageBack,
       outfitReferenceJobIds: state.outfitReferenceJobIds,
+      outfitReferenceOverrides: normalizeOutfitReferenceOverrides(state.outfitReferenceOverrides),
       characterReferenceOverrides: state.characterReferenceOverrides
     };
 
@@ -141,9 +165,7 @@
       state.characterReferenceImageA = payload.characterReferenceImageA || null;
       state.characterReferenceImageB = payload.characterReferenceImageB || null;
       state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
-      state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
-      state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
-      state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
+      restoreOutfitReferenceState(payload);
       state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
       if (payload.provider) {
@@ -245,6 +267,7 @@
       // 5. Lockout and previews
       if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
       if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
+      window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
 
       // 6. Recalculate preview
       if (window.updatePromptPreview) window.updatePromptPreview();
@@ -295,6 +318,7 @@
     if (window.clearFaceReferenceState) window.clearFaceReferenceState({ updateUI: false });
     if (window.clearCharacterReferenceState) window.clearCharacterReferenceState({ updateUI: false });
     if (window.clearOutfitReferenceState) window.clearOutfitReferenceState({ updateUI: false });
+    state.outfitReferenceOverrides = normalizeOutfitReferenceOverrides(null);
     state.aspectRatio = "6:8";
     state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -422,6 +446,7 @@
       outfitReferenceImageFront: state.outfitReferenceImageFront,
       outfitReferenceImageBack: state.outfitReferenceImageBack,
       outfitReferenceJobIds: state.outfitReferenceJobIds,
+      outfitReferenceOverrides: normalizeOutfitReferenceOverrides(state.outfitReferenceOverrides),
       characterReferenceOverrides: state.characterReferenceOverrides,
       sourceOwnership: window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null
     };
@@ -480,9 +505,7 @@
     state.characterReferenceImageA = payload.characterReferenceImageA || null;
     state.characterReferenceImageB = payload.characterReferenceImageB || null;
     state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
-    state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
-    state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
-    state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
+    restoreOutfitReferenceState(payload);
     state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
     const inputWidth = document.getElementById("input-width");
@@ -543,6 +566,7 @@
     if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
     if (window.toggleUIForMode) window.toggleUIForMode();
     if (window.updatePromptPreview) window.updatePromptPreview();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
   }
 
   function exportConfigJSON() {

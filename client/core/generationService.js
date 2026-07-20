@@ -71,6 +71,10 @@
       }
     }
 
+    if (state.mode === "character-sheet") {
+      imageReferences.outfitReference = Boolean(outfitReferenceImageFront);
+    }
+
     const isCharacterRefActive = (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
       || (isTemplateActive && imageReferences.characterReference && Boolean(characterReferenceImageA || characterReferenceImageB));
 
@@ -118,6 +122,8 @@
       selections,
       aspectRatio: state.aspectRatio,
       imageReferences,
+      outfitReferenceOverrides: window.ModelPromptForgeOutfitReferenceController
+        ?.normalizeOverrides?.(state.outfitReferenceOverrides) || state.outfitReferenceOverrides,
       sourceOwnership,
       mode: state.mode,
       sceneBuilder: state.mode === "normal"
@@ -171,7 +177,7 @@
       faceReferenceImageB: imageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: submittedReferenceJobIds.face,
       outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
-      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageBack : null,
+      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference && outfitReferenceImageFront ? outfitReferenceImageBack : null,
       outfitReferenceJobIds: submittedReferenceJobIds.outfit,
       styleReferenceImageA: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
         ? styleReferenceImageA : null,
@@ -263,6 +269,7 @@
     }
     updateAspectRatioCapabilityUI();
     updateImageResolutionControl();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
 
     const refFace = document.getElementById("ref-face-match");
     const refStyle = document.getElementById("ref-style-match");

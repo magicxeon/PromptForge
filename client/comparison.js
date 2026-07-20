@@ -25,10 +25,14 @@
     bindEvents();
     renderMode();
     const recovery = readRecoveryState();
-    if (recovery.setId) openSet(recovery.setId, {
-      showWorkspace: recovery.workspaceOpen === true,
-      updateRoute: recovery.workspaceOpen === true
-    });
+    if (isValidSetId(recovery.setId)) {
+      openSet(recovery.setId, {
+        showWorkspace: recovery.workspaceOpen === true,
+        updateRoute: recovery.workspaceOpen === true
+      });
+    } else {
+      saveRecoveryState(null, false);
+    }
   }
 
   function bindEvents() {
@@ -241,14 +245,21 @@
   }
 
   async function openSet(setId, { showWorkspace = true, updateRoute = true, silentError = false } = {}) {
-    const targetRoute = `/comparisons/${encodeURIComponent(setId)}`;
+    if (!isValidSetId(setId)) {
+      stopPolling();
+      saveRecoveryState(null, false);
+      return null;
+    }
+
+    const normalizedSetId = String(setId).trim();
+    const targetRoute = `/comparisons/${encodeURIComponent(normalizedSetId)}`;
     if (showWorkspace && updateRoute && window.ModelPromptForgeRouter?.current().pathname !== targetRoute) {
       window.ModelPromptForgeRouter.navigate(targetRoute);
       return;
     }
     try {
-      state.activeSet = await api(`/api/comparisons/${encodeURIComponent(setId)}?username=${encodeURIComponent(bridge().getUsername())}`);
-      saveRecoveryState(setId, showWorkspace);
+      state.activeSet = await api(`/api/comparisons/${encodeURIComponent(normalizedSetId)}?username=${encodeURIComponent(bridge().getUsername())}`);
+      saveRecoveryState(normalizedSetId, showWorkspace);
       updateActiveRunChip();
       if (showWorkspace) {
         if (window.ModelPromptForgeRouter && window.ModelPromptForgeRouter.current().pathname !== targetRoute) return;
@@ -256,12 +267,15 @@
         renderWorkspace();
       }
       startPolling();
-      window.dispatchEvent(new CustomEvent('modelpromptforge:comparison-opened', { detail: { setId } }));
+      window.dispatchEvent(new CustomEvent('modelpromptforge:comparison-opened', { detail: { setId: normalizedSetId } }));
+      return state.activeSet;
     } catch (error) {
+      stopPolling();
+      state.activeSet = null;
       saveRecoveryState(null, false);
       updateActiveRunChip();
       window.dispatchEvent(new CustomEvent('modelpromptforge:comparison-error', {
-        detail: { setId, status: error.status || null, message: error.message }
+        detail: { setId: normalizedSetId, status: error.status || null, message: error.message }
       }));
       if (!silentError) {
         await AppDialog.alert(error.message, { title: text('Comparison Error', 'เกิดข้อผิดพลาดในการเปรียบเทียบ') });
@@ -503,10 +517,15 @@
 
   function startPolling() {
     stopPolling();
+    if (!isValidSetId(state.activeSet?.id)) return;
     const tick = async () => {
-      if (!state.activeSet) return;
+      const setId = state.activeSet?.id;
+      if (!isValidSetId(setId)) {
+        stopPolling();
+        return;
+      }
       try {
-        state.activeSet = await api(`/api/comparisons/${state.activeSet.id}?username=${encodeURIComponent(bridge().getUsername())}`);
+        state.activeSet = await api(`/api/comparisons/${encodeURIComponent(setId)}?username=${encodeURIComponent(bridge().getUsername())}`);
         updateActiveRunChip();
         if (!document.getElementById('comparison-workspace').hidden) renderWorkspace();
         const status = state.activeSet.runs?.[0]?.status;
@@ -519,7 +538,9 @@
       } catch (error) {
         console.warn('Comparison polling failed:', error.message);
       }
-      state.pollTimer = window.setTimeout(tick, 1600);
+      if (isValidSetId(state.activeSet?.id)) {
+        state.pollTimer = window.setTimeout(tick, 1600);
+      }
     };
     state.pollTimer = window.setTimeout(tick, 700);
   }
@@ -625,15 +646,27 @@
   }
 
   function saveRecoveryState(setId, workspaceOpen) {
-    localStorage.setItem('model_prompt_forge_comparison_recovery_v1', JSON.stringify({ setId, workspaceOpen }));
+    const normalizedSetId = isValidSetId(setId) ? String(setId).trim() : null;
+    localStorage.setItem('model_prompt_forge_comparison_recovery_v1', JSON.stringify({
+      setId: normalizedSetId,
+      workspaceOpen: normalizedSetId ? workspaceOpen === true : false
+    }));
   }
 
   function readRecoveryState() {
     try {
-      return JSON.parse(localStorage.getItem('model_prompt_forge_comparison_recovery_v1')) || {};
+      const recovery = JSON.parse(localStorage.getItem('model_prompt_forge_comparison_recovery_v1')) || {};
+      return isValidSetId(recovery.setId)
+        ? { setId: String(recovery.setId).trim(), workspaceOpen: recovery.workspaceOpen === true }
+        : {};
     } catch {
       return {};
     }
+  }
+
+  function isValidSetId(setId) {
+    const normalized = typeof setId === 'string' ? setId.trim() : '';
+    return Boolean(normalized) && normalized !== 'undefined' && normalized !== 'null';
   }
 
   function getEstimatedTotal() {

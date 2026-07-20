@@ -2,12 +2,56 @@
  * ModelPromptForge - Clothing Selection and Visibility Rules
  */
 (function () {
+  const OVERRIDE_FIELDS = {
+    primaryColor: "Primary Color",
+    secondaryColor: "Secondary Color",
+    pattern: "Pattern",
+    material: "Material"
+  };
+
+  function normalizeOutfitReferenceOverrides(value) {
+    const raw = value && typeof value === "object" ? value : {};
+    return {
+      enabled: raw.enabled === true,
+      primaryColor: raw.primaryColor === true,
+      secondaryColor: raw.secondaryColor === true,
+      pattern: raw.pattern === true,
+      material: raw.material === true
+    };
+  }
+
+  function resolveClothingControlState(appState = {}) {
+    const hasFront = Boolean(appState.outfitReferenceImageFront);
+    const hasBack = Boolean(appState.outfitReferenceImageBack);
+    const overrides = normalizeOutfitReferenceOverrides(appState.outfitReferenceOverrides);
+    const selectedBaseId = appState.selections?.["Outfit Base"]?.id;
+    const hasModularBase = Boolean(selectedBaseId && selectedBaseId !== "outfit.base.modest_reference");
+    const modularActive = !hasFront && !hasBack;
+    const referenceState = hasFront
+      ? (hasBack ? "front_back_ready" : "front_ready")
+      : (hasBack ? "back_only_invalid" : "empty");
+
+    return {
+      referenceState,
+      hasFront,
+      hasBack,
+      referenceActive: hasFront,
+      overrides,
+      showOutfitBase: modularActive,
+      showOverrideControls: hasFront,
+      fieldVisibility: {
+        "Primary Color": hasFront ? overrides.enabled && overrides.primaryColor : modularActive && hasModularBase,
+        "Secondary Color": hasFront ? overrides.enabled && overrides.secondaryColor : modularActive && hasModularBase,
+        Pattern: hasFront ? overrides.enabled && overrides.pattern : modularActive && hasModularBase,
+        Material: hasFront ? overrides.enabled && overrides.material : modularActive && hasModularBase
+      }
+    };
+  }
+
   function applyClothingVisibilityRules() {
     const state = window.state;
     if (!state) return;
-
-    // Check if Front or Back Outfit reference is uploaded
-    const isReferenceUploaded = Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
+    const controlState = resolveClothingControlState(state);
 
     // Get DOM elements for fields
     const outfitBaseField = getFormFieldDOM("Outfit Base");
@@ -23,33 +67,27 @@
       }
     };
 
-    if (isReferenceUploaded) {
-      // 1. Hide all modular fields if upload exists
-      setVisible(outfitBaseField, false);
-      setVisible(primaryColorField, false);
-      setVisible(secondaryColorField, false);
-      setVisible(patternField, false);
-      setVisible(materialField, false);
-    } else {
-      // 2. Otherwise Outfit Base is visible
-      setVisible(outfitBaseField, true);
+    setVisible(outfitBaseField, controlState.showOutfitBase);
+    setVisible(primaryColorField, controlState.fieldVisibility["Primary Color"]);
+    setVisible(secondaryColorField, controlState.fieldVisibility["Secondary Color"]);
+    setVisible(patternField, controlState.fieldVisibility.Pattern);
+    setVisible(materialField, controlState.fieldVisibility.Material);
 
-      // Check selected Outfit Base ID
-      const selectedBaseId = state.selections["Outfit Base"]?.id;
-      const isBaseSelected = selectedBaseId && selectedBaseId !== "outfit.base.modest_reference";
-
-      // Colors, Pattern, and Material are only visible if a valid Outfit Base is chosen (not modest fallback)
-      setVisible(primaryColorField, isBaseSelected);
-      setVisible(secondaryColorField, isBaseSelected);
-      setVisible(patternField, isBaseSelected);
-      setVisible(materialField, isBaseSelected);
-    }
+    const overridePanel = document.getElementById("outfit-reference-overrides");
+    if (overridePanel) overridePanel.hidden = !controlState.showOverrideControls;
+    const masterToggle = document.getElementById("outfit-reference-customize-toggle");
+    if (masterToggle) masterToggle.checked = controlState.overrides.enabled;
+    Object.entries(OVERRIDE_FIELDS).forEach(([key]) => {
+      const checkbox = document.querySelector(`[data-outfit-override="${key}"]`);
+      if (checkbox) {
+        checkbox.checked = controlState.overrides[key];
+        checkbox.disabled = !controlState.overrides.enabled;
+      }
+    });
   }
 
   function getFormFieldDOM(fieldName) {
-    const select = document.querySelector(
-      `#form-container select.custom-select[data-field="${fieldName}"]`
-    );
+    const select = document.querySelector(`#form-container [data-field="${fieldName}"]`);
     return select ? select.closest(".form-field") : null;
   }
 
@@ -89,6 +127,8 @@
   }
 
   window.ModelPromptForgeClothingOptionRules = {
-    applyClothingVisibilityRules
+    applyClothingVisibilityRules,
+    resolveClothingControlState,
+    normalizeOutfitReferenceOverrides
   };
 })();

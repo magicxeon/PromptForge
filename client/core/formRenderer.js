@@ -57,6 +57,10 @@
       const inner = document.createElement("div");
       inner.className = "accordion-inner";
 
+      if (groupName === "Clothing") {
+        inner.appendChild(createOutfitReferenceUploadControl());
+      }
+
       groupObj.fields
         .filter(field => shouldRenderField(groupName, field.name))
         .forEach(field => {
@@ -317,10 +321,6 @@
         inner.appendChild(authorityPanel);
       }
 
-      if (groupName === "Clothing") {
-        inner.appendChild(createOutfitReferenceUploadControl());
-      }
-
       content.appendChild(inner);
       accordion.appendChild(content);
       container.appendChild(accordion);
@@ -333,42 +333,53 @@
     panel.className = "mode-sub-control outfit-reference-control";
     panel.style.display = state.mode === "character-sheet" ? "block" : "none";
     panel.innerHTML = `
-      <label class="control-label" style="font-size: 0.75rem; margin-bottom: 0.35rem; display: block; font-weight: 700; color: var(--text-main);">Outfit Reference (Front / Back)</label>
-      <p class="sub-label" style="margin: 0.35rem 0 0;">
-        Character Sheet only. These images describe clothing shape, colors, and visible garment details.
-      </p>
-      <div class="reference-slots-dock" id="outfit-ref-slots-dock"
-        style="display: flex; gap: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">
-        <div class="ref-slot-card" id="outfit-front-card"
-          style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-          <img id="outfit-front-img" src="" alt="Front outfit reference"
-            style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-          <span class="slot-badge"
-            style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(250, 204, 21, 0.85); color: #000; font-weight: 800;">Front</span>
-          <button type="button" class="btn-clear-slot" data-slot="outfitFront"
-            style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+      <div class="outfit-reference-heading">
+        <div>
+          <span class="control-label">Outfit Reference</span>
+          <p class="sub-label">Front is the main garment reference. Back is optional.</p>
         </div>
-        <div class="ref-slot-card" id="outfit-back-card"
-          style="display: none; position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 4px; background: rgba(0, 0, 0, 0.3); width: 80px; height: 80px; align-items: center; justify-content: center;">
-          <img id="outfit-back-img" src="" alt="Back outfit reference"
-            style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
-          <span class="slot-badge"
-            style="position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; padding: 1px 3px; border-radius: 3px; background: rgba(250, 204, 21, 0.85); color: #000; font-weight: 800;">Back</span>
-          <button type="button" class="btn-clear-slot" data-slot="outfitBack"
-            style="position: absolute; top: -6px; right: -6px; background: #ef4444; border: none; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; line-height: 1;">&times;</button>
+        <button id="btn-clear-outfit-reference" class="outfit-reference-clear-all" type="button">Clear all</button>
+      </div>
+      <div class="outfit-reference-dropzones" id="outfit-ref-slots-dock">
+        ${createOutfitReferenceSlotMarkup("front", "Front - Main", "Required when using an outfit reference")}
+        ${createOutfitReferenceSlotMarkup("back", "Back - Optional", "Adds construction and rear garment details")}
+      </div>
+      <p id="outfit-reference-status" class="outfit-reference-status" aria-live="polite"></p>
+      <fieldset id="outfit-reference-overrides" class="outfit-reference-overrides" hidden>
+        <label class="outfit-reference-customize-toggle">
+          <input type="checkbox" id="outfit-reference-customize-toggle">
+          <span>Customize uploaded outfit</span>
+        </label>
+        <div class="outfit-reference-override-grid">
+          <label><input type="checkbox" data-outfit-override="primaryColor"> Primary color</label>
+          <label><input type="checkbox" data-outfit-override="secondaryColor"> Secondary color</label>
+          <label><input type="checkbox" data-outfit-override="pattern"> Pattern</label>
+          <label title="Changing material may alter drape and silhouette"><input type="checkbox" data-outfit-override="material"> Material (advanced)</label>
         </div>
-      </div>
-      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 0.5rem; align-items: center;">
-        <input type="file" id="outfit-front-file" accept="image/*" class="custom-select"
-          style="border-style: dashed; padding: 0.25rem 0.5rem;">
-        <input type="file" id="outfit-back-file" accept="image/*" class="custom-select"
-          style="border-style: dashed; padding: 0.25rem 0.5rem;">
-        <button id="btn-clear-outfit-reference" class="btn-compact-neon"
-          style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--neon-red);"
-          type="button">Clear</button>
-      </div>
+      </fieldset>
     `;
     return panel;
+  }
+
+  function createOutfitReferenceSlotMarkup(slot, title, description) {
+    const capitalized = slot === "front" ? "Front" : "Back";
+    return `
+      <div class="outfit-reference-dropzone" data-outfit-dropzone="${slot}" tabindex="0" role="button" aria-label="Upload ${slot} outfit reference">
+        <input type="file" id="outfit-${slot}-file" accept="image/png,image/jpeg,image/webp" hidden>
+        <div class="outfit-reference-empty">
+          <span class="outfit-upload-icon" aria-hidden="true">&#8593;</span>
+          <strong>${title}</strong>
+          <span>${description}</span>
+          <span class="outfit-browse-label">Browse image</span>
+        </div>
+        <div class="ref-slot-card outfit-reference-preview" id="outfit-${slot}-card">
+          <img id="outfit-${slot}-img" src="" alt="${capitalized} outfit reference">
+          <div class="outfit-reference-slot-actions">
+            <button type="button" data-outfit-replace="${slot}" title="Replace ${slot} reference" aria-label="Replace ${slot} outfit reference">Replace</button>
+            <button type="button" class="btn-clear-slot" data-slot="outfit${capitalized}" title="Remove ${slot} reference" aria-label="Remove ${slot} outfit reference">&times;</button>
+          </div>
+        </div>
+      </div>`;
   }
 
   function getSelectedHairPresentation() {
@@ -557,6 +568,7 @@
     if (window.toggleUIForMode) window.toggleUIForMode();
     if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
     if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
     if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
       window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
     }

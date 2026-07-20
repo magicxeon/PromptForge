@@ -34,7 +34,7 @@
     return 'fallback';
   }
 
-  function compileClothingPromptParts(selections, referenceState, mode) {
+  function compileClothingPromptParts(selections, referenceState, mode, referenceOverrides = null) {
     const ownership = getClothingSourceOwnership(selections, referenceState, mode);
 
     if (ownership === 'standard') {
@@ -43,10 +43,30 @@
 
     // Priority 1: Upload Reference
     if (ownership === 'upload') {
-      if (hasBackOutfitReference(referenceState)) {
-        return 'matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, and visible details across all sheet views';
+      const parts = [hasBackOutfitReference(referenceState)
+        ? 'matching the clothing outfit from the uploaded front and back outfit references, preserving garment silhouette, colors, pattern, material appearance, construction, and visible details across all character sheet views'
+        : 'matching the garment silhouette, colors, pattern, material appearance, and visible styling from the uploaded front outfit reference, inferring unseen back details naturally'];
+      const overrides = normalizeReferenceOverrides(referenceOverrides);
+      if (overrides.enabled) {
+        if (overrides.primaryColor) {
+          const value = selections?.['Primary Color']?.value;
+          if (value) parts.push(`changing the primary garment color to ${value}`);
+        }
+        if (overrides.secondaryColor) {
+          const value = selections?.['Secondary Color']?.value;
+          if (value) parts.push(`changing the secondary garment color to ${value}`);
+        }
+        if (overrides.pattern) {
+          const value = selections?.Pattern?.value;
+          if (value) parts.push(`applying ${value}`);
+        }
+        if (overrides.material) {
+          const value = (selections?.Material || selections?.['Material / Surface'])?.value;
+          if (value) parts.push(`rendering the garment with ${value}`);
+        }
+        if (parts.length > 1) parts.push('while preserving all other outfit details');
       }
-      return 'matching the clothing outfit, garment silhouette, colors, and styling from the uploaded front outfit reference, inferring unseen back details naturally';
+      return cleanupClothingPromptParts(parts);
     }
 
     // Priority 2: Modular Clothing
@@ -127,8 +147,7 @@
     return Boolean(
       referenceState?.outfitReference ||
       referenceState?.outfitReferenceFront ||
-      referenceState?.outfitReferenceImageFront ||
-      referenceState?.outfitReferenceImageBack
+      referenceState?.outfitReferenceImageFront
     );
   }
 
@@ -139,10 +158,22 @@
     );
   }
 
+  function normalizeReferenceOverrides(value) {
+    const raw = value && typeof value === 'object' ? value : {};
+    return {
+      enabled: raw.enabled === true,
+      primaryColor: raw.primaryColor === true,
+      secondaryColor: raw.secondaryColor === true,
+      pattern: raw.pattern === true,
+      material: raw.material === true
+    };
+  }
+
   window.ModelPromptForgeClothingPromptParts = {
     getClothingSourceOwnership,
     compileClothingPromptParts,
     cleanupClothingPromptParts,
-    isCanonicalOutfitBase
+    isCanonicalOutfitBase,
+    normalizeReferenceOverrides
   };
 })();

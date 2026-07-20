@@ -38,6 +38,7 @@ server/domain/README.md
 server/repositories/README.md
 requirements/requirements.md
 requirements/007-technical-dept/000-master.md
+nodemon.json
 ```
 
 ## 4. `server/data/README.md` Must Explain
@@ -151,6 +152,7 @@ server/app/* imports now point to domain/repository modules directly.
 tests that imported removed wrappers were updated to direct domain/repository paths.
 maintenance scripts now resolve canonical data files through server/config/paths.js.
 QueueManager history JSON mutations now go through HistoryRepository.
+nodemon.json ignores server/data/** and client/outputs/** so runtime writes cannot restart the in-memory generation queue.
 ```
 
 Removed compatibility wrapper files:

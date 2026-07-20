@@ -292,7 +292,7 @@ function buildCleanPromptSegments(activeSelections, getValue) {
   };
 }
 
-export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false, customColors = null) {
+export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false, customColors = null, outfitReferenceOverrides = null) {
   const templateStr = templates[templateName] || templates["portrait"] || "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}";
 
   // Clone selections
@@ -479,7 +479,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = mode === "character-sheet"
-    ? compileClothingPromptParts(activeSelections, imageReferences, mode)
+    ? compileClothingPromptParts(activeSelections, imageReferences, mode, outfitReferenceOverrides)
     : compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");

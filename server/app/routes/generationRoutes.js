@@ -51,6 +51,10 @@ export function registerGenerationRoutes(app, {
     const username = resolveRequestUsername(req, { allowBody: false });
     const status = await queueManager.getJobStatusForUser(req.params.id, username);
     if (!status) {
+      const knownStatus = await queueManager.getJobStatus(req.params.id);
+      console.warn(
+        `[Jobs] Status unavailable for ${req.params.id}: ${knownStatus ? 'owner mismatch' : 'job missing'} (requester: ${username})`
+      );
       return res.status(404).json({ error: 'Job not found' });
     }
     return res.json(status);

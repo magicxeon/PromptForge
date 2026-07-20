@@ -240,6 +240,13 @@ window.state = {
   outfitReferenceImageFront: null,
   outfitReferenceImageBack: null,
   outfitReferenceJobIds: [],
+  outfitReferenceOverrides: {
+    enabled: false,
+    primaryColor: false,
+    secondaryColor: false,
+    pattern: false,
+    material: false
+  },
   characterReferenceOverrides: false,
   hasInitializedHistoryCollapse: false,
   language: "th",

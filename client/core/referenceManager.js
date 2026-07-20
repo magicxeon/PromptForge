@@ -38,6 +38,13 @@
     state.outfitReferenceImageBack = null;
     state.outfitReferenceJobIds = [];
     state.imageReferences.outfitReference = false;
+    state.outfitReferenceOverrides = window.ModelPromptForgeOutfitReferenceController?.normalizeOverrides?.(null) || {
+      enabled: false,
+      primaryColor: false,
+      secondaryColor: false,
+      pattern: false,
+      material: false
+    };
     const frontFileInput = document.getElementById("outfit-front-file");
     const backFileInput = document.getElementById("outfit-back-file");
     if (frontFileInput) frontFileInput.value = "";
@@ -63,7 +70,10 @@
     const hasClothingSelection = Object.values(selections).some(selection => selection?.group === "Clothing");
     const hasOutfitReference = state.mode === "character-sheet"
       && state.imageReferences.outfitReference === true
-      && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
+      && Boolean(state.outfitReferenceImageFront);
+    const hasBackOnlyOutfitReference = state.mode === "character-sheet"
+      && !state.outfitReferenceImageFront
+      && Boolean(state.outfitReferenceImageBack);
     const layoutSelection = selections["Sheet Layout"];
     const layoutItem = layoutSelection && !layoutSelection.isCustom
       ? state.library.find(item => item.id === layoutSelection.id)
@@ -84,10 +94,14 @@
         owns: ["body silhouette", "proportion"]
       },
       outfit: {
-        source: hasOutfitReference
+        source: hasBackOnlyOutfitReference
+          ? "outfit-back-reference-incomplete"
+          : hasOutfitReference
           ? (state.outfitReferenceImageBack ? "outfit-front-back-reference" : "outfit-front-reference")
           : (hasClothingSelection ? "outfit-preset-selections" : "character-sheet-baseline"),
-        label: hasOutfitReference
+        label: hasBackOnlyOutfitReference
+          ? "Back Upload (Front required)"
+          : hasOutfitReference
           ? (state.outfitReferenceImageBack ? "Front/Back Upload" : "Front Upload")
           : (hasClothingSelection ? "Outfit preset selections" : "Character Sheet Baseline"),
         owns: ["outfit", "garment silhouette", "colors", "visible details"]
