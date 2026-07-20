@@ -59,3 +59,90 @@ Rules after cleanup:
 *   Route modules receive dependencies from `server/app/createApp.js`.
 *   Domain modules should use repository contracts for JSON state.
 *   New JSON writes should use `server/repositories/json/jsonFileStore.js`.
+
+## 4. Project-Wide File Placement Reference
+
+This section is the source of truth referenced by the repository-level `AGENTS.md`. Every new or moved file must have a clear owner in this map.
+
+### 4.1 Server
+
+| File responsibility | Canonical location |
+|---|---|
+| Process bootstrap, environment loading, HTTP listen | `server/server.js` |
+| Express composition and dependency wiring | `server/app/createApp.js` |
+| Capability-oriented HTTP endpoints | `server/app/routes/` |
+| Shared route error translation | `server/app/` |
+| Business rules and orchestration | `server/domain/<capability>/` |
+| Persistence interfaces and adapters | `server/repositories/<capability>/` |
+| Shared atomic JSON implementation | `server/repositories/json/` |
+| Runtime JSON state | `server/data/<capability>/` |
+| Request actor/security middleware | `server/middleware/` |
+| AI provider adapters and registry | `server/providers/` |
+| Paths, provider metadata, and server configuration | `server/config/` |
+
+Server placement rules:
+
+*   `server/` root may contain the bootstrap file and architecture-owned top-level folders only.
+*   Do not add root compatibility re-export files for moved modules.
+*   A route should coordinate HTTP input/output and delegate business behavior.
+*   A domain module should not hard-code runtime JSON paths.
+*   Data access should be replaceable without rewriting route or domain contracts.
+
+### 4.2 Client
+
+| File responsibility | Canonical location |
+|---|---|
+| Application bootstrap and top-level wiring | `client/app.js` |
+| Shared state, persistence, rendering, generation, and reference services | `client/core/` |
+| Feature-specific behavior | `client/<feature>/` |
+| Scene Builder modules | `client/scene-builder/` |
+| Clothing modules | `client/clothing/` |
+| Comparison modules | `client/comparisons/` |
+| Navigation and application shell | `client/shell/` |
+| Reusable visual option controls | `client/visual-controls/` |
+| Runtime application assets | `client/assets/<feature>/` |
+| Generated image output | `client/outputs/` |
+| Main HTML shell and script ordering | `client/index.html` |
+| Global styling until a feature stylesheet boundary is introduced | `client/style.css` |
+
+Client placement rules:
+
+*   Keep `client/app.js` as orchestration code; move reusable feature logic into its owning module.
+*   Extend an existing feature folder before creating another cross-feature global module.
+*   Browser-native scripts must be registered in dependency order in `client/index.html`.
+*   Generated output is runtime data and must not be treated as a source asset.
+
+### 4.3 Assets, Scripts, Tests, and Requirements
+
+| File responsibility | Canonical location |
+|---|---|
+| Character Builder source sheets and authoring manifests | `visual-assets/character-builder/` |
+| Sliced assets consumed by the application | `client/assets/visual-character-builder/` |
+| Migration and maintenance utilities | `scripts/` |
+| Automated tests and fixtures | `test/` and `test/fixtures/` |
+| Business and implementation requirements | `requirements/<phase-or-domain>/` |
+| Cross-project architecture and technical debt plans | `requirements/007-technical-dept/` |
+
+### 4.4 New Folder Decision Rule
+
+Create a new folder only when all of the following are true:
+
+1. No existing folder owns the capability.
+2. The new capability contains or is expected to contain more than one cohesive module.
+3. Its dependency direction is clear.
+4. Its runtime data location is separate from its functional code.
+5. This document is updated in the same change set.
+
+For a single small module, place it in the nearest existing capability folder and avoid speculative hierarchy.
+
+### 4.5 Required Final Check
+
+Every implementation handoff must report:
+
+```text
+new files and their owning capability
+moved files and updated import consumers
+runtime data paths introduced or changed
+architecture documentation changes, when applicable
+validation commands the user should run
+```
