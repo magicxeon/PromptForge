@@ -4,6 +4,7 @@ import {
   assertActorContext,
   createPage,
   normalizeListQuery,
+  pickAllowedValue,
   RepositoryContractError,
   VISIBILITY
 } from '../repositoryContracts.js';
@@ -108,8 +109,12 @@ export class CommunityPostRepository {
       idPrefix: 'post',
       ownerUserId: actor.userId,
       ownerUsername: actor.username,
-      visibility: recordInput.visibility || VISIBILITY.PUBLIC,
-      status: recordInput.status || 'published',
+      visibility: pickAllowedValue(
+        recordInput.visibility,
+        [VISIBILITY.PUBLIC, VISIBILITY.UNLISTED, VISIBILITY.MEMBERS_ONLY, VISIBILITY.PRIVATE],
+        VISIBILITY.PUBLIC
+      ),
+      status: pickAllowedValue(recordInput.status, ['draft', 'published', 'hidden', 'removed'], 'published'),
       now
     });
 

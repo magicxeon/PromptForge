@@ -1,11 +1,11 @@
 # Community-00-003 Repository Interface and Database Schema Map
 
-**Status:** In Implementation - JSON Repository Foundation  
+**Status:** Implementation complete - Node validation pending
 **Feature type:** JSON-to-database migration contract and repository boundary  
 **Depends on:** Community-00-002 Mock User / Actor Context, existing JSON repositories  
 **Feeds into:** Community-00-004 Ownership Policy, Community-00-005 Credit Ledger, Community-00-006 Admin Audit, Scene Builder template sharing  
 **Created:** 2026-07-19  
-**Last updated:** 2026-07-20
+**Last updated:** 2026-07-22
 
 ## 1. Business Requirement
 
@@ -916,7 +916,7 @@ Every repository implementation must:
 4. Replace the CommunityShareService embedded JSON classes with `repositories/community/CommunityPostRepository` and `RemixEventRepository`.
 5. Add a read-only `repositories/generation/GenerationResultRepository` facade without changing `HistoryRepository` or QueueManager write APIs.
 6. Update CommunityShareService and Scene Template routes to pass `ActorContext` into repository/service calls while preserving existing endpoint response fields.
-7. Defer Collection, Asset, Scene Template Snapshot, Credit, Audit, and Comparison adapters until their owning requirement changes behavior.
+7. Repository scaffolds for Collection, Asset, Scene Template Snapshot, Credit, Audit, and Comparison may be implemented against this contract, but must remain isolated from runtime wiring until their owning requirement changes behavior.
 8. Update Community-00-004, `00-005`, and `00-006` implementations to use these contracts when they are implemented.
 
 ### 10.3 First-Pass Scope
@@ -931,7 +931,7 @@ recordNormalizer owner/date helpers
 existing jsonFileStore shared writer
 ```
 
-Leave these as planned wrappers unless a feature touches them:
+These adapters may exist as tested repository scaffolds, but remain deferred from runtime integration until a feature touches them:
 
 ```text
 AssetRepository
@@ -973,16 +973,17 @@ Implemented:
   server/domain/community/CommunityShareService.js updated to use repositories
   server/app/routes/sceneTemplateRoutes.js updated to pass ActorContext
 
-Deferred intentionally:
+Implemented as isolated repository scaffolds; runtime integration remains deferred:
   AssetRepository
   CollectionRepository
   SceneTemplateSnapshotRepository
+  CommunityGalleryRepository and CommunityCharacterRepository
   CreditAccountRepository and CreditLedgerRepository
   AuditLogRepository
   ComparisonRepositoryAdapter
 ```
 
-The deferred adapters belong to their capability requirements. They must reuse the contracts and normalizers from this first pass rather than inventing new storage conventions.
+The isolated adapters belong to their capability requirements. Their runtime wiring and business policy remain owned by those requirements; this phase supplies only database-ready JSON boundaries and regression tests.
 
 ## 11. Testing
 

@@ -1,8 +1,9 @@
 import { resolveDataFile } from '../../config/paths.js';
 import { readJsonFile, mutateJsonFile } from '../json/jsonFileStore.js';
 import { assertActorContext, createPage, normalizeListQuery } from '../repositoryContracts.js';
-import { normalizeRemixEventRecord } from '../recordNormalizer.js';
+import { normalizeRemixEventRecord, stripEmbeddedBase64 } from '../recordNormalizer.js';
 import { applyRecordDefaults } from '../schemaVersioning.js';
+import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
 
 const REMIX_FALLBACK = [];
@@ -10,10 +11,12 @@ const REMIX_FALLBACK = [];
 export class RemixEventRepository {
   constructor({
     eventsFile = resolveDataFile('remixEvents'),
-    userRepository = mockUserRepo
+    userRepository = mockUserRepo,
+    cursorSecret = process.env.REMIX_EVENT_CURSOR_SECRET || 'local-remix-event-cursor'
   } = {}) {
     this.eventsFile = eventsFile;
     this.userRepository = userRepository;
+    this.cursorSecret = cursorSecret;
   }
 
   async readAll() {
@@ -26,7 +29,7 @@ export class RemixEventRepository {
     const actor = assertActorContext(actorContext);
     const now = new Date().toISOString();
     const record = {
-      ...applyRecordDefaults(eventInput, {
+      ...applyRecordDefaults(stripEmbeddedBase64(eventInput), {
         idPrefix: 'remix',
         ownerUserId: actor.userId,
         ownerUsername: actor.username,
@@ -40,7 +43,7 @@ export class RemixEventRepository {
       templateId: eventInput.templateId || null,
       generatedJobId: eventInput.generatedJobId || null,
       replacementSummary: eventInput.replacementSummary && typeof eventInput.replacementSummary === 'object'
-        ? structuredClone(eventInput.replacementSummary)
+        ? stripEmbeddedBase64(eventInput.replacementSummary)
         : {},
       timestamp: Date.now()
     };
@@ -53,13 +56,17 @@ export class RemixEventRepository {
   }
 
   async findByOwner(ownerUserId, query = {}) {
-    const { limit } = normalizeListQuery(query);
+    const normalizedQuery = normalizeListQuery(query);
     const events = (await this.readAll())
-      .filter(event => event.actorUserId === ownerUserId)
-      .sort((left, right) => Date.parse(right.createdAt || '') - Date.parse(left.createdAt || ''));
-    return createPage(events.slice(0, limit), { hasMore: events.length > limit, totalApprox: events.length });
+      .filter(event => event.actorUserId === ownerUserId);
+    const page = paginateRepositoryRecords(
+      events,
+      normalizedQuery,
+      JSON.stringify({ ownerUserId, sort: normalizedQuery.sort }),
+      this.cursorSecret
+    );
+    return createPage(page.items, page);
   }
 }
 
 export const communityRemixRepo = new RemixEventRepository();
-

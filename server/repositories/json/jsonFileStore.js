@@ -4,7 +4,8 @@ import path from 'path';
 export async function ensureJsonFile(filePath, fallbackValue) {
   try {
     await fs.access(filePath);
-  } catch {
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
     await writeJsonFileAtomic(filePath, fallbackValue);
   }
 }
@@ -13,8 +14,9 @@ export async function readJsonFile(filePath, fallbackValue) {
   try {
     const raw = await fs.readFile(filePath, 'utf8');
     return JSON.parse(raw);
-  } catch {
-    return fallbackValue;
+  } catch (error) {
+    if (error.code === 'ENOENT') return structuredClone(fallbackValue);
+    throw error;
   }
 }
 

@@ -33,3 +33,30 @@ export function decodeRepositoryCursor(cursor, scope, secret = process.env.REPOS
   }
 }
 
+export function compareRepositoryRecords(left, right, sort = 'newest') {
+  const field = sort === 'updated' ? 'updatedAt' : 'createdAt';
+  const leftTime = Date.parse(left?.[field] || '') || 0;
+  const rightTime = Date.parse(right?.[field] || '') || 0;
+  const difference = sort === 'oldest' ? leftTime - rightTime : rightTime - leftTime;
+  if (difference !== 0) return difference;
+  return sort === 'oldest'
+    ? String(left?.id || '').localeCompare(String(right?.id || ''))
+    : String(right?.id || '').localeCompare(String(left?.id || ''));
+}
+
+export function paginateRepositoryRecords(records, query, scope, secret) {
+  const cursor = query.cursor ? decodeRepositoryCursor(query.cursor, scope, secret) : null;
+  let sorted = [...records].sort((left, right) => compareRepositoryRecords(left, right, query.sort));
+  if (cursor) {
+    sorted = sorted.filter(record => compareRepositoryRecords(record, cursor, query.sort) > 0);
+  }
+
+  const items = sorted.slice(0, query.limit);
+  const hasMore = sorted.length > query.limit;
+  const last = items.at(-1);
+  const nextCursor = hasMore && last
+    ? encodeRepositoryCursor({ id: last.id, createdAt: last.createdAt, updatedAt: last.updatedAt }, scope, secret)
+    : null;
+
+  return { items, nextCursor, hasMore, totalApprox: sorted.length };
+}

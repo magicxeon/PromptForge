@@ -27,6 +27,14 @@ test('TC-002-002-001: read missing file returns fallback', async () => {
   const fallback = { status: 'fallback' };
   const data = await readJsonFile(filePath, fallback);
   assert.deepEqual(data, fallback);
+  data.status = 'mutated';
+  assert.equal(fallback.status, 'fallback');
+});
+
+test('TC-002-002-001B: malformed JSON is reported instead of overwritten by fallback', async () => {
+  const filePath = path.join(tempDir, 'malformed.json');
+  await fs.writeFile(filePath, '{ invalid json', 'utf8');
+  await assert.rejects(readJsonFile(filePath, { status: 'fallback' }), SyntaxError);
 });
 
 test('TC-002-002-002: write creates parent folder and writes formatted JSON', async () => {

@@ -6,7 +6,10 @@ import test from 'node:test';
 import { MockUserRepository } from '../server/repositories/identity/MockUserRepository.js';
 import { CommunityPostRepository } from '../server/repositories/community/CommunityPostRepository.js';
 import { GenerationResultRepository } from '../server/repositories/generation/GenerationResultRepository.js';
-import { normalizeGenerationHistoryRecord } from '../server/repositories/recordNormalizer.js';
+import {
+  normalizeGenerationHistoryRecord,
+  normalizeOwnedRepositoryRecord
+} from '../server/repositories/recordNormalizer.js';
 
 async function createUsersFixture() {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'repository-schema-'));
@@ -40,6 +43,14 @@ test('legacy generation records normalize owner, Demo User fallback, and timesta
   }, users);
   assert.equal(noOwnerRecord.ownerUserId, 'usr_demo');
   assert.equal(noOwnerRecord.ownerUsername, 'user_demo');
+
+  const genericRecord = await normalizeOwnedRepositoryRecord({
+    id: 'ast_legacy',
+    timestamp: 1784444068830,
+    metadata: { image: 'data:image/png;base64,PRIVATE' }
+  }, users);
+  assert.equal(genericRecord.ownerUserId, 'usr_demo');
+  assert.equal(genericRecord.metadata.image, null);
 });
 
 test('community repository writes normalized public records and hides hidden records from public lists', async t => {
@@ -52,11 +63,14 @@ test('community repository writes normalized public records and hides hidden rec
 
   const published = await repository.create({
     title: 'Public post',
+    ownerUserId: 'usr_demo',
+    id: 'post_spoofed',
     sceneTemplateSnapshot: { reference: 'data:image/png;base64,PRIVATE' }
   }, actor);
   await repository.create({ title: 'Hidden post', visibility: 'public', status: 'hidden' }, actor);
 
   assert.equal(published.ownerUserId, 'usr_alice');
+  assert.notEqual(published.id, 'post_spoofed');
   assert.equal(published.schemaVersion, 1);
   assert.equal(published.status, 'published');
   assert.match(published.createdAt, /^\d{4}-\d{2}-\d{2}T/);

@@ -94,6 +94,27 @@ export async function normalizeCollectionRecord(collection = {}, mockUserReposit
   };
 }
 
+export async function normalizeOwnedRepositoryRecord(record = {}, mockUserRepository, defaults = {}) {
+  const owner = await resolveOwnerFromLegacy(record, mockUserRepository);
+  const sanitized = stripEmbeddedBase64(record);
+  const createdAt = normalizeEpochOrIsoDate(record.createdAt ?? record.timestamp, null);
+  return {
+    ...structuredClone(sanitized),
+    id: record.id || null,
+    schemaVersion: Number(record.schemaVersion) || CURRENT_SCHEMA_VERSION,
+    ownerUserId: owner.ownerUserId,
+    ownerUsername: owner.ownerUsername,
+    visibility: record.visibility || defaults.visibility || 'private',
+    status: record.status || defaults.status || 'active',
+    createdAt,
+    updatedAt: normalizeEpochOrIsoDate(record.updatedAt, createdAt),
+    deletedAt: record.deletedAt ? normalizeEpochOrIsoDate(record.deletedAt) : null,
+    metadata: sanitized.metadata && typeof sanitized.metadata === 'object'
+      ? structuredClone(sanitized.metadata)
+      : {}
+  };
+}
+
 export async function normalizeRemixEventRecord(event = {}, mockUserRepository) {
   const actor = await resolveOwnerFromLegacy({
     ownerUserId: event.actorUserId,
@@ -110,4 +131,3 @@ export async function normalizeRemixEventRecord(event = {}, mockUserRepository) 
     metadata: event.metadata && typeof event.metadata === 'object' ? structuredClone(event.metadata) : {}
   };
 }
-

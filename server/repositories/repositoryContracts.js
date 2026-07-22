@@ -73,3 +73,6 @@ export function createPage(items, { nextCursor = null, hasMore = false, totalApp
   return page;
 }
 
+export function pickAllowedValue(value, allowedValues, fallback) {
+  return Array.isArray(allowedValues) && allowedValues.includes(value) ? value : fallback;
+}

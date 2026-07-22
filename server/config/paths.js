@@ -17,6 +17,9 @@ export const CREDITS_DATA_DIR = path.resolve(DATA_ROOT, 'credits');
 export const COMMUNITY_DATA_DIR = path.resolve(DATA_ROOT, 'community');
 export const COMPARISONS_DATA_DIR = path.resolve(DATA_ROOT, 'comparisons');
 export const MIGRATIONS_DATA_DIR = path.resolve(DATA_ROOT, 'migrations');
+export const ASSETS_DATA_DIR = path.resolve(DATA_ROOT, 'assets');
+export const AUDIT_DATA_DIR = path.resolve(DATA_ROOT, 'audit');
+export const SCENE_TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'scene-templates');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -25,7 +28,12 @@ export const DATA_FILES = {
   database: path.resolve(CREDITS_DATA_DIR, 'database.json'),
   communityPosts: path.resolve(COMMUNITY_DATA_DIR, 'communityPosts.json'),
   remixEvents: path.resolve(COMMUNITY_DATA_DIR, 'remixEvents.json'),
-  comparisons: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json')
+  communityCharacters: path.resolve(COMMUNITY_DATA_DIR, 'communityCharacters.json'),
+  communityGallery: path.resolve(COMMUNITY_DATA_DIR, 'communityGallery.json'),
+  comparisons: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json'),
+  assets: path.resolve(ASSETS_DATA_DIR, 'assets.json'),
+  auditLogs: path.resolve(AUDIT_DATA_DIR, 'auditLogs.json'),
+  sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json')
 };
 
 export function resolveDataFile(name) {

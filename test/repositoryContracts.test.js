@@ -6,7 +6,11 @@ import {
   normalizeListQuery,
   RepositoryContractError
 } from '../server/repositories/repositoryContracts.js';
-import { decodeRepositoryCursor, encodeRepositoryCursor } from '../server/repositories/RepositoryCursor.js';
+import {
+  decodeRepositoryCursor,
+  encodeRepositoryCursor,
+  paginateRepositoryRecords
+} from '../server/repositories/RepositoryCursor.js';
 
 test('repository contracts normalize list queries and return cloned page items', () => {
   const query = normalizeListQuery({ limit: '500', sort: 'unknown', filters: { mode: 'scene' } });
@@ -29,4 +33,24 @@ test('repository contracts require actor context and protect cursor scope', () =
   const cursor = encodeRepositoryCursor({ id: 'post_1', createdAt: '2026-07-20T00:00:00.000Z' }, 'public-posts', 'test-secret');
   assert.equal(decodeRepositoryCursor(cursor, 'public-posts', 'test-secret').id, 'post_1');
   assert.throws(() => decodeRepositoryCursor(cursor, 'another-scope', 'test-secret'));
+});
+
+test('repository cursor pagination returns stable non-overlapping pages', () => {
+  const records = [
+    { id: 'rec_3', createdAt: '2026-07-22T03:00:00.000Z' },
+    { id: 'rec_2', createdAt: '2026-07-22T02:00:00.000Z' },
+    { id: 'rec_1', createdAt: '2026-07-22T01:00:00.000Z' }
+  ];
+  const query = normalizeListQuery({ limit: 2 });
+  const first = paginateRepositoryRecords(records, query, 'records', 'test-secret');
+  assert.deepEqual(first.items.map(item => item.id), ['rec_3', 'rec_2']);
+  assert.ok(first.nextCursor);
+
+  const second = paginateRepositoryRecords(
+    records,
+    { ...query, cursor: first.nextCursor },
+    'records',
+    'test-secret'
+  );
+  assert.deepEqual(second.items.map(item => item.id), ['rec_1']);
 });
