@@ -2,7 +2,7 @@
   "users": {
     "user_demo": {
       "role": "user",
-      "credits": 69
+      "credits": 68
     },
     "admin_demo": {
       "role": "admin",
@@ -727,6 +727,16 @@
       "comparisonSetId": null,
       "comparisonRunId": null,
       "createdAt": 1784522928614
+    },
+    {
+      "id": "credit_1784733964523_g6hwfo",
+      "username": "user_demo",
+      "amount": -1,
+      "type": "generation_charge",
+      "jobId": "job_1784733964521_6z48lrqpk",
+      "comparisonSetId": null,
+      "comparisonRunId": null,
+      "createdAt": 1784733964523
     }
   ]
 }

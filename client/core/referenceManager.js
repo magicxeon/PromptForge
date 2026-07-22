@@ -136,7 +136,9 @@
     if (!isStoryCharacterReferenceActive() || state.characterReferenceOverrides) return;
 
     Object.keys(activeSelections).forEach(fieldName => {
-      if (REFERENCE_OWNED_GROUPS.has(activeSelections[fieldName]?.group)) {
+      const selection = activeSelections[fieldName];
+      if (fieldName === "Expression" && selection?.group === "Face" && selection?.category === "expression") return;
+      if (REFERENCE_OWNED_GROUPS.has(selection?.group)) {
         delete activeSelections[fieldName];
       }
     });
@@ -149,6 +151,11 @@
       if (!REFERENCE_OWNED_GROUPS.has(groupName)) return;
       const fieldName = select.getAttribute("data-field");
       const formField = select.closest(".form-field");
+      if (fieldName === "Expression" && groupName === "Face") {
+        select.disabled = false;
+        if (formField) formField.classList.remove("reference-owned");
+        return;
+      }
       select.disabled = isReferenceOwned
         || (state.imageReferences.faceMatch && FACE_MATCH_OWNED_FIELDS.has(fieldName));
       if (formField) formField.classList.toggle("reference-owned", isReferenceOwned);

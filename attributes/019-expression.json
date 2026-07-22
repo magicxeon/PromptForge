@@ -17,7 +17,8 @@
     "tags": [
       "expression",
       "natural",
-      "candid"
+      "candid",
+      "neutral"
     ],
     "enabled": true
   },
@@ -34,7 +35,7 @@
     },
     "prompt": {
       "default": "soft thoughtful expression",
-      "gpt-image": "soft thoughtful and reflective facial expression, eyes holding a quiet and calm gaze"
+      "gpt-image": "soft thoughtful and reflective facial expression with calm eyes, preserving natural facial identity while conveying a quiet contemplative mood"
     },
     "tags": [
       "expression",
@@ -78,7 +79,7 @@
     },
     "prompt": {
       "default": "subtle friendly smile",
-      "gpt-image": "subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort"
+      "gpt-image": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure"
     },
     "tags": [
       "expression",
@@ -215,7 +216,8 @@
     "tags": [
       "expression",
       "serious",
-      "thoughtful"
+      "thoughtful",
+      "neutral"
     ],
     "enabled": true
   },

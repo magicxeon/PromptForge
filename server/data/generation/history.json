@@ -1,5 +1,444 @@
 [
   {
+    "id": "job_1784733964521_6z48lrqpk",
+    "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure, front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition, mobile-first creator social-commerce fashion frame, engaging and authentic while keeping the product clear, revealing the complete coordinated fashion look in a clear engaging moment, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1784733964521_6z48lrqpk.png",
+    "timestamp": 1784734026436,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "normal",
+    "selections": {
+      "Fashion Venue": {
+        "id": "environment.fashion.boutique",
+        "value": "in a refined fashion boutique corner with restrained retail context",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.fabric",
+        "value": "one hand naturally indicating the garment fabric without covering its construction",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.soft",
+        "value": "soft confident connection with the camera",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.social",
+        "value": "social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "social",
+          "commerce-safe",
+          "mobile-feed"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Photography Context": {
+        "id": "photo_context.fashion.creator",
+        "value": "mobile-first creator social-commerce fashion frame, engaging and authentic while keeping the product clear",
+        "isCustom": false,
+        "group": "Photographic Context",
+        "category": "photo_context",
+        "tags": [
+          "photo_context",
+          "fashion",
+          "social",
+          "mobile-feed",
+          "commerce-safe"
+        ]
+      },
+      "Fashion Story": {
+        "id": "scene_story.fashion.outfit-reveal",
+        "value": "revealing the complete coordinated fashion look in a clear engaging moment",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "fashion",
+          "social",
+          "lookbook"
+        ]
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "lastGuidedPromptSnapshot": "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., front-facing fashion product pose, natural posture, garment front and silhouette unobstructed, one hand naturally indicating the garment fabric without covering its construction, soft confident connection with the camera, social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition, mobile-first creator social-commerce fashion frame, engaging and authentic while keeping the product clear, revealing the complete coordinated fashion look in a clear engaging moment, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast",
+      "structuredSelectionsSnapshot": {
+        "Fashion Venue": {
+          "id": "environment.fashion.boutique",
+          "value": "in a refined fashion boutique corner with restrained retail context",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.front-product",
+          "value": "front-facing fashion product pose, natural posture, garment front and silhouette unobstructed",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.fabric",
+          "value": "one hand naturally indicating the garment fabric without covering its construction",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.social",
+          "value": "social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "social",
+            "commerce-safe",
+            "mobile-feed"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Photography Context": {
+          "id": "photo_context.fashion.creator",
+          "value": "mobile-first creator social-commerce fashion frame, engaging and authentic while keeping the product clear",
+          "isCustom": false,
+          "group": "Photographic Context",
+          "category": "photo_context",
+          "tags": [
+            "photo_context",
+            "fashion",
+            "social",
+            "mobile-feed",
+            "commerce-safe"
+          ]
+        },
+        "Fashion Story": {
+          "id": "scene_story.fashion.outfit-reveal",
+          "value": "revealing the complete coordinated fashion look in a clear engaging moment",
+          "isCustom": false,
+          "group": "Scene Story",
+          "category": "scene_story",
+          "tags": [
+            "scene_story",
+            "fashion",
+            "social",
+            "lookbook"
+          ]
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": true,
+          "defaultValue": null
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "openai",
+        "providerDisplayName": "OpenAI",
+        "modelId": "gpt-image-1.5",
+        "modelDisplayName": "GPT-Image 1.5 (Enhanced)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784733964521_6z48lrqpk",
+      "createdAt": 1784734026436
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 1,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 6783,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 220
+      },
+      "output_tokens": 1957,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 373
+      },
+      "total_tokens": 8740
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1784383508344_82plsk9t3"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "61.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784733964521_6z48lrqpk.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 12924,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2389826
+  },
+  {
     "id": "job_1784522928613_0kw7pmycn",
     "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784522928613_0kw7pmycn.png",

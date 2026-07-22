@@ -469,7 +469,9 @@
       }
       if (groupName.toLowerCase() === "pose") {
         if (state.imageReferences.poseMatch) {
-          const txt = "with the identical posing and image composition as the original uploaded file";
+          const txt =
+            "preserve the pose and composition intent while adapting naturally " +
+            "to the character's anatomy, outfit, and environment";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
         }
       }
@@ -654,16 +656,17 @@
             ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
             : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"}</span>`)
         : "";
-      prompt = templateStr
+      const scenePrompt = templateStr
         .replace("{subject}", fullSubject)
         .replace("{appearance}", fullAppearance)
         .replace("{clothing}", clothing)
         .replace("{nsfw}", nsfw)
-        .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
+        .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
         .replace("{environment}", environment)
         .replace("{lighting}", lighting)
         .replace("{camera}", camera)
         .replace("{quality}", quality);
+      prompt = [characterReferenceText, scenePrompt].filter(s => s !== "").join(", ");
     }
 
     prompt = prompt.replace(/,(\s*,)+/g, ",");

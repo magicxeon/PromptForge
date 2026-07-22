@@ -235,7 +235,8 @@
       "gpt-image": "neutral expression"
     },
     "tags": [
-      "lips"
+      "lips",
+      "neutral"
     ],
     "enabled": true
   }

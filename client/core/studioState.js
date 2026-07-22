@@ -174,7 +174,10 @@ window.TAG_CONFLICT_RULES = [
   ["day", "night"],
   ["summer", "winter"],
   ["modern", "vintage"],
-  ["cyberpunk", "traditional"]
+  ["cyberpunk", "traditional"],
+  ["smile", "serious"],
+  ["smile", "neutral"],
+  ["direct gaze", "look away"]
 ];
 
 window.CATEGORY_PRIORITIES = {
@@ -182,6 +185,7 @@ window.CATEGORY_PRIORITIES = {
   "lighting": 90,
   "camera": 80,
   "clothing": 70,
+  "expression": 65,
   "pose": 60,
   "quality": 50,
   "nsfw": 40,

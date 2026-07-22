@@ -13,7 +13,7 @@
     },
     "prompt": {
       "default": "standing confidently with one hand on hip",
-      "gpt-image": "standing confidently with one hand placed on her hip, showcasing a clean silhouette",
+      "gpt-image": "standing in a balanced natural posture with one hand placed gently on the hip, displaying relaxed shoulder alignment and natural weight distribution",
       "gpt-image-safe": "standing confidently with one hand on hip in an editorial pose",
       "gpt-image-positive": "confident posture, editorial standing pose, professional portrait photography, fashion magazine photography, lifestyle portrait"
     },
@@ -188,7 +188,7 @@
     },
     "prompt": {
       "default": "resting chin on hand",
-      "gpt-image": "sitting resting chin on hand with elbow on table, looking directly at the camera",
+      "gpt-image": "seated comfortably at a surface, resting chin lightly on hand with soft relaxed fingers, maintaining natural body mechanics and open posture",
       "gpt-image-safe": "resting chin on hand in a natural thoughtful editorial pose",
       "gpt-image-positive": "comfortable seated pose, natural candid portrait, casual body language, lifestyle portrait"
     },

@@ -11,14 +11,24 @@ const TAG_CONFLICT_RULES = [
   ["day", "night"],
   ["summer", "winter"],
   ["modern", "vintage"],
-  ["cyberpunk", "traditional"]
+  ["cyberpunk", "traditional"],
+  ["smile", "serious"],
+  ["smile", "neutral"],
+  ["direct gaze", "look away"]
 ];
+
+function isSceneExpressionSelection(fieldName, selection) {
+  return fieldName === "Expression"
+    && selection?.group === "Face"
+    && selection?.category === "expression";
+}
 
 const CATEGORY_PRIORITIES = {
   "environment": 100,
   "lighting": 90,
   "camera": 80,
   "clothing": 70,
+  "expression": 65,
   "pose": 60,
   "quality": 50,
   "nsfw": 40,
@@ -304,7 +314,11 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   if (referenceOwnsAppearance) {
     const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
     Object.keys(activeSelections).forEach(fieldName => {
-      if (referenceOwnedGroups.has(activeSelections[fieldName]?.group)) {
+      const selection = activeSelections[fieldName];
+
+      if (isSceneExpressionSelection(fieldName, selection)) return;
+
+      if (referenceOwnedGroups.has(selection?.group)) {
         delete activeSelections[fieldName];
       }
     });
@@ -398,7 +412,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     }
     if (groupName.toLowerCase() === "pose") {
       if (imageReferences && imageReferences.poseMatch) {
-        return "with the identical posing and image composition as the original uploaded file";
+        return "preserve the pose and composition intent while adapting naturally to the character's anatomy, outfit, and environment";
       }
     }
 
@@ -534,16 +548,17 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
         ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
         : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
       : "";
-    prompt = templateStr
+    const scenePrompt = templateStr
       .replace("{subject}", fullSubject)
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
+      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
       .replace("{quality}", quality);
+    prompt = [characterReferenceText, scenePrompt].filter(s => s !== "").join(", ");
   }
 
   // Clean double commas and spaces
