@@ -20,10 +20,11 @@ Do Step 5 in this order:
 00-002 Mock User / Actor Context
 00-003 Repository interface and database-ready schema map
 00-004 Ownership, visibility and public snapshot policy
-00-004-001 Localization and language extension foundation
 00-005 Credit ledger mock and generation billing lifecycle
-00-006 Admin/support audit and back-office foundation
-01 Product Home and Workflow Launcher
+00-006 Localization and language extension foundation
+00-007 Community-first shell, Playground and shared generation components
+00-008 Admin/support audit and back-office foundation
+01 Community Home and Workflow Launcher
 02 Prompt Composer AI and Structured Freestyle
 03 Taxonomy and Auto Classification
 04 Share Generated Image and Prompt Snapshot
@@ -77,16 +78,16 @@ External Services
 client/core/actorContext.js
 client/core/apiClient.js
 client/community/communityMockUserSwitcher.js
-server/identity/mockActorContext.js
-server/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
+server/repositories/identity/MockUserRepository.js
 server/middleware/actorContextMiddleware.js
 server/repositories/BaseRepositoryContract.md
-server/policies/OwnershipPolicyService.js
-server/policies/VisibilityPolicyService.js
-server/credits/CreditLedgerRepository.js
-server/credits/CreditReservationService.js
-server/audit/AuditLogRepository.js
-server/admin/AdminPolicyService.js
+server/domain/policies/OwnershipPolicyService.js
+server/domain/policies/VisibilityPolicyService.js
+server/repositories/credits/CreditLedgerRepository.js
+server/domain/credits/CreditReservationService.js
+server/repositories/audit/AuditLogRepository.js
+server/domain/admin/AdminPolicyService.js
 ```
 
 ## 5. Migration Guardrails
@@ -112,7 +113,7 @@ For every JSON file introduced in Step 5:
 
 ### Proposed Changes
 
-1. Add foundation requirement files 00-002 through 00-006.
+1. Add foundation requirement files 00-002 through 00-008.
 2. Update Community master roadmap to show foundation work before feature work.
 3. Use these contracts as acceptance criteria for later Community tasks.
 4. Do not implement separate Community generation, template or credit logic.

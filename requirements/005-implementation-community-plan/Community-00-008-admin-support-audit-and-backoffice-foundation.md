@@ -1,4 +1,4 @@
-# Community-00-006 Admin, Support Audit and Backoffice Foundation
+# Community-00-008 Admin, Support Audit and Backoffice Foundation
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** Internal operations, moderation and audit foundation  
@@ -76,12 +76,12 @@ Rules:
 ### Server Files
 
 ```text
-server/admin/AdminPolicyService.js
-server/admin/adminRoutes.js
-server/audit/AuditLogRepository.js
-server/audit/AuditService.js
-server/community/CommunityModerationService.js
-server/credits/CreditAdjustmentService.js
+server/domain/admin/AdminPolicyService.js
+server/domain/audit/AuditService.js
+server/domain/community/CommunityModerationService.js
+server/domain/credits/CreditAdjustmentService.js
+server/repositories/audit/AuditLogRepository.js
+server/app/routes/adminRoutes.js
 ```
 
 ### Client Files
@@ -107,9 +107,9 @@ MVP may keep client admin UI minimal or internal-only.
 ## 5. Testing
 
 ```text
-TC-00-006-001 non-admin cannot hide post
-TC-00-006-002 admin hide post creates audit event
-TC-00-006-003 credit adjustment creates ledger and audit event
-TC-00-006-004 removed post is unavailable to public viewer
-TC-00-006-005 audit event cannot be edited through normal repository update
+TC-00-008-001 non-admin cannot hide post
+TC-00-008-002 admin hide post creates audit event
+TC-00-008-003 credit adjustment creates ledger and audit event
+TC-00-008-004 removed post is unavailable to public viewer
+TC-00-008-005 audit event cannot be edited through normal repository update
 ```

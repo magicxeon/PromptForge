@@ -194,7 +194,7 @@ contract is:
 
 ```text
 requirements/005-implementation-community-plan/
-  Community-00-004-001-localization-and-language-extension-foundation.md
+  Community-00-006-localization-and-language-extension-foundation.md
 ```
 
 All Community UI implemented from this requirement must follow that contract.

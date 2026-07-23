@@ -1,15 +1,18 @@
-# Community-01 Product Home and Workflow Launcher
+# Community-01 Community Home and Workflow Launcher
 
 **Status:** Proposed - Awaiting Review  
 **Feature type:** New application entry page and navigation direction  
-**Depends on:** Shared application shell and module registry  
+**Depends on:** Community-00-007 shared application shell and navigation registry
 **Created:** 2026-07-15
 
 ## 1. Objective
 
-Add a first screen that helps new and returning users choose the correct workflow without landing directly inside an advanced model/character or prompt-building screen.
+Make Community the default application entry screen and let users move directly
+from inspiration to creation without first entering a dense configurator.
 
-This page is a **Product Home / Workflow Launcher**, not a marketing landing page. It should make the product understandable and actionable in one viewport.
+This page is a **Community Home with a compact workflow launcher**, not a
+marketing landing page. The first viewport must show real community work and a
+medium-sized Create panel that routes into the correct creation workflow.
 
 ## 2. User Problem
 
@@ -81,19 +84,23 @@ When a character is selected, Prompt Composer AI or the structured prompt engine
 
 ## 6. Navigation Contract
 
-Recommended routes:
+Required routes:
 
 ```text
-/home
-/studio
-/studio/freestyle
-/characters
 /community
+/studio
+/playground
+/characters
 /history
 /collections
+/credits
+/support
+/admin
 ```
 
-Navigation items must come from the module registry. Do not hardcode community navigation separately from the application shell.
+`/` must redirect to `/community`. Navigation items must come from
+`client/shell/navigationRegistry.js`. `/admin` must be omitted unless Actor
+Context grants an approved admin/support capability.
 
 ## 7. Acceptance Criteria
 
@@ -107,19 +114,18 @@ Navigation items must come from the module registry. Do not hardcode community n
 
 ### User Review Required
 
-- Home is a product workflow launcher, not a marketing landing page.
-- It must show only enabled modules from the registry.
+- Community Home combines discovery and a compact workflow launcher.
+- It must show only enabled modules from the navigation registry.
 - Community entry can point to local/mock Community during development.
 - Mock user switcher from Community-10 may be visible in development builds.
 
 ### Proposed Files
 
 ```text
-client/home/homePage.js
-client/home/workflowLauncher.js
-client/home/recentActivityPanel.js
+client/community/communityHomePage.js
+client/community/communityCreateLauncher.js
+client/community/communityFeed.js
 client/shell/navigationRegistry.js
-client/shell/moduleRegistry.js
 client/app.js
 client/index.html
 client/style.css
@@ -127,15 +133,17 @@ client/style.css
 
 ### Process
 
-1. Register `/home` through the application shell.
-2. Read enabled modules from module registry.
-3. Render workflow launcher cards for Studio, Freestyle, Character, Community and History.
+1. Register `/community` as the default route through the application shell.
+2. Read enabled modules from the navigation registry.
+3. Render the Community feed and a medium Create panel for Studio, Playground,
+   Character Builder and Scene Builder.
 4. Route each card into an existing workflow with optional handoff payload.
 5. Hide unavailable modules instead of showing disabled fake features.
 
 ### Testing
 
-- Verify `/home` renders without requiring generated history.
+- Verify `/` redirects to `/community`.
+- Verify `/community` renders without requiring generated history.
 - Verify workflow cards route to correct sections.
 - Verify disabled Community module does not appear.
 - Verify active mock user is visible only in development mode.

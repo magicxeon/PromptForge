@@ -103,6 +103,7 @@ Server placement rules:
 | Scene Builder modules | `client/scene-builder/` |
 | Clothing modules | `client/clothing/` |
 | Comparison modules | `client/comparisons/` |
+| Reusable cross-feature generation UI | `client/generation-controls/` |
 | Navigation and application shell | `client/shell/` |
 | Reusable visual option controls | `client/visual-controls/` |
 | Runtime application assets | `client/assets/<feature>/` |

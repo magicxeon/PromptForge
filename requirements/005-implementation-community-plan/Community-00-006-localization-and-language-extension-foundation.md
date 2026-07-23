@@ -1,4 +1,4 @@
-# Community-00-004-001 Localization and Language Extension Foundation
+# Community-00-006 Localization and Language Extension Foundation
 
 **Status:** Implemented - Client Localization Foundation  
 **Feature type:** Shared client localization foundation  

@@ -83,10 +83,11 @@ Community module must not call image providers directly and must not mutate cred
 | Community-00-002 | Mock User, Actor Context and Auth Migration | Application shell, local JSON repositories |
 | Community-00-003 | Repository Interface and Database Schema Map | Actor Context, existing JSON repositories |
 | Community-00-004 | Ownership, Visibility Policy and Public Snapshot | Actor Context, Scene Builder reference policy |
-| Community-00-004-001 | Localization and Language Extension Foundation | Application shell, current Thai/English localization |
 | Community-00-005 | Credit Ledger Mock and Generation Billing | Provider registry, generation queue |
-| Community-00-006 | Admin, Support Audit and Backoffice Foundation | Actor Context, ownership policy |
-| Community-01 | Product Home and Workflow Launcher | Application shell, module registry |
+| Community-00-006 | Localization and Language Extension Foundation | Application shell, current Thai/English localization |
+| Community-00-007 | Community-First Shell, Playground and Shared Generation Components | Actor Context, localization, credit estimate and generation service |
+| Community-00-008 | Admin, Support Audit and Backoffice Foundation | Actor Context, ownership policy, application shell access predicates |
+| Community-01 | Community Home and Workflow Launcher | Community-first shell, module registry |
 | Community-02 | Prompt Composer AI and Structured Freestyle | Visual Character Builder, provider gateway for text assistant if approved |
 | Community-03 | Community Taxonomy and Auto Classification | Prompt/config schema, shared moderation baseline |
 | Community-04 | Share Generated Image and Prompt Snapshot | Auth, assets, generation history, collections |
@@ -98,26 +99,38 @@ Community module must not call image providers directly and must not mutate cred
 | Community-10 | Local Mock User and Actor Switcher | Application shell, local JSON repositories |
 | Community-11 | Credit Deduction and Provider Routing Foundation | Provider registry, generation queue, business credit policy |
 
-`Community-10` and `Community-11` remain feature-level implementation documents. The `Community-00-002` and `Community-00-005` foundation documents define the earlier schema and migration contracts that those feature-level tasks must follow. `Community-00-004-001` defines the localization contract that all new Community UI must follow.
+`Community-10` and `Community-11` remain feature-level implementation
+documents. The `Community-00-002` and `Community-00-005` foundation documents
+define the earlier schema and migration contracts that those feature-level tasks
+must follow. `Community-00-006` defines localization, while
+`Community-00-007` defines the shared shell and generation components used by
+Community, Studio and Playground.
 
 ## 6. MVP Navigation
 
 Initial navigation once community is enabled:
 
 ```text
-Home
-Studio
 Community
+Studio
+Playground
 Image History
 Comparisons
 Collections
+Credits
+Support
 Account
+Admin (authorized actors only)
 ```
 
 Rules:
 
-- `Home` is a workflow launcher, not a long marketing landing page.
-- `Community` shows public discovery and remixable posts.
+- `/` redirects to `Community`, which shows discovery plus a compact Create
+  launcher.
+- `Studio` owns guided creation; `Playground` owns direct manual prompting,
+  references, generation and comparison.
+- `Admin` is registered through authorization metadata and hidden from
+  unauthorized actors.
 - Unauthorized or disabled modules must not appear as working navigation items.
 - Deep links must support browser Back/Forward and authorization checks.
 
@@ -125,7 +138,9 @@ Rules:
 
 Included:
 
-- Product Home / workflow launcher.
+- Community Home with a compact workflow launcher.
+- Shared Engine/Target Output, generation, reference and credit components.
+- Manual Playground with optional comparison.
 - Freestyle idea input assisted by AI Prompt Composer.
 - Structured prompt/config output that can prefill dropdowns.
 - Share generated image with prompt snapshot.
@@ -219,22 +234,21 @@ Community must not create a second template serializer, a second reference slot 
 ```text
 client/community/communityModule.js
 client/community/communityApi.js
-client/community/communityRoutes.js
 client/community/communityFeed.js
 client/community/communityPostDetail.js
 client/community/communityShareActions.js
 client/community/communityMockUserSwitcher.js
-server/community/CommunityPostRepository.js
-server/community/CommunityProfileRepository.js
-server/community/CommunityEventRepository.js
-server/community/CommunityPolicyService.js
-server/community/communityRoutes.js
-server/identity/MockUserRepository.js
-server/identity/mockActorContext.js
-server/credits/CreditLedgerRepository.js
-server/credits/CreditPolicyService.js
-server/credits/CreditReservationService.js
-server/routing/ProviderRoutingPolicyService.js
+server/app/routes/communityRoutes.js
+server/repositories/community/CommunityPostRepository.js
+server/repositories/community/CommunityProfileRepository.js
+server/repositories/community/CommunityEventRepository.js
+server/domain/community/CommunityPolicyService.js
+server/repositories/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
+server/repositories/credits/CreditLedgerRepository.js
+server/domain/credits/CreditPricingPolicyService.js
+server/domain/credits/CreditReservationService.js
+server/domain/routing/ProviderRoutingPolicyService.js
 ```
 
 ### Rollout Order
