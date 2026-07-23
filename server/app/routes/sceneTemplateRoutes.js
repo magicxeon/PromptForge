@@ -1,6 +1,5 @@
 export function registerSceneTemplateRoutes(app, {
-  communityShareService,
-  communityPostRepo
+  communityShareService
 }) {
   app.post('/api/scene-templates/share-drafts', async (req, res) => {
     try {
@@ -28,7 +27,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.get('/api/scene-templates/shared', async (req, res) => {
     try {
-      const page = await communityPostRepo.listPublic(req.query, req.actorContext);
+      const page = await communityShareService.listSharedPosts(req.query, req.actorContext);
       res.json(page.items);
     } catch (err) {
       res.status(err.statusCode || 500).json({ error: err.message });
@@ -37,11 +36,49 @@ export function registerSceneTemplateRoutes(app, {
 
   app.get('/api/scene-templates/shared/:postId', async (req, res) => {
     try {
-      const post = await communityPostRepo.findPublicById(req.params.postId);
-      if (!post) return res.status(404).json({ error: 'Post not found' });
-      return res.json(post);
+      return res.json(await communityShareService.getSharedPost(req.params.postId, req.actorContext));
     } catch (err) {
       return res.status(err.statusCode || 500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/scene-templates/shared/:postId/:mediaKind(image|thumbnail)', async (req, res) => {
+    try {
+      const filePath = await communityShareService.getSharedPostMediaFile(
+        req.params.postId,
+        req.params.mediaKind,
+        req.actorContext
+      );
+      return res.sendFile(filePath, error => {
+        if (!error) return;
+        if (!res.headersSent) res.status(error.statusCode || 404).json({ error: 'Community image is unavailable.' });
+      });
+    } catch (err) {
+      return res.status(err.statusCode || 404).json({ error: err.message });
+    }
+  });
+
+  app.patch('/api/scene-templates/shared/:postId', async (req, res) => {
+    try {
+      return res.json(await communityShareService.updateSharedPostPresentation(
+        req.params.postId,
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (err) {
+      return res.status(err.statusCode || 400).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/scene-templates/shared/:postId/moderate', async (req, res) => {
+    try {
+      return res.json(await communityShareService.moderateSharedPost(
+        req.params.postId,
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (err) {
+      return res.status(err.statusCode || 400).json({ error: err.message });
     }
   });
 

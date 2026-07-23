@@ -4,6 +4,7 @@ import { stripEmbeddedBase64 } from '../../repositories/recordNormalizer.js';
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
 import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
+import { CommunityPostAccessService } from './CommunityPostAccessService.js';
 
 const DRAFT_TTL_MS = 15 * 60 * 1000;
 
@@ -12,11 +13,13 @@ export class CommunityShareService {
     generationRepository = generationResultRepo,
     postRepository = communityPostRepo,
     remixRepository = communityRemixRepo,
+    postAccessService = null,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
     this.postRepository = postRepository;
     this.remixRepository = remixRepository;
+    this.postAccessService = postAccessService || new CommunityPostAccessService({ postRepository });
     this.now = now;
     this.shareDrafts = new Map();
   }
@@ -39,7 +42,7 @@ export class CommunityShareService {
     const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
       generation.sceneTemplateSnapshot,
       publicViewer,
-      generation.ownerUsername
+      { userId: generation.ownerUserId, username: generation.ownerUsername }
     ));
     const timestamp = this.now();
     const draft = {
@@ -107,22 +110,17 @@ export class CommunityShareService {
 
   async getTemplateForViewer(postId, actorContext) {
     const actor = assertActorContext(actorContext);
-    const post = await this.postRepository.findPublicById(postId);
-    if (!post) {
-      throw new RepositoryContractError('shared_template_not_found', 'Shared template not found.', 404);
-    }
+    const post = await this.postAccessService.getPostForTemplateUse(postId, actor);
 
     const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
       post.sceneTemplateSnapshot,
       actor,
-      post.ownerUsername
+      { userId: post.ownerUserId, username: post.ownerUsername }
     ));
     return {
       postId: post.id,
       title: post.title,
       description: post.description,
-      ownerUserId: post.ownerUserId,
-      ownerUsername: post.ownerUsername,
       sceneTemplateSnapshot: sanitizedSnapshot
     };
   }
@@ -132,10 +130,7 @@ export class CommunityShareService {
     if (!eventInput.sourcePostId) {
       throw new RepositoryContractError('source_post_required', 'A source post ID is required.');
     }
-    const post = await this.postRepository.findPublicById(eventInput.sourcePostId);
-    if (!post) {
-      throw new RepositoryContractError('shared_template_not_found', 'Shared template not found.', 404);
-    }
+    const post = await this.postAccessService.getPostForTemplateUse(eventInput.sourcePostId, actor);
 
     return this.remixRepository.appendEvent({
       sourcePostId: post.id,
@@ -156,6 +151,26 @@ export class CommunityShareService {
     for (const [draftId, draft] of this.shareDrafts.entries()) {
       if (Date.parse(draft.expiresAt || '') <= now) this.shareDrafts.delete(draftId);
     }
+  }
+
+  async listSharedPosts(query, actorContext) {
+    return this.postAccessService.listPublicPosts(query, actorContext);
+  }
+
+  async getSharedPost(postId, actorContext) {
+    return this.postAccessService.getPublicPost(postId, actorContext);
+  }
+
+  async getSharedPostMediaFile(postId, kind, actorContext) {
+    return this.postAccessService.getPublicMediaFile(postId, kind, actorContext);
+  }
+
+  async updateSharedPostPresentation(postId, presentation, actorContext) {
+    return this.postAccessService.updatePresentation(postId, presentation, actorContext);
+  }
+
+  async moderateSharedPost(postId, moderation, actorContext) {
+    return this.postAccessService.moderate(postId, moderation, actorContext);
   }
 }
 

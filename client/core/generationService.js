@@ -51,6 +51,16 @@
 
     const isTemplateActive = state.mode === "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive();
     if (isTemplateActive) {
+      // Template slots are authoritative. Never carry normal-mode checkbox state
+      // into a template generation request.
+      imageReferences = {
+        faceMatch: false,
+        styleMatch: false,
+        poseMatch: false,
+        characterReference: false,
+        outfitReference: false,
+        characterOverrides: false
+      };
       const resolved = window.ModelPromptForgeSceneReplacementChecklist.getResolvedPayload();
       if (resolved && resolved.success && resolved.patch) {
         selections = { ...selections, ...resolved.patch.selections };
@@ -64,10 +74,18 @@
 
         // Force enable references based on template mapping
         const mapping = window.ModelPromptForgeSceneReplacementChecklist.getActiveTemplateSnapshot()?.referenceSlotMapping || {};
-        if (mapping.face_reference) imageReferences.faceMatch = true;
-        if (mapping.character_reference) imageReferences.characterReference = true;
-        if (mapping.style_reference) imageReferences.styleMatch = true;
-        if (mapping.outfit_front_reference || mapping.outfit_back_reference) imageReferences.outfitReference = true;
+        if (mapping.face_reference) {
+          imageReferences.faceMatch = Boolean(faceReferenceImageA || faceReferenceImageB);
+        }
+        if (mapping.character_reference) {
+          imageReferences.characterReference = Boolean(characterReferenceImageA || characterReferenceImageB);
+        }
+        if (mapping.style_reference) {
+          imageReferences.styleMatch = Boolean(styleReferenceImageA || styleReferenceImageB);
+        }
+        if (mapping.outfit_front_reference || mapping.outfit_back_reference) {
+          imageReferences.outfitReference = Boolean(outfitReferenceImageFront);
+        }
       }
     }
 

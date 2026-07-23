@@ -81,8 +81,8 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values and mappin
   const outfitVar = sanitized.replaceableVariables.find(v => v.id === 'outfit_ref');
   assert.equal(outfitVar.defaultValue, null);
   assert.ok(outfitVar.previewValue);
-  assert.equal(outfitVar.previewValue.imageUrl, '/outputs/2.png');
   assert.equal(outfitVar.previewValue.thumbnailUrl, '/outputs/2_thumb.png');
+  assert.equal(outfitVar.previewValue.imageUrl, undefined);
 
   // Assert outfit_ref mapping sanitation
   const outfitMap = sanitized.referenceSlotMapping.outfit_ref;

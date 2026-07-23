@@ -26,7 +26,7 @@ function normalizeSceneBuilderState(value, mode) {
   };
 }
 
-export function normalizeGenerationContext(payload = {}) {
+export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
@@ -84,9 +84,10 @@ export function normalizeGenerationContext(payload = {}) {
     : null;
 
   if (sceneTemplateSnapshot) {
-    const ownerUsername = payload.sourceOwnership?.username || null;
-    const viewerContext = { username: payload.username || 'user_demo' };
-    sceneTemplateSnapshot = sanitizeReferenceSlotsForPublic(sceneTemplateSnapshot, viewerContext, ownerUsername);
+    // The generate endpoint must not trust caller-provided ownership fields. Public
+    // snapshots are therefore treated as cross-user unless a future server-issued
+    // template capability proves ownership.
+    sceneTemplateSnapshot = sanitizeReferenceSlotsForPublic(sceneTemplateSnapshot, actorContext || {}, null);
   }
 
   return {
@@ -113,8 +114,8 @@ export function normalizeGenerationContext(payload = {}) {
   };
 }
 
-export function compileGenerationContext(payload = {}) {
-  const context = normalizeGenerationContext(payload);
+export function compileGenerationContext(payload = {}, actorContext = null) {
+  const context = normalizeGenerationContext(payload, actorContext);
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
     ? context.adminPromptOverride.trim()
     : '';

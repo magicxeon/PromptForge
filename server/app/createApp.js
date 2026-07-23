@@ -9,7 +9,6 @@ import { creditManager } from '../domain/credits/CreditManager.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
-import { communityPostRepo } from '../repositories/community/CommunityPostRepository.js';
 import { actorContextMiddleware } from '../middleware/actorContextMiddleware.js';
 import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 import { createAttributesBundleLoader, registerAttributesRoutes } from './routes/attributesRoutes.js';
@@ -84,8 +83,7 @@ export function createApp() {
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
   registerSceneTemplateRoutes(app, {
-    communityShareService,
-    communityPostRepo
+    communityShareService
   });
 
   app.get(['/studio', '/history', '/comparisons', '/comparisons/:setId'], (req, res) => {

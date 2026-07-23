@@ -17,7 +17,10 @@ export function registerGenerationRoutes(app, {
       const creditCost = Number(modelConfig.creditCost || 1);
 
       await creditManager.assertBalance(targetUser, creditCost);
-      const { context, compiledPrompt } = compileGenerationContext({ ...req.body, userRole: req.userRole });
+      const { context, compiledPrompt } = compileGenerationContext(
+        { ...req.body, userRole: req.userRole },
+        req.actorContext
+      );
       providerRegistry.validateRequest(modelConfig, {
         aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,

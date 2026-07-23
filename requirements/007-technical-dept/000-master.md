@@ -38,6 +38,10 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
         *   [002-004 Route Extraction And Server Bootstrap Cleanup](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-004-route-extraction-and-server-bootstrap-cleanup.md)
         *   [002-005 Cleanup Documentation And Final Validation](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-005-cleanup-documentation-and-final-validation.md)
 
+*   **[Step 3: Template Reference Control Visibility](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/003-template-reference-controls-visibility.md)**
+    *   Hide standard reference controls when Scene Template replacements own the workflow.
+    *   Prevent stale normal-mode Face/Style/Pose flags from entering template generation payloads.
+
 ## 3. Current Server Architecture After Step 2
 
 ```text

@@ -114,7 +114,11 @@ export class CommunityPostRepository {
         [VISIBILITY.PUBLIC, VISIBILITY.UNLISTED, VISIBILITY.MEMBERS_ONLY, VISIBILITY.PRIVATE],
         VISIBILITY.PUBLIC
       ),
-      status: pickAllowedValue(recordInput.status, ['draft', 'published', 'hidden', 'removed'], 'published'),
+      status: pickAllowedValue(
+        recordInput.status,
+        ['draft', 'published', 'reported', 'hidden', 'removed', 'owner_unpublished'],
+        'published'
+      ),
       now
     });
 
@@ -122,6 +126,66 @@ export class CommunityPostRepository {
       if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
       posts.unshift(record);
       return normalizeCommunityPostRecord(record, this.userRepository);
+    });
+  }
+
+  async updatePresentationById(id, presentation = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const allowedVisibility = [VISIBILITY.PUBLIC, VISIBILITY.UNLISTED, VISIBILITY.MEMBERS_ONLY, VISIBILITY.PRIVATE];
+
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+
+      const current = posts[index];
+      if (current.ownerUserId !== actor.userId) {
+        throw new RepositoryContractError('community_post_forbidden', 'You do not have permission to edit this post.', 403);
+      }
+
+      const next = {
+        ...current,
+        title: typeof presentation.title === 'string' && presentation.title.trim() ? presentation.title.trim() : current.title,
+        description: typeof presentation.description === 'string' ? presentation.description.trim() : current.description,
+        officialTags: presentation.officialTags === undefined ? current.officialTags : normalizeStringArray(presentation.officialTags),
+        customTags: presentation.customTags === undefined ? current.customTags : normalizeStringArray(presentation.customTags),
+        categoryCodes: presentation.categoryCodes === undefined ? current.categoryCodes : normalizeStringArray(presentation.categoryCodes),
+        visibility: presentation.visibility === undefined
+          ? current.visibility
+          : pickAllowedValue(presentation.visibility, allowedVisibility, current.visibility),
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
+
+  async setModerationStatus(id, action, reason, actorContext) {
+    const actor = assertActorContext(actorContext);
+    if (!['admin', 'support'].includes(actor.role)) {
+      throw new RepositoryContractError('community_moderation_forbidden', 'Only admin or support can moderate a post.', 403);
+    }
+    const status = action === 'hide' ? 'hidden' : action === 'remove' ? 'removed' : null;
+    if (!status) throw new RepositoryContractError('community_moderation_action_invalid', 'Moderation action must be hide or remove.');
+
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+      const current = posts[index];
+      const next = {
+        ...current,
+        status,
+        moderation: {
+          action,
+          reason: String(reason).trim(),
+          actorUserId: actor.userId,
+          moderatedAt: new Date().toISOString()
+        },
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
     });
   }
 }

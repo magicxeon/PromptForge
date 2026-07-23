@@ -27,7 +27,7 @@ function createService(generations = {}) {
       posts.push(post);
       return structuredClone(post);
     },
-    async findPublicById(id) {
+    async findById(id) {
       const post = posts.find(item => item.id === id);
       return post ? structuredClone(post) : null;
     }
@@ -109,8 +109,8 @@ test('template use and remix events retain actor identity separately from post o
   }, alice);
 
   const payload = await service.getTemplateForViewer(post.id, bob);
-  assert.equal(payload.ownerUserId, 'usr_alice');
   assert.equal(payload.postId, post.id);
+  assert.equal(payload.ownerUserId, undefined);
 
   const event = await service.recordRemix({
     sourcePostId: post.id,

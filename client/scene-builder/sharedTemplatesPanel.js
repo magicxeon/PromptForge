@@ -40,7 +40,7 @@
       card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
       card.style.background = 'rgba(255, 255, 255, 0.02)';
       card.style.transition = 'all 0.2s ease';
-      card.title = `${post.title}\nCreator: ${post.ownerUsername}`;
+      card.title = `${post.title}\nCreator: ${post.creator?.displayName || post.creator?.username || 'Creator'}`;
 
       card.addEventListener('mouseenter', () => {
         card.style.borderColor = 'var(--neon-cyan)';
