@@ -5,7 +5,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.post('/api/comparisons/estimate', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonUsername(req)));
+      res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonUsername(req), req.actorContext?.userId));
     } catch (error) {
       sendComparisonError(res, error);
     }
@@ -13,7 +13,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.post('/api/comparisons', async (req, res) => {
     try {
-      const result = await comparisonOrchestrator.create({ ...req.body, userRole: req.userRole }, getComparisonUsername(req));
+      const result = await comparisonOrchestrator.create({ ...req.body, userRole: req.userRole }, getComparisonUsername(req), req.actorContext?.userId);
       res.status(result.idempotentReplay ? 200 : 201).json(result);
     } catch (error) {
       sendComparisonError(res, error);

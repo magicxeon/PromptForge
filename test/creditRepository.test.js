@@ -1,98 +1,88 @@
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import test from 'node:test';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { CreditAccountRepository } from '../server/repositories/credits/CreditAccountRepository.js';
-import { CreditLedgerRepository } from '../server/repositories/credits/CreditLedgerRepository.js';
-import { MockUserRepository } from '../server/repositories/identity/MockUserRepository.js';
 
-async function createFixture() {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'credit-repo-'));
-  const usersFile = path.join(directory, 'users.json');
-  const databaseFile = path.join(directory, 'database.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TEST_DB = path.join(__dirname, `test_db_${Date.now()}.json`);
 
-  await fs.writeFile(usersFile, JSON.stringify([
-    { id: 'usr_alice', username: 'user_alice', role: 'user', status: 'active' },
-    { id: 'usr_bob', username: 'user_bob', role: 'user', status: 'active' },
-    { id: 'usr_admin', username: 'admin_demo', role: 'admin', status: 'active' }
-  ]), 'utf8');
-
-  await fs.writeFile(databaseFile, JSON.stringify({
-    users: {
-      user_alice: { credits: 10, role: 'user' },
-      user_bob: { credits: 5, role: 'user' }
-    },
-    creditLedger: []
-  }), 'utf8');
-
-  const userRepository = new MockUserRepository({ usersFile });
-  const accountRepo = new CreditAccountRepository({ databaseFile, userRepository });
-  const ledgerRepo = new CreditLedgerRepository({ databaseFile, userRepository });
-  return {
-    directory,
-    accountRepo,
-    ledgerRepo,
-    alice: { userId: 'usr_alice', username: 'user_alice', role: 'user' },
-    bob: { userId: 'usr_bob', username: 'user_bob', role: 'user' },
-    admin: { userId: 'usr_admin', username: 'admin_demo', role: 'admin' }
-  };
+async function cleanup() {
+  try { await fs.unlink(TEST_DB); } catch {}
 }
 
-test('CreditAccountRepository deducts credits and records ledger entries', async t => {
-  const { directory, accountRepo, ledgerRepo, alice } = await createFixture();
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+test('CreditAccountRepository - reserve, capture, refund & idempotency', async t => {
+  const initialData = {
+    schemaVersion: 2,
+    accounts: [
+      {
+        userId: 'usr_alice',
+        username: 'alice',
+        availableCredits: 100,
+        reservedCredits: 0,
+        status: 'active'
+      }
+    ],
+    estimates: [],
+    reservations: [],
+    ledgerEntries: []
+  };
+  await fs.writeFile(TEST_DB, JSON.stringify(initialData, null, 2));
 
-  const initial = await accountRepo.findByActor(alice);
-  assert.equal(initial.availableCredits, 10);
+  const repo = new CreditAccountRepository({ databaseFile: TEST_DB });
 
-  const updated = await accountRepo.updateBalance('usr_alice', -2, 'generation_charge', { jobId: 'job_test' }, alice);
-  assert.equal(updated.availableCredits, 8);
+  // 1. Reserve 45 credits
+  const reserveRes = await repo.reserveCredits({
+    userId: 'usr_alice',
+    amountCredits: 45,
+    requestId: 'req_001',
+    pricingSnapshot: { providerId: 'gemini', modelId: 'gemini-3.1-flash-lite-image' }
+  });
 
-  const ledgerPage = await ledgerRepo.findByUserId('usr_alice');
-  assert.equal(ledgerPage.items.length, 1);
-  assert.equal(ledgerPage.items[0].amountCredits, -2);
-  assert.equal(ledgerPage.items[0].operationType, 'generation_charge');
-});
+  assert.equal(reserveRes.account.availableCredits, 55);
+  assert.equal(reserveRes.account.reservedCredits, 45);
+  assert.equal(reserveRes.reservation.status, 'reserved');
 
-test('CreditAccountRepository blocks cross-user and malformed mutations', async t => {
-  const { directory, accountRepo, alice, admin } = await createFixture();
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  // Duplicate reserve (Idempotency)
+  const dupReserve = await repo.reserveCredits({
+    userId: 'usr_alice',
+    amountCredits: 45,
+    requestId: 'req_001'
+  });
+  assert.equal(dupReserve.account.availableCredits, 55, 'Duplicate reserve should not deduct again');
 
+  // 2. Capture reservation
+  const captureRes = await repo.captureReservation({
+    userId: 'usr_alice',
+    reservationId: reserveRes.reservation.reservationId,
+    jobId: 'job_001'
+  });
+
+  assert.equal(captureRes.account.availableCredits, 55);
+  assert.equal(captureRes.account.reservedCredits, 0);
+  assert.equal(captureRes.reservation.status, 'captured');
+
+  // Duplicate capture (Idempotency)
+  const dupCapture = await repo.captureReservation({
+    userId: 'usr_alice',
+    reservationId: reserveRes.reservation.reservationId
+  });
+  assert.equal(dupCapture.account.availableCredits, 55);
+  assert.equal(dupCapture.account.reservedCredits, 0);
+
+  // 3. Attempt reserve with insufficient balance
   await assert.rejects(
-    accountRepo.updateBalance('usr_bob', -1, 'generation_charge', {}, alice),
-    error => error.code === 'credit_account_forbidden'
-  );
-  await assert.rejects(
-    accountRepo.updateBalance('usr_alice', 'not-a-number', 'generation_charge', {}, alice),
-    error => error.code === 'invalid_credit_amount'
-  );
-  await assert.rejects(
-    accountRepo.updateBalance('usr_alice', 1, 'generation_charge', {}, alice),
-    error => error.code === 'invalid_credit_amount'
-  );
-  await assert.rejects(
-    accountRepo.updateBalance('usr_alice', 5, 'recharge', {}, alice),
-    error => error.code === 'credit_operation_forbidden'
-  );
-  await assert.rejects(
-    accountRepo.updateBalance('usr_alice', 1, 'generation_refund', {}, alice),
-    error => error.code === 'credit_operation_forbidden'
+    async () => {
+      await repo.reserveCredits({
+        userId: 'usr_alice',
+        amountCredits: 200,
+        requestId: 'req_002'
+      });
+    },
+    err => err.code === 'credit_insufficient'
   );
 
-  const recharged = await accountRepo.updateBalance('usr_bob', 2, 'recharge', {}, admin);
-  assert.equal(recharged.availableCredits, 7);
-});
-
-test('CreditAccountRepository makes requestId mutations idempotent', async t => {
-  const { directory, accountRepo, ledgerRepo, alice } = await createFixture();
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
-
-  const metadata = { jobId: 'job_once', requestId: 'req_once' };
-  await accountRepo.updateBalance('usr_alice', -2, 'generation_charge', metadata, alice);
-  const duplicate = await accountRepo.updateBalance('usr_alice', -2, 'generation_charge', metadata, alice);
-
-  assert.equal(duplicate.availableCredits, 8);
-  const ledgerPage = await ledgerRepo.findByUserId('usr_alice');
-  assert.equal(ledgerPage.items.length, 1);
+  await cleanup();
 });

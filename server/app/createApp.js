@@ -6,6 +6,7 @@ import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
 import { creditManager } from '../domain/credits/CreditManager.js';
+import { creditReservationService } from '../domain/credits/CreditReservationService.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
@@ -48,6 +49,10 @@ export function createApp() {
     creditManager
   });
   const getAttributesBundle = createAttributesBundleLoader();
+
+  creditReservationService.reconcileStartupOrphanReservations().catch(err => {
+    console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
+  });
 
   app.use(cors());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));

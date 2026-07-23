@@ -35,6 +35,7 @@
           <div class="credits-display-compact">
             <div class="credits-count-row">
               <span class="credits-count" id="credits-value">20</span>
+              <small id="credits-reserved-value" hidden></small>
               <span class="coin-icon">🪙</span>
               <button id="btn-recharge" class="btn-recharge-compact" title="Recharge 10 Credits">+</button>
             </div>
@@ -512,7 +513,7 @@
             <!-- Dedicated Generate Action Section (Step 7) -->
             <div class="generate-action-section" style="margin-top: 0.85rem; width: 100%;">
               <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span
-                  class="btn-credit-cost-dark">(1 Credit)</span></button>
+                  class="btn-credit-cost-dark" id="btn-credit-estimate">(Estimating...)</span></button>
             </div>
 
             <div class="import-section-studio">
@@ -901,6 +902,9 @@
   <script src="/clothing/clothingVisualConfig.js"></script>
   <script src="/core/actorContext.js"></script>
   <script src="/core/apiClient.js"></script>
+  <script src="/credits/creditApi.js"></script>
+  <script src="/credits/creditEstimateController.js"></script>
+  <script src="/credits/creditBalanceBadge.js"></script>
   <script src="/community/communityMockUserSwitcher.js"></script>
   <script src="/core/persistence.js"></script>
   <script src="/core/formRenderer.js"></script>

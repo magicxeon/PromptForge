@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 2,
+  "accounts": [
+    {
+      "userId": "usr_alice",
+      "username": "alice",
+      "availableCredits": 100,
+      "reservedCredits": 0,
+      "status": "active"
+    }
+  ],
+  "estimates": [],
+  "reservations": [],
+  "ledgerEntries": []
+}

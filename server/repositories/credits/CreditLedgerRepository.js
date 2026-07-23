@@ -4,7 +4,13 @@ import { createPage, normalizeListQuery } from '../repositoryContracts.js';
 import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
 
-const DB_FALLBACK = { users: {}, creditLedger: [] };
+const DB_FALLBACK = {
+  schemaVersion: 2,
+  accounts: [],
+  estimates: [],
+  reservations: [],
+  ledgerEntries: []
+};
 
 export class CreditLedgerRepository {
   constructor({
@@ -19,18 +25,31 @@ export class CreditLedgerRepository {
 
   async readAll() {
     const data = await readJsonFile(this.databaseFile, DB_FALLBACK);
-    if (!data || typeof data !== 'object' || !Array.isArray(data.creditLedger)) {
-      throw new TypeError('Credit database must contain a creditLedger array.');
+    if (!data || typeof data !== 'object') return [];
+
+    if (Array.isArray(data.ledgerEntries)) {
+      return data.ledgerEntries;
     }
-    return Array.isArray(data.creditLedger) ? data.creditLedger : [];
+    if (Array.isArray(data.creditLedger)) {
+      return data.creditLedger;
+    }
+    return [];
   }
 
   async findByUserId(userId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
-    const user = await this.userRepository.findById(userId);
-    if (!user) return createPage([]);
+    const user = await this.userRepository.findById(userId) || await this.userRepository.findByUsername(userId);
     const all = await this.readAll();
-    const userEntries = all.filter(entry => entry.userId === userId || entry.username === user.username);
+
+    const targetUserId = user ? user.id : userId;
+    const targetUsername = user ? user.username : userId;
+
+    const userEntries = all.filter(entry =>
+      entry.userId === targetUserId ||
+      entry.userId === userId ||
+      entry.username === targetUsername
+    );
+
     const page = paginateRepositoryRecords(
       userEntries,
       normalizedQuery,
@@ -39,6 +58,12 @@ export class CreditLedgerRepository {
     );
 
     return createPage(page.items, page);
+  }
+
+  async findByIdempotencyKey(key) {
+    if (!key) return null;
+    const all = await this.readAll();
+    return all.find(entry => entry.idempotencyKey === key) || null;
   }
 
   async getNetJobCosts(jobIds = []) {
@@ -50,8 +75,14 @@ export class CreditLedgerRepository {
       const jobId = entry.relatedJobId || entry.jobId;
       if (!requested.has(jobId)) return;
       const amount = Number(entry.amountCredits ?? entry.amount ?? 0);
-      if (Number.isFinite(amount)) totals.set(jobId, (totals.get(jobId) || 0) - amount);
+      const op = entry.operationType || entry.type;
+      if (op === 'capture' || op === 'generation_charge') {
+        totals.set(jobId, (totals.get(jobId) || 0) + Math.abs(amount));
+      } else if (op === 'refund' || op === 'generation_refund' || op === 'lost_job_refund') {
+        totals.set(jobId, (totals.get(jobId) || 0) - Math.abs(amount));
+      }
     });
+
     return totals;
   }
 }

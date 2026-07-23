@@ -48,7 +48,7 @@ export class ComparisonValidator {
         model: model.id,
         providerDisplayName: provider.displayName,
         modelDisplayName: model.displayName,
-        estimatedCredit: Number(model.creditCost || 1),
+        estimatedCredit: null,
         imageResolution,
         resolutionFallback: requestedImageResolution && imageResolution && requestedImageResolution !== imageResolution
           ? { requested: requestedImageResolution, resolved: imageResolution }
@@ -90,6 +90,7 @@ export class ComparisonValidator {
         provider: slot.provider,
         model: slot.model,
         estimatedCredit: slot.estimatedCredit,
+        estimateId: slot.estimateId || null,
         imageResolution: slot.imageResolution || null,
         resolutionFallback: slot.resolutionFallback || null
       })),

@@ -5,7 +5,7 @@ import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import { collectionManager } from '../collections/CollectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferenceForProvider } from './referenceUtils.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
-import { creditManager } from '../credits/CreditManager.js';
+import { creditReservationService } from '../credits/CreditReservationService.js';
 import { thumbnailService } from './thumbnailService.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
 
@@ -34,10 +34,9 @@ function normalizeJobError(error) {
   };
 }
 
-// Read local static output image and convert it back to base64 (Step 9)
+// Read local static output image and convert it back to base64
 async function resolveLocalImageToBase64(imgPath) {
   if (!imgPath) return null;
-  // If it's already a base64 string, return it
   if (!imgPath.startsWith('/outputs/')) {
     return imgPath;
   }
@@ -70,11 +69,25 @@ class QueueManager {
     await historyRepository.init();
   }
 
+  createJobId() {
+    let jobId;
+    do {
+      jobId = 'job_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+    } while (this.jobs.has(jobId));
+    return jobId;
+  }
+
   /**
    * Enqueue a new generation job
    */
   enqueue(provider, submodel, prompt, options = {}) {
-    const jobId = 'job_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const jobId = options.jobId || this.createJobId();
+    if (this.jobs.has(jobId)) {
+      throw new Error(`Generation job ID collision: ${jobId}`);
+    }
+    if (!options.reservationId || !options.payerUserId) {
+      throw new Error('A credit reservation and payer are required before a generation job can be enqueued.');
+    }
     const jobOptions = {
       ...options,
       submodel
@@ -202,19 +215,9 @@ class QueueManager {
 
     try {
       const providerInstance = ProviderFactory.getProvider(job.provider);
-      
-      // Deduct credit at the start of actual processing to prevent abuse
-      const creditCost = Number(job.options.creditCost || 1);
-      await creditManager.deduct(job.options.username || 'user_demo', creditCost, {
-        jobId,
-        comparisonSetId: job.options.comparisonSetId,
-        comparisonRunId: job.options.comparisonRunId
-      });
-      job.creditCharged = true;
-
       const startTime = Date.now();
 
-      // Resolve local /outputs/ files to base64 for API transmission (Step 9)
+      // Resolve local /outputs/ files to base64 for API transmission
       const resolvedFaceA = await resolveReferenceForProvider(job.options.faceReferenceImageA, job.options.username);
       const resolvedFaceB = await resolveReferenceForProvider(job.options.faceReferenceImageB, job.options.username);
       const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username);
@@ -273,8 +276,21 @@ class QueueManager {
       const filename = `${jobId}.${extension}`;
       const filePath = path.join(OUTPUTS_DIR, filename);
       await fs.writeFile(filePath, Buffer.from(result.base64, 'base64'));
+      job.outputFilePath = filePath;
 
-      // Update job state
+      // Capture credit reservation on successful completion
+      await creditReservationService.captureForJob({
+        userId: job.options.payerUserId,
+        reservationId: job.options.reservationId,
+        jobId,
+        metadata: {
+          comparisonSetId: job.options.comparisonSetId,
+          comparisonRunId: job.options.comparisonRunId
+        }
+      });
+      job.creditCharged = true;
+
+      // Only expose a completed output after its matching reservation is captured.
       job.status = 'completed';
       job.result = {
         imageUrl: `/outputs/${filename}`,
@@ -282,10 +298,11 @@ class QueueManager {
         mimeType,
         generationDuration: durationSec
       };
-      
-      // Persist parent lineage and duration metadata to history database (Step 9)
+
+      // Persist parent lineage and duration metadata to history database
       const historyEntry = {
         id: jobId,
+        username: job.options.username,
         prompt: job.prompt,
         imageUrl: `/outputs/${filename}`,
         timestamp: Date.now(),
@@ -309,7 +326,7 @@ class QueueManager {
           : null,
         resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
         providerConfigVersion: job.options.providerConfigVersion || null,
-        creditCost,
+        creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         mimeType,
         usage: result.usage || null,
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
@@ -353,29 +370,29 @@ class QueueManager {
 
     } catch (err) {
       console.error(`[Queue] Job ${jobId} failed:`, err);
+      if (job.outputFilePath) {
+        await fs.unlink(job.outputFilePath).catch(() => {});
+        job.outputFilePath = null;
+      }
       job.status = 'failed';
       job.error = normalizeJobError(err);
 
-      if (
-        job.error.code === 'moderation_blocked' &&
-        !job.creditRefunded
-      ) {
+      // Refund reservation on failure (technical failure, moderation block, provider error)
+      if (job.options.reservationId && !job.creditRefunded) {
         try {
-          job.refundedCredits = await creditManager.refund(
-            job.options.username || 'user_demo',
-            Number(job.options.creditCost || 1),
-            {
-              jobId,
+          await creditReservationService.refundForJob({
+            userId: job.options.payerUserId || job.options.username || 'usr_demo',
+            reservationId: job.options.reservationId,
+            jobId,
+            reasonCode: job.error.code || 'technical_failure',
+            metadata: {
               comparisonSetId: job.options.comparisonSetId,
               comparisonRunId: job.options.comparisonRunId
             }
-          );
+          });
           job.creditRefunded = true;
         } catch (refundError) {
-          console.error(
-            `[Queue] Credit refund failed for ${jobId}:`,
-            refundError.message
-          );
+          console.error(`[Queue] Credit refund failed for ${jobId}:`, refundError.message);
         }
       }
 
@@ -459,14 +476,12 @@ class QueueManager {
         status: job.status,
         result: job.result,
         error: job.error,
-        creditCost: Number(job.options.creditCost || 1),
+        creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         creditCharged: job.creditCharged === true,
         creditRefunded: job.creditRefunded === true
       };
     }
 
-    // Completed jobs survive process restarts in history even though the
-    // current queue implementation still keeps active jobs in memory.
     const history = await this.getHistory();
     const completed = history.find(entry => entry.id === jobId);
     if (!completed) return null;

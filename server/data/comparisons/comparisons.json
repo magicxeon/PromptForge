@@ -9,7 +9,7 @@
       "collectionIds": [],
       "winnerJobId": "job_1784134732540_va0vt3zpm",
       "createdAt": 1784134732537,
-      "updatedAt": 1784822486208,
+      "updatedAt": 1784826160525,
       "runs": [
         {
           "idempotencyKey": "cmp_1784134732529_up8qnqlz",
@@ -378,7 +378,7 @@
             "isGptSafe": false
           },
           "estimatedTotalCredit": 3,
-          "actualTotalCredit": 3,
+          "actualTotalCredit": 0,
           "providerConfigVersion": 1,
           "promptCompilerVersion": 1,
           "createdAt": 1784134732535,
@@ -403,7 +403,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732539_6fwwyqmzx",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732539_6fwwyqmzx.png",
                 "usage": {
@@ -435,7 +435,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732539_nfe82h1h8",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732539_nfe82h1h8.jpg",
                 "usage": {
@@ -465,7 +465,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732540_va0vt3zpm",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732540_va0vt3zpm.png",
                 "usage": {

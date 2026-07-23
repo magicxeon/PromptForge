@@ -31,6 +31,67 @@
     return window.generatePromptText ? window.generatePromptText(true) : "";
   }
 
+  function getGenerationPricingInputs(payload = null) {
+    const request = payload || getGenerationRequestPayload();
+    const references = [
+      request.faceReferenceImageA, request.faceReferenceImageB,
+      request.styleReferenceImageA, request.styleReferenceImageB,
+      request.characterReferenceImageA, request.characterReferenceImageB,
+      request.outfitReferenceImageFront, request.outfitReferenceImageBack
+    ].filter(Boolean);
+
+    return {
+      routingMode: 'advanced',
+      qualityTier: 'standard',
+      generationMode: request.mode || 'scene',
+      requestedProviderId: request.provider,
+      requestedModelId: request.submodel,
+      resolution: request.imageResolution || '1K',
+      quality: document.getElementById('image-quality-select')?.value || null,
+      referenceCount: new Set(references).size,
+      outputCount: Number(document.getElementById('output-count-select')?.value || 1)
+    };
+  }
+
+  function renderCreditEstimate(state) {
+    const cost = document.getElementById('btn-credit-estimate')
+      || document.querySelector('#btn-generate-image .btn-credit-cost-dark');
+    const button = document.getElementById('btn-generate-image');
+    if (!cost || !button) return;
+    if (state.isLoading) {
+      cost.textContent = '(Estimating...)';
+      return;
+    }
+    if (state.estimate) {
+      const credits = state.estimate.estimatedCredits;
+      cost.textContent = `(${credits} Credit${credits === 1 ? '' : 's'})`;
+      button.disabled = false;
+      button.title = '';
+      return;
+    }
+    cost.textContent = state.error ? '(Pricing unavailable)' : '(Estimate required)';
+    button.disabled = false; // Click resolves/retries the estimate and shows the server error.
+    button.title = state.error?.message || 'Credit estimate will be calculated before generation.';
+  }
+
+  let estimateRefreshTimer = null;
+  function refreshGenerationCreditEstimate({ debounce = false } = {}) {
+    if (window.ModelPromptForgeComparison?.isActive?.()) return Promise.resolve(null);
+    const run = async () => {
+      const inputs = getGenerationPricingInputs();
+      if (!inputs.requestedProviderId || !inputs.requestedModelId) {
+        window.creditEstimateController?.invalidate();
+        return null;
+      }
+      return window.creditEstimateController?.updateEstimate(inputs);
+    };
+    if (!debounce) return run();
+    clearTimeout(estimateRefreshTimer);
+    return new Promise(resolve => {
+      estimateRefreshTimer = setTimeout(() => { void run().then(resolve); }, 120);
+    });
+  }
+
   function getGenerationRequestPayload() {
     const sourceOwnership = state.mode === "character-sheet"
       ? (window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null)
@@ -51,8 +112,6 @@
 
     const isTemplateActive = state.mode === "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive();
     if (isTemplateActive) {
-      // Template slots are authoritative. Never carry normal-mode checkbox state
-      // into a template generation request.
       imageReferences = {
         faceMatch: false,
         styleMatch: false,
@@ -72,7 +131,6 @@
         if (refs.outfit_front_reference) outfitReferenceImageFront = refs.outfit_front_reference;
         if (refs.outfit_back_reference) outfitReferenceImageBack = refs.outfit_back_reference;
 
-        // Force enable references based on template mapping
         const mapping = window.ModelPromptForgeSceneReplacementChecklist.getActiveTemplateSnapshot()?.referenceSlotMapping || {};
         if (mapping.face_reference) {
           imageReferences.faceMatch = Boolean(faceReferenceImageA || faceReferenceImageB);
@@ -109,7 +167,6 @@
         : []
     };
 
-    // Swap state temporarily to compile final prompt matching resolved selections/colors
     const oldSelections = state.selections;
     const oldCustomColors = state.customColors;
     const oldImageReferences = state.imageReferences;
@@ -206,7 +263,8 @@
       characterReferenceImageB: isCharacterRefActive ? characterReferenceImageB : null,
       characterReferenceJobIds: submittedReferenceJobIds.character,
       customColors,
-      adminPromptOverride: state.userRole === "admin" ? finalPrompt : null
+      adminPromptOverride: state.userRole === "admin" ? finalPrompt : null,
+      estimateId: window.creditEstimateController?.getState()?.estimate?.estimateId || null
     };
   }
 
@@ -273,7 +331,7 @@
       if (!model) {
         capabilitySummary.textContent = "";
       } else {
-        const credits = Number(model.estimatedCredits || 1);
+        const credits = Number(window.creditEstimateController?.getState?.().estimate?.estimatedCredits || model.estimatedCredits || 0);
         const creditText = state.language === "th"
           ? `${credits} เครดิต`
           : `${credits} credit${credits === 1 ? "" : "s"}`;
@@ -531,6 +589,8 @@
   window.getSelectedImageResolution = getSelectedImageResolution;
   window.getEditablePromptText = getEditablePromptText;
   window.getGenerationRequestPayload = getGenerationRequestPayload;
+  window.getGenerationPricingInputs = getGenerationPricingInputs;
+  window.refreshGenerationCreditEstimate = refreshGenerationCreditEstimate;
   window.populateProviderList = populateProviderList;
   window.updateSubmodelList = updateSubmodelList;
   window.usesProviderResolutionPreset = usesProviderResolutionPreset;
@@ -540,4 +600,17 @@
   window.updateAspectRatioCapabilityUI = updateAspectRatioCapabilityUI;
   window.updateCredits = updateCredits;
   window.randomizePresetSelections = randomizePresetSelections;
+
+  window.creditEstimateController?.subscribe(renderCreditEstimate);
+  document.addEventListener('change', event => {
+    if (event.target.closest?.('#creative-configurator, #image-resolution-field, #api-provider-select, #api-submodel-select')) {
+      void refreshGenerationCreditEstimate({ debounce: true });
+    }
+  });
+  window.addEventListener('modelpromptforge:ready', () => {
+    void refreshGenerationCreditEstimate();
+  });
+  document.getElementById('btn-toggle-comparison')?.addEventListener('click', () => {
+    setTimeout(() => { void refreshGenerationCreditEstimate(); }, 0);
+  });
 })();

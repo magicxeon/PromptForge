@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "mock-2026-07-18-v1",
+  "effectiveAt": "2026-07-18T00:00:00.000Z",
+  "providerPriceSourceDate": "2026-07-18",
+  "referenceFxThbPerUsd": 33.7594,
+  "pricingFxThbPerUsd": 35.0,
+  "fxReviewThresholdPercent": 5.0,
+  "fxReviewConsecutiveDays": 7,
+  "operatingSafetyBufferRate": 0.15,
+  "targetGrossMarginRate": 0.70,
+  "creditsPerThbAssumption": 10,
+  "creditRoundingIncrement": 5,
+  "estimateTtlSeconds": 900,
+  "models": [
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 45,
+      "baseCreditsByResolution": {
+        "1K": 45
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 1,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.0336,
+      "notes": "Google Gemini 3.1 Flash Lite 1K"
+    },
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-2.5-flash-image",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 55,
+      "baseCreditsByResolution": {
+        "1K": 55,
+        "default": 55
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 1,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.039,
+      "notes": "Google Gemini 2.5 Flash Image"
+    },
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 90,
+      "baseCreditsByResolution": {
+        "1K": 90
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 1,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.067,
+      "notes": "Google Gemini 3.1 Flash Image"
+    },
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3-pro-image",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 180,
+      "baseCreditsByResolution": {
+        "1K": 180,
+        "2K": 180,
+        "4K": 320
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 1,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.134,
+      "notes": "Google Gemini 3 Pro Image"
+    },
+    {
+      "providerId": "xai",
+      "modelId": "grok-imagine-image",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 30,
+      "baseCreditsByResolution": {
+        "1K": 30,
+        "2K": 40
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 5,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.020,
+      "notes": "xAI Grok Imagine Standard"
+    },
+    {
+      "providerId": "xai",
+      "modelId": "grok-imagine-image-quality",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 70,
+      "baseCreditsByResolution": {
+        "1K": 70,
+        "2K": 95
+      },
+      "referencePricing": {
+        "mode": "fixed",
+        "unitCredits": 15,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.053,
+      "notes": "xAI Grok Imagine Quality"
+    },
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 45,
+      "baseCreditsByResolution": {
+        "1K": 45,
+        "2K": 45,
+        "4K": 45,
+        "default": 45
+      },
+      "referencePricing": {
+        "mode": "free",
+        "unitCredits": 0,
+        "freeCount": 999
+      },
+      "providerCostUsd": 0.030,
+      "notes": "BytePlus Seedream 4.0"
+    },
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-5-0-lite-260128",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 50,
+      "baseCreditsByResolution": {
+        "2K": 50,
+        "3K": 50,
+        "4K": 50,
+        "default": 50
+      },
+      "referencePricing": {
+        "mode": "free",
+        "unitCredits": 0,
+        "freeCount": 999
+      },
+      "providerCostUsd": 0.035,
+      "notes": "BytePlus Seedream 5.0 Lite"
+    },
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-4-5-251128",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 60,
+      "baseCreditsByResolution": {
+        "2K": 60,
+        "4K": 60,
+        "default": 60
+      },
+      "referencePricing": {
+        "mode": "free",
+        "unitCredits": 0,
+        "freeCount": 999
+      },
+      "providerCostUsd": 0.040,
+      "notes": "BytePlus Seedream 4.5"
+    },
+    {
+      "providerId": "modelark",
+      "modelId": "dola-seedream-5-0-pro-260628",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 60,
+      "baseCreditsByResolution": {
+        "1K": 60,
+        "2K": 60,
+        "high_mp": 120,
+        "default": 60
+      },
+      "referencePricing": {
+        "mode": "tiered",
+        "unitCredits": 5,
+        "freeCount": 1
+      },
+      "providerCostUsd": 0.045,
+      "notes": "BytePlus Seedream 5.0 Pro"
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-2",
+      "enabled": true,
+      "pricingStatus": "priced",
+      "publishedCredits": 75,
+      "baseCreditsByQuality": {
+        "medium": 75,
+        "standard": 75,
+        "high": 285
+      },
+      "referencePricing": {
+        "mode": "provisional",
+        "unitCredits": 10,
+        "freeCount": 0
+      },
+      "providerCostUsd": 0.050,
+      "notes": "OpenAI GPT Image 2"
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "enabled": true,
+      "pricingStatus": "unpriced",
+      "publishedCredits": null,
+      "notes": "Unpriced model example for validation"
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-1",
+      "enabled": true,
+      "pricingStatus": "unpriced",
+      "publishedCredits": null,
+      "notes": "Unpriced model example for validation"
+    },
+    {
+      "providerId": "openai",
+      "modelId": "gpt-image-1.5",
+      "enabled": true,
+      "pricingStatus": "unpriced",
+      "publishedCredits": null,
+      "notes": "Unpriced model example for validation"
+    },
+    {
+      "providerId": "openai",
+      "modelId": "dall-e-3",
+      "enabled": true,
+      "pricingStatus": "unpriced",
+      "publishedCredits": null,
+      "notes": "Unpriced model example for validation"
+    }
+  ]
+}

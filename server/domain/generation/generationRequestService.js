@@ -142,16 +142,24 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
 }
 
 export function createQueueOptions(context, {
+  jobId = null,
   username,
   stream,
   modelConfig,
   providerConfigVersion,
   creditCost,
   imageResolution = null,
-  comparison = null
+  comparison = null,
+  reservationId = null,
+  pricingSnapshot = null,
+  routingSnapshot = null,
+  payerUserId = null,
+  estimateId = null,
+  requestId = null
 }) {
   const references = context.imageReferences;
   return {
+    jobId,
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
     sceneBuilder: context.sceneBuilder || null,
     sceneTemplateSnapshot: context.sceneTemplateSnapshot || null,
@@ -176,6 +184,12 @@ export function createQueueOptions(context, {
     modelConfig,
     providerConfigVersion,
     creditCost,
+    reservationId,
+    pricingSnapshot,
+    routingSnapshot,
+    payerUserId: payerUserId || username || 'usr_demo',
+    estimateId,
+    requestId,
     imageResolution: imageResolution || context.imageResolution || modelConfig.defaults?.resolution || null,
     faceReferenceImageA: references.faceMatch ? context.faceReferenceImageA : null,
     faceReferenceImageB: references.faceMatch ? context.faceReferenceImageB : null,

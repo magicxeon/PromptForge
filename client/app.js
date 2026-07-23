@@ -139,6 +139,7 @@ async function initApp() {
     window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
     await window.ModelPromptForgeMockUserSwitcher?.init?.();
     updateCredits();
+    void window.refreshGenerationCreditEstimate?.();
 
     state.isRestoringState = false; // Safe to auto-save now
 
@@ -794,6 +795,15 @@ function bindEvents() {
 
       try {
         const generationPayload = getGenerationRequestPayload();
+        const pricingInputs = window.getGenerationPricingInputs?.(generationPayload);
+        const estimate = await window.creditEstimateController?.ensureEstimate(pricingInputs);
+        if (!estimate) {
+          const pricingError = window.creditEstimateController?.getState?.().error;
+          throw new Error(pricingError?.message || 'Credit pricing is unavailable for this generation request.');
+        }
+        generationPayload.estimateId = estimate.estimateId;
+        generationPayload.requestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        Object.assign(generationPayload, pricingInputs);
         const submittedReferenceJobIds = {
           face: generationPayload.faceReferenceJobIds,
           style: generationPayload.styleReferenceJobIds,
@@ -815,6 +825,7 @@ function bindEvents() {
         }
 
         const jobId = data.jobId;
+        void window.creditBalanceBadge?.refresh?.();
 
         const jobCard = document.createElement("div");
         jobCard.className = "queue-item";

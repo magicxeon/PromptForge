@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "accounts": [
+    {
+      "userId": "usr_alice",
+      "username": "alice",
+      "availableCredits": 55,
+      "reservedCredits": 45,
+      "status": "active",
+      "updatedAt": "2026-07-23T16:54:37.910Z"
+    }
+  ],
+  "estimates": [],
+  "reservations": [
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784825677912_ohls4qb",
+      "estimateId": null,
+      "userId": "usr_alice",
+      "requestId": "req_001",
+      "jobId": null,
+      "amountCredits": 45,
+      "status": "reserved",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-23T16:54:37.910Z",
+      "updatedAt": "2026-07-23T16:54:37.910Z",
+      "expiresAt": "2026-07-23T17:09:37.912Z",
+      "capturedAt": null,
+      "refundedAt": null,
+      "terminalReason": null
+    }
+  ],
+  "ledgerEntries": [
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784825677912_ssub0fc",
+      "userId": "usr_alice",
+      "operationType": "reserve",
+      "amountCredits": 45,
+      "availableDelta": -45,
+      "reservedDelta": 45,
+      "availableAfter": 55,
+      "reservedAfter": 45,
+      "reservationId": "rsv_1784825677912_ohls4qb",
+      "estimateId": null,
+      "relatedJobId": null,
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "idempotencyKey": "reserve:usr_alice:req_001",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_alice",
+      "createdAt": "2026-07-23T16:54:37.910Z",
+      "metadata": {}
+    }
+  ]
+}

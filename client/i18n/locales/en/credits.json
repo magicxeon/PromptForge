@@ -1,8 +1,16 @@
 {
-  "credits.balance": "Credits: {count}",
-  "credits.recharge": "Recharge",
-  "credits.rechargeTitle": "Recharge 10 Credits",
-  "credits.costOne": "1 Credit",
-  "credits.costMany": "{count} Credits",
-  "credits.insufficient": "Insufficient credits. Required: {required}, Available: {available}"
+  "badge.available": "Available Credits",
+  "badge.reserved": "Reserved Credits",
+  "badge.recharge": "Grant Credits (+10)",
+  "estimate.label": "Estimated Cost",
+  "estimate.creditsUnit": "credits",
+  "estimate.base": "Base generation",
+  "estimate.references": "Reference surcharge",
+  "estimate.insufficient": "Insufficient Credits",
+  "estimate.unavailable": "Pricing Unavailable",
+  "estimate.expired": "Estimate Expired",
+  "estimate.loading": "Calculating estimate...",
+  "errors.credit_insufficient": "You do not have enough credits for this generation.",
+  "errors.credit_pricing_unavailable": "Pricing is currently unavailable for this model configuration.",
+  "errors.credit_estimate_expired": "The pricing estimate has expired. Please recalculate."
 }

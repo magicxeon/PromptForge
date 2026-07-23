@@ -1,8 +1,16 @@
 {
-  "credits.balance": "เครดิตคงเหลือ: {count}",
-  "credits.recharge": "เติมเครดิต",
-  "credits.rechargeTitle": "เติม 10 เครดิต",
-  "credits.costOne": "1 เครดิต",
-  "credits.costMany": "{count} เครดิต",
-  "credits.insufficient": "เครดิตไม่เพียงพอ ต้องการ: {required}, มีอยู่: {available}"
+  "badge.available": "เครดิตคงเหลือ",
+  "badge.reserved": "เครดิตที่จองอยู่",
+  "badge.recharge": "เติมเครดิต (+10)",
+  "estimate.label": "ประมาณการค่าบริการ",
+  "estimate.creditsUnit": "เครดิต",
+  "estimate.base": "ค่าบริการพื้นฐาน",
+  "estimate.references": "ค่ารูปภาพอ้างอิง",
+  "estimate.insufficient": "เครดิตไม่เพียงพอ",
+  "estimate.unavailable": "ยังไม่มีอัตราค่าบริการ",
+  "estimate.expired": "การประมาณราคาหมดอายุ",
+  "estimate.loading": "กำลังคำนวณราคา...",
+  "errors.credit_insufficient": "จำนวนเครดิตของคุณไม่เพียงพอสำหรับการสร้างรูปภาพนี้",
+  "errors.credit_pricing_unavailable": "ยังไม่อนุญาตให้ใช้โมเดลนี้เนื่องจากไม่มีอัตราค่าบริการ",
+  "errors.credit_estimate_expired": "การประมาณราคาหมดอายุแล้ว กรุณาคำนวณใหม่อีกครั้ง"
 }

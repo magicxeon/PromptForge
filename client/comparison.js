@@ -230,6 +230,12 @@
           name: text('AI Model Comparison', 'เปรียบเทียบโมเดล AI'),
           estimateToken: estimate.estimateToken,
           estimateExpiresAt: estimate.expiresAt,
+          creditEstimates: estimate.slots.map(slot => ({
+            slotId: slot.id,
+            estimateId: slot.estimateId,
+            estimatedCredit: slot.estimatedCredit,
+            estimateExpiresAt: slot.estimateExpiresAt
+          })),
           idempotencyKey: createIdempotencyKey()
         }
       });

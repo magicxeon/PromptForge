@@ -1,12 +1,14 @@
 import { compileGenerationContext, createQueueOptions } from '../generation/generationRequestService.js';
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
+import { creditReservationService } from '../credits/CreditReservationService.js';
 
 export class ComparisonOrchestrator {
-  constructor({ providerRegistry, queueManager, creditManager, repository = new ComparisonRepository() }) {
+  constructor({ providerRegistry, queueManager, creditManager, creditReservation = creditReservationService, repository = new ComparisonRepository() }) {
     this.providerRegistry = providerRegistry;
     this.queueManager = queueManager;
     this.creditManager = creditManager;
+    this.creditReservation = creditReservation;
     this.repository = repository;
     this.validator = new ComparisonValidator({ providerRegistry });
     this.queueManager.subscribeLifecycle?.(event => this.handleQueueLifecycle(event));
@@ -16,23 +18,44 @@ export class ComparisonOrchestrator {
     await this.repository.init();
   }
 
-  async estimate(payload, username) {
+  async estimate(payload, username, userId) {
     const { context } = compileGenerationContext(payload);
     const slots = this.validator.validateSlots(payload.slots, context);
-    return this.validator.createEstimate(slots, context, username);
+    const pricedSlots = await Promise.all(slots.map(async slot => {
+      const estimate = await this.creditReservation.estimate({
+        userId,
+        routingMode: 'advanced',
+        qualityTier: 'standard',
+        generationMode: context.mode || 'normal',
+        requestedProviderId: slot.provider,
+        requestedModelId: slot.model,
+        resolution: slot.imageResolution || '1K',
+        referenceCount: context.referenceCount,
+        outputCount: 1
+      });
+      return { ...slot, estimateId: estimate.estimateId, estimatedCredit: estimate.estimatedCredits, estimateExpiresAt: estimate.expiresAt };
+    }));
+    return this.validator.createEstimate(pricedSlots, context, username);
   }
 
-  async create(payload, username) {
+  async create(payload, username, userId) {
     const { context, compiledPrompt } = compileGenerationContext(payload);
     const slots = this.validator.validateSlots(payload.slots, context);
+    const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
+    const pricedSlots = slots.map(slot => {
+      const clientEstimate = clientEstimates.get(slot.id);
+      if (!clientEstimate?.estimateId || !Number.isInteger(Number(clientEstimate.estimatedCredit))) {
+        throw new ComparisonError('estimate_changed', 'Every comparison slot requires a current server estimate.');
+      }
+      return { ...slot, estimateId: clientEstimate.estimateId, estimatedCredit: Number(clientEstimate.estimatedCredit), estimateExpiresAt: clientEstimate.estimateExpiresAt || null };
+    });
     const confirmedEstimate = {
-      slots: slots.map(stripPrivateConfig),
-      estimatedTotalCredit: slots.reduce((total, slot) => total + slot.estimatedCredit, 0),
+      slots: pricedSlots.map(stripPrivateConfig),
+      estimatedTotalCredit: pricedSlots.reduce((total, slot) => total + slot.estimatedCredit, 0),
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       expiresAt: Number(payload.estimateExpiresAt || 0)
     };
     this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, username);
-    await this.creditManager.assertBalance(username, confirmedEstimate.estimatedTotalCredit);
 
     const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const timestamp = Date.now();
@@ -47,7 +70,8 @@ export class ComparisonOrchestrator {
       promptCompilerVersion: 1,
       createdAt: timestamp,
       completedAt: null,
-      slots: slots.map(slot => ({
+      payerUserId: userId,
+      slots: pricedSlots.map(slot => ({
         ...stripPrivateConfig(slot),
         submittedPrompt: compiledPrompt,
         jobId: null,
@@ -70,27 +94,46 @@ export class ComparisonOrchestrator {
     const runId = created.run.id;
     const enqueuedSlots = [];
     try {
-      for (const slot of slots) {
+      for (const slot of pricedSlots) {
         const stream = this.providerRegistry.shouldStream(slot.providerConfig, slot.modelConfig, payload.stream !== false);
-        const jobId = this.queueManager.enqueue(slot.provider, slot.model, compiledPrompt, createQueueOptions(context, {
+        const jobId = this.queueManager.createJobId();
+        const reservationResult = await this.creditReservation.validateAndReserveForRequest({
+          userId,
+          estimateId: slot.estimateId,
+          generationRequest: {
+            requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
+            quality: null, referenceCount: context.referenceCount, outputCount: 1, routingMode: 'advanced',
+            qualityTier: 'standard', generationMode: context.mode || 'normal', requestId: `${idempotencyKey}:${slot.id}`
+          },
+          metadata: { jobId, comparisonSetId: setId, comparisonRunId: runId }
+        });
+        this.queueManager.enqueue(slot.provider, slot.model, compiledPrompt, createQueueOptions(context, {
+          jobId,
           username,
           stream,
           modelConfig: slot.modelConfig,
           providerConfigVersion: this.providerRegistry.getConfigVersion(),
-          creditCost: slot.estimatedCredit,
           imageResolution: slot.imageResolution,
-          comparison: { setId, runId, slotId: slot.id }
+          comparison: { setId, runId, slotId: slot.id },
+          reservationId: reservationResult.reservation.reservationId,
+          pricingSnapshot: reservationResult.reservation.pricingSnapshot,
+          payerUserId: userId,
+          estimateId: slot.estimateId,
+          requestId: `${idempotencyKey}:${slot.id}`
         }));
-        enqueuedSlots.push({ slotId: slot.id, jobId, providerStreaming: stream });
+        enqueuedSlots.push({ slotId: slot.id, jobId, reservationId: reservationResult.reservation.reservationId, providerStreaming: stream });
       }
       const run = await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.slots.forEach(slot => {
           const enqueued = enqueuedSlots.find(item => item.slotId === slot.id);
-          if (enqueued) slot.jobId = enqueued.jobId;
+          if (enqueued) { slot.jobId = enqueued.jobId; slot.reservationId = enqueued.reservationId; }
         });
       });
       return this.createResponse(created.set, run, false, enqueuedSlots);
     } catch (error) {
+      await Promise.all(enqueuedSlots.map(item => this.creditReservation.refundForJob({
+        userId, reservationId: item.reservationId, jobId: item.jobId, reasonCode: 'comparison_enqueue_failed'
+      }).catch(() => {})));
       await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.status = enqueuedSlots.length > 0 ? 'partially_completed' : 'failed';
         targetRun.slots.filter(slot => !slot.jobId).forEach(slot => {
@@ -170,11 +213,16 @@ export class ComparisonOrchestrator {
         || slot.error?.code === 'job_state_lost'
       )
     );
-    await Promise.all(lostSlots.map(slot => this.creditManager.refundLostJob(
-      username,
-      slot.jobId,
-      { comparisonSetId: setId, comparisonRunId: run.id }
-    )));
+    await Promise.all(lostSlots.map(slot => {
+      if (!slot.reservationId || !run.payerUserId) return Promise.resolve();
+      return this.creditReservation.refundForJob({
+        userId: run.payerUserId,
+        reservationId: slot.reservationId,
+        jobId: slot.jobId,
+        reasonCode: 'job_state_lost',
+        metadata: { comparisonSetId: setId, comparisonRunId: run.id }
+      }).catch(error => console.warn(`[Comparison] Lost-job refund failed for ${slot.jobId}:`, error.message));
+    }));
     const costs = await this.creditManager.getNetJobCosts(run.slots.map(slot => slot.jobId).filter(Boolean));
     await this.repository.updateRun(setId, run.id, targetRun => {
       targetRun.slots.forEach((slot, index) => {
