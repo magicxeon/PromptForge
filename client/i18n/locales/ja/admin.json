@@ -1,0 +1,6 @@
+{
+  "admin.auditLog.title": "監査ログ",
+  "admin.auditLog.empty": "監査ログのエントリはありません。",
+  "admin.action.hidePost": "投稿を非表示",
+  "admin.action.removePost": "投稿を削除"
+}

@@ -83,6 +83,7 @@ Community module must not call image providers directly and must not mutate cred
 | Community-00-002 | Mock User, Actor Context and Auth Migration | Application shell, local JSON repositories |
 | Community-00-003 | Repository Interface and Database Schema Map | Actor Context, existing JSON repositories |
 | Community-00-004 | Ownership, Visibility Policy and Public Snapshot | Actor Context, Scene Builder reference policy |
+| Community-00-004-001 | Localization and Language Extension Foundation | Application shell, current Thai/English localization |
 | Community-00-005 | Credit Ledger Mock and Generation Billing | Provider registry, generation queue |
 | Community-00-006 | Admin, Support Audit and Backoffice Foundation | Actor Context, ownership policy |
 | Community-01 | Product Home and Workflow Launcher | Application shell, module registry |
@@ -97,7 +98,7 @@ Community module must not call image providers directly and must not mutate cred
 | Community-10 | Local Mock User and Actor Switcher | Application shell, local JSON repositories |
 | Community-11 | Credit Deduction and Provider Routing Foundation | Provider registry, generation queue, business credit policy |
 
-`Community-10` and `Community-11` remain feature-level implementation documents. The `Community-00-002` and `Community-00-005` foundation documents define the earlier schema and migration contracts that those feature-level tasks must follow.
+`Community-10` and `Community-11` remain feature-level implementation documents. The `Community-00-002` and `Community-00-005` foundation documents define the earlier schema and migration contracts that those feature-level tasks must follow. `Community-00-004-001` defines the localization contract that all new Community UI must follow.
 
 ## 6. MVP Navigation
 

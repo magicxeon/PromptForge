@@ -1,0 +1,9 @@
+{
+  "community.sharedTemplates.title": "Shared Templates",
+  "community.sharedTemplates.empty": "No shared templates yet",
+  "community.sharedTemplates.creator": "Creator: {name}",
+  "community.template.use": "Use Template",
+  "community.template.loadConfirm": "Load this template into Scene Builder?",
+  "community.post.unavailable": "This community post is unavailable.",
+  "community.post.publishSuccess": "Template published successfully to Community!"
+}

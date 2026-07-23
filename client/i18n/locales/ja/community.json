@@ -1,0 +1,9 @@
+{
+  "community.sharedTemplates.title": "共有テンプレート",
+  "community.sharedTemplates.empty": "共有テンプレートはまだありません",
+  "community.sharedTemplates.creator": "クリエイター: {name}",
+  "community.template.use": "テンプレートを使用",
+  "community.template.loadConfirm": "このテンプレートを Scene Builder に読み込みますか？",
+  "community.post.unavailable": "このコミュニティ投稿はご利用いただけません。",
+  "community.post.publishSuccess": "テンプレートがコミュニティに公開されました！"
+}

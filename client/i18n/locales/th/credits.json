@@ -1,0 +1,8 @@
+{
+  "credits.balance": "เครดิตคงเหลือ: {count}",
+  "credits.recharge": "เติมเครดิต",
+  "credits.rechargeTitle": "เติม 10 เครดิต",
+  "credits.costOne": "1 เครดิต",
+  "credits.costMany": "{count} เครดิต",
+  "credits.insufficient": "เครดิตไม่เพียงพอ ต้องการ: {required}, มีอยู่: {available}"
+}

@@ -1,0 +1,7 @@
+{
+  "sceneBuilder.guided": "Guided Scene Builder",
+  "sceneBuilder.manual": "Manual Prompt Editor",
+  "sceneBuilder.freestylePlaceholder": "シーンの構成、被写体のポーズ、衣装の詳細、環境の詳細、カメラ設定、照明構成を英語で自由に記述してください...",
+  "sceneBuilder.useCharacterReference": "Character Sheet 参照を使用",
+  "sceneBuilder.characterReferenceHelp": "Scene Builder専用。両方のスロットに同じキャラクターを表示する必要があります。顔のアイデンティティには下の Face Match を使用してください。"
+}

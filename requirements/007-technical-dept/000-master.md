@@ -98,6 +98,7 @@ Server placement rules:
 |---|---|
 | Application bootstrap and top-level wiring | `client/app.js` |
 | Shared state, persistence, rendering, generation, and reference services | `client/core/` |
+| Localization runtime services and locale preference | `client/core/` |
 | Feature-specific behavior | `client/<feature>/` |
 | Scene Builder modules | `client/scene-builder/` |
 | Clothing modules | `client/clothing/` |
@@ -105,6 +106,8 @@ Server placement rules:
 | Navigation and application shell | `client/shell/` |
 | Reusable visual option controls | `client/visual-controls/` |
 | Runtime application assets | `client/assets/<feature>/` |
+| Self-hosted third-party browser libraries | `client/assets/vendor/<library>/` |
+| Translation manifests, schemas, and locale catalogs | `client/i18n/` |
 | Generated image output | `client/outputs/` |
 | Main HTML shell and script ordering | `client/index.html` |
 | Global styling until a feature stylesheet boundary is introduced | `client/style.css` |
@@ -114,6 +117,8 @@ Client placement rules:
 *   Keep `client/app.js` as orchestration code; move reusable feature logic into its owning module.
 *   Extend an existing feature folder before creating another cross-feature global module.
 *   Browser-native scripts must be registered in dependency order in `client/index.html`.
+*   `client/i18n/` contains source-controlled UI translations, never runtime user data or AI prompt text.
+*   Browser libraries installed through npm but served without a build tool must be copied to `client/assets/vendor/<library>/` before use.
 *   Generated output is runtime data and must not be treated as a source asset.
 
 ### 4.3 Assets, Scripts, Tests, and Requirements

@@ -1,0 +1,19 @@
+{
+  "common.action.cancel": "キャンセル",
+  "common.action.save": "保存",
+  "common.action.delete": "削除",
+  "common.action.edit": "編集",
+  "common.action.close": "閉じる",
+  "common.action.confirm": "確認",
+  "common.action.retry": "再試行",
+  "common.action.copy": "コピー",
+  "common.action.loadMore": "さらに読み込む",
+  "common.action.refresh": "更新",
+  "common.status.loading": "読み込み中...",
+  "common.status.success": "成功",
+  "common.status.failed": "失敗",
+  "common.status.active": "有効",
+  "common.status.queued": "キュー待機中",
+  "common.status.processing": "処理中",
+  "common.status.completed": "完了"
+}

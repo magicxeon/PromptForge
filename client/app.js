@@ -74,7 +74,12 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initApp() {
   state.isRestoringState = true; // Block any auto-saving during initialization race conditions (Step 12)
   try {
-    state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
+    if (window.ModelPromptForgeI18n?.initialize) {
+      await window.ModelPromptForgeI18n.initialize();
+      state.language = window.ModelPromptForgeI18n.getLocale();
+    } else {
+      state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
+    }
     const [response, providerResponse] = await Promise.all([
       fetch("/api/attributes/bundle"),
       fetch("/api/providers")
@@ -91,20 +96,11 @@ async function initApp() {
     state.schema = bundle.schema;
     state.templates = bundle.templates;
     state.order = bundle.order;
-    state.library = bundle.library;
-    state.presets = bundle.presets;
-    await loadVisualAssetManifests();
-
-    // Populate templates select
-    const templateSelect = document.getElementById("template-select");
-    templateSelect.innerHTML = "";
-    Object.keys(state.templates).forEach((key, index) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = key.charAt(0).toUpperCase() + key.slice(1) + " Layout";
-      if (index === 0) option.selected = true;
-      templateSelect.appendChild(option);
+    populateProviderList();
+    document.querySelectorAll('#language-pill-selector .pill-btn').forEach(button => {
+      button.classList.toggle('active', button.getAttribute('data-value') === state.language);
     });
+    updateSubmodelList();
 
     renderForm();
     populateProviderList();
@@ -141,6 +137,7 @@ async function initApp() {
     toggleUIForMode();
     updateReferencePreviewsUI();
     window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
+    await window.ModelPromptForgeMockUserSwitcher?.init?.();
     updateCredits();
 
     state.isRestoringState = false; // Safe to auto-save now
@@ -597,82 +594,29 @@ function bindEvents() {
 
   if (toggleNsfw) toggleNsfw.addEventListener("change", updateNsfwState);
 
-  // Language Selector Pill Toggles (Step 8)
-  const languagePills = document.querySelectorAll("#language-pill-selector .pill-btn");
-  languagePills.forEach(btn => {
-    btn.addEventListener("click", () => {
-      languagePills.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      const newLang = btn.getAttribute("data-value");
-      if (state.language !== newLang) {
-        const openAccordionIds = [...document.querySelectorAll('#form-container .accordion.active')]
-          .map(accordion => accordion.id)
-          .filter(Boolean);
-        state.language = newLang;
-        localStorage.setItem('model_prompt_forge_language', newLang);
-        const currentProvider = document.getElementById("api-provider-select")?.value;
-        const currentModel = document.getElementById("api-submodel-select")?.value;
-        populateProviderList(currentProvider);
-        updateSubmodelList(currentModel);
-        renderForm();
-        bindDynamicFormEvents();
-        restoreSelectionsToUI();
-        openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
-        updateColorPickerUI();
-        enforceModeReferencePolicy({ updateUI: false });
-        toggleUIForMode();
-        refreshReferenceAuthorityUI();
-        updateReferencePreviewsUI();
-        updateLightboxNavigationLabels();
-        updatePromptPreview();
-      }
-    });
+  // Language Change Subscriber
+  window.addEventListener('modelpromptforge:languagechange', (event) => {
+    const newLang = event.detail.locale;
+    const openAccordionIds = [...document.querySelectorAll('#form-container .accordion.active')]
+      .map(accordion => accordion.id)
+      .filter(Boolean);
+    state.language = newLang;
+    const currentProvider = document.getElementById("api-provider-select")?.value;
+    const currentModel = document.getElementById("api-submodel-select")?.value;
+    populateProviderList(currentProvider);
+    updateSubmodelList(currentModel);
+    renderForm();
+    bindDynamicFormEvents();
+    restoreSelectionsToUI();
+    openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
+    updateColorPickerUI();
+    enforceModeReferencePolicy({ updateUI: false });
+    toggleUIForMode();
+    refreshReferenceAuthorityUI();
+    updateReferencePreviewsUI();
+    updateLightboxNavigationLabels();
+    updatePromptPreview();
   });
-
-  // Initialize Mock User Switcher UI
-  if (window.ModelPromptForgeMockUserSwitcher?.init) {
-    window.ModelPromptForgeMockUserSwitcher.init();
-  }
-
-  // Simulated Credits Top-up
-  const btnRecharge = document.getElementById("btn-recharge");
-  if (btnRecharge) {
-    btnRecharge.addEventListener("click", async () => {
-      try {
-        const response = await apiFetch('/api/credits/recharge', {
-          method: 'POST',
-          body: {}
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Recharge failed");
-
-        // Update balance display
-        document.getElementById("credits-value").textContent = data.credits;
-        const balanceEl = document.getElementById("credits-value");
-        balanceEl.style.color = "#10b981"; // green flash
-        setTimeout(() => { balanceEl.style.color = ""; }, 1000);
-      } catch (err) {
-        void AppDialog.alert("Failed to recharge credits: " + err.message, { title: "Recharge Failed" });
-      }
-    });
-  }
-
-  // Download Generated Image Button
-  const btnDownloadImage = document.getElementById("btn-download-image");
-  if (btnDownloadImage) {
-    btnDownloadImage.addEventListener("click", () => {
-      const img = document.getElementById("generated-image");
-      if (!img || !img.src) return;
-
-      const a = document.createElement("a");
-      a.href = img.src;
-      a.download = `modelpromptforge-generation-${Date.now()}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    });
-  }
 
   // Panel Collapsible Actions
   const btnToggleDashboard = document.getElementById("btn-toggle-dashboard");
@@ -699,48 +643,6 @@ function bindEvents() {
     });
   }
 
-  // Lightbox close button
-  const lightboxModal = document.getElementById("lightbox-modal");
-  const lightboxClose = document.getElementById("lightbox-close");
-  if (lightboxClose && lightboxModal) {
-    lightboxClose.addEventListener("click", closeLightbox);
-    lightboxModal.addEventListener("click", (e) => {
-      if (e.target === lightboxModal) {
-        closeLightbox();
-      }
-    });
-    document.getElementById("lightbox-previous")?.addEventListener("click", () => navigateLightbox(-1));
-    document.getElementById("lightbox-next")?.addEventListener("click", () => navigateLightbox(1));
-    document.addEventListener("keydown", event => {
-      if (lightboxModal.style.display === "none") return;
-      if (document.querySelector('.collection-modal[style*="display: flex"]')) return;
-      const target = event.target;
-      if (target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
-      if (event.key === "Tab") {
-        const focusable = [...lightboxModal.querySelectorAll('button:not([hidden]), a[href]')]
-          .filter(element => !element.disabled && element.getClientRects().length > 0);
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      } else if (event.key === "Escape") {
-        event.preventDefault();
-        closeLightbox();
-      } else if (event.key === "ArrowLeft") {
-        if (navigateLightbox(-1)) event.preventDefault();
-      } else if (event.key === "ArrowRight") {
-        if (navigateLightbox(1)) event.preventDefault();
-      }
-    });
-  }
-
-  // Viewport Loopback action listeners (Step 9)
   const btnViewportUseFace = document.getElementById("btn-viewport-use-face");
   const btnViewportUseStyle = document.getElementById("btn-viewport-use-style");
   const btnViewportUseCharacter = document.getElementById("btn-viewport-use-character");

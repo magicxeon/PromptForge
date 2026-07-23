@@ -1,0 +1,8 @@
+{
+  "credits.balance": "Credits: {count}",
+  "credits.recharge": "Recharge",
+  "credits.rechargeTitle": "Recharge 10 Credits",
+  "credits.costOne": "1 Credit",
+  "credits.costMany": "{count} Credits",
+  "credits.insufficient": "Insufficient credits. Required: {required}, Available: {available}"
+}

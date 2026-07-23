@@ -1,0 +1,7 @@
+{
+  "sceneBuilder.guided": "Guided Scene Builder",
+  "sceneBuilder.manual": "Manual Prompt Editor",
+  "sceneBuilder.freestylePlaceholder": "Describe your scene composition, subject pose, clothing details, environment details, camera setup, and lighting configuration in plain English...",
+  "sceneBuilder.useCharacterReference": "Use Character Sheet Reference",
+  "sceneBuilder.characterReferenceHelp": "Scene Builder only. Both slots must show the same character. Use Face Match below for facial identity."
+}

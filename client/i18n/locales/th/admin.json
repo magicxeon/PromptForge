@@ -1,0 +1,6 @@
+{
+  "admin.auditLog.title": "บันทึกการตรวจสอบระบบ",
+  "admin.auditLog.empty": "ไม่มีรายการบันทึกการตรวจสอบ",
+  "admin.action.hidePost": "ซ่อนโพสต์",
+  "admin.action.removePost": "ลบโพสต์"
+}

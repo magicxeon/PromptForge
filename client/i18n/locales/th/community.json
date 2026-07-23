@@ -1,0 +1,9 @@
+{
+  "community.sharedTemplates.title": "เทมเพลตที่แชร์",
+  "community.sharedTemplates.empty": "ยังไม่มีเทมเพลตที่แชร์",
+  "community.sharedTemplates.creator": "ผู้สร้าง: {name}",
+  "community.template.use": "ใช้เทมเพลต",
+  "community.template.loadConfirm": "ต้องการนำเทมเพลตนี้ไปใช้ใน Scene Builder หรือไม่?",
+  "community.post.unavailable": "โพสต์นี้ไม่พร้อมใช้งาน",
+  "community.post.publishSuccess": "เผยแพร่เทมเพลตไปยัง Community สำเร็จ!"
+}

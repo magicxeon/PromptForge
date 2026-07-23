@@ -73,11 +73,9 @@
     window.addEventListener('modelpromptforge:comparison-opened', event => {
       if (state.openingSetId === event.detail.setId) state.openingSetId = null;
     });
-    document.getElementById('language-pill-selector')?.addEventListener('click', () => {
-      window.setTimeout(() => {
-        localize();
-        if (isDashboardRoute()) renderItems();
-      }, 0);
+    window.addEventListener('modelpromptforge:languagechange', () => {
+      localize();
+      if (isDashboardRoute()) renderItems();
     });
   }
 

@@ -297,6 +297,9 @@ window.state = {
 
 // Retrieve localized label with backward compatibility fallback
 window.getLocalizedLabel = function(labelObj) {
+  if (window.ModelPromptForgeI18n?.getLocalizedLabel) {
+    return window.ModelPromptForgeI18n.getLocalizedLabel(labelObj);
+  }
   if (typeof labelObj === 'object' && labelObj !== null) {
     return labelObj[window.state.language] || labelObj['en'] || '';
   }

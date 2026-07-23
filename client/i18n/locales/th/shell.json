@@ -1,0 +1,13 @@
+{
+  "shell.title": "ModelPromptForge - Premium AI Character Generator",
+  "shell.subtitle": "สร้าง Prompt คุณภาพสูงเสมือนจริงจากแอตทริบิวต์ที่เป็นโครงสร้างอย่างปลอดภัยโดยไม่ละเมิดนโยบาย",
+  "shell.badge": "Asian Aesthetic v1.1",
+  "shell.nav.studio": "สตูดิโอ",
+  "shell.nav.studioDesc": "สร้างภาพ",
+  "shell.nav.history": "ประวัติรูปภาพ",
+  "shell.nav.historyDesc": "ดูภาพที่สร้างไว้",
+  "shell.nav.comparisons": "เปรียบเทียบ AI",
+  "shell.nav.comparisonsDesc": "ดูชุดทดสอบโมเดล",
+  "shell.languageLabel": "ภาษา",
+  "shell.activeUserLabel": "ผู้ใช้ Mock Active"
+}

@@ -1,0 +1,23 @@
+{
+  "studio.viewport.title": "Visual Viewport & Queue",
+  "studio.viewport.subtitle": "View current render stream, background queues, and history",
+  "studio.viewport.placeholderMain": "Ready to render character",
+  "studio.viewport.placeholderSub": "Configure attributes below and click Generate Image",
+  "studio.viewport.useFaceRef": "👤 Use as Face Ref",
+  "studio.viewport.useStyleRef": "🖼️ Use as Style Ref",
+  "studio.viewport.useCharacterRef": "📋 Use as Character Ref",
+  "studio.configurator.title": "Studio Creative Configurator",
+  "studio.configurator.subtitle": "Custom attribute maps, mode configurations, and API selector pipeline",
+  "studio.step1.title": "Character Aesthetic Options",
+  "studio.step2.title": "Engine & Target Output",
+  "studio.step3.title": "Render Active Prompt",
+  "studio.mode.normal": "Scene Builder",
+  "studio.mode.headshot": "Headshot Grid",
+  "studio.mode.characterSheet": "Character Sheet Builder",
+  "studio.action.generate": "⚡ Generate Image",
+  "studio.action.reset": "Reset Form",
+  "studio.action.surprise": "🎲 Surprise Me",
+  "studio.action.export": "Export Config",
+  "studio.preset.label": "Aesthetic Presets Quickload",
+  "studio.preset.load": "Load Preset"
+}

@@ -1,0 +1,19 @@
+{
+  "common.action.cancel": "ยกเลิก",
+  "common.action.save": "บันทึก",
+  "common.action.delete": "ลบ",
+  "common.action.edit": "แก้ไข",
+  "common.action.close": "ปิด",
+  "common.action.confirm": "ยืนยัน",
+  "common.action.retry": "ลองใหม่",
+  "common.action.copy": "คัดลอก",
+  "common.action.loadMore": "โหลดเพิ่ม",
+  "common.action.refresh": "รีเฟรช",
+  "common.status.loading": "กำลังโหลด...",
+  "common.status.success": "สำเร็จ",
+  "common.status.failed": "ไม่สำเร็จ",
+  "common.status.active": "ใช้งานอยู่",
+  "common.status.queued": "อยู่ในคิว",
+  "common.status.processing": "กำลังประมวลผล",
+  "common.status.completed": "เสร็จสมบูรณ์"
+}

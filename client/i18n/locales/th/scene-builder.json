@@ -1,0 +1,7 @@
+{
+  "sceneBuilder.guided": "Guided Scene Builder",
+  "sceneBuilder.manual": "Manual Prompt Editor",
+  "sceneBuilder.freestylePlaceholder": "อธิบายองค์ประกอบฉาก ท่าทางของตัวละคร ชุดแต่งกาย สภาพแวดล้อม กล้อง และแสงเป็นภาษาอังกฤษแบบอิสระ...",
+  "sceneBuilder.useCharacterReference": "ใช้ภาพอ้างอิงจาก Character Sheet",
+  "sceneBuilder.characterReferenceHelp": "ใช้ได้เฉพาะใน Scene Builder ทั้งสองช่องต้องเป็นตัวละครเดียวกัน ใช้ Face Match ด้านล่างเพื่อคงใบหน้า"
+}

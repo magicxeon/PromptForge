@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "defaultLocale": "th",
+  "fallbackLocale": "en",
+  "locales": [
+    {
+      "code": "th",
+      "label": "ไทย",
+      "nativeLabel": "ไทย",
+      "direction": "ltr",
+      "enabled": true
+    },
+    {
+      "code": "en",
+      "label": "English",
+      "nativeLabel": "English",
+      "direction": "ltr",
+      "enabled": true
+    },
+    {
+      "code": "ja",
+      "label": "日本語",
+      "nativeLabel": "日本語",
+      "direction": "ltr",
+      "enabled": false
+    }
+  ],
+  "namespaces": [
+    "common",
+    "shell",
+    "studio",
+    "scene-builder",
+    "character-builder",
+    "comparisons",
+    "community",
+    "credits",
+    "admin"
+  ]
+}

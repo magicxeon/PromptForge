@@ -14,7 +14,7 @@
     bindMenu();
     bindNavigationFade();
     window.addEventListener('modelpromptforge:route', event => applyRoute(event.detail));
-    document.getElementById('language-pill-selector')?.addEventListener('click', () => window.setTimeout(renderNavigation, 0));
+    window.addEventListener('modelpromptforge:languagechange', () => renderNavigation());
     applyRoute(window.ModelPromptForgeRouter.current());
     updateNavigationVisibility();
   }

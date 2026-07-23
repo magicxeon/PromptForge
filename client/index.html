@@ -26,15 +26,6 @@
 
         <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
         <div class="header-status-area">
-          <!-- Language Toggle Pill Selector -->
-          <div class="header-toggle-group">
-            <span class="toggle-group-label">Language</span>
-            <div class="pill-selector" id="language-pill-selector">
-              <button class="pill-btn active" data-value="th">TH</button>
-              <button class="pill-btn" data-value="en">EN</button>
-            </div>
-          </div>
-
           <!-- Profile/Role Toggle Dropdown -->
           <div class="header-toggle-group">
             <span class="toggle-group-label">Active Mock User</span>
@@ -46,6 +37,19 @@
               <span class="credits-count" id="credits-value">20</span>
               <span class="coin-icon">🪙</span>
               <button id="btn-recharge" class="btn-recharge-compact" title="Recharge 10 Credits">+</button>
+            </div>
+          </div>
+
+          <!-- Custom Glassmorphism Language Dropdown (Rightmost) -->
+          <div class="header-toggle-group lang-dropdown-wrapper" id="language-selector-wrapper">
+            <!-- <span class="toggle-group-label" data-i18n="shell.languageLabel">Language</span> -->
+            <div class="lang-dropdown-container" id="language-dropdown-container">
+              <button type="button" class="lang-dropdown-trigger" id="lang-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Switch Language">
+                <span class="lang-icon">🌐</span>
+                <span class="lang-current-code" id="lang-current-code">TH</span>
+                <span class="lang-arrow">▾</span>
+              </button>
+              <div class="lang-dropdown-menu glass-card" id="lang-dropdown-menu" role="listbox" style="display: none;"></div>
             </div>
           </div>
         </div>
@@ -887,13 +891,14 @@
 
   <script src="/app-dialog.js"></script>
   <script src="/visual-controls/visualOptionControls.js"></script>
+  <script src="/core/localePreferenceService.js"></script>
+  <script src="/core/i18nService.js"></script>
   <script src="/core/studioState.js"></script>
   <script src="/core/referenceManager.js"></script>
   <script src="/clothing/clothingPromptParts.js"></script>
   <script src="/clothing/clothingOptionRules.js"></script>
   <script src="/clothing/outfitReferenceController.js"></script>
   <script src="/clothing/clothingVisualConfig.js"></script>
-  <script src="/core/promptCompiler.js"></script>
   <script src="/core/actorContext.js"></script>
   <script src="/core/apiClient.js"></script>
   <script src="/community/communityMockUserSwitcher.js"></script>

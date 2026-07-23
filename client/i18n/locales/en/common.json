@@ -1,0 +1,19 @@
+{
+  "common.action.cancel": "Cancel",
+  "common.action.save": "Save",
+  "common.action.delete": "Delete",
+  "common.action.edit": "Edit",
+  "common.action.close": "Close",
+  "common.action.confirm": "Confirm",
+  "common.action.retry": "Retry",
+  "common.action.copy": "Copy",
+  "common.action.loadMore": "Load More",
+  "common.action.refresh": "Refresh",
+  "common.status.loading": "Loading...",
+  "common.status.success": "Success",
+  "common.status.failed": "Failed",
+  "common.status.active": "Active",
+  "common.status.queued": "Queued",
+  "common.status.processing": "Processing",
+  "common.status.completed": "Completed"
+}

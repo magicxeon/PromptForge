@@ -20,6 +20,7 @@ Do Step 5 in this order:
 00-002 Mock User / Actor Context
 00-003 Repository interface and database-ready schema map
 00-004 Ownership, visibility and public snapshot policy
+00-004-001 Localization and language extension foundation
 00-005 Credit ledger mock and generation billing lifecycle
 00-006 Admin/support audit and back-office foundation
 01 Product Home and Workflow Launcher
@@ -41,6 +42,7 @@ This means Community screens may start as thin prototypes, but domain contracts 
 - Use `userId` and `ownerUserId` as primary identity fields. `username` is display/compatibility only.
 - Every write operation must receive `ActorContext`.
 - Every public API must return sanitized public read models, not raw internal records.
+- Every new user-facing Community string must use the shared localization contract.
 - Credit deduction must live in a central credit service, not in Community UI or Scene Builder.
 - Admin/support actions must be auditable from the beginning.
 - Scene Builder snapshot, reference slot and template hydrator logic must be reused. Do not fork them inside Community.

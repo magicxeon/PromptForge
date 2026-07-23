@@ -1,0 +1,6 @@
+{
+  "admin.auditLog.title": "Audit Logs",
+  "admin.auditLog.empty": "No audit log entries recorded.",
+  "admin.action.hidePost": "Hide Post",
+  "admin.action.removePost": "Remove Post"
+}
