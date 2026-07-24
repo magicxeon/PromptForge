@@ -2,6 +2,7 @@
   "playground.title": "สร้างภาพแบบอิสระ",
   "playground.description": "เขียนพรอมป์เอง เพิ่มรูปอ้างอิง เลือกโมเดล และสร้างภาพผ่านระบบสร้างภาพที่ปลอดภัยชุดเดียวกัน",
   "playground.action.openStudio": "เปิด Guided Studio",
+  "playground.action.goToPrompt": "ไปที่ Prompt",
   "playground.section.prompt": "พรอมป์",
   "playground.section.references": "รูปอ้างอิง",
   "playground.section.engine": "Engine และผลลัพธ์",

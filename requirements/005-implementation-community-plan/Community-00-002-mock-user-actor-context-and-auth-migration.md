@@ -1,6 +1,6 @@
 # Community-00-002 Mock User, Actor Context and Auth Migration
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented - Pending validation
 **Feature type:** Identity foundation and development user switcher  
 **Depends on:** Application shell, server middleware, local JSON storage  
 **Created:** 2026-07-19
@@ -27,7 +27,7 @@ Use these sources:
 
 ```text
 User identity source:
-  server/identity/mockUsers.json
+  server/data/identity/mockUsers.json
 
 Current active user source in browser:
   localStorage key: mpf_active_mock_user_id
@@ -275,17 +275,17 @@ If the shell does not have a user menu yet, the switcher may render in a small d
 ### Server Files
 
 ```text
-server/identity/mockUsers.json
-server/identity/MockUserRepository.js
-server/identity/mockActorContext.js
+server/data/identity/mockUsers.json
+server/repositories/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
 server/middleware/actorContextMiddleware.js
-server/server.js
+server/app/createApp.js
 test/mockActorContext.test.js
 ```
 
 ### Server File Responsibilities
 
-#### `server/identity/mockUsers.json`
+#### `server/data/identity/mockUsers.json`
 
 Stores canonical mock users using the schema in section 2.2.
 
@@ -295,7 +295,7 @@ Rules:
 - Do not store secrets.
 - Do not store real user email/password.
 
-#### `server/identity/MockUserRepository.js`
+#### `server/repositories/identity/MockUserRepository.js`
 
 Repository API:
 
@@ -306,7 +306,7 @@ findByUsername(username) -> Promise<MockUser | null>
 toActorContext(mockUser, requestId) -> ActorContext
 ```
 
-#### `server/identity/mockActorContext.js`
+#### `server/domain/identity/mockActorContext.js`
 
 Pure functions:
 
@@ -334,7 +334,7 @@ attach req.requestId
 
 The middleware must not trust `x-user-role` or client-supplied role headers.
 
-#### `server/server.js`
+#### `server/app/createApp.js`
 
 Required route wiring:
 
@@ -355,7 +355,7 @@ activeCreatorProfileId
 featureFlags
 ```
 
-It must not return internal credit seeds as authoritative balances once credit ledger exists.
+It must not return internal credit seeds as authoritative balances once credit ledger exists. It returns `enabled: false` and an empty user list when `MPF_ENABLE_MOCK_USERS=false`.
 
 ### API Headers During Development
 
@@ -458,11 +458,11 @@ If those files must be touched only to pass actor headers, keep the change minim
 
 ### 4.3 Step-by-Step Work
 
-1. Create `server/identity/mockUsers.json` using the canonical schema.
-2. Create `MockUserRepository`.
-3. Create `mockActorContext` helper functions.
+1. Create `server/data/identity/mockUsers.json` using the canonical schema.
+2. Create `server/repositories/identity/MockUserRepository.js`.
+3. Create `server/domain/identity/mockActorContext.js` helper functions.
 4. Create `actorContextMiddleware`.
-5. Register middleware and routes in `server/server.js`.
+5. Register middleware and routes in `server/app/createApp.js`.
 6. Create `client/core/actorContext.js`.
 7. Create `client/core/apiClient.js`.
 8. Create `client/community/communityMockUserSwitcher.js`.
@@ -505,9 +505,9 @@ If implementation does not add the following files, it is probably not implement
 client/core/actorContext.js
 client/core/apiClient.js
 client/community/communityMockUserSwitcher.js
-server/identity/mockUsers.json
-server/identity/MockUserRepository.js
-server/identity/mockActorContext.js
+server/data/identity/mockUsers.json
+server/repositories/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
 server/middleware/actorContextMiddleware.js
 test/mockActorContext.test.js
 ```

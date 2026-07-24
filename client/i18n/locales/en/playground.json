@@ -2,6 +2,7 @@
   "playground.title": "Freeform image generation",
   "playground.description": "Write the prompt yourself, add references, choose a model and render through the same protected generation pipeline.",
   "playground.action.openStudio": "Open Guided Studio",
+  "playground.action.goToPrompt": "Go to Prompt",
   "playground.section.prompt": "Prompt",
   "playground.section.references": "References",
   "playground.section.engine": "Engine & Target Output",

@@ -6,18 +6,22 @@
 
   async function initMockUserSwitcher() {
     const switcherSelect = document.getElementById('mock-user-select');
+    const switcherContainer = document.getElementById('mock-user-switcher-container');
     if (!switcherSelect) return;
+
+    if (window.MPF_ENABLE_MOCK_USERS === false) {
+      if (switcherContainer) switcherContainer.hidden = true;
+      return;
+    }
 
     try {
       // 1. Fetch available mock users from API
-      const response = await fetch('/api/mock-users');
-      if (!response.ok) {
-        console.warn('[MockUserSwitcher] API /api/mock-users not available or failed');
+      const data = await window.ModelPromptForgeApiClient.apiJson('/api/mock-users');
+      if (!data.enabled || !data.users) {
+        if (switcherContainer) switcherContainer.hidden = true;
         return;
       }
-      
-      const data = await response.json();
-      if (!data.enabled || !data.users) return;
+      if (switcherContainer) switcherContainer.hidden = false;
 
       // 2. Populate select element
       switcherSelect.innerHTML = '';

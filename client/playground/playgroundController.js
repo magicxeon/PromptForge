@@ -134,12 +134,43 @@
 
   function render() {
     window.ModelPromptForgePlaygroundPage?.render?.();
+    controls?.composer?.destroy?.();
     controls?.actions?.destroy?.();
     controls?.engine?.destroy?.();
     controls?.result?.destroy?.();
     const data = window.ModelPromptForgePlaygroundState.load();
     const shared = window.ModelPromptForgeGenerationControls;
     controls = {};
+    controls.composer = window.ModelPromptForgePromptComposer?.createPromptComposerPanel?.({
+      mount: document.getElementById('playground-prompt-composer'),
+      onUsePrompt: proposal => {
+        persist({ prompt: proposal.finalPromptDraft });
+        render();
+        document.getElementById('playground-prompt-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      onApplySelections: proposal => {
+        const studioState = window.state;
+        const approvedEntries = new Map((studioState?.library || []).map(entry => [entry.id, entry]));
+        proposal.fieldSelections.forEach(selection => {
+          const entry = approvedEntries.get(selection.valueId);
+          if (!entry || (entry.subcategory || entry.category) !== selection.fieldId) return;
+          studioState.selections[selection.fieldId] = {
+            id: entry.id,
+            value: entry.prompt?.['gpt-image'] || entry.prompt?.default || entry.label?.en || entry.id,
+            isCustom: false,
+            group: entry.ui?.group || '',
+            category: entry.category || '',
+            tags: Array.isArray(entry.tags) ? entry.tags : [],
+            gptPositiveWords: entry.prompt?.['gpt-image-positive'] ? entry.prompt['gpt-image-positive'].split(',').map(word => word.trim()) : []
+          };
+        });
+        window.ModelPromptForgeRouter?.navigate?.('/studio');
+        window.setTimeout(() => {
+          window.restoreSelectionsToUI?.();
+          window.updatePromptPreview?.();
+        }, 0);
+      }
+    });
     controls.result = shared.createGenerationResultSurface({
       mount: document.getElementById('playground-generation-result'),
       surface: 'playground',
@@ -199,5 +230,5 @@
     });
   }
   window.addEventListener('modelpromptforge:ready', initialize);
-  window.ModelPromptForgePlayground = { initialize, generate, pricingInputs };
+  window.ModelPromptForgePlayground = { initialize, generate, pricingInputs, render };
 })();

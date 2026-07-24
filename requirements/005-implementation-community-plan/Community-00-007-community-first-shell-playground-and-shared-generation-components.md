@@ -462,6 +462,9 @@ call providers or modify the credit ledger itself.
 - Localization must cover dynamically rendered component labels.
 - Shared controls must render provider capability differences without exposing
   unsupported fields.
+- `EngineTargetOutput` must display Output Resolution only when the selected model exposes a
+  non-empty `capabilities.resolutions` list. On every render surface, unsupported resolution
+  controls must be hidden and cleared rather than left as an empty dropdown.
 - Existing generated history and Scene Builder snapshots require no data
   migration.
 

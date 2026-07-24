@@ -21,6 +21,7 @@ import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
 import { registerAdminRoutes } from './routes/adminRoutes.js';
+import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -82,6 +83,7 @@ export function createApp() {
   };
 
   registerAttributesRoutes(app, { providerRegistry, getAttributesBundle });
+  registerPromptComposerRoutes(app, { getAttributesBundle });
   registerIdentityRoutes(app, { mockUserRepo });
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);

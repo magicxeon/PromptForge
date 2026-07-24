@@ -96,9 +96,13 @@
     function renderEngineOptions() {
       const providerSelect = mount.querySelector('[data-provider]');
       const modelSelect = mount.querySelector('[data-model]');
-      if (!config.legacyStudioIds) {
+      if (providerSelect) {
+        providerSelect.innerHTML = '';
         (catalog().providers || []).forEach(item => providerSelect.add(new Option(localized(item.displayName), item.id)));
         providerSelect.value = current.providerId;
+      }
+      if (modelSelect) {
+        modelSelect.innerHTML = '';
         (provider()?.models || []).forEach(item => modelSelect.add(new Option(localized(item.displayName), item.id)));
         modelSelect.value = current.modelId;
       }
@@ -106,11 +110,18 @@
       const resolutions = selectedModel?.capabilities?.resolutions || [];
       const resolutionField = mount.querySelector('[data-resolution-field]');
       const resolutionSelect = mount.querySelector('[data-resolution]');
-      if (resolutionSelect && !config.legacyStudioIds) {
+      const supportsResolutionSelection = resolutions.length > 0;
+      if (resolutionSelect) {
+        resolutionSelect.innerHTML = '';
         resolutions.forEach(item => resolutionSelect.add(new Option(String(item).toUpperCase(), item)));
         resolutionSelect.value = current.resolution || '';
+        resolutionSelect.disabled = !supportsResolutionSelection;
       }
-      if (resolutionField && !config.legacyStudioIds) resolutionField.hidden = resolutions.length === 0;
+      if (resolutionField) {
+        resolutionField.hidden = !supportsResolutionSelection;
+        resolutionField.style.display = supportsResolutionSelection ? '' : 'none';
+        resolutionField.setAttribute('aria-hidden', String(!supportsResolutionSelection));
+      }
       const ratioList = mount.querySelector('[data-ratios]');
       if (ratioList) ratios.forEach(ratio => {
         const button = document.createElement('button');
