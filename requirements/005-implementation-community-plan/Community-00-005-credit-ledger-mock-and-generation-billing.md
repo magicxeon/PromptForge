@@ -82,6 +82,7 @@ If a user changes any pricing input after an estimate is issued, the client must
 - provider;
 - model;
 - resolution or image size;
+- aspect ratio;
 - quality;
 - output count;
 - reference count;
@@ -457,6 +458,13 @@ referenceCount
 pricingPolicyVersion
 ```
 
+The client estimate fingerprint and the server reservation parity check must use
+the same canonical fields: `routingMode`, `qualityTier`, `generationMode`,
+provider, model, resolution, aspect ratio, quality, reference count and output
+count. A Playground request must preserve `generationMode: playground` through
+the generation route; it must not be reclassified from the legacy Studio `mode`
+field during reservation.
+
 For this phase:
 
 - `advanced` resolves to the provider/model selected by the user;
@@ -526,6 +534,7 @@ Invariants:
   },
   "pricingInputs": {
     "resolution": "1K",
+    "aspectRatio": "6:8",
     "quality": null,
     "referenceCount": 1,
     "outputCount": 1,

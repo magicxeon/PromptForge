@@ -765,13 +765,13 @@
       "schemaVersion": 2,
       "userId": "usr_demo",
       "username": "user_demo",
-      "availableCredits": 6,
+      "availableCredits": 11,
       "reservedCredits": 0,
       "status": "active",
-      "lifetimeGrantedCredits": 136,
-      "lifetimeCapturedCredits": 130,
+      "lifetimeGrantedCredits": 306,
+      "lifetimeCapturedCredits": 295,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-07-24T04:30:27.636Z"
+      "updatedAt": "2026-07-24T05:34:52.894Z"
     },
     {
       "schemaVersion": 2,
@@ -4734,6 +4734,742 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-07-24T04:41:28.018Z",
       "expiresAt": "2026-07-24T04:56:28.018Z"
+    },
+    {
+      "estimateId": "est_1784869605265_kdekhk3",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:06:45.265Z",
+      "expiresAt": "2026-07-24T05:21:45.265Z"
+    },
+    {
+      "estimateId": "est_1784869605272_zy0jqie",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:06:45.272Z",
+      "expiresAt": "2026-07-24T05:21:45.272Z"
+    },
+    {
+      "estimateId": "est_1784869611557_wvjdvdt",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:06:51.557Z",
+      "expiresAt": "2026-07-24T05:21:51.557Z"
+    },
+    {
+      "estimateId": "est_1784869611568_qjar4tc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:06:51.568Z",
+      "expiresAt": "2026-07-24T05:21:51.568Z"
+    },
+    {
+      "estimateId": "est_1784870842630_qbk8hn5",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:27:22.630Z",
+      "expiresAt": "2026-07-24T05:42:22.630Z"
+    },
+    {
+      "estimateId": "est_1784870842630_oodx5zj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:27:22.630Z",
+      "expiresAt": "2026-07-24T05:42:22.630Z"
+    },
+    {
+      "estimateId": "est_1784870865242_uakqjcs",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:27:45.242Z",
+      "expiresAt": "2026-07-24T05:42:45.242Z"
+    },
+    {
+      "estimateId": "est_1784871016308_9ce61gx",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:30:16.308Z",
+      "expiresAt": "2026-07-24T05:45:16.308Z"
+    },
+    {
+      "estimateId": "est_1784871016317_7lbzef9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:30:16.317Z",
+      "expiresAt": "2026-07-24T05:45:16.317Z"
+    },
+    {
+      "estimateId": "est_1784871024056_8uf2dai",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:30:24.056Z",
+      "expiresAt": "2026-07-24T05:45:24.056Z"
+    },
+    {
+      "estimateId": "est_1784871221674_wqq7k9n",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:41.674Z",
+      "expiresAt": "2026-07-24T05:48:41.674Z"
+    },
+    {
+      "estimateId": "est_1784871221674_8dk8a6d",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:41.674Z",
+      "expiresAt": "2026-07-24T05:48:41.674Z"
+    },
+    {
+      "estimateId": "est_1784871228055_2m30t0m",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:48.055Z",
+      "expiresAt": "2026-07-24T05:48:48.055Z"
+    },
+    {
+      "estimateId": "est_1784871228055_gzxx6a8",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T05:33:48.055Z",
+      "expiresAt": "2026-07-24T05:48:48.055Z"
+    },
+    {
+      "estimateId": "est_1784871233160_lk9imvm",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:53.160Z",
+      "expiresAt": "2026-07-24T05:48:53.160Z"
+    },
+    {
+      "estimateId": "est_1784871233160_p5ti15t",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T05:33:53.160Z",
+      "expiresAt": "2026-07-24T05:48:53.160Z"
+    },
+    {
+      "estimateId": "est_1784871233160_2cnqlfb",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T05:33:53.160Z",
+      "expiresAt": "2026-07-24T05:48:53.160Z"
+    },
+    {
+      "estimateId": "est_1784871235582_pywo7nt",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:55.582Z",
+      "expiresAt": "2026-07-24T05:48:55.582Z"
+    },
+    {
+      "estimateId": "est_1784871235582_4znw7zk",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T05:33:55.582Z",
+      "expiresAt": "2026-07-24T05:48:55.582Z"
+    },
+    {
+      "estimateId": "est_1784871235582_qwy2rjy",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:33:55.582Z",
+      "expiresAt": "2026-07-24T05:48:55.582Z"
+    },
+    {
+      "estimateId": "est_1784871245229_hmwad3t",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:34:05.229Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z"
+    },
+    {
+      "estimateId": "est_1784871245229_7pizvvd",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T05:34:05.229Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z"
+    },
+    {
+      "estimateId": "est_1784871245229_xm70i69",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T05:34:05.229Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z"
     }
   ],
   "reservations": [
@@ -4854,6 +5590,126 @@
       "updatedAt": "2026-07-24T04:30:06.732Z",
       "expiresAt": "2026-07-24T04:44:39.561Z",
       "capturedAt": "2026-07-24T04:30:06.732Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784871024096_dh8e6zr",
+      "estimateId": "est_1784871024056_8uf2dai",
+      "userId": "usr_demo",
+      "requestId": "req_1784871024083_c0javyml",
+      "jobId": "job_1784871024092_8wuv90mqb",
+      "amountCredits": 45,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 45,
+        "breakdown": {
+          "baseOutputCredits": 45,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 45
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T05:30:24.092Z",
+      "updatedAt": "2026-07-24T05:30:31.956Z",
+      "expiresAt": "2026-07-24T05:45:24.056Z",
+      "capturedAt": "2026-07-24T05:30:31.956Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784871247633_d0pecrv",
+      "estimateId": "est_1784871245229_hmwad3t",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_x0mf65",
+      "jobId": "job_1784871247629_yq034a9uv",
+      "amountCredits": 45,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 45,
+        "breakdown": {
+          "baseOutputCredits": 45,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 45
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T05:34:07.630Z",
+      "updatedAt": "2026-07-24T05:34:14.963Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z",
+      "capturedAt": "2026-07-24T05:34:14.963Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784871247652_31luw95",
+      "estimateId": "est_1784871245229_7pizvvd",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_a4goir",
+      "jobId": "job_1784871247636_eg8pu8t32",
+      "amountCredits": 30,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1-mini",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 30,
+        "breakdown": {
+          "baseOutputCredits": 30,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 30
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T05:34:07.636Z",
+      "updatedAt": "2026-07-24T05:34:52.894Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z",
+      "capturedAt": "2026-07-24T05:34:52.894Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784871247671_bzv772x",
+      "estimateId": "est_1784871245229_xm70i69",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784871247622_4sllmupg:comparison_slot_1784871233005_jfg5pl",
+      "jobId": "job_1784871247655_kbwylj0zh",
+      "amountCredits": 45,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 45,
+        "breakdown": {
+          "baseOutputCredits": 45,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 45
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T05:34:07.655Z",
+      "updatedAt": "2026-07-24T05:34:27.854Z",
+      "expiresAt": "2026-07-24T05:49:05.229Z",
+      "capturedAt": "2026-07-24T05:34:27.854Z",
       "refundedAt": null,
       "terminalReason": null
     }
@@ -6518,6 +7374,498 @@
       "metadata": {
         "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
         "comparisonRunId": "cmp_run_1784867380463_bdv0q3"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784870904495_git4vro",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 16,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784870904486",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:28:24.490Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784870904814_41m8t50",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 26,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784870904805",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:28:24.809Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784870905323_8ps7fbb",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 36,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784870905314",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:28:25.318Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784870905579_1rw1980",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 46,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784870905573",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:28:25.576Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784870906206_u60ub02",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 56,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784870906197",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:28:26.201Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871024096_wdmibz3",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 45,
+      "availableDelta": -45,
+      "reservedDelta": 45,
+      "availableAfter": 11,
+      "reservedAfter": 45,
+      "reservationId": "rsv_1784871024096_dh8e6zr",
+      "estimateId": "est_1784871024056_8uf2dai",
+      "relatedJobId": "job_1784871024092_8wuv90mqb",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:req_1784871024083_c0javyml",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:30:24.092Z",
+      "metadata": {
+        "requestId": "req_1784871024083_c0javyml",
+        "jobId": "job_1784871024092_8wuv90mqb",
+        "relatedTemplateId": null,
+        "expiresAt": "2026-07-24T05:45:24.056Z",
+        "idempotencyKey": "reserve:usr_demo:req_1784871024083_c0javyml"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871031958_yk20cxm",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 45,
+      "availableDelta": 0,
+      "reservedDelta": -45,
+      "availableAfter": 11,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1784871024096_dh8e6zr",
+      "estimateId": "est_1784871024056_8uf2dai",
+      "relatedJobId": "job_1784871024092_8wuv90mqb",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784871024096_dh8e6zr",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:30:31.956Z",
+      "metadata": {
+        "comparisonSetId": null,
+        "comparisonRunId": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871240873_20k9073",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 21,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871240869",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:00.871Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871241073_fxfp5xx",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 31,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871241069",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:01.071Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871241245_tfg3796",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 41,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871241241",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:01.244Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871241475_tjq98yd",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 51,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871241469",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:01.473Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871241643_e2c9jvb",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 61,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871241637",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:01.640Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871241836_4wtjpzr",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 71,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871241829",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:01.833Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871242036_avl1375",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 81,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871242030",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:02.033Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871242246_1x0l9f2",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 91,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871242241",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:02.244Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871242450_2ep1epu",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 101,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871242445",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:02.448Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871242635_f2sr5ww",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 111,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871242629",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:02.633Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871242857_mxrve07",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 121,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871242853",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:02.856Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871243048_gcrlfxv",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 131,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784871243042",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:03.045Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871247633_ncvaqd4",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 45,
+      "availableDelta": -45,
+      "reservedDelta": 45,
+      "availableAfter": 86,
+      "reservedAfter": 45,
+      "reservationId": "rsv_1784871247633_d0pecrv",
+      "estimateId": "est_1784871245229_hmwad3t",
+      "relatedJobId": "job_1784871247629_yq034a9uv",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_x0mf65",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:07.630Z",
+      "metadata": {
+        "jobId": "job_1784871247629_yq034a9uv",
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb",
+        "expiresAt": "2026-07-24T05:49:05.229Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_x0mf65"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871247652_zd7iok7",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 30,
+      "availableDelta": -30,
+      "reservedDelta": 30,
+      "availableAfter": 56,
+      "reservedAfter": 75,
+      "reservationId": "rsv_1784871247652_31luw95",
+      "estimateId": "est_1784871245229_7pizvvd",
+      "relatedJobId": "job_1784871247636_eg8pu8t32",
+      "relatedTemplateId": null,
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_a4goir",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:07.636Z",
+      "metadata": {
+        "jobId": "job_1784871247636_eg8pu8t32",
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb",
+        "expiresAt": "2026-07-24T05:49:05.229Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871221518_a4goir"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871247671_9fp000w",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 45,
+      "availableDelta": -45,
+      "reservedDelta": 45,
+      "availableAfter": 11,
+      "reservedAfter": 120,
+      "reservationId": "rsv_1784871247671_bzv772x",
+      "estimateId": "est_1784871245229_xm70i69",
+      "relatedJobId": "job_1784871247655_kbwylj0zh",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871233005_jfg5pl",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:07.655Z",
+      "metadata": {
+        "jobId": "job_1784871247655_kbwylj0zh",
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb",
+        "expiresAt": "2026-07-24T05:49:05.229Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784871247622_4sllmupg:comparison_slot_1784871233005_jfg5pl"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871254967_e1s8zrd",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 45,
+      "availableDelta": 0,
+      "reservedDelta": -45,
+      "availableAfter": 11,
+      "reservedAfter": 75,
+      "reservationId": "rsv_1784871247633_d0pecrv",
+      "estimateId": "est_1784871245229_hmwad3t",
+      "relatedJobId": "job_1784871247629_yq034a9uv",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784871247633_d0pecrv",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:14.963Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871267857_7lwh4ht",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 45,
+      "availableDelta": 0,
+      "reservedDelta": -45,
+      "availableAfter": 11,
+      "reservedAfter": 30,
+      "reservationId": "rsv_1784871247671_bzv772x",
+      "estimateId": "est_1784871245229_xm70i69",
+      "relatedJobId": "job_1784871247655_kbwylj0zh",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784871247671_bzv772x",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:27.854Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784871292900_ekv7dsu",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 30,
+      "availableDelta": 0,
+      "reservedDelta": -30,
+      "availableAfter": 11,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1784871247652_31luw95",
+      "estimateId": "est_1784871245229_7pizvvd",
+      "relatedJobId": "job_1784871247636_eg8pu8t32",
+      "relatedTemplateId": null,
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784871247652_31luw95",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T05:34:52.894Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+        "comparisonRunId": "cmp_run_1784871247627_poehyb"
       }
     }
   ]

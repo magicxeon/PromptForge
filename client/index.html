@@ -86,60 +86,8 @@
         </div>
 
         <div class="dashboard-layout-grid">
-          <!-- Viewport Column (Active render screen) -->
-          <div class="viewport-column">
-            <div class="viewport-card-header">
-              <h3>Active Render Screen</h3>
-              <button id="btn-download-image" class="btn-download" title="Download Generated Image"
-                style="display: none;">
-                <span>📥 Download Image</span>
-              </button>
-            </div>
-
-            <div class="viewport-screen" id="viewport-screen">
-              <div class="image-loading-overlay" id="image-loading-overlay">
-                <div class="loading-pulse-ring"></div>
-                <p class="loading-text">Generating character details...</p>
-              </div>
-
-              <div class="viewport-placeholder-content" id="viewport-placeholder">
-                <span class="viewport-placeholder-icon">✨</span>
-                <p class="placeholder-main-text">Ready to render character</p>
-                <p class="sub-placeholder">Configure attributes below and click Generate Image</p>
-              </div>
-
-              <div class="viewport-error-banner" id="viewport-error" style="display: none;">
-                <span class="error-icon">⚠️</span>
-                <div class="error-content">
-                  <p class="error-msg" id="error-message">Generation failed</p>
-                  <details class="error-details" id="error-details" style="display: none;">
-                    <summary>Technical details</summary>
-                    <span id="error-technical-message"></span>
-                  </details>
-                </div>
-              </div>
-
-              <img id="generated-image" src="" alt="Generated Character Output">
-            </div>
-
-            <!-- Loopback viewport controls (Step 9) -->
-            <div class="viewport-actions-row" id="viewport-loopback-actions"
-              style="display: none; gap: 0.5rem; margin-top: 0.5rem; width: 100%;">
-              <button id="btn-viewport-use-face" class="btn-compact-neon btn-use-face-ref"
-                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
-              <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref"
-                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
-              <button id="btn-viewport-use-character" class="btn-compact-neon btn-use-character-ref"
-                style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
-            </div>
-
-            <!-- Telemetry Bar -->
-            <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
-              <div class="telemetry-item"><span class="tel-label">Model:</span> <span id="tel-model">-</span></div>
-              <div class="telemetry-item"><span class="tel-label">Time:</span> <span id="tel-time">-</span></div>
-              <div class="telemetry-item"><span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span></div>
-            </div>
-          </div>
+          <!-- Shared Studio GenerationResultSurface mount -->
+          <div id="studio-generation-result"></div>
 
           <!-- History / Queue Column -->
           <div class="history-column">
@@ -835,6 +783,7 @@
   <script src="/generation-controls/promptEditor.js"></script>
   <script src="/generation-controls/referenceSlotManager.js"></script>
   <script src="/generation-controls/generationActionBar.js"></script>
+  <script src="/generation-controls/generationResultSurface.js"></script>
   <script src="/playground/playgroundState.js"></script>
   <script src="/playground/playgroundPage.js"></script>
   <script src="/playground/playgroundController.js"></script>

@@ -1,5 +1,345 @@
 [
   {
+    "id": "job_1784871247636_eg8pu8t32",
+    "username": "user_demo",
+    "prompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+    "imageUrl": "/outputs/job_1784871247636_eg8pu8t32.png",
+    "timestamp": 1784871292902,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784871247636_eg8pu8t32",
+      "createdAt": 1784871292902
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 30,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 271,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 271
+      },
+      "output_tokens": 6240,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 0
+      },
+      "total_tokens": 6511
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "45.2",
+    "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+    "comparisonRunId": "cmp_run_1784871247627_poehyb",
+    "comparisonSlotId": "comparison_slot_1784871221518_a4goir",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784871247636_eg8pu8t32.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19836,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2627065
+  },
+  {
+    "id": "job_1784871247655_kbwylj0zh",
+    "username": "user_demo",
+    "prompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+    "imageUrl": "/outputs/job_1784871247655_kbwylj0zh.jpg",
+    "timestamp": 1784871267862,
+    "provider": "modelark",
+    "submodel": "seedream-4-0-250828",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784871247655_kbwylj0zh",
+      "createdAt": 1784871267862
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-4-0-250828",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 15680,
+      "total_tokens": 15680
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "12.8",
+    "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+    "comparisonRunId": "cmp_run_1784871247627_poehyb",
+    "comparisonSlotId": "comparison_slot_1784871233005_jfg5pl",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784871247655_kbwylj0zh.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 512,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 33710,
+    "width": 1792,
+    "height": 2240,
+    "originalBytes": 1151266
+  },
+  {
+    "id": "job_1784871247629_yq034a9uv",
+    "username": "user_demo",
+    "prompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+    "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+    "timestamp": 1784871254971,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784871247629_yq034a9uv",
+      "createdAt": 1784871254971
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.3",
+    "comparisonSetId": "cmp_set_1784871247627_81eq1w",
+    "comparisonRunId": "cmp_run_1784871247627_poehyb",
+    "comparisonSlotId": "comparison_slot_1784871221518_x0mf65",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784871247629_yq034a9uv.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 24584,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 658021
+  },
+  {
+    "id": "job_1784871024092_8wuv90mqb",
+    "username": "user_demo",
+    "prompt": "Create a photorealistic lifestyle advertising photograph in a vertical 4:5 composition.\n\nShow exactly two adult Thai women at a colorful outdoor flower market in Bangkok during the early morning.\n\nThe woman on the left wears a light-blue denim jacket over a white shirt and holds a bouquet of yellow sunflowers with both hands. She is looking at the bouquet.\n\nThe woman on the right wears a soft pink cardigan and beige trousers. She holds one woven shopping basket in her left hand and points toward a bucket of red roses with her right hand. She is looking at the flower seller's display, not at the camera.\n\nPlace the yellow sunflowers in the foreground, the red roses in the middle ground, and a softly blurred traditional market awning in the background. Include a small handwritten price card showing only the number “120” beside the red roses.\n\nUse natural morning light, realistic anatomy, candid expressions, accurate hands, subtle depth of field, and warm commercial lifestyle photography. No additional people, duplicated flowers, logos, watermark, or other readable text.",
+    "imageUrl": "/outputs/job_1784871024092_8wuv90mqb.jpg",
+    "timestamp": 1784871031961,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a photorealistic lifestyle advertising photograph in a vertical 4:5 composition.\n\nShow exactly two adult Thai women at a colorful outdoor flower market in Bangkok during the early morning.\n\nThe woman on the left wears a light-blue denim jacket over a white shirt and holds a bouquet of yellow sunflowers with both hands. She is looking at the bouquet.\n\nThe woman on the right wears a soft pink cardigan and beige trousers. She holds one woven shopping basket in her left hand and points toward a bucket of red roses with her right hand. She is looking at the flower seller's display, not at the camera.\n\nPlace the yellow sunflowers in the foreground, the red roses in the middle ground, and a softly blurred traditional market awning in the background. Include a small handwritten price card showing only the number “120” beside the red roses.\n\nUse natural morning light, realistic anatomy, candid expressions, accurate hands, subtle depth of field, and warm commercial lifestyle photography. No additional people, duplicated flowers, logos, watermark, or other readable text.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a photorealistic lifestyle advertising photograph in a vertical 4:5 composition.\n\nShow exactly two adult Thai women at a colorful outdoor flower market in Bangkok during the early morning.\n\nThe woman on the left wears a light-blue denim jacket over a white shirt and holds a bouquet of yellow sunflowers with both hands. She is looking at the bouquet.\n\nThe woman on the right wears a soft pink cardigan and beige trousers. She holds one woven shopping basket in her left hand and points toward a bucket of red roses with her right hand. She is looking at the flower seller's display, not at the camera.\n\nPlace the yellow sunflowers in the foreground, the red roses in the middle ground, and a softly blurred traditional market awning in the background. Include a small handwritten price card showing only the number “120” beside the red roses.\n\nUse natural morning light, realistic anatomy, candid expressions, accurate hands, subtle depth of field, and warm commercial lifestyle photography. No additional people, duplicated flowers, logos, watermark, or other readable text.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784871024092_8wuv90mqb",
+      "createdAt": 1784871031961
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1784871024092_8wuv90mqb.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 46736,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 806465
+  },
+  {
     "id": "job_1784867380471_kje7cas84",
     "username": "user_demo",
     "prompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",

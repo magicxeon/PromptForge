@@ -34,6 +34,7 @@
         routingMode: params?.routingMode || 'advanced', qualityTier: params?.qualityTier || 'standard',
         generationMode: params?.generationMode || 'scene', requestedProviderId: params?.requestedProviderId || null,
         requestedModelId: params?.requestedModelId || null, resolution: String(params?.resolution || '1K').toUpperCase(),
+        aspectRatio: params?.aspectRatio || null,
         quality: params?.quality || null, referenceCount: Number(params?.referenceCount || 0), outputCount: Number(params?.outputCount || 1)
       });
     }

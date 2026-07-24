@@ -131,6 +131,7 @@ directly.
 | `GenerationActionBar` | Estimate, Generate, queued/running state, retry and validation summary | Studio, Playground |
 | `ReferenceSlotManager` | Face, character, style, pose and outfit reference inputs | Studio, Playground, template remix |
 | `PromptEditor` | Editable prompt and optional negative prompt with guided/manual policy | Scene Builder, Playground |
+| `GenerationResultSurface` | Active render state, result preview, lightbox entry, download, copy-prompt and recent results scoped to a generation surface | Studio, Playground |
 | `VisualOptionCarousel` | Accessible visual option selection | Character Builder, Clothing |
 | `ComparisonLauncher` | Convert current prompt/settings into comparison slots | Playground, Studio |
 | `CreditStatus` | Available/reserved credits and active estimate | Shell, generation surfaces |
@@ -168,6 +169,14 @@ ReferenceSlotManagerInput
 - slotPolicies[]
 - actorContext
 - onSlotChange(slotId, normalizedReference)
+
+GenerationResultSurfaceInput
+- surface: `studio` | `playground`
+- resultState: latest result, recent completed results and current job state
+- comparisonActive
+- onResultStateChange(nextResultState)
+- showRecentRenders
+- showHandoffActions
 ```
 
 `client/core/studioState.js` remains the compatibility source for Studio during
@@ -202,6 +211,7 @@ client/generation-controls/
   generationActionBar.js
   referenceSlotManager.js
   promptEditor.js
+  generationResultSurface.js
 
 client/playground/
   playgroundPage.js
@@ -349,6 +359,50 @@ locked credit estimate
 history entry owned by active actor
 ```
 
+### 6.3 Shared Generation Result Surface
+
+Studio and Playground must render the same reusable `GenerationResultSurface`.
+The component owns presentation only; generation, provider calls, queue polling,
+credit reservation and history persistence remain in the existing generation
+service and server queue domain.
+
+Required states:
+
+| State | Required presentation |
+|---|---|
+| Idle | Collapse the render surface to a compact header. Do not reserve a blank preview area; provide a nearby `Go to prompt` action. A previously completed Playground result remains visible when available. |
+| Preparing / queued / running | A loading preview, provider/model and job status. |
+| Partial | The latest streaming image preview when the provider emits one. |
+| Completed | Large image preview, Open Detail / Lightbox entry, Download, Copy Prompt, provider/model and duration metadata. |
+| Failed | Human-readable error and technical detail when safely available; the previous completed result remains available through Recent Renders. |
+| Comparison active | Do not present a stale single-image result as the current comparison output. Show a concise handoff state; the existing Comparison Workspace owns multi-model results. |
+
+`Recent Renders` is actor-scoped and surface-scoped in the first pass. It stores a
+small capped list of completed Playground result metadata in
+`model_prompt_forge_playground_<actor>_v2`; it is not a replacement for the
+server-owned History library. Each thumbnail opens the existing Lightbox.
+
+The generation bootstrap publishes browser events named
+`modelpromptforge:generation-status` with `{ type, surface, jobId, job, error }`.
+The component may consume these through its caller, but it must not poll jobs,
+call providers or modify the credit ledger itself.
+
+#### Human Interaction Rules
+
+1. Do not show several mutually exclusive result messages at once. The result
+   surface renders exactly one primary state: collapsed idle, loading, partial
+   preview, completed image, failed state, or comparison handoff.
+2. When no image has been generated, collapse the result surface so the prompt
+   editor remains the primary next action. `Go to prompt` scrolls to the prompt
+   editor with the sticky navigation offset respected by the browser.
+3. A normal Generate action scrolls to the result surface before submitting;
+   the surface expands when the generation lifecycle emits `submitted` or
+   `queued`. It must not navigate the user to Studio.
+4. A failure keeps the error readable in the result surface and offers `Go to
+   prompt`; it must not overwrite a completed image in Recent Renders.
+5. Comparison mode must show only its concise handoff state in the single-image
+   surface. The comparison workspace owns progress and multi-model result cards.
+
 ## 7. Implementation Plan
 
 ### Phase A: Shell Contract
@@ -374,6 +428,13 @@ history entry owned by active actor
 3. Add `Compare Models` through the existing comparison API.
 4. Persist Playground state under its own versioned key, separated by actor.
 5. Verify normal generation history remains actor-scoped.
+6. Extract `GenerationResultSurface` under `client/generation-controls/`, then
+   mount it in Playground and migrate Studio through the same public contract in
+   a compatibility-safe follow-up. Playground must never navigate to Studio just
+   to submit or view a normal generation.
+7. Capture the canonical Playground payload synchronously before temporary
+   Studio compatibility state is restored. Publish lifecycle events using the
+   captured `generationSurface`, not mutable current route state.
 
 ### Phase D: Community Home Launcher
 
@@ -419,6 +480,9 @@ TC-00-007-007 comparison launch creates valid slots without direct provider call
 TC-00-007-008 actor switch isolates Playground persisted state
 TC-00-007-009 Community Create handoff hydrates only compatible target fields
 TC-00-007-010 locale change updates shell and shared controls
+TC-00-007-011 Playground shows queued, partial, completed and failed states without navigating to Studio
+TC-00-007-012 Playground result opens the shared Lightbox and supports download/copy prompt
+TC-00-007-013 Playground recent renders are isolated by actor and never replace server History
 ```
 
 ### Manual UI
@@ -429,9 +493,12 @@ TC-00-007-010 locale change updates shell and shared controls
 3. Change provider/model in Studio and Playground and confirm settings and credit
    estimates update consistently.
 4. Generate from Playground and confirm Active Render, queue and History work.
-5. Launch a comparison and confirm each model uses its own estimate.
-6. Switch actor and confirm Library/History/Playground state changes.
-7. Verify mobile navigation and browser Back/Forward.
+5. Keep the user on `/playground` while a normal generation is queued and
+   completed. Verify the Playground result panel updates, opens Lightbox and
+   preserves a small actor-scoped recent list after route changes.
+6. Launch a comparison and confirm each model uses its own estimate.
+7. Switch actor and confirm Library/History/Playground state changes.
+8. Verify mobile navigation and browser Back/Forward.
 
 ## 10. Acceptance Criteria
 
@@ -439,6 +506,9 @@ TC-00-007-010 locale change updates shell and shared controls
 - The Create panel reaches every enabled creation workflow.
 - Studio and Playground share Engine/Target Output and generation infrastructure.
 - Playground supports manual prompt, references, generation and comparison.
+- Playground displays its own result surface while reusing the same result
+  component contract as Studio; a single-image result never masquerades as a
+  comparison result.
 - Navigation remains understandable as Community, billing, support and admin grow.
 - Admin appears only for authorized actors.
 - No component duplicates provider calls, credit logic or reference normalization.

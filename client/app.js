@@ -119,6 +119,18 @@ async function initApp() {
       throw new Error('Engine & Target Output component is unavailable.');
     }
 
+    window.ModelPromptForgeStudioGenerationResultSurface?.destroy?.();
+    window.ModelPromptForgeStudioGenerationResultSurface = window.ModelPromptForgeGenerationControls
+      ?.createGenerationResultSurface?.({
+        mount: document.getElementById('studio-generation-result'),
+        surface: 'studio',
+        legacyStudioIds: true,
+        showRecentRenders: false
+      });
+    if (!window.ModelPromptForgeStudioGenerationResultSurface) {
+      throw new Error('Generation result component is unavailable.');
+    }
+
     state.schema = bundle.schema;
     state.templates = bundle.templates;
     state.order = bundle.order;
@@ -785,6 +797,12 @@ function bindEvents() {
       const telemetryBar = document.getElementById("telemetry-bar");
       const btnDownload = document.getElementById("btn-download-image");
       const queueList = document.getElementById("active-queue-list");
+      const generationSurface = state.generationSurface === 'playground' ? 'playground' : 'studio';
+      const publishGenerationStatus = (type, detail = {}) => {
+        document.dispatchEvent(new CustomEvent('modelpromptforge:generation-status', {
+          detail: { type, surface: generationSurface, ...detail }
+        }));
+      };
 
       if (!validateForm()) {
         return;
@@ -816,7 +834,11 @@ function bindEvents() {
       if (btnFloatingConfig) {
         btnFloatingConfig.style.display = "block";
       }
-      scrollToActiveRenderScreen();
+      if (generationSurface === 'playground') {
+        document.getElementById('playground-generation-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        scrollToActiveRenderScreen();
+      }
 
       const startTime = performance.now();
       const generationActorId = getActiveActorId();
@@ -824,6 +846,7 @@ function bindEvents() {
 
       try {
         const generationPayload = getGenerationRequestPayload();
+        publishGenerationStatus('submitted', { provider, submodel });
         const pricingInputs = window.getGenerationPricingInputs?.(generationPayload);
         const estimate = await window.creditEstimateController?.ensureEstimate(pricingInputs);
         if (!estimate) {
@@ -855,6 +878,7 @@ function bindEvents() {
 
         const jobId = data.jobId;
         void window.creditBalanceBadge?.refresh?.();
+        publishGenerationStatus('queued', { jobId, provider, submodel });
 
         const jobCard = document.createElement("div");
         jobCard.className = "queue-item";
@@ -948,6 +972,12 @@ function bindEvents() {
             loader.style.display = "none";
             img.src = `data:image/png;base64,${payload.b64_json}`;
             img.style.display = "block";
+            publishGenerationStatus('partial', {
+              jobId,
+              imageUrl: `data:image/png;base64,${payload.b64_json}`,
+              provider,
+              submodel
+            });
           }
         };
 
@@ -980,12 +1010,13 @@ function bindEvents() {
 
           const jobMeta = {
             id: jobId,
-            prompt: getEditablePromptText(),
+            prompt: generationPayload.sceneBuilder?.manualPromptText || generationPayload.adminPromptOverride || getEditablePromptText(),
             imageUrl: finalImgSrc,
             timestamp: Date.now(),
             provider,
             submodel,
             mode: generationPayload.mode,
+            generationSurface,
             selections: JSON.parse(JSON.stringify(generationPayload.selections || {})),
             referencedFaceJobIds: submittedReferenceJobIds.face,
             referencedStyleJobIds: submittedReferenceJobIds.style,
@@ -994,6 +1025,7 @@ function bindEvents() {
             generationDuration: durationSec
           };
           state.activeViewportJobMeta = jobMeta;
+          publishGenerationStatus('completed', { jobId, job: jobMeta });
 
           img.onclick = () => openLightbox(jobMeta);
 
@@ -1081,6 +1113,10 @@ function bindEvents() {
           }
           placeholder.style.display = "flex";
           updateCredits();
+          publishGenerationStatus('failed', {
+            jobId,
+            error: { message: errorMsg, technicalMessage }
+          });
         });
 
         if (data.providerStreaming === true) {
@@ -1092,6 +1128,7 @@ function bindEvents() {
         errBanner.style.display = "flex";
         document.getElementById("error-message").textContent = err.message;
         placeholder.style.display = "flex";
+        publishGenerationStatus('failed', { error: { message: err.message } });
       }
     });
   }

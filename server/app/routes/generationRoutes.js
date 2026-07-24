@@ -43,7 +43,8 @@ export function registerGenerationRoutes(app, {
           outputCount: Number(req.body.outputCount || 1),
           routingMode: req.body.routingMode || 'advanced',
           qualityTier: req.body.qualityTier || 'standard',
-          generationMode: req.body.mode || 'scene',
+          generationMode: req.body.generationMode
+            || (context.generationSurface === 'playground' ? 'playground' : req.body.mode || 'scene'),
           requestId: reqId
         },
         metadata: {

@@ -14,7 +14,20 @@
   function pricingInputs() {
     const data = state();
     const refs = Object.values(data?.references || {}).filter(Boolean);
-    return { routingMode: 'advanced', qualityTier: 'standard', generationMode: 'playground', requestedProviderId: data?.settings?.providerId || null, requestedModelId: data?.settings?.modelId || null, resolution: data?.settings?.resolution || '1K', quality: null, referenceCount: new Set(refs).size, outputCount: 1 };
+    const provider = window.state?.providerCatalog?.providers?.find(item => item.id === data?.settings?.providerId);
+    const model = provider?.models?.find(item => item.id === data?.settings?.modelId);
+    return {
+      routingMode: 'advanced',
+      qualityTier: 'standard',
+      generationMode: 'playground',
+      requestedProviderId: data?.settings?.providerId || null,
+      requestedModelId: data?.settings?.modelId || null,
+      resolution: data?.settings?.resolution || model?.defaults?.resolution || '1K',
+      aspectRatio: data?.settings?.aspectRatio || '6:8',
+      quality: null,
+      referenceCount: new Set(refs).size,
+      outputCount: 1
+    };
   }
 
   function syncStudioSelections(data) {
@@ -86,10 +99,23 @@
     const data = state();
     if (!String(data?.prompt || '').trim()) { await window.AppDialog?.alert?.(window.ModelPromptForgeI18n?.t?.('playground.validation.promptRequired', {}, { defaultValue: 'Write a prompt before generating.' }) || 'Write a prompt before generating.', { title: window.ModelPromptForgeI18n?.t?.('playground.validation.promptRequiredTitle', {}, { defaultValue: 'Prompt required' }) || 'Prompt required' }); return; }
     if (controls.engine?.isComparisonActive?.()) return controls.engine.submitComparison();
+    controls.result?.focus?.();
     const restore = syncStudioSelections(data);
-    window.ModelPromptForgeRouter?.navigate('/studio');
+    let submitted = false;
+    const markSubmitted = event => {
+      if (event.detail?.surface === 'playground' && event.detail?.type === 'submitted') submitted = true;
+    };
+    document.addEventListener('modelpromptforge:generation-status', markSubmitted, { once: true });
     document.getElementById('btn-generate-image')?.click();
+    document.removeEventListener('modelpromptforge:generation-status', markSubmitted);
     restore();
+    if (!submitted) {
+      controls.result?.applyGenerationStatus({
+        surface: 'playground',
+        type: 'failed',
+        error: { message: 'Generation could not be started. Please review the form and try again.' }
+      });
+    }
   }
 
   async function submitComparison(data = state(), slots = []) {
@@ -110,9 +136,19 @@
     window.ModelPromptForgePlaygroundPage?.render?.();
     controls?.actions?.destroy?.();
     controls?.engine?.destroy?.();
+    controls?.result?.destroy?.();
     const data = window.ModelPromptForgePlaygroundState.load();
     const shared = window.ModelPromptForgeGenerationControls;
     controls = {};
+    controls.result = shared.createGenerationResultSurface({
+      mount: document.getElementById('playground-generation-result'),
+      surface: 'playground',
+      value: data.resultSurface,
+      showRecentRenders: true,
+      showHandoffActions: false,
+      onGoToPrompt: () => document.getElementById('playground-prompt-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      onResultStateChange: resultSurface => persist({ resultSurface })
+    });
     controls.prompt = shared.createPromptEditor({ mount: document.getElementById('playground-prompt-editor'), value: data, onChange: patch => { persist(patch); controls.actions.refresh({ debounce: true }); } });
     controls.references = shared.createReferenceSlotManager({ mount: document.getElementById('playground-reference-slots'), value: data.references, onChange: references => { persist({ references }); controls.actions.refresh({ debounce: true }); } });
     controls.engine = shared.createEngineTargetComparisonPanel({
@@ -140,11 +176,15 @@
           restore();
         }
       },
-      onComparisonModeChange: () => controls.actions?.refreshComparisonMode?.(),
+      onComparisonModeChange: active => {
+        controls.actions?.refreshComparisonMode?.();
+        controls.result?.setComparisonMode?.(active);
+      },
       onComparisonSubmit: ({ slots }) => submitComparison(state(), slots)
     });
     controls.actions = shared.createGenerationActionBar({ mount: document.getElementById('playground-generation-actions'), getPricingInputs: pricingInputs, onGenerate: generate, getComparisonActive: () => controls.engine?.isComparisonActive?.(), showCompare: false });
     controls.actions.refresh();
+    controls.result.setComparisonMode(controls.engine.isComparisonActive());
   }
 
   function initialize() {
@@ -153,6 +193,10 @@
     render();
     window.ModelPromptForgeActorContext?.subscribeActorChange?.(() => render());
     window.addEventListener('modelpromptforge:languagechange', render);
+    document.addEventListener('modelpromptforge:generation-status', event => {
+      if (event.detail?.surface !== 'playground') return;
+      controls?.result?.applyGenerationStatus?.(event.detail);
+    });
   }
   window.addEventListener('modelpromptforge:ready', initialize);
   window.ModelPromptForgePlayground = { initialize, generate, pricingInputs };

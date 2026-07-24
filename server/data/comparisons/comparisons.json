@@ -2,6 +2,205 @@
   "version": 1,
   "sets": [
     {
+      "id": "cmp_set_1784871247627_81eq1w",
+      "username": "user_demo",
+      "name": "AI Model Comparison",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": "job_1784871247629_yq034a9uv",
+      "createdAt": 1784871247627,
+      "updatedAt": 1784871470746,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784871247622_4sllmupg",
+          "status": "completed",
+          "sourcePrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#4a3728",
+                "highlightEnabled": false,
+                "highlight": "#ff00a0"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Primary Color": {
+                "enabled": false,
+                "color": "#111827"
+              },
+              "Secondary Color": {
+                "enabled": false,
+                "color": "#e5e7eb"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784871247626,
+          "completedAt": 1784871292978,
+          "payerUserId": "usr_demo",
+          "slots": [
+            {
+              "id": "comparison_slot_1784871221518_x0mf65",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_hmwad3t",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247629_yq034a9uv",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.3"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247633_d0pecrv"
+            },
+            {
+              "id": "comparison_slot_1784871221518_a4goir",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_7pizvvd",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247636_eg8pu8t32",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247636_eg8pu8t32.png",
+                "usage": {
+                  "input_tokens": 271,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 271
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6511
+                },
+                "mimeType": "image/png",
+                "generationDuration": "45.2"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247652_31luw95"
+            },
+            {
+              "id": "comparison_slot_1784871233005_jfg5pl",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_xm70i69",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247655_kbwylj0zh",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247655_kbwylj0zh.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15680,
+                  "total_tokens": 15680
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "12.8"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247671_bzv772x"
+            }
+          ],
+          "id": "cmp_run_1784871247627_poehyb"
+        }
+      ]
+    },
+    {
       "id": "cmp_set_1784867380463_o2ms4e",
       "username": "user_demo",
       "name": "Yellow Women Comaprison",
@@ -9,7 +208,7 @@
       "collectionIds": [],
       "winnerJobId": null,
       "createdAt": 1784867380463,
-      "updatedAt": 1784868266727,
+      "updatedAt": 1784871017094,
       "runs": [
         {
           "idempotencyKey": "cmp_1784867380460_aekzqata",
