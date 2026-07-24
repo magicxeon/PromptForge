@@ -33,5 +33,7 @@ export const CREDIT_ERROR_CODES = {
   RESERVATION_NOT_FOUND: 'credit_reservation_not_found',
   RESERVATION_CONFLICT: 'credit_reservation_conflict',
   OPERATION_ALREADY_SETTLED: 'credit_operation_already_settled',
-  MOCK_GRANT_FORBIDDEN: 'credit_mock_grant_forbidden'
+  MOCK_GRANT_FORBIDDEN: 'credit_mock_grant_forbidden',
+  ADJUSTMENT_INVALID: 'credit_adjustment_invalid',
+  ADJUSTMENT_FORBIDDEN: 'credit_adjustment_forbidden'
 };

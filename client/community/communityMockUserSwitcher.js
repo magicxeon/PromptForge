@@ -36,6 +36,9 @@
 
       // 4. Update legacy state.username and state.userRole on initial load
       await refreshActiveActorContext();
+      window.dispatchEvent(new CustomEvent('modelpromptforge:actorchange', {
+        detail: { userId: currentActiveId || switcherSelect.value, role: state.userRole }
+      }));
 
       // 5. Handle change event
       switcherSelect.addEventListener('change', async (e) => {
@@ -45,6 +48,9 @@
         }
         await refreshActiveActorContext();
         clearUserScopedWorkspaceState();
+        window.dispatchEvent(new CustomEvent('modelpromptforge:actorchange', {
+          detail: { userId: nextUserId, role: state.userRole }
+        }));
 
         // 6. Trigger refresh hooks
         if (window.updateCredits) {

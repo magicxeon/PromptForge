@@ -28,7 +28,10 @@ see strong image -> inspect shared prompt/workflow -> remix in Studio
 -> generate new image -> share back to Community
 ```
 
-The MVP must prove this loop before adding comments, paid prompts, memberships, advanced creator ranking or revenue sharing.
+The MVP must prove this loop before adding paid prompts, memberships, advanced
+creator ranking or revenue sharing. Comparison voting and flat comments are a
+later Community-05 engagement increment, after publishing and moderation
+contracts are stable.
 
 ## 3. Relationship to Commercial Plan
 
@@ -164,7 +167,7 @@ Deferred:
 - Paid prompt marketplace.
 - Product-only Scene Builder workflows.
 - Creator membership.
-- Comment threads.
+- Nested comment threads, comment reactions and creator rating leaderboards.
 - Creator ranking leaderboard.
 - Badges beyond simple internal metadata.
 - Public collection marketplace.

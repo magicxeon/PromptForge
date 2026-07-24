@@ -79,6 +79,23 @@ export class CommunityPostRepository {
     return toPage(posts, normalizedQuery.limit, scope, this.cursorSecret, normalizedQuery.sort);
   }
 
+  async listForBackoffice(query = {}) {
+    const normalizedQuery = normalizeListQuery(query);
+    const status = typeof query.status === 'string' ? query.status.trim() : '';
+    const ownerUserId = typeof query.ownerUserId === 'string' ? query.ownerUserId.trim() : '';
+    const scope = JSON.stringify({ status, ownerUserId, sort: normalizedQuery.sort });
+    const cursor = normalizedQuery.cursor
+      ? decodeRepositoryCursor(normalizedQuery.cursor, scope, this.cursorSecret)
+      : null;
+    let posts = (await this.readAll())
+      .filter(post => !status || post.status === status)
+      .filter(post => !ownerUserId || post.ownerUserId === ownerUserId)
+      .sort((left, right) => comparePosts(left, right, normalizedQuery.sort));
+
+    if (cursor) posts = posts.filter(post => comparePosts(post, cursor, normalizedQuery.sort) > 0);
+    return toPage(posts, normalizedQuery.limit, scope, this.cursorSecret, normalizedQuery.sort);
+  }
+
   async findPublicById(id) {
     const post = await this.findById(id);
     if (!post || !isVisiblePublicPost(post)) return null;

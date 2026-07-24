@@ -4186,7 +4186,7 @@ textarea.prompt-preview-box-compact {
 
 /* Application shell and Comparison History dashboard */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.app-workspace[hidden], .comparison-dashboard[hidden], .community-home[hidden], .playground-page[hidden] { display: none; }
+.app-workspace[hidden], .comparison-dashboard[hidden], .community-home[hidden], .playground-page[hidden], .admin-page[hidden] { display: none; }
 
 .application-nav-shell { position: sticky; top: 0.6rem; z-index: 45; padding: 0.45rem !important; transition: opacity 0.22s ease, transform 0.22s ease, background 0.22s ease, border-color 0.22s ease; }
 .application-nav-shell.application-nav-muted { opacity: 0.18; transform: translateY(-4px); }
@@ -4208,8 +4208,30 @@ textarea.prompt-preview-box-compact {
 .application-nav-icon.icon-compare::before { content: "AI"; }
 .application-nav-icon.icon-community::before { content: "CO"; }
 .application-nav-icon.icon-playground::before { content: "PG"; }
+.application-nav-icon.icon-admin::before { content: "AD"; }
 
 .community-home, .playground-page { display: grid; gap: 1rem; }
+.admin-page { display: grid; gap: 1rem; }
+.admin-page-header, .admin-overview-grid, .admin-section { border: 1px solid var(--border-color); border-radius: 10px; background: rgba(13, 13, 18, 0.64); padding: 1.1rem; }
+.admin-page-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.admin-page-header h2, .admin-section h3 { margin: 0; font-family: 'Outfit', sans-serif; }
+.admin-page-header p, .admin-section p { margin: 0.35rem 0 0; color: var(--text-muted); }
+.admin-overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; }
+.admin-stat { min-height: 88px; padding: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; background: rgba(0, 0, 0, 0.18); }
+.admin-stat strong { display: block; margin-top: 0.45rem; color: var(--neon-cyan); font-size: 1.45rem; }
+.admin-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 1rem; }
+.admin-section { min-width: 0; }
+.admin-list { display: grid; gap: 0.55rem; margin-top: 0.8rem; max-height: 360px; overflow: auto; }
+.admin-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.7rem; align-items: center; padding: 0.7rem; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 7px; background: rgba(0, 0, 0, 0.16); }
+.admin-row strong, .admin-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-row small { margin-top: 0.18rem; color: var(--text-muted); }
+.admin-row-actions { display: flex; gap: 0.4rem; }
+.admin-row-actions button, .admin-adjustment-form button, .admin-page-header button { min-height: 2.2rem; padding: 0.45rem 0.7rem; border: 1px solid rgba(6, 182, 212, 0.35); border-radius: 6px; background: rgba(6, 182, 212, 0.08); color: var(--text-primary); cursor: pointer; }
+.admin-row-actions button[data-action="remove"] { border-color: rgba(239, 68, 68, 0.48); color: #fca5a5; }
+.admin-adjustment-form { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; gap: 0.55rem; margin-top: 0.8rem; }
+.admin-adjustment-form input, .admin-section select { min-width: 0; padding: 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; background: rgba(0, 0, 0, 0.26); color: var(--text-primary); }
+.admin-status { min-height: 1.2rem; margin-top: 0.65rem; color: var(--text-muted); font-size: 0.82rem; }
+@media (max-width: 760px) { .admin-overview-grid, .admin-grid, .admin-adjustment-form { grid-template-columns: 1fr; } .admin-page-header { align-items: flex-start; flex-direction: column; } }
 .community-home-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 0.75fr); gap: 1rem; align-items: stretch; }
 .community-home-copy, .community-create-panel, .community-empty-feed, .playground-panel, .playground-hero { border: 1px solid var(--border-color); border-radius: 10px; background: rgba(13, 13, 18, 0.64); padding: 1.25rem; }
 .community-home-copy { min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }

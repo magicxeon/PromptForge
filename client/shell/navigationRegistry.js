@@ -1,11 +1,12 @@
 (() => {
-  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/];
+  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/, /^\/admin$/];
   const modules = [
     { id: 'community', label: { en: 'Community', th: 'ชุมชน' }, description: { en: 'Discover workflows', th: 'ค้นหาไอเดีย' }, route: '/community', icon: 'community', order: 1 },
     { id: 'playground', label: { en: 'Playground', th: 'เพลย์กราวนด์' }, description: { en: 'Freeform prompting', th: 'เขียน Prompt อิสระ' }, route: '/playground', icon: 'playground', order: 15 },
     { id: 'studio', label: { en: 'Studio', th: 'สตูดิโอ' }, description: { en: 'Create images', th: 'สร้างภาพ' }, route: '/studio', icon: 'studio', order: 10 },
     { id: 'history', label: { en: 'Image History', th: 'ประวัติรูปภาพ' }, description: { en: 'Browse generations', th: 'ดูภาพที่สร้างไว้' }, route: '/history', icon: 'history', order: 20 },
     { id: 'comparisons', label: { en: 'Comparisons', th: 'เปรียบเทียบ AI' }, description: { en: 'Review model tests', th: 'ดูชุดทดสอบโมเดล' }, route: '/comparisons', icon: 'compare', order: 30, featureFlag: 'aiComparison' }
+    ,{ id: 'admin', label: { en: 'Admin', th: 'Admin' }, description: { en: 'Support and audit tools', th: 'Support and audit tools' }, route: '/admin', icon: 'admin', order: 90, roles: ['admin', 'support'] }
   ];
   const featureFlags = { aiComparison: true };
   const groupByModuleId = {
@@ -13,19 +14,22 @@
     playground: 'create',
     community: 'explore',
     history: 'library',
-    comparisons: 'library'
+    comparisons: 'library',
+    admin: 'operations'
   };
   const groups = {
     create: { en: 'Create', th: 'สร้าง' },
     explore: { en: 'Explore', th: 'สำรวจ' },
     library: { en: 'Library', th: 'คลังของฉัน' }
+    ,operations: { en: 'Operations', th: 'Operations' }
   };
-  const groupOrder = { create: 10, explore: 20, library: 30 };
+  const groupOrder = { create: 10, explore: 20, library: 30, operations: 40 };
 
   function listVisible(context = {}) {
     return modules
       .filter(module => !module.featureFlag || (context.featureFlags?.[module.featureFlag] ?? featureFlags[module.featureFlag]))
       .filter(module => !module.entitlement || context.entitlements?.includes(module.entitlement))
+      .filter(module => !module.roles || module.roles.includes(context.role))
       .sort((a, b) => {
         const groupDelta = (groupOrder[groupByModuleId[a.id]] || 99) - (groupOrder[groupByModuleId[b.id]] || 99);
         return groupDelta || a.order - b.order;
@@ -42,6 +46,7 @@
     if (pathname === '/playground') return modules.find(module => module.id === 'playground');
     if (pathname === '/history') return modules.find(module => module.id === 'history');
     if (pathname.startsWith('/comparisons')) return modules.find(module => module.id === 'comparisons');
+    if (pathname === '/admin') return modules.find(module => module.id === 'admin');
     return modules.find(module => module.id === 'studio');
   }
 

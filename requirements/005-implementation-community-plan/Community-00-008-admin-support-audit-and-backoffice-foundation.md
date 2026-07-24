@@ -1,6 +1,6 @@
 # Community-00-008 Admin, Support Audit and Backoffice Foundation
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented - Pending validation
 **Feature type:** Internal operations, moderation and audit foundation  
 **Depends on:** Actor Context, ownership policy, repository interface  
 **Created:** 2026-07-19
@@ -81,28 +81,56 @@ server/domain/audit/AuditService.js
 server/domain/community/CommunityModerationService.js
 server/domain/credits/CreditAdjustmentService.js
 server/repositories/audit/AuditLogRepository.js
+server/repositories/credits/CreditAccountRepository.js
+server/repositories/community/CommunityPostRepository.js
 server/app/routes/adminRoutes.js
+server/domain/admin/AdminBackofficeService.js
 ```
 
 ### Client Files
 
 ```text
 client/admin/adminPanel.js
-client/admin/adminCommunityModeration.js
-client/admin/adminCreditLedgerView.js
-client/admin/adminAuditLogView.js
+client/admin/adminApi.js
+client/shell/navigationRegistry.js
+client/shell/applicationShell.js
 ```
 
-MVP may keep client admin UI minimal or internal-only.
+MVP provides a minimal internal-only `/admin` route. It is visible only when the mock actor role is `admin` or `support`; credit adjustment controls are visible and accepted only for `admin`.
+
+### 3.1 HTTP Contract
+
+```text
+GET  /api/admin/overview
+GET  /api/admin/users
+GET  /api/admin/generations?cursor&limit
+GET  /api/admin/community/posts?cursor&limit&status&ownerUserId
+POST /api/admin/community/posts/:postId/moderation
+GET  /api/admin/credits/:userId/ledger?cursor&limit
+POST /api/admin/credits/:userId/adjustments
+GET  /api/admin/audit-events?cursor&limit&action&targetType&targetId
+```
+
+Every route consumes the resolved `req.actorContext` from `actorContextMiddleware`; client-supplied username values never grant access. `admin | support` can read and moderate. Only `admin` can create a credit adjustment. Mutation payloads must include a meaningful `reason`; credit adjustment also requires integer `deltaCredits` that cannot reduce `availableCredits` below zero.
+
+```text
+POST /api/admin/community/posts/:postId/moderation
+{ action: "hide" | "remove", reason: string }
+
+POST /api/admin/credits/:userId/adjustments
+{ deltaCredits: integer_non_zero, reason: string, idempotencyKey?: string }
+```
+
+The server returns `{ error: { code, message } }` on policy, validation, or repository errors. A successful credit adjustment returns the updated account, one `manual_adjustment` ledger entry, and one `credit.adjust` audit event. Repeating the same idempotency key returns the original result without applying the adjustment again.
 
 ## 4. Implementation Plan
 
-1. Add audit repository/service.
-2. Add admin policy checks.
-3. Add minimal admin routes.
-4. Add moderation action audit.
-5. Add credit adjustment audit.
-6. Add internal admin UI only if needed for manual testing.
+1. Add audit repository/service with append-only event records and hashed request IP metadata.
+2. Add admin policy checks: `admin | support` can read backoffice and moderate; only `admin` can adjust credits.
+3. Add minimal admin routes under `/api/admin/*`; all route behavior receives `req.actorContext` from the common middleware.
+4. Add moderation action audit and use repository mutation only through `CommunityModerationService`.
+5. Add credit adjustment audit and a dedicated `CreditAccountRepository.adjustCredits` operation. It validates integer non-zero delta, prevents a negative available balance and writes one ledger entry atomically with the account change.
+6. Add internal `/admin` UI. It must never be the authorization boundary; the server policy remains authoritative.
 
 ## 5. Testing
 
@@ -112,4 +140,6 @@ TC-00-008-002 admin hide post creates audit event
 TC-00-008-003 credit adjustment creates ledger and audit event
 TC-00-008-004 removed post is unavailable to public viewer
 TC-00-008-005 audit event cannot be edited through normal repository update
+TC-00-008-006 support actor can inspect, but cannot submit a credit adjustment
+TC-00-008-007 adjustment idempotency key cannot deduct or grant twice
 ```

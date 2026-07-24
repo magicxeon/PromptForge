@@ -1,5 +1,5 @@
 (() => {
-  const iconClasses = new Set(['studio', 'history', 'compare', 'community', 'playground']);
+  const iconClasses = new Set(['studio', 'history', 'compare', 'community', 'playground', 'admin']);
   let initialized = false;
   let menuOpen = false;
   let navHover = false;
@@ -15,6 +15,10 @@
     bindNavigationFade();
     window.addEventListener('modelpromptforge:route', event => applyRoute(event.detail));
     window.addEventListener('modelpromptforge:languagechange', () => renderNavigation());
+    window.addEventListener('modelpromptforge:actorchange', () => {
+      renderNavigation();
+      applyRoute(window.ModelPromptForgeRouter.current());
+    });
     applyRoute(window.ModelPromptForgeRouter.current());
     updateNavigationVisibility();
   }
@@ -23,7 +27,7 @@
     const navigation = document.getElementById('application-navigation');
     if (!navigation) return;
     navigation.innerHTML = '';
-    const visibleModules = window.ModelPromptForgeNavigationRegistry.listVisible();
+    const visibleModules = window.ModelPromptForgeNavigationRegistry.listVisible({ role: window.state?.userRole || 'user' });
     const groupLabels = window.ModelPromptForgeNavigationRegistry.groups || {};
     const groupContainers = new Map();
     visibleModules.forEach(module => {
@@ -96,15 +100,18 @@
     const comparisonPage = route.pathname.startsWith('/comparisons');
     const communityPage = route.pathname === '/community';
     const playgroundPage = route.pathname === '/playground';
-    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : playgroundPage ? 'playground' : route.pathname === '/history' ? 'history' : 'studio';
+    const adminPageRoute = route.pathname === '/admin';
+    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : playgroundPage ? 'playground' : adminPageRoute ? 'admin' : route.pathname === '/history' ? 'history' : 'studio';
     const studio = document.querySelector('.app-workspace');
     const dashboard = document.getElementById('comparison-dashboard');
     const community = document.getElementById('community-home');
     const playground = document.getElementById('playground-page');
-    if (studio) studio.hidden = comparisonPage || communityPage || playgroundPage;
+    const admin = document.getElementById('admin-page');
+    if (studio) studio.hidden = comparisonPage || communityPage || playgroundPage || adminPageRoute;
     if (dashboard) dashboard.hidden = !comparisonPage;
     if (community) community.hidden = !communityPage;
     if (playground) playground.hidden = !playgroundPage;
+    if (admin) admin.hidden = !adminPageRoute;
     updateActiveNavigation(route);
     setMenuOpen(false);
     requestAnimationFrame(updateNavigationVisibility);
@@ -112,11 +119,12 @@
       requestAnimationFrame(() => scrollToSection('visual-dashboard'));
     } else if (route.pathname === '/studio') {
       requestAnimationFrame(() => scrollToStudio(route));
-    } else if (communityPage || playgroundPage) {
+    } else if (communityPage || playgroundPage || adminPageRoute) {
       requestAnimationFrame(() => smoothScrollTo(0));
     } else if (!route.pathname.startsWith('/comparisons/')) {
       requestAnimationFrame(() => smoothScrollTo(route.state?.scrollY || 0));
     }
+    if (adminPageRoute) window.ModelPromptForgeAdminPanel?.activate?.();
   }
 
   function scrollToStudio(route) {

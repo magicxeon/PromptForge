@@ -103,14 +103,171 @@ Fallback behavior:
 
 ## 7. Engagement Actions
 
-MVP actions:
+Base image-post MVP actions:
 
 - Like/unlike.
 - Save/bookmark.
 - Remix click event.
 - Follow creator from post detail.
 
-Comments and voting separate from likes are deferred.
+Comparison-specific voting and comments are defined in Section 7.1. They are
+implemented after Community-04 publishing and Community-07 moderation/reporting
+contracts are available; they do not block the base image-post MVP.
+
+### 7.1 Comparison Post Voting and Comments
+
+Community must support a distinct `comparison` post type for a shared model
+comparison. Its purpose is to invite a useful human judgment such as which
+result best follows a particular prompt, preserves identity, renders clothing,
+or looks most realistic. It must not present a vote total as a universal claim
+that one provider or model is objectively better.
+
+#### Business Requirement
+
+- A creator can publish either one selected comparison result as a normal image
+  post, or publish the complete comparison as a `comparison` post.
+- A comparison post shows the selected criteria, the same public-safe prompt
+  snapshot and generation context for every visible slot.
+- A signed-in actor may choose one winning slot per comparison post. Choosing a
+  different slot replaces the prior vote; choosing the same slot again removes
+  it. The post owner cannot vote on their own comparison.
+- A signed-in actor can create a text comment, delete their own comment and
+  report another comment. Nested replies, reactions on comments and creator
+  rating leaderboards are deferred.
+- Public counters show total votes, vote count by slot and comment count.
+- The creator may select `public`, `unlisted` or `private` visibility before
+  publication. Only public posts participate in engagement and trending.
+
+#### Comparison Snapshot Contract
+
+```text
+CommunityPost
+- postType: image | comparison
+- comparisonSnapshot: null | ComparisonPostSnapshot
+- engagementSummary
+
+ComparisonPostSnapshot
+- schemaVersion
+- sourceComparisonSetId
+- promptVisibility
+- publicPromptSnapshot
+- criteria[]
+- slots[]
+  - slotId
+  - displayOrder
+  - providerDisplayName
+  - modelDisplayName
+  - publicImageAssetId
+  - publicThumbnailAssetId
+  - generationSettingsSnapshot
+- creatorSelectedWinnerSlotId
+- createdAt
+
+ComparisonVote
+- id
+- postId
+- slotId
+- actorUserId
+- createdAt
+- updatedAt
+
+CommunityComment
+- id
+- postId
+- actorUserId
+- body
+- status: active | hidden | removed
+- createdAt
+- updatedAt
+- deletedAt
+```
+
+`ComparisonPostSnapshot` is immutable after publish. It must reuse the
+sanitized public asset/reference rules from Community-04 and
+Community-00-004. It must never store provider keys, raw provider payloads,
+private reference URLs, credit data or a private source image identifier.
+
+#### System Design and Integrity Rules
+
+1. The server derives eligible slots from a completed comparison set owned by
+   the actor; the browser must not submit arbitrary image URLs or vote counts.
+2. Vote uniqueness is `(postId, actorUserId)`. Repository writes must be atomic
+   so concurrent updates cannot create two votes for one actor.
+3. The public read model exposes only aggregate vote counts and the viewer's
+   own `viewerVoteSlotId`; it does not expose a voter list in MVP.
+4. Comments are plain text with a bounded length, server-side normalization and
+   HTML escaping on display. Rendering user comment HTML is prohibited.
+5. Comment and vote mutations require actor context and create an audit event.
+   The report flow delegates to the Community-07 moderation contract.
+6. Private, unlisted, hidden, removed or inaccessible posts reject public
+   votes/comments. A change to hidden/removed recalculates public aggregates.
+7. Trending may include qualified comparison votes and comments only after
+   basic anti-abuse rate limiting exists. MVP ranking uses small bounded weights
+   and must retain the post's original provider/model context.
+
+#### UI Behavior
+
+- Comparison cards show a single `Vote for this result` affordance. The active
+  choice is visually clear and can be changed without a confirmation dialog.
+- The score summary appears under the result cards as counts, not a fabricated
+  percentage quality score.
+- The post detail page has a compact comment composer, chronological comment
+  list and a report action on each visible comment.
+- Share Preview asks for title, description, prompt visibility and optional
+  comparison criteria before publish. It must warn when a slot cannot be made
+  public due to reference ownership policy.
+
+#### Implementation Plan
+
+Client ownership:
+
+```text
+client/community/communityComparisonPost.js
+client/community/communityComparisonEngagement.js
+client/community/communityCommentThread.js
+client/community/communityApi.js
+client/comparisons/comparisonDashboard.js
+client/core/lightboxService.js
+```
+
+Server ownership:
+
+```text
+server/app/routes/communityRoutes.js
+server/domain/community/CommunityComparisonShareService.js
+server/domain/community/CommunityEngagementService.js
+server/repositories/community/CommunityPostRepository.js
+server/repositories/community/CommunityComparisonVoteRepository.js
+server/repositories/community/CommunityCommentRepository.js
+server/repositories/audit/CommunityEngagementAuditRepository.js
+server/data/community/community-posts.json
+server/data/community/community-comparison-votes.json
+server/data/community/community-comments.json
+```
+
+Process:
+
+1. Creator opens a completed comparison and chooses `Share comparison`.
+2. Server creates a sanitized comparison draft from owned completed slots.
+3. Creator supplies presentation data and criteria, then publishes an immutable
+   snapshot.
+4. Viewer opens the public post, votes for one eligible slot and/or posts a
+   comment.
+5. Server atomically updates the engagement repositories, audit event and the
+   post read-model aggregate.
+6. `Use Template` remains governed by the existing snapshot/reference policy;
+   voting and commenting never grant access to private source assets.
+
+Testing:
+
+- Owner can publish a comparison only from an owned, completed set.
+- Private reference slots are removed from the public comparison snapshot.
+- An actor can hold only one vote per comparison and cannot vote on their own
+  post.
+- Changing a vote updates counts without duplication.
+- Public post detail returns aggregate counts and viewer vote, never voter IDs.
+- Comment validation rejects blank, oversized and unsafe rendered content.
+- Hidden/removed posts reject new votes/comments and disappear from public feed.
 
 ## 8. Acceptance Criteria
 

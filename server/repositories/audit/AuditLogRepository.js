@@ -69,6 +69,25 @@ export class AuditLogRepository {
 
     return createPage(page.items, page);
   }
+
+  async listForBackoffice(query = {}) {
+    const normalizedQuery = normalizeListQuery(query);
+    const action = typeof query.action === 'string' ? query.action.trim() : '';
+    const targetType = typeof query.targetType === 'string' ? query.targetType.trim() : '';
+    const targetId = typeof query.targetId === 'string' ? query.targetId.trim() : '';
+    const events = (await this.readRaw())
+      .filter(event => !action || event.action === action)
+      .filter(event => !targetType || event.targetType === targetType)
+      .filter(event => !targetId || event.targetId === targetId);
+    const page = paginateRepositoryRecords(
+      events,
+      normalizedQuery,
+      JSON.stringify({ action, targetType, targetId, sort: normalizedQuery.sort }),
+      this.cursorSecret
+    );
+
+    return createPage(page.items, page);
+  }
 }
 
 export const auditLogRepo = new AuditLogRepository();

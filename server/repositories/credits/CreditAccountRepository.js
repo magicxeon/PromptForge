@@ -510,6 +510,80 @@ export class CreditAccountRepository {
     });
   }
 
+  async adjustCredits({ userId, deltaCredits, reason, idempotencyKey = null, actorContext }) {
+    const actor = assertActorContext(actorContext);
+    const delta = Number(deltaCredits);
+    if (!Number.isInteger(delta) || delta === 0) {
+      throw createCreditError(CREDIT_ERROR_CODES.ADJUSTMENT_INVALID, 'Credit adjustment must be a non-zero integer.', 400);
+    }
+    if (actor.role !== 'admin') {
+      throw createCreditError(CREDIT_ERROR_CODES.ADJUSTMENT_FORBIDDEN, 'Manual credit adjustments require an admin actor.', 403);
+    }
+    const reasonCode = String(reason || '').trim();
+    if (reasonCode.length < 3) {
+      throw createCreditError(CREDIT_ERROR_CODES.ADJUSTMENT_INVALID, 'A meaningful adjustment reason is required.', 400);
+    }
+
+    const key = idempotencyKey || `admin-adjust:${actor.userId}:${userId}:${Date.now()}`;
+    const now = new Date().toISOString();
+    return mutateJsonFile(this.databaseFile, DB_FALLBACK, async data => {
+      await this.migrateLegacyDataIfNeeded(data);
+      const existingLedger = (data.ledgerEntries || []).find(entry => entry.idempotencyKey === key);
+      if (existingLedger) {
+        const account = (data.accounts || []).find(entry => entry.userId === userId);
+        return { account: structuredClone(account), ledgerEntry: structuredClone(existingLedger), duplicate: true };
+      }
+
+      let account = (data.accounts || []).find(entry => entry.userId === userId);
+      if (!account) {
+        const user = await this.userRepository.findById(userId);
+        if (!user) throw createCreditError(CREDIT_ERROR_CODES.ACCOUNT_NOT_FOUND, 'Credit account user was not found.', 404);
+        account = {
+          schemaVersion: 2,
+          userId: user.id,
+          username: user.username,
+          availableCredits: 0,
+          reservedCredits: 0,
+          status: 'active',
+          lifetimeGrantedCredits: 0,
+          lifetimeCapturedCredits: 0,
+          createdAt: now,
+          updatedAt: now
+        };
+        data.accounts.push(account);
+      }
+
+      if (account.status !== 'active') {
+        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, 'Credit account is not active.', 403);
+      }
+      if (delta < 0 && account.availableCredits < Math.abs(delta)) {
+        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, 'Credit adjustment would make the available balance negative.', 409);
+      }
+
+      account.availableCredits += delta;
+      if (delta > 0) account.lifetimeGrantedCredits = (account.lifetimeGrantedCredits || 0) + delta;
+      account.updatedAt = now;
+      const ledgerEntry = {
+        schemaVersion: 2,
+        ledgerEntryId: `clg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+        userId: account.userId,
+        operationType: 'manual_adjustment',
+        amountCredits: Math.abs(delta),
+        availableDelta: delta,
+        reservedDelta: 0,
+        availableAfter: account.availableCredits,
+        reservedAfter: account.reservedCredits,
+        idempotencyKey: key,
+        reasonCode,
+        actorUserId: actor.userId,
+        createdAt: now,
+        metadata: { adjustmentDirection: delta > 0 ? 'credit' : 'debit' }
+      };
+      data.ledgerEntries.push(ledgerEntry);
+      return { account: structuredClone(account), ledgerEntry: structuredClone(ledgerEntry), duplicate: false };
+    });
+  }
+
   // Deprecated backward compatibility adapter method
   async updateBalance(userId, deltaCredits, operationType, metadata = {}, actorContext) {
     const amount = Number(deltaCredits);

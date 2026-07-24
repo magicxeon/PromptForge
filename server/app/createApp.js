@@ -20,6 +20,7 @@ import { registerGenerationRoutes } from './routes/generationRoutes.js';
 import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
+import { registerAdminRoutes } from './routes/adminRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -87,6 +88,7 @@ export function createApp() {
   registerGenerationRoutes(app, sharedDependencies);
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
+  registerAdminRoutes(app);
   registerSceneTemplateRoutes(app, {
     communityShareService
   });
@@ -99,7 +101,8 @@ export function createApp() {
     '/playground', '/playground/',
     '/history', '/history/',
     '/comparisons', '/comparisons/',
-    '/comparisons/:setId', '/comparisons/:setId/'
+    '/comparisons/:setId', '/comparisons/:setId/',
+    '/admin', '/admin/'
   ], (req, res) => {
     res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
   });
