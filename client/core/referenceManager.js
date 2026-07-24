@@ -55,6 +55,31 @@
     }
   }
 
+  async function optimizeReferenceUpload(file, { maxEdge = 1800, quality = 0.88 } = {}) {
+    if (!file || !/^image\/(png|jpeg|webp)$/i.test(file.type)) {
+      throw new Error("Choose a PNG, JPEG, or WebP image.");
+    }
+    if (typeof createImageBitmap !== "function") {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = event => resolve(String(event.target?.result || ""));
+        reader.onerror = () => reject(reader.error || new Error("Unable to read reference image."));
+        reader.readAsDataURL(file);
+      });
+    }
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d", { alpha: false });
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    return canvas.toDataURL("image/jpeg", quality);
+  }
+
   function isStoryCharacterReferenceActive() {
     return state.mode === "normal"
       && state.imageReferences.characterReference === true
@@ -504,6 +529,7 @@
   window.clearFaceReferenceState = clearFaceReferenceState;
   window.clearCharacterReferenceState = clearCharacterReferenceState;
   window.clearOutfitReferenceState = clearOutfitReferenceState;
+  window.optimizeReferenceUpload = optimizeReferenceUpload;
   window.isStoryCharacterReferenceActive = isStoryCharacterReferenceActive;
   window.getCharacterSheetSourceOwnership = getCharacterSheetSourceOwnership;
   window.updateCharacterSheetSourceStatus = updateCharacterSheetSourceStatus;

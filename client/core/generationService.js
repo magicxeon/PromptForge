@@ -43,10 +43,11 @@
     return {
       routingMode: 'advanced',
       qualityTier: 'standard',
-      generationMode: request.mode || 'scene',
+      generationMode: request.generationSurface === 'playground' ? 'playground' : (request.mode || 'scene'),
       requestedProviderId: request.provider,
       requestedModelId: request.submodel,
       resolution: request.imageResolution || '1K',
+      aspectRatio: request.aspectRatio || state.aspectRatio || '1:1',
       quality: document.getElementById('image-quality-select')?.value || null,
       referenceCount: new Set(references).size,
       outputCount: Number(document.getElementById('output-count-select')?.value || 1)
@@ -58,6 +59,12 @@
       || document.querySelector('#btn-generate-image .btn-credit-cost-dark');
     const button = document.getElementById('btn-generate-image');
     if (!cost || !button) return;
+    if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+      cost.textContent = '(See comparison total above)';
+      button.disabled = false;
+      button.title = 'Comparison credits are estimated from the selected comparison slots.';
+      return;
+    }
     if (state.isLoading) {
       cost.textContent = '(Estimating...)';
       return;
@@ -76,6 +83,10 @@
 
   let estimateRefreshTimer = null;
   function refreshGenerationCreditEstimate({ debounce = false } = {}) {
+    if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+      renderCreditEstimate(window.creditEstimateController?.getState?.() || {});
+      return Promise.resolve(null);
+    }
     if (window.ModelPromptForgeComparison?.isActive?.()) return Promise.resolve(null);
     const run = async () => {
       const inputs = getGenerationPricingInputs();
@@ -93,6 +104,7 @@
   }
 
   function getGenerationRequestPayload() {
+    const isPlaygroundSurface = state.generationSurface === 'playground';
     const sourceOwnership = state.mode === "character-sheet"
       ? (window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null)
       : null;
@@ -156,7 +168,7 @@
 
     const submittedReferenceJobIds = {
       face: imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],
-      outfit: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference
+      outfit: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.outfitReferenceJobIds) : state.outfitReferenceJobIds)
         : [],
       style: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
@@ -201,6 +213,7 @@
         ?.normalizeOverrides?.(state.outfitReferenceOverrides) || state.outfitReferenceOverrides,
       sourceOwnership,
       mode: state.mode,
+      generationSurface: isPlaygroundSurface ? 'playground' : 'studio',
       sceneBuilder: state.mode === "normal"
         ? {
             authoringMode: state.sceneBuilder?.authoringMode === "manual" ? "manual" : "guided",
@@ -251,8 +264,8 @@
       faceReferenceImageA: imageReferences.faceMatch ? faceReferenceImageA : null,
       faceReferenceImageB: imageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: submittedReferenceJobIds.face,
-      outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
-      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference && outfitReferenceImageFront ? outfitReferenceImageBack : null,
+      outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
+      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference && outfitReferenceImageFront ? outfitReferenceImageBack : null,
       outfitReferenceJobIds: submittedReferenceJobIds.outfit,
       styleReferenceImageA: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
         ? styleReferenceImageA : null,
@@ -609,8 +622,5 @@
   });
   window.addEventListener('modelpromptforge:ready', () => {
     void refreshGenerationCreditEstimate();
-  });
-  document.getElementById('btn-toggle-comparison')?.addEventListener('click', () => {
-    setTimeout(() => { void refreshGenerationCreditEstimate(); }, 0);
   });
 })();

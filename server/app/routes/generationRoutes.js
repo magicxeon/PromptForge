@@ -37,6 +37,7 @@ export function registerGenerationRoutes(app, {
           requestedProviderId: activeProvider,
           requestedModelId: activeSubmodel,
           resolution: context.imageResolution || modelConfig.defaults?.resolution || '1K',
+          aspectRatio: context.aspectRatio,
           quality: req.body.quality || null,
           referenceCount: context.referenceCount,
           outputCount: Number(req.body.outputCount || 1),

@@ -91,7 +91,16 @@ export function createApp() {
     communityShareService
   });
 
-  app.get(['/studio', '/history', '/comparisons', '/comparisons/:setId'], (req, res) => {
+  // Browser routes are client-rendered. Keep this after every API route so a deep link
+  // loads the app shell instead of falling through to Express 404 handling.
+  app.get([
+    '/community', '/community/',
+    '/studio', '/studio/',
+    '/playground', '/playground/',
+    '/history', '/history/',
+    '/comparisons', '/comparisons/',
+    '/comparisons/:setId', '/comparisons/:setId/'
+  ], (req, res) => {
     res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
   });
 

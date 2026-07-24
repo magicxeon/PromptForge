@@ -1,5 +1,263 @@
 [
   {
+    "id": "job_1784867380471_kje7cas84",
+    "username": "user_demo",
+    "prompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+    "imageUrl": "/outputs/job_1784867380471_kje7cas84.png",
+    "timestamp": 1784867427647,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784867380471_kje7cas84",
+      "createdAt": 1784867427647
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 30,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 194,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 194
+      },
+      "output_tokens": 6240,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 0
+      },
+      "total_tokens": 6434
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "44.4",
+    "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+    "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+    "comparisonSlotId": "playground_slot_1784857858391_dddwk",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784867380471_kje7cas84.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 24666,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 2520703
+  },
+  {
+    "id": "job_1784867380495_k4tkvr5dz",
+    "username": "user_demo",
+    "prompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+    "imageUrl": "/outputs/job_1784867380495_k4tkvr5dz.jpg",
+    "timestamp": 1784867406749,
+    "provider": "modelark",
+    "submodel": "seedream-4-0-250828",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784867380495_k4tkvr5dz",
+      "createdAt": 1784867406749
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-4-0-250828",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 15680,
+      "total_tokens": 15680
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.3",
+    "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+    "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+    "comparisonSlotId": "playground_slot_1784857878959_7jnok",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784867380495_k4tkvr5dz.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 512,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 47840,
+    "width": 1792,
+    "height": 2240,
+    "originalBytes": 1285990
+  },
+  {
+    "id": "job_1784867380465_2gcskqy11",
+    "username": "user_demo",
+    "prompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+    "imageUrl": "/outputs/job_1784867380465_2gcskqy11.jpg",
+    "timestamp": 1784867394518,
+    "provider": "gemini",
+    "submodel": "gemini-2.5-flash-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1784867380465_2gcskqy11",
+      "createdAt": 1784867394518
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-2.5-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 55,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "14.0",
+    "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+    "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+    "comparisonSlotId": "playground_slot_1784857858391_vj50b",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784867380465_2gcskqy11.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 467,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 22958,
+    "width": 864,
+    "height": 1184,
+    "originalBytes": 1594199
+  },
+  {
     "id": "job_1784816108851_r2lqgei5i",
     "prompt": "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., controlled cross-step fashion pose with a long clean garment line, in a refined fashion boutique corner with restrained retail context, refined restrained retail display elements, clear clean atmosphere, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast (Image aspect ratio 6:8)",
     "imageUrl": "/outputs/job_1784816108851_r2lqgei5i.jpg",

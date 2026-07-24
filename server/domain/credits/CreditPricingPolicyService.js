@@ -15,6 +15,15 @@ function normalizeOptional(value) {
   return value === undefined || value === null || value === '' ? null : String(value).trim();
 }
 
+function normalizeAspectRatio(value) {
+  const ratio = normalizeOptional(value);
+  if (!ratio) return 'default';
+  if (ratio === '1:1') return 'square';
+  const [width, height] = ratio.split(':').map(Number);
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return 'default';
+  return width < height ? 'portrait' : width > height ? 'landscape' : 'square';
+}
+
 function requireFinitePositive(value, name) {
   const number = Number(value);
   if (!Number.isFinite(number) || number <= 0) {
@@ -113,6 +122,7 @@ export class CreditPricingPolicyService {
       requestedProviderId,
       requestedModelId,
       resolution = '1K',
+      aspectRatio = null,
       quality = null,
       referenceCount = 0,
       outputCount = 1,
@@ -131,11 +141,17 @@ export class CreditPricingPolicyService {
     const normalizedResolution = normalizeResolution(resolution) || '1K';
     const normalizedQuality = normalizeOptional(quality);
     const qualityForLookup = normalizedQuality || normalizeOptional(qualityTier) || 'standard';
+    const aspectClass = normalizeAspectRatio(aspectRatio);
     let baseOutputCredits = Number(modelRecord.publishedCredits || 0);
 
     if (modelRecord.baseCreditsByResolution) {
       const prices = modelRecord.baseCreditsByResolution;
       baseOutputCredits = Number(prices[normalizedResolution] ?? prices.default ?? baseOutputCredits);
+    } else if (modelRecord.baseCreditsByQualityAndAspectRatio) {
+      const qualityPrices = modelRecord.baseCreditsByQualityAndAspectRatio[qualityForLookup]
+        || modelRecord.baseCreditsByQualityAndAspectRatio.standard
+        || modelRecord.baseCreditsByQualityAndAspectRatio.default;
+      baseOutputCredits = Number(qualityPrices?.[aspectClass] ?? qualityPrices?.default ?? baseOutputCredits);
     } else if (modelRecord.baseCreditsByQuality) {
       const prices = modelRecord.baseCreditsByQuality;
       baseOutputCredits = Number(prices[qualityForLookup] ?? prices.standard ?? baseOutputCredits);
@@ -169,6 +185,7 @@ export class CreditPricingPolicyService {
       },
       pricingInputs: {
         resolution: normalizedResolution,
+        aspectRatio: normalizeOptional(aspectRatio) || null,
         quality: normalizedQuality,
         referenceCount: normalizedReferenceCount,
         outputCount: normalizedOutputCount,

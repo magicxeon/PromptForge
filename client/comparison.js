@@ -8,7 +8,8 @@
     sharedView: { zoom: 1, x: 0, y: 0 },
     slotViews: new Map(),
     drag: null,
-    generating: false
+    generating: false,
+    initialized: false
   };
 
   const text = (en, th) => window.ModelPromptForgeComparisonBridge?.getLanguage() === 'th' ? th : en;
@@ -19,11 +20,9 @@
   const label = value => value?.[bridge()?.getLanguage()] || value?.en || '';
 
   function initialize() {
-    if (!bridge() || document.getElementById('btn-toggle-comparison')?.dataset.bound) return;
-    document.getElementById('btn-toggle-comparison').dataset.bound = 'true';
-    restoreDraft();
+    if (!bridge() || state.initialized) return;
+    state.initialized = true;
     bindEvents();
-    renderMode();
     const recovery = readRecoveryState();
     if (isValidSetId(recovery.setId)) {
       openSet(recovery.setId, {
@@ -36,15 +35,6 @@
   }
 
   function bindEvents() {
-    document.getElementById('btn-toggle-comparison')?.addEventListener('click', toggleMode);
-    document.getElementById('comparison-active-run-chip')?.addEventListener('click', () => {
-      if (!state.activeSet) return;
-      saveRecoveryState(state.activeSet.id, true);
-      openWorkspace();
-      renderWorkspace();
-      startPolling();
-    });
-    document.getElementById('btn-add-comparison-slot')?.addEventListener('click', addSlot);
     document.getElementById('btn-close-comparison-workspace')?.addEventListener('click', closeWorkspace);
     document.getElementById('btn-comparison-history')?.addEventListener('click', toggleSetDrawer);
     document.getElementById('btn-close-comparison-drawer')?.addEventListener('click', toggleSetDrawer);
@@ -53,11 +43,10 @@
     document.querySelectorAll('[data-comparison-view]').forEach(button => {
       button.addEventListener('click', () => handleViewCommand(button.dataset.comparisonView));
     });
-    document.getElementById('api-provider-select')?.addEventListener('change', syncSlotOneFromSingle);
-    document.getElementById('api-submodel-select')?.addEventListener('change', syncSlotOneFromSingle);
     document.getElementById('comparison-workspace-title')?.addEventListener('click', renameActiveSet);
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !document.getElementById('comparison-workspace')?.hidden) closeWorkspace();
+      const lightboxOpen = document.getElementById('lightbox-modal')?.style.display !== 'none';
+      if (event.key === 'Escape' && !lightboxOpen && !document.getElementById('comparison-workspace')?.hidden) closeWorkspace();
     });
   }
 
@@ -201,7 +190,14 @@
     select.value = getModel(providerId, selectedModel)?.id || provider?.defaultModel || select.options[0]?.value || '';
   }
 
-  async function generate() {
+  async function estimateForPayload(payload) {
+    if (!payload || !Array.isArray(payload.slots) || payload.slots.length < 2) {
+      throw new Error('Choose at least two models for comparison.');
+    }
+    return api('/api/comparisons/estimate', { method: 'POST', body: payload });
+  }
+
+  async function generate({ rethrow = false } = {}) {
     if (state.generating) return;
     clearTrayError();
     if (!bridge()?.validateForm()) return;
@@ -210,7 +206,7 @@
     if (generateButton) generateButton.disabled = true;
     const payload = { ...bridge().getGenerationPayload(), slots: state.slots.map(slot => ({ ...slot })) };
     try {
-      const estimate = await api('/api/comparisons/estimate', { method: 'POST', body: payload });
+      const estimate = await estimateForPayload(payload);
       const summary = estimate.slots.map((slot, index) =>
         `${index + 1}. ${label(slot.providerDisplayName)} / ${label(slot.modelDisplayName)}: ${slot.estimatedCredit} credits${slot.imageResolution ? `, ${slot.imageResolution}` : ''}${slot.resolutionFallback ? ` (${text('auto fallback', 'ปรับอัตโนมัติ')})` : ''}`
       ).join('\n');
@@ -243,6 +239,7 @@
       bridge().refreshCredits();
       bridge().refreshHistory();
     } catch (error) {
+      if (rethrow) throw error;
       showTrayError(error.message);
     } finally {
       state.generating = false;
@@ -340,12 +337,14 @@
   function updateActiveRunChip() {
     const chip = document.getElementById('comparison-active-run-chip');
     const run = state.activeSet?.runs?.[0];
-    if (!chip || !run) {
+    window.ModelPromptForgeEngineTargetComparisonPanels?.updateActiveRun?.(run || null);
+    if (!run) {
       if (chip) chip.hidden = true;
       return;
     }
     const completed = run.slots.filter(slot => slot.status === 'completed').length;
     const terminal = ['completed', 'partially_completed', 'failed', 'cancelled'].includes(run.status);
+    if (chip) {
     chip.hidden = false;
     chip.classList.toggle('terminal', terminal);
     document.getElementById('comparison-active-run-label').textContent = terminal
@@ -353,6 +352,7 @@
       : `${formatStatus(run.status)} ${completed}/${run.slots.length}`;
     chip.title = text('Open the latest Comparison Set', 'เปิดชุดเปรียบเทียบล่าสุด');
     chip.setAttribute('aria-label', chip.title);
+    }
     updateComparisonQueueCard(run, completed, terminal);
   }
 
@@ -409,13 +409,8 @@
     if (imageUrl) {
       const image = card.querySelector('img');
       image.addEventListener('load', applyViewportTransforms);
-      card.querySelector('[data-open]').addEventListener('click', () => bridge().openLightbox({
-        id: slot.jobId,
-        imageUrl,
-        prompt: slot.submittedPrompt,
-        provider: slot.provider,
-        submodel: slot.model
-      }));
+      const openResultDetail = triggerElement => openComparisonResultDetail(slot, imageUrl, triggerElement);
+      card.querySelector('[data-open]').addEventListener('click', event => openResultDetail(event.currentTarget));
       card.querySelector('[data-winner]').addEventListener('click', () => setWinner(winner ? null : slot.jobId));
       card.querySelector('[data-face]').addEventListener('click', () => { bridge().useAsFaceReference(imageUrl, slot.jobId); closeWorkspace({ destination: '/studio' }); });
       card.querySelector('[data-style]').addEventListener('click', () => { bridge().useAsStyleReference(imageUrl, slot.jobId); closeWorkspace({ destination: '/studio' }); });
@@ -424,7 +419,9 @@
       const download = card.querySelector('[data-download]');
       download.href = imageUrl;
       download.setAttribute('download', `${slot.jobId}.png`);
-      bindViewport(card.querySelector('.comparison-image-viewport'), slot.id);
+      bindViewport(card.querySelector('.comparison-image-viewport'), slot.id, {
+        onOpen: triggerElement => openResultDetail(triggerElement)
+      });
     }
     return card;
   }
@@ -556,7 +553,8 @@
     state.pollTimer = null;
   }
 
-  function bindViewport(viewport, slotId) {
+  function bindViewport(viewport, slotId, { onOpen } = {}) {
+    let didDrag = false;
     viewport.addEventListener('wheel', event => {
       event.preventDefault();
       updateView(slotId, view => ({ ...view, zoom: clamp(view.zoom * (event.deltaY < 0 ? 1.12 : 0.89), 1, 6) }));
@@ -564,6 +562,7 @@
     viewport.addEventListener('pointerdown', event => {
       if (!viewport.querySelector('img')) return;
       viewport.setPointerCapture(event.pointerId);
+      didDrag = false;
       state.drag = { slotId, x: event.clientX, y: event.clientY };
       viewport.classList.add('dragging');
     });
@@ -572,13 +571,19 @@
       const rect = viewport.getBoundingClientRect();
       const dx = (event.clientX - state.drag.x) / rect.width;
       const dy = (event.clientY - state.drag.y) / rect.height;
+      if (Math.abs(dx) > 0.002 || Math.abs(dy) > 0.002) didDrag = true;
       state.drag.x = event.clientX;
       state.drag.y = event.clientY;
       updateView(slotId, view => ({ ...view, x: clamp(view.x + dx, -1, 1), y: clamp(view.y + dy, -1, 1) }));
     });
-    const stopDrag = () => { state.drag = null; viewport.classList.remove('dragging'); };
-    viewport.addEventListener('pointerup', stopDrag);
-    viewport.addEventListener('pointercancel', stopDrag);
+    const stopDrag = ({ openDetail = false } = {}) => {
+      const shouldOpen = openDetail && !didDrag && Boolean(viewport.querySelector('img'));
+      state.drag = null;
+      viewport.classList.remove('dragging');
+      if (shouldOpen) onOpen?.(viewport);
+    };
+    viewport.addEventListener('pointerup', () => stopDrag({ openDetail: true }));
+    viewport.addEventListener('pointercancel', () => stopDrag());
   }
 
   function updateView(slotId, updater) {
@@ -659,6 +664,44 @@
     }));
   }
 
+  function openComparisonResultDetail(slot, imageUrl, triggerElement = null) {
+    const run = state.activeSet?.runs?.[0];
+    const items = (run?.slots || [])
+      .map(candidate => {
+        const candidateImageUrl = getSlotImageUrl(candidate);
+        return candidateImageUrl ? {
+          id: candidate.jobId || candidate.id,
+          imageUrl: candidateImageUrl,
+          prompt: candidate.submittedPrompt,
+          provider: candidate.provider,
+          submodel: candidate.model,
+          timestamp: candidate.completedAt || state.activeSet?.updatedAt || null,
+          generationDuration: candidate.result?.generationDuration || null
+        } : null;
+      })
+      .filter(Boolean);
+    const item = {
+      id: slot.jobId || slot.id,
+      imageUrl,
+      prompt: slot.submittedPrompt,
+      provider: slot.provider,
+      submodel: slot.model,
+      timestamp: slot.completedAt || state.activeSet?.updatedAt || null,
+      generationDuration: slot.result?.generationDuration || null
+    };
+    const activeIndex = Math.max(0, items.findIndex(candidate => candidate.id === item.id));
+    bridge().openLightbox(item, {
+      triggerElement,
+      browseContext: {
+        source: 'comparison',
+        collectionId: state.activeSet?.id || null,
+        itemIds: items.map(candidate => candidate.id),
+        items,
+        activeIndex
+      }
+    });
+  }
+
   function readRecoveryState() {
     try {
       const recovery = JSON.parse(localStorage.getItem('model_prompt_forge_comparison_recovery_v1')) || {};
@@ -728,10 +771,11 @@
 
   function showTrayError(message) {
     const error = document.getElementById('comparison-tray-error');
+    if (!error) return;
     error.textContent = message;
     error.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
-  function clearTrayError() { document.getElementById('comparison-tray-error').textContent = ''; }
+  function clearTrayError() { const error = document.getElementById('comparison-tray-error'); if (error) error.textContent = ''; }
   function formatStatus(status = 'queued') { return status.replaceAll('_', ' ').replace(/\b\w/g, char => char.toUpperCase()); }
   function createSlotId() { return `slot_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`; }
   function createIdempotencyKey() { return `cmp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`; }
@@ -740,8 +784,25 @@
   function escapeAttribute(value) { return escapeHtml(value).replaceAll('"', '&quot;'); }
 
   window.ModelPromptForgeComparison = {
-    isActive: () => state.active,
+    // Comparison configuration now belongs to EngineTargetComparisonPanel.
+    // This flag only represents an in-flight comparison submission.
+    isActive: () => state.generating,
+    getActiveRun: () => state.activeSet?.runs?.[0] || null,
+    estimateForPayload,
     generate,
+    startFromExternal: async slots => {
+      if (!Array.isArray(slots) || slots.length < 2) throw new Error('Choose at least two models for comparison.');
+      state.slots = slots.slice(0, 4).map(slot => ({ id: slot.id || createSlotId(), provider: slot.provider, model: slot.model }));
+      saveDraft();
+      return generate({ rethrow: true });
+    },
+    openActiveWorkspace: () => {
+      if (!state.activeSet) return;
+      saveRecoveryState(state.activeSet.id, true);
+      openWorkspace();
+      renderWorkspace();
+      startPolling();
+    },
     openSet,
     closeForRoute,
     handleSetDeleted

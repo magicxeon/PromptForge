@@ -30,7 +30,7 @@ test('CreditPricingPolicyService - Calculate Estimate for Priced Models (TC-005-
     userId: 'usr_demo'
   });
 
-  assert.equal(estimate.pricingPolicyVersion, 'mock-2026-07-18-v1');
+  assert.equal(estimate.pricingPolicyVersion, 'mock-2026-07-24-v2');
   assert.equal(estimate.estimatedCredits, 46); // 45 base + 1 ref
   assert.equal(estimate.breakdown.baseOutputCredits, 45);
   assert.equal(estimate.breakdown.referenceCredits, 1);
@@ -38,21 +38,33 @@ test('CreditPricingPolicyService - Calculate Estimate for Priced Models (TC-005-
   assert.ok(new Date(estimate.expiresAt) > new Date());
 });
 
-test('CreditPricingPolicyService - Rejects Unpriced Models (TC-005-002)', async t => {
+test('CreditPricingPolicyService - Uses OpenAI quality and orientation pricing (TC-005-002)', async t => {
+  const service = new CreditPricingPolicyService();
+
+  const estimate = await service.calculateEstimate({
+    requestedProviderId: 'openai',
+    requestedModelId: 'gpt-image-1-mini',
+    qualityTier: 'standard',
+    aspectRatio: '6:8',
+    userId: 'usr_demo'
+  });
+
+  assert.equal(estimate.estimatedCredits, 30);
+  assert.equal(estimate.breakdown.baseOutputCredits, 30);
+  assert.equal(estimate.pricingInputs.aspectRatio, '6:8');
+});
+
+test('CreditPricingPolicyService - Rejects models without a published price (TC-005-003)', async t => {
   const service = new CreditPricingPolicyService();
 
   await assert.rejects(
-    async () => {
-      await service.calculateEstimate({
-        requestedProviderId: 'openai',
-        requestedModelId: 'gpt-image-1-mini'
-      });
-    },
-    (err) => {
-      assert.ok(err instanceof CreditDomainError);
-      assert.equal(err.code, 'credit_pricing_unavailable');
-      assert.equal(err.statusCode, 400);
-      return true;
-    }
+    () => service.calculateEstimate({
+      requestedProviderId: 'openai',
+      requestedModelId: 'dall-e-3',
+      userId: 'usr_demo'
+    }),
+    error => error instanceof CreditDomainError
+      && error.code === 'credit_pricing_unavailable'
+      && error.statusCode === 400
   );
 });

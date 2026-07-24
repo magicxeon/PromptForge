@@ -765,13 +765,13 @@
       "schemaVersion": 2,
       "userId": "usr_demo",
       "username": "user_demo",
-      "availableCredits": 66,
+      "availableCredits": 6,
       "reservedCredits": 0,
       "status": "active",
-      "lifetimeGrantedCredits": 66,
-      "lifetimeCapturedCredits": 0,
+      "lifetimeGrantedCredits": 136,
+      "lifetimeCapturedCredits": 130,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-07-23T16:58:05.676Z"
+      "updatedAt": "2026-07-24T04:30:27.636Z"
     },
     {
       "schemaVersion": 2,
@@ -1120,9 +1120,3744 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-07-23T17:03:01.782Z",
       "expiresAt": "2026-07-23T17:18:01.782Z"
+    },
+    {
+      "estimateId": "est_1784856910536_yzxb5yc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:35:10.536Z",
+      "expiresAt": "2026-07-24T01:50:10.536Z"
+    },
+    {
+      "estimateId": "est_1784856910545_pqjdxh1",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:35:10.545Z",
+      "expiresAt": "2026-07-24T01:50:10.545Z"
+    },
+    {
+      "estimateId": "est_1784856991378_zp25aka",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:36:31.378Z",
+      "expiresAt": "2026-07-24T01:51:31.378Z"
+    },
+    {
+      "estimateId": "est_1784857009725_gfkehxs",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:36:49.725Z",
+      "expiresAt": "2026-07-24T01:51:49.725Z"
+    },
+    {
+      "estimateId": "est_1784857009740_frb42rv",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:36:49.740Z",
+      "expiresAt": "2026-07-24T01:51:49.740Z"
+    },
+    {
+      "estimateId": "est_1784857009740_83v0yzl",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:36:49.740Z",
+      "expiresAt": "2026-07-24T01:51:49.740Z"
+    },
+    {
+      "estimateId": "est_1784857401559_bqvodv0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:21.559Z",
+      "expiresAt": "2026-07-24T01:58:21.559Z"
+    },
+    {
+      "estimateId": "est_1784857401567_byq3mm2",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:21.567Z",
+      "expiresAt": "2026-07-24T01:58:21.567Z"
+    },
+    {
+      "estimateId": "est_1784857401569_iyry0fg",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:21.569Z",
+      "expiresAt": "2026-07-24T01:58:21.569Z"
+    },
+    {
+      "estimateId": "est_1784857418755_titlzaa",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:38.755Z",
+      "expiresAt": "2026-07-24T01:58:38.755Z"
+    },
+    {
+      "estimateId": "est_1784857418762_ill0l2t",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:38.762Z",
+      "expiresAt": "2026-07-24T01:58:38.762Z"
+    },
+    {
+      "estimateId": "est_1784857418772_mabg6dt",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:38.772Z",
+      "expiresAt": "2026-07-24T01:58:38.772Z"
+    },
+    {
+      "estimateId": "est_1784857433842_xqqpqm3",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:53.842Z",
+      "expiresAt": "2026-07-24T01:58:53.842Z"
+    },
+    {
+      "estimateId": "est_1784857433849_qu5kxpp",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:53.849Z",
+      "expiresAt": "2026-07-24T01:58:53.849Z"
+    },
+    {
+      "estimateId": "est_1784857433850_k8o53ty",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:43:53.850Z",
+      "expiresAt": "2026-07-24T01:58:53.850Z"
+    },
+    {
+      "estimateId": "est_1784857470185_olkm7q5",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:44:30.185Z",
+      "expiresAt": "2026-07-24T01:59:30.185Z"
+    },
+    {
+      "estimateId": "est_1784857470233_ljv2k38",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:44:30.233Z",
+      "expiresAt": "2026-07-24T01:59:30.233Z"
+    },
+    {
+      "estimateId": "est_1784857470234_vn2mtyf",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:44:30.234Z",
+      "expiresAt": "2026-07-24T01:59:30.234Z"
+    },
+    {
+      "estimateId": "est_1784857580981_4zshhoh",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:46:20.981Z",
+      "expiresAt": "2026-07-24T02:01:20.981Z"
+    },
+    {
+      "estimateId": "est_1784857580990_iucgdgk",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:46:20.990Z",
+      "expiresAt": "2026-07-24T02:01:20.990Z"
+    },
+    {
+      "estimateId": "est_1784857580991_b3vuep9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:46:20.991Z",
+      "expiresAt": "2026-07-24T02:01:20.991Z"
+    },
+    {
+      "estimateId": "est_1784857858381_t6rhyk1",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:50:58.381Z",
+      "expiresAt": "2026-07-24T02:05:58.381Z"
+    },
+    {
+      "estimateId": "est_1784857858391_r2ukvs8",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:50:58.391Z",
+      "expiresAt": "2026-07-24T02:05:58.391Z"
+    },
+    {
+      "estimateId": "est_1784857858395_4ksr0ap",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T01:50:58.395Z",
+      "expiresAt": "2026-07-24T02:05:58.395Z"
+    },
+    {
+      "estimateId": "est_1784858747913_74p1chf",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T02:05:47.913Z",
+      "expiresAt": "2026-07-24T02:20:47.913Z"
+    },
+    {
+      "estimateId": "est_1784858747923_kkdj00t",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T02:05:47.923Z",
+      "expiresAt": "2026-07-24T02:20:47.923Z"
+    },
+    {
+      "estimateId": "est_1784858747925_ledqkvb",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T02:05:47.925Z",
+      "expiresAt": "2026-07-24T02:20:47.925Z"
+    },
+    {
+      "estimateId": "est_1784863214189_m7arxgp",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:14.189Z",
+      "expiresAt": "2026-07-24T03:35:14.189Z"
+    },
+    {
+      "estimateId": "est_1784863214196_w84axwd",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:14.196Z",
+      "expiresAt": "2026-07-24T03:35:14.196Z"
+    },
+    {
+      "estimateId": "est_1784863214197_sweaeev",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:14.197Z",
+      "expiresAt": "2026-07-24T03:35:14.197Z"
+    },
+    {
+      "estimateId": "est_1784863227743_ebr0q3z",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:27.743Z",
+      "expiresAt": "2026-07-24T03:35:27.743Z"
+    },
+    {
+      "estimateId": "est_1784863230372_0m2szcy",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 90
+      },
+      "estimatedCredits": 90,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:30.372Z",
+      "expiresAt": "2026-07-24T03:35:30.372Z"
+    },
+    {
+      "estimateId": "est_1784863232623_lys50kc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:32.623Z",
+      "expiresAt": "2026-07-24T03:35:32.623Z"
+    },
+    {
+      "estimateId": "est_1784863238791_dqw31d0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:38.791Z",
+      "expiresAt": "2026-07-24T03:35:38.791Z"
+    },
+    {
+      "estimateId": "est_1784863240693_c0xyo6b",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:40.693Z",
+      "expiresAt": "2026-07-24T03:35:40.693Z"
+    },
+    {
+      "estimateId": "est_1784863243570_zdokg37",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:20:43.570Z",
+      "expiresAt": "2026-07-24T03:35:43.570Z"
+    },
+    {
+      "estimateId": "est_1784863262569_egmcl27",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:21:02.569Z",
+      "expiresAt": "2026-07-24T03:36:02.569Z"
+    },
+    {
+      "estimateId": "est_1784863269197_n8qgchu",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:21:09.197Z",
+      "expiresAt": "2026-07-24T03:36:09.197Z"
+    },
+    {
+      "estimateId": "est_1784863272966_9acxsqc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:21:12.966Z",
+      "expiresAt": "2026-07-24T03:36:12.966Z"
+    },
+    {
+      "estimateId": "est_1784863344581_z4yb0df",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:22:24.581Z",
+      "expiresAt": "2026-07-24T03:37:24.581Z"
+    },
+    {
+      "estimateId": "est_1784863347397_37rfp0u",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:22:27.397Z",
+      "expiresAt": "2026-07-24T03:37:27.397Z"
+    },
+    {
+      "estimateId": "est_1784863966754_p5y3tnc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:46.754Z",
+      "expiresAt": "2026-07-24T03:47:46.754Z"
+    },
+    {
+      "estimateId": "est_1784863966805_nj903c0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:46.805Z",
+      "expiresAt": "2026-07-24T03:47:46.805Z"
+    },
+    {
+      "estimateId": "est_1784863966805_tq28u71",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:46.805Z",
+      "expiresAt": "2026-07-24T03:47:46.805Z"
+    },
+    {
+      "estimateId": "est_1784863973310_f24nb5o",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:53.310Z",
+      "expiresAt": "2026-07-24T03:47:53.310Z"
+    },
+    {
+      "estimateId": "est_1784863973310_zclk7j3",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:53.310Z",
+      "expiresAt": "2026-07-24T03:47:53.310Z"
+    },
+    {
+      "estimateId": "est_1784863976461_x2d2mn8",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:56.461Z",
+      "expiresAt": "2026-07-24T03:47:56.461Z"
+    },
+    {
+      "estimateId": "est_1784863976469_m53dtd0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:56.469Z",
+      "expiresAt": "2026-07-24T03:47:56.469Z"
+    },
+    {
+      "estimateId": "est_1784863976470_qd01dyj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:56.470Z",
+      "expiresAt": "2026-07-24T03:47:56.470Z"
+    },
+    {
+      "estimateId": "est_1784863978114_q6bkweg",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:58.114Z",
+      "expiresAt": "2026-07-24T03:47:58.114Z"
+    },
+    {
+      "estimateId": "est_1784863978114_gjyvu3b",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:32:58.114Z",
+      "expiresAt": "2026-07-24T03:47:58.114Z"
+    },
+    {
+      "estimateId": "est_1784864053557_1d22yac",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:13.557Z",
+      "expiresAt": "2026-07-24T03:49:13.557Z"
+    },
+    {
+      "estimateId": "est_1784864053557_0vp4mxw",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:13.557Z",
+      "expiresAt": "2026-07-24T03:49:13.557Z"
+    },
+    {
+      "estimateId": "est_1784864071481_slxfsag",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:31.481Z",
+      "expiresAt": "2026-07-24T03:49:31.481Z"
+    },
+    {
+      "estimateId": "est_1784864071481_ozoprb5",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:31.481Z",
+      "expiresAt": "2026-07-24T03:49:31.481Z"
+    },
+    {
+      "estimateId": "est_1784864072870_cy98brb",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:32.870Z",
+      "expiresAt": "2026-07-24T03:49:32.870Z"
+    },
+    {
+      "estimateId": "est_1784864096471_av4kwo5",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:56.471Z",
+      "expiresAt": "2026-07-24T03:49:56.471Z"
+    },
+    {
+      "estimateId": "est_1784864096471_pw4ysrs",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:34:56.471Z",
+      "expiresAt": "2026-07-24T03:49:56.471Z"
+    },
+    {
+      "estimateId": "est_1784864100436_jbkeyka",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:00.436Z",
+      "expiresAt": "2026-07-24T03:50:00.436Z"
+    },
+    {
+      "estimateId": "est_1784864100444_3glu2ro",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:00.444Z",
+      "expiresAt": "2026-07-24T03:50:00.444Z"
+    },
+    {
+      "estimateId": "est_1784864100445_cdy8nsv",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:00.445Z",
+      "expiresAt": "2026-07-24T03:50:00.445Z"
+    },
+    {
+      "estimateId": "est_1784864102162_bo107e2",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:02.162Z",
+      "expiresAt": "2026-07-24T03:50:02.162Z"
+    },
+    {
+      "estimateId": "est_1784864102162_w25gtjj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:02.162Z",
+      "expiresAt": "2026-07-24T03:50:02.162Z"
+    },
+    {
+      "estimateId": "est_1784864102697_00v9lhd",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:02.697Z",
+      "expiresAt": "2026-07-24T03:50:02.697Z"
+    },
+    {
+      "estimateId": "est_1784864140740_glijegr",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:40.740Z",
+      "expiresAt": "2026-07-24T03:50:40.740Z"
+    },
+    {
+      "estimateId": "est_1784864140740_65hgkdb",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-18-v1",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T03:35:40.740Z",
+      "expiresAt": "2026-07-24T03:50:40.740Z"
+    },
+    {
+      "estimateId": "est_1784866356183_bxpvhev",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:36.183Z",
+      "expiresAt": "2026-07-24T04:27:36.183Z"
+    },
+    {
+      "estimateId": "est_1784866356191_iwa1a8q",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:36.191Z",
+      "expiresAt": "2026-07-24T04:27:36.191Z"
+    },
+    {
+      "estimateId": "est_1784866356192_kw2erkb",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": null,
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:36.192Z",
+      "expiresAt": "2026-07-24T04:27:36.192Z"
+    },
+    {
+      "estimateId": "est_1784866360160_3uu9duc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:40.160Z",
+      "expiresAt": "2026-07-24T04:27:40.160Z"
+    },
+    {
+      "estimateId": "est_1784866360160_l1yh6nj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:12:40.160Z",
+      "expiresAt": "2026-07-24T04:27:40.160Z"
+    },
+    {
+      "estimateId": "est_1784866360160_edc5dzy",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:40.160Z",
+      "expiresAt": "2026-07-24T04:27:40.160Z"
+    },
+    {
+      "estimateId": "est_1784866368073_nnjd6ss",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:48.073Z",
+      "expiresAt": "2026-07-24T04:27:48.073Z"
+    },
+    {
+      "estimateId": "est_1784866368073_i99e3jh",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:12:48.073Z",
+      "expiresAt": "2026-07-24T04:27:48.073Z"
+    },
+    {
+      "estimateId": "est_1784866448104_336pkw5",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:14:08.104Z",
+      "expiresAt": "2026-07-24T04:29:08.104Z"
+    },
+    {
+      "estimateId": "est_1784866448104_9dhaohz",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:08.104Z",
+      "expiresAt": "2026-07-24T04:29:08.104Z"
+    },
+    {
+      "estimateId": "est_1784866452214_gs7mbjv",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:12.214Z",
+      "expiresAt": "2026-07-24T04:29:12.214Z"
+    },
+    {
+      "estimateId": "est_1784866452214_oujhprs",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:12.214Z",
+      "expiresAt": "2026-07-24T04:29:12.214Z"
+    },
+    {
+      "estimateId": "est_1784866498509_nd25sqz",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "9:16",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:58.509Z",
+      "expiresAt": "2026-07-24T04:29:58.509Z"
+    },
+    {
+      "estimateId": "est_1784866498509_tjs335s",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "9:16",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:58.509Z",
+      "expiresAt": "2026-07-24T04:29:58.509Z"
+    },
+    {
+      "estimateId": "est_1784866499369_e4g1p9n",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:59.369Z",
+      "expiresAt": "2026-07-24T04:29:59.369Z"
+    },
+    {
+      "estimateId": "est_1784866499369_2sgvw7o",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:14:59.369Z",
+      "expiresAt": "2026-07-24T04:29:59.369Z"
+    },
+    {
+      "estimateId": "est_1784866502296_rcefvx3",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:02.296Z",
+      "expiresAt": "2026-07-24T04:30:02.296Z"
+    },
+    {
+      "estimateId": "est_1784866502296_3o9mrv0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:15:02.296Z",
+      "expiresAt": "2026-07-24T04:30:02.296Z"
+    },
+    {
+      "estimateId": "est_1784866509459_v0k9oim",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:09.459Z",
+      "expiresAt": "2026-07-24T04:30:09.459Z"
+    },
+    {
+      "estimateId": "est_1784866509459_qub0ddp",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:15:09.459Z",
+      "expiresAt": "2026-07-24T04:30:09.459Z"
+    },
+    {
+      "estimateId": "est_1784866509459_dtw66od",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:09.459Z",
+      "expiresAt": "2026-07-24T04:30:09.459Z"
+    },
+    {
+      "estimateId": "est_1784866509599_bknd9rs",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:09.599Z",
+      "expiresAt": "2026-07-24T04:30:09.599Z"
+    },
+    {
+      "estimateId": "est_1784866509599_7ihvkg2",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:15:09.599Z",
+      "expiresAt": "2026-07-24T04:30:09.599Z"
+    },
+    {
+      "estimateId": "est_1784866512208_42ukwc6",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:12.207Z",
+      "expiresAt": "2026-07-24T04:30:12.207Z"
+    },
+    {
+      "estimateId": "est_1784866512208_yytejf4",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:15:12.208Z",
+      "expiresAt": "2026-07-24T04:30:12.208Z"
+    },
+    {
+      "estimateId": "est_1784866512208_xy3sloo",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:12.208Z",
+      "expiresAt": "2026-07-24T04:30:12.208Z"
+    },
+    {
+      "estimateId": "est_1784866512349_swpfddk",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:15:12.349Z",
+      "expiresAt": "2026-07-24T04:30:12.349Z"
+    },
+    {
+      "estimateId": "est_1784866512349_ncqk3c7",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:15:12.349Z",
+      "expiresAt": "2026-07-24T04:30:12.349Z"
+    },
+    {
+      "estimateId": "est_1784866792150_g0t3whg",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:19:52.150Z",
+      "expiresAt": "2026-07-24T04:34:52.150Z"
+    },
+    {
+      "estimateId": "est_1784866792158_58rxw4z",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:19:52.158Z",
+      "expiresAt": "2026-07-24T04:34:52.158Z"
+    },
+    {
+      "estimateId": "est_1784866792161_y7ks50q",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": null,
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:19:52.161Z",
+      "expiresAt": "2026-07-24T04:34:52.161Z"
+    },
+    {
+      "estimateId": "est_1784866795876_65g2ikt",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:19:55.876Z",
+      "expiresAt": "2026-07-24T04:34:55.876Z"
+    },
+    {
+      "estimateId": "est_1784866795876_lhvxhrc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:19:55.876Z",
+      "expiresAt": "2026-07-24T04:34:55.876Z"
+    },
+    {
+      "estimateId": "est_1784866795877_cc955nu",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:19:55.877Z",
+      "expiresAt": "2026-07-24T04:34:55.877Z"
+    },
+    {
+      "estimateId": "est_1784867369800_6r10xod",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:29:29.800Z",
+      "expiresAt": "2026-07-24T04:44:29.800Z"
+    },
+    {
+      "estimateId": "est_1784867369800_gi5g42a",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:29:29.800Z",
+      "expiresAt": "2026-07-24T04:44:29.800Z"
+    },
+    {
+      "estimateId": "est_1784867369800_zu6381i",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:29:29.800Z",
+      "expiresAt": "2026-07-24T04:44:29.800Z"
+    },
+    {
+      "estimateId": "est_1784867379561_ja8dxh1",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-2.5-flash-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-2.5-flash-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 55,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:29:39.561Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z"
+    },
+    {
+      "estimateId": "est_1784867379561_n272zy3",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-24T04:29:39.561Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z"
+    },
+    {
+      "estimateId": "est_1784867379561_ril6cpx",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "2K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:29:39.561Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z"
+    },
+    {
+      "estimateId": "est_1784867652026_t0rnein",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:12.026Z",
+      "expiresAt": "2026-07-24T04:49:12.026Z"
+    },
+    {
+      "estimateId": "est_1784867652035_pljtulm",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:12.035Z",
+      "expiresAt": "2026-07-24T04:49:12.035Z"
+    },
+    {
+      "estimateId": "est_1784867652040_uyn05ps",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": null,
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:12.040Z",
+      "expiresAt": "2026-07-24T04:49:12.040Z"
+    },
+    {
+      "estimateId": "est_1784867666826_lah12a2",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:26.826Z",
+      "expiresAt": "2026-07-24T04:49:26.826Z"
+    },
+    {
+      "estimateId": "est_1784867666839_dtbuib0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:26.839Z",
+      "expiresAt": "2026-07-24T04:49:26.839Z"
+    },
+    {
+      "estimateId": "est_1784867666839_1scup22",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": null,
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:34:26.839Z",
+      "expiresAt": "2026-07-24T04:49:26.839Z"
+    },
+    {
+      "estimateId": "est_1784868088010_vcjpu3v",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:41:28.010Z",
+      "expiresAt": "2026-07-24T04:56:28.010Z"
+    },
+    {
+      "estimateId": "est_1784868088018_ahrhjt9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:41:28.018Z",
+      "expiresAt": "2026-07-24T04:56:28.018Z"
+    },
+    {
+      "estimateId": "est_1784868088018_k5y8ahm",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": null,
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-24T04:41:28.018Z",
+      "expiresAt": "2026-07-24T04:56:28.018Z"
     }
   ],
-  "reservations": [],
+  "reservations": [
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784867371164_bwspgt7",
+      "estimateId": "est_1784867369800_6r10xod",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784867371154_q92gypm3:playground_slot_1784857858391_vj50b",
+      "jobId": "job_1784867371160_l8px1uij4",
+      "amountCredits": 55,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-2.5-flash-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "breakdown": {
+          "baseOutputCredits": 55,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 55
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T04:29:31.161Z",
+      "updatedAt": "2026-07-24T04:29:31.208Z",
+      "expiresAt": "2026-07-24T04:44:29.800Z",
+      "capturedAt": null,
+      "refundedAt": "2026-07-24T04:29:31.208Z",
+      "terminalReason": "comparison_enqueue_failed"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784867380468_skf1dcl",
+      "estimateId": "est_1784867379561_ja8dxh1",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784867380460_aekzqata:playground_slot_1784857858391_vj50b",
+      "jobId": "job_1784867380465_2gcskqy11",
+      "amountCredits": 55,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-2.5-flash-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "breakdown": {
+          "baseOutputCredits": 55,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 55
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T04:29:40.465Z",
+      "updatedAt": "2026-07-24T04:29:54.513Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z",
+      "capturedAt": "2026-07-24T04:29:54.513Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784867380493_hr4ji2w",
+      "estimateId": "est_1784867379561_n272zy3",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784867380460_aekzqata:playground_slot_1784857858391_dddwk",
+      "jobId": "job_1784867380471_kje7cas84",
+      "amountCredits": 30,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1-mini",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 30,
+        "breakdown": {
+          "baseOutputCredits": 30,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 30
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T04:29:40.471Z",
+      "updatedAt": "2026-07-24T04:30:27.636Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z",
+      "capturedAt": "2026-07-24T04:30:27.636Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1784867380509_olyjy90",
+      "estimateId": "est_1784867379561_ril6cpx",
+      "userId": "usr_demo",
+      "requestId": "cmp_1784867380460_aekzqata:playground_slot_1784857878959_7jnok",
+      "jobId": "job_1784867380495_k4tkvr5dz",
+      "amountCredits": 45,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 45,
+        "breakdown": {
+          "baseOutputCredits": 45,
+          "referenceCredits": 0,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 45
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-07-24T04:29:40.495Z",
+      "updatedAt": "2026-07-24T04:30:06.732Z",
+      "expiresAt": "2026-07-24T04:44:39.561Z",
+      "capturedAt": "2026-07-24T04:30:06.732Z",
+      "refundedAt": null,
+      "terminalReason": null
+    }
+  ],
   "ledgerEntries": [
     {
       "schemaVersion": 2,
@@ -2455,6 +6190,335 @@
       "idempotencyKey": null,
       "createdAt": "2026-07-23T14:15:08.853Z",
       "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867371164_7v1hx5e",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 55,
+      "availableDelta": -55,
+      "reservedDelta": 55,
+      "availableAfter": 11,
+      "reservedAfter": 55,
+      "reservationId": "rsv_1784867371164_bwspgt7",
+      "estimateId": "est_1784867369800_6r10xod",
+      "relatedJobId": "job_1784867371160_l8px1uij4",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-2.5-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784867371154_q92gypm3:playground_slot_1784857858391_vj50b",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:31.161Z",
+      "metadata": {
+        "jobId": "job_1784867371160_l8px1uij4",
+        "comparisonSetId": "cmp_set_1784867371158_c93xb5",
+        "comparisonRunId": "cmp_run_1784867371158_1ys4z9",
+        "expiresAt": "2026-07-24T04:44:29.800Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784867371154_q92gypm3:playground_slot_1784857858391_vj50b"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867371210_ue2gomu",
+      "userId": "usr_demo",
+      "operationType": "refund",
+      "amountCredits": 55,
+      "availableDelta": 55,
+      "reservedDelta": -55,
+      "availableAfter": 66,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1784867371164_bwspgt7",
+      "estimateId": "est_1784867369800_6r10xod",
+      "relatedJobId": "job_1784867371160_l8px1uij4",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-2.5-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1784867371164_bwspgt7:comparison_enqueue_failed",
+      "reasonCode": "comparison_enqueue_failed",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:31.208Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867375745_q0am2kn",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 76,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867375741",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:35.743Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867375949_kunl59l",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 86,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867375945",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:35.947Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867376141_jm952bg",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 96,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867376137",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:36.139Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867376322_gj8w5an",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 106,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867376318",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:36.320Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867376777_vn0idup",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 116,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867376773",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:36.775Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867376970_ntzgz5f",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 126,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867376966",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:36.968Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867377523_r06up87",
+      "userId": "usr_demo",
+      "operationType": "grant",
+      "amountCredits": 10,
+      "availableDelta": 10,
+      "reservedDelta": 0,
+      "availableAfter": 136,
+      "reservedAfter": 0,
+      "idempotencyKey": "grant_ui_1784867377518",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:37.521Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867380468_8h5i8ap",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 55,
+      "availableDelta": -55,
+      "reservedDelta": 55,
+      "availableAfter": 81,
+      "reservedAfter": 55,
+      "reservationId": "rsv_1784867380468_skf1dcl",
+      "estimateId": "est_1784867379561_ja8dxh1",
+      "relatedJobId": "job_1784867380465_2gcskqy11",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-2.5-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857858391_vj50b",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:40.465Z",
+      "metadata": {
+        "jobId": "job_1784867380465_2gcskqy11",
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+        "expiresAt": "2026-07-24T04:44:39.561Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857858391_vj50b"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867380493_sfw498n",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 30,
+      "availableDelta": -30,
+      "reservedDelta": 30,
+      "availableAfter": 51,
+      "reservedAfter": 85,
+      "reservationId": "rsv_1784867380493_hr4ji2w",
+      "estimateId": "est_1784867379561_n272zy3",
+      "relatedJobId": "job_1784867380471_kje7cas84",
+      "relatedTemplateId": null,
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857858391_dddwk",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:40.471Z",
+      "metadata": {
+        "jobId": "job_1784867380471_kje7cas84",
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+        "expiresAt": "2026-07-24T04:44:39.561Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857858391_dddwk"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867380509_gssbi2o",
+      "userId": "usr_demo",
+      "operationType": "reserve",
+      "amountCredits": 45,
+      "availableDelta": -45,
+      "reservedDelta": 45,
+      "availableAfter": 6,
+      "reservedAfter": 130,
+      "reservationId": "rsv_1784867380509_olyjy90",
+      "estimateId": "est_1784867379561_ril6cpx",
+      "relatedJobId": "job_1784867380495_k4tkvr5dz",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857878959_7jnok",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:40.495Z",
+      "metadata": {
+        "jobId": "job_1784867380495_k4tkvr5dz",
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3",
+        "expiresAt": "2026-07-24T04:44:39.561Z",
+        "idempotencyKey": "reserve:usr_demo:cmp_1784867380460_aekzqata:playground_slot_1784857878959_7jnok"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867394516_1qyocyl",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 55,
+      "availableDelta": 0,
+      "reservedDelta": -55,
+      "availableAfter": 6,
+      "reservedAfter": 75,
+      "reservationId": "rsv_1784867380468_skf1dcl",
+      "estimateId": "est_1784867379561_ja8dxh1",
+      "relatedJobId": "job_1784867380465_2gcskqy11",
+      "relatedTemplateId": null,
+      "providerId": "gemini",
+      "modelId": "gemini-2.5-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784867380468_skf1dcl",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:29:54.513Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867406747_4cpuv0i",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 45,
+      "availableDelta": 0,
+      "reservedDelta": -45,
+      "availableAfter": 6,
+      "reservedAfter": 30,
+      "reservationId": "rsv_1784867380509_olyjy90",
+      "estimateId": "est_1784867379561_ril6cpx",
+      "relatedJobId": "job_1784867380495_k4tkvr5dz",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784867380509_olyjy90",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:30:06.732Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1784867427644_4gpryvy",
+      "userId": "usr_demo",
+      "operationType": "capture",
+      "amountCredits": 30,
+      "availableDelta": 0,
+      "reservedDelta": -30,
+      "availableAfter": 6,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1784867380493_hr4ji2w",
+      "estimateId": "est_1784867379561_n272zy3",
+      "relatedJobId": "job_1784867380471_kje7cas84",
+      "relatedTemplateId": null,
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1784867380493_hr4ji2w",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_demo",
+      "createdAt": "2026-07-24T04:30:27.636Z",
+      "metadata": {
+        "comparisonSetId": "cmp_set_1784867380463_o2ms4e",
+        "comparisonRunId": "cmp_run_1784867380463_bdv0q3"
+      }
     }
   ]
 }

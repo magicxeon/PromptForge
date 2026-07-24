@@ -30,6 +30,7 @@ export class ComparisonOrchestrator {
         requestedProviderId: slot.provider,
         requestedModelId: slot.model,
         resolution: slot.imageResolution || '1K',
+        aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,
         outputCount: 1
       });
@@ -102,6 +103,7 @@ export class ComparisonOrchestrator {
           estimateId: slot.estimateId,
           generationRequest: {
             requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
+            aspectRatio: context.aspectRatio,
             quality: null, referenceCount: context.referenceCount, outputCount: 1, routingMode: 'advanced',
             qualityTier: 'standard', generationMode: context.mode || 'normal', requestId: `${idempotencyKey}:${slot.id}`
           },

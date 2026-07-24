@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "mock-2026-07-18-v1",
-  "effectiveAt": "2026-07-18T00:00:00.000Z",
-  "providerPriceSourceDate": "2026-07-18",
+  "policyVersion": "mock-2026-07-24-v2",
+  "effectiveAt": "2026-07-24T00:00:00.000Z",
+  "providerPriceSourceDate": "2026-07-24",
   "referenceFxThbPerUsd": 33.7594,
   "pricingFxThbPerUsd": 35.0,
   "fxReviewThresholdPercent": 5.0,
@@ -204,43 +204,68 @@
       "modelId": "gpt-image-2",
       "enabled": true,
       "pricingStatus": "priced",
-      "publishedCredits": 75,
-      "baseCreditsByQuality": {
-        "medium": 75,
-        "standard": 75,
-        "high": 285
+      "publishedCredits": 85,
+      "baseCreditsByQualityAndAspectRatio": {
+        "low": { "square": 10, "portrait": 10, "landscape": 10, "default": 10 },
+        "medium": { "square": 85, "portrait": 70, "landscape": 70, "default": 85 },
+        "standard": { "square": 85, "portrait": 70, "landscape": 70, "default": 85 },
+        "high": { "square": 345, "portrait": 270, "landscape": 270, "default": 345 }
       },
       "referencePricing": {
         "mode": "provisional",
         "unitCredits": 10,
         "freeCount": 0
       },
-      "providerCostUsd": 0.050,
-      "notes": "OpenAI GPT Image 2"
+      "providerCostUsd": 0.053,
+      "notes": "OpenAI GPT Image 2. The current UI sends auto/standard quality, priced as Medium until an explicit quality control is introduced."
     },
     {
       "providerId": "openai",
       "modelId": "gpt-image-1-mini",
       "enabled": true,
-      "pricingStatus": "unpriced",
-      "publishedCredits": null,
-      "notes": "Unpriced model example for validation"
+      "pricingStatus": "priced",
+      "publishedCredits": 20,
+      "baseCreditsByQualityAndAspectRatio": {
+        "low": { "square": 10, "portrait": 15, "landscape": 15, "default": 10 },
+        "medium": { "square": 20, "portrait": 30, "landscape": 30, "default": 20 },
+        "standard": { "square": 20, "portrait": 30, "landscape": 30, "default": 20 },
+        "high": { "square": 60, "portrait": 90, "landscape": 90, "default": 60 }
+      },
+      "referencePricing": { "mode": "provisional", "unitCredits": 10, "freeCount": 0 },
+      "providerCostUsd": 0.011,
+      "notes": "OpenAI GPT Image 1 Mini. Reference surcharge is provisional pending measured image-input usage."
     },
     {
       "providerId": "openai",
       "modelId": "gpt-image-1",
       "enabled": true,
-      "pricingStatus": "unpriced",
-      "publishedCredits": null,
-      "notes": "Unpriced model example for validation"
+      "pricingStatus": "priced",
+      "publishedCredits": 70,
+      "baseCreditsByQualityAndAspectRatio": {
+        "low": { "square": 15, "portrait": 25, "landscape": 25, "default": 15 },
+        "medium": { "square": 70, "portrait": 105, "landscape": 105, "default": 70 },
+        "standard": { "square": 70, "portrait": 105, "landscape": 105, "default": 70 },
+        "high": { "square": 275, "portrait": 410, "landscape": 410, "default": 275 }
+      },
+      "referencePricing": { "mode": "provisional", "unitCredits": 10, "freeCount": 0 },
+      "providerCostUsd": 0.042,
+      "notes": "OpenAI GPT Image 1. Low tier is a conservative mock floor; reference surcharge is provisional."
     },
     {
       "providerId": "openai",
       "modelId": "gpt-image-1.5",
       "enabled": true,
-      "pricingStatus": "unpriced",
-      "publishedCredits": null,
-      "notes": "Unpriced model example for validation"
+      "pricingStatus": "priced",
+      "publishedCredits": 60,
+      "baseCreditsByQualityAndAspectRatio": {
+        "low": { "square": 15, "portrait": 20, "landscape": 20, "default": 15 },
+        "medium": { "square": 60, "portrait": 85, "landscape": 85, "default": 60 },
+        "standard": { "square": 60, "portrait": 85, "landscape": 85, "default": 60 },
+        "high": { "square": 220, "portrait": 325, "landscape": 325, "default": 220 }
+      },
+      "referencePricing": { "mode": "provisional", "unitCredits": 10, "freeCount": 0 },
+      "providerCostUsd": 0.034,
+      "notes": "OpenAI GPT Image 1.5. Reference surcharge is provisional pending measured image-input usage."
     },
     {
       "providerId": "openai",

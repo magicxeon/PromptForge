@@ -93,6 +93,32 @@ async function initApp() {
       throw new Error("No configured image providers are available.");
     }
 
+    window.ModelPromptForgeStudioEngineTargetPanel?.destroy?.();
+    window.ModelPromptForgeStudioEngineTargetPanel = window.ModelPromptForgeGenerationControls
+      ?.createEngineTargetComparisonPanel?.({
+        mount: document.getElementById('studio-engine-target-panel'),
+        getCatalog: () => state.providerCatalog,
+        options: {
+          showStepBadge: true,
+          stepLabel: 'Step 2',
+          showComparison: true,
+          showActiveRun: true,
+          showResolution: true,
+          showDimensions: true,
+          showAspectRatio: true,
+          legacyStudioIds: true
+        },
+        getComparisonEstimate: ({ slots }) => window.ModelPromptForgeComparison?.estimateForPayload?.({
+          ...getGenerationRequestPayload(),
+          slots
+        }),
+        onComparisonModeChange: () => { void window.refreshGenerationCreditEstimate?.(); },
+        onComparisonSubmit: ({ slots }) => window.ModelPromptForgeComparison?.startFromExternal?.(slots)
+      });
+    if (!window.ModelPromptForgeStudioEngineTargetPanel) {
+      throw new Error('Engine & Target Output component is unavailable.');
+    }
+
     state.schema = bundle.schema;
     state.templates = bundle.templates;
     state.order = bundle.order;
@@ -153,7 +179,7 @@ async function initApp() {
       getUserRole: () => state.userRole,
       getGenerationPayload: getGenerationRequestPayload,
       validateForm,
-      openLightbox: item => openLightbox(item),
+      openLightbox: (item, options) => openLightbox(item, options),
       openCollectionPicker: jobId => openMembershipModal(jobId),
       useAsFaceReference: (imageUrl, jobId) => assignFaceReference(imageUrl, jobId),
       useAsStyleReference: (imageUrl, jobId) => assignStyleReference(imageUrl, jobId),
@@ -267,6 +293,9 @@ function validateForm() {
     { field: "Ethnicity", group: "Character" },
     { field: "Gender", group: "Character" }
   ];
+  if (state.mode === "normal" && state.sceneBuilder?.authoringMode === "manual") {
+    return true;
+  }
   const characterReferenceOwnsIdentity = isStoryCharacterReferenceActive()
     && !state.characterReferenceOverrides;
 
@@ -743,8 +772,8 @@ function bindEvents() {
   const btnGenerateImage = document.getElementById("btn-generate-image");
   if (btnGenerateImage) {
     btnGenerateImage.addEventListener("click", async () => {
-      if (window.ModelPromptForgeComparison?.isActive()) {
-        await window.ModelPromptForgeComparison.generate();
+      if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+        await window.ModelPromptForgeStudioEngineTargetPanel.submitComparison();
         return;
       }
       const provider = document.getElementById("api-provider-select").value;

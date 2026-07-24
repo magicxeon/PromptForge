@@ -4,6 +4,39 @@
 (() => {
   const state = window.state;
   let lightboxImageLoadToken = 0;
+  let lightboxEventsBound = false;
+
+  function initializeLightboxEvents() {
+    if (lightboxEventsBound) return;
+    const modal = document.getElementById("lightbox-modal");
+    if (!modal) return;
+    lightboxEventsBound = true;
+
+    document.getElementById("lightbox-close")?.addEventListener("click", () => closeLightbox());
+    document.getElementById("lightbox-previous")?.addEventListener("click", () => navigateLightbox(-1));
+    document.getElementById("lightbox-next")?.addEventListener("click", () => navigateLightbox(1));
+    modal.addEventListener("click", event => {
+      if (event.target === modal) closeLightbox();
+    });
+  document.addEventListener("keydown", event => {
+    if (modal.style.display === "none") return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      closeLightbox();
+      return;
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      navigateLightbox(-1);
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      navigateLightbox(1);
+    }
+  });
+  }
 
   function createLightboxBrowseContext(item) {
     const visibleItems = window.getVisibleHistoryItems ? window.getVisibleHistoryItems() : [];
@@ -69,7 +102,7 @@
     if (!context) return;
     [context.activeIndex - 1, context.activeIndex + 1].forEach(index => {
       const id = context.itemIds[index];
-      const item = id ? state.history.find(entry => entry.id === id) : null;
+      const item = context.items?.[index] || (id ? state.history.find(entry => entry.id === id) : null);
       if (item?.imageUrl) {
         const preload = new Image();
         preload.src = item.imageUrl;
@@ -134,7 +167,8 @@
     if (!context || ![-1, 1].includes(direction)) return false;
     const nextIndex = context.activeIndex + direction;
     if (nextIndex < 0 || nextIndex >= context.itemIds.length) return false;
-    const nextItem = state.history.find(entry => entry.id === context.itemIds[nextIndex]);
+    const nextItem = context.items?.[nextIndex]
+      || state.history.find(entry => entry.id === context.itemIds[nextIndex]);
     if (!nextItem) {
       syncOpenLightboxContext();
       return false;
@@ -170,6 +204,12 @@
       const activeItem = state.history.find(entry => entry.id === activeId);
       if (activeItem) renderLightboxItem(activeItem);
       else closeLightbox();
+      return;
+    }
+    if (context.source === "comparison") {
+      const activeItem = context.items?.find(entry => entry.id === activeId);
+      if (activeItem) renderLightboxItem(activeItem);
+      else closeLightbox({ restoreFocus: false });
       return;
     }
     if (context.source === "collection" && window.getCollectionById && !window.getCollectionById(context.collectionId)) {
@@ -370,6 +410,8 @@
 
   // Expose to window
   window.createLightboxBrowseContext = createLightboxBrowseContext;
+  initializeLightboxEvents();
+
   window.updateLightboxNavigationLabels = updateLightboxNavigationLabels;
   window.renderLightboxNavigation = renderLightboxNavigation;
   window.preloadLightboxNeighbors = preloadLightboxNeighbors;

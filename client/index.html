@@ -335,95 +335,12 @@
 
           <!-- Step 2 & 3 Group -->
           <div class="step-card step-2-card">
-            <div class="step-header engine-step-header">
-              <div class="step-title-group">
-                <span class="step-badge">Step 2</span>
-                <h3>Engine & Target Output</h3>
-              </div>
-              <div class="comparison-model-actions" aria-label="Model comparison actions">
-                <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
-                  <span class="comparison-active-dot" aria-hidden="true"></span>
-                  <span id="comparison-active-run-label">Comparison 0/2</span>
-                </button>
-                <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
-                  aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
-                  <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
-                  <span class="compare-label">Compare</span>
-                  <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
-                </button>
-              </div>
+            <div id="studio-engine-target-panel"></div>
+
+            <div class="form-field" style="display: none;">
+              <label for="template-select">Prompt Template</label>
+              <select id="template-select" class="custom-select"></select>
             </div>
-
-            <div class="engine-settings-grid">
-              <div class="form-field">
-                <label for="api-provider-select">Provider Engine</label>
-                <select id="api-provider-select" class="custom-select">
-                  <!-- Dynamically populated from the server provider registry -->
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label for="api-submodel-select">Submodel Version</label>
-                <select id="api-submodel-select" class="custom-select">
-                  <!-- Dynamically populated -->
-                </select>
-                <small id="model-capability-summary" class="field-option-help" aria-live="polite"></small>
-              </div>
-
-              <div id="image-resolution-field" class="form-field" style="display: none;">
-                <label for="image-resolution-select">Output Resolution</label>
-                <select id="image-resolution-select" class="custom-select"></select>
-              </div>
-
-              <div class="form-field" style="display: none;">
-                <label for="template-select">Prompt Template</label>
-                <select id="template-select" class="custom-select">
-                  <!-- Dynamically populated -->
-                </select>
-              </div>
-
-              <!-- Linked Dimension Inputs (Step 7) -->
-              <div class="form-field">
-                <label for="input-width">Width (px)</label>
-                <input type="number" id="input-width" class="custom-select" value="768" min="720" max="4096" step="8">
-              </div>
-
-              <div class="form-field">
-                <label for="input-height">Height (px)</label>
-                <input type="number" id="input-height" class="custom-select" value="1024" min="720" max="4096" step="8">
-              </div>
-
-              <div class="form-field full-width">
-                <label>Aspect Ratio</label>
-                <div class="chip-group" id="aspect-ratio-group">
-                  <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
-                  <button class="option-chip" data-ratio="1:1">1:1 Square</button>
-                  <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
-                  <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
-                  <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
-                </div>
-              </div>
-            </div>
-
-            <section id="comparison-model-tray" class="comparison-model-tray" hidden
-              aria-labelledby="comparison-tray-title">
-              <div class="comparison-tray-header">
-                <div>
-                  <span class="comparison-kicker">FAIR COMPARISON</span>
-                  <h4 id="comparison-tray-title">AI Model Comparison</h4>
-                </div>
-                <span id="comparison-slot-count" class="comparison-slot-count">2 of 4</span>
-              </div>
-              <div id="comparison-slot-list" class="comparison-slot-list"></div>
-              <div class="comparison-tray-footer">
-                <button id="btn-add-comparison-slot" class="btn-neon-outline" type="button">+ Add Model</button>
-                <div class="comparison-estimate-total">
-                  <span>Estimated total</span>
-                  <strong id="comparison-total-credits">2 credits</strong>
-                </div>
-              </div>
-              <p id="comparison-tray-error" class="comparison-inline-error" role="alert"></p>
-            </section>
 
             <div class="matching-options-row">
               <label class="checkbox-container">
@@ -530,6 +447,9 @@
         </div>
       </section>
     </main>
+
+    <main id="community-home" class="community-home" hidden aria-label="Community home"></main>
+    <main id="playground-page" class="playground-page" hidden aria-label="Playground"></main>
 
     <main id="comparison-dashboard" class="comparison-dashboard" hidden aria-labelledby="comparison-dashboard-title">
       <section class="comparison-dashboard-hero glass-card">
@@ -906,9 +826,18 @@
   <script src="/credits/creditEstimateController.js"></script>
   <script src="/credits/creditBalanceBadge.js"></script>
   <script src="/community/communityMockUserSwitcher.js"></script>
+  <script src="/community/communityCreateLauncher.js"></script>
+  <script src="/community/communityHomePage.js"></script>
   <script src="/core/persistence.js"></script>
   <script src="/core/formRenderer.js"></script>
   <script src="/core/generationService.js"></script>
+  <script src="/generation-controls/engineTargetComparisonPanel.js"></script>
+  <script src="/generation-controls/promptEditor.js"></script>
+  <script src="/generation-controls/referenceSlotManager.js"></script>
+  <script src="/generation-controls/generationActionBar.js"></script>
+  <script src="/playground/playgroundState.js"></script>
+  <script src="/playground/playgroundPage.js"></script>
+  <script src="/playground/playgroundController.js"></script>
   <script src="/core/historyService.js"></script>
   <script src="/core/collectionService.js"></script>
   <script src="/core/lightboxService.js"></script>

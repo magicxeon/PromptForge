@@ -2266,6 +2266,11 @@ body {
   grid-column: 1 / -1;
 }
 
+/* Comparison slots are the sole provider/model selection surface while active. */
+.engine-settings-grid.comparison-mode-active [data-single-model-field] {
+  display: none !important;
+}
+
 .engine-output-resolution-field,
 .engine-dimensions-field {
   grid-column: 1 / -1;
@@ -2412,7 +2417,7 @@ textarea.prompt-preview-box-compact {
   width: 100%;
   height: 100%;
   background: rgba(3, 0, 8, 0.96);
-  z-index: 1000;
+  z-index: 3000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3612,6 +3617,7 @@ textarea.prompt-preview-box-compact {
 
 .comparison-model-tray {
   margin-top: 1rem;
+  scroll-margin-top: 1rem;
   padding: 1rem;
   border: 1px solid rgba(250, 204, 21, 0.28);
   border-radius: 16px;
@@ -3936,7 +3942,7 @@ textarea.prompt-preview-box-compact {
 
 /* Application shell and Comparison History dashboard */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.app-workspace[hidden], .comparison-dashboard[hidden] { display: none; }
+.app-workspace[hidden], .comparison-dashboard[hidden], .community-home[hidden], .playground-page[hidden] { display: none; }
 
 .application-nav-shell { position: sticky; top: 0.6rem; z-index: 45; padding: 0.45rem !important; transition: opacity 0.22s ease, transform 0.22s ease, background 0.22s ease, border-color 0.22s ease; }
 .application-nav-shell.application-nav-muted { opacity: 0.18; transform: translateY(-4px); }
@@ -3944,6 +3950,9 @@ textarea.prompt-preview-box-compact {
 .application-nav-shell.application-nav-muted:focus-within { opacity: 1; transform: translateY(0); }
 .application-navigation { display: flex; align-items: stretch; gap: 0.35rem; }
 .application-nav-item { display: flex; align-items: center; gap: 0.65rem; min-width: 155px; padding: 0.6rem 0.8rem; border: 1px solid transparent; border-radius: 11px; color: var(--text-muted); text-decoration: none; transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
+.application-nav-group { display: flex; align-items: stretch; gap: 0.25rem; }
+.application-nav-group + .application-nav-group { margin-left: 0.5rem; padding-left: 0.5rem; border-left: 1px solid rgba(255, 255, 255, 0.08); }
+.application-nav-group-label { display: none; }
 .application-nav-item:hover, .application-nav-item:focus-visible { color: var(--text-primary); border-color: rgba(6, 182, 212, 0.28); background: rgba(6, 182, 212, 0.07); outline: none; }
 .application-nav-item.active { color: #d9fbff; border-color: rgba(6, 182, 212, 0.46); background: linear-gradient(120deg, rgba(6, 182, 212, 0.17), rgba(250, 204, 21, 0.06)); box-shadow: inset 3px 0 0 var(--neon-cyan); }
 .application-nav-item > span:last-child { display: grid; gap: 0.08rem; }
@@ -3953,6 +3962,46 @@ textarea.prompt-preview-box-compact {
 .application-nav-icon.icon-studio::before { content: "ST"; }
 .application-nav-icon.icon-history::before { content: "HI"; }
 .application-nav-icon.icon-compare::before { content: "AI"; }
+.application-nav-icon.icon-community::before { content: "CO"; }
+.application-nav-icon.icon-playground::before { content: "PG"; }
+
+.community-home, .playground-page { display: grid; gap: 1rem; }
+.community-home-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 0.75fr); gap: 1rem; align-items: stretch; }
+.community-home-copy, .community-create-panel, .community-empty-feed, .playground-panel, .playground-hero { border: 1px solid var(--border-color); border-radius: 10px; background: rgba(13, 13, 18, 0.64); padding: 1.25rem; }
+.community-home-copy { min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.community-home-copy h2, .playground-hero h2 { margin: 0.25rem 0 0.6rem; font-family: 'Outfit', sans-serif; font-size: 2rem; }
+.community-home-copy p, .community-create-panel p, .community-empty-feed p, .playground-hero p { color: var(--text-muted); max-width: 62ch; }
+.community-home-copy .btn-neon-outline { margin-top: 1rem; }
+.community-home-kicker, .playground-kicker { color: var(--neon-cyan); font-size: 0.67rem; font-weight: 900; letter-spacing: 0.16em; }
+.community-create-panel { display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; border-color: rgba(6, 182, 212, 0.28); }
+.community-create-panel h3 { margin: 0.2rem 0; font-family: 'Outfit', sans-serif; font-size: 1.15rem; }
+.community-create-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.community-create-actions button { min-height: 52px; border: 1px solid rgba(255,255,255,0.12); border-radius: 7px; background: rgba(255,255,255,0.035); color: var(--text-main); font: inherit; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+.community-create-actions button:hover, .community-create-actions button:focus-visible { border-color: var(--neon-cyan); background: rgba(6,182,212,0.09); outline: none; }
+.community-empty-feed { min-height: 225px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-style: dashed; }
+.community-empty-feed h3 { margin: 0.25rem 0; font-family: 'Outfit', sans-serif; }
+.playground-hero { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.playground-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr); gap: 1rem; align-items: start; }
+.playground-main-column, .playground-side-column { display: grid; gap: 1rem; }
+.playground-panel h3 { margin-bottom: 0.9rem; font-family: 'Outfit', sans-serif; font-size: 1rem; }
+.playground-editor-field { display: grid; gap: 0.35rem; color: var(--text-muted); font-size: 0.72rem; font-weight: 800; }
+.playground-editor-field + .playground-editor-field { margin-top: 0.9rem; }
+.playground-editor-field textarea { width: 100%; resize: vertical; min-height: 90px; border: 1px solid rgba(255,255,255,0.12); border-radius: 7px; background: rgba(0,0,0,0.3); color: var(--text-main); padding: 0.75rem; font: inherit; }
+.shared-engine-grid { display: grid; gap: 0.75rem; }
+.playground-ratio-list { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+.shared-engine-summary { margin-top: 0.75rem; color: var(--text-muted); font-size: 0.7rem; }
+.reference-slot-manager-card { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 0.65rem; align-items: center; padding: 0.55rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 7px; background: rgba(0,0,0,0.16); }
+.reference-slot-manager-card + .reference-slot-manager-card { margin-top: 0.45rem; }
+.reference-slot-preview { width: 46px; height: 46px; display: grid; place-items: center; overflow: hidden; border: 1px dashed rgba(6,182,212,0.38); border-radius: 6px; color: var(--neon-cyan); }
+.reference-slot-preview img { width: 100%; height: 100%; object-fit: cover; }
+.reference-slot-manager-card strong, .reference-slot-manager-card small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reference-slot-manager-card strong { font-size: 0.73rem; }.reference-slot-manager-card small { color: var(--text-muted); font-size: 0.64rem; }
+.reference-slot-upload { cursor: pointer; color: var(--neon-cyan); font-size: 0.67rem; font-weight: 800; }.reference-slot-upload input { display: none; }
+.reference-slot-remove { border: 0; background: transparent; color: #fca5a5; cursor: pointer; font-size: 1.15rem; line-height: 1; }
+.generation-action-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }.generation-action-bar strong, .generation-action-bar small { display: block; }.generation-action-bar strong { color: var(--neon-yellow); font-size: 0.92rem; }.generation-action-bar small { color: var(--text-muted); font-size: 0.65rem; }.generation-action-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+.playground-comparison-tray { margin-top: 1rem; }
+.playground-comparison-description { margin: 0.1rem 0 0.85rem; color: var(--text-muted); font-size: 0.72rem; }
+.playground-comparison-slots { margin-top: 0; }
 .application-menu-button { display: none; align-items: center; gap: 0.55rem; padding: 0.55rem 0.7rem; border: 1px solid rgba(6, 182, 212, 0.36); border-radius: 9px; background: rgba(6, 182, 212, 0.09); color: var(--neon-cyan); font: inherit; font-weight: 800; }
 .application-menu-backdrop { display: none; }
 
@@ -4015,11 +4064,16 @@ textarea.prompt-preview-box-compact {
   .application-nav-shell.application-nav-muted { opacity: 0.72; transform: none; }
   .application-menu-button { display: flex; }
   .application-navigation { position: fixed; top: 0; left: 0; z-index: 92; width: min(82vw, 310px); height: 100dvh; display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem; padding: 5rem 0.8rem 1rem; border-right: 1px solid rgba(6, 182, 212, 0.28); background: rgba(8, 13, 22, 0.98); transform: translateX(-105%); transition: transform 0.22s ease; }
+  .application-nav-group { display: grid; gap: 0.25rem; }
+  .application-nav-group + .application-nav-group { margin: 0.55rem 0 0; padding: 0.55rem 0 0; border-top: 1px solid rgba(255, 255, 255, 0.08); border-left: 0; }
+  .application-nav-group-label { display: block; padding: 0 0.45rem; color: var(--text-muted); font-size: 0.61rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
   .application-menu-open .application-navigation { transform: translateX(0); }
   .application-nav-item { min-width: 0; }
   .application-menu-backdrop:not([hidden]) { position: fixed; inset: 0; z-index: 90; display: block; border: 0; background: rgba(0, 0, 0, 0.66); }
   .comparison-dashboard-hero { align-items: flex-start; flex-direction: column; }
   .comparison-dashboard-filters { grid-template-columns: 1fr; }
+  .community-home-hero, .playground-layout { grid-template-columns: 1fr; }
+  .community-empty-feed, .playground-hero, .generation-action-bar { align-items: flex-start; flex-direction: column; }
   .comparison-summary-card { grid-template-columns: 118px minmax(0, 1fr); }
   .comparison-summary-mosaic { min-height: 155px; }
 }
@@ -4277,7 +4331,7 @@ textarea.prompt-preview-box-compact {
   border-radius: 8px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
   padding: 0.35rem 0;
-  z-index: 1000;
+  z-index: 3000;
   display: flex;
   flex-direction: column;
   gap: 2px;

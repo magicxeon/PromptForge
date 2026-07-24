@@ -1,6 +1,6 @@
 (() => {
   const registry = () => window.ModelPromptForgeNavigationRegistry;
-  const normalizePath = pathname => !pathname || pathname === '/' ? '/studio' : pathname.replace(/\/$/, '');
+  const normalizePath = pathname => !pathname || pathname === '/' ? '/community' : pathname.replace(/\/$/, '');
 
   function current() {
     const pathname = normalizePath(window.location.pathname);
@@ -17,7 +17,7 @@
   function emitRoute() {
     const route = current();
     if (!registry()?.isAllowedRoute(route.pathname)) {
-      navigate('/studio', { replace: true });
+      navigate('/community', { replace: true });
       return;
     }
     window.dispatchEvent(new CustomEvent('modelpromptforge:route', { detail: route }));
@@ -41,7 +41,7 @@
   window.addEventListener('popstate', emitRoute);
   document.addEventListener('DOMContentLoaded', () => {
     window.history.scrollRestoration = 'manual';
-    if (window.location.pathname === '/') window.history.replaceState(window.history.state || {}, '', `/studio${window.location.search}`);
+    if (window.location.pathname === '/') window.history.replaceState(window.history.state || {}, '', `/community${window.location.search}`);
     emitRoute();
   });
   window.ModelPromptForgeRouter = { current, navigate, refresh: emitRoute };

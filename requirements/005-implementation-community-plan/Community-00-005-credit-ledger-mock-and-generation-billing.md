@@ -134,10 +134,10 @@ An estimate expires after a configurable short period. Use 15 minutes for the mo
 
 ### 4.1 Authority and Versioning
 
-Create a server-owned pricing policy. The initial version must be:
+Create a server-owned pricing policy. The current OpenAI orientation-aware policy version is:
 
 ```text
-mock-2026-07-18-v1
+mock-2026-07-24-v2
 ```
 
 Pricing must not be hardcoded in UI components, queue code or provider adapters.
@@ -180,6 +180,8 @@ sourceDate
 notes
 ```
 
+For models whose published rate varies by canvas orientation, the policy may also define `baseCreditsByQualityAndAspectRatio`. The server normalizes `1:1` to `square`, a width-larger ratio to `landscape`, and a height-larger ratio to `portrait`. The orientation and quality must be stored in `pricingInputs` and revalidated before reservation, so a preview cannot reserve at a different rate.
+
 If an enabled model has no explicit pricing record:
 
 - do not silently charge `1 credit`;
@@ -207,8 +209,17 @@ The implementation must transfer the approved planning values from the business 
 | ModelArk | `seedream-4-5-251128` | supported resolution | 60 |
 | ModelArk | `dola-seedream-5-0-pro-260628` | up to 2.36 MP | 60 |
 | ModelArk | `dola-seedream-5-0-pro-260628` | above 2.36 MP | 120 |
-| OpenAI | `gpt-image-2` | Medium square baseline | 75 |
-| OpenAI | `gpt-image-2` | High square baseline | 285 |
+| OpenAI | `gpt-image-1-mini` | Low / Medium / High square | 10 / 20 / 60 |
+| OpenAI | `gpt-image-1-mini` | Low / Medium / High portrait or landscape | 15 / 30 / 90 |
+| OpenAI | `gpt-image-1` | Medium / High square | 70 / 275 |
+| OpenAI | `gpt-image-1` | Medium / High portrait or landscape | 105 / 410 |
+| OpenAI | `gpt-image-1.5` | Medium / High square | 60 / 220 |
+| OpenAI | `gpt-image-1.5` | Medium / High portrait or landscape | 85 / 325 |
+| OpenAI | `gpt-image-2` | Medium square | 85 |
+| OpenAI | `gpt-image-2` | Medium portrait or landscape | 70 |
+| OpenAI | `gpt-image-2` | High square / portrait or landscape | 345 / 270 |
+
+OpenAI has no explicit quality selector in the current MVP UI. The provider receives its `auto` default, while the credit policy maps the MVP `standard` quality tier to the documented Medium rate. This is an estimate policy, not a claim that OpenAI's runtime `auto` parameter is a fixed quality guarantee. When an explicit quality control is added, it must submit `low`, `medium`, or `high` and request a fresh estimate before Generate.
 
 Reference surcharges must be configurable and visible in the estimate breakdown:
 
@@ -464,7 +475,7 @@ Canonical routing result:
   "resolvedModelId": "gemini-3.1-flash-lite-image",
   "routingMode": "advanced",
   "qualityTier": "standard",
-  "pricingPolicyVersion": "mock-2026-07-18-v1",
+  "pricingPolicyVersion": "mock-2026-07-24-v2",
   "estimatedCredits": 45,
   "estimateConfidence": "locked",
   "fallbackApplied": false,
@@ -505,7 +516,7 @@ Invariants:
 {
   "estimateId": "est_...",
   "userId": "usr_demo",
-  "pricingPolicyVersion": "mock-2026-07-18-v1",
+  "pricingPolicyVersion": "mock-2026-07-24-v2",
   "routing": {
     "routingMode": "advanced",
     "requestedProviderId": "gemini",
@@ -590,7 +601,7 @@ No terminal state may transition again.
   "relatedTemplateId": null,
   "providerId": "gemini",
   "modelId": "gemini-3.1-flash-lite-image",
-  "pricingPolicyVersion": "mock-2026-07-18-v1",
+  "pricingPolicyVersion": "mock-2026-07-24-v2",
   "idempotencyKey": "reserve:req_...",
   "reasonCode": "generation_reserved",
   "actorUserId": "usr_demo",
@@ -848,7 +859,7 @@ Response:
 {
   "estimate": {
     "estimateId": "est_...",
-    "pricingPolicyVersion": "mock-2026-07-18-v1",
+    "pricingPolicyVersion": "mock-2026-07-24-v2",
     "estimatedCredits": 46,
     "estimateConfidence": "locked",
     "breakdown": {},
@@ -870,7 +881,7 @@ The existing generation endpoint must receive:
   "estimateId": "est_...",
   "requestId": "req_...",
   "routingMode": "advanced",
-  "pricingPolicyVersion": "mock-2026-07-18-v1"
+  "pricingPolicyVersion": "mock-2026-07-24-v2"
 }
 ```
 

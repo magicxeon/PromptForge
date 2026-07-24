@@ -37,7 +37,9 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     && payload.sceneTemplateSnapshot.referenceSlotMapping
     && (payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_front_reference !== undefined
         || payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_back_reference !== undefined);
-  const allowOutfit = mode === 'character-sheet' || hasTemplateOutfit;
+  const allowOutfit = mode === 'character-sheet'
+    || hasTemplateOutfit
+    || payload.generationSurface === 'playground';
   if (allowOutfit && hasOutfitBack && !hasOutfitFront) {
     const error = new Error('Outfit Front is required when an Outfit Back reference is supplied.');
     error.statusCode = 400;

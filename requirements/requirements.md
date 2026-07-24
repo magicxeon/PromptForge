@@ -371,7 +371,7 @@ Future creator system:
 
 MVP community should start small:
 
-- product home / workflow launcher
+- community-first home with a compact workflow launcher
 - structured freestyle prompt composer
 - public/shared prompt pages
 - creator profile basics
@@ -666,7 +666,7 @@ Near-term:
 - refine outfit base visual clarity
 - add seed/randomness control if providers support it
 - improve provider-specific validation
-- clarify Product Home / workflow launcher direction
+- clarify Community Home, Playground and shared generation component direction
 
 Mid-term:
 

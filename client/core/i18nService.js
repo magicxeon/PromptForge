@@ -36,7 +36,7 @@
           { code: 'th', label: 'ไทย', nativeLabel: 'ไทย', direction: 'ltr', enabled: true },
           { code: 'en', label: 'English', nativeLabel: 'English', direction: 'ltr', enabled: true }
         ],
-        namespaces: ['common', 'shell', 'studio', 'scene-builder', 'character-builder', 'comparisons', 'community', 'credits', 'admin']
+        namespaces: ['common', 'shell', 'studio', 'scene-builder', 'character-builder', 'comparisons', 'community', 'credits', 'playground', 'admin']
       };
     }
     fallbackLocale = manifest.fallbackLocale || 'en';
@@ -105,7 +105,7 @@
   }
 
   function getRawTranslation(key, locale) {
-    const namespaces = manifest?.namespaces || ['common', 'shell', 'studio', 'scene-builder', 'character-builder', 'comparisons', 'community', 'credits', 'admin'];
+    const namespaces = manifest?.namespaces || ['common', 'shell', 'studio', 'scene-builder', 'character-builder', 'comparisons', 'community', 'credits', 'playground', 'admin'];
     for (const ns of namespaces) {
       const catalog = loadedCatalogs.get(`${locale}:${ns}`);
       if (catalog && Object.prototype.hasOwnProperty.call(catalog, key)) {

@@ -54,6 +54,7 @@ export class CreditReservationService {
       normalized(route.requestedProviderId) !== normalized(generationRequest.requestedProviderId) ||
       normalized(route.requestedModelId) !== normalized(generationRequest.requestedModelId) ||
       normalizedResolution(inputs.resolution) !== normalizedResolution(generationRequest.resolution) ||
+      normalized(inputs.aspectRatio) !== normalized(generationRequest.aspectRatio) ||
       normalized(inputs.quality) !== normalized(generationRequest.quality) ||
       integer(inputs.referenceCount, 0) !== integer(generationRequest.referenceCount, 0) ||
       Math.max(1, integer(inputs.outputCount, 1)) !== Math.max(1, integer(generationRequest.outputCount, 1)) ||

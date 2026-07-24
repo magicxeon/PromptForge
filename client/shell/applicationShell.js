@@ -1,5 +1,5 @@
 (() => {
-  const iconClasses = new Set(['studio', 'history', 'compare']);
+  const iconClasses = new Set(['studio', 'history', 'compare', 'community', 'playground']);
   let initialized = false;
   let menuOpen = false;
   let navHover = false;
@@ -23,7 +23,23 @@
     const navigation = document.getElementById('application-navigation');
     if (!navigation) return;
     navigation.innerHTML = '';
-    window.ModelPromptForgeNavigationRegistry.listVisible().forEach(module => {
+    const visibleModules = window.ModelPromptForgeNavigationRegistry.listVisible();
+    const groupLabels = window.ModelPromptForgeNavigationRegistry.groups || {};
+    const groupContainers = new Map();
+    visibleModules.forEach(module => {
+      let group = groupContainers.get(module.group);
+      if (!group) {
+        group = document.createElement('section');
+        group.className = 'application-nav-group';
+        group.dataset.group = module.group || 'create';
+        const heading = document.createElement('span');
+        heading.className = 'application-nav-group-label';
+        const groupLabel = groupLabels[module.group] || {};
+        heading.textContent = groupLabel[language()] || groupLabel.en || module.group || '';
+        group.appendChild(heading);
+        navigation.appendChild(group);
+        groupContainers.set(module.group, group);
+      }
       const link = document.createElement('a');
       link.href = module.route;
       link.dataset.route = module.route;
@@ -39,7 +55,7 @@
       detail.textContent = module.description[language()] || module.description.en;
       copy.append(title, detail);
       link.append(icon, copy);
-      navigation.appendChild(link);
+      group.appendChild(link);
     });
     updateActiveNavigation(lastRoute || window.ModelPromptForgeRouter.current());
   }
@@ -78,11 +94,17 @@
   function applyRoute(route) {
     lastRoute = route;
     const comparisonPage = route.pathname.startsWith('/comparisons');
-    document.body.dataset.appPage = comparisonPage ? 'comparisons' : route.pathname === '/history' ? 'history' : 'studio';
+    const communityPage = route.pathname === '/community';
+    const playgroundPage = route.pathname === '/playground';
+    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : playgroundPage ? 'playground' : route.pathname === '/history' ? 'history' : 'studio';
     const studio = document.querySelector('.app-workspace');
     const dashboard = document.getElementById('comparison-dashboard');
-    if (studio) studio.hidden = comparisonPage;
+    const community = document.getElementById('community-home');
+    const playground = document.getElementById('playground-page');
+    if (studio) studio.hidden = comparisonPage || communityPage || playgroundPage;
     if (dashboard) dashboard.hidden = !comparisonPage;
+    if (community) community.hidden = !communityPage;
+    if (playground) playground.hidden = !playgroundPage;
     updateActiveNavigation(route);
     setMenuOpen(false);
     requestAnimationFrame(updateNavigationVisibility);
@@ -90,6 +112,8 @@
       requestAnimationFrame(() => scrollToSection('visual-dashboard'));
     } else if (route.pathname === '/studio') {
       requestAnimationFrame(() => scrollToStudio(route));
+    } else if (communityPage || playgroundPage) {
+      requestAnimationFrame(() => smoothScrollTo(0));
     } else if (!route.pathname.startsWith('/comparisons/')) {
       requestAnimationFrame(() => smoothScrollTo(route.state?.scrollY || 0));
     }
