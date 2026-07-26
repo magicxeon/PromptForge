@@ -137,6 +137,13 @@
   "community.comparison.share": "Share comparison",
   "community.comparison.titlePrompt": "Name this public comparison.",
   "community.comparison.shareFailed": "The comparison could not be shared.",
+  "community.comparison.open": "Open comparison",
   "community.comparison.vote": "Vote for this result",
-  "community.comparison.voted": "Your vote"
+  "community.comparison.voted": "Your vote",
+  "community.comparison.voteCount": "{count} votes",
+  "community.comparison.leader": "Community leader",
+  "community.comparison.jointLeader": "Joint leader",
+  "community.detail.prompt": "Prompt",
+  "community.detail.share": "Share",
+  "community.feed.openPost": "Open Community post"
 }

@@ -22,5 +22,19 @@
   "comparisons.renamePrompt": "この比較セットの新しい名前を入力してください。",
   "comparisons.renameTitle": "比較セットの名前を変更",
   "comparisons.deleteConfirm": "「{name}」を削除しますか？ 生成された画像、履歴、コレクションは保持されます。",
-  "comparisons.deleteTitle": "比較セットを削除"
+  "comparisons.deleteTitle": "比較セットを削除",
+  "comparisons.viewer.controls": "比較表示コントロール",
+  "comparisons.viewer.sync": "表示を同期",
+  "comparisons.viewer.fit": "全体表示",
+  "comparisons.viewer.reset": "リセット",
+  "comparisons.viewer.fullscreen": "全画面",
+  "comparisons.viewer.model": "モデル",
+  "comparisons.viewer.detail": "詳細",
+  "comparisons.viewer.winner": "勝者",
+  "comparisons.viewer.clearWinner": "勝者を解除",
+  "comparisons.viewer.faceRef": "顔参照",
+  "comparisons.viewer.styleRef": "スタイル参照",
+  "comparisons.viewer.characterRef": "キャラクター参照",
+  "comparisons.viewer.collection": "コレクション",
+  "comparisons.viewer.download": "ダウンロード"
 }

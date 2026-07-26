@@ -146,21 +146,21 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 1,
-      "likes": 0,
+      "views": 2,
+      "likes": 1,
       "saves": 0,
       "comments": 0,
       "remixes": 0,
-      "votes": 0
+      "votes": 1
     },
     "engagementSummary": {
-      "viewCount": 1,
-      "likeCount": 0,
+      "viewCount": 2,
+      "likeCount": 1,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
-      "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-26T09:09:35.358Z"
+      "comparisonVoteCount": 1,
+      "updatedAt": "2026-07-26T10:05:07.325Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -168,7 +168,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-26T09:09:35.358Z",
+    "updatedAt": "2026-07-26T10:05:07.325Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -316,7 +316,7 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-26T08:54:05.473Z"
+      "updatedAt": "2026-07-26T10:03:58.461Z"
     },
     "id": "post_1785045545767_1r75hqrw",
     "schemaVersion": 1,
@@ -324,7 +324,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T05:59:05.767Z",
-    "updatedAt": "2026-07-26T08:54:05.473Z",
+    "updatedAt": "2026-07-26T10:03:58.461Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -483,7 +483,14 @@
     "officialTags": [],
     "customTags": [],
     "categoryCodes": [],
-    "counts": {},
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
     "workflowSnapshot": {},
     "id": "post_1784523517501_rtsukuz9",
     "schemaVersion": 1,
@@ -491,8 +498,17 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-20T04:58:37.501Z",
-    "updatedAt": "2026-07-20T04:58:37.501Z",
+    "updatedAt": "2026-07-26T10:04:02.920Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-26T10:04:02.920Z"
+    }
   }
 ]

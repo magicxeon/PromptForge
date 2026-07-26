@@ -76,5 +76,74 @@
     "occurredAt": "2026-07-26T09:08:51.559Z",
     "requestId": "req_1785056931554_yk5xqbe",
     "metadata": {}
+  },
+  {
+    "id": "engevt_f601e8d1-cb2b-4dfb-b746-53c1cd9eff12",
+    "schemaVersion": 1,
+    "postId": "post_1784523517501_rtsukuz9",
+    "actorUserId": "usr_demo",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1784523517501_rtsukuz9:usr_demo:2026-07-26T10:04:02.904Z",
+    "occurredAt": "2026-07-26T10:04:02.904Z",
+    "requestId": "req_1785060242900_medsy2i",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_a1b9911d-28fa-4746-9228-fbacf629b11f",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_demo",
+    "anonymousSessionHash": null,
+    "eventType": "like_added",
+    "targetId": null,
+    "dedupeKey": "like_added:post_1785056931508_vjbdsexw:usr_demo:2026-07-26T10:04:45.895Z",
+    "occurredAt": "2026-07-26T10:04:45.897Z",
+    "requestId": "req_1785060285886_drgft3s",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_c6fcf406-54e8-4f0a-af23-c3d49289f531",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785056931508_vjbdsexw:usr_alice:2026-07-26T10:04:54.012Z",
+    "occurredAt": "2026-07-26T10:04:54.012Z",
+    "requestId": "req_1785060294008_uh14w7p",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_dc133360-57d3-44c3-8a50-b10c5fe4af2c",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "comparison_vote_added",
+    "targetId": "comparison_slot_1784871221518_a4goir",
+    "dedupeKey": "comparison_vote_added:post_1785056931508_vjbdsexw:usr_alice:2026-07-26T10:04:58.906Z",
+    "occurredAt": "2026-07-26T10:04:58.908Z",
+    "requestId": "req_1785060298898_j29ht4q",
+    "metadata": {
+      "comparisonSlotId": "comparison_slot_1784871221518_a4goir"
+    }
+  },
+  {
+    "id": "engevt_af356cf6-a043-47f4-b9a7-de109346f234",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "comparison_vote_changed",
+    "targetId": "comparison_slot_1784871221518_x0mf65",
+    "dedupeKey": "comparison_vote_changed:post_1785056931508_vjbdsexw:usr_alice:2026-07-26T10:05:07.280Z",
+    "occurredAt": "2026-07-26T10:05:07.282Z",
+    "requestId": "req_1785060307275_1rvc5qj",
+    "metadata": {
+      "comparisonSlotId": "comparison_slot_1784871221518_x0mf65"
+    }
   }
 ]

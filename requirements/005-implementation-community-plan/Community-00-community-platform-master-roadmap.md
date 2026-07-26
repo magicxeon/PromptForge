@@ -96,6 +96,7 @@ Community module must not call image providers directly and must not mutate cred
 | Community-03 | Community Taxonomy and Auto Classification | Prompt/config schema, shared moderation baseline |
 | Community-04 | Share Generated Image and Prompt Snapshot | Auth, assets, generation history, collections |
 | Community-05 | Community Explore, Post Detail and Remix | Community-03, Community-04, Community-12 |
+| Community-05-001 | Shared Media and Comparison Presentation | Community-05, Community-07, Community-12, private Comparison workspace |
 | Community-06 | Creator Profile, Follow and Portfolio | Auth, Community-04 |
 | Community-07 | Community Safety, Moderation and Reporting | Auth, audit, asset scan |
 | Community-08 | Community MVP Integration and Launch | All Community MVP phases |

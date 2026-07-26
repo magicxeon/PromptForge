@@ -137,6 +137,13 @@
   "community.comparison.share": "แชร์ภาพเปรียบเทียบ",
   "community.comparison.titlePrompt": "ตั้งชื่อภาพเปรียบเทียบสาธารณะนี้",
   "community.comparison.shareFailed": "ไม่สามารถแชร์ภาพเปรียบเทียบได้",
+  "community.comparison.open": "เปิดภาพเปรียบเทียบ",
   "community.comparison.vote": "โหวตผลลัพธ์นี้",
-  "community.comparison.voted": "ผลลัพธ์ที่คุณโหวต"
+  "community.comparison.voted": "ผลลัพธ์ที่คุณโหวต",
+  "community.comparison.voteCount": "{count} โหวต",
+  "community.comparison.leader": "ผู้นำจากคะแนน Community",
+  "community.comparison.jointLeader": "คะแนนนำร่วม",
+  "community.detail.prompt": "Prompt",
+  "community.detail.share": "แชร์",
+  "community.feed.openPost": "เปิดโพสต์ Community"
 }

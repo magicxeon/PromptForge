@@ -35,10 +35,17 @@ export class CommunityPostAccessService {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
+    const isOwner = post.ownerUserId === actor.userId;
     return {
       ...buildCommunityPostPublicView(post),
       viewer: {
-        isOwner: post.ownerUserId === actor.userId
+        isOwner,
+        permissions: {
+          canVoteComparison: post.postType === 'comparison' && !isOwner,
+          canReport: !isOwner,
+          canUsePrivateReferences: false,
+          canDownloadPrivateOutput: false
+        }
       }
     };
   }

@@ -5,6 +5,11 @@
 **Depends on:** Community-03, Community-04, Community-12 engagement contract, Studio route integration
 **Created:** 2026-07-15
 
+**Presentation extension:** Grouped comparison cards, shared private/public
+comparison workspace, media activation, creator emphasis and comparison voting
+presentation are specified in
+`Community-05-001-shared-media-and-comparison-presentation.md`.
+
 ## 0. Delivery Gate
 
 This requirement follows
@@ -37,12 +42,11 @@ Implemented:
 - Loading, empty, unavailable-image and retry states.
 - Responsive desktop/mobile feed layout.
 
-Still pending in Community-05:
+Current validation remainder in Community-05:
 
-- Search and official taxonomy filtering.
-- Post detail route and dialog/page.
-- Like, save, comments, report and comparison-vote controls.
-- Creator deep links and Remix handoff from a feed card.
+- Browser E2E for search, taxonomy filters and creator deep links.
+- Browser E2E for shared comparison zoom/pan, engagement and permission states.
+- Remix handoff acceptance from every eligible public post type.
 
 Canonical client owner:
 

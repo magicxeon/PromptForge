@@ -67,6 +67,10 @@ function publicComparisonSnapshot(post) {
       providerDisplayName: displayLabel(slot.providerDisplayName || slot.provider),
       modelDisplayName: displayLabel(slot.modelDisplayName || slot.model),
       imageUrl: `/api/community/posts/${encodeURIComponent(post.id)}/comparison-slots/${encodeURIComponent(slot.slotId || slot.id)}/image`,
+      thumbnailUrl: `/api/community/posts/${encodeURIComponent(post.id)}/comparison-slots/${encodeURIComponent(slot.slotId || slot.id)}/image`,
+      status: ['completed', 'failed', 'cancelled'].includes(slot.status)
+        ? slot.status
+        : 'completed',
       generationDuration: slot.generationDuration || null
     })).filter(slot => slot.slotId)
   };

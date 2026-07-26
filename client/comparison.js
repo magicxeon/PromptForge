@@ -5,9 +5,7 @@
     slots: [],
     activeSet: null,
     pollTimer: null,
-    sharedView: { zoom: 1, x: 0, y: 0 },
-    slotViews: new Map(),
-    drag: null,
+    workspace: null,
     generating: false,
     initialized: false
   };
@@ -39,7 +37,9 @@
     document.getElementById('btn-comparison-history')?.addEventListener('click', toggleSetDrawer);
     document.getElementById('btn-close-comparison-drawer')?.addEventListener('click', toggleSetDrawer);
     document.getElementById('btn-comparison-add-all')?.addEventListener('click', addAllToCollection);
-    document.getElementById('comparison-sync-view')?.addEventListener('change', applyViewportTransforms);
+    document.getElementById('comparison-sync-view')?.addEventListener('change', event => {
+      state.workspace?.setSynced?.(event.target.checked);
+    });
     document.querySelectorAll('[data-comparison-view]').forEach(button => {
       button.addEventListener('click', () => handleViewCommand(button.dataset.comparisonView));
     });
@@ -54,8 +54,8 @@
   function resetForActorChange() {
     stopPolling();
     state.activeSet = null;
-    state.slotViews.clear();
-    state.sharedView = { zoom: 1, x: 0, y: 0 };
+    state.workspace?.destroy?.();
+    state.workspace = null;
     saveRecoveryState(null, false);
     document.querySelectorAll('.comparison-queue-item').forEach(card => card.remove());
     closeForRoute();
@@ -341,12 +341,48 @@
     const completedCount = run.slots.filter(slot => slot.status === 'completed').length;
     document.getElementById('comparison-workspace-status').textContent = `${formatStatus(run.status)} · ${completedCount}/${run.slots.length}`;
     const grid = document.getElementById('comparison-result-grid');
-    grid.dataset.slots = run.slots.length;
-    grid.innerHTML = '';
-    run.slots.forEach(slot => grid.appendChild(createResultCard(slot, set.winnerJobId === slot.jobId)));
+    const viewModel = window.ModelPromptForgeComparisons.fromPrivateComparisonSet(set);
+    const findSlot = result => run.slots.find(slot =>
+      String(slot.id || slot.slotId) === String(result.slotId)
+    );
+    const workspaceOptions = {
+      context: 'private',
+      showToolbar: false,
+      showPrompt: true
+    };
+    const workspaceActions = {
+      onOpenResult(result, triggerElement) {
+        const slot = findSlot(result);
+        if (slot && result.imageUrl) openComparisonResultDetail(slot, result.imageUrl, triggerElement);
+      },
+      onSelectPrivateWinner(result) {
+        setWinner(result.isOwnerWinner ? null : result.jobId);
+      },
+      onUseReference(type, result) {
+        const slot = findSlot(result);
+        if (!slot || !result.imageUrl) return;
+        if (type === 'face') bridge().useAsFaceReference(result.imageUrl, slot.jobId);
+        if (type === 'style') bridge().useAsStyleReference(result.imageUrl, slot.jobId);
+        if (type === 'character') bridge().useAsCharacterReference(result.imageUrl, slot.jobId);
+        closeWorkspace({ destination: '/studio' });
+      },
+      onAddToCollection(result) {
+        if (result.jobId) bridge().openCollectionPicker(result.jobId);
+      }
+    };
+    if (!state.workspace) {
+      state.workspace = window.ModelPromptForgeComparisons.createWorkspace({
+        mount: grid,
+        viewModel,
+        options: workspaceOptions,
+        permissions: viewModel.permissions,
+        actions: workspaceActions
+      });
+    } else {
+      state.workspace.update(viewModel, viewModel.permissions, workspaceActions);
+    }
     document.getElementById('btn-comparison-add-all').disabled = !run.slots.some(slot => slot.status === 'completed');
     updateActiveRunChip();
-    applyViewportTransforms();
   }
 
   function updateActiveRunChip() {
@@ -620,20 +656,7 @@
   }
 
   function handleViewCommand(command) {
-    if (command === 'fullscreen') {
-      const workspace = document.getElementById('comparison-workspace');
-      if (!document.fullscreenElement) workspace.requestFullscreen?.();
-      else document.exitFullscreen?.();
-      return;
-    }
-    if (command === 'zoom-in') state.sharedView.zoom = clamp(state.sharedView.zoom * 1.2, 1, 6);
-    if (command === 'zoom-out') state.sharedView.zoom = clamp(state.sharedView.zoom / 1.2, 1, 6);
-    if (command === 'actual') state.sharedView = { zoom: 2, x: 0, y: 0 };
-    if (command === 'fit' || command === 'reset') {
-      state.sharedView = { zoom: 1, x: 0, y: 0 };
-      if (command === 'reset') state.slotViews.clear();
-    }
-    requestAnimationFrame(applyViewportTransforms);
+    state.workspace?.command(command);
   }
 
   async function api(url, options = {}) {

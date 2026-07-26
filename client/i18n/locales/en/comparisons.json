@@ -22,5 +22,19 @@
   "comparisons.renamePrompt": "Enter a new name for this Comparison Set.",
   "comparisons.renameTitle": "Rename Comparison",
   "comparisons.deleteConfirm": "Delete “{name}”? Generated images, History and Collections will be kept.",
-  "comparisons.deleteTitle": "Delete Comparison Set"
+  "comparisons.deleteTitle": "Delete Comparison Set",
+  "comparisons.viewer.controls": "Comparison viewport controls",
+  "comparisons.viewer.sync": "Sync view",
+  "comparisons.viewer.fit": "Fit",
+  "comparisons.viewer.reset": "Reset",
+  "comparisons.viewer.fullscreen": "Fullscreen",
+  "comparisons.viewer.model": "Model",
+  "comparisons.viewer.detail": "Detail",
+  "comparisons.viewer.winner": "Winner",
+  "comparisons.viewer.clearWinner": "Clear winner",
+  "comparisons.viewer.faceRef": "Face Ref",
+  "comparisons.viewer.styleRef": "Style Ref",
+  "comparisons.viewer.characterRef": "Character Ref",
+  "comparisons.viewer.collection": "Collection",
+  "comparisons.viewer.download": "Download"
 }

@@ -34,19 +34,24 @@ export class CommunityEngagementService {
   async getEngagement(postId, actorContext) {
     const actor = assertActorContext(actorContext);
     const post = await this.assertEngageablePost(postId);
-    const [like, save, vote] = await Promise.all([
+    const [like, save, vote, votes] = await Promise.all([
       this.reactionRepository.find(post.id, actor.userId, 'like'),
       this.reactionRepository.find(post.id, actor.userId, 'save'),
-      this.voteRepository.find(post.id, actor.userId)
+      this.voteRepository.find(post.id, actor.userId),
+      post.postType === 'comparison'
+        ? this.voteRepository.listActiveByPost(post.id)
+        : Promise.resolve([])
     ]);
+    const comparisonVoteSlotId = vote?.active ? vote.comparisonSlotId : null;
     return {
       postId: post.id,
       summary: await this.reconcile(post.id),
       viewerState: {
         liked: like?.active === true,
         saved: save?.active === true,
-        comparisonVoteSlotId: vote?.active ? vote.comparisonSlotId : null
-      }
+        comparisonVoteSlotId
+      },
+      voteSummary: buildComparisonVoteSummary(votes, comparisonVoteSlotId)
     };
   }
 
@@ -288,6 +293,28 @@ export class CommunityEngagementService {
     }
     return post;
   }
+}
+
+function buildComparisonVoteSummary(votes = [], actorSlotId = null) {
+  const counts = new Map();
+  for (const vote of votes) {
+    const slotId = String(vote?.comparisonSlotId || '').trim();
+    if (!slotId) continue;
+    counts.set(slotId, (counts.get(slotId) || 0) + 1);
+  }
+  const bySlot = [...counts.entries()]
+    .map(([slotId, count]) => ({ slotId, count }))
+    .sort((left, right) => left.slotId.localeCompare(right.slotId));
+  const highestCount = bySlot.reduce((highest, item) => Math.max(highest, item.count), 0);
+  return {
+    total: votes.length,
+    bySlot,
+    highestCount,
+    leaderSlotIds: highestCount > 0
+      ? bySlot.filter(item => item.count === highestCount).map(item => item.slotId)
+      : [],
+    actorSlotId: actorSlotId || null
+  };
 }
 
 function normalizeCommentBody(value, maxLength) {

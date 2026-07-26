@@ -237,11 +237,30 @@
     article.className = 'community-post-card';
     article.dataset.postType = post.postType || 'image';
 
-    const media = document.createElement('button');
-    media.type = 'button';
+    const openPost = () =>
+      window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`);
+    const media = document.createElement('div');
     media.className = 'community-post-media';
-    media.setAttribute('aria-label', translate('community.feed.openImage', 'Open full-size image'));
-    if (post.thumbnailUrl || post.imageUrl) {
+    if (post.postType === 'comparison' && post.comparisonSnapshot?.slots?.length) {
+      window.ModelPromptForgeComparisons?.createMosaic?.({
+        mount: media,
+        items: post.comparisonSnapshot.slots.map(slot => ({
+          id: slot.slotId,
+          imageUrl: slot.imageUrl,
+          thumbnailUrl: slot.thumbnailUrl || slot.imageUrl,
+          modelLabel: slot.modelDisplayName,
+          alt: slot.modelDisplayName || translate('community.feed.type.comparison', 'Comparison')
+        })),
+        maxVisible: 3,
+        label: translate('community.comparison.open', 'Open comparison'),
+        context: 'community',
+        onActivate: openPost
+      });
+    } else if (post.thumbnailUrl || post.imageUrl) {
+      const mediaButton = document.createElement('button');
+      mediaButton.type = 'button';
+      mediaButton.className = 'community-post-media-button';
+      mediaButton.setAttribute('aria-label', translate('community.feed.openPost', 'Open Community post'));
       const image = document.createElement('img');
       image.src = post.thumbnailUrl || post.imageUrl;
       image.alt = post.title || translate('community.creator.postPreview', 'Community post');
@@ -252,8 +271,9 @@
         image.remove();
         media.textContent = translate('community.feed.imageUnavailable', 'Image unavailable');
       }, { once: true });
-      media.appendChild(image);
-      media.addEventListener('click', () => openImage(post, media));
+      mediaButton.appendChild(image);
+      mediaButton.addEventListener('click', openPost);
+      media.appendChild(mediaButton);
     } else {
       media.classList.add('is-unavailable');
       media.textContent = translate('community.feed.imageUnavailable', 'Image unavailable');
@@ -266,16 +286,21 @@
     detail.type = 'button';
     detail.className = 'community-post-detail-link';
     detail.textContent = post.title || translate('community.creator.untitled', 'Untitled');
-    detail.addEventListener('click', () =>
-      window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`)
-    );
+    detail.addEventListener('click', openPost);
     title.appendChild(detail);
     const badge = document.createElement('span');
     badge.className = `community-post-type-badge is-${post.postType || 'image'}`;
     badge.textContent = typeLabel(post.postType);
-    const creator = document.createElement('p');
+    const creator = document.createElement('button');
+    creator.type = 'button';
     creator.className = 'community-post-creator';
     creator.textContent = post.creator?.displayName || post.creator?.username || 'Creator';
+    creator.disabled = !post.creator?.handle;
+    creator.addEventListener('click', event => {
+      event.stopPropagation();
+      if (!post.creator?.handle) return;
+      window.ModelPromptForgeRouter?.navigate(`/creators/${encodeURIComponent(post.creator.handle)}`);
+    });
     const meta = document.createElement('div');
     meta.className = 'community-post-meta';
     meta.append(

@@ -137,6 +137,13 @@
   "community.comparison.share": "比較を共有",
   "community.comparison.titlePrompt": "公開比較の名前を入力してください。",
   "community.comparison.shareFailed": "比較を共有できませんでした。",
+  "community.comparison.open": "比較を開く",
   "community.comparison.vote": "この結果に投票",
-  "community.comparison.voted": "投票済み"
+  "community.comparison.voted": "投票済み",
+  "community.comparison.voteCount": "{count}票",
+  "community.comparison.leader": "コミュニティ首位",
+  "community.comparison.jointLeader": "同率首位",
+  "community.detail.prompt": "プロンプト",
+  "community.detail.share": "共有",
+  "community.feed.openPost": "コミュニティ投稿を開く"
 }

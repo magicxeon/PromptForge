@@ -22,5 +22,19 @@
   "comparisons.renamePrompt": "กรอกชื่อใหม่สำหรับชุดเปรียบเทียบ",
   "comparisons.renameTitle": "เปลี่ยนชื่อชุดเปรียบเทียบ",
   "comparisons.deleteConfirm": "ลบ “{name}” หรือไม่? รูปภาพ ประวัติ และ Collection จะยังคงอยู่",
-  "comparisons.deleteTitle": "ลบชุดเปรียบเทียบ"
+  "comparisons.deleteTitle": "ลบชุดเปรียบเทียบ",
+  "comparisons.viewer.controls": "เครื่องมือควบคุมภาพเปรียบเทียบ",
+  "comparisons.viewer.sync": "เลื่อนภาพพร้อมกัน",
+  "comparisons.viewer.fit": "พอดีจอ",
+  "comparisons.viewer.reset": "รีเซ็ต",
+  "comparisons.viewer.fullscreen": "เต็มหน้าจอ",
+  "comparisons.viewer.model": "โมเดล",
+  "comparisons.viewer.detail": "รายละเอียด",
+  "comparisons.viewer.winner": "ผู้ชนะ",
+  "comparisons.viewer.clearWinner": "ยกเลิกผู้ชนะ",
+  "comparisons.viewer.faceRef": "อ้างอิงใบหน้า",
+  "comparisons.viewer.styleRef": "อ้างอิงสไตล์",
+  "comparisons.viewer.characterRef": "อ้างอิงตัวละคร",
+  "comparisons.viewer.collection": "คอลเลกชัน",
+  "comparisons.viewer.download": "ดาวน์โหลด"
 }

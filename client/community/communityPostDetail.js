@@ -55,12 +55,6 @@
     back.textContent = t('community.detail.back', 'Back to Community');
     back.addEventListener('click', () => window.ModelPromptForgeRouter.navigate('/community'));
 
-    const layout = document.createElement('div');
-    layout.className = 'community-detail-layout';
-    const media = buildMedia(post, engagement);
-    const aside = document.createElement('aside');
-    aside.className = 'community-detail-panel';
-
     const type = document.createElement('span');
     type.className = `community-post-type-badge is-${post.postType || 'image'}`;
     type.textContent = post.postType || 'image';
@@ -88,6 +82,31 @@
     const actions = buildEngagementActions(post, engagement);
     const workflow = buildWorkflowActions(post);
     const ownerActions = post.viewer?.isOwner ? buildOwnerActions(post) : null;
+
+    if (post.postType === 'comparison' && post.comparisonSnapshot?.slots?.length) {
+      const comparisonLayout = document.createElement('div');
+      comparisonLayout.className = 'community-comparison-detail-layout';
+      const heading = document.createElement('header');
+      heading.className = 'community-comparison-detail-header';
+      heading.append(type, title, creator, description);
+      comparisonLayout.append(heading, buildComparisonMedia(post, engagement));
+
+      const promptRegion = document.createElement('section');
+      promptRegion.className = 'community-comparison-prompt';
+      const promptHeading = document.createElement('h2');
+      promptHeading.textContent = t('community.detail.prompt', 'Prompt');
+      promptRegion.append(promptHeading, prompt);
+      comparisonLayout.append(promptRegion, actions, workflow);
+      if (ownerActions) comparisonLayout.appendChild(ownerActions);
+      mount.append(back, comparisonLayout, buildComments(post, comments));
+      return;
+    }
+
+    const layout = document.createElement('div');
+    layout.className = 'community-detail-layout';
+    const media = buildMedia(post, engagement);
+    const aside = document.createElement('aside');
+    aside.className = 'community-detail-panel';
     aside.append(type, title, creator, description);
     if (post.postType !== 'collection') aside.appendChild(prompt);
     aside.append(actions, workflow);
@@ -179,40 +198,55 @@
   }
 
   function buildComparisonMedia(post, engagement) {
-    const grid = document.createElement('div');
-    grid.className = 'community-comparison-grid';
-    post.comparisonSnapshot.slots.forEach(slot => {
-      const card = document.createElement('article');
-      const image = document.createElement('img');
-      image.src = slot.imageUrl;
-      image.alt = slot.modelDisplayName || 'Comparison result';
-      const model = document.createElement('strong');
-      model.textContent = slot.modelDisplayName || slot.providerDisplayName || 'Model';
-      const vote = document.createElement('button');
-      const selected = engagement.viewerState?.comparisonVoteSlotId === slot.slotId;
-      vote.type = 'button';
-      vote.classList.toggle('active', selected);
-      vote.disabled = post.viewer?.isOwner === true;
-      vote.textContent = selected
-        ? t('community.comparison.voted', 'Your vote')
-        : t('community.comparison.vote', 'Vote for this result');
-      vote.addEventListener('click', async () => {
-        vote.disabled = true;
-        try {
-          if (selected) {
+    const mount = document.createElement('section');
+    mount.className = 'community-comparison-workspace-mount';
+    const viewModel = window.ModelPromptForgeComparisons.fromPublicCommunityPost(post, engagement);
+    const lightboxItems = viewModel.results.filter(result => result.imageUrl).map(result => ({
+      id: `${post.id}:${result.slotId}`,
+      imageUrl: result.imageUrl,
+      thumbnailUrl: result.thumbnailUrl,
+      prompt: post.promptPreview || '',
+      provider: result.providerLabel || 'Community',
+      submodel: result.modelLabel || 'Comparison',
+      createdAt: post.createdAt,
+      isCommunityPublic: true,
+      communityPost: post
+    }));
+    window.ModelPromptForgeComparisons.createWorkspace({
+      mount,
+      viewModel,
+      options: {
+        context: 'community',
+        showPrompt: false,
+        showEngagement: false
+      },
+      permissions: viewModel.permissions,
+      actions: {
+        onOpenResult(result, triggerElement) {
+          const activeIndex = lightboxItems.findIndex(item => item.id.endsWith(`:${result.slotId}`));
+          const item = lightboxItems[activeIndex];
+          if (!item) return;
+          window.openLightbox?.(item, {
+            triggerElement,
+            browseContext: {
+              source: 'community-comparison',
+              itemIds: lightboxItems.map(entry => entry.id),
+              items: lightboxItems,
+              activeIndex
+            }
+          });
+        },
+        async onVote(result) {
+          if (result.isActorVote) {
             await window.ModelPromptForgeCommunityEngagementApi.removeComparisonVote(post.id);
           } else {
-            await window.ModelPromptForgeCommunityEngagementApi.setComparisonVote(post.id, slot.slotId);
+            await window.ModelPromptForgeCommunityEngagementApi.setComparisonVote(post.id, result.slotId);
           }
           await load(post.id);
-        } finally {
-          vote.disabled = false;
         }
-      });
-      card.append(image, model, vote);
-      grid.appendChild(card);
+      }
     });
-    return grid;
+    return mount;
   }
 
   function buildEngagementActions(post, engagement) {
@@ -222,6 +256,11 @@
       reactionButton('like', engagement.viewerState?.liked, engagement.summary?.likeCount, post.id),
       reactionButton('save', engagement.viewerState?.saved, engagement.summary?.saveCount, post.id)
     );
+    const share = document.createElement('button');
+    share.type = 'button';
+    share.textContent = t('community.detail.share', 'Share');
+    share.addEventListener('click', () => sharePublicPost(post));
+    region.appendChild(share);
     if (!post.viewer?.isOwner) {
       const report = document.createElement('button');
       report.type = 'button';
@@ -230,6 +269,15 @@
       region.appendChild(report);
     }
     return region;
+  }
+
+  async function sharePublicPost(post) {
+    const url = new URL(`/community/${encodeURIComponent(post.id)}`, window.location.origin).href;
+    if (navigator.share) {
+      await navigator.share({ title: post.title || document.title, url });
+      return;
+    }
+    await navigator.clipboard?.writeText?.(url);
   }
 
   function reactionButton(type, active, count, postId) {

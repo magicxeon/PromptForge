@@ -128,6 +128,14 @@ test('Community-12 comparison voting keeps one active slot and blocks owner voti
   assert.equal(changed.comparisonSlotId, 'slot_b');
   assert.equal(duplicate.changed, false);
   assert.equal(changed.summary.comparisonVoteCount, 1);
+  const detail = await fixture.engagementService.getEngagement(post.id, fixture.actors.bob);
+  assert.deepEqual(detail.voteSummary, {
+    total: 1,
+    bySlot: [{ slotId: 'slot_b', count: 1 }],
+    highestCount: 1,
+    leaderSlotIds: ['slot_b'],
+    actorSlotId: 'slot_b'
+  });
 
   await assert.rejects(
     () => fixture.engagementService.setComparisonVote(post.id, 'slot_a', fixture.actors.alice),
