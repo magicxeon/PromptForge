@@ -5,5 +5,16 @@
   "community.template.use": "テンプレートを使用",
   "community.template.loadConfirm": "このテンプレートを Scene Builder に読み込みますか？",
   "community.post.unavailable": "このコミュニティ投稿はご利用いただけません。",
-  "community.post.publishSuccess": "テンプレートがコミュニティに公開されました！"
+  "community.post.publishSuccess": "テンプレートがコミュニティに公開されました！",
+  "community.taxonomy.title": "おすすめカテゴリー",
+  "community.taxonomy.confirmHelp": "この作品に合う公式タグを確認してください。",
+  "community.taxonomy.noSuggestions": "信頼度の高い候補はありません。該当する公式タグを追加できます。",
+  "community.taxonomy.addOfficial": "公式タグを追加",
+  "community.taxonomy.add": "追加",
+  "community.taxonomy.customTags": "検索用カスタムタグ",
+  "community.taxonomy.customPlaceholder": "例：ウェディング、インフルエンサー、夏のキャンペーン",
+  "community.taxonomy.customHelp": "カスタムタグは検索に使用されますが、カテゴリー順位やトレンドには影響しません。",
+  "community.taxonomy.confidence.high": "高",
+  "community.taxonomy.confidence.medium": "要確認",
+  "community.taxonomy.confidence.low": "低"
 }

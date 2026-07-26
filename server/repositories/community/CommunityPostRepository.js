@@ -66,6 +66,9 @@ export class CommunityPostRepository {
     const scope = JSON.stringify({
       sort: normalizedQuery.sort,
       visibility: normalizedQuery.filters.visibility || VISIBILITY.PUBLIC,
+      officialTag: normalizedQuery.filters.officialTag || null,
+      customTag: normalizedQuery.filters.customTag || null,
+      search: normalizedQuery.filters.search || null,
       viewer: viewerContext?.userId || 'anonymous'
     });
     const cursor = normalizedQuery.cursor
@@ -73,6 +76,13 @@ export class CommunityPostRepository {
       : null;
     let posts = (await this.readAll())
       .filter(isVisiblePublicPost)
+      .filter(post => normalizedQuery.sort !== 'trending'
+        || normalizeStringArray(post.trendingCategoryCodes).length > 0)
+      .filter(post => !normalizedQuery.filters.officialTag
+        || taxonomyCodesForQuery(post, normalizedQuery.sort).includes(normalizedQuery.filters.officialTag))
+      .filter(post => !normalizedQuery.filters.customTag
+        || normalizeStringArray(post.customTags).some(tag => sameSearchTerm(tag, normalizedQuery.filters.customTag)))
+      .filter(post => !normalizedQuery.filters.search || communityPostMatchesSearch(post, normalizedQuery.filters.search))
       .sort((left, right) => comparePosts(left, right, normalizedQuery.sort));
 
     if (cursor) posts = posts.filter(post => comparePosts(post, cursor, normalizedQuery.sort) > 0);
@@ -118,6 +128,15 @@ export class CommunityPostRepository {
       officialTags: normalizeStringArray(recordInput.officialTags),
       customTags: normalizeStringArray(recordInput.customTags),
       categoryCodes: normalizeStringArray(recordInput.categoryCodes),
+      trendingCategoryCodes: normalizeStringArray(recordInput.trendingCategoryCodes),
+      taxonomyVersion: typeof recordInput.taxonomyVersion === 'string' ? recordInput.taxonomyVersion : null,
+      taxonomyAssignments: normalizeTaxonomyAssignments(recordInput.taxonomyAssignments),
+      taxonomyReviewStatus: typeof recordInput.taxonomyReviewStatus === 'string'
+        ? recordInput.taxonomyReviewStatus
+        : 'unclassified',
+      taxonomyConfidence: Number.isFinite(Number(recordInput.taxonomyConfidence))
+        ? Math.min(1, Math.max(0, Number(recordInput.taxonomyConfidence)))
+        : 0,
       counts: recordInput.counts && typeof recordInput.counts === 'object' ? recordInput.counts : {},
       workflowSnapshot: recordInput.workflowSnapshot && typeof recordInput.workflowSnapshot === 'object'
         ? stripEmbeddedBase64(recordInput.workflowSnapshot)
@@ -205,6 +224,41 @@ export class CommunityPostRepository {
       return normalizeCommunityPostRecord(next, this.userRepository);
     });
   }
+
+  async updateTaxonomyById(id, taxonomy = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    if (!['admin', 'support'].includes(actor.role)) {
+      throw new RepositoryContractError(
+        'community_taxonomy_forbidden',
+        'Only admin or support can correct published taxonomy.',
+        403
+      );
+    }
+
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+      const next = {
+        ...posts[index],
+        taxonomyVersion: typeof taxonomy.taxonomyVersion === 'string'
+          ? taxonomy.taxonomyVersion
+          : posts[index].taxonomyVersion,
+        taxonomyAssignments: normalizeTaxonomyAssignments(taxonomy.taxonomyAssignments),
+        officialTags: normalizeStringArray(taxonomy.officialTags),
+        customTags: normalizeStringArray(taxonomy.customTags),
+        categoryCodes: normalizeStringArray(taxonomy.categoryCodes),
+        trendingCategoryCodes: normalizeStringArray(taxonomy.trendingCategoryCodes),
+        taxonomyReviewStatus: taxonomy.taxonomyReviewStatus || 'admin_confirmed',
+        taxonomyConfidence: Number.isFinite(Number(taxonomy.taxonomyConfidence))
+          ? Math.min(1, Math.max(0, Number(taxonomy.taxonomyConfidence)))
+          : 1,
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
 }
 
 function toPage(posts, limit, scope, secret, sort) {
@@ -231,6 +285,51 @@ function comparePosts(left, right, sort) {
 function normalizeStringArray(value) {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.filter(item => typeof item === 'string').map(item => item.trim()).filter(Boolean))];
+}
+
+function normalizeTaxonomyAssignments(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(item => item && typeof item === 'object' && typeof item.tagId === 'string')
+    .map(item => ({
+      tagId: item.tagId.trim(),
+      dimensionId: typeof item.dimensionId === 'string' ? item.dimensionId.trim() : '',
+      confidence: Number.isFinite(Number(item.confidence))
+        ? Math.min(1, Math.max(0, Number(item.confidence)))
+        : 0,
+      confidenceLevel: ['high', 'medium', 'low'].includes(item.confidenceLevel)
+        ? item.confidenceLevel
+        : 'low',
+      sources: normalizeStringArray(item.sources),
+      status: typeof item.status === 'string' ? item.status : 'confirmed',
+      categoryEligible: item.categoryEligible === true,
+      trendingEligible: item.trendingEligible === true
+    }))
+    .filter(item => item.tagId && item.dimensionId);
+}
+
+function taxonomyCodesForQuery(post, sort) {
+  if (sort === 'trending') return normalizeStringArray(post.trendingCategoryCodes);
+  return normalizeStringArray(post.categoryCodes?.length ? post.categoryCodes : post.officialTags);
+}
+
+function communityPostMatchesSearch(post, query) {
+  const needle = normalizeSearchTerm(query);
+  if (!needle) return true;
+  return [
+    post.title,
+    post.description,
+    ...normalizeStringArray(post.customTags),
+    ...normalizeStringArray(post.officialTags)
+  ].some(value => normalizeSearchTerm(value).includes(needle));
+}
+
+function sameSearchTerm(left, right) {
+  return normalizeSearchTerm(left) === normalizeSearchTerm(right);
+}
+
+function normalizeSearchTerm(value) {
+  return typeof value === 'string' ? value.trim().toLocaleLowerCase('en-US') : '';
 }
 
 function isVisiblePublicPost(post) {

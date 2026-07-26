@@ -13,10 +13,10 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
     try {
-      const { title, description, promptVisibility } = req.body || {};
+      const { title, description, promptVisibility, officialTags, customTags } = req.body || {};
       const post = await communityShareService.publishSceneTemplateShare(
         req.params.draftId,
-        { title, description, promptVisibility },
+        { title, description, promptVisibility, officialTags, customTags },
         req.actorContext
       );
       res.json(post);
@@ -79,6 +79,21 @@ export function registerSceneTemplateRoutes(app, {
       ));
     } catch (err) {
       return res.status(err.statusCode || 400).json({ error: err.message });
+    }
+  });
+
+  app.patch('/api/scene-templates/shared/:postId/taxonomy', async (req, res) => {
+    try {
+      return res.json(await communityShareService.updateSharedPostTaxonomy(
+        req.params.postId,
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (err) {
+      return res.status(err.statusCode || 400).json({
+        code: err.code || 'community_taxonomy_update_failed',
+        error: err.message
+      });
     }
   });
 

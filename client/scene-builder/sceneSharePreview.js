@@ -22,7 +22,7 @@
       }
 
       activeDraft = await res.json();
-      renderSharePreviewModal(activeDraft);
+      await renderSharePreviewModal(activeDraft);
 
     } catch (err) {
       if (window.AppDialog) {
@@ -33,7 +33,7 @@
     }
   }
 
-  function renderSharePreviewModal(draft) {
+  async function renderSharePreviewModal(draft) {
     const modal = document.getElementById('share-template-modal');
     if (!modal) return;
 
@@ -125,6 +125,11 @@
       modelSummary.innerText = `Provider: ${providerLabel} (${modelLabel})`;
     }
 
+    await window.ModelPromptForgeCommunityTaxonomyPicker?.initialize?.({
+      mountElement: document.getElementById('share-modal-taxonomy-picker'),
+      suggestion: draft.taxonomySuggestion || {}
+    });
+
     // Show modal
     modal.style.display = 'flex';
     document.body.classList.add('app-dialog-open');
@@ -149,6 +154,10 @@
     const title = titleInput ? titleInput.value : '';
     const description = descInput ? descInput.value : '';
     const promptVisibility = visibilitySelect ? visibilitySelect.value : 'full';
+    const taxonomy = window.ModelPromptForgeCommunityTaxonomyPicker?.getSelection?.() || {
+      officialTags: [],
+      customTags: []
+    };
 
     if (!title.trim()) {
       if (window.AppDialog) {
@@ -162,7 +171,13 @@
       const res = await apiFetch(`/api/scene-templates/share-drafts/${activeDraft.id}/publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, promptVisibility })
+        body: JSON.stringify({
+          title,
+          description,
+          promptVisibility,
+          officialTags: taxonomy.officialTags,
+          customTags: taxonomy.customTags
+        })
       });
 
       if (!res.ok) {

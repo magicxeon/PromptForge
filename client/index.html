@@ -683,6 +683,14 @@
           <ul id="share-modal-variables" style="font-size: 0.75rem; margin: 0; padding-left: 1.2rem; color: #ccc;"></ul>
         </div>
 
+        <section class="community-taxonomy-panel" aria-labelledby="share-taxonomy-title">
+          <div class="community-taxonomy-heading">
+            <span id="share-taxonomy-title" class="sub-label" data-i18n="community.taxonomy.title">Suggested categories</span>
+            <small data-i18n="community.taxonomy.confirmHelp">Confirm the official tags that describe this work.</small>
+          </div>
+          <div id="share-modal-taxonomy-picker"></div>
+        </section>
+
         <div id="share-modal-model-summary" class="sub-label" style="font-size: 0.72rem; color: #888;"></div>
       </div>
       <div class="app-dialog-footer" style="display: flex; gap: 0.55rem; justify-content: flex-end;">
@@ -777,6 +785,7 @@
   <script src="/community/communityMockUserSwitcher.js"></script>
   <script src="/community/communityCreateLauncher.js"></script>
   <script src="/community/communityHomePage.js"></script>
+  <script src="/community/communityTaxonomyPicker.js"></script>
   <script src="/admin/adminApi.js"></script>
   <script src="/admin/adminPanel.js"></script>
   <script src="/core/persistence.js"></script>

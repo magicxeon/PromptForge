@@ -4706,3 +4706,104 @@ textarea.prompt-preview-box-compact {
   font-size: 0.7rem;
   opacity: 0.85;
 }
+/* Community taxonomy confirmation inside the share workflow. */
+.community-taxonomy-panel {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+}
+
+.community-taxonomy-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.community-taxonomy-heading .sub-label {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.community-taxonomy-heading small,
+.community-taxonomy-help,
+.community-taxonomy-empty {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.community-taxonomy-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.community-taxonomy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.07);
+  color: var(--text-main);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.community-taxonomy-chip input {
+  accent-color: var(--neon-cyan);
+}
+
+.community-taxonomy-confidence {
+  padding-left: 0.4rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.community-taxonomy-confidence.is-high {
+  color: #7df4a5;
+}
+
+.community-taxonomy-confidence.is-medium {
+  color: var(--neon-gold);
+}
+
+.community-taxonomy-add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.community-taxonomy-select,
+.community-taxonomy-add {
+  min-height: 38px;
+}
+
+.community-taxonomy-add {
+  padding-inline: 0.9rem;
+}
+
+.community-taxonomy-custom-field {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.community-taxonomy-custom-field .custom-select {
+  min-height: 40px;
+}
+
+@media (max-width: 560px) {
+  .community-taxonomy-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .community-taxonomy-add-row {
+    grid-template-columns: 1fr;
+  }
+}

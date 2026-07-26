@@ -5,5 +5,16 @@
   "community.template.use": "ใช้เทมเพลต",
   "community.template.loadConfirm": "ต้องการนำเทมเพลตนี้ไปใช้ใน Scene Builder หรือไม่?",
   "community.post.unavailable": "โพสต์นี้ไม่พร้อมใช้งาน",
-  "community.post.publishSuccess": "เผยแพร่เทมเพลตไปยัง Community สำเร็จ!"
+  "community.post.publishSuccess": "เผยแพร่เทมเพลตไปยัง Community สำเร็จ!",
+  "community.taxonomy.title": "หมวดหมู่ที่แนะนำ",
+  "community.taxonomy.confirmHelp": "ยืนยันแท็กทางการที่ตรงกับผลงานนี้",
+  "community.taxonomy.noSuggestions": "ยังไม่มีคำแนะนำที่มั่นใจ คุณสามารถเพิ่มแท็กทางการที่เกี่ยวข้องได้",
+  "community.taxonomy.addOfficial": "เพิ่มแท็กทางการ",
+  "community.taxonomy.add": "เพิ่ม",
+  "community.taxonomy.customTags": "แท็กค้นหาเพิ่มเติม",
+  "community.taxonomy.customPlaceholder": "เช่น งานแต่ง อินฟลูเอนเซอร์ แคมเปญฤดูร้อน",
+  "community.taxonomy.customHelp": "แท็กเพิ่มเติมช่วยในการค้นหา แต่ไม่มีผลต่อการจัดหมวดหมู่หรือ Trending",
+  "community.taxonomy.confidence.high": "มั่นใจสูง",
+  "community.taxonomy.confidence.medium": "ควรตรวจสอบ",
+  "community.taxonomy.confidence.low": "มั่นใจต่ำ"
 }

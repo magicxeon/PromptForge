@@ -5,6 +5,7 @@ import { generationResultRepo } from '../../repositories/generation/GenerationRe
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
 import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
 import { CommunityPostAccessService } from './CommunityPostAccessService.js';
+import { communityClassificationService } from './CommunityClassificationService.js';
 
 const DRAFT_TTL_MS = 15 * 60 * 1000;
 
@@ -14,12 +15,17 @@ export class CommunityShareService {
     postRepository = communityPostRepo,
     remixRepository = communityRemixRepo,
     postAccessService = null,
+    classificationService = communityClassificationService,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
     this.postRepository = postRepository;
     this.remixRepository = remixRepository;
-    this.postAccessService = postAccessService || new CommunityPostAccessService({ postRepository });
+    this.classificationService = classificationService;
+    this.postAccessService = postAccessService || new CommunityPostAccessService({
+      postRepository,
+      classificationService
+    });
     this.now = now;
     this.shareDrafts = new Map();
   }
@@ -45,6 +51,10 @@ export class CommunityShareService {
       { userId: generation.ownerUserId, username: generation.ownerUsername }
     ));
     const timestamp = this.now();
+    const taxonomySuggestion = await this.classificationService.classifyGeneration(
+      generation,
+      sanitizedSnapshot
+    );
     const draft = {
       id: `draft_${timestamp}_${Math.random().toString(36).slice(2, 9)}`,
       schemaVersion: 1,
@@ -54,6 +64,7 @@ export class CommunityShareService {
       imageUrl: generation.imageUrl || '',
       thumbnailUrl: generation.thumbnailUrl || '',
       sceneTemplateSnapshot: sanitizedSnapshot,
+      taxonomySuggestion,
       createdAt: new Date(timestamp).toISOString(),
       expiresAt: new Date(timestamp + DRAFT_TTL_MS).toISOString()
     };
@@ -91,6 +102,13 @@ export class CommunityShareService {
       snapshot.manualPromptSnapshot = '';
     }
 
+    const taxonomy = await this.classificationService.preparePublishTaxonomy(
+      draft.taxonomySuggestion,
+      {
+        officialTags: payload.officialTags,
+        customTags: payload.customTags
+      }
+    );
     const post = await this.postRepository.create({
       title,
       description: typeof payload.description === 'string' ? payload.description : '',
@@ -101,7 +119,8 @@ export class CommunityShareService {
       sourceGenerationId: draft.sourceGenerationId,
       sceneTemplateSnapshot: snapshot,
       visibility: 'public',
-      reusePolicy: 'remix_allowed'
+      reusePolicy: 'remix_allowed',
+      ...taxonomy
     }, actor);
 
     this.shareDrafts.delete(draftId);
@@ -154,7 +173,13 @@ export class CommunityShareService {
   }
 
   async listSharedPosts(query, actorContext) {
-    return this.postAccessService.listPublicPosts(query, actorContext);
+    const filters = {
+      ...(query?.filters && typeof query.filters === 'object' ? query.filters : {}),
+      ...(typeof query?.officialTag === 'string' ? { officialTag: query.officialTag } : {}),
+      ...(typeof query?.customTag === 'string' ? { customTag: query.customTag } : {}),
+      ...(typeof query?.search === 'string' ? { search: query.search } : {})
+    };
+    return this.postAccessService.listPublicPosts({ ...query, filters }, actorContext);
   }
 
   async getSharedPost(postId, actorContext) {
@@ -167,6 +192,10 @@ export class CommunityShareService {
 
   async updateSharedPostPresentation(postId, presentation, actorContext) {
     return this.postAccessService.updatePresentation(postId, presentation, actorContext);
+  }
+
+  async updateSharedPostTaxonomy(postId, taxonomy, actorContext) {
+    return this.postAccessService.updateTaxonomy(postId, taxonomy, actorContext);
   }
 
   async moderateSharedPost(postId, moderation, actorContext) {

@@ -5,5 +5,16 @@
   "community.template.use": "Use Template",
   "community.template.loadConfirm": "Load this template into Scene Builder?",
   "community.post.unavailable": "This community post is unavailable.",
-  "community.post.publishSuccess": "Template published successfully to Community!"
+  "community.post.publishSuccess": "Template published successfully to Community!",
+  "community.taxonomy.title": "Suggested categories",
+  "community.taxonomy.confirmHelp": "Confirm the official tags that describe this work.",
+  "community.taxonomy.noSuggestions": "No confident suggestions yet. Add an official tag if one applies.",
+  "community.taxonomy.addOfficial": "Add official tag",
+  "community.taxonomy.add": "Add",
+  "community.taxonomy.customTags": "Custom search tags",
+  "community.taxonomy.customPlaceholder": "e.g. wedding, influencer, summer campaign",
+  "community.taxonomy.customHelp": "Custom tags improve search but do not affect category ranking or Trending.",
+  "community.taxonomy.confidence.high": "High",
+  "community.taxonomy.confidence.medium": "Review",
+  "community.taxonomy.confidence.low": "Low"
 }

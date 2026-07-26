@@ -108,6 +108,13 @@ Public community data must contain sanitized snapshots only. Private face,
 character, outfit, or style references must follow the reference-slot ownership
 policy before publication.
 
+`community/communityPosts.json` stores stable official taxonomy ids separately
+from custom search tags. The official catalog and classifier signals live in
+`server/config/community-taxonomy.json`; they are configuration, not runtime
+data. Published post records may contain `taxonomyAssignments`,
+`categoryCodes`, and `trendingCategoryCodes`. Do not replace those ids with
+localized labels or allow custom tags to enter category/trending fields.
+
 Community characters, gallery records, and Scene Template snapshots are
 repository-ready but may not have runtime files until their first write. Do not
 create placeholder files merely to make the folders visible.

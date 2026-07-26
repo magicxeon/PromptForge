@@ -20,6 +20,13 @@ export function buildCommunityPostPublicView(post = {}) {
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
     officialTags: stringArray(post.officialTags),
     customTags: stringArray(post.customTags),
+    taxonomy: {
+      version: post.taxonomyVersion || null,
+      assignments: publicTaxonomyAssignments(post.taxonomyAssignments),
+      categoryCodes: stringArray(post.categoryCodes),
+      trendingCategoryCodes: stringArray(post.trendingCategoryCodes),
+      reviewStatus: post.taxonomyReviewStatus || 'unclassified'
+    },
     promptVisibility,
     promptPreview,
     providerModelDisplay: providerModelDisplay(snapshot?.providerModelSnapshot),
@@ -54,4 +61,16 @@ function publicCounts(value) {
   const counts = value && typeof value === 'object' ? value : {};
   return Object.fromEntries(['likes', 'votes', 'comments', 'remixes', 'uses']
     .map(key => [key, Number.isFinite(Number(counts[key])) ? Math.max(0, Number(counts[key])) : 0]));
+}
+
+function publicTaxonomyAssignments(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(item => item && typeof item === 'object').map(item => ({
+    tagId: item.tagId,
+    dimensionId: item.dimensionId,
+    confidenceLevel: item.confidenceLevel,
+    status: item.status,
+    categoryEligible: item.categoryEligible === true,
+    trendingEligible: item.trendingEligible === true
+  }));
 }
