@@ -29,6 +29,7 @@ export const DATA_FILES = {
   communityPosts: path.resolve(COMMUNITY_DATA_DIR, 'communityPosts.json'),
   creatorProfiles: path.resolve(COMMUNITY_DATA_DIR, 'creatorProfiles.json'),
   creatorFollows: path.resolve(COMMUNITY_DATA_DIR, 'creatorFollows.json'),
+  communityReports: path.resolve(COMMUNITY_DATA_DIR, 'communityReports.json'),
   remixEvents: path.resolve(COMMUNITY_DATA_DIR, 'remixEvents.json'),
   communityCharacters: path.resolve(COMMUNITY_DATA_DIR, 'communityCharacters.json'),
   communityGallery: path.resolve(COMMUNITY_DATA_DIR, 'communityGallery.json'),

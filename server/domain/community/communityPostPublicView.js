@@ -45,6 +45,7 @@ export function buildCommunityPostPublicView(post = {}) {
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
+    contentDisclosure: 'ai_generated',
     engagementSummary: publicEngagementSummary(post.engagementSummary, post.counts),
     counts: publicCounts(post.counts),
     createdAt: post.createdAt || null

@@ -55,3 +55,29 @@ test('community feature policy validates dependencies and rejects disabled acces
     error => error.code === 'community_feature_disabled' && error.statusCode === 404
   );
 });
+
+test('production masks internal Community features until private beta', { concurrency: false }, async () => {
+  const previous = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+  try {
+    const policy = new CommunityFeaturePolicyService({
+      configLoader: async () => flags({
+        community: {
+          exploreEnabled: true,
+          engagementEnabled: true,
+          creatorProfilesEnabled: true,
+          moderationEnabled: true,
+          privateBeta: false
+        }
+      })
+    });
+    const effective = await policy.getEffectiveFlags();
+    assert.equal(effective.community.exploreEnabled, false);
+    assert.equal(effective.community.engagementEnabled, false);
+    assert.equal(effective.community.creatorProfilesEnabled, false);
+    assert.equal(effective.community.moderationEnabled, false);
+  } finally {
+    if (previous === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous;
+  }
+});

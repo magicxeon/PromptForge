@@ -4266,6 +4266,25 @@ textarea.prompt-preview-box-compact {
 .creator-portfolio-card div { display: grid; gap: 0.15rem; padding: 0.65rem; }
 .creator-portfolio-card small { color: var(--neon-cyan); text-transform: capitalize; }
 .creator-portfolio-card strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.creator-portfolio-disclosure { padding: 0 !important; }
+.creator-portfolio-report {
+  justify-self: start;
+  margin-top: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.76rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.community-moderation-banner {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.community-moderation-banner.is-review { color: #ffcf6a; }
 .creator-portfolio-empty, .creator-profile-status { color: var(--text-muted); }
 .creator-profile-status.is-error { color: var(--neon-pink); }
 @media (max-width: 760px) {

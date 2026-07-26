@@ -39,6 +39,7 @@ test('public community post view exposes only allowlisted presentation fields', 
   assert.equal(view.providerModelDisplay, 'gemini - image-fast');
   assert.equal(view.imageUrl, '/api/scene-templates/shared/post_1/image');
   assert.equal(view.thumbnailUrl, '/api/scene-templates/shared/post_1/thumbnail');
+  assert.equal(view.contentDisclosure, 'ai_generated');
 });
 
 test('hidden and remix-only prompt settings never expose a prompt preview', () => {

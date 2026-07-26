@@ -10,7 +10,7 @@
 | `generation/` | History storage plus normalized generation-result read facade |
 | `comparisons/` | Comparison set storage and comparison history joins |
 | `identity/` | Mock user storage |
-| `community/` | Community posts, creator profiles, follow relations and Community event storage |
+| `community/` | Community posts, creator profiles, follow relations, private reports and Community event storage |
 | root contract files | Shared record status/visibility rules, schema stamping, legacy normalization and scoped cursors |
 
 ## JSON Adapter Rules
@@ -33,7 +33,7 @@ Future database adapters should preserve existing repository method contracts fi
 - `ComparisonRepository` -> `comparison_sets`, `comparison_runs`
 - `MockUserRepository` -> `users`
 - creator profile/follow repositories -> `creator_profiles`, `creator_follows`
-- other community JSON repositories -> `community_posts`, `community_events`
+- other community JSON repositories -> `community_posts`, `community_reports`, `community_events`
 - credit JSON data -> `user_credit_accounts`, `credit_ledger_entries`
 
 Route modules should receive repositories/services from `server/app/createApp.js` so the storage adapter can be swapped without changing endpoint handlers.

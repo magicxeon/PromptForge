@@ -39,6 +39,7 @@ export class CommunityFeaturePolicyService {
       flags.community.engagementEnabled = false;
       flags.community.creatorProfilesEnabled = false;
       flags.community.galleryEnabled = false;
+      flags.community.moderationEnabled = false;
       flags.development.mockActorSwitcherEnabled = false;
     }
     return flags;

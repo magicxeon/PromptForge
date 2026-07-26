@@ -7,6 +7,7 @@ import { communityRemixRepo } from '../../repositories/community/RemixEventRepos
 import { CommunityPostAccessService } from './CommunityPostAccessService.js';
 import { communityClassificationService } from './CommunityClassificationService.js';
 import { creatorProfileService } from './CreatorProfileService.js';
+import { communityModerationService } from './CommunityModerationService.js';
 import {
   applyPromptVisibilityToSnapshots,
   buildGeneratedShareSnapshots,
@@ -26,6 +27,7 @@ export class CommunityShareService {
     postAccessService = null,
     classificationService = communityClassificationService,
     profileService = null,
+    moderationService = communityModerationService,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
@@ -33,6 +35,7 @@ export class CommunityShareService {
     this.remixRepository = remixRepository;
     this.classificationService = classificationService;
     this.profileService = profileService;
+    this.moderationService = moderationService;
     this.postAccessService = postAccessService || new CommunityPostAccessService({
       postRepository,
       classificationService
@@ -279,7 +282,11 @@ export class CommunityShareService {
   }
 
   async moderateSharedPost(postId, moderation, actorContext) {
-    return this.postAccessService.moderate(postId, moderation, actorContext);
+    return this.moderationService.moderate({
+      postId,
+      action: moderation?.action,
+      reason: moderation?.reason
+    }, actorContext);
   }
 
   async unpublishOwnPost(postId, actorContext) {
@@ -288,7 +295,8 @@ export class CommunityShareService {
 }
 
 export const communityShareService = new CommunityShareService({
-  profileService: creatorProfileService
+  profileService: creatorProfileService,
+  moderationService: communityModerationService
 });
 
 // Compatibility exports for existing app composition while routes migrate to the service object.

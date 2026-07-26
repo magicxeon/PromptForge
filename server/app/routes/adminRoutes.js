@@ -11,7 +11,8 @@ function sendError(res, error) {
 export function registerAdminRoutes(app, {
   backofficeService = adminBackofficeService,
   moderationService = communityModerationService,
-  adjustmentService = creditAdjustmentService
+  adjustmentService = creditAdjustmentService,
+  communityFeaturePolicyService = null
 } = {}) {
   app.get('/api/admin/overview', async (req, res) => {
     try { res.json(await backofficeService.getOverview(req.actorContext)); } catch (error) { sendError(res, error); }
@@ -31,6 +32,7 @@ export function registerAdminRoutes(app, {
 
   app.post('/api/admin/community/posts/:postId/moderation', async (req, res) => {
     try {
+      await communityFeaturePolicyService?.assertEnabled('community.moderationEnabled');
       const post = await moderationService.moderate({ postId: req.params.postId, ...req.body }, req.actorContext, req);
       res.json({ post });
     } catch (error) { sendError(res, error); }

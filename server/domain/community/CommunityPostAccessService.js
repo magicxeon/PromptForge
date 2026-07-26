@@ -5,7 +5,6 @@ import { auditLogRepo } from '../../repositories/audit/AuditLogRepository.js';
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
 import {
   assertCanEditCommunityPost,
-  assertCanModerateCommunityPost,
   assertCanViewCommunityPost,
   isCommunityPostFeedVisible
 } from './communityPostPolicy.js';
@@ -118,24 +117,6 @@ export class CommunityPostAccessService {
         categoryCodes: updated.categoryCodes,
         trendingCategoryCodes: updated.trendingCategoryCodes
       }
-    }, actor);
-    return buildCommunityPostPublicView(updated);
-  }
-
-  async moderate(postId, moderation = {}, actorContext) {
-    const actor = assertActorContext(actorContext);
-    const post = await this.postRepository.findById(postId);
-    const action = moderation.action;
-    const reason = moderation.reason;
-    assertCanModerateCommunityPost(post, actor, action, reason);
-    const updated = await this.postRepository.setModerationStatus(postId, action, reason, actor);
-    await this.auditRepository.appendEvent({
-      action: `community_post_${action}`,
-      targetType: 'community_post',
-      targetId: postId,
-      reason: String(reason).trim(),
-      beforeSnapshot: { status: post.status, visibility: post.visibility },
-      afterSnapshot: { status: updated.status, visibility: updated.visibility }
     }, actor);
     return buildCommunityPostPublicView(updated);
   }

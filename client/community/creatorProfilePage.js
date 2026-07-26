@@ -104,7 +104,11 @@
     grid.className = 'creator-portfolio-grid';
     portfolioSection.append(heading, grid);
     mount.appendChild(portfolioSection);
-    window.ModelPromptForgeCreatorPortfolioGrid.render({ mount: grid, page: portfolio });
+    window.ModelPromptForgeCreatorPortfolioGrid.render({
+      mount: grid,
+      page: portfolio,
+      allowReport: !profile.viewer?.isOwner
+    });
   }
 
   function createEditForm(profile) {

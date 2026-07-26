@@ -83,6 +83,7 @@ export class CommunityPostRepository {
       : null;
     let posts = (await this.readAll())
       .filter(isVisiblePublicPost)
+      .filter(post => normalizedQuery.sort !== 'trending' || post.status !== 'reported')
       .filter(post => normalizedQuery.sort !== 'trending'
         || normalizeStringArray(post.trendingCategoryCodes).length > 0)
       .filter(post => !normalizedQuery.filters.officialTag
@@ -243,6 +244,30 @@ export class CommunityPostRepository {
     });
   }
 
+  async markReported(id) {
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) {
+        throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+      }
+      if (!['active', 'published', 'reported'].includes(posts[index].status)) {
+        return normalizeCommunityPostRecord(posts[index], this.userRepository);
+      }
+      if (posts[index].status === 'reported') {
+        return normalizeCommunityPostRecord(posts[index], this.userRepository);
+      }
+      const next = {
+        ...posts[index],
+        status: 'reported',
+        reportedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
+
   async unpublishByOwner(id, actorContext) {
     const actor = assertActorContext(actorContext);
     return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
@@ -371,7 +396,8 @@ function normalizeSearchTerm(value) {
 }
 
 function isVisiblePublicPost(post) {
-  return post.visibility === VISIBILITY.PUBLIC && ['active', 'published'].includes(post.status);
+  return post.visibility === VISIBILITY.PUBLIC
+    && ['active', 'published', 'reported'].includes(post.status);
 }
 
 export const communityPostRepo = new CommunityPostRepository();

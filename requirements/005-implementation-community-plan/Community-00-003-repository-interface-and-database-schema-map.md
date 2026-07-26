@@ -43,6 +43,7 @@ The repository layer must be designed from the data already used by the app. Do 
 | `server/data/community/communityPosts.json` | `repositories/community/CommunityPostRepository` | Local shared template/community post mock data | `community_posts` |
 | `server/data/community/creatorProfiles.json` | `repositories/community/CreatorProfileRepository` | Public creator identity and profile presentation | `creator_profiles` |
 | `server/data/community/creatorFollows.json` | `repositories/community/CreatorFollowRepository` | Idempotent follower-to-creator relations | `creator_follows` |
+| `server/data/community/communityReports.json` | `repositories/community/CommunityReportRepository` | Private content reports and moderation intake | `community_reports` |
 | `server/data/community/remixEvents.json` | `repositories/community/RemixEventRepository` | Local remix event analytics | `remix_events`, `audit_events` |
 | `server/data/community/engagementEvents.json` | `repositories/community/CommunityEngagementEventRepository` | Immutable post engagement events | `community_engagement_events` |
 | `server/data/community/reactions.json` | `repositories/community/CommunityReactionRepository` | Current like/save state | `community_reactions` |
@@ -505,6 +506,52 @@ post.promptVisibility -> prompt_visibility
 post.sceneTemplateSnapshot -> scene_template_snapshot / future scene_template_snapshot_id
 post.createdAt -> created_at
 ```
+
+### 6.6.1 `community_reports`
+
+Source now:
+
+```text
+server/data/community/communityReports.json
+server/repositories/community/CommunityReportRepository.js
+```
+
+Columns:
+
+```text
+id: text primary key                         // report_*
+reporter_user_id: text references users(id)
+target_type: text not null                   // community_post | community_comment
+target_id: text not null
+reason: text not null
+details: text null
+status: text not null                        // open | resolved | dismissed
+resolution: text null
+resolved_by_user_id: text null references users(id)
+resolved_at: timestamptz null
+created_at: timestamptz not null
+updated_at: timestamptz not null
+```
+
+Constraints and indexes:
+
+```text
+unique open report (reporter_user_id, target_type, target_id, reason)
+index (status, created_at desc)
+index (target_type, target_id, status)
+index (reporter_user_id, created_at desc)
+```
+
+Rules:
+
+- The server derives reporter identity from `req.actorContext`.
+- Report details and reporter identity are `admin_only` and never enter public
+  post snapshots.
+- The JSON adapter enforces duplicate and rate-limit checks in one serialized
+  mutation. A database adapter must preserve this with a transaction and unique
+  partial index or equivalent constraint.
+- Post reporting is implemented now. The same target contract reserves
+  `community_comment` for Community-12 without introducing comment storage here.
 
 ### 6.7 `community_gallery_items`
 

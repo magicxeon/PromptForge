@@ -1,7 +1,7 @@
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 
 const ELEVATED_ROLES = new Set(['admin', 'support']);
-const PUBLIC_FEED_STATUSES = new Set(['active', 'published']);
+const PUBLIC_FEED_STATUSES = new Set(['active', 'published', 'reported']);
 
 export function isElevatedActor(actorContext = {}) {
   return ELEVATED_ROLES.has(actorContext?.role);

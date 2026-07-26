@@ -21,6 +21,7 @@ test('owner can view a private community post while another user cannot', () => 
 
 test('hidden posts do not appear in a public feed and moderation needs a reason', () => {
   assert.equal(isCommunityPostFeedVisible({ visibility: 'public', status: 'hidden' }), false);
+  assert.equal(isCommunityPostFeedVisible({ visibility: 'public', status: 'reported' }), true);
   assert.throws(
     () => assertCanModerateCommunityPost(privatePost, admin, 'hide', ''),
     error => error.code === 'community_moderation_reason_required'

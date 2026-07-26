@@ -46,13 +46,14 @@ first mutation. A missing lazy file is equivalent to an empty store.
 
 | Logical key | Runtime path | Root shape | Owner | Lifecycle | Future DB target |
 | --- | --- | --- | --- | --- | --- |
-| `mockUsers` | `identity/mockUsers.json` | array | `repositories/identity/MockUserRepository.js` | Present, development seed | `users`, `creator_profiles` |
+| `mockUsers` | `identity/mockUsers.json` | array | `repositories/identity/MockUserRepository.js` | Present, development seed | `users` |
 | `history` | `generation/history.json` | array | `repositories/generation/HistoryRepository.js` | Present | `generation_results` |
 | `collections` | `collections/collections.json` | object with `collections` | `repositories/collections/CollectionRepository.js`, legacy `domain/collections/CollectionManager.js` | Present | `collections`, `collection_items` |
 | `database` | `credits/database.json` | credit database object | `repositories/credits/CreditAccountRepository.js`, `CreditLedgerRepository.js` | Present; legacy shape migrates through repository | `user_credit_accounts`, `credit_estimates`, `credit_reservations`, `credit_ledger_entries` |
 | `communityPosts` | `community/communityPosts.json` | array | `repositories/community/CommunityPostRepository.js` | Present | `community_posts`, `scene_template_publications` |
 | `creatorProfiles` | `community/creatorProfiles.json` | array | `repositories/community/CreatorProfileRepository.js` | Lazy; created on first profile/share mutation | `creator_profiles` |
 | `creatorFollows` | `community/creatorFollows.json` | array | `repositories/community/CreatorFollowRepository.js` | Lazy; created on first follow mutation | `creator_follows` |
+| `communityReports` | `community/communityReports.json` | array | `repositories/community/CommunityReportRepository.js` | Lazy; created on first report | `community_reports` |
 | `remixEvents` | `community/remixEvents.json` | array | `repositories/community/RemixEventRepository.js` | Present | `community_events`, `remix_events` |
 | `communityCharacters` | `community/communityCharacters.json` | array | `repositories/community/CommunityCharacterRepository.js` | Lazy | `community_characters`, `character_revisions` |
 | `communityGallery` | `community/communityGallery.json` | array | `repositories/community/CommunityGalleryRepository.js` | Lazy | `community_gallery_items`, `community_posts` |
@@ -126,6 +127,11 @@ counts are computed by `CreatorProfileService` from active follow relations and
 canonical public Community posts; do not manually persist counters in either
 JSON file.
 
+Community reports are private moderation inputs. Reporter identity and details
+must never enter public post views. Duplicate and rate-limit checks are enforced
+inside the report repository's serialized mutation so concurrent requests
+cannot bypass the JSON MVP invariant.
+
 ### Audit
 
 `audit/auditLogs.json` is admin/support data. Records should use
@@ -188,6 +194,7 @@ credits/database.json
 community/communityPosts.json
 community/creatorProfiles.json
 community/creatorFollows.json
+community/communityReports.json
 community/remixEvents.json
 comparisons/comparisons.json
 audit/auditLogs.json

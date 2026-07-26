@@ -2,7 +2,7 @@
   const translate = (key, fallback) =>
     window.ModelPromptForgeI18n?.t?.(key, {}, { defaultValue: fallback }) || fallback;
 
-  function render({ mount, page } = {}) {
+  function render({ mount, page, allowReport = false } = {}) {
     if (!mount) return;
     mount.replaceChildren();
     const items = Array.isArray(page?.items) ? page.items : [];
@@ -35,6 +35,23 @@
       const title = document.createElement('strong');
       title.textContent = post.title || translate('community.creator.untitled', 'Untitled');
       copy.append(type, title);
+      const disclosure = document.createElement('div');
+      disclosure.className = 'creator-portfolio-disclosure';
+      window.ModelPromptForgeModerationBanner?.render?.({
+        mount: disclosure,
+        contentDisclosure: post.contentDisclosure
+      });
+      copy.appendChild(disclosure);
+      if (allowReport) {
+        const report = document.createElement('button');
+        report.type = 'button';
+        report.className = 'creator-portfolio-report';
+        report.textContent = translate('community.report.action', 'Report');
+        report.addEventListener('click', () =>
+          window.ModelPromptForgeReportPostDialog?.open?.(post.id)
+        );
+        copy.appendChild(report);
+      }
       article.appendChild(copy);
       mount.appendChild(article);
     });

@@ -28,6 +28,8 @@ import { communityClassificationService } from '../domain/community/CommunityCla
 import { communityFeaturePolicyService } from '../domain/community/CommunityFeaturePolicyService.js';
 import { creatorProfileService } from '../domain/community/CreatorProfileService.js';
 import { registerCommunityCreatorRoutes } from './routes/communityCreatorRoutes.js';
+import { communityModerationService } from '../domain/community/CommunityModerationService.js';
+import { registerCommunityModerationRoutes } from './routes/communityModerationRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -99,7 +101,7 @@ export function createApp() {
   registerGenerationRoutes(app, sharedDependencies);
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
-  registerAdminRoutes(app);
+  registerAdminRoutes(app, { communityFeaturePolicyService });
   registerCommunityTaxonomyRoutes(app, {
     communityClassificationService,
     communityFeaturePolicyService
@@ -110,6 +112,10 @@ export function createApp() {
   });
   registerCommunityCreatorRoutes(app, {
     creatorProfileService,
+    communityFeaturePolicyService
+  });
+  registerCommunityModerationRoutes(app, {
+    moderationService: communityModerationService,
     communityFeaturePolicyService
   });
   registerSceneTemplateRoutes(app, {
