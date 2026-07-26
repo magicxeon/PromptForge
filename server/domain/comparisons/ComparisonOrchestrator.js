@@ -18,7 +18,8 @@ export class ComparisonOrchestrator {
     await this.repository.init();
   }
 
-  async estimate(payload, username, userId) {
+  async estimate(payload, actor) {
+    const { username, userId } = actor;
     const { context } = compileGenerationContext(payload);
     const slots = this.validator.validateSlots(payload.slots, context);
     const pricedSlots = await Promise.all(slots.map(async slot => {
@@ -36,10 +37,11 @@ export class ComparisonOrchestrator {
       });
       return { ...slot, estimateId: estimate.estimateId, estimatedCredit: estimate.estimatedCredits, estimateExpiresAt: estimate.expiresAt };
     }));
-    return this.validator.createEstimate(pricedSlots, context, username);
+    return this.validator.createEstimate(pricedSlots, context, userId);
   }
 
-  async create(payload, username, userId) {
+  async create(payload, actor) {
+    const { username, userId } = actor;
     const { context, compiledPrompt } = compileGenerationContext(payload);
     const slots = this.validator.validateSlots(payload.slots, context);
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
@@ -56,7 +58,7 @@ export class ComparisonOrchestrator {
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       expiresAt: Number(payload.estimateExpiresAt || 0)
     };
-    this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, username);
+    this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, userId);
 
     const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const timestamp = Date.now();
@@ -83,6 +85,7 @@ export class ComparisonOrchestrator {
       }))
     };
     const created = await this.repository.createSetWithRun({
+      ownerUserId: userId,
       username,
       name: normalizeName(payload.name),
       description: normalizeDescription(payload.description),
@@ -147,20 +150,27 @@ export class ComparisonOrchestrator {
     }
   }
 
-  async list(username, query = {}) {
-    return this.repository.listPage(username, query);
+  async list(actor, query = {}) {
+    return this.repository.listPage(actor, query);
   }
 
-  async get(setId, username) {
-    let set = await this.repository.get(setId, username);
-    for (const run of set.runs) await this.reconcileRun(set.id, run, set.username);
-    set = await this.repository.get(setId, username);
-    return this.hydrateSetFromHistory(set);
+  async get(setId, actor) {
+    let set = await this.repository.get(setId, actor);
+    for (const run of set.runs) await this.reconcileRun(set.id, run);
+    set = await this.repository.get(setId, actor);
+    return this.hydrateSetFromHistory(set, actor);
   }
 
-  async hydrateSetFromHistory(set) {
+  async hydrateSetFromHistory(set, actor) {
     const history = await this.repository.readHistory();
-    const historyById = new Map(history.map(item => [item.id, item]));
+    const historyById = new Map(
+      history
+        .filter(item => {
+          if (item.ownerUserId && actor.userId) return item.ownerUserId === actor.userId;
+          return (item.ownerUsername || item.username) === actor.username;
+        })
+        .map(item => [item.id, item])
+    );
     const hydrated = structuredClone(set);
     hydrated.runs?.forEach(run => {
       run.slots?.forEach(slot => {
@@ -187,23 +197,23 @@ export class ComparisonOrchestrator {
     return hydrated;
   }
 
-  update(setId, username, payload) {
-    return this.repository.updateSet(setId, username, payload);
+  update(setId, actor, payload) {
+    return this.repository.updateSet(setId, actor, payload);
   }
 
-  remove(setId, username) {
-    return this.repository.remove(setId, username);
+  remove(setId, actor) {
+    return this.repository.remove(setId, actor);
   }
 
-  setWinner(setId, username, jobId) {
-    return this.repository.setWinner(setId, username, jobId || null);
+  setWinner(setId, actor, jobId) {
+    return this.repository.setWinner(setId, actor, jobId || null);
   }
 
   removeHistoryJob(jobId) {
     return this.repository.removeHistoryJob(jobId);
   }
 
-  async reconcileRun(setId, run, username) {
+  async reconcileRun(setId, run) {
     const statuses = await Promise.all(run.slots.map(slot =>
       slot.jobId ? this.queueManager.getJobStatus(slot.jobId) : null
     ));

@@ -45,6 +45,40 @@ test('comparison repository persists an idempotent set and run', async t => {
   assert.equal((await repository.list('user_demo')).length, 1);
 });
 
+test('comparison repository scopes list and detail access by durable actor identity', async t => {
+  const { repository, directory } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const alice = { userId: 'usr_alice', username: 'user_alice' };
+  const bob = { userId: 'usr_bob', username: 'user_bob' };
+  const created = await repository.createSetWithRun({
+    ownerUserId: alice.userId,
+    username: alice.username,
+    name: 'Alice private comparison',
+    description: '',
+    idempotencyKey: 'alice_comparison_key',
+    run: run('alice_comparison_key')
+  });
+
+  assert.equal((await repository.listPage(alice)).items.length, 1);
+  assert.equal((await repository.listPage(bob)).items.length, 0);
+  await assert.rejects(
+    repository.get(created.set.id, bob),
+    error => error.code === 'comparison_forbidden'
+  );
+  await assert.rejects(
+    repository.updateSet(created.set.id, bob, { name: 'Not Bob-owned' }),
+    error => error.code === 'comparison_forbidden'
+  );
+  await assert.rejects(
+    repository.setWinner(created.set.id, bob, null),
+    error => error.code === 'comparison_forbidden'
+  );
+  await assert.rejects(
+    repository.remove(created.set.id, bob),
+    error => error.code === 'comparison_forbidden'
+  );
+});
+
 test('comparison summaries paginate without returning full runs', async t => {
   const { repository, directory } = await createRepository();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

@@ -48,6 +48,21 @@
       const lightboxOpen = document.getElementById('lightbox-modal')?.style.display !== 'none';
       if (event.key === 'Escape' && !lightboxOpen && !document.getElementById('comparison-workspace')?.hidden) closeWorkspace();
     });
+    window.addEventListener('modelpromptforge:actorchange', resetForActorChange);
+  }
+
+  function resetForActorChange() {
+    stopPolling();
+    state.activeSet = null;
+    state.slotViews.clear();
+    state.sharedView = { zoom: 1, x: 0, y: 0 };
+    saveRecoveryState(null, false);
+    document.querySelectorAll('.comparison-queue-item').forEach(card => card.remove());
+    closeForRoute();
+    updateActiveRunChip();
+    if (window.ModelPromptForgeRouter?.current().pathname.startsWith('/comparisons/')) {
+      window.ModelPromptForgeRouter.navigate('/comparisons', { replace: true });
+    }
   }
 
   function toggleMode() {
@@ -261,7 +276,7 @@
       return;
     }
     try {
-      state.activeSet = await api(`/api/comparisons/${encodeURIComponent(normalizedSetId)}?username=${encodeURIComponent(bridge().getUsername())}`);
+      state.activeSet = await api(`/api/comparisons/${encodeURIComponent(normalizedSetId)}`);
       saveRecoveryState(normalizedSetId, showWorkspace);
       updateActiveRunChip();
       if (showWorkspace) {
@@ -454,7 +469,7 @@
       }
     );
     if (!name || name.trim() === state.activeSet.name) return;
-    state.activeSet = await api(`/api/comparisons/${state.activeSet.id}`, { method: 'PATCH', body: { name, username: bridge().getUsername() } });
+    state.activeSet = await api(`/api/comparisons/${state.activeSet.id}`, { method: 'PATCH', body: { name } });
     renderWorkspace();
   }
 
@@ -503,7 +518,7 @@
   }
 
   async function renderSetList() {
-    const response = await api(`/api/comparisons?username=${encodeURIComponent(bridge().getUsername())}`);
+    const response = await api('/api/comparisons');
     const list = document.getElementById('comparison-set-list');
     list.innerHTML = '';
     const sets = response.items || response.sets || [];
@@ -528,7 +543,7 @@
         return;
       }
       try {
-        state.activeSet = await api(`/api/comparisons/${encodeURIComponent(setId)}?username=${encodeURIComponent(bridge().getUsername())}`);
+        state.activeSet = await api(`/api/comparisons/${encodeURIComponent(setId)}`);
         updateActiveRunChip();
         if (!document.getElementById('comparison-workspace').hidden) renderWorkspace();
         const status = state.activeSet.runs?.[0]?.status;
@@ -622,13 +637,24 @@
   }
 
   async function api(url, options = {}) {
-    const response = await fetch(url, {
+    const requestOptions = {
       ...options,
-      headers: options.body
-        ? { 'Content-Type': 'application/json', 'X-User-Role': bridge()?.getUserRole?.() || 'user' }
-        : undefined,
-      body: options.body ? JSON.stringify({ ...options.body, username: options.body.username || bridge()?.getUsername() }) : undefined
-    });
+      headers: {
+        ...(options.headers || {}),
+        'X-User-Role': bridge()?.getUserRole?.() || 'user'
+      }
+    };
+    const response = window.ModelPromptForgeApiClient?.apiFetch
+      ? await window.ModelPromptForgeApiClient.apiFetch(url, requestOptions)
+      : await fetch(url, {
+          ...requestOptions,
+          headers: requestOptions.body
+            ? { 'Content-Type': 'application/json', ...requestOptions.headers }
+            : requestOptions.headers,
+          body: requestOptions.body && typeof requestOptions.body === 'object'
+            ? JSON.stringify(requestOptions.body)
+            : requestOptions.body
+        });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
       const error = new Error(payload.error?.message || payload.error || `Request failed with HTTP ${response.status}`);
@@ -640,12 +666,12 @@
   }
 
   function saveDraft() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ active: state.active, slots: state.slots }));
+    localStorage.setItem(actorStorageKey(STORAGE_KEY), JSON.stringify({ active: state.active, slots: state.slots }));
   }
 
   function restoreDraft() {
     try {
-      const draft = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const draft = JSON.parse(localStorage.getItem(actorStorageKey(STORAGE_KEY)));
       state.active = draft?.active === true;
       state.slots = Array.isArray(draft?.slots) ? draft.slots.slice(0, 4) : [];
       state.slots = state.slots.filter(slot => getModel(slot.provider, slot.model));
@@ -658,7 +684,7 @@
 
   function saveRecoveryState(setId, workspaceOpen) {
     const normalizedSetId = isValidSetId(setId) ? String(setId).trim() : null;
-    localStorage.setItem('model_prompt_forge_comparison_recovery_v1', JSON.stringify({
+    localStorage.setItem(actorStorageKey('model_prompt_forge_comparison_recovery_v1'), JSON.stringify({
       setId: normalizedSetId,
       workspaceOpen: normalizedSetId ? workspaceOpen === true : false
     }));
@@ -704,7 +730,7 @@
 
   function readRecoveryState() {
     try {
-      const recovery = JSON.parse(localStorage.getItem('model_prompt_forge_comparison_recovery_v1')) || {};
+      const recovery = JSON.parse(localStorage.getItem(actorStorageKey('model_prompt_forge_comparison_recovery_v1'))) || {};
       return isValidSetId(recovery.setId)
         ? { setId: String(recovery.setId).trim(), workspaceOpen: recovery.workspaceOpen === true }
         : {};
@@ -716,6 +742,11 @@
   function isValidSetId(setId) {
     const normalized = typeof setId === 'string' ? setId.trim() : '';
     return Boolean(normalized) && normalized !== 'undefined' && normalized !== 'null';
+  }
+
+  function actorStorageKey(baseKey) {
+    const actorId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || 'usr_demo';
+    return `${baseKey}:${actorId}`;
   }
 
   function getEstimatedTotal() {

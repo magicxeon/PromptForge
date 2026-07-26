@@ -29,8 +29,6 @@
   const api = (...args) => window.ModelPromptForgeComparisonApi.request(...args);
   const language = () => window.ModelPromptForgeComparisonBridge?.getLanguage?.() || 'th';
   const text = (en, th) => language() === 'th' ? th : en;
-  const username = () => window.ModelPromptForgeComparisonBridge?.getUsername?.() || 'user_demo';
-
   function initialize() {
     if (state.initialized) return;
     state.initialized = true;
@@ -77,6 +75,25 @@
       localize();
       if (isDashboardRoute()) renderItems();
     });
+    window.addEventListener('modelpromptforge:actorchange', handleActorChange);
+  }
+
+  function handleActorChange() {
+    stopPolling();
+    state.request?.abort();
+    state.request = null;
+    state.items = [];
+    state.cursor = null;
+    state.hasMore = false;
+    state.loading = false;
+    state.error = null;
+    state.loadedKey = null;
+    state.routeKey = null;
+    state.openingSetId = null;
+    const routeState = { ...(window.history.state || {}) };
+    delete routeState.comparisonDashboard;
+    window.history.replaceState(routeState, '', window.location.href);
+    if (isDashboardRoute()) loadPage({ reset: true });
   }
 
   function handleRoute(route) {
@@ -162,7 +179,6 @@
     updateBusyState();
     const filters = readFilters();
     const params = new URLSearchParams({
-      username: username(),
       limit: String(PAGE_SIZE),
       search: filters.search,
       status: filters.status,
@@ -326,7 +342,7 @@
       return;
     }
     try {
-      const updated = await api(`/api/comparisons/${encodeURIComponent(set.id)}`, { method: 'PATCH', body: { username: username(), name: normalized } });
+      const updated = await api(`/api/comparisons/${encodeURIComponent(set.id)}`, { method: 'PATCH', body: { name: normalized } });
       state.items = state.items.map(item => item.id === set.id ? { ...item, name: updated.name, updatedAt: updated.updatedAt } : item);
       renderItems();
     } catch (error) {
@@ -341,7 +357,7 @@
     );
     if (!confirmed) return;
     try {
-      await api(`/api/comparisons/${encodeURIComponent(set.id)}?username=${encodeURIComponent(username())}`, { method: 'DELETE' });
+      await api(`/api/comparisons/${encodeURIComponent(set.id)}`, { method: 'DELETE' });
       state.items = state.items.filter(item => item.id !== set.id);
       window.ModelPromptForgeComparison?.handleSetDeleted?.(set.id);
       renderItems();
@@ -353,7 +369,7 @@
   async function refreshStatuses() {
     if (!isDashboardRoute() || state.loading) return;
     const filters = readFilters();
-    const params = new URLSearchParams({ username: username(), limit: String(PAGE_SIZE), search: filters.search, status: filters.status, dateRange: filters.dateRange });
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), search: filters.search, status: filters.status, dateRange: filters.dateRange });
     try {
       const payload = await api(`/api/comparisons?${params}`);
       const updates = new Map((payload.items || []).map(item => [item.id, item]));
@@ -378,7 +394,8 @@
   }
 
   function queryKey() {
-    return `${window.location.pathname}${window.location.search}`;
+    const actorId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || 'usr_demo';
+    return `${actorId}:${window.location.pathname}${window.location.search}`;
   }
 
   function isDashboardRoute() {

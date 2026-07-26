@@ -1,11 +1,18 @@
 import { sendComparisonError } from '../routeErrors.js';
 
-export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveRequestUsername }) {
-  const getComparisonUsername = req => resolveRequestUsername(req);
+export function registerComparisonRoutes(app, { comparisonOrchestrator }) {
+  const getComparisonActor = req => {
+    if (!req.actorContext?.userId || !req.actorContext?.username) {
+      const error = new Error('Comparison requests require an authenticated actor context.');
+      error.statusCode = 401;
+      throw error;
+    }
+    return req.actorContext;
+  };
 
   app.post('/api/comparisons/estimate', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonUsername(req), req.actorContext?.userId));
+      res.json(await comparisonOrchestrator.estimate({ ...req.body, userRole: req.userRole }, getComparisonActor(req)));
     } catch (error) {
       sendComparisonError(res, error);
     }
@@ -13,7 +20,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.post('/api/comparisons', async (req, res) => {
     try {
-      const result = await comparisonOrchestrator.create({ ...req.body, userRole: req.userRole }, getComparisonUsername(req), req.actorContext?.userId);
+      const result = await comparisonOrchestrator.create({ ...req.body, userRole: req.userRole }, getComparisonActor(req));
       res.status(result.idempotentReplay ? 200 : 201).json(result);
     } catch (error) {
       sendComparisonError(res, error);
@@ -22,7 +29,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.get('/api/comparisons', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.list(getComparisonUsername(req), req.query));
+      res.json(await comparisonOrchestrator.list(getComparisonActor(req), req.query));
     } catch (error) {
       sendComparisonError(res, error);
     }
@@ -30,7 +37,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.get('/api/comparisons/:setId', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.get(req.params.setId, getComparisonUsername(req)));
+      res.json(await comparisonOrchestrator.get(req.params.setId, getComparisonActor(req)));
     } catch (error) {
       sendComparisonError(res, error);
     }
@@ -38,7 +45,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.patch('/api/comparisons/:setId', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.update(req.params.setId, getComparisonUsername(req), req.body));
+      res.json(await comparisonOrchestrator.update(req.params.setId, getComparisonActor(req), req.body));
     } catch (error) {
       sendComparisonError(res, error);
     }
@@ -48,7 +55,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
     try {
       res.json(await comparisonOrchestrator.setWinner(
         req.params.setId,
-        getComparisonUsername(req),
+        getComparisonActor(req),
         req.body.jobId
       ));
     } catch (error) {
@@ -58,7 +65,7 @@ export function registerComparisonRoutes(app, { comparisonOrchestrator, resolveR
 
   app.delete('/api/comparisons/:setId', async (req, res) => {
     try {
-      res.json(await comparisonOrchestrator.remove(req.params.setId, getComparisonUsername(req)));
+      res.json(await comparisonOrchestrator.remove(req.params.setId, getComparisonActor(req)));
     } catch (error) {
       sendComparisonError(res, error);
     }

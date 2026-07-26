@@ -59,11 +59,16 @@ test('estimate tokens bind slots, cost, context and expiry', () => {
   const slots = validator.validateSlots([
     { id: 'one', provider: 'alpha', model: 'image-a' },
     { id: 'two', provider: 'alpha', model: 'image-a' }
-  ], context);
-  const estimate = validator.createEstimate(slots, context, 'user_demo');
+  ], context).map((slot, index) => ({
+    ...slot,
+    estimateId: `estimate_${index + 1}`,
+    estimatedCredit: 3
+  }));
+  const estimate = validator.createEstimate(slots, context, 'usr_demo');
   assert.equal(estimate.estimatedTotalCredit, 6);
-  assert.doesNotThrow(() => validator.verifyEstimate(estimate.estimateToken, estimate, context, 'user_demo'));
-  assert.throws(() => validator.verifyEstimate(estimate.estimateToken, { ...estimate, estimatedTotalCredit: 7 }, context, 'user_demo'), /changed/);
+  assert.doesNotThrow(() => validator.verifyEstimate(estimate.estimateToken, estimate, context, 'usr_demo'));
+  assert.throws(() => validator.verifyEstimate(estimate.estimateToken, { ...estimate, estimatedTotalCredit: 7 }, context, 'usr_demo'), /changed/);
+  assert.throws(() => validator.verifyEstimate(estimate.estimateToken, estimate, context, 'usr_alice'), /changed/);
 });
 
 test('aggregate run status preserves partial success', () => {

@@ -59,7 +59,7 @@ export class ComparisonValidator {
     });
   }
 
-  createEstimate(validatedSlots, context, username) {
+  createEstimate(validatedSlots, context, actorIdentity) {
     const expiresAt = Date.now() + ESTIMATE_TTL_MS;
     const publicSlots = validatedSlots.map(stripPrivateConfig);
     const estimate = {
@@ -68,14 +68,14 @@ export class ComparisonValidator {
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       expiresAt
     };
-    return { ...estimate, estimateToken: this.signEstimate(estimate, context, username) };
+    return { ...estimate, estimateToken: this.signEstimate(estimate, context, actorIdentity) };
   }
 
-  verifyEstimate(token, estimate, context, username) {
+  verifyEstimate(token, estimate, context, actorIdentity) {
     if (!token || estimate.expiresAt < Date.now()) {
       throw new ComparisonError('estimate_expired', 'The comparison estimate has expired. Please review the cost again.', 409);
     }
-    const expected = this.signEstimate(estimate, context, username);
+    const expected = this.signEstimate(estimate, context, actorIdentity);
     const actualBuffer = Buffer.from(String(token));
     const expectedBuffer = Buffer.from(expected);
     if (actualBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(actualBuffer, expectedBuffer)) {
@@ -83,9 +83,9 @@ export class ComparisonValidator {
     }
   }
 
-  signEstimate(estimate, context, username) {
+  signEstimate(estimate, context, actorIdentity) {
     const fingerprint = JSON.stringify({
-      username,
+      actorIdentity,
       slots: estimate.slots.map(slot => ({
         provider: slot.provider,
         model: slot.model,

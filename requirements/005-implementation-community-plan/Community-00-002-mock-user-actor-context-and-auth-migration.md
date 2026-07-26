@@ -409,6 +409,8 @@ Minimum endpoints to inspect:
 ```text
 /api/generate
 /api/history
+/api/comparisons
+/api/comparisons/:setId
 /api/credits
 /api/scene-templates/share-drafts
 /api/scene-templates/publish
@@ -485,6 +487,8 @@ Client API wrapper sends x-mpf-user-id.
 Server domain services can read req.actorContext.
 No authorization rule trusts username or X-User-Role alone.
 Existing generation/history flow still works with usr_demo.
+Comparison list, detail, polling, rename, winner, and delete use req.actorContext and never expose another actor's private set.
+Switching the active mock user clears cached Comparison cards, active workspaces, polling, and actor-scoped recovery state.
 ```
 
 ## 5. Testing
@@ -495,6 +499,8 @@ TC-00-002-002 default to demo actor in development
 TC-00-002-003 reject unknown user on mutating request
 TC-00-002-004 admin actor can perform moderation action
 TC-00-002-005 switching client user refreshes owner-sensitive panels
+TC-00-002-006 Alice cannot list, open, rename, select a winner for, or delete Bob's Comparison Set
+TC-00-002-007 legacy Comparison records without ownerUserId remain visible only to the user mapped by their legacy username
 ```
 
 ## 6. Developer Notes For Implementing Agents
