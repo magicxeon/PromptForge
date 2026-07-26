@@ -90,8 +90,12 @@
       if (promptRegion.hidden) return;
       const heading = document.createElement('h3');
       heading.textContent = translate('community.detail.prompt', 'Prompt');
-      const prompt = document.createElement('p');
-      prompt.textContent = model.promptDisclosure?.visible && model.promptDisclosure?.text
+      const prompt = document.createElement('textarea');
+      prompt.className = 'comparison-prompt-textarea';
+      prompt.readOnly = true;
+      prompt.rows = 8;
+      prompt.setAttribute('aria-label', heading.textContent);
+      prompt.value = model.promptDisclosure?.visible && model.promptDisclosure?.text
         ? model.promptDisclosure.text
         : translate('community.detail.promptHidden', 'Prompt text is hidden by the creator.');
       promptRegion.append(heading, prompt);

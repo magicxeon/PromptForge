@@ -5744,3 +5744,79 @@ textarea.prompt-preview-box-compact {
   font-size: 0.78rem;
   font-weight: 800;
 }
+
+/* Comparison scrolling and prompt readability. */
+.comparison-workspace-body > #comparison-result-grid {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  align-content: start;
+}
+
+.comparison-workspace-body > #comparison-result-grid > .shared-comparison-workspace {
+  height: auto;
+  min-height: 100%;
+}
+
+.comparison-workspace .shared-comparison-result-grid {
+  min-height: max(460px, calc(100vh - 250px));
+}
+
+.comparison-workspace-prompt,
+.community-comparison-prompt {
+  box-sizing: border-box;
+  min-height: 0;
+  max-height: none;
+}
+
+.comparison-prompt-textarea {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  max-height: 320px;
+  resize: vertical;
+  overflow-y: auto;
+  padding: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.32);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.72rem;
+  line-height: 1.65;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.comparison-workspace-body > #comparison-result-grid,
+.comparison-prompt-textarea {
+  scrollbar-color: rgba(148, 163, 184, 0.55) rgba(0, 0, 0, 0.28);
+  scrollbar-width: thin;
+}
+
+.comparison-workspace-body > #comparison-result-grid::-webkit-scrollbar,
+.comparison-prompt-textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.comparison-workspace-body > #comparison-result-grid::-webkit-scrollbar-track,
+.comparison-prompt-textarea::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.comparison-workspace-body > #comparison-result-grid::-webkit-scrollbar-thumb,
+.comparison-prompt-textarea::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.55);
+}
+
+@media (max-width: 800px) {
+  .comparison-workspace .shared-comparison-result-grid {
+    min-height: 58vh;
+  }
+
+  .comparison-prompt-textarea {
+    min-height: 160px;
+    max-height: 260px;
+  }
+}

@@ -325,6 +325,11 @@ owner-only winner mutation capability
   rely on color alone.
 - Creator name: stronger weight/contrast than date, taxonomy and counters.
 - Keep result tiles dimensionally stable while images load.
+- The private Comparison workspace owns a functional vertical scroll container
+  when results and prompt content exceed the viewport.
+- Prompt panels in private Comparison and Community detail use the same read-only
+  textarea component with compact text, a taller resizable inspection area and
+  its own visible vertical scrollbar.
 - On mobile, comparison results become a horizontal snap row or stacked list
   without reducing images below a useful inspection size.
 - Prompt, engagement and comments follow the images in document order.

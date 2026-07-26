@@ -95,7 +95,16 @@
       promptRegion.className = 'community-comparison-prompt';
       const promptHeading = document.createElement('h2');
       promptHeading.textContent = t('community.detail.prompt', 'Prompt');
-      promptRegion.append(promptHeading, prompt);
+      const promptTextarea = document.createElement('textarea');
+      promptTextarea.className = 'comparison-prompt-textarea';
+      promptTextarea.readOnly = true;
+      promptTextarea.rows = 8;
+      promptTextarea.setAttribute('aria-label', promptHeading.textContent);
+      promptTextarea.value = post.promptPreview || t(
+        'community.detail.promptHidden',
+        'Prompt text is hidden by the creator.'
+      );
+      promptRegion.append(promptHeading, promptTextarea);
       comparisonLayout.append(promptRegion, actions, workflow);
       if (ownerActions) comparisonLayout.appendChild(ownerActions);
       mount.append(back, comparisonLayout, buildComments(post, comments));
