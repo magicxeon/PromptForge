@@ -48,5 +48,22 @@
   "community.share.referencePolicy.required_user_replacement": "置換が必要",
   "community.share.referencePolicy.shared_preview_only": "プレビューのみ",
   "community.share.referencePolicy.shared_as_reusable_reference": "再利用可能な参照",
-  "community.share.referencePolicy.not_shared": "共有しない"
+  "community.share.referencePolicy.not_shared": "共有しない",
+  "community.creator.myProfile": "クリエイタープロフィール",
+  "community.creator.loading": "クリエイタープロフィールを読み込んでいます...",
+  "community.creator.unavailable": "クリエイタープロフィールを表示できません。",
+  "community.creator.follow": "フォロー",
+  "community.creator.following": "フォロー中",
+  "community.creator.followers": "フォロワー",
+  "community.creator.posts": "投稿",
+  "community.creator.noBio": "このクリエイターはまだ自己紹介を追加していません。",
+  "community.creator.portfolio": "公開ポートフォリオ",
+  "community.creator.portfolioEmpty": "公開投稿はまだありません。",
+  "community.creator.postPreview": "コミュニティ投稿",
+  "community.creator.untitled": "無題",
+  "community.creator.edit": "クリエイタープロフィールを編集",
+  "community.creator.displayName": "表示名",
+  "community.creator.bio": "自己紹介",
+  "community.creator.save": "プロフィールを保存",
+  "community.creator.actionFailed": "クリエイタープロフィールを更新できませんでした。"
 }

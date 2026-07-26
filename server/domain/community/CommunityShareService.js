@@ -6,6 +6,7 @@ import { communityPostRepo } from '../../repositories/community/CommunityPostRep
 import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
 import { CommunityPostAccessService } from './CommunityPostAccessService.js';
 import { communityClassificationService } from './CommunityClassificationService.js';
+import { creatorProfileService } from './CreatorProfileService.js';
 import {
   applyPromptVisibilityToSnapshots,
   buildGeneratedShareSnapshots,
@@ -24,12 +25,14 @@ export class CommunityShareService {
     remixRepository = communityRemixRepo,
     postAccessService = null,
     classificationService = communityClassificationService,
+    profileService = null,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
     this.postRepository = postRepository;
     this.remixRepository = remixRepository;
     this.classificationService = classificationService;
+    this.profileService = profileService;
     this.postAccessService = postAccessService || new CommunityPostAccessService({
       postRepository,
       classificationService
@@ -49,6 +52,9 @@ export class CommunityShareService {
       throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
     }
     const publicViewer = { userId: 'community_public', username: 'community_public', role: 'user' };
+    const creatorProfile = this.profileService
+      ? await this.profileService.ensureProfileForActor(actor)
+      : null;
     const sanitizedSceneTemplate = generation.sceneTemplateSnapshot && typeof generation.sceneTemplateSnapshot === 'object'
       ? stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
         generation.sceneTemplateSnapshot,
@@ -73,7 +79,10 @@ export class CommunityShareService {
       sourceGenerationId: generation.id,
       ownerUserId: actor.userId,
       ownerUsername: actor.username,
-      creatorProfileId: actor.activeCreatorProfileId || actor.profileId || null,
+      creatorProfileId: creatorProfile?.id
+        || actor.activeCreatorProfileId
+        || actor.profileId
+        || null,
       imageAssetId: generation.imageAssetId || generation.assetId || null,
       thumbnailAssetId: generation.thumbnailAssetId || null,
       imageUrl: generation.imageUrl || '',
@@ -278,7 +287,9 @@ export class CommunityShareService {
   }
 }
 
-export const communityShareService = new CommunityShareService();
+export const communityShareService = new CommunityShareService({
+  profileService: creatorProfileService
+});
 
 // Compatibility exports for existing app composition while routes migrate to the service object.
 export { communityPostRepo, communityRemixRepo };

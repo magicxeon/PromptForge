@@ -99,17 +99,20 @@
     lastRoute = route;
     const comparisonPage = route.pathname.startsWith('/comparisons');
     const communityPage = route.pathname === '/community';
+    const creatorProfilePage = route.pathname.startsWith('/creators/');
     const playgroundPage = route.pathname === '/playground';
     const adminPageRoute = route.pathname === '/admin';
-    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : playgroundPage ? 'playground' : adminPageRoute ? 'admin' : route.pathname === '/history' ? 'history' : 'studio';
+    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : creatorProfilePage ? 'creator-profile' : playgroundPage ? 'playground' : adminPageRoute ? 'admin' : route.pathname === '/history' ? 'history' : 'studio';
     const studio = document.querySelector('.app-workspace');
     const dashboard = document.getElementById('comparison-dashboard');
     const community = document.getElementById('community-home');
+    const creatorProfile = document.getElementById('creator-profile-page');
     const playground = document.getElementById('playground-page');
     const admin = document.getElementById('admin-page');
-    if (studio) studio.hidden = comparisonPage || communityPage || playgroundPage || adminPageRoute;
+    if (studio) studio.hidden = comparisonPage || communityPage || creatorProfilePage || playgroundPage || adminPageRoute;
     if (dashboard) dashboard.hidden = !comparisonPage;
     if (community) community.hidden = !communityPage;
+    if (creatorProfile) creatorProfile.hidden = !creatorProfilePage;
     if (playground) playground.hidden = !playgroundPage;
     if (admin) admin.hidden = !adminPageRoute;
     updateActiveNavigation(route);
@@ -119,7 +122,7 @@
       requestAnimationFrame(() => scrollToSection('visual-dashboard'));
     } else if (route.pathname === '/studio') {
       requestAnimationFrame(() => scrollToStudio(route));
-    } else if (communityPage || playgroundPage || adminPageRoute) {
+    } else if (communityPage || creatorProfilePage || playgroundPage || adminPageRoute) {
       requestAnimationFrame(() => smoothScrollTo(0));
     } else if (!route.pathname.startsWith('/comparisons/')) {
       requestAnimationFrame(() => smoothScrollTo(route.state?.scrollY || 0));

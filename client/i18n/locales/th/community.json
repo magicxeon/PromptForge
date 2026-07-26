@@ -48,5 +48,22 @@
   "community.share.referencePolicy.required_user_replacement": "ผู้ใช้ต้องใส่รูปแทน",
   "community.share.referencePolicy.shared_preview_only": "แสดงตัวอย่างเท่านั้น",
   "community.share.referencePolicy.shared_as_reusable_reference": "นำรูปอ้างอิงไปใช้ต่อได้",
-  "community.share.referencePolicy.not_shared": "ไม่แชร์"
+  "community.share.referencePolicy.not_shared": "ไม่แชร์",
+  "community.creator.myProfile": "โปรไฟล์ผู้สร้างของฉัน",
+  "community.creator.loading": "กำลังโหลดโปรไฟล์ผู้สร้าง...",
+  "community.creator.unavailable": "ไม่สามารถเปิดโปรไฟล์ผู้สร้างได้",
+  "community.creator.follow": "ติดตาม",
+  "community.creator.following": "กำลังติดตาม",
+  "community.creator.followers": "ผู้ติดตาม",
+  "community.creator.posts": "โพสต์",
+  "community.creator.noBio": "ผู้สร้างรายนี้ยังไม่ได้เพิ่มประวัติแนะนำตัว",
+  "community.creator.portfolio": "ผลงานสาธารณะ",
+  "community.creator.portfolioEmpty": "ยังไม่มีโพสต์สาธารณะ",
+  "community.creator.postPreview": "โพสต์ Community",
+  "community.creator.untitled": "ไม่มีชื่อ",
+  "community.creator.edit": "แก้ไขโปรไฟล์ผู้สร้าง",
+  "community.creator.displayName": "ชื่อที่แสดง",
+  "community.creator.bio": "ประวัติแนะนำตัว",
+  "community.creator.save": "บันทึกโปรไฟล์",
+  "community.creator.actionFailed": "ไม่สามารถอัปเดตโปรไฟล์ผู้สร้างได้"
 }

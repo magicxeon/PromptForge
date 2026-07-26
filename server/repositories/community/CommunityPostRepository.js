@@ -74,6 +74,8 @@ export class CommunityPostRepository {
       officialTag: normalizedQuery.filters.officialTag || null,
       customTag: normalizedQuery.filters.customTag || null,
       search: normalizedQuery.filters.search || null,
+      creatorProfileId: normalizedQuery.filters.creatorProfileId || null,
+      ownerUserId: normalizedQuery.filters.ownerUserId || null,
       viewer: viewerContext?.userId || 'anonymous'
     });
     const cursor = normalizedQuery.cursor
@@ -88,6 +90,10 @@ export class CommunityPostRepository {
       .filter(post => !normalizedQuery.filters.customTag
         || normalizeStringArray(post.customTags).some(tag => sameSearchTerm(tag, normalizedQuery.filters.customTag)))
       .filter(post => !normalizedQuery.filters.search || communityPostMatchesSearch(post, normalizedQuery.filters.search))
+      .filter(post => !normalizedQuery.filters.creatorProfileId
+        || post.creatorProfileId === normalizedQuery.filters.creatorProfileId)
+      .filter(post => !normalizedQuery.filters.ownerUserId
+        || post.ownerUserId === normalizedQuery.filters.ownerUserId)
       .sort((left, right) => comparePosts(left, right, normalizedQuery.sort));
 
     if (cursor) posts = posts.filter(post => comparePosts(post, cursor, normalizedQuery.sort) > 0);

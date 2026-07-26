@@ -48,5 +48,22 @@
   "community.share.referencePolicy.required_user_replacement": "Replacement required",
   "community.share.referencePolicy.shared_preview_only": "Preview only",
   "community.share.referencePolicy.shared_as_reusable_reference": "Reusable reference",
-  "community.share.referencePolicy.not_shared": "Not shared"
+  "community.share.referencePolicy.not_shared": "Not shared",
+  "community.creator.myProfile": "My creator profile",
+  "community.creator.loading": "Loading creator profile...",
+  "community.creator.unavailable": "Creator profile is unavailable.",
+  "community.creator.follow": "Follow",
+  "community.creator.following": "Following",
+  "community.creator.followers": "Followers",
+  "community.creator.posts": "Posts",
+  "community.creator.noBio": "This creator has not added a bio yet.",
+  "community.creator.portfolio": "Public portfolio",
+  "community.creator.portfolioEmpty": "No public posts yet.",
+  "community.creator.postPreview": "Community post",
+  "community.creator.untitled": "Untitled",
+  "community.creator.edit": "Edit creator profile",
+  "community.creator.displayName": "Display name",
+  "community.creator.bio": "Bio",
+  "community.creator.save": "Save profile",
+  "community.creator.actionFailed": "The creator profile could not be updated."
 }

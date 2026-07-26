@@ -1,5 +1,5 @@
 (() => {
-  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/, /^\/admin$/];
+  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/creators\/[^/]+$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/, /^\/admin$/];
   const modules = [
     { id: 'community', label: { en: 'Community', th: 'ชุมชน' }, description: { en: 'Discover workflows', th: 'ค้นหาไอเดีย' }, route: '/community', icon: 'community', order: 1 },
     { id: 'playground', label: { en: 'Playground', th: 'เพลย์กราวนด์' }, description: { en: 'Freeform prompting', th: 'เขียน Prompt อิสระ' }, route: '/playground', icon: 'playground', order: 15 },
@@ -42,7 +42,7 @@
   }
 
   function getModuleForPath(pathname) {
-    if (pathname === '/' || pathname === '/community') return modules.find(module => module.id === 'community');
+    if (pathname === '/' || pathname === '/community' || pathname.startsWith('/creators/')) return modules.find(module => module.id === 'community');
     if (pathname === '/playground') return modules.find(module => module.id === 'playground');
     if (pathname === '/history') return modules.find(module => module.id === 'history');
     if (pathname.startsWith('/comparisons')) return modules.find(module => module.id === 'comparisons');

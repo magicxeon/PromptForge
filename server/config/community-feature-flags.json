@@ -5,7 +5,7 @@
     "shareEnabled": true,
     "exploreEnabled": false,
     "engagementEnabled": false,
-    "creatorProfilesEnabled": false,
+    "creatorProfilesEnabled": true,
     "galleryEnabled": false,
     "moderationEnabled": true,
     "privateBeta": false

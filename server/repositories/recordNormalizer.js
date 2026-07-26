@@ -58,6 +58,9 @@ export async function normalizeGenerationHistoryRecord(historyItem = {}, mockUse
 
 export async function normalizeCommunityPostRecord(post = {}, mockUserRepository) {
   const owner = await resolveOwnerFromLegacy(post, mockUserRepository);
+  const ownerUser = owner.ownerUserId
+    ? await mockUserRepository?.findById?.(owner.ownerUserId)
+    : null;
   const createdAt = normalizeEpochOrIsoDate(post.createdAt, null);
   const engagementSummary = normalizeCommunityEngagementSummary(
     post.engagementSummary,
@@ -71,7 +74,7 @@ export async function normalizeCommunityPostRecord(post = {}, mockUserRepository
     postType: normalizeCommunityPostType(post.postType, post),
     ownerUserId: owner.ownerUserId,
     ownerUsername: owner.ownerUsername,
-    creatorProfileId: post.creatorProfileId || null,
+    creatorProfileId: post.creatorProfileId || ownerUser?.activeCreatorProfileId || null,
     sourceGenerationResultId: post.sourceGenerationResultId || post.sourceGenerationId || null,
     sourceSceneTemplateSnapshotId: post.sourceSceneTemplateSnapshotId || null,
     sourceComparisonSetId: post.sourceComparisonSetId || null,

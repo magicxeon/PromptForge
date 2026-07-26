@@ -26,6 +26,8 @@ import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoute
 import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
 import { communityClassificationService } from '../domain/community/CommunityClassificationService.js';
 import { communityFeaturePolicyService } from '../domain/community/CommunityFeaturePolicyService.js';
+import { creatorProfileService } from '../domain/community/CreatorProfileService.js';
+import { registerCommunityCreatorRoutes } from './routes/communityCreatorRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -106,6 +108,10 @@ export function createApp() {
     communityShareService,
     communityFeaturePolicyService
   });
+  registerCommunityCreatorRoutes(app, {
+    creatorProfileService,
+    communityFeaturePolicyService
+  });
   registerSceneTemplateRoutes(app, {
     communityShareService,
     communityFeaturePolicyService
@@ -115,6 +121,7 @@ export function createApp() {
   // loads the app shell instead of falling through to Express 404 handling.
   app.get([
     '/community', '/community/',
+    '/creators/:handle', '/creators/:handle/',
     '/studio', '/studio/',
     '/playground', '/playground/',
     '/history', '/history/',

@@ -32,8 +32,20 @@ export class CommunityFeaturePolicyService {
     return this.configLoader();
   }
 
-  async getPublicFlags() {
+  async getEffectiveFlags() {
     const flags = await this.getFlags();
+    if (!isDevelopmentEnvironment() && flags.community.privateBeta !== true) {
+      flags.community.exploreEnabled = false;
+      flags.community.engagementEnabled = false;
+      flags.community.creatorProfilesEnabled = false;
+      flags.community.galleryEnabled = false;
+      flags.development.mockActorSwitcherEnabled = false;
+    }
+    return flags;
+  }
+
+  async getPublicFlags() {
+    const flags = await this.getEffectiveFlags();
     return {
       schemaVersion: flags.schemaVersion,
       community: structuredClone(flags.community),
@@ -48,7 +60,7 @@ export class CommunityFeaturePolicyService {
   }
 
   async isEnabled(featurePath) {
-    const flags = await this.getFlags();
+    const flags = await this.getEffectiveFlags();
     return readBooleanPath(flags, featurePath);
   }
 

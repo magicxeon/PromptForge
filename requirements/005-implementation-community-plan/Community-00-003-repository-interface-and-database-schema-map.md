@@ -41,6 +41,8 @@ The repository layer must be designed from the data already used by the app. Do 
 | `server/data/collections/collections.json` | `domain/collections/CollectionManager` | User image collections | `collections`, `collection_items` |
 | `server/data/comparisons/comparisons.json` | `repositories/comparisons/ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
 | `server/data/community/communityPosts.json` | `repositories/community/CommunityPostRepository` | Local shared template/community post mock data | `community_posts` |
+| `server/data/community/creatorProfiles.json` | `repositories/community/CreatorProfileRepository` | Public creator identity and profile presentation | `creator_profiles` |
+| `server/data/community/creatorFollows.json` | `repositories/community/CreatorFollowRepository` | Idempotent follower-to-creator relations | `creator_follows` |
 | `server/data/community/remixEvents.json` | `repositories/community/RemixEventRepository` | Local remix event analytics | `remix_events`, `audit_events` |
 | `server/data/community/engagementEvents.json` | `repositories/community/CommunityEngagementEventRepository` | Immutable post engagement events | `community_engagement_events` |
 | `server/data/community/reactions.json` | `repositories/community/CommunityReactionRepository` | Current like/save state | `community_reactions` |
@@ -227,8 +229,8 @@ Migration notes:
 Source now:
 
 ```text
-server/data/identity/mockUsers.json.activeCreatorProfileId
-future Community creator profile settings
+server/data/community/creatorProfiles.json
+server/data/identity/mockUsers.json.activeCreatorProfileId (legacy/development link)
 ```
 
 Columns:
@@ -241,13 +243,54 @@ display_name: text not null
 bio: text null
 avatar_asset_id: text null
 badge_codes: jsonb not null default []
-follower_count: integer not null default 0
-public_post_count: integer not null default 0
 membership_enabled: boolean not null default false
-status: text not null                        // active | hidden | disabled
+status: text not null                        // active | hidden | disabled | deleted
 created_at: timestamptz not null
 updated_at: timestamptz not null
 ```
+
+Rules:
+
+- `user_id` is the ownership key; handle is a stable public lookup key.
+- Follower and public-post counts are service read models in the JSON MVP.
+- A future database may maintain denormalized counters transactionally, but
+  `creator_follows` and published public `community_posts` remain authoritative.
+
+### 6.2.1 `creator_follows`
+
+Source now:
+
+```text
+server/data/community/creatorFollows.json
+```
+
+Columns:
+
+```text
+id: text primary key                         // follow_*
+follower_user_id: text references users(id)
+creator_profile_id: text references creator_profiles(id)
+status: text not null                        // active | deleted
+created_at: timestamptz not null
+updated_at: timestamptz not null
+deleted_at: timestamptz null
+```
+
+Constraints and indexes:
+
+```text
+unique (follower_user_id, creator_profile_id)
+index (creator_profile_id, status)
+index (follower_user_id, status)
+```
+
+Rules:
+
+- Self-follow is rejected by the domain service.
+- Follow and unfollow are idempotent state transitions over one logical pair.
+- Reactivating a deleted relation clears `deleted_at`.
+- Routes derive `follower_user_id` from `req.actorContext`; request payloads
+  cannot choose the follower.
 
 ### 6.3 `assets`
 
