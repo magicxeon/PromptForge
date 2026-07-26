@@ -37,12 +37,21 @@
     const version = ++requestVersion;
     renderStatus(mount, translate('community.creator.loading', 'Loading creator profile...'));
     try {
-      const [profile, portfolio] = await Promise.all([
+      const galleryEnabled = window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+        'community.galleryEnabled'
+      ) === true;
+      const [profile, portfolio, gallery, characters] = await Promise.all([
         window.ModelPromptForgeCommunityCreatorApi.getProfile(handle),
-        window.ModelPromptForgeCommunityCreatorApi.getPortfolio(handle, { limit: 24, sort: 'newest' })
+        window.ModelPromptForgeCommunityCreatorApi.getPortfolio(handle, { limit: 24, sort: 'newest' }),
+        galleryEnabled
+          ? window.ModelPromptForgeCommunityGalleryApi.listGallery(handle)
+          : Promise.resolve({ items: [] }),
+        galleryEnabled
+          ? window.ModelPromptForgeCommunityGalleryApi.listCharacters(handle)
+          : Promise.resolve({ items: [] })
       ]);
       if (version !== requestVersion) return;
-      renderProfile(mount, profile, portfolio);
+      renderProfile(mount, profile, portfolio, gallery, characters);
     } catch (error) {
       if (version !== requestVersion) return;
       renderStatus(
@@ -53,7 +62,7 @@
     }
   }
 
-  function renderProfile(mount, profile, portfolio) {
+  function renderProfile(mount, profile, portfolio, gallery = { items: [] }, characters = { items: [] }) {
     mount.replaceChildren();
     const header = document.createElement('section');
     header.className = 'creator-profile-header';
@@ -91,7 +100,7 @@
     window.ModelPromptForgeFollowButton.render({
       mount: followMount,
       profile,
-      onChanged: updated => renderProfile(mount, updated, portfolio)
+      onChanged: updated => renderProfile(mount, updated, portfolio, gallery, characters)
     });
 
     if (profile.viewer?.isOwner) mount.appendChild(createEditForm(profile));
@@ -109,6 +118,91 @@
       page: portfolio,
       allowReport: !profile.viewer?.isOwner
     });
+    if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.('community.galleryEnabled') === true) {
+      mount.append(
+        buildAssetSection(
+          translate('community.gallery.title', 'Gallery'),
+          gallery?.items,
+          'gallery'
+        ),
+        buildAssetSection(
+          translate('community.character.title', 'Characters'),
+          characters?.items,
+          'character'
+        )
+      );
+    }
+  }
+
+  function buildAssetSection(label, items = [], kind) {
+    const section = document.createElement('section');
+    section.className = 'creator-community-assets';
+    const heading = document.createElement('h3');
+    heading.textContent = label;
+    const grid = document.createElement('div');
+    grid.className = 'creator-community-asset-grid';
+    if (!items.length) {
+      const empty = document.createElement('p');
+      empty.textContent = translate(
+        `community.${kind}.empty`,
+        kind === 'gallery' ? 'No curated Gallery items yet.' : 'No public Characters yet.'
+      );
+      grid.appendChild(empty);
+    }
+    items.forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'creator-community-asset-card';
+      const media = document.createElement('button');
+      media.type = 'button';
+      media.className = 'creator-community-asset-media';
+      const image = document.createElement('img');
+      image.src = item.thumbnailUrl || item.imageUrl;
+      image.alt = item.title || item.displayName || label;
+      image.loading = 'lazy';
+      media.appendChild(image);
+      media.addEventListener('click', () => {
+        const lightboxItem = {
+          id: item.id,
+          imageUrl: item.imageUrl,
+          thumbnailUrl: item.thumbnailUrl,
+          prompt: '',
+          provider: 'Community',
+          submodel: kind,
+          createdAt: item.createdAt,
+          isCommunityPublic: true,
+          communityPost: {
+            title: item.title || item.displayName,
+            templateAvailability: false
+          }
+        };
+        window.openLightbox?.(lightboxItem, {
+          triggerElement: media,
+          browseContext: {
+            source: 'community',
+            itemIds: [item.id],
+            items: [lightboxItem],
+            activeIndex: 0
+          }
+        });
+      });
+      const title = document.createElement('strong');
+      title.textContent = item.title || item.displayName || label;
+      card.append(media, title);
+      if (item.handoffAvailable) {
+        const use = document.createElement('button');
+        use.type = 'button';
+        use.textContent = kind === 'gallery'
+          ? translate('community.template.use', 'Use Template')
+          : translate('community.character.use', 'Use Character');
+        use.addEventListener('click', () => kind === 'gallery'
+          ? window.ModelPromptForgeCommunityTemplateActions.useGalleryItem(item.id)
+          : window.ModelPromptForgeCommunityTemplateActions.useCharacter(item.id));
+        card.appendChild(use);
+      }
+      grid.appendChild(card);
+    });
+    section.append(heading, grid);
+    return section;
   }
 
   function createEditForm(profile) {
@@ -148,11 +242,7 @@
           displayName: nameInput.value,
           bio: bioInput.value
         });
-        const portfolio = await window.ModelPromptForgeCommunityCreatorApi.getPortfolio(
-          updated.handle,
-          { limit: 24, sort: 'newest' }
-        );
-        renderProfile(document.getElementById('creator-profile-page'), updated, portfolio);
+        await load(updated.handle);
       } catch (requestError) {
         error.textContent = requestError?.message || translate(
           'community.creator.actionFailed',

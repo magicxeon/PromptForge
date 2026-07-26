@@ -12,13 +12,20 @@
     sort = 'latest',
     period = 'week',
     officialTag = '',
+    postType = 'all',
+    search = '',
     limit = 24
   } = {}) => {
-    const params = new URLSearchParams({ sort, period, limit: String(limit) });
+    const params = new URLSearchParams({ sort, period, postType, limit: String(limit) });
     if (officialTag) params.set('officialTag', officialTag);
+    if (search) params.set('search', search);
     return api(`/api/community/posts?${params}`);
   };
 
+  const getPost = postId =>
+    api(`/api/scene-templates/shared/${encodeURIComponent(postId)}`);
+  const getTaxonomy = () =>
+    api('/api/community/taxonomy');
   const getEngagement = postId =>
     api(`${postUrl(postId)}/engagement`);
   const recordView = postId =>
@@ -54,6 +61,8 @@
 
   window.ModelPromptForgeCommunityEngagementApi = {
     listPosts,
+    getPost,
+    getTaxonomy,
     getEngagement,
     recordView,
     setReaction,

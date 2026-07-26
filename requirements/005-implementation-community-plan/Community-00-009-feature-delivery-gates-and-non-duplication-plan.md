@@ -96,7 +96,8 @@ Exit gate:
 - Community-03 and Community-04 acceptance tests pass.
 - No raw private reference, prompt field or source asset leaks from a public
   snapshot.
-- Community-04 can create an image, template or comparison post record without
+- Community-04/05 can create an image, template, comparison or immutable
+  Collection post record without
   creating post-type-specific repositories.
 
 ### Wave 1 - Build Stable Server Owners in Parallel
@@ -145,7 +146,7 @@ Community-12  VERIFY_ONLY
 Open Community-05 scope:
 
 - Latest feed, official-category filtering, search and pagination.
-- Post detail for image, template and comparison posts.
+- Post detail for image, template, comparison and Collection posts.
 - Creator profile links and follow controls supplied by Community-06.
 - Like, save, comment, comparison vote and ranked queries supplied by
   Community-12.
@@ -172,7 +173,8 @@ Trending periods          INTERNAL after Community-12 tests pass
 Exit gate:
 
 - Alice can publish, Bob can view/remix/react and admin can hide the post.
-- Image, template and comparison posts use the same feed/detail API family.
+- Image, template, comparison and Collection posts use the same feed/detail API
+  family.
 - Hidden or removed records disappear without client-side-only filtering.
 
 ### Wave 3 - Curated Gallery and Character Reuse
@@ -293,11 +295,11 @@ and operational security gates replace their local adapters.
 
 | Requirement | Start state | Open now | Must stay closed | Exit unlocks |
 |---|---|---|---|---|
-| Community-05 | CONTRACT | Read model/UI contract | Ranking, reaction storage, moderation logic | Explore assembly after 06/07/12 |
+| Community-05 | IMPLEMENTED_PENDING_VALIDATION | Three-layer Explore, detail, public viewer, engagement, template, comparison and Collection flows | Personalized/ML ranking | Internal E2E acceptance |
 | Community-06 | OPEN | Profile, follow, public portfolio query | Marketplace, creator ranking/analytics | Creator identity in 05/09 |
 | Community-07 | OPEN | Report, hide/remove, eligibility, audit | Appeals, strikes, complex queue | Safe engagement/feed |
-| Community-08 | CLOSED | Nothing until Waves 1-3 pass | New domain logic | Private-beta exposure |
-| Community-09 | CLOSED | Existing repository contract verification only | UI/workflow until 05/06 stable | Gallery/character reuse |
+| Community-08 | OPEN_E2E | Readiness response, feature wiring and cross-feature tests | New post/profile/gallery domain logic | Commercial migration baseline |
+| Community-09 | IMPLEMENTED_PENDING_VALIDATION | Curated Gallery, Character display and sanitized Scene Builder handoff | Marketplace/licensing/original downloads | Internal E2E acceptance |
 | Community-10 | VERIFY_ONLY | Actor-scope gaps and tests | Duplicate identity/auth implementation | Production auth migration seam |
 | Community-11 | VERIFY_ONLY | Credit integration gaps and routing contract | Duplicate ledger, auto routing, payment | Billable private beta |
 | Community-12 | OPEN | Shared engagement and ranking backend | Personalized/ML ranking | Full Community-05 engagement UI |

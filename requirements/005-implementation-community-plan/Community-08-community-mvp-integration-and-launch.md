@@ -1,6 +1,6 @@
 # Community-08 Community MVP Integration and Launch
 
-**Status:** Closed - opens only after Community-05, Community-06, Community-07, Community-09 and Community-12 exit gates
+**Status:** Implemented for internal E2E validation - Commercial blockers retained
 **Feature type:** Integration, readiness and launch gate  
 **Depends on:** Community-01 through Community-07, Community-09 and Community-12
 **Created:** 2026-07-15
@@ -13,13 +13,15 @@ This requirement follows
 Current gates:
 
 ```text
-Development  CLOSED
-Exposure     HIDDEN
+Development  OPEN
+Exposure     INTERNAL
 ```
 
-Do not implement Community-08 while its feature dependencies are incomplete.
-It is an integration and release requirement, not an owner of post, profile,
-moderation, gallery, engagement, credit or generation business logic.
+Community-06, Community-07 and Community-12 server exit gates have passed.
+Community-05 and Community-09 are being closed in this delivery. Community-08
+may add integration/readiness checks, but remains a consumer rather than an
+owner of post, profile, moderation, gallery, engagement, credit or generation
+business logic.
 
 When opened, Community-08 may add only feature-flag wiring, readiness checks,
 metrics adapters, navigation exposure and end-to-end launch tests. The first
@@ -142,4 +144,64 @@ test/communityMvpIntegration.test.js
 - Module disabled state removes navigation and routes gracefully.
 - Metrics events avoid raw prompt text.
 - Studio, History, Comparison and Scene Builder still load without Community module.
+
+## 8. Pre-Commercial Readiness Decision
+
+This phase does not claim public-production readiness while mock actors and JSON
+repositories remain active. It establishes a tested `INTERNAL` baseline:
+
+```text
+Community Home -> 3-layer Explore -> Post Detail
+-> engagement / creator / report / template handoff
+-> curated Gallery / Character handoff
+-> owned Collection share / public Collection detail
+```
+
+Required exit artifacts:
+
+- readiness response for feature/dependency state without sensitive data;
+- E2E coverage for Alice publish, Bob browse/react/remix and admin hide;
+- direct-route coverage for `/community` and `/community/:postId`;
+- feature-off regression proving Studio and Playground remain available;
+- documented production blockers: authentication, durable database, object
+  storage/CDN, payment and operational monitoring.
+
+## 9. Readiness Implementation
+
+The canonical readiness surface is:
+
+```text
+GET /api/community/readiness
+
+server/domain/community/CommunityLaunchReadinessService.js
+server/app/routes/communityReadinessRoutes.js
+test/communityMvpIntegration.test.js
+scripts/test-community-commercial-readiness.bat
+```
+
+The response distinguishes:
+
+```text
+readyForInternal
+readyForPrivateBeta
+readyForProduction
+missingInternalFeatures
+productionBlockers
+```
+
+It deliberately contains no prompt, image, reference or actor-private data.
+Internal readiness requires Share, Explore, Engagement, Creator Profiles,
+Gallery and Moderation. Production readiness remains false while mock actors,
+JSON repositories and local output storage are active.
+
+Validation must prove:
+
+1. Community direct routes load the app shell.
+2. Alice can publish and curate a post.
+3. Bob can browse, view, react, comment and use an allowed template.
+4. Private Character references require Bob to replace them.
+5. Admin moderation removes a post from discovery.
+6. Disabling Community leaves Studio and Playground usable.
+7. Alice can share a non-empty Collection; Bob can browse its public snapshot
+   without receiving source Collection IDs, History job IDs or raw output paths.
 

@@ -206,7 +206,7 @@
       else closeLightbox();
       return;
     }
-    if (context.source === "comparison") {
+    if (context.source === "comparison" || context.source === "community") {
       const activeItem = context.items?.find(entry => entry.id === activeId);
       if (activeItem) renderLightboxItem(activeItem);
       else closeLightbox({ restoreFocus: false });
@@ -248,7 +248,10 @@
     modal.activeItem = item;
 
     setLightboxImage(item);
-    title.textContent = `Generation Reference #${item.id.substring(4, 9)}`;
+    const isCommunityPublic = item.isCommunityPublic === true;
+    title.textContent = isCommunityPublic
+      ? (item.communityPost?.title || "Community image")
+      : `Generation Reference #${item.id.substring(4, 9)}`;
     promptTxt.textContent = item.prompt;
     engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
     model.textContent = item.submodel || "N/A";
@@ -260,7 +263,12 @@
     dlLink.href = item.imageUrl;
     const outputExtension = item.imageUrl?.match(/\.([a-z0-9]+)(?:\?|$)/i)?.[1] || "png";
     dlLink.download = `modelpromptforge-generation-${item.id}.${outputExtension}`;
-    if (window.renderLightboxCollections) window.renderLightboxCollections(item.id);
+    dlLink.hidden = isCommunityPublic;
+    const collections = document.getElementById("lightbox-collections");
+    if (collections) collections.hidden = isCommunityPublic;
+    if (!isCommunityPublic && window.renderLightboxCollections) {
+      window.renderLightboxCollections(item.id);
+    }
 
     if (lineageContainer && lineageList) {
       lineageList.innerHTML = "";
@@ -350,7 +358,13 @@
 
     const btnUseTemplate = document.getElementById("btn-lightbox-use-template");
     if (btnUseTemplate) {
-      if (item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object") {
+      if (isCommunityPublic && item.communityPost?.templateAvailability) {
+        btnUseTemplate.style.display = "block";
+        btnUseTemplate.onclick = () => {
+          closeLightbox();
+          window.ModelPromptForgeCommunityTemplateActions?.usePostTemplate?.(item.id);
+        };
+      } else if (item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object") {
         btnUseTemplate.style.display = "block";
         btnUseTemplate.onclick = () => {
           closeLightbox();
@@ -369,7 +383,8 @@
 
     const btnAddToTemplate = document.getElementById("btn-lightbox-add-to-template");
     if (btnAddToTemplate) {
-      const isTemplateActive = window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive?.();
+      const isTemplateActive = !isCommunityPublic
+        && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive?.();
       if (isTemplateActive) {
         btnAddToTemplate.style.display = "block";
         btnAddToTemplate.onclick = () => {
@@ -394,7 +409,7 @@
         ? item.ownerUserId === activeUserId
         : (!item.username || item.username === (window.state?.username || 'user_demo'));
       const isCompleted = !item.status || item.status === "completed";
-      if (sharingEnabled && isOwner && isCompleted && item.id && item.imageUrl) {
+      if (!isCommunityPublic && sharingEnabled && isOwner && isCompleted && item.id && item.imageUrl) {
         btnShareTemplate.style.display = "block";
         btnShareTemplate.onclick = () => {
           window.ModelPromptForgeCommunitySharePreview?.openSharePreview?.(item.id, {
@@ -407,7 +422,16 @@
       }
     }
 
-    if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
+    if (isCommunityPublic) {
+      [
+        "btn-lightbox-use-face",
+        "btn-lightbox-use-style",
+        "btn-lightbox-use-character"
+      ].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.style.display = "none";
+      });
+    } else if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
       window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
     }
 

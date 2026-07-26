@@ -1,6 +1,6 @@
 # Community-05 Community Explore, Post Detail and Remix
 
-**Status:** In progress - Explore feed enabled internally after Community-06, Community-07 and Community-12 server exit gates
+**Status:** Implemented for internal validation - Node and browser acceptance pending
 **Feature type:** Public discovery and generation reuse  
 **Depends on:** Community-03, Community-04, Community-12 engagement contract, Studio route integration
 **Created:** 2026-07-15
@@ -83,6 +83,35 @@ Recommended routes:
 Route names may follow the final router convention, but post detail and remix must support deep links.
 
 ## 3. Explore Feed MVP
+
+### 3.0 Three-Layer Community Discovery Contract
+
+Community discovery exposes three independent layers:
+
+```text
+Layer 1 - Post type
+  all | image | template | comparison
+
+Layer 2 - Official taxonomy category
+  values loaded from GET /api/community/taxonomy
+
+Layer 3 - Sort/ranking window
+  latest | trending/week | trending/month | top/year
+```
+
+`character` is not a generic Community post type. Reusable characters belong to
+Community-09 Gallery/Character surfaces. Official categories may be visible
+with a zero count so the MVP layout can be reviewed, but post cards must always
+come from real public records rather than fabricated runtime posts.
+
+Card interaction:
+
+- Image click opens the shared full-size viewer.
+- Card title/detail action opens `/community/:postId`.
+- Template cards expose `Use Template` only when policy permits it.
+- Comparison cards expose voting only when a sanitized public comparison
+  snapshot is available.
+- Cards never expose raw output paths, private prompts or private references.
 
 Feed capabilities:
 
@@ -390,4 +419,140 @@ from this list because Community-12 owns them.
 - Use Template opens Scene Builder checklist.
 - Missing required replacement blocks generation.
 - Provider unavailable state shows warning or asks user to select an available model.
+
+## 10. Internal Implementation Delivered
+
+This delivery implements the three-layer Community discovery surface:
+
+```text
+Layer 1  post type: all | image | template | comparison | collection
+Layer 2  official taxonomy categories from /api/community/taxonomy
+Layer 3  latest | trending week | trending month | top year
+```
+
+Implemented modules:
+
+```text
+client/community/communityFeed.js
+client/community/communityPostDetail.js
+client/community/communityTemplateActions.js
+client/community/communityComparisonShare.js
+server/domain/community/CommunityRankingService.js
+server/domain/community/CommunityComparisonShareService.js
+server/app/routes/communityEngagementRoutes.js
+server/app/routes/communityComparisonRoutes.js
+```
+
+The post detail owns public image viewing, prompt visibility, Like, Save,
+comments, report, template handoff and comparison voting. Public comparison
+slot images are served through post/slot proxy endpoints; responses expose no
+generation job IDs or raw `/outputs` paths.
+
+The requirement remains pending validation until the Community readiness batch
+and browser acceptance scenarios pass.
+
+## 11. Collection Sharing Completion
+
+Community Explore also supports a fourth content type, `collection`. This does
+not change the three discovery layers: `collection` is one value in Layer 1.
+
+### Business Requirement
+
+- An owner can share a non-empty private Collection from Image History.
+- Sharing creates an immutable public snapshot; it never changes the source
+  Collection visibility and never grants another actor access to private
+  History.
+- The snapshot preserves Collection title, description, cover and image order.
+- Community users can open the Collection post, browse every available image in
+  the shared snapshot, Like, Save, Comment and Report it.
+- Collection sharing is not the deferred Collection marketplace. It does not
+  sell content, expose source files or make private collection membership
+  editable by viewers.
+
+### Public Data Contract
+
+```text
+CommunityPost.postType = collection
+CommunityPost.sourceCollectionId          internal only
+CommunityPost.collectionSnapshot:
+  schemaVersion
+  itemCount
+  items[]:
+    itemId                                public opaque snapshot ID
+    imageUrl                              internal local source only
+    thumbnailUrl                          internal local source only
+    providerDisplayName
+    modelDisplayName
+    createdAt
+
+PublicCommunityPost.collectionSnapshot:
+  itemCount
+  items[]:
+    itemId
+    imageUrl = /api/community/posts/:postId/collection-items/:itemId/image
+    thumbnailUrl = /api/community/posts/:postId/collection-items/:itemId/thumbnail
+    providerDisplayName
+    modelDisplayName
+    createdAt
+```
+
+The public response must not include Collection `jobIds`, `sourceCollectionId`,
+generation IDs, raw `/outputs/...` paths, prompts or private references.
+
+### Software Design
+
+```text
+CollectionRepository
+  -> CommunityCollectionShareService
+  -> CommunityPostRepository
+  -> communityPostPublicView
+  -> CommunityRankingService
+
+Collection toolbar
+  -> communityCollectionShare.js
+  -> POST /api/community/collections/:collectionId/publish
+  -> /community/:postId
+```
+
+Canonical files:
+
+```text
+server/domain/community/CommunityCollectionShareService.js
+server/app/routes/communityCollectionRoutes.js
+server/domain/community/CommunityPostAccessService.js
+server/domain/community/communityPostPublicView.js
+server/repositories/recordNormalizer.js
+client/community/communityCollectionShare.js
+client/community/communityFeed.js
+client/community/communityPostDetail.js
+client/core/collectionService.js
+```
+
+### Implementation Plan
+
+1. Resolve the Collection through `CollectionRepository.findByIdForOwner`
+   using `req.actorContext.userId`.
+2. Resolve every member through `GenerationResultRepository.findByIdForOwner`.
+   Reject an empty Collection and omit orphaned/unowned members.
+3. Build an immutable ordered snapshot with opaque item IDs and no prompt or
+   reference data.
+4. Persist one public Community post whose cover uses the selected Collection
+   cover or the first valid member.
+5. Serve cover and item media through Community proxy routes that repeat public
+   post visibility checks.
+6. Add `collection` to post normalization, feed facets, filters and public view.
+7. Add a Share action beside Edit in the Collection toolbar. Hide/disable it
+   for `All Images`, empty Collections and disabled Community sharing.
+8. Render Collection post detail as an image grid and open its members in the
+   existing Community Lightbox browse context.
+
+### Testing
+
+- Another actor cannot publish an owner's Collection.
+- Empty and orphan-only Collections are rejected.
+- Public JSON contains no job IDs, raw output paths or source Collection ID.
+- Collection item proxies reject private, hidden and removed posts.
+- Feed filtering and facets include `collection`.
+- Direct post detail preserves image order and Lightbox navigation.
+- Existing Image, Template and Comparison behavior remains unchanged.
 

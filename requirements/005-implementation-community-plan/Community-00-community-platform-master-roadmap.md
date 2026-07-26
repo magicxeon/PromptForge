@@ -110,6 +110,20 @@ Community-05 comments, comparison voting or ranked feed queries. Community-05
 latest-feed and post-detail presentation may be developed against the contract
 in parallel.
 
+Current pre-Commercial internal baseline:
+
+```text
+Community-05  IMPLEMENTED_PENDING_VALIDATION
+Community-09  IMPLEMENTED_PENDING_VALIDATION
+Community-08  E2E_VALIDATION_PENDING
+```
+
+The internal UI now exposes three-layer discovery, Post Detail, Community image
+viewer, image/template/comparison/collection posts, comparison
+publishing/voting, curated Gallery, public Character cards and sanitized Scene
+Builder handoff. Production exposure remains closed until the Community-08
+blockers are replaced in the Commercial phase.
+
 The authoritative open/closed implementation and UI exposure sequence is
 defined by
 `Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
@@ -161,6 +175,7 @@ Included:
 - Freestyle idea input assisted by AI Prompt Composer.
 - Structured prompt/config output that can prefill dropdowns.
 - Share generated image with prompt snapshot.
+- Share a curated private Collection as an immutable public Community snapshot.
 - Share Scene Builder templates with prompt, selections and replaceable reference slot mapping.
 - Local mock user switching for internal testing until real auth is implemented.
 - Credit estimate, reservation and deduction foundation for real AI generation.

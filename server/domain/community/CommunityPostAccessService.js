@@ -35,7 +35,12 @@ export class CommunityPostAccessService {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
-    return buildCommunityPostPublicView(post);
+    return {
+      ...buildCommunityPostPublicView(post),
+      viewer: {
+        isOwner: post.ownerUserId === actor.userId
+      }
+    };
   }
 
   async getPostForTemplateUse(postId, actorContext) {
@@ -56,6 +61,51 @@ export class CommunityPostAccessService {
     const fileName = outputFileName(source);
     if (!fileName) {
       throw new RepositoryContractError('community_media_unavailable', 'This community image is unavailable.', 404);
+    }
+    return path.join(OUTPUTS_DIR, fileName);
+  }
+
+  async getComparisonSlotMediaFile(postId, slotId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    assertCanViewCommunityPost(post, actor, { directLink: true });
+    if (post.postType !== 'comparison') {
+      throw new RepositoryContractError('community_comparison_unavailable', 'Comparison post not found.', 404);
+    }
+    const slots = post.comparisonSnapshot?.slots || post.workflowSnapshot?.comparison?.slots || [];
+    const slot = slots.find(item => String(item.slotId || item.id) === String(slotId));
+    const fileName = outputFileName(slot?.imageUrl);
+    if (!fileName) {
+      throw new RepositoryContractError('community_media_unavailable', 'Comparison image is unavailable.', 404);
+    }
+    return path.join(OUTPUTS_DIR, fileName);
+  }
+
+  async getCollectionItemMediaFile(postId, itemId, kind, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    assertCanViewCommunityPost(post, actor, { directLink: true });
+    if (post.postType !== 'collection') {
+      throw new RepositoryContractError(
+        'community_collection_unavailable',
+        'Collection post not found.',
+        404
+      );
+    }
+    const items = post.collectionSnapshot?.items
+      || post.workflowSnapshot?.collection?.items
+      || [];
+    const item = items.find(entry => String(entry.itemId) === String(itemId));
+    const source = kind === 'thumbnail'
+      ? (item?.thumbnailUrl || item?.imageUrl)
+      : item?.imageUrl;
+    const fileName = outputFileName(source);
+    if (!fileName) {
+      throw new RepositoryContractError(
+        'community_media_unavailable',
+        'Collection image is unavailable.',
+        404
+      );
     }
     return path.join(OUTPUTS_DIR, fileName);
   }

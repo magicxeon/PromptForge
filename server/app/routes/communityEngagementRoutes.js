@@ -23,6 +23,8 @@ export function registerCommunityEngagementRoutes(app, {
         sort: req.query.sort,
         period: req.query.period,
         officialTag: req.query.officialTag,
+        postType: req.query.postType,
+        search: req.query.search,
         limit: req.query.limit
       }));
     } catch (error) {

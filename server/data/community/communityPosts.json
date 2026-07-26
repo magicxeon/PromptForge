@@ -1,5 +1,178 @@
 [
   {
+    "title": "Branchmark comparison",
+    "description": "",
+    "postType": "comparison",
+    "creatorProfileId": "creator_user_demo",
+    "sourceComparisonSetId": "cmp_set_1784871247627_81eq1w",
+    "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+    "thumbnailUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+    "promptVisibility": "partial",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "comparison",
+      "publicPromptText": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white ca"
+    },
+    "workflowSnapshot": {
+      "comparison": {
+        "schemaVersion": 1,
+        "criteria": null,
+        "slots": [
+          {
+            "slotId": "comparison_slot_1784871221518_x0mf65",
+            "position": 1,
+            "providerDisplayName": {
+              "en": "Google Gemini AI",
+              "th": "Google Gemini AI"
+            },
+            "modelDisplayName": {
+              "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+              "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+            "generationDuration": "7.3"
+          },
+          {
+            "slotId": "comparison_slot_1784871221518_a4goir",
+            "position": 2,
+            "providerDisplayName": {
+              "en": "OpenAI",
+              "th": "OpenAI"
+            },
+            "modelDisplayName": {
+              "en": "GPT-Image 1 Mini (Cheapest)",
+              "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1784871247636_eg8pu8t32.png",
+            "generationDuration": "45.2"
+          },
+          {
+            "slotId": "comparison_slot_1784871233005_jfg5pl",
+            "position": 3,
+            "providerDisplayName": {
+              "en": "BytePlus ModelArk Seedream",
+              "th": "BytePlus ModelArk Seedream"
+            },
+            "modelDisplayName": {
+              "en": "Seedream 4.0 (Cheapest)",
+              "th": "Seedream 4.0 (ประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1784871247655_kbwylj0zh.jpg",
+            "generationDuration": "12.8"
+          }
+        ]
+      }
+    },
+    "comparisonSnapshot": {
+      "schemaVersion": 1,
+      "criteria": null,
+      "slots": [
+        {
+          "slotId": "comparison_slot_1784871221518_x0mf65",
+          "position": 1,
+          "providerDisplayName": {
+            "en": "Google Gemini AI",
+            "th": "Google Gemini AI"
+          },
+          "modelDisplayName": {
+            "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+            "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+          "generationDuration": "7.3"
+        },
+        {
+          "slotId": "comparison_slot_1784871221518_a4goir",
+          "position": 2,
+          "providerDisplayName": {
+            "en": "OpenAI",
+            "th": "OpenAI"
+          },
+          "modelDisplayName": {
+            "en": "GPT-Image 1 Mini (Cheapest)",
+            "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1784871247636_eg8pu8t32.png",
+          "generationDuration": "45.2"
+        },
+        {
+          "slotId": "comparison_slot_1784871233005_jfg5pl",
+          "position": 3,
+          "providerDisplayName": {
+            "en": "BytePlus ModelArk Seedream",
+            "th": "BytePlus ModelArk Seedream"
+          },
+          "modelDisplayName": {
+            "en": "Seedream 4.0 (Cheapest)",
+            "th": "Seedream 4.0 (ประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1784871247655_kbwylj0zh.jpg",
+          "generationDuration": "12.8"
+        }
+      ]
+    },
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.82,
+    "sourceGenerationResultId": null,
+    "sourceSceneTemplateSnapshotId": null,
+    "sceneTemplateSnapshot": null,
+    "providerModelSnapshot": null,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-26T09:09:35.358Z"
+    },
+    "id": "post_1785056931508_vjbdsexw",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_demo",
+    "ownerUsername": "user_demo",
+    "status": "published",
+    "createdAt": "2026-07-26T09:08:51.508Z",
+    "updatedAt": "2026-07-26T09:09:35.358Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "Flower Market",
     "description": "เดินตลาดกะแม่มึง",
     "promptVisibility": "partial",
@@ -128,15 +301,22 @@
     ],
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
-    "counts": {},
+    "counts": {
+      "views": 5,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
     "engagementSummary": {
-      "viewCount": 0,
+      "viewCount": 5,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-26T05:59:05.767Z"
+      "updatedAt": "2026-07-26T08:54:05.473Z"
     },
     "id": "post_1785045545767_1r75hqrw",
     "schemaVersion": 1,
@@ -144,7 +324,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T05:59:05.767Z",
-    "updatedAt": "2026-07-26T05:59:05.767Z",
+    "updatedAt": "2026-07-26T08:54:05.473Z",
     "deletedAt": null,
     "metadata": {}
   },

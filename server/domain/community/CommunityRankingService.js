@@ -33,6 +33,8 @@ export class CommunityRankingService {
     sort = 'latest',
     period = 'week',
     officialTag = null,
+    postType = 'all',
+    search = '',
     limit = 24
   } = {}) {
     const normalizedSort = normalizeRankingSort(sort);
@@ -43,10 +45,17 @@ export class CommunityRankingService {
       windowEnd.getTime() - Number(policy.periodHours[normalizedPeriod]) * 60 * 60 * 1000
     );
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 24));
-    const posts = (await this.postRepository.readAll()).filter(post =>
+    const eligiblePosts = (await this.postRepository.readAll()).filter(post =>
       post.visibility === 'public'
       && ['active', 'published', 'reported'].includes(post.status)
     );
+    const normalizedPostType = ['image', 'template', 'comparison', 'collection'].includes(postType)
+      ? postType
+      : 'all';
+    const normalizedSearch = String(search || '').trim().toLocaleLowerCase('en-US').slice(0, 100);
+    const posts = eligiblePosts
+      .filter(post => normalizedPostType === 'all' || publicPostType(post) === normalizedPostType)
+      .filter(post => !normalizedSearch || matchesSearch(post, normalizedSearch));
 
     const scored = await Promise.all(posts.map(async post => {
       const metrics = await this.calculateWindowMetrics(post, windowStart, windowEnd, policy);
@@ -95,6 +104,7 @@ export class CommunityRankingService {
         algorithmVersion: policy.algorithmVersion,
         calculatedAt: windowEnd.toISOString()
       },
+      facets: buildFacets(eligiblePosts),
       nextCursor: null,
       hasMore: filtered.length > safeLimit
     };
@@ -145,6 +155,42 @@ export class CommunityRankingService {
       ).length
     };
   }
+}
+
+function publicPostType(post) {
+  if (['image', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (post.sourceCollectionId || post.collectionSnapshot) return 'collection';
+  if (post.sourceComparisonSetId) return 'comparison';
+  if (post.sceneTemplateSnapshot) return 'template';
+  return 'image';
+}
+
+function matchesSearch(post, search) {
+  return [
+    post.title,
+    post.description,
+    post.ownerUsername,
+    post.creatorDisplayName,
+    ...(Array.isArray(post.customTags) ? post.customTags : []),
+    ...(Array.isArray(post.officialTags) ? post.officialTags : [])
+  ].some(value => String(value || '').toLocaleLowerCase('en-US').includes(search));
+}
+
+function buildFacets(posts) {
+  const postTypes = { all: posts.length, image: 0, template: 0, comparison: 0, collection: 0 };
+  const officialTags = new Map();
+  posts.forEach(post => {
+    postTypes[publicPostType(post)] += 1;
+    (Array.isArray(post.officialTags) ? post.officialTags : []).forEach(tag => {
+      officialTags.set(tag, (officialTags.get(tag) || 0) + 1);
+    });
+  });
+  return {
+    postTypes,
+    officialTags: [...officialTags.entries()]
+      .map(([id, count]) => ({ id, count }))
+      .sort((left, right) => right.count - left.count || left.id.localeCompare(right.id))
+  };
 }
 
 function calculateRawScore(metrics, weights) {

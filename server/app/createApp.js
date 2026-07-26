@@ -33,6 +33,15 @@ import { registerCommunityModerationRoutes } from './routes/communityModerationR
 import { communityEngagementService } from '../domain/community/CommunityEngagementService.js';
 import { communityRankingService } from '../domain/community/CommunityRankingService.js';
 import { registerCommunityEngagementRoutes } from './routes/communityEngagementRoutes.js';
+import { communityGalleryService } from '../domain/community/CommunityGalleryService.js';
+import { registerCommunityGalleryRoutes } from './routes/communityGalleryRoutes.js';
+import { communityLaunchReadinessService } from '../domain/community/CommunityLaunchReadinessService.js';
+import { registerCommunityReadinessRoutes } from './routes/communityReadinessRoutes.js';
+import { CommunityComparisonShareService } from '../domain/community/CommunityComparisonShareService.js';
+import { communityPostAccessService } from '../domain/community/CommunityPostAccessService.js';
+import { registerCommunityComparisonRoutes } from './routes/communityComparisonRoutes.js';
+import { communityCollectionShareService } from '../domain/community/CommunityCollectionShareService.js';
+import { registerCommunityCollectionRoutes } from './routes/communityCollectionRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -60,6 +69,9 @@ export function createApp() {
     providerRegistry,
     queueManager,
     creditManager
+  });
+  const communityComparisonShareService = new CommunityComparisonShareService({
+    comparisonOrchestrator
   });
   const getAttributesBundle = createAttributesBundleLoader();
 
@@ -127,6 +139,24 @@ export function createApp() {
     moderationService: communityModerationService,
     communityFeaturePolicyService
   });
+  registerCommunityGalleryRoutes(app, {
+    galleryService: communityGalleryService,
+    communityFeaturePolicyService
+  });
+  registerCommunityReadinessRoutes(app, {
+    readinessService: communityLaunchReadinessService,
+    communityFeaturePolicyService
+  });
+  registerCommunityComparisonRoutes(app, {
+    comparisonShareService: communityComparisonShareService,
+    postAccessService: communityPostAccessService,
+    communityFeaturePolicyService
+  });
+  registerCommunityCollectionRoutes(app, {
+    collectionShareService: communityCollectionShareService,
+    postAccessService: communityPostAccessService,
+    communityFeaturePolicyService
+  });
   registerSceneTemplateRoutes(app, {
     communityShareService,
     communityFeaturePolicyService
@@ -135,7 +165,7 @@ export function createApp() {
   // Browser routes are client-rendered. Keep this after every API route so a deep link
   // loads the app shell instead of falling through to Express 404 handling.
   app.get([
-    '/community', '/community/',
+    '/community', '/community/', '/community/:postId', '/community/:postId/',
     '/creators/:handle', '/creators/:handle/',
     '/studio', '/studio/',
     '/playground', '/playground/',

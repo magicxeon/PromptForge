@@ -6,7 +6,7 @@
     "exploreEnabled": true,
     "engagementEnabled": true,
     "creatorProfilesEnabled": true,
-    "galleryEnabled": false,
+    "galleryEnabled": true,
     "moderationEnabled": true,
     "privateBeta": false
   },

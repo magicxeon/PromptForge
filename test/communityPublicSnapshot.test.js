@@ -80,3 +80,32 @@ test('generated-image public view reads the approved top-level prompt and provid
     updatedAt: null
   });
 });
+
+test('collection public view exposes proxy items without history or output identifiers', () => {
+  const view = buildCommunityPostPublicView({
+    id: 'post_collection',
+    postType: 'collection',
+    sourceCollectionId: 'col_private',
+    imageUrl: '/outputs/cover.png',
+    promptVisibility: 'hidden',
+    collectionSnapshot: {
+      items: [{
+        itemId: 'item_001',
+        imageUrl: '/outputs/private-member.png',
+        thumbnailUrl: '/outputs/private-member-thumb.png',
+        providerDisplayName: 'Provider',
+        modelDisplayName: 'Model'
+      }]
+    }
+  });
+
+  assert.equal(view.postType, 'collection');
+  assert.equal(view.sourceCollectionId, undefined);
+  assert.equal(view.collectionSnapshot.itemCount, 1);
+  assert.equal(
+    view.collectionSnapshot.items[0].imageUrl,
+    '/api/community/posts/post_collection/collection-items/item_001/image'
+  );
+  assert.equal(JSON.stringify(view).includes('/outputs/'), false);
+  assert.equal(JSON.stringify(view).includes('col_private'), false);
+});

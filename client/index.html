@@ -105,6 +105,7 @@
               <span class="collection-count" id="collection-count">0 images</span>
               <button id="btn-new-collection" class="btn-collection-action" type="button">+ New</button>
               <button id="btn-edit-collection" class="btn-collection-action" type="button" disabled>Edit</button>
+              <button id="btn-share-community-collection" class="btn-collection-primary" type="button" hidden>Share</button>
             </div>
 
             <!-- Active Pending Job Queue list -->
@@ -397,6 +398,7 @@
     </main>
 
     <main id="community-home" class="community-home" hidden aria-label="Community home"></main>
+    <main id="community-post-detail" class="community-post-detail" hidden aria-label="Community post detail"></main>
     <main id="creator-profile-page" class="creator-profile-page" hidden aria-label="Creator profile"></main>
     <main id="playground-page" class="playground-page" hidden aria-label="Playground"></main>
     <main id="admin-page" class="admin-page" hidden aria-label="Admin and support"></main>
@@ -758,6 +760,7 @@
         <span id="comparison-workspace-status" class="comparison-run-status">Queued</span>
       </div>
       <div class="comparison-workspace-actions">
+        <button id="btn-share-community-comparison" class="comparison-tool-button" type="button">Share comparison</button>
         <button id="btn-comparison-history" class="comparison-tool-button" type="button">Previous Sets</button>
         <button id="btn-comparison-add-all" class="comparison-tool-button" type="button">Add All</button>
         <button id="btn-close-comparison-workspace" class="comparison-close-button" type="button"
@@ -800,7 +803,11 @@
   <script src="/core/apiClient.js"></script>
   <script src="/community/communityFeaturePolicy.js"></script>
   <script src="/community/communityEngagementApi.js"></script>
+  <script src="/community/communityGalleryApi.js"></script>
+  <script src="/community/communityTemplateActions.js"></script>
+  <script src="/community/communityComparisonShare.js"></script>
   <script src="/community/communityFeed.js"></script>
+  <script src="/community/communityPostDetail.js"></script>
   <script src="/credits/creditApi.js"></script>
   <script src="/credits/creditEstimateController.js"></script>
   <script src="/credits/creditBalanceBadge.js"></script>
@@ -835,6 +842,7 @@
   <script src="/playground/playgroundController.js"></script>
   <script src="/core/historyService.js"></script>
   <script src="/core/collectionService.js"></script>
+  <script src="/community/communityCollectionShare.js"></script>
   <script src="/core/lightboxService.js"></script>
   <script src="/core/crossModeHandoff.js"></script>
   <script src="/scene-builder/sceneBuilderState.js"></script>

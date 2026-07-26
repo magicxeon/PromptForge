@@ -92,11 +92,20 @@ export class CommunityCharacterRepository {
   async listPublic(query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const items = (await this.readAll())
-      .filter(item => item.visibility === VISIBILITY.PUBLIC && item.status === 'active');
+      .filter(item =>
+        item.visibility === VISIBILITY.PUBLIC
+        && item.status === 'active'
+        && (!normalizedQuery.filters.creatorProfileId
+          || item.creatorProfileId === normalizedQuery.filters.creatorProfileId)
+      );
     const page = paginateRepositoryRecords(
       items,
       normalizedQuery,
-      JSON.stringify({ visibility: VISIBILITY.PUBLIC, sort: normalizedQuery.sort }),
+      JSON.stringify({
+        visibility: VISIBILITY.PUBLIC,
+        creatorProfileId: normalizedQuery.filters.creatorProfileId || null,
+        sort: normalizedQuery.sort
+      }),
       this.cursorSecret
     );
     return createPage(page.items.map(createPublicCharacterSummary), page);
@@ -118,6 +127,8 @@ export class CommunityCharacterRepository {
         CHARACTER_TYPES,
         'full_character'
       ),
+      creatorProfileId: recordInput.creatorProfileId || null,
+      sourceCommunityPostId: recordInput.sourceCommunityPostId || null,
       sourceGenerationResultId: recordInput.sourceGenerationResultId
         || recordInput.sourceGenerationResultIds?.[0]
         || null,
@@ -169,7 +180,6 @@ function createPublicCharacterSummary(item) {
     displayName: item.displayName || '',
     description: item.description || '',
     characterType: item.characterType || 'full_character',
-    previewImageAssetId: item.previewImageAssetId || null,
     faceReferencePolicy: publicReferencePolicy(item.faceReferencePolicy),
     outfitReferencePolicy: publicReferencePolicy(item.outfitReferencePolicy),
     reusePolicy: item.reusePolicy || 'view_only',

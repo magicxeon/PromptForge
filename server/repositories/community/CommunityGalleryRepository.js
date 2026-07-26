@@ -81,11 +81,20 @@ export class CommunityGalleryRepository {
   async listPublic(query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const items = (await this.readAll())
-      .filter(item => item.visibility === VISIBILITY.PUBLIC && item.status === 'active');
+      .filter(item =>
+        item.visibility === VISIBILITY.PUBLIC
+        && item.status === 'active'
+        && (!normalizedQuery.filters.creatorProfileId
+          || item.creatorProfileId === normalizedQuery.filters.creatorProfileId)
+      );
     const page = paginateRepositoryRecords(
       items,
       normalizedQuery,
-      JSON.stringify({ visibility: VISIBILITY.PUBLIC, sort: normalizedQuery.sort }),
+      JSON.stringify({
+        visibility: VISIBILITY.PUBLIC,
+        creatorProfileId: normalizedQuery.filters.creatorProfileId || null,
+        sort: normalizedQuery.sort
+      }),
       this.cursorSecret
     );
 
@@ -140,8 +149,6 @@ function createPublicGallerySummary(item) {
     creatorProfileId: item.creatorProfileId || null,
     title: item.title || '',
     description: item.description || '',
-    imageAssetId: item.imageAssetId || null,
-    thumbnailAssetId: item.thumbnailAssetId || null,
     reusePolicy: item.reusePolicy || 'view_only',
     handoffAvailable: Boolean(
       hasHandoffSnapshot(item.sceneBuilderHandoffSnapshot)

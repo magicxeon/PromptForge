@@ -1,0 +1,80 @@
+[
+  {
+    "id": "engevt_8d515847-ad8e-4e18-b04e-d8834fec379b",
+    "schemaVersion": 1,
+    "postId": "post_1785045545767_1r75hqrw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785045545767_1r75hqrw:usr_alice:2026-07-26T08:52:22.323Z",
+    "occurredAt": "2026-07-26T08:52:22.323Z",
+    "requestId": "req_1785055942317_4tcmmbf",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_831c87d1-6197-41b0-bd5d-4df92b5e95ce",
+    "schemaVersion": 1,
+    "postId": "post_1785045545767_1r75hqrw",
+    "actorUserId": "usr_demo",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785045545767_1r75hqrw:usr_demo:2026-07-26T08:53:22.684Z",
+    "occurredAt": "2026-07-26T08:53:22.684Z",
+    "requestId": "req_1785056002682_olmqivt",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_37c23989-689b-4c76-a923-18fa11113168",
+    "schemaVersion": 1,
+    "postId": "post_1785045545767_1r75hqrw",
+    "actorUserId": "usr_bob",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785045545767_1r75hqrw:usr_bob:2026-07-26T08:53:24.448Z",
+    "occurredAt": "2026-07-26T08:53:24.448Z",
+    "requestId": "req_1785056004446_gcxgzzw",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_baeb6688-1c65-4d40-b406-2b13bad8a1d7",
+    "schemaVersion": 1,
+    "postId": "post_1785045545767_1r75hqrw",
+    "actorUserId": "usr_admin",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785045545767_1r75hqrw:usr_admin:2026-07-26T08:53:37.673Z",
+    "occurredAt": "2026-07-26T08:53:37.673Z",
+    "requestId": "req_1785056017671_jhr90vt",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_b304df20-5755-4cc7-8e15-5b1a049a6940",
+    "schemaVersion": 1,
+    "postId": "post_1785045545767_1r75hqrw",
+    "actorUserId": "usr_support",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785045545767_1r75hqrw:usr_support:2026-07-26T08:53:39.532Z",
+    "occurredAt": "2026-07-26T08:53:39.532Z",
+    "requestId": "req_1785056019530_1qjpen7",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_7bb4bd4b-db3f-43bf-80ba-422da3321293",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_demo",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785056931508_vjbdsexw:usr_demo:2026-07-26T09:08:51.559Z",
+    "occurredAt": "2026-07-26T09:08:51.559Z",
+    "requestId": "req_1785056931554_yk5xqbe",
+    "metadata": {}
+  }
+]

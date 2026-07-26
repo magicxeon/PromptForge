@@ -22,11 +22,18 @@
       article.className = 'creator-portfolio-card';
 
       if (post.thumbnailUrl || post.imageUrl) {
+        const media = document.createElement('button');
+        media.type = 'button';
+        media.className = 'creator-portfolio-media';
         const image = document.createElement('img');
         image.src = post.thumbnailUrl || post.imageUrl;
         image.alt = post.title || translate('community.creator.postPreview', 'Community post');
         image.loading = 'lazy';
-        article.appendChild(image);
+        media.appendChild(image);
+        media.addEventListener('click', () =>
+          window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`)
+        );
+        article.appendChild(media);
       }
 
       const copy = document.createElement('div');
@@ -34,6 +41,16 @@
       type.textContent = String(post.postType || 'image').replaceAll('_', ' ');
       const title = document.createElement('strong');
       title.textContent = post.title || translate('community.creator.untitled', 'Untitled');
+      title.setAttribute('role', 'link');
+      title.tabIndex = 0;
+      title.addEventListener('click', () =>
+        window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`)
+      );
+      title.addEventListener('keydown', event => {
+        if (!['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+        window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`);
+      });
       copy.append(type, title);
       const disclosure = document.createElement('div');
       disclosure.className = 'creator-portfolio-disclosure';

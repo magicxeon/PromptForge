@@ -1,6 +1,6 @@
 # Community-09 User Gallery, Character Showcase and Template Handoff
 
-**Status:** Repository contract complete - validated 2026-07-26; public workflow remains closed
+**Status:** Implemented for internal validation - Node and browser acceptance pending
 **Feature type:** User-curated gallery, reusable character assets and Scene Builder handoff  
 **Depends on:** Community-04 Share Generated Image and Prompt Snapshot, Community-05 Explore/Post Detail/Remix, Community-06 Creator Profile, Scene Builder template contract  
 **Created:** 2026-07-19
@@ -13,13 +13,13 @@ This requirement follows
 Current gates:
 
 ```text
-Development  CLOSED
-Exposure     HIDDEN
+Development  OPEN
+Exposure     INTERNAL
 ```
 
-Existing gallery and character repository contracts may be validated as part of
-the repository foundation, but do not build the public workflow until
-Community-04, Community-05 and Community-06 have stable post/profile contracts.
+Gallery and character repository contracts are validated. Community-04 and
+Community-06 contracts are stable, and Community-05 now owns the public detail
+surface. The internal workflow may therefore be implemented.
 
 When opened, Community-09 owns curated gallery membership, character asset
 metadata and Scene Builder handoff only. It must reference canonical Community
@@ -379,12 +379,38 @@ scripts/test-community-09-11.bat
 scripts/test-community-00-009-to-11.bat
 ```
 
-Remaining closed work:
+The previously closed route, UI and handoff work is now implemented through the
+canonical Community capability:
 
-- Gallery and Character routes.
-- Gallery and Character browser UI.
-- `Use Template` and `Use Character` handoff service.
-- Public exposure through Community navigation.
+```text
+server/domain/community/CommunityGalleryService.js
+server/app/routes/communityGalleryRoutes.js
+client/community/communityGalleryApi.js
+client/community/communityTemplateActions.js
+client/community/creatorProfilePage.js
+```
 
-These items open only after Community-05 and its Community-12 dependencies are
-complete.
+Gallery and Character records reference the source Community post and do not
+copy image bytes. Their media endpoints proxy the source post after visibility
+checks. Public handoff sanitizes reference slots again for the active viewer;
+private face/outfit policies become required replacements.
+
+`community.galleryEnabled` is enabled for local internal validation. Production
+exposure remains blocked by the conditions in Community-08.
+
+## 12. Commercial-Phase Exit Scope
+
+Before entering the database-backed Commercial phase, the JSON MVP must prove:
+
+1. An owner can curate an existing owned Community post into Gallery without
+   copying image bytes.
+2. Creator Profile can display Gallery and Character sections only when
+   `community.galleryEnabled` is enabled.
+3. A Gallery item can use a template only when its reuse policy and sanitized
+   snapshot allow it.
+4. Character handoff converts private face/outfit references to required
+   replacements.
+5. APIs use actor context and repository interfaces so Commercial replaces
+   adapters rather than client/domain contracts.
+6. Public responses contain no Base64, provider secrets, raw private source
+   paths or owner-only references.

@@ -101,9 +101,21 @@ export class CommunityEngagementService {
   }
 
   async listComments(postId, query, actorContext) {
-    assertActorContext(actorContext);
+    const actor = assertActorContext(actorContext);
     const post = await this.assertEngageablePost(postId);
-    return this.commentRepository.listActiveByPost(post.id, query);
+    const [page, records] = await Promise.all([
+      this.commentRepository.listActiveByPost(post.id, query),
+      this.commentRepository.listActiveRecordsByPost(post.id)
+    ]);
+    const owners = new Map(records.map(comment => [comment.id, comment.actorUserId]));
+    return {
+      ...page,
+      items: page.items.map(comment => ({
+        ...comment,
+        viewerCanDelete: ['admin', 'support'].includes(actor.role)
+          || owners.get(comment.id) === actor.userId
+      }))
+    };
   }
 
   async createComment(postId, body, actorContext, { requestId = null } = {}) {

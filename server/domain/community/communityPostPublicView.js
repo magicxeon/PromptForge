@@ -21,7 +21,8 @@ export function buildCommunityPostPublicView(post = {}) {
     creator: {
       username: post.ownerUsername || null,
       displayName: post.creatorDisplayName || post.ownerUsername || 'Creator',
-      profileId: post.creatorProfileId || null
+      profileId: post.creatorProfileId || null,
+      handle: creatorHandle(post.creatorHandle || post.ownerUsername)
     },
     title: post.title || '',
     description: post.description || '',
@@ -45,6 +46,8 @@ export function buildCommunityPostPublicView(post = {}) {
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
+    comparisonSnapshot: publicComparisonSnapshot(post),
+    collectionSnapshot: publicCollectionSnapshot(post),
     contentDisclosure: 'ai_generated',
     engagementSummary: publicEngagementSummary(post.engagementSummary, post.counts),
     counts: publicCounts(post.counts),
@@ -52,8 +55,63 @@ export function buildCommunityPostPublicView(post = {}) {
   };
 }
 
+function publicComparisonSnapshot(post) {
+  if (publicPostType(post) !== 'comparison') return null;
+  const source = post.comparisonSnapshot || post.workflowSnapshot?.comparison;
+  const slots = Array.isArray(source?.slots) ? source.slots : [];
+  return {
+    criteria: typeof source?.criteria === 'string' ? source.criteria : null,
+    slots: slots.map(slot => ({
+      slotId: String(slot.slotId || slot.id || ''),
+      position: Number(slot.position) || null,
+      providerDisplayName: displayLabel(slot.providerDisplayName || slot.provider),
+      modelDisplayName: displayLabel(slot.modelDisplayName || slot.model),
+      imageUrl: `/api/community/posts/${encodeURIComponent(post.id)}/comparison-slots/${encodeURIComponent(slot.slotId || slot.id)}/image`,
+      generationDuration: slot.generationDuration || null
+    })).filter(slot => slot.slotId)
+  };
+}
+
+function publicCollectionSnapshot(post) {
+  if (publicPostType(post) !== 'collection') return null;
+  const source = post.collectionSnapshot || post.workflowSnapshot?.collection;
+  const items = Array.isArray(source?.items) ? source.items : [];
+  return {
+    itemCount: items.length,
+    items: items.map(item => ({
+      itemId: String(item.itemId || ''),
+      imageUrl: collectionItemMediaUrl(post.id, item.itemId, 'image'),
+      thumbnailUrl: collectionItemMediaUrl(post.id, item.itemId, 'thumbnail'),
+      providerDisplayName: displayLabel(item.providerDisplayName),
+      modelDisplayName: displayLabel(item.modelDisplayName),
+      createdAt: typeof item.createdAt === 'string' ? item.createdAt : null
+    })).filter(item => item.itemId)
+  };
+}
+
+function collectionItemMediaUrl(postId, itemId, kind) {
+  return postId && itemId
+    ? `/api/community/posts/${encodeURIComponent(postId)}/collection-items/${encodeURIComponent(itemId)}/${kind}`
+    : null;
+}
+
+function displayLabel(value) {
+  if (typeof value === 'string') return value;
+  return value?.en || value?.th || value?.ja || null;
+}
+
+function creatorHandle(value) {
+  const handle = String(value || '')
+    .trim()
+    .toLocaleLowerCase('en-US')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return handle || null;
+}
+
 function publicPostType(post) {
-  if (['image', 'template', 'comparison'].includes(post.postType)) return post.postType;
+  if (['image', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (post.sourceCollectionId || post.collectionSnapshot) return 'collection';
   if (post.sourceComparisonSetId) return 'comparison';
   if (post.sourceType === 'scene_template' || post.sceneTemplateSnapshot) return 'template';
   return 'image';

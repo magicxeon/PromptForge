@@ -73,7 +73,7 @@
 
   function isRouteEnabled(pathname, { defaultValue = true } = {}) {
     const path = String(pathname || '').replace(/\/$/, '') || '/community';
-    if (path === '/community') {
+    if (path === '/community' || path.startsWith('/community/')) {
       return isEnabled('community.enabled', { defaultValue });
     }
     if (path.startsWith('/creators/')) {

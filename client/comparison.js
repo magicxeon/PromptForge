@@ -819,6 +819,7 @@
     // This flag only represents an in-flight comparison submission.
     isActive: () => state.generating,
     getActiveRun: () => state.activeSet?.runs?.[0] || null,
+    getActiveSet: () => state.activeSet || null,
     estimateForPayload,
     generate,
     startFromExternal: async slots => {
