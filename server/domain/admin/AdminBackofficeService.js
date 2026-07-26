@@ -45,12 +45,24 @@ export class AdminBackofficeService {
 
   async listGenerationJobs(query, actorContext) {
     this.policy.assertCanAccessBackoffice(actorContext);
-    return this.historyRepo.listPage({ cursor: query.cursor || null, limit: query.limit || 24, collectionId: 'all' });
+    const page = await this.historyRepo.listPage({
+      cursor: query.cursor || null,
+      limit: query.limit || 24,
+      collectionId: 'all'
+    });
+    return {
+      ...page,
+      items: page.items.map(toGenerationSummary)
+    };
   }
 
   async listCommunityPosts(query, actorContext) {
     this.policy.assertCanAccessBackoffice(actorContext);
-    return this.postRepository.listForBackoffice(query);
+    const page = await this.postRepository.listForBackoffice(query);
+    return {
+      ...page,
+      items: page.items.map(toCommunityPostSummary)
+    };
   }
 
   async getCreditLedger(userId, query, actorContext) {
@@ -80,3 +92,32 @@ export class AdminBackofficeService {
 }
 
 export const adminBackofficeService = new AdminBackofficeService();
+
+function toGenerationSummary(record = {}) {
+  return {
+    id: record.id || record.jobId || null,
+    ownerUserId: record.ownerUserId || null,
+    ownerUsername: record.ownerUsername || record.username || null,
+    status: record.status || 'completed',
+    providerId: record.providerId || record.provider || null,
+    modelId: record.modelId || record.submodel || null,
+    mode: record.mode || record.generationMode || null,
+    errorCode: record.errorCode || record.error?.code || null,
+    createdAt: record.createdAt || record.timestamp || null,
+    updatedAt: record.updatedAt || null
+  };
+}
+
+function toCommunityPostSummary(record = {}) {
+  return {
+    id: record.id || null,
+    title: record.title || null,
+    ownerUserId: record.ownerUserId || null,
+    ownerUsername: record.ownerUsername || null,
+    visibility: record.visibility || 'private',
+    status: record.status || 'draft',
+    moderationReason: record.moderationReason || null,
+    createdAt: record.createdAt || null,
+    updatedAt: record.updatedAt || null
+  };
+}
