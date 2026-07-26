@@ -4,6 +4,7 @@ import {
 } from '../../repositories/repositoryContracts.js';
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
 import { communityReportRepo } from '../../repositories/community/CommunityReportRepository.js';
+import { communityCommentRepo } from '../../repositories/community/CommunityCommentRepository.js';
 import { adminPolicyService } from '../admin/AdminPolicyService.js';
 import { auditService } from '../audit/AuditService.js';
 import {
@@ -15,6 +16,7 @@ export class CommunityModerationService {
   constructor({
     postRepository = communityPostRepo,
     reportRepository = communityReportRepo,
+    commentRepository = communityCommentRepo,
     policy = adminPolicyService,
     audit = auditService,
     now = () => Date.now(),
@@ -23,6 +25,7 @@ export class CommunityModerationService {
   } = {}) {
     this.postRepository = postRepository;
     this.reportRepository = reportRepository;
+    this.commentRepository = commentRepository;
     this.policy = policy;
     this.audit = audit;
     this.now = now;
@@ -66,6 +69,45 @@ export class CommunityModerationService {
   async listReports(query, actorContext) {
     this.policy.assertCanAccessBackoffice(actorContext);
     return this.reportRepository.listForBackoffice(query);
+  }
+
+  async reportComment({ postId, commentId, reason, details }, actorContext) {
+    const actor = assertAuthenticatedActor(actorContext);
+    const normalizedReason = normalizeReportReason(reason);
+    const post = await this.postRepository.findById(postId);
+    assertCanViewCommunityPost(post, actor, { directLink: true });
+    if (post.visibility !== 'public') {
+      throw new RepositoryContractError(
+        'community_report_target_unavailable',
+        'This Community comment cannot be reported.',
+        404
+      );
+    }
+    const comment = await this.commentRepository.findById(commentId);
+    if (!comment || comment.postId !== post.id || comment.status !== 'active') {
+      throw new RepositoryContractError(
+        'community_comment_not_found',
+        'Community comment not found.',
+        404
+      );
+    }
+    if (comment.actorUserId === actor.userId) {
+      throw new RepositoryContractError(
+        'community_self_report_forbidden',
+        'You cannot report your own Community comment.',
+        409
+      );
+    }
+    const result = await this.reportRepository.createWithRateLimit({
+      targetType: 'community_comment',
+      targetId: comment.id,
+      reason: normalizedReason,
+      details
+    }, actor, {
+      sinceTimestamp: this.now() - this.reportWindowMs,
+      maxReports: this.reportLimit
+    });
+    return { report: publicReporterView(result.report), created: result.created };
   }
 
   async moderate({ postId, action, reason }, actorContext, request = null) {

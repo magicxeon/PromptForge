@@ -1,6 +1,6 @@
 # Community-12 Engagement Events, Comments and Ranking Windows
 
-**Status:** Proposed - Contract Ready For Implementation
+**Status:** Implemented - validation pending; exposure remains hidden
 **Feature type:** Shared Community engagement and deterministic ranking
 **Depends on:** Community-03, Community-04, Community-07, Actor Context and Audit
 **Created:** 2026-07-26
@@ -472,3 +472,137 @@ Manual:
 - Client and route modules contain no duplicate scoring weights.
 - Repository interfaces can migrate from JSON to PostgreSQL without changing
   public APIs or domain behavior.
+
+## 15. Implemented Architecture
+
+### 15.1 Source-Controlled Policy
+
+The scoring algorithm and all limits are owned by:
+
+```text
+server/config/community-engagement-policy.json
+server/domain/community/communityEngagementPolicy.js
+```
+
+Routes and clients contain no copied weights. The policy validates:
+
+- week/month/year rolling durations;
+- period half-lives;
+- scoring weights;
+- comment and view-dedupe limits;
+- taxonomy eligibility multipliers;
+- `community_engagement_v1` algorithm identity.
+
+### 15.2 Repository Ownership
+
+Canonical JSON adapters:
+
+```text
+CommunityEngagementEventRepository
+  immutable, deduplicated event trail
+
+CommunityReactionRepository
+  one current like/save state per actor and post
+
+CommunityCommentRepository
+  flat plain-text comments with soft removal
+
+CommunityComparisonVoteRepository
+  one current comparison slot vote per actor and post
+
+CommunityEngagementAggregateRepository
+  rebuildable daily aggregate read model
+```
+
+Logical runtime paths are registered in `server/config/paths.js`. Files are
+lazy and must not be created merely as placeholders.
+
+### 15.3 Domain Ownership
+
+```text
+CommunityEngagementService
+  authorization
+  idempotent mutation
+  view dedupe
+  comment validation
+  vote constraints
+  summary reconciliation
+  daily aggregate rebuild
+
+CommunityRankingService
+  exact rolling window metrics
+  owner-engagement exclusion
+  comment contribution cap
+  taxonomy/moderation multipliers
+  deterministic top/trending ordering
+```
+
+Community-07 remains the owner of comment reports. Remix success is accepted
+only after `CommunityShareService` verifies that the generated job is completed
+and owned by the remixing actor.
+
+### 15.4 API And Client Boundary
+
+Server routes:
+
+```text
+server/app/routes/communityEngagementRoutes.js
+```
+
+Client API-only consumer:
+
+```text
+client/community/communityEngagementApi.js
+```
+
+The client module performs no scoring and renders no Feed. Community-05 will
+own Feed and Post Detail presentation and consume this API.
+
+### 15.5 Exposure Gate
+
+`community.engagementEnabled` remains `false`. This is intentional:
+
+- Community Feed is not implemented yet.
+- Engagement actions must not appear without Community-05 presentation.
+- Server tests inject an enabled policy instead of changing local exposure.
+
+Community-05 may enable the flag only after Community-12 validation passes.
+
+### 15.6 Rebuild And Validation
+
+Read models can be rebuilt with:
+
+```bat
+node scripts\rebuild-community-engagement.js
+```
+
+Do not run the rebuild while another process is mutating Community data.
+
+Automated validation:
+
+```bat
+scripts\test-community-12.bat
+```
+
+Coverage includes:
+
+- policy validation;
+- reaction and view idempotency;
+- 24-hour view dedupe;
+- comment validation/removal and safe public shape;
+- one active comparison vote and owner-vote rejection;
+- owner engagement exclusion from ranking;
+- comment contribution caps;
+- exact week/month/year windows;
+- taxonomy and moderation eligibility;
+- stable feature-gate errors;
+- verified successful-remix attribution.
+
+### 15.7 Deferred Work
+
+- Community Feed and Post Detail UI in Community-05.
+- Real-time counter streaming.
+- Nested comments and comment reactions.
+- Personalized or ML ranking.
+- Creator reputation and paid promotion.
+- Automatic public exposure.

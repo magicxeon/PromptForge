@@ -30,6 +30,9 @@ import { creatorProfileService } from '../domain/community/CreatorProfileService
 import { registerCommunityCreatorRoutes } from './routes/communityCreatorRoutes.js';
 import { communityModerationService } from '../domain/community/CommunityModerationService.js';
 import { registerCommunityModerationRoutes } from './routes/communityModerationRoutes.js';
+import { communityEngagementService } from '../domain/community/CommunityEngagementService.js';
+import { communityRankingService } from '../domain/community/CommunityRankingService.js';
+import { registerCommunityEngagementRoutes } from './routes/communityEngagementRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -115,6 +118,12 @@ export function createApp() {
     communityFeaturePolicyService
   });
   registerCommunityModerationRoutes(app, {
+    moderationService: communityModerationService,
+    communityFeaturePolicyService
+  });
+  registerCommunityEngagementRoutes(app, {
+    engagementService: communityEngagementService,
+    rankingService: communityRankingService,
     moderationService: communityModerationService,
     communityFeaturePolicyService
   });

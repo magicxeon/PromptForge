@@ -3,8 +3,8 @@
   "community": {
     "enabled": true,
     "shareEnabled": true,
-    "exploreEnabled": false,
-    "engagementEnabled": false,
+    "exploreEnabled": true,
+    "engagementEnabled": true,
     "creatorProfilesEnabled": true,
     "galleryEnabled": false,
     "moderationEnabled": true,

@@ -322,6 +322,41 @@ export class CommunityPostRepository {
       return normalizeCommunityPostRecord(next, this.userRepository);
     });
   }
+
+  async updateEngagementSummary(id, engagementSummary = {}) {
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) {
+        throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+      }
+      const updatedAt = engagementSummary.updatedAt || new Date().toISOString();
+      const next = {
+        ...posts[index],
+        engagementSummary: {
+          viewCount: nonNegativeCount(engagementSummary.viewCount),
+          likeCount: nonNegativeCount(engagementSummary.likeCount),
+          saveCount: nonNegativeCount(engagementSummary.saveCount),
+          commentCount: nonNegativeCount(engagementSummary.commentCount),
+          remixSuccessCount: nonNegativeCount(engagementSummary.remixSuccessCount),
+          comparisonVoteCount: nonNegativeCount(engagementSummary.comparisonVoteCount),
+          updatedAt
+        },
+        counts: {
+          ...(posts[index].counts || {}),
+          views: nonNegativeCount(engagementSummary.viewCount),
+          likes: nonNegativeCount(engagementSummary.likeCount),
+          saves: nonNegativeCount(engagementSummary.saveCount),
+          comments: nonNegativeCount(engagementSummary.commentCount),
+          remixes: nonNegativeCount(engagementSummary.remixSuccessCount),
+          votes: nonNegativeCount(engagementSummary.comparisonVoteCount)
+        },
+        updatedAt
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
 }
 
 function toPage(posts, limit, scope, secret, sort) {
@@ -393,6 +428,10 @@ function sameSearchTerm(left, right) {
 
 function normalizeSearchTerm(value) {
   return typeof value === 'string' ? value.trim().toLocaleLowerCase('en-US') : '';
+}
+
+function nonNegativeCount(value) {
+  return Number.isFinite(Number(value)) ? Math.max(0, Math.trunc(Number(value))) : 0;
 }
 
 function isVisiblePublicPost(post) {

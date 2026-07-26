@@ -5,6 +5,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { CommunityPostRepository } from '../server/repositories/community/CommunityPostRepository.js';
 import { CommunityReportRepository } from '../server/repositories/community/CommunityReportRepository.js';
+import { CommunityCommentRepository } from '../server/repositories/community/CommunityCommentRepository.js';
 import { AuditLogRepository } from '../server/repositories/audit/AuditLogRepository.js';
 import { CommunityModerationService } from '../server/domain/community/CommunityModerationService.js';
 import { AdminPolicyService } from '../server/domain/admin/AdminPolicyService.js';
@@ -42,6 +43,10 @@ async function createFixture({ reportLimit = 5 } = {}) {
     reportsFile: path.join(directory, 'reports.json'),
     cursorSecret: 'moderation-report-test'
   });
+  const comments = new CommunityCommentRepository({
+    commentsFile: path.join(directory, 'comments.json'),
+    cursorSecret: 'moderation-comment-test'
+  });
   const auditRepository = new AuditLogRepository({
     auditFile: path.join(directory, 'audit.json'),
     userRepository: users,
@@ -50,11 +55,12 @@ async function createFixture({ reportLimit = 5 } = {}) {
   const service = new CommunityModerationService({
     postRepository: posts,
     reportRepository: reports,
+    commentRepository: comments,
     policy: new AdminPolicyService(),
     audit: new AuditService({ auditRepository, ipHashSalt: 'test' }),
     reportLimit
   });
-  return { directory, posts, reports, auditRepository, service };
+  return { directory, posts, reports, comments, auditRepository, service };
 }
 
 test('reporting is idempotent and reported posts remain in Latest but not Trending', async t => {
@@ -111,6 +117,20 @@ test('reporting is idempotent and reported posts remain in Latest but not Trendi
     }, alice),
     error => error.code === 'community_self_report_forbidden'
   );
+
+  const comment = await fixture.comments.create({
+    postId: post.id,
+    body: 'A reportable comment.'
+  }, bob);
+  const commentReport = await fixture.service.reportComment({
+    postId: post.id,
+    commentId: comment.id,
+    reason: 'inappropriate_content',
+    details: 'Comment-level report.'
+  }, alice);
+  assert.equal(commentReport.created, true);
+  assert.equal(commentReport.report.targetType, 'community_comment');
+  assert.equal(commentReport.report.targetId, comment.id);
 });
 
 test('report rate limit and audited moderation protect public discovery', async t => {

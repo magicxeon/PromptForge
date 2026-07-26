@@ -8,6 +8,7 @@ import { CommunityPostAccessService } from './CommunityPostAccessService.js';
 import { communityClassificationService } from './CommunityClassificationService.js';
 import { creatorProfileService } from './CreatorProfileService.js';
 import { communityModerationService } from './CommunityModerationService.js';
+import { communityEngagementService } from './CommunityEngagementService.js';
 import {
   applyPromptVisibilityToSnapshots,
   buildGeneratedShareSnapshots,
@@ -28,6 +29,7 @@ export class CommunityShareService {
     classificationService = communityClassificationService,
     profileService = null,
     moderationService = communityModerationService,
+    engagementService = communityEngagementService,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
@@ -36,6 +38,7 @@ export class CommunityShareService {
     this.classificationService = classificationService;
     this.profileService = profileService;
     this.moderationService = moderationService;
+    this.engagementService = engagementService;
     this.postAccessService = postAccessService || new CommunityPostAccessService({
       postRepository,
       classificationService
@@ -233,13 +236,29 @@ export class CommunityShareService {
       throw new RepositoryContractError('source_post_required', 'A source post ID is required.');
     }
     const post = await this.postAccessService.getPostForTemplateUse(eventInput.sourcePostId, actor);
-
-    return this.remixRepository.appendEvent({
+    const generatedJobId = String(eventInput.generatedJobId || '').trim();
+    const generation = generatedJobId
+      ? await this.generationRepository.findByIdForOwner(generatedJobId, actor.userId)
+      : null;
+    if (!generation || generation.status !== 'completed') {
+      throw new RepositoryContractError(
+        'community_remix_generation_unverified',
+        'A completed generation owned by the active user is required.',
+        409
+      );
+    }
+    const remixEvent = await this.remixRepository.appendEvent({
       sourcePostId: post.id,
       templateId: eventInput.templateId || post.id,
-      generatedJobId: eventInput.generatedJobId || null,
+      generatedJobId,
       replacementSummary: eventInput.replacementSummary || {}
     }, actor);
+    await this.engagementService.recordSuccessfulRemix({
+      postId: post.id,
+      generatedJobId,
+      templateId: eventInput.templateId || post.id
+    }, actor);
+    return remixEvent;
   }
 
   getDraftForOwner(draftId, ownerUserId) {

@@ -1,6 +1,6 @@
 # Community-11 Credit Deduction and Provider Routing Foundation
 
-**Status:** Credit integration verification complete - validation pending; provider auto-routing deferred
+**Status:** Credit integration complete - validated 2026-07-26; provider auto-routing deferred
 **Feature type:** Billing foundation, credit ledger and future provider routing contract  
 **Depends on:** Provider registry, generation queue, `requirements/000-business-overview/03-ai-provider-costs-and-credits.md`  
 **Created:** 2026-07-19

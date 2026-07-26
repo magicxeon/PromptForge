@@ -190,6 +190,12 @@ Generated-image and Scene Template share preview is owned by
 `community/communitySharePreview.js`; Scene Builder must call its compatibility
 API rather than create a second share modal controller.
 
+Community engagement HTTP calls are owned by
+`community/communityEngagementApi.js`. It exposes post ranking, engagement
+summary, reactions, comments, reports, and comparison-vote requests without
+containing scoring or Feed presentation logic. Community-05 will consume this
+boundary when Feed and Post Detail are enabled.
+
 Call the controller or another documented feature API instead of reaching into
 private module state.
 
@@ -260,6 +266,17 @@ To add a locale:
 4. add the locale to the language selector;
 5. validate catalog parity and fallback behavior;
 6. inspect every route at desktop and mobile sizes.
+
+Community Explore presentation is owned by:
+
+```text
+community/communityFeed.js
+```
+
+It consumes the server-ranked public read model through
+`community/communityEngagementApi.js`. Feed cards must use the returned
+Community media URLs rather than raw `/outputs/...` paths, and browser code must
+not duplicate engagement counters or ranking formulas.
 
 Do not add feature text only to `index.html` or only to one catalog. Dynamic
 labels and error messages require catalog entries too.

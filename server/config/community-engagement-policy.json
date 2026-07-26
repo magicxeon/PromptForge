@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "algorithmVersion": "community_engagement_v1",
+  "periodHours": {
+    "week": 168,
+    "month": 720,
+    "year": 8760
+  },
+  "halfLifeHours": {
+    "week": 48,
+    "month": 168,
+    "year": 2160
+  },
+  "weights": {
+    "uniqueViews": 1,
+    "activeLikes": 3,
+    "activeSaves": 4,
+    "eligibleActiveComments": 5,
+    "successfulRemixes": 8,
+    "activeComparisonVotes": 2
+  },
+  "trendingExponent": 1.2,
+  "limits": {
+    "commentLength": 1000,
+    "eligibleCommentsPerActorPostDay": 3,
+    "viewDedupeHours": 24
+  },
+  "taxonomyMultipliers": {
+    "highConfidenceOrAdminConfirmed": 1,
+    "creatorConfirmedMediumConfidence": 0.85,
+    "ineligible": 0
+  }
+}

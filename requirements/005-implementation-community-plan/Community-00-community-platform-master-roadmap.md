@@ -1,6 +1,6 @@
 # Community Platform Master Roadmap
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Active implementation - Community Explore available internally  
 **Target:** Prompt discovery, remix and creator community for AI image generation  
 **Architecture:** Reuse Visual Character Builder and shared core platform; implement community as a solution module  
 **Created:** 2026-07-15

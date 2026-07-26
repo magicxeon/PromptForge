@@ -57,6 +57,11 @@ first mutation. A missing lazy file is equivalent to an empty store.
 | `remixEvents` | `community/remixEvents.json` | array | `repositories/community/RemixEventRepository.js` | Present | `community_events`, `remix_events` |
 | `communityCharacters` | `community/communityCharacters.json` | array | `repositories/community/CommunityCharacterRepository.js` | Lazy | `community_characters`, `character_revisions` |
 | `communityGallery` | `community/communityGallery.json` | array | `repositories/community/CommunityGalleryRepository.js` | Lazy | `community_gallery_items`, `community_posts` |
+| `communityEngagementEvents` | `community/engagementEvents.json` | array | `repositories/community/CommunityEngagementEventRepository.js` | Lazy | `community_engagement_events` |
+| `communityReactions` | `community/reactions.json` | array | `repositories/community/CommunityReactionRepository.js` | Lazy | `community_reactions` |
+| `communityComments` | `community/comments.json` | array | `repositories/community/CommunityCommentRepository.js` | Lazy | `community_comments` |
+| `communityComparisonVotes` | `community/comparisonVotes.json` | array | `repositories/community/CommunityComparisonVoteRepository.js` | Lazy | `community_comparison_votes` |
+| `communityEngagementDailyAggregates` | `community/engagementDailyAggregates.json` | array | `repositories/community/CommunityEngagementAggregateRepository.js` | Lazy | `community_engagement_daily_aggregates` |
 | `comparisons` | `comparisons/comparisons.json` | object with `sets` | `repositories/comparisons/ComparisonRepository.js` and adapter | Present | `comparison_sets`, `comparison_runs`, `comparison_results` |
 | `assets` | `assets/assets.json` | array | `repositories/assets/AssetRepository.js` | Lazy | `assets`, `asset_variants` |
 | `auditLogs` | `audit/auditLogs.json` | array | `repositories/audit/AuditLogRepository.js` | Present | `audit_events` |
@@ -127,6 +132,11 @@ counts are computed by `CreatorProfileService` from active follow relations and
 canonical public Community posts; do not manually persist counters in either
 JSON file.
 
+Community engagement uses immutable events plus current reaction, comment and
+comparison-vote state. Daily aggregates and post counters are rebuildable read
+models. Never edit counters directly or store liker, saver, voter, or reporter
+identity in a public post response.
+
 Community reports are private moderation inputs. Reporter identity and details
 must never enter public post views. Duplicate and rate-limit checks are enforced
 inside the report repository's serialized mutation so concurrent requests
@@ -196,6 +206,11 @@ community/creatorProfiles.json
 community/creatorFollows.json
 community/communityReports.json
 community/remixEvents.json
+community/engagementEvents.json
+community/reactions.json
+community/comments.json
+community/comparisonVotes.json
+community/engagementDailyAggregates.json
 comparisons/comparisons.json
 audit/auditLogs.json
 ```

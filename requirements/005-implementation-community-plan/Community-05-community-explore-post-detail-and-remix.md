@@ -1,6 +1,6 @@
 # Community-05 Community Explore, Post Detail and Remix
 
-**Status:** Contract only - implementation opens after Community-06, Community-07 and Community-12 server exit gates
+**Status:** In progress - Explore feed enabled internally after Community-06, Community-07 and Community-12 server exit gates
 **Feature type:** Public discovery and generation reuse  
 **Depends on:** Community-03, Community-04, Community-12 engagement contract, Studio route integration
 **Created:** 2026-07-15
@@ -13,8 +13,8 @@ This requirement follows
 Current gates:
 
 ```text
-Development  CONTRACT
-Exposure     HIDDEN
+Development  OPEN
+Exposure     INTERNAL
 ```
 
 Agents may refine feed/detail read models and client consumption contracts now.
@@ -23,9 +23,35 @@ inside Community-05. Community-12 owns engagement and ranking; Community-07 owns
 reporting, moderation status and feed eligibility; Community-06 owns creator
 profiles and follows.
 
-Community-05 becomes `OPEN` only after those three server contracts and tests
-pass. Its implementation then assembles their APIs into Explore, Post Detail and
+Community-05 is now `OPEN` because those three server contracts and tests have
+passed. Its implementation assembles their APIs into Explore, Post Detail and
 Remix without introducing replacement repositories or formulas.
+
+### 0.1 Current Internal Delivery
+
+Implemented:
+
+- Public image cards on `/community`.
+- Latest, Trending Week, Trending Month and Top Year queries.
+- Safe public media URLs through the existing Community media access endpoint.
+- Loading, empty, unavailable-image and retry states.
+- Responsive desktop/mobile feed layout.
+
+Still pending in Community-05:
+
+- Search and official taxonomy filtering.
+- Post detail route and dialog/page.
+- Like, save, comments, report and comparison-vote controls.
+- Creator deep links and Remix handoff from a feed card.
+
+Canonical client owner:
+
+```text
+client/community/communityFeed.js
+```
+
+The feed consumes `client/community/communityEngagementApi.js`; it does not
+calculate ranking or persist engagement in the browser.
 
 Server exposure is governed by:
 

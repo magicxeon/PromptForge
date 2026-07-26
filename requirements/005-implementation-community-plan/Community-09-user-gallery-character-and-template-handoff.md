@@ -1,6 +1,6 @@
 # Community-09 User Gallery, Character Showcase and Template Handoff
 
-**Status:** Repository contract implemented - validation pending; public workflow remains closed
+**Status:** Repository contract complete - validated 2026-07-26; public workflow remains closed
 **Feature type:** User-curated gallery, reusable character assets and Scene Builder handoff  
 **Depends on:** Community-04 Share Generated Image and Prompt Snapshot, Community-05 Explore/Post Detail/Remix, Community-06 Creator Profile, Scene Builder template contract  
 **Created:** 2026-07-19

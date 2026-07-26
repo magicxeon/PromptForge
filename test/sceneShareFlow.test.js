@@ -44,8 +44,18 @@ function createService(generations = {}) {
       return structuredClone(event);
     }
   };
+  const engagementService = {
+    async recordSuccessfulRemix() {
+      return { created: true };
+    }
+  };
   return {
-    service: new CommunityShareService({ generationRepository, postRepository, remixRepository }),
+    service: new CommunityShareService({
+      generationRepository,
+      postRepository,
+      remixRepository,
+      engagementService
+    }),
     posts,
     events
   };
@@ -109,7 +119,15 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
 });
 
 test('template use and remix events retain actor identity separately from post ownership', async () => {
-  const { service, events } = createService({ job_guided: generation('job_guided') });
+  const { service, events } = createService({
+    job_guided: generation('job_guided'),
+    job_bob_result: {
+      ...generation('job_bob_result'),
+      ownerUserId: 'usr_bob',
+      ownerUsername: 'user_bob',
+      status: 'completed'
+    }
+  });
   const draft = await service.createSceneShareDraft('job_guided', alice);
   const post = await service.publishSceneTemplateShare(draft.id, {
     title: 'Reusable template', promptVisibility: 'full'
