@@ -42,6 +42,11 @@ The repository layer must be designed from the data already used by the app. Do 
 | `server/data/comparisons/comparisons.json` | `repositories/comparisons/ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
 | `server/data/community/communityPosts.json` | `repositories/community/CommunityPostRepository` | Local shared template/community post mock data | `community_posts` |
 | `server/data/community/remixEvents.json` | `repositories/community/RemixEventRepository` | Local remix event analytics | `remix_events`, `audit_events` |
+| `server/data/community/engagementEvents.json` | `repositories/community/CommunityEngagementEventRepository` | Immutable post engagement events | `community_engagement_events` |
+| `server/data/community/reactions.json` | `repositories/community/CommunityReactionRepository` | Current like/save state | `community_reactions` |
+| `server/data/community/comments.json` | `repositories/community/CommunityCommentRepository` | Flat public comments and moderation state | `community_comments` |
+| `server/data/community/comparisonVotes.json` | `repositories/community/CommunityComparisonVoteRepository` | One active slot vote per actor/comparison post | `community_comparison_votes` |
+| `server/data/community/engagementDailyAggregates.json` | `repositories/community/CommunityEngagementAggregateRepository` | Rebuildable daily ranking read model | `community_engagement_daily_aggregates` |
 
 ### 2.2 Current Client Sources
 
@@ -410,10 +415,13 @@ Columns:
 ```text
 id: text primary key                         // post_*
 schema_version: integer not null default 1
+post_type: text not null                     // image | template | comparison
 owner_user_id: text references users(id)
 owner_username: text null
 creator_profile_id: text null references creator_profiles(id)
 source_generation_result_id: text references generation_results(id)
+source_scene_template_snapshot_id: text null references scene_template_snapshots(id)
+source_comparison_set_id: text null references comparison_sets(id)
 title: text not null
 description: text null
 image_asset_id: text null references assets(id)
@@ -443,6 +451,9 @@ Mapping from `server/data/community/communityPosts.json`:
 post.id -> id
 post.ownerUsername -> owner_username -> owner_user_id via mock user lookup
 post.sourceGenerationId -> source_generation_result_id
+post.postType -> post_type
+post.sourceSceneTemplateSnapshotId -> source_scene_template_snapshot_id
+post.sourceComparisonSetId -> source_comparison_set_id
 post.title -> title
 post.description -> description
 post.imageUrl -> image_url / future image_asset_id
@@ -701,6 +712,78 @@ replacement_summary: jsonb not null default {}
 created_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
+
+### 6.15 Community Engagement and Ranking
+
+Source and behavioral contract:
+
+```text
+requirements/005-implementation-community-plan/Community-12-engagement-events-comments-and-ranking-windows.md
+```
+
+Tables:
+
+```text
+community_engagement_events
+- id: text primary key
+- schema_version: integer not null
+- post_id: text references community_posts(id)
+- actor_user_id: text null references users(id)
+- anonymous_session_hash: text null
+- event_type: text not null
+- target_id: text null
+- dedupe_key: text not null
+- occurred_at: timestamptz not null
+- request_id: text null
+- metadata: jsonb not null default {}
+- unique (dedupe_key)
+
+community_reactions
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- reaction_type: text not null               // like | save
+- active: boolean not null
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- primary key (post_id, actor_user_id, reaction_type)
+
+community_comments
+- id: text primary key
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- body: text not null
+- status: text not null                      // active | hidden | removed
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- deleted_at: timestamptz null
+
+community_comparison_votes
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- slot_id: text not null
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- primary key (post_id, actor_user_id)
+
+community_engagement_daily_aggregates
+- post_id: text references community_posts(id)
+- utc_date: date not null
+- unique_view_count: integer not null default 0
+- like_net_count: integer not null default 0
+- save_net_count: integer not null default 0
+- active_comment_count: integer not null default 0
+- remix_success_count: integer not null default 0
+- comparison_vote_net_count: integer not null default 0
+- eligible_event_count: integer not null default 0
+- updated_at: timestamptz not null
+- primary key (post_id, utc_date)
+```
+
+`community_posts.counts` is a compatibility read model. It is never the
+authoritative source for reaction uniqueness, comment state, votes or ranking.
+Daily aggregates may be rebuilt from authoritative state and immutable events.
+Ranking weights remain in versioned server configuration, not database rows or
+client code during MVP.
 
 ## 7. JSON Repository Implementation Standard
 

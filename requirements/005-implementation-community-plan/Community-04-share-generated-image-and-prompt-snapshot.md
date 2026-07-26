@@ -19,6 +19,9 @@ Supported sources:
 - Winning or selected result from Comparison.
 - Image inside a Collection.
 - Studio result immediately after generation.
+- Reusable Scene Builder template from a generated result.
+- Complete owned Comparison Set through the comparison-specific snapshot flow
+  in Community-05.
 
 Deferred:
 
@@ -27,6 +30,17 @@ Deferred:
 - Paid/membership-only post creation.
 
 ## 3. Community Post Data
+
+Community uses one post record with an explicit presentation type:
+
+```text
+postType: image | template | comparison
+```
+
+Official category placement is independent from `postType` and is owned by
+Community-03 taxonomy. A shared image or template can therefore appear in
+Fashion, Portrait, Commercial or another eligible official category without
+creating a second category-specific post record.
 
 ```text
 CommunityPost
@@ -53,6 +67,10 @@ CommunityPost
 - createdAt
 - updatedAt
 ```
+
+`likeCount`, `saveCount`, `remixCount`, `viewCount` and the added
+`commentCount`/`comparisonVoteCount` are compatibility read-model fields. The
+event and aggregate contracts in Community-12 become their source of truth.
 
 Visibility:
 
@@ -138,6 +156,10 @@ All mutating requests require actor context and authorization.
 - A post can be created from History or Comparison result.
 - Published snapshots remain stable even if the original project/config later changes.
 - Hidden or removed posts no longer appear in public feeds.
+- Image, template and comparison publishing produce the same canonical
+  `CommunityPost` envelope and taxonomy fields.
+- Publishing initializes an empty Community-12 engagement summary; Share logic
+  does not implement its own likes, comments or ranking.
 
 ## 9. Implementation Plan
 
@@ -288,4 +310,8 @@ generated images.
 
 Community-05 owns Explore feed, post detail and generic remix UX. Community-04
 does not create a second feed or generation surface.
+
+Community-12 owns engagement events, comments, comparison votes and
+week/month/year ranking. Community-04 only creates the post and immutable
+snapshot consumed by that service.
 

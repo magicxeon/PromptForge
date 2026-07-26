@@ -24,18 +24,24 @@ Do Step 5 in this order:
 00-006 Localization and language extension foundation
 00-007 Community-first shell, Playground and shared generation components
 00-008 Admin/support audit and back-office foundation
+00-009 Feature delivery gates and non-duplication plan
 01 Community Home and Workflow Launcher
 02 Prompt Composer AI and Structured Freestyle
 03 Taxonomy and Auto Classification
 04 Share Generated Image and Prompt Snapshot
+06 Creator Profile and Follow server foundation
+07 Safety, Moderation and Reporting server foundation
+12 Engagement Events, Comments and Ranking Windows
 05 Community Explore, Post Detail and Remix
-06 Creator Profile, Follow and Portfolio
-07 Safety, Moderation and Reporting
-08 MVP Integration and Launch
 09 Gallery, Character Showcase and Scene Builder Handoff
+08 MVP Integration and Launch
+10 Verify Local Mock User and Actor migration seam
+11 Verify Credit integration; keep automatic routing deferred
 ```
 
-This means Community screens may start as thin prototypes, but domain contracts must be stable first.
+This is the implementation order, not a renumbering request. Community screens
+may start as thin hidden prototypes, but domain contracts must be stable first.
+The current development and exposure state is governed by Community-00-009.
 
 ## 3. Foundation Principles
 
@@ -47,6 +53,10 @@ This means Community screens may start as thin prototypes, but domain contracts 
 - Credit deduction must live in a central credit service, not in Community UI or Scene Builder.
 - Admin/support actions must be auditable from the beginning.
 - Scene Builder snapshot, reference slot and template hydrator logic must be reused. Do not fork them inside Community.
+- A later numeric requirement must not recreate a capability already owned by a
+  Community-00 foundation requirement.
+- Opening development does not open user exposure; every feature follows the
+  separate exposure gate in Community-00-009.
 
 ## 4. System Design
 
@@ -117,6 +127,8 @@ For every JSON file introduced in Step 5:
 2. Update Community master roadmap to show foundation work before feature work.
 3. Use these contracts as acceptance criteria for later Community tasks.
 4. Do not implement separate Community generation, template or credit logic.
+5. Apply Community-00-009 before assigning any Community-05 through
+   Community-12 implementation task.
 
 ### Testing
 

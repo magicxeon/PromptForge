@@ -1,9 +1,39 @@
 # Community-10 Local Mock User and Actor Switcher
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Verify only - superseded for implementation by Community-00-002
 **Feature type:** Development identity foundation and cross-user test harness  
-**Depends on:** Application shell, local JSON persistence, Community-04 through Community-09  
+**Depends on:** Community-00-002 actor context and auth migration foundation
 **Created:** 2026-07-19
+
+## 0. Delivery Gate
+
+This feature-level document is retained for acceptance scenarios. Canonical
+implementation ownership belongs to
+`Community-00-002-mock-user-actor-context-and-auth-migration.md`.
+
+Current gates:
+
+```text
+Development  VERIFY_ONLY
+Exposure     INTERNAL in development; HIDDEN elsewhere
+```
+
+Allowed work:
+
+- Close actor-scope leaks in existing features.
+- Add ownership and actor-switch regression tests.
+- Maintain migration compatibility with future authentication.
+
+Forbidden work:
+
+- A second actor context, mock-user repository, API header convention,
+  localStorage identity key or user switcher.
+- Treating username as the durable ownership key.
+- Exposing the switcher outside development.
+
+Any stale file paths later in this document are historical proposals. Agents
+must use the canonical modules named in Community-00-002 and
+`requirements/007-technical-dept/000-master.md`.
 
 ## 1. Business Requirement
 
@@ -76,11 +106,12 @@ client/app.js
 ### Server Files
 
 ```text
-server/identity/mockUsers.json
-server/identity/MockUserRepository.js
-server/identity/mockActorContext.js
+server/data/identity/mockUsers.json
+server/repositories/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
 server/middleware/actorContextMiddleware.js
-server/server.js
+server/app/routes/identityRoutes.js
+server/app/createApp.js
 ```
 
 ### Process
@@ -130,13 +161,15 @@ Manual:
 - Mock user selection exists only to unblock Community and privacy testing.
 - Future auth should preserve `ActorContext` as the service boundary.
 
-### Proposed Changes
+### Verification-Only Changes
 
-- Add a mock user repository with seeded users.
-- Add actor context middleware.
-- Add a small UI switcher for development builds.
-- Update Community and Scene Builder share endpoints to read actor from middleware.
+- Verify the existing seeded mock-user repository and actor middleware.
+- Verify the existing development switcher remains actor-scoped.
+- Update only endpoints that still bypass `req.actorContext`.
+- Add regression coverage for newly introduced Community capabilities.
 
 ### Release Gate
 
-This module is complete when cross-user Community privacy can be manually tested without editing JSON files by hand.
+This module is complete when cross-user Community privacy can be manually tested
+without editing JSON files by hand and no production build exposes the mock
+switcher.

@@ -1,9 +1,31 @@
 # Community-05 Community Explore, Post Detail and Remix
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Contract only - implementation opens after Community-06, Community-07 and Community-12 server exit gates
 **Feature type:** Public discovery and generation reuse  
-**Depends on:** Community-03, Community-04, Studio route integration  
+**Depends on:** Community-03, Community-04, Community-12 engagement contract, Studio route integration
 **Created:** 2026-07-15
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  CONTRACT
+Exposure     HIDDEN
+```
+
+Agents may refine feed/detail read models and client consumption contracts now.
+Do not implement authoritative reactions, comments, votes, ranking or moderation
+inside Community-05. Community-12 owns engagement and ranking; Community-07 owns
+reporting, moderation status and feed eligibility; Community-06 owns creator
+profiles and follows.
+
+Community-05 becomes `OPEN` only after those three server contracts and tests
+pass. Its implementation then assembles their APIs into Explore, Post Detail and
+Remix without introducing replacement repositories or formulas.
 
 ## 1. Objective
 
@@ -28,24 +50,21 @@ Feed capabilities:
 - Latest public posts.
 - Filter by official taxonomy.
 - Search title, creator display name and custom tags.
-- Trending Today.
 - Trending Week.
+- Top/Trending Month.
+- Top/Trending Year.
 - Simple pagination or infinite load using shared list infrastructure.
 
 Deferred:
 
 - Personalized recommendation feed.
 - Advanced ranking by creator reputation.
-- Comment activity ranking.
 - Paid/member-only feed.
 
 ## 4. Trending Rules
 
-MVP trending score may use:
-
-```text
-views + likes + saves + remix clicks
-```
+MVP feed consumes the versioned `community_engagement_v1` score defined by
+Community-12. This requirement does not own weights or calculate scores.
 
 Ranking must exclude:
 
@@ -57,12 +76,14 @@ Ranking must exclude:
 Use time windows:
 
 ```text
-today
-7_days
-30_days later
+week
+month
+year
 ```
 
-Daily and weekly are required for MVP; monthly can be added after feed volume exists.
+Ranking calculation, eligibility, deduplication and version metadata are owned
+by Community-12. Community-05 sends `sort=top|trending` and
+`period=week|month|year`; it must not recalculate scores in the browser.
 
 ## 5. Post Detail
 
@@ -75,6 +96,7 @@ Show:
 - Prompt according to visibility.
 - Provider/model summary.
 - Like/save actions.
+- Flat comment thread and report actions.
 - `Use / Remix Prompt` action.
 
 Do not show:
@@ -107,12 +129,13 @@ Base image-post MVP actions:
 
 - Like/unlike.
 - Save/bookmark.
+- Flat comments and comment reporting.
 - Remix click event.
 - Follow creator from post detail.
 
-Comparison-specific voting and comments are defined in Section 7.1. They are
-implemented after Community-04 publishing and Community-07 moderation/reporting
-contracts are available; they do not block the base image-post MVP.
+The same likes, saves and flat comments apply to image, template and comparison
+posts through Community-12. Comparison-specific voting is defined in Section
+7.1. Nested replies and comment reactions remain deferred.
 
 ### 7.1 Comparison Post Voting and Comments
 
@@ -142,7 +165,7 @@ that one provider or model is objectively better.
 
 ```text
 CommunityPost
-- postType: image | comparison
+- postType: image | template | comparison
 - comparisonSnapshot: null | ComparisonPostSnapshot
 - engagementSummary
 
@@ -230,20 +253,27 @@ client/comparisons/comparisonDashboard.js
 client/core/lightboxService.js
 ```
 
-Server ownership:
+Community-05 server consumers:
 
 ```text
 server/app/routes/communityRoutes.js
 server/domain/community/CommunityComparisonShareService.js
-server/domain/community/CommunityEngagementService.js
 server/repositories/community/CommunityPostRepository.js
+```
+
+Canonical Community-12 owners used by this UI:
+
+```text
+server/domain/community/CommunityEngagementService.js
 server/repositories/community/CommunityComparisonVoteRepository.js
 server/repositories/community/CommunityCommentRepository.js
-server/repositories/audit/CommunityEngagementAuditRepository.js
-server/data/community/community-posts.json
-server/data/community/community-comparison-votes.json
-server/data/community/community-comments.json
+server/repositories/community/CommunityEngagementEventRepository.js
+server/domain/community/CommunityRankingService.js
 ```
+
+Community-05 must not create fallback vote, comment, counter or ranking stores
+when a Community-12 module is missing. Keep the action hidden until its owner is
+available.
 
 Process:
 
@@ -257,6 +287,8 @@ Process:
    post read-model aggregate.
 6. `Use Template` remains governed by the existing snapshot/reference policy;
    voting and commenting never grant access to private source assets.
+7. Vote and comment events feed Community-12 aggregates; this section does not
+   define a second score or counter store.
 
 Testing:
 
@@ -273,6 +305,7 @@ Testing:
 
 - Public posts can be browsed by latest and official taxonomy.
 - Trending excludes low-confidence and moderated posts.
+- Week, month and year controls return server-calculated ranking metadata.
 - Post detail respects prompt visibility settings.
 - Remix opens Studio with a usable prefilled config.
 - Provider/model fallback is handled without breaking the flow.
@@ -294,11 +327,13 @@ client/community/communityRemixActions.js
 client/community/communityApi.js
 client/scene-builder/sceneTemplateHydrator.js
 client/scene-builder/sceneReplacementChecklist.js
-server/community/CommunityFeedService.js
-server/community/CommunityRemixService.js
-server/community/CommunityEventRepository.js
-server/community/communityRoutes.js
+server/domain/community/CommunityFeedService.js
+server/domain/community/CommunityRemixService.js
+server/app/routes/communityRoutes.js
 ```
+
+`CommunityRankingService` and engagement repositories are intentionally absent
+from this list because Community-12 owns them.
 
 ### Process
 

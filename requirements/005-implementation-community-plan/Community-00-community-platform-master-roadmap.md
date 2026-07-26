@@ -30,8 +30,8 @@ see strong image -> inspect shared prompt/workflow -> remix in Studio
 
 The MVP must prove this loop before adding paid prompts, memberships, advanced
 creator ranking or revenue sharing. Comparison voting and flat comments are a
-later Community-05 engagement increment, after publishing and moderation
-contracts are stable.
+Community-12 engagement increment, implemented after publishing and moderation
+contracts are stable and consumed by Community-05 feed/detail UI.
 
 ## 3. Relationship to Commercial Plan
 
@@ -90,17 +90,31 @@ Community module must not call image providers directly and must not mutate cred
 | Community-00-006 | Localization and Language Extension Foundation | Application shell, current Thai/English localization |
 | Community-00-007 | Community-First Shell, Playground and Shared Generation Components | Actor Context, localization, credit estimate and generation service |
 | Community-00-008 | Admin, Support Audit and Backoffice Foundation | Actor Context, ownership policy, application shell access predicates |
+| Community-00-009 | Feature Delivery Gates and Non-Duplication Plan | Community foundation and canonical module ownership |
 | Community-01 | Community Home and Workflow Launcher | Community-first shell, module registry |
 | Community-02 | Prompt Composer AI and Structured Freestyle | Visual Character Builder, provider gateway for text assistant if approved |
 | Community-03 | Community Taxonomy and Auto Classification | Prompt/config schema, shared moderation baseline |
 | Community-04 | Share Generated Image and Prompt Snapshot | Auth, assets, generation history, collections |
-| Community-05 | Community Explore, Post Detail and Remix | Community-03, Community-04 |
+| Community-05 | Community Explore, Post Detail and Remix | Community-03, Community-04, Community-12 |
 | Community-06 | Creator Profile, Follow and Portfolio | Auth, Community-04 |
 | Community-07 | Community Safety, Moderation and Reporting | Auth, audit, asset scan |
 | Community-08 | Community MVP Integration and Launch | All Community MVP phases |
 | Community-09 | User Gallery, Character Showcase and Template Handoff | Community-04, Community-06, Scene Builder |
 | Community-10 | Local Mock User and Actor Switcher | Application shell, local JSON repositories |
 | Community-11 | Credit Deduction and Provider Routing Foundation | Provider registry, generation queue, business credit policy |
+| Community-12 | Engagement Events, Comments and Ranking Windows | Community-03, Community-04, Community-07, Actor Context |
+
+Numbering preserves the existing document history. For implementation,
+Community-12 contracts/repositories/services must be completed before enabling
+Community-05 comments, comparison voting or ranked feed queries. Community-05
+latest-feed and post-detail presentation may be developed against the contract
+in parallel.
+
+The authoritative open/closed implementation and UI exposure sequence is
+defined by
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+Requirement numbering is document history, not permission to implement files in
+numeric order.
 
 `Community-10` and `Community-11` remain feature-level implementation
 documents. The `Community-00-002` and `Community-00-005` foundation documents
@@ -157,6 +171,8 @@ Included:
 - Guided and Manual Scene Builder authoring modes on the same Studio surface.
 - Creator mini profile and follow.
 - Like and save/bookmark.
+- Flat comments on image, template and comparison posts.
+- Deterministic weekly, monthly and yearly Community ranking.
 - User-curated creator gallery that shows only selected public images.
 - Separate creator character area for headshot/full-character reusable assets.
 - Community `Use Template` and `Use Character` entry points that route into Scene Builder.
@@ -176,6 +192,11 @@ Deferred:
 - Complex moderation queues beyond MVP safety/reporting.
 
 ## 8. Delivery Gates
+
+Development gates and UI exposure gates are independent. `OPEN` means an agent
+may implement only the scope owned by that requirement; it does not mean the
+feature is public. Use Community-00-009 for the current status of Community-05
+through Community-12.
 
 ### Gate A: Concept Prototype
 
@@ -197,6 +218,20 @@ Deferred:
 - Remix flow routes users into generation with clear provider/model fallback.
 - Launch metrics are instrumented.
 
+### Optimized Implementation Order
+
+```text
+Wave 0  Verify/close Community-03 and Community-04
+Wave 1  Build Community-06, Community-07 and Community-12 server owners
+Wave 2  Assemble Community-05 Explore/Post Detail/Remix
+Wave 3  Build Community-09 Gallery/Character handoff
+Wave 4  Open Community-08 integration and private-beta launch work
+Wave 5  Verify Community-10 auth migration seam and Community-11 billing seam
+```
+
+Community-10 and Community-11 are not new parallel implementations. Their
+canonical foundation owners are Community-00-002 and Community-00-005.
+
 ## 9. Cross-Cutting Rules
 
 - Every community mutation requires an authenticated actor.
@@ -205,6 +240,10 @@ Deferred:
 - Shared prompt snapshots are immutable after publish; edits create a new visible revision or update only presentation fields.
 - User custom tags never become official categories automatically.
 - Trending uses official tags and trust/safety status, not only raw engagement.
+- Image, template and comparison posts share one Community-12 engagement
+  contract; only comparison posts add slot voting.
+- Ranking weights and time windows are server-owned, source-controlled and
+  versioned. Clients never calculate authoritative scores.
 - Community posts reference source generation results by ID, but public display uses a sanitized immutable snapshot.
 - Deleting or hiding a source private result must follow retention policy and may hide the community post if public assets are no longer allowed.
 - Admin/support actions require audit reason and actor.
@@ -246,12 +285,16 @@ server/repositories/community/CommunityPostRepository.js
 server/repositories/community/CommunityProfileRepository.js
 server/repositories/community/CommunityEventRepository.js
 server/domain/community/CommunityPolicyService.js
+server/domain/community/CommunityEngagementService.js
+server/domain/community/CommunityRankingService.js
 server/repositories/identity/MockUserRepository.js
 server/domain/identity/mockActorContext.js
 server/repositories/credits/CreditLedgerRepository.js
 server/domain/credits/CreditPricingPolicyService.js
 server/domain/credits/CreditReservationService.js
 server/domain/routing/ProviderRoutingPolicyService.js
+server/repositories/community/CommunityEngagementEventRepository.js
+server/repositories/community/CommunityCommentRepository.js
 ```
 
 ### Rollout Order
@@ -297,3 +340,5 @@ MVP should measure:
 - Saves/bookmarks.
 - Low-confidence classification rate.
 - Reports and admin removals.
+- Likes, comments and successful remixes by post type.
+- Weekly, monthly and yearly ranking participation and conversion.

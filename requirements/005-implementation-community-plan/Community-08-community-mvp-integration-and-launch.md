@@ -1,9 +1,31 @@
 # Community-08 Community MVP Integration and Launch
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Closed - opens only after Community-05, Community-06, Community-07, Community-09 and Community-12 exit gates
 **Feature type:** Integration, readiness and launch gate  
-**Depends on:** Community-01 through Community-07  
+**Depends on:** Community-01 through Community-07, Community-09 and Community-12
 **Created:** 2026-07-15
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  CLOSED
+Exposure     HIDDEN
+```
+
+Do not implement Community-08 while its feature dependencies are incomplete.
+It is an integration and release requirement, not an owner of post, profile,
+moderation, gallery, engagement, credit or generation business logic.
+
+When opened, Community-08 may add only feature-flag wiring, readiness checks,
+metrics adapters, navigation exposure and end-to-end launch tests. The first
+allowed exposure is `PRIVATE_BETA`; public exposure additionally requires
+production authentication and asset/security operations outside the local mock
+actor adapter.
 
 ## 1. Objective
 
@@ -99,9 +121,9 @@ Events must avoid storing raw private prompt text unless explicitly required by 
 client/community/communityModule.js
 client/community/communityRoutes.js
 client/community/communityMetrics.js
-server/community/communityRoutes.js
-server/community/CommunityMetricsService.js
-server/community/CommunityLaunchReadinessService.js
+server/app/routes/communityRoutes.js
+server/domain/community/CommunityMetricsService.js
+server/domain/community/CommunityLaunchReadinessService.js
 server/config/moduleFlags.json
 test/communityMvpIntegration.test.js
 ```

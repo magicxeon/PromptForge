@@ -1,9 +1,39 @@
 # Community-07 Community Safety, Moderation and Reporting
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Open - minimum public-content safety foundation
 **Feature type:** Public content safety and administrative controls  
 **Depends on:** Authentication, audit, assets, community posts  
 **Created:** 2026-07-15
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  OPEN
+Exposure     INTERNAL
+```
+
+Open now:
+
+- Post and comment report contracts.
+- Post moderation state transitions and server-side feed eligibility.
+- Owner unpublish and authorized admin/support hide/remove actions.
+- Audit events for material moderation actions.
+
+Keep closed:
+
+- Automated appeals, creator strikes and complex moderation queues.
+- A second admin/audit foundation; reuse Community-00-008.
+- Comment storage and engagement counters; Community-12 owns them and delegates
+  report/moderation decisions here.
+
+Community-07 passes its exit gate when hidden/removed content is excluded by
+repository/service queries, public detail is sanitized and all privileged state
+changes are role-checked and audited.
 
 ## 1. Objective
 
@@ -90,10 +120,10 @@ Rules:
 ```text
 client/community/reportPostDialog.js
 client/community/moderationBanner.js
-server/community/CommunityReportRepository.js
-server/community/CommunityModerationService.js
-server/community/CommunityAuditRepository.js
-server/community/routes/moderationRoutes.js
+server/repositories/community/CommunityReportRepository.js
+server/domain/community/CommunityModerationService.js
+server/repositories/audit/AuditLogRepository.js
+server/app/routes/communityModerationRoutes.js
 ```
 
 ### Process

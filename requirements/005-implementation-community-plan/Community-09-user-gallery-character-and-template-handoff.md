@@ -1,9 +1,34 @@
 # Community-09 User Gallery, Character Showcase and Template Handoff
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Closed - repository contracts may be verified; workflow opens after Community-05 and Community-06
 **Feature type:** User-curated gallery, reusable character assets and Scene Builder handoff  
 **Depends on:** Community-04 Share Generated Image and Prompt Snapshot, Community-05 Explore/Post Detail/Remix, Community-06 Creator Profile, Scene Builder template contract  
 **Created:** 2026-07-19
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  CLOSED
+Exposure     HIDDEN
+```
+
+Existing gallery and character repository contracts may be validated as part of
+the repository foundation, but do not build the public workflow until
+Community-04, Community-05 and Community-06 have stable post/profile contracts.
+
+When opened, Community-09 owns curated gallery membership, character asset
+metadata and Scene Builder handoff only. It must reference canonical Community
+posts and generation assets, store no Base64, and reuse the existing Scene
+Builder serializer, hydrator, variable resolver, reference policy and generation
+pipeline.
+
+Keep marketplace, licensing, revenue sharing, original-file download and a
+second post/template store closed.
 
 ## 1. Business Requirement
 
@@ -183,12 +208,12 @@ client/community/communityGalleryCard.js
 client/community/communityCharacterTab.js
 client/community/communityTemplateActions.js
 client/community/communitySceneBuilderHandoff.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/CommunityTemplatePolicyService.js
-server/community/CommunitySceneBuilderHandoffService.js
-server/community/routes/galleryRoutes.js
-server/community/routes/characterRoutes.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/domain/community/CommunityTemplatePolicyService.js
+server/domain/community/CommunitySceneBuilderHandoffService.js
+server/app/routes/communityGalleryRoutes.js
+server/app/routes/communityCharacterRoutes.js
 ```
 
 Client integration:
@@ -281,14 +306,17 @@ client/community/communityGalleryCard.js
 client/community/communityCharacterTab.js
 client/community/communityTemplateActions.js
 client/community/communitySceneBuilderHandoff.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/CommunityTemplatePolicyService.js
-server/community/CommunitySceneBuilderHandoffService.js
-server/community/routes/galleryRoutes.js
-server/community/routes/characterRoutes.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/domain/community/CommunityTemplatePolicyService.js
+server/domain/community/CommunitySceneBuilderHandoffService.js
+server/app/routes/communityGalleryRoutes.js
+server/app/routes/communityCharacterRoutes.js
 test/communityGalleryHandoff.test.js
 ```
+
+The two repository files already exist as database-ready contracts. Extend
+those canonical modules when this gate opens; do not create replacements.
 
 ### Process
 

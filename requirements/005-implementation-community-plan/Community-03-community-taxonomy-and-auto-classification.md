@@ -95,6 +95,12 @@ User cannot:
 
 Custom tags are searchable but do not affect official category ranking in MVP.
 
+Community-12 owns engagement scoring and time windows. This requirement owns
+only whether a post/tag is eligible for global or category ranking. Ranking
+services must consume `categoryEligible`, `trendingEligible`,
+`categoryCodes`, `trendingCategoryCodes` and moderation status rather than
+reimplementing taxonomy confidence rules.
+
 ## 6. Classification Examples
 
 ```text

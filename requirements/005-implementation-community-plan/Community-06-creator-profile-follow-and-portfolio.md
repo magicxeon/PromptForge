@@ -1,9 +1,38 @@
 # Community-06 Creator Profile, Follow and Portfolio
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Open - server profile and follow foundation
 **Feature type:** Creator identity and lightweight social graph  
 **Depends on:** Authentication, Community posts  
 **Created:** 2026-07-15
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  OPEN
+Exposure     INTERNAL
+```
+
+Open now:
+
+- Creator profile contract and actor-owned profile mutation.
+- Public-safe profile read model.
+- Follow/unfollow with one relation per follower/creator pair.
+- Public portfolio query over canonical Community posts.
+
+Keep closed:
+
+- Creator ranking, analytics, badges, memberships and marketplace behavior.
+- A separate portfolio-post store; portfolio is a filtered read of canonical
+  public Community posts.
+- Public navigation until Community-07 safety filtering is enforced.
+
+Exit criteria are profile privacy tests, follow idempotency tests and a
+portfolio query that excludes private, hidden and removed posts.
 
 ## 1. Objective
 
@@ -106,10 +135,10 @@ MVP may auto-create a minimal creator profile using account display name, but us
 client/community/creatorProfilePage.js
 client/community/followButton.js
 client/community/creatorPortfolioGrid.js
-server/community/CreatorProfileRepository.js
-server/community/CreatorFollowRepository.js
-server/community/CreatorProfileService.js
-server/community/routes/creatorRoutes.js
+server/repositories/community/CreatorProfileRepository.js
+server/repositories/community/CreatorFollowRepository.js
+server/domain/community/CreatorProfileService.js
+server/app/routes/communityCreatorRoutes.js
 ```
 
 ### Process
