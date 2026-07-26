@@ -120,7 +120,7 @@ taxonomySuggestions
 ### 10.1 Client Files
 
 ```text
-client/scene-builder/sceneSharePreview.js
+client/community/communitySharePreview.js
 client/scene-builder/sceneTemplateHydrator.js
 client/scene-builder/sceneReplacementChecklist.js
 client/community/communityTemplateActions.js

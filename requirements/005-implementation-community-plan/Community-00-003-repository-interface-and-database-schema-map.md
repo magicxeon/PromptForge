@@ -1,6 +1,6 @@
 # Community-00-003 Repository Interface and Database Schema Map
 
-**Status:** Implementation complete - Node validation pending
+**Status:** Complete - Validated 2026-07-26
 **Feature type:** JSON-to-database migration contract and repository boundary  
 **Depends on:** Community-00-002 Mock User / Actor Context, existing JSON repositories  
 **Feeds into:** Community-00-004 Ownership Policy, Community-00-005 Credit
@@ -451,7 +451,7 @@ Source now:
 ```text
 server/data/community/communityPosts.json
 server/domain/community/CommunityShareService.js publishSceneTemplateShare()
-client/scene-builder/sceneSharePreview.js
+client/community/communitySharePreview.js
 ```
 
 Columns:

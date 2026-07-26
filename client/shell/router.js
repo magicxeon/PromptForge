@@ -20,13 +20,19 @@
       navigate('/community', { replace: true });
       return;
     }
+    if (registry()?.isAccessibleRoute?.(route.pathname) === false) {
+      navigate('/studio', { replace: true });
+      return;
+    }
     window.dispatchEvent(new CustomEvent('modelpromptforge:route', { detail: route }));
   }
 
   function navigate(target, { replace = false, state = {} } = {}) {
     const url = new URL(target, window.location.origin);
     const pathname = normalizePath(url.pathname);
-    if (url.origin !== window.location.origin || !registry()?.isAllowedRoute(pathname)) return false;
+    if (url.origin !== window.location.origin
+      || !registry()?.isAllowedRoute(pathname)
+      || registry()?.isAccessibleRoute?.(pathname) === false) return false;
     window.history[replace ? 'replaceState' : 'pushState'](state, '', `${pathname}${url.search}${url.hash}`);
     emitRoute();
     return true;

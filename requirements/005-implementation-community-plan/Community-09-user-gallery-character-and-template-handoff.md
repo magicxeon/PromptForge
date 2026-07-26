@@ -1,6 +1,6 @@
 # Community-09 User Gallery, Character Showcase and Template Handoff
 
-**Status:** Closed - repository contracts may be verified; workflow opens after Community-05 and Community-06
+**Status:** Repository contract implemented - validation pending; public workflow remains closed
 **Feature type:** User-curated gallery, reusable character assets and Scene Builder handoff  
 **Depends on:** Community-04 Share Generated Image and Prompt Snapshot, Community-05 Explore/Post Detail/Remix, Community-06 Creator Profile, Scene Builder template contract  
 **Created:** 2026-07-19
@@ -333,3 +333,58 @@ those canonical modules when this gate opens; do not create replacements.
 - Bob cannot see Alice private gallery record.
 - Bob using Alice character receives required replacement for private face reference.
 - Handoff payload contains no base64 or private provider payload.
+
+## 11. Current Contract Implementation
+
+This delivery closes the repository-contract portion allowed by the current
+gate. It does not open Gallery navigation, public Character UI, or Scene Builder
+handoff endpoints before Community-05.
+
+Implemented repository behavior:
+
+```text
+CommunityGalleryRepository
+- owner-scoped list for curated records
+- public list and public detail return safe summaries
+- canonical gallery reuse policy normalization
+- source post/generation/asset metadata remains server-side
+
+CommunityCharacterRepository
+- canonical character types:
+  headshot_only | full_character | face_and_outfit
+- canonical face/outfit reference policy normalization
+- owner-scoped list
+- public list and detail convert all non-reusable references to replace_required
+```
+
+Public summary responses intentionally omit:
+
+```text
+sceneBuilderHandoffSnapshot
+sourceGenerationResultId
+raw reference values
+embedded Base64 data
+```
+
+The internal repository record retains the sanitized handoff snapshot so the
+future `CommunitySceneBuilderHandoffService` can apply ownership and reuse
+policy before constructing a handoff.
+
+Validation is owned by:
+
+```text
+test/communityGalleryCharacterContracts.test.js
+test/deferredRepositoryContracts.test.js
+scripts/test-community-09-11.bat
+scripts/test-community-00-009-to-11.bat
+```
+
+Remaining closed work:
+
+- Gallery and Character routes.
+- Gallery and Character browser UI.
+- `Use Template` and `Use Character` handoff service.
+- Public exposure through Community navigation.
+
+These items open only after Community-05 and its Community-12 dependencies are
+complete.

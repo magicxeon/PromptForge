@@ -11,6 +11,10 @@
 
   async function openSharePreview(sourceGenerationId, { triggerElement = null } = {}) {
     if (!sourceGenerationId) return;
+    await window.ModelPromptForgeCommunityFeatures?.initialize?.();
+    if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.('community.shareEnabled') !== true) {
+      return;
+    }
     returnFocus = triggerElement || document.activeElement;
 
     try {

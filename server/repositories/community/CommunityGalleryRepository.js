@@ -14,6 +14,12 @@ import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
 
 const GALLERY_FALLBACK = [];
+const GALLERY_REUSE_POLICIES = Object.freeze([
+  'none',
+  'view_only',
+  'use_as_template',
+  'remix_with_required_replacements'
+]);
 
 export class CommunityGalleryRepository {
   constructor({
@@ -50,7 +56,26 @@ export class CommunityGalleryRepository {
   async findPublicById(id) {
     const item = await this.findById(id);
     if (!item || item.visibility !== VISIBILITY.PUBLIC || item.status !== 'active') return null;
-    return structuredClone(item);
+    return createPublicGallerySummary(item);
+  }
+
+  async findByOwner(ownerUserId, query = {}) {
+    if (!ownerUserId) {
+      throw new RepositoryContractError(
+        'gallery_owner_required',
+        'An owner user ID is required to list gallery items.'
+      );
+    }
+    const normalizedQuery = normalizeListQuery(query);
+    const items = (await this.readAll())
+      .filter(item => item.ownerUserId === ownerUserId && item.status !== 'deleted');
+    const page = paginateRepositoryRecords(
+      items,
+      normalizedQuery,
+      JSON.stringify({ ownerUserId, sort: normalizedQuery.sort }),
+      this.cursorSecret
+    );
+    return createPage(page.items, page);
   }
 
   async listPublic(query = {}) {
@@ -64,7 +89,7 @@ export class CommunityGalleryRepository {
       this.cursorSecret
     );
 
-    return createPage(page.items, page);
+    return createPage(page.items.map(createPublicGallerySummary), page);
   }
 
   async create(recordInput = {}, actorContext) {
@@ -74,10 +99,18 @@ export class CommunityGalleryRepository {
     const record = applyRecordDefaults({
       creatorProfileId: recordInput.creatorProfileId || null,
       sourceGenerationResultId: recordInput.sourceGenerationResultId || null,
+      sourceCommunityPostId: recordInput.sourceCommunityPostId || null,
       imageAssetId: recordInput.imageAssetId || null,
+      thumbnailAssetId: recordInput.thumbnailAssetId || null,
       title: recordInput.title || '',
       description: recordInput.description || '',
-      reusePolicy: recordInput.reusePolicy || 'view_only',
+      officialTags: normalizeStringArray(recordInput.officialTags),
+      customTags: normalizeStringArray(recordInput.customTags),
+      reusePolicy: pickAllowedValue(
+        recordInput.reusePolicy,
+        GALLERY_REUSE_POLICIES,
+        'view_only'
+      ),
       sceneBuilderHandoffSnapshot: stripEmbeddedBase64(recordInput.sceneBuilderHandoffSnapshot || null)
     }, {
       idPrefix: 'gal',
@@ -98,6 +131,43 @@ export class CommunityGalleryRepository {
       return structuredClone(record);
     });
   }
+}
+
+function createPublicGallerySummary(item) {
+  return {
+    id: item.id,
+    ownerUsername: item.ownerUsername || null,
+    creatorProfileId: item.creatorProfileId || null,
+    title: item.title || '',
+    description: item.description || '',
+    imageAssetId: item.imageAssetId || null,
+    thumbnailAssetId: item.thumbnailAssetId || null,
+    reusePolicy: item.reusePolicy || 'view_only',
+    handoffAvailable: Boolean(
+      hasHandoffSnapshot(item.sceneBuilderHandoffSnapshot)
+      && ['use_as_template', 'remix_with_required_replacements'].includes(item.reusePolicy)
+    ),
+    officialTags: normalizeStringArray(item.officialTags),
+    customTags: normalizeStringArray(item.customTags),
+    visibility: VISIBILITY.PUBLIC,
+    status: item.status,
+    createdAt: item.createdAt || null,
+    updatedAt: item.updatedAt || null
+  };
+}
+
+function hasHandoffSnapshot(value) {
+  return Boolean(value && typeof value === 'object' && Object.keys(value).length);
+}
+
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(
+    value
+      .filter(item => typeof item === 'string')
+      .map(item => item.trim())
+      .filter(Boolean)
+  )];
 }
 
 export const communityGalleryRepo = new CommunityGalleryRepository();

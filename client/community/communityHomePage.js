@@ -16,18 +16,17 @@
   }
   async function enableCreatorProfileButton(button) {
     if (!button) return;
-    try {
-      const features = await window.ModelPromptForgeApiClient.apiJson('/api/community/features');
-      button.hidden = features.community?.creatorProfilesEnabled !== true;
-    } catch {
-      button.hidden = true;
-    }
+    await window.ModelPromptForgeCommunityFeatures?.initialize?.();
+    button.hidden = window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+      'community.creatorProfilesEnabled'
+    ) !== true;
   }
   function initialize() {
     if (initialized) return;
     initialized = true;
     render();
     window.addEventListener('modelpromptforge:languagechange', render);
+    window.addEventListener('modelpromptforge:communityfeatureschange', render);
   }
   window.addEventListener('modelpromptforge:ready', initialize);
   window.ModelPromptForgeCommunityHome = { initialize, render };

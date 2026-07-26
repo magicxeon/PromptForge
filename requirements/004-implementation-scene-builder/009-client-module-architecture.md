@@ -19,7 +19,7 @@ client/scene-builder/
   sceneTemplateHydrator.js
   sceneVariableControls.js
   sceneReferenceSlots.js
-  sceneSharePreview.js
+  ../community/communitySharePreview.js
   sceneTemplateValidation.js
 ```
 
@@ -249,7 +249,7 @@ client/scene-builder/sceneVariableResolver.js
 client/scene-builder/sceneTemplateValidation.js
 client/scene-builder/sceneReplacementChecklist.js
 client/scene-builder/sceneHistorySlotPicker.js
-client/scene-builder/sceneSharePreview.js
+client/community/communitySharePreview.js
 ```
 
 Expected responsibility:

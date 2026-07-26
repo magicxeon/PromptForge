@@ -151,6 +151,12 @@ flags, role gates, and route matching.
 `shell/applicationShell.js` renders navigation and activates the appropriate
 page. It also reacts to route, locale, and actor changes.
 
+Server-owned Community exposure flags are loaded once through
+`community/communityFeaturePolicy.js` and exposed as
+`window.ModelPromptForgeCommunityFeatures`. Navigation, deep-link access,
+sharing, creator profiles, and shared-template presentation must consume this
+read model instead of fetching or interpreting feature flags independently.
+
 ### Shared generation controls
 
 `window.ModelPromptForgeGenerationControls` is assembled by scripts under
@@ -178,7 +184,11 @@ both pages are affected.
 - replaceable variables;
 - replacement checklist;
 - reference-slot history picker;
-- share preview and shared-template loading.
+- shared-template loading.
+
+Generated-image and Scene Template share preview is owned by
+`community/communitySharePreview.js`; Scene Builder must call its compatibility
+API rather than create a second share modal controller.
 
 Call the controller or another documented feature API instead of reaching into
 private module state.
@@ -221,6 +231,7 @@ Cross-module events currently include:
 | `modelpromptforge:languagechange` | Active locale or loaded catalogs changed |
 | `modelpromptforge:actorchange` | Active mock actor changed |
 | `modelpromptforge:generation-status` | Generation lifecycle status changed |
+| `modelpromptforge:communityfeatureschange` | Server-owned Community exposure flags loaded or changed |
 
 Prefer a documented service subscription when one exists, such as
 `subscribeActorChange()`. Use a DOM event for broad cross-feature notification,

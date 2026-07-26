@@ -1,3 +1,19 @@
+function sendSceneTemplateError(
+  res,
+  error,
+  fallbackCode = 'scene_template_request_failed',
+  fallbackStatus = 400
+) {
+  return res.status(error.statusCode || fallbackStatus).json({
+    error: {
+      code: error.code || fallbackCode,
+      message: error.code && error.message
+        ? error.message
+        : 'Scene template request failed.'
+    }
+  });
+}
+
 export function registerSceneTemplateRoutes(app, {
   communityShareService,
   communityFeaturePolicyService
@@ -9,7 +25,7 @@ export function registerSceneTemplateRoutes(app, {
       const draft = await communityShareService.createGeneratedShareDraft(sourceGenerationId, req.actorContext);
       res.json(draft);
     } catch (err) {
-      res.status(err.statusCode || 400).json({ error: err.message });
+      sendSceneTemplateError(res, err, 'scene_template_share_draft_failed');
     }
   });
 
@@ -24,7 +40,7 @@ export function registerSceneTemplateRoutes(app, {
       );
       res.json(post);
     } catch (err) {
-      res.status(err.statusCode || 400).json({ error: err.message });
+      sendSceneTemplateError(res, err, 'scene_template_publish_failed');
     }
   });
 
@@ -34,7 +50,7 @@ export function registerSceneTemplateRoutes(app, {
       const page = await communityShareService.listSharedPosts(req.query, req.actorContext);
       res.json(page.items);
     } catch (err) {
-      res.status(err.statusCode || 500).json({ error: err.message });
+      sendSceneTemplateError(res, err, 'scene_template_list_failed', 500);
     }
   });
 
@@ -43,7 +59,7 @@ export function registerSceneTemplateRoutes(app, {
       await communityFeaturePolicyService.assertEnabled('community.enabled');
       return res.json(await communityShareService.getSharedPost(req.params.postId, req.actorContext));
     } catch (err) {
-      return res.status(err.statusCode || 500).json({ error: err.message });
+      return sendSceneTemplateError(res, err, 'scene_template_read_failed', 500);
     }
   });
 
@@ -57,10 +73,17 @@ export function registerSceneTemplateRoutes(app, {
       );
       return res.sendFile(filePath, error => {
         if (!error) return;
-        if (!res.headersSent) res.status(error.statusCode || 404).json({ error: 'Community image is unavailable.' });
+        if (!res.headersSent) {
+          sendSceneTemplateError(
+            res,
+            error,
+            'scene_template_media_unavailable',
+            404
+          );
+        }
       });
     } catch (err) {
-      return res.status(err.statusCode || 404).json({ error: err.message });
+      return sendSceneTemplateError(res, err, 'scene_template_media_unavailable', 404);
     }
   });
 
@@ -73,7 +96,7 @@ export function registerSceneTemplateRoutes(app, {
         req.actorContext
       ));
     } catch (err) {
-      return res.status(err.statusCode || 400).json({ error: err.message });
+      return sendSceneTemplateError(res, err, 'scene_template_update_failed');
     }
   });
 
@@ -86,7 +109,7 @@ export function registerSceneTemplateRoutes(app, {
         req.actorContext
       ));
     } catch (err) {
-      return res.status(err.statusCode || 400).json({ error: err.message });
+      return sendSceneTemplateError(res, err, 'scene_template_moderation_failed');
     }
   });
 
@@ -99,10 +122,7 @@ export function registerSceneTemplateRoutes(app, {
         req.actorContext
       ));
     } catch (err) {
-      return res.status(err.statusCode || 400).json({
-        code: err.code || 'community_taxonomy_update_failed',
-        error: err.message
-      });
+      return sendSceneTemplateError(res, err, 'community_taxonomy_update_failed');
     }
   });
 
@@ -111,7 +131,7 @@ export function registerSceneTemplateRoutes(app, {
       await communityFeaturePolicyService.assertEnabled('community.enabled');
       return res.json(await communityShareService.getTemplateForViewer(req.params.postId, req.actorContext));
     } catch (err) {
-      return res.status(err.statusCode || 500).json({ error: err.message });
+      return sendSceneTemplateError(res, err, 'scene_template_use_failed', 500);
     }
   });
 
@@ -127,7 +147,7 @@ export function registerSceneTemplateRoutes(app, {
       }, req.actorContext);
       res.json(event);
     } catch (err) {
-      res.status(err.statusCode || 400).json({ error: err.message });
+      sendSceneTemplateError(res, err, 'scene_template_remix_event_failed');
     }
   });
 }

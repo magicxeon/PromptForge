@@ -292,7 +292,7 @@ server/app/routes/sceneTemplateRoutes.js
 server/app/createApp.js
 
 client/community/communityTaxonomyPicker.js
-client/scene-builder/sceneSharePreview.js
+client/community/communitySharePreview.js
 client/index.html
 client/style.css
 client/i18n/locales/<locale>/community.json

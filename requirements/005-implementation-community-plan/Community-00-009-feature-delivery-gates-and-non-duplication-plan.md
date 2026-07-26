@@ -1,6 +1,7 @@
 # Community-00-009 Feature Delivery Gates and Non-Duplication Plan
 
 **Status:** Active - Governs Community-05 through Community-12  
+**Implementation status:** Implemented - validation pending
 **Feature type:** Delivery sequencing, feature exposure and ownership control  
 **Depends on:** Community-00-001 through Community-00-008, Community-03 and Community-04  
 **Created:** 2026-07-26
@@ -395,3 +396,92 @@ Alice publishes -> Bob discovers -> Bob reacts/remixes
 -> owner gallery exposes an allowed character/template
 -> Bob opens it in Scene Builder with private references replaced
 ```
+
+## 9. Implemented Delivery Gate Foundation
+
+### 9.1 Server-Owned Policy
+
+- `server/config/community-feature-flags.json` remains the configuration source.
+- `CommunityFeaturePolicyService` validates parent/child dependencies before flags are consumed.
+- Explore requires both canonical sharing and moderation to be enabled.
+- Engagement requires Explore and moderation.
+- Gallery requires creator profiles.
+- Automatic Simple provider routing is rejected while this phase keeps it closed.
+- Disabled write routes reject before calling their domain service with stable error code `community_feature_disabled`.
+- Scene Template routes preserve `{ error: { code, message } }` instead of dropping the policy code.
+
+### 9.2 Client Read Model
+
+`client/community/communityFeaturePolicy.js` is the only client owner for
+loading and interpreting `GET /api/community/features`.
+
+Input:
+
+```text
+server public effective feature flags
+```
+
+Process:
+
+```text
+fetch once -> normalize known booleans -> cache snapshot
+-> dispatch modelpromptforge:communityfeatureschange
+```
+
+Output:
+
+```text
+getSnapshot()
+isEnabled(featurePath)
+isRouteEnabled(pathname)
+isLoaded()
+```
+
+If feature discovery fails, Community controls fail closed while Studio,
+Playground, History and Comparison routes remain available.
+
+### 9.3 Consumers
+
+```text
+client/shell/navigationRegistry.js
+  hides the Community navigation module when community.enabled is false
+
+client/shell/router.js
+  rejects disabled Community and creator-profile deep links
+
+client/shell/applicationShell.js
+  rerenders navigation and revalidates the active route after flags load
+
+client/community/communityHomePage.js
+  reads creatorProfilesEnabled from the canonical client policy
+
+client/core/lightboxService.js
+client/community/communitySharePreview.js
+  hide or reject Share actions when shareEnabled is false
+
+client/scene-builder/sharedTemplatesPanel.js
+  does not request or render shared templates when Community is disabled
+```
+
+### 9.4 Non-Duplication Cleanup
+
+The inactive `client/scene-builder/sceneSharePreview.js` implementation was
+removed. Generated-image and Scene Template sharing now use the canonical
+`client/community/communitySharePreview.js` owner. Older requirement path
+references were updated to this owner.
+
+### 9.5 Validation
+
+Windows validation:
+
+```bat
+scripts\test-community-00-009.bat
+```
+
+Manual checks:
+
+1. With current development flags, Community, creator profile, sharing and moderation remain internal and available.
+2. Set every Community child flag and `community.enabled` to false, restart the server and open `/community`; the client must move to `/studio`.
+3. Confirm Studio and Playground still operate while Community is disabled.
+4. Confirm Share controls and Shared Templates are hidden or empty while disabled.
+5. Restore the committed flag configuration after the manual disabled-state check.

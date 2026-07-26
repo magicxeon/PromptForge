@@ -59,7 +59,11 @@ test('deferred community repositories enforce ownership and strip embedded base6
   const publicGallery = await galleryRepo.listPublic();
   assert.equal(publicGallery.items.length, 1);
   assert.equal(publicGallery.items[0].id, publicGalleryItem.id);
-  assert.equal(publicGallery.items[0].sceneBuilderHandoffSnapshot.style, null);
+  assert.equal(
+    Object.hasOwn(publicGallery.items[0], 'sceneBuilderHandoffSnapshot'),
+    false,
+    'Public gallery summaries must not expose internal handoff snapshots.'
+  );
 
   const character = await characterRepo.create({
     displayName: 'Alice Character',

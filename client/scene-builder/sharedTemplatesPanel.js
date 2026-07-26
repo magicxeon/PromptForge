@@ -5,6 +5,11 @@
   async function refreshSharedTemplates() {
     const listContainer = document.getElementById('shared-templates-list');
     if (!listContainer) return;
+    await window.ModelPromptForgeCommunityFeatures?.initialize?.();
+    if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.('community.enabled') !== true) {
+      listContainer.replaceChildren();
+      return;
+    }
 
     try {
       const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
@@ -94,7 +99,7 @@
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || 'Failed to load template payload');
+        throw new Error(readErrorMessage(errData, 'Failed to load template payload'));
       }
 
       const payload = await res.json();
@@ -121,6 +126,12 @@
       refreshBtn.addEventListener('click', refreshSharedTemplates);
     }
     refreshSharedTemplates();
+  }
+
+  function readErrorMessage(payload, fallback) {
+    return typeof payload?.error === 'object'
+      ? payload.error.message || fallback
+      : payload?.error || fallback;
   }
 
   window.ModelPromptForgeSharedTemplatesPanel = {

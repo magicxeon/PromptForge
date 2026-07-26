@@ -9,6 +9,7 @@
     ,{ id: 'admin', label: { en: 'Admin', th: 'Admin' }, description: { en: 'Support and audit tools', th: 'Support and audit tools' }, route: '/admin', icon: 'admin', order: 90, roles: ['admin', 'support'] }
   ];
   const featureFlags = { aiComparison: true };
+  modules.find(module => module.id === 'community').featurePath = 'community.enabled';
   const groupByModuleId = {
     studio: 'create',
     playground: 'create',
@@ -28,6 +29,7 @@
   function listVisible(context = {}) {
     return modules
       .filter(module => !module.featureFlag || (context.featureFlags?.[module.featureFlag] ?? featureFlags[module.featureFlag]))
+      .filter(module => !module.featurePath || isFeatureEnabled(module.featurePath, context))
       .filter(module => !module.entitlement || context.entitlements?.includes(module.entitlement))
       .filter(module => !module.roles || module.roles.includes(context.role))
       .sort((a, b) => {
@@ -41,6 +43,34 @@
     return ROUTE_PATTERNS.some(pattern => pattern.test(pathname));
   }
 
+  function isAccessibleRoute(pathname, context = {}) {
+    if (!isAllowedRoute(pathname)) return false;
+    if (pathname === '/community' || pathname.startsWith('/creators/')) {
+      return window.ModelPromptForgeCommunityFeatures?.isRouteEnabled?.(
+        pathname,
+        { defaultValue: context.defaultFeatureValue ?? true }
+      ) !== false;
+    }
+    return true;
+  }
+
+  function isFeatureEnabled(featurePath, context = {}) {
+    if (context.communityFeatures) {
+      return readPath(context.communityFeatures, featurePath) === true;
+    }
+    return window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+      featurePath,
+      { defaultValue: context.defaultFeatureValue ?? true }
+    ) !== false;
+  }
+
+  function readPath(value, featurePath) {
+    return String(featurePath).split('.').reduce(
+      (current, key) => current && typeof current === 'object' ? current[key] : undefined,
+      value
+    );
+  }
+
   function getModuleForPath(pathname) {
     if (pathname === '/' || pathname === '/community' || pathname.startsWith('/creators/')) return modules.find(module => module.id === 'community');
     if (pathname === '/playground') return modules.find(module => module.id === 'playground');
@@ -50,5 +80,11 @@
     return modules.find(module => module.id === 'studio');
   }
 
-  window.ModelPromptForgeNavigationRegistry = { listVisible, isAllowedRoute, getModuleForPath, groups };
+  window.ModelPromptForgeNavigationRegistry = {
+    listVisible,
+    isAllowedRoute,
+    isAccessibleRoute,
+    getModuleForPath,
+    groups
+  };
 })();

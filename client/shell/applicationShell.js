@@ -15,6 +15,10 @@
     bindNavigationFade();
     window.addEventListener('modelpromptforge:route', event => applyRoute(event.detail));
     window.addEventListener('modelpromptforge:languagechange', () => renderNavigation());
+    window.addEventListener('modelpromptforge:communityfeatureschange', () => {
+      renderNavigation();
+      window.ModelPromptForgeRouter?.refresh?.();
+    });
     window.addEventListener('modelpromptforge:actorchange', () => {
       renderNavigation();
       applyRoute(window.ModelPromptForgeRouter.current());

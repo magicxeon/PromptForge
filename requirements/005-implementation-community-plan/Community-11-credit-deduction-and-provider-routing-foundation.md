@@ -1,6 +1,6 @@
 # Community-11 Credit Deduction and Provider Routing Foundation
 
-**Status:** Verify only for credits; provider auto-routing deferred
+**Status:** Credit integration verification complete - validation pending; provider auto-routing deferred
 **Feature type:** Billing foundation, credit ledger and future provider routing contract  
 **Depends on:** Provider registry, generation queue, `requirements/000-business-overview/03-ai-provider-costs-and-credits.md`  
 **Created:** 2026-07-19
@@ -244,3 +244,45 @@ Manual:
 ### Release Gate
 
 Do not enable public Community remix until generation requests have a credit reservation path and technical failures can refund credits.
+
+## 10. Current Verification Scope
+
+No Community-specific ledger, pricing service, reservation service or
+generation endpoint was introduced. Community template/remix generation
+continues through the canonical generation request:
+
+```text
+client/core/generationService.js
+-> POST /api/generate
+-> server/app/routes/generationRoutes.js
+-> CreditReservationService.validateAndReserveForRequest()
+-> QueueManager
+-> captureForJob() | refundForJob()
+```
+
+The active `ActorContext.userId` is the payer. Template ownership does not
+change the payer, so Bob using Alice's template reserves and captures or refunds
+Bob's credits only.
+
+Current routing behavior:
+
+```text
+Advanced explicit provider/model selection  enabled
+Simple routing contract                     documented only
+Automatic provider/model selection          disabled
+Dynamic price ingestion                     disabled
+```
+
+Validation is included in:
+
+```text
+test/creditGenerationBilling.test.js
+test/creditReservationService.test.js
+test/creditPricingPolicy.test.js
+scripts/test-community-09-11.bat
+scripts/test-community-00-009-to-11.bat
+```
+
+Automatic Simple routing must not be enabled until a later requirement defines
+a concrete routing consumer, fallback policy, observability, and cost-quality
+decision rules.

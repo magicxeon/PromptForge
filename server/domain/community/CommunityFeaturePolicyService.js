@@ -103,8 +103,9 @@ export function validateCommunityFeatureFlags(flags) {
       throw new TypeError('Community child features cannot be enabled while Community is disabled.');
     }
   }
-  if (flags.community.exploreEnabled && !flags.community.shareEnabled) {
-    throw new TypeError('Community Explore requires Community sharing.');
+  if (flags.community.exploreEnabled
+    && (!flags.community.shareEnabled || !flags.community.moderationEnabled)) {
+    throw new TypeError('Community Explore requires Community sharing and moderation.');
   }
   if (flags.community.engagementEnabled
     && (!flags.community.exploreEnabled || !flags.community.moderationEnabled)) {
@@ -112,6 +113,9 @@ export function validateCommunityFeatureFlags(flags) {
   }
   if (flags.community.galleryEnabled && !flags.community.creatorProfilesEnabled) {
     throw new TypeError('Community gallery requires creator profiles.');
+  }
+  if (flags.routing.automaticSimpleModeEnabled) {
+    throw new TypeError('Automatic Simple provider routing must remain disabled in this phase.');
   }
   return true;
 }

@@ -1,6 +1,6 @@
 # Community-10 Local Mock User and Actor Switcher
 
-**Status:** Verify only - superseded for implementation by Community-00-002
+**Status:** Verification implementation complete - validation pending
 **Feature type:** Development identity foundation and cross-user test harness  
 **Depends on:** Community-00-002 actor context and auth migration foundation
 **Created:** 2026-07-19
@@ -173,3 +173,35 @@ Manual:
 This module is complete when cross-user Community privacy can be manually tested
 without editing JSON files by hand and no production build exposes the mock
 switcher.
+
+## 9. Current Verification Scope
+
+No second identity implementation was added. Verification reuses:
+
+```text
+client/core/actorContext.js
+client/core/apiClient.js
+client/community/communityMockUserSwitcher.js
+server/repositories/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
+server/middleware/actorContextMiddleware.js
+server/app/routes/identityRoutes.js
+```
+
+The Community-09 contract tests create Alice and Bob actor contexts through the
+canonical repository boundary and verify that repository ownership is derived
+from the actor, never caller-supplied ownership fields.
+
+Validation is included in:
+
+```text
+test/mockActorContext.test.js
+test/communityGalleryCharacterContracts.test.js
+test/deferredRepositoryContracts.test.js
+scripts/test-community-09-11.bat
+scripts/test-community-00-009-to-11.bat
+```
+
+Production authentication remains deferred. The mock switcher must remain
+controlled by the server feature policy and hidden when mock actors are not
+enabled.

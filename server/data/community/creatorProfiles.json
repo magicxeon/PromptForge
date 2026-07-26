@@ -1,0 +1,21 @@
+[
+  {
+    "userId": "usr_demo",
+    "handle": "user-demo",
+    "displayName": "Demo User",
+    "bio": "",
+    "avatarAssetId": null,
+    "badgeCodes": [],
+    "membershipEnabled": false,
+    "status": "active",
+    "id": "creator_user_demo",
+    "schemaVersion": 1,
+    "ownerUserId": null,
+    "ownerUsername": null,
+    "visibility": "public",
+    "createdAt": "2026-07-26T05:58:31.878Z",
+    "updatedAt": "2026-07-26T05:58:31.878Z",
+    "deletedAt": null,
+    "metadata": {}
+  }
+]

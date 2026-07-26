@@ -1,6 +1,6 @@
 # Community-00-004 Ownership, Visibility Policy and Public Snapshot
 
-**Status:** Implemented - Validation Pending
+**Status:** Complete - Validated 2026-07-26
 **Feature type:** Authorization, privacy and public read model contract  
 **Depends on:** Actor Context, repository schema, Scene Builder reference policy  
 **Created:** 2026-07-19

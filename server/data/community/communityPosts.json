@@ -1,5 +1,154 @@
 [
   {
+    "title": "Flower Market",
+    "description": "เดินตลาดกะแม่มึง",
+    "promptVisibility": "partial",
+    "imageUrl": "/outputs/job_1784871024092_8wuv90mqb.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1784871024092_8wuv90mqb.webp",
+    "sourceGenerationResultId": "job_1784871024092_8wuv90mqb",
+    "sourceGenerationId": "job_1784871024092_8wuv90mqb",
+    "creatorProfileId": "creator_user_demo",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "manual",
+      "source": "generation_result",
+      "publicPromptText": "Create a photorealistic lifestyle advertising photograph in a vertical 4:5 composition.\n\nShow exactly two adult Thai women at a colorful outdoor flower market in Bangkok during the early morning.\n\nThe woman on the left wears a light-blue denim jacket over a white shirt and holds a bouquet of yellow sunflowers with both...",
+      "createdAt": "2026-07-24T05:30:31.961Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-lite-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-lite-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {
+      "schemaVersion": 1,
+      "mode": "normal",
+      "authoringMode": "manual"
+    },
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.commercial",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "market_context.thai_style",
+        "dimensionId": "market_context",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "market_context.thai_style",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "market_context.thai_style",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "market_context.thai_style",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-26T05:59:05.767Z"
+    },
+    "id": "post_1785045545767_1r75hqrw",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_demo",
+    "ownerUsername": "user_demo",
+    "status": "published",
+    "createdAt": "2026-07-26T05:59:05.767Z",
+    "updatedAt": "2026-07-26T05:59:05.767Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "Standard Fashion studio",
     "description": "Standard Fashion Studio desciption",
     "promptVisibility": "remix_only",

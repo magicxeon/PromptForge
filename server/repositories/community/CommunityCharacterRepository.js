@@ -14,6 +14,24 @@ import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
 
 const CHARACTER_FALLBACK = [];
+const CHARACTER_TYPES = Object.freeze([
+  'headshot_only',
+  'full_character',
+  'face_and_outfit'
+]);
+const REFERENCE_POLICIES = Object.freeze([
+  'private',
+  'owner_only',
+  'replace_required',
+  'public_reusable',
+  'none'
+]);
+const CHARACTER_REUSE_POLICIES = Object.freeze([
+  'none',
+  'view_only',
+  'use_as_character',
+  'remix_with_required_replacements'
+]);
 
 export class CommunityCharacterRepository {
   constructor({
@@ -52,6 +70,12 @@ export class CommunityCharacterRepository {
     return item?.ownerUserId === ownerUserId ? item : null;
   }
 
+  async findPublicById(id) {
+    const item = await this.findById(id);
+    if (!item || item.visibility !== VISIBILITY.PUBLIC || item.status !== 'active') return null;
+    return createPublicCharacterSummary(item);
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const items = (await this.readAll())
@@ -75,7 +99,7 @@ export class CommunityCharacterRepository {
       JSON.stringify({ visibility: VISIBILITY.PUBLIC, sort: normalizedQuery.sort }),
       this.cursorSecret
     );
-    return createPage(page.items, page);
+    return createPage(page.items.map(createPublicCharacterSummary), page);
   }
 
   async create(recordInput = {}, actorContext) {
@@ -89,13 +113,33 @@ export class CommunityCharacterRepository {
     const record = applyRecordDefaults({
       displayName,
       description: recordInput.description || '',
-      characterType: recordInput.characterType || 'full_character_sheet',
+      characterType: pickAllowedValue(
+        recordInput.characterType,
+        CHARACTER_TYPES,
+        'full_character'
+      ),
+      sourceGenerationResultId: recordInput.sourceGenerationResultId
+        || recordInput.sourceGenerationResultIds?.[0]
+        || null,
       previewImageAssetId: recordInput.previewImageAssetId || null,
-      faceReferencePolicy: recordInput.faceReferencePolicy || 'private',
-      outfitReferencePolicy: recordInput.outfitReferencePolicy || 'none',
-      sceneBuilderHandoffSnapshot: stripEmbeddedBase64(recordInput.sceneBuilderHandoffSnapshot || {}),
+      faceReferencePolicy: pickAllowedValue(
+        recordInput.faceReferencePolicy,
+        REFERENCE_POLICIES,
+        'private'
+      ),
+      outfitReferencePolicy: pickAllowedValue(
+        recordInput.outfitReferencePolicy,
+        REFERENCE_POLICIES,
+        'none'
+      ),
+      sceneBuilderHandoffSnapshot: stripEmbeddedBase64(recordInput.sceneBuilderHandoffSnapshot || null),
       sourceGenerationResultIds: Array.isArray(recordInput.sourceGenerationResultIds) ? recordInput.sourceGenerationResultIds : [],
-      reusePolicy: recordInput.reusePolicy || 'use_as_character'
+      officialTags: normalizeStringArray(recordInput.officialTags),
+      reusePolicy: pickAllowedValue(
+        recordInput.reusePolicy,
+        CHARACTER_REUSE_POLICIES,
+        'use_as_character'
+      )
     }, {
       idPrefix: 'char',
       ownerUserId: actor.userId,
@@ -115,6 +159,48 @@ export class CommunityCharacterRepository {
       return structuredClone(record);
     });
   }
+}
+
+function createPublicCharacterSummary(item) {
+  return {
+    id: item.id,
+    ownerUsername: item.ownerUsername || null,
+    creatorProfileId: item.creatorProfileId || null,
+    displayName: item.displayName || '',
+    description: item.description || '',
+    characterType: item.characterType || 'full_character',
+    previewImageAssetId: item.previewImageAssetId || null,
+    faceReferencePolicy: publicReferencePolicy(item.faceReferencePolicy),
+    outfitReferencePolicy: publicReferencePolicy(item.outfitReferencePolicy),
+    reusePolicy: item.reusePolicy || 'view_only',
+    handoffAvailable: Boolean(
+      hasHandoffSnapshot(item.sceneBuilderHandoffSnapshot)
+      && ['use_as_character', 'remix_with_required_replacements'].includes(item.reusePolicy)
+    ),
+    officialTags: normalizeStringArray(item.officialTags),
+    visibility: VISIBILITY.PUBLIC,
+    status: item.status,
+    createdAt: item.createdAt || null,
+    updatedAt: item.updatedAt || null
+  };
+}
+
+function hasHandoffSnapshot(value) {
+  return Boolean(value && typeof value === 'object' && Object.keys(value).length);
+}
+
+function publicReferencePolicy(value) {
+  return value === 'public_reusable' ? 'public_reusable' : 'replace_required';
+}
+
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(
+    value
+      .filter(item => typeof item === 'string')
+      .map(item => item.trim())
+      .filter(Boolean)
+  )];
 }
 
 export const communityCharacterRepo = new CommunityCharacterRepository();

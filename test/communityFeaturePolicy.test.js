@@ -36,13 +36,25 @@ test('community feature policy validates dependencies and rejects disabled acces
     () => validateCommunityFeatureFlags(flags({
       community: { exploreEnabled: true, shareEnabled: false }
     })),
-    /Explore requires Community sharing/
+    /Explore requires Community sharing and moderation/
+  );
+  assert.throws(
+    () => validateCommunityFeatureFlags(flags({
+      community: { exploreEnabled: true, moderationEnabled: false }
+    })),
+    /Explore requires Community sharing and moderation/
   );
   assert.throws(
     () => validateCommunityFeatureFlags(flags({
       community: { engagementEnabled: true, exploreEnabled: false }
     })),
     /engagement requires Explore and moderation/
+  );
+  assert.throws(
+    () => validateCommunityFeatureFlags(flags({
+      routing: { automaticSimpleModeEnabled: true }
+    })),
+    /Automatic Simple provider routing must remain disabled/
   );
 
   const policy = new CommunityFeaturePolicyService({
