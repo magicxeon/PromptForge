@@ -27,6 +27,19 @@ Community-05 becomes `OPEN` only after those three server contracts and tests
 pass. Its implementation then assembles their APIs into Explore, Post Detail and
 Remix without introducing replacement repositories or formulas.
 
+Server exposure is governed by:
+
+```text
+server/config/community-feature-flags.json
+server/domain/community/CommunityFeaturePolicyService.js
+GET /api/community/features
+```
+
+Community-05 routes must call the server policy. Hiding navigation or controls
+without rejecting disabled server operations is not sufficient. Until the
+development gate opens, `community.exploreEnabled` and
+`community.engagementEnabled` remain false.
+
 ## 1. Objective
 
 Create the main Community discovery experience where users can browse generated images, inspect safe prompt/workflow details and launch a remix in Studio.

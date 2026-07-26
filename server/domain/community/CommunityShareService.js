@@ -73,7 +73,7 @@ export class CommunityShareService {
       sourceGenerationId: generation.id,
       ownerUserId: actor.userId,
       ownerUsername: actor.username,
-      creatorProfileId: actor.profileId || null,
+      creatorProfileId: actor.activeCreatorProfileId || actor.profileId || null,
       imageAssetId: generation.imageAssetId || generation.assetId || null,
       thumbnailAssetId: generation.thumbnailAssetId || null,
       imageUrl: generation.imageUrl || '',
@@ -149,6 +149,7 @@ export class CommunityShareService {
 
     const publishedSnapshots = applyPromptVisibilityToSnapshots(draftSnapshots, promptVisibility);
     const reusable = isReusablePublishedSnapshot(publishedSnapshots, promptVisibility);
+    const postType = reusable ? 'template' : 'image';
 
     const taxonomy = await this.classificationService.preparePublishTaxonomy(
       draft.taxonomySuggestion,
@@ -166,6 +167,9 @@ export class CommunityShareService {
       sourceGenerationResultId: draft.sourceGenerationId,
       sourceGenerationId: draft.sourceGenerationId,
       creatorProfileId: draft.creatorProfileId,
+      postType,
+      sourceSceneTemplateSnapshotId: null,
+      sourceComparisonSetId: null,
       imageAssetId: draft.imageAssetId,
       thumbnailAssetId: draft.thumbnailAssetId,
       sourceType: draft.sourceType,

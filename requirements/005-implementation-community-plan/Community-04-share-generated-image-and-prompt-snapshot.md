@@ -167,7 +167,8 @@ All mutating requests require actor context and authorization.
 
 - Development can start from local JSON posts, but service boundaries must match future DB repositories.
 - Published snapshot must reuse Scene Builder `SceneTemplateSnapshot` when available.
-- Actor context comes from Community-10 mock user until real auth exists.
+- Actor context comes from the canonical Community-00-002 boundary until real
+  authentication replaces the mock resolver.
 - Credit deduction is not done here; sharing a generated result is not generation.
 
 ### Canonical Files
@@ -314,4 +315,32 @@ does not create a second feed or generation surface.
 Community-12 owns engagement events, comments, comparison votes and
 week/month/year ranking. Community-04 only creates the post and immutable
 snapshot consumed by that service.
+
+## 14. Canonical Post Envelope Gap Closure
+
+The implemented publish path must now persist the fields required by
+Community-05, Community-06 and Community-12:
+
+```text
+postType: image | template | comparison
+creatorProfileId
+sourceGenerationResultId
+sourceSceneTemplateSnapshotId
+sourceComparisonSetId
+engagementSummary
+```
+
+Current generated-image and Scene Template publishing rules:
+
+- publish as `template` only when the sanitized Scene Template remains reusable;
+- otherwise publish as `image`;
+- complete comparison publishing remains owned by Community-05;
+- derive `creatorProfileId` from `ActorContext.activeCreatorProfileId`;
+- initialize all engagement counters to zero, but do not mutate them in the
+  share service;
+- normalize legacy posts without `postType` from their existing source fields;
+- return `postType` and the allowlisted engagement summary in the public read
+  model.
+
+Community-12 becomes the only writer of engagement state after publication.
 

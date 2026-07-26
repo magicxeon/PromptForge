@@ -59,12 +59,22 @@ export async function normalizeGenerationHistoryRecord(historyItem = {}, mockUse
 export async function normalizeCommunityPostRecord(post = {}, mockUserRepository) {
   const owner = await resolveOwnerFromLegacy(post, mockUserRepository);
   const createdAt = normalizeEpochOrIsoDate(post.createdAt, null);
+  const engagementSummary = normalizeCommunityEngagementSummary(
+    post.engagementSummary,
+    post.counts,
+    post.updatedAt || createdAt
+  );
   return {
     ...structuredClone(post),
     id: post.id || null,
     schemaVersion: Number(post.schemaVersion) || CURRENT_SCHEMA_VERSION,
+    postType: normalizeCommunityPostType(post.postType, post),
     ownerUserId: owner.ownerUserId,
     ownerUsername: owner.ownerUsername,
+    creatorProfileId: post.creatorProfileId || null,
+    sourceGenerationResultId: post.sourceGenerationResultId || post.sourceGenerationId || null,
+    sourceSceneTemplateSnapshotId: post.sourceSceneTemplateSnapshotId || null,
+    sourceComparisonSetId: post.sourceComparisonSetId || null,
     visibility: post.visibility || 'public',
     status: post.status || 'published',
     createdAt,
@@ -74,8 +84,34 @@ export async function normalizeCommunityPostRecord(post = {}, mockUserRepository
     sceneTemplateSnapshot: stripEmbeddedBase64(post.sceneTemplateSnapshot || null),
     sharedPromptSnapshot: stripEmbeddedBase64(post.sharedPromptSnapshot || null),
     providerModelSnapshot: stripEmbeddedBase64(post.providerModelSnapshot || null),
-    workflowSnapshot: stripEmbeddedBase64(post.workflowSnapshot || {})
+    workflowSnapshot: stripEmbeddedBase64(post.workflowSnapshot || {}),
+    engagementSummary
   };
+}
+
+export function normalizeCommunityPostType(value, post = {}) {
+  if (['image', 'template', 'comparison'].includes(value)) return value;
+  if (post.sourceComparisonSetId) return 'comparison';
+  if (post.sourceType === 'scene_template' || post.sceneTemplateSnapshot) return 'template';
+  return 'image';
+}
+
+export function normalizeCommunityEngagementSummary(value = {}, legacyCounts = {}, updatedAt = null) {
+  const summary = value && typeof value === 'object' ? value : {};
+  const counts = legacyCounts && typeof legacyCounts === 'object' ? legacyCounts : {};
+  return {
+    viewCount: nonNegativeCount(summary.viewCount ?? counts.views),
+    likeCount: nonNegativeCount(summary.likeCount ?? counts.likes),
+    saveCount: nonNegativeCount(summary.saveCount ?? counts.saves),
+    commentCount: nonNegativeCount(summary.commentCount ?? counts.comments),
+    remixSuccessCount: nonNegativeCount(summary.remixSuccessCount ?? counts.remixes ?? counts.uses),
+    comparisonVoteCount: nonNegativeCount(summary.comparisonVoteCount ?? counts.votes),
+    updatedAt: normalizeEpochOrIsoDate(summary.updatedAt, normalizeEpochOrIsoDate(updatedAt, null))
+  };
+}
+
+function nonNegativeCount(value) {
+  return Number.isFinite(Number(value)) ? Math.max(0, Math.trunc(Number(value))) : 0;
 }
 
 export async function normalizeCollectionRecord(collection = {}, mockUserRepository) {

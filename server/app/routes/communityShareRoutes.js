@@ -7,9 +7,13 @@ function sendCommunityShareError(res, error) {
   });
 }
 
-export function registerCommunityShareRoutes(app, { communityShareService }) {
+export function registerCommunityShareRoutes(app, {
+  communityShareService,
+  communityFeaturePolicyService
+}) {
   app.post('/api/community/share-drafts', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       const draft = await communityShareService.createGeneratedShareDraft(
         req.body?.sourceGenerationId,
         req.actorContext
@@ -22,6 +26,7 @@ export function registerCommunityShareRoutes(app, { communityShareService }) {
 
   app.patch('/api/community/share-drafts/:draftId', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       return res.json(await communityShareService.updateGeneratedShareDraft(
         req.params.draftId,
         req.body || {},
@@ -34,6 +39,7 @@ export function registerCommunityShareRoutes(app, { communityShareService }) {
 
   app.post('/api/community/share-drafts/:draftId/publish', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       const post = await communityShareService.publishGeneratedImageShare(
         req.params.draftId,
         req.body || {},
@@ -47,6 +53,7 @@ export function registerCommunityShareRoutes(app, { communityShareService }) {
 
   app.delete('/api/community/posts/:postId', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       return res.json(await communityShareService.unpublishOwnPost(
         req.params.postId,
         req.actorContext

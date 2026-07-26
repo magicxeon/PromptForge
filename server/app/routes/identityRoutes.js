@@ -1,11 +1,16 @@
-export function registerIdentityRoutes(app, { mockUserRepo }) {
+export function registerIdentityRoutes(app, {
+  mockUserRepo,
+  communityFeaturePolicyService
+}) {
   app.get('/api/me', (req, res) => {
     res.json(req.actorContext || null);
   });
 
   app.get('/api/mock-users', async (req, res) => {
     try {
-      if (process.env.MPF_ENABLE_MOCK_USERS === 'false') {
+      const features = await communityFeaturePolicyService.getPublicFlags();
+      if (process.env.MPF_ENABLE_MOCK_USERS === 'false'
+        || features.development.mockActorSwitcherEnabled !== true) {
         return res.json({ enabled: false, users: [] });
       }
       const activeUsers = await mockUserRepo.listActiveUsers();

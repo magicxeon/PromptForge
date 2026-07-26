@@ -1,8 +1,10 @@
 export function registerSceneTemplateRoutes(app, {
-  communityShareService
+  communityShareService,
+  communityFeaturePolicyService
 }) {
   app.post('/api/scene-templates/share-drafts', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       const { sourceGenerationId } = req.body || {};
       const draft = await communityShareService.createGeneratedShareDraft(sourceGenerationId, req.actorContext);
       res.json(draft);
@@ -13,6 +15,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       const { title, description, promptVisibility, visibility, officialTags, customTags } = req.body || {};
       const post = await communityShareService.publishGeneratedImageShare(
         req.params.draftId,
@@ -27,6 +30,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.get('/api/scene-templates/shared', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
       const page = await communityShareService.listSharedPosts(req.query, req.actorContext);
       res.json(page.items);
     } catch (err) {
@@ -36,6 +40,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.get('/api/scene-templates/shared/:postId', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
       return res.json(await communityShareService.getSharedPost(req.params.postId, req.actorContext));
     } catch (err) {
       return res.status(err.statusCode || 500).json({ error: err.message });
@@ -44,6 +49,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.get('/api/scene-templates/shared/:postId/:mediaKind(image|thumbnail)', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
       const filePath = await communityShareService.getSharedPostMediaFile(
         req.params.postId,
         req.params.mediaKind,
@@ -60,6 +66,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.patch('/api/scene-templates/shared/:postId', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       return res.json(await communityShareService.updateSharedPostPresentation(
         req.params.postId,
         req.body || {},
@@ -72,6 +79,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/shared/:postId/moderate', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.moderationEnabled');
       return res.json(await communityShareService.moderateSharedPost(
         req.params.postId,
         req.body || {},
@@ -84,6 +92,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.patch('/api/scene-templates/shared/:postId/taxonomy', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.moderationEnabled');
       return res.json(await communityShareService.updateSharedPostTaxonomy(
         req.params.postId,
         req.body || {},
@@ -99,6 +108,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/shared/:postId/use-template', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
       return res.json(await communityShareService.getTemplateForViewer(req.params.postId, req.actorContext));
     } catch (err) {
       return res.status(err.statusCode || 500).json({ error: err.message });
@@ -107,6 +117,7 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/remix-events', async (req, res) => {
     try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
       const { templateId, sourcePostId, generatedJobId, replacementSummary } = req.body || {};
       const event = await communityShareService.recordRemix({
         templateId,

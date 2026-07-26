@@ -9,7 +9,12 @@ import {
   VISIBILITY
 } from '../repositoryContracts.js';
 import { decodeRepositoryCursor, encodeRepositoryCursor } from '../RepositoryCursor.js';
-import { normalizeCommunityPostRecord, stripEmbeddedBase64 } from '../recordNormalizer.js';
+import {
+  normalizeCommunityEngagementSummary,
+  normalizeCommunityPostRecord,
+  normalizeCommunityPostType,
+  stripEmbeddedBase64
+} from '../recordNormalizer.js';
 import { applyRecordDefaults } from '../schemaVersioning.js';
 import { mockUserRepo } from '../identity/MockUserRepository.js';
 
@@ -120,10 +125,16 @@ export class CommunityPostRepository {
     }
 
     const now = new Date().toISOString();
+    const postType = normalizeCommunityPostType(recordInput.postType, recordInput);
     const record = applyRecordDefaults({
       ...stripEmbeddedBase64(recordInput),
+      postType,
       title,
       description: typeof recordInput.description === 'string' ? recordInput.description.trim() : '',
+      creatorProfileId: recordInput.creatorProfileId || null,
+      sourceGenerationResultId: recordInput.sourceGenerationResultId || recordInput.sourceGenerationId || null,
+      sourceSceneTemplateSnapshotId: recordInput.sourceSceneTemplateSnapshotId || null,
+      sourceComparisonSetId: recordInput.sourceComparisonSetId || null,
       sceneTemplateSnapshot: stripEmbeddedBase64(recordInput.sceneTemplateSnapshot || null),
       sharedPromptSnapshot: stripEmbeddedBase64(recordInput.sharedPromptSnapshot || null),
       providerModelSnapshot: stripEmbeddedBase64(recordInput.providerModelSnapshot || null),
@@ -139,7 +150,8 @@ export class CommunityPostRepository {
       taxonomyConfidence: Number.isFinite(Number(recordInput.taxonomyConfidence))
         ? Math.min(1, Math.max(0, Number(recordInput.taxonomyConfidence)))
         : 0,
-      counts: recordInput.counts && typeof recordInput.counts === 'object' ? recordInput.counts : {},
+      counts: {},
+      engagementSummary: normalizeCommunityEngagementSummary({}, {}, now),
       workflowSnapshot: recordInput.workflowSnapshot && typeof recordInput.workflowSnapshot === 'object'
         ? stripEmbeddedBase64(recordInput.workflowSnapshot)
         : {}
@@ -185,9 +197,7 @@ export class CommunityPostRepository {
         ...current,
         title: typeof presentation.title === 'string' && presentation.title.trim() ? presentation.title.trim() : current.title,
         description: typeof presentation.description === 'string' ? presentation.description.trim() : current.description,
-        officialTags: presentation.officialTags === undefined ? current.officialTags : normalizeStringArray(presentation.officialTags),
         customTags: presentation.customTags === undefined ? current.customTags : normalizeStringArray(presentation.customTags),
-        categoryCodes: presentation.categoryCodes === undefined ? current.categoryCodes : normalizeStringArray(presentation.categoryCodes),
         visibility: presentation.visibility === undefined
           ? current.visibility
           : pickAllowedValue(presentation.visibility, allowedVisibility, current.visibility),

@@ -17,6 +17,7 @@ export function buildCommunityPostPublicView(post = {}) {
 
   return {
     id: post.id,
+    postType: publicPostType(post),
     creator: {
       username: post.ownerUsername || null,
       displayName: post.creatorDisplayName || post.ownerUsername || 'Creator',
@@ -44,9 +45,17 @@ export function buildCommunityPostPublicView(post = {}) {
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
+    engagementSummary: publicEngagementSummary(post.engagementSummary, post.counts),
     counts: publicCounts(post.counts),
     createdAt: post.createdAt || null
   };
+}
+
+function publicPostType(post) {
+  if (['image', 'template', 'comparison'].includes(post.postType)) return post.postType;
+  if (post.sourceComparisonSetId) return 'comparison';
+  if (post.sourceType === 'scene_template' || post.sceneTemplateSnapshot) return 'template';
+  return 'image';
 }
 
 function communityMediaUrl(postId, kind) {
@@ -73,6 +82,24 @@ function publicCounts(value) {
   const counts = value && typeof value === 'object' ? value : {};
   return Object.fromEntries(['likes', 'votes', 'comments', 'remixes', 'uses']
     .map(key => [key, Number.isFinite(Number(counts[key])) ? Math.max(0, Number(counts[key])) : 0]));
+}
+
+function publicEngagementSummary(value, legacyCounts) {
+  const summary = value && typeof value === 'object' ? value : {};
+  const counts = legacyCounts && typeof legacyCounts === 'object' ? legacyCounts : {};
+  return {
+    viewCount: publicCount(summary.viewCount ?? counts.views),
+    likeCount: publicCount(summary.likeCount ?? counts.likes),
+    saveCount: publicCount(summary.saveCount ?? counts.saves),
+    commentCount: publicCount(summary.commentCount ?? counts.comments),
+    remixSuccessCount: publicCount(summary.remixSuccessCount ?? counts.remixes ?? counts.uses),
+    comparisonVoteCount: publicCount(summary.comparisonVoteCount ?? counts.votes),
+    updatedAt: typeof summary.updatedAt === 'string' ? summary.updatedAt : null
+  };
+}
+
+function publicCount(value) {
+  return Number.isFinite(Number(value)) ? Math.max(0, Math.trunc(Number(value))) : 0;
 }
 
 function publicTaxonomyAssignments(value) {

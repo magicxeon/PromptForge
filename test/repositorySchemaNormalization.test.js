@@ -65,6 +65,8 @@ test('community repository writes normalized public records and hides hidden rec
     title: 'Public post',
     ownerUserId: 'usr_demo',
     id: 'post_spoofed',
+    officialTags: ['content_type.fashion'],
+    categoryCodes: ['content_type.fashion'],
     sceneTemplateSnapshot: { reference: 'data:image/png;base64,PRIVATE' }
   }, actor);
   await repository.create({ title: 'Hidden post', visibility: 'public', status: 'hidden' }, actor);
@@ -72,11 +74,33 @@ test('community repository writes normalized public records and hides hidden rec
   assert.equal(published.ownerUserId, 'usr_alice');
   assert.notEqual(published.id, 'post_spoofed');
   assert.equal(published.schemaVersion, 1);
+  assert.equal(published.postType, 'template');
+  assert.equal(published.creatorProfileId, null);
+  assert.equal(published.sourceGenerationResultId, null);
+  assert.equal(published.sourceSceneTemplateSnapshotId, null);
+  assert.equal(published.sourceComparisonSetId, null);
   assert.equal(published.status, 'published');
   assert.match(published.createdAt, /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(published.sceneTemplateSnapshot.reference, null);
+  assert.deepEqual(published.engagementSummary, {
+    viewCount: 0,
+    likeCount: 0,
+    saveCount: 0,
+    commentCount: 0,
+    remixSuccessCount: 0,
+    comparisonVoteCount: 0,
+    updatedAt: published.createdAt
+  });
+  const presentation = await repository.updatePresentationById(published.id, {
+    title: 'Updated title',
+    officialTags: ['content_type.commercial'],
+    categoryCodes: ['content_type.commercial']
+  }, actor);
+  assert.equal(presentation.title, 'Updated title');
+  assert.deepEqual(presentation.officialTags, ['content_type.fashion']);
+  assert.deepEqual(presentation.categoryCodes, ['content_type.fashion']);
   const publicPage = await repository.listPublic({}, { userId: 'usr_demo' });
-  assert.deepEqual(publicPage.items.map(item => item.title), ['Public post']);
+  assert.deepEqual(publicPage.items.map(item => item.title), ['Updated title']);
 });
 
 test('generation result repository provides a normalized owner-scoped read facade', async () => {

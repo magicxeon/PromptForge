@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { CommunityShareService } from '../server/domain/community/CommunityShareService.js';
 
-const alice = { userId: 'usr_alice', username: 'user_alice', role: 'creator' };
+const alice = {
+  userId: 'usr_alice',
+  username: 'user_alice',
+  role: 'creator',
+  activeCreatorProfileId: 'creator_alice'
+};
 const bob = { userId: 'usr_bob', username: 'user_bob', role: 'user' };
 
 function createService(generations = {}) {
@@ -97,6 +102,8 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
   }, alice);
 
   assert.equal(post.ownerUserId, 'usr_alice');
+  assert.equal(post.creatorProfileId, 'creator_alice');
+  assert.equal(post.postType, 'template');
   assert.equal(post.sceneTemplateSnapshot.finalPromptSnapshot, '');
   assert.equal(posts.length, 1);
 });

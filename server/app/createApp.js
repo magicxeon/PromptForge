@@ -25,6 +25,7 @@ import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
 import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoutes.js';
 import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
 import { communityClassificationService } from '../domain/community/CommunityClassificationService.js';
+import { communityFeaturePolicyService } from '../domain/community/CommunityFeaturePolicyService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -87,17 +88,27 @@ export function createApp() {
 
   registerAttributesRoutes(app, { providerRegistry, getAttributesBundle });
   registerPromptComposerRoutes(app, { getAttributesBundle });
-  registerIdentityRoutes(app, { mockUserRepo });
+  registerIdentityRoutes(app, {
+    mockUserRepo,
+    communityFeaturePolicyService
+  });
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app);
-  registerCommunityTaxonomyRoutes(app, { communityClassificationService });
-  registerCommunityShareRoutes(app, { communityShareService });
+  registerCommunityTaxonomyRoutes(app, {
+    communityClassificationService,
+    communityFeaturePolicyService
+  });
+  registerCommunityShareRoutes(app, {
+    communityShareService,
+    communityFeaturePolicyService
+  });
   registerSceneTemplateRoutes(app, {
-    communityShareService
+    communityShareService,
+    communityFeaturePolicyService
   });
 
   // Browser routes are client-rendered. Keep this after every API route so a deep link

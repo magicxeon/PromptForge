@@ -3,7 +3,12 @@ import test from 'node:test';
 import { CommunityShareService } from '../server/domain/community/CommunityShareService.js';
 import { buildCommunityPostPublicView } from '../server/domain/community/communityPostPublicView.js';
 
-const alice = { userId: 'usr_alice', username: 'user_alice', role: 'creator' };
+const alice = {
+  userId: 'usr_alice',
+  username: 'user_alice',
+  role: 'creator',
+  activeCreatorProfileId: 'creator_alice'
+};
 const bob = { userId: 'usr_bob', username: 'user_bob', role: 'user' };
 
 function createService(generation) {
@@ -78,6 +83,7 @@ test('generic generated result creates an owner-only sanitized share draft', asy
   const draft = await service.createGeneratedShareDraft(generation.id, alice);
 
   assert.equal(draft.sourceType, 'generated_image');
+  assert.equal(draft.creatorProfileId, 'creator_alice');
   assert.equal(draft.sceneTemplateSnapshot, null);
   assert.equal(draft.sharedPromptSnapshot.publicPromptText, generation.prompt);
   assert.equal(draft.providerModelSnapshot.providerId, 'gemini');
@@ -107,6 +113,7 @@ test('partial prompt publishing stores only a bounded public-safe excerpt', asyn
     authoringMode: 'guided'
   });
   assert.equal(post.reusePolicy, 'view_only');
+  assert.equal(post.postType, 'image');
   assert.equal(buildCommunityPostPublicView(post).promptPreview, 'Fashion portrait in a bright studio, crisp clothing detail.');
 });
 

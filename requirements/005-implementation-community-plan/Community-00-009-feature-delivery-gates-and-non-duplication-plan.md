@@ -307,6 +307,10 @@ Use server-owned configuration or the established module registry. Do not infer
 feature availability only from DOM presence.
 
 ```text
+server/config/community-feature-flags.json
+server/domain/community/CommunityFeaturePolicyService.js
+GET /api/community/features
+
 community.enabled
 community.shareEnabled
 community.exploreEnabled
