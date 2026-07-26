@@ -29,10 +29,30 @@ test('public community post view exposes only allowlisted presentation fields', 
 });
 
 test('hidden and remix-only prompt settings never expose a prompt preview', () => {
-  for (const promptVisibility of ['hidden', 'remix_only']) {
+  for (const promptVisibility of ['hidden', 'remix_only', 'private']) {
     assert.equal(buildCommunityPostPublicView({
       promptVisibility,
       sceneTemplateSnapshot: { finalPromptSnapshot: 'must stay private' }
     }).promptPreview, null);
   }
+});
+
+test('generated-image public view reads the approved top-level prompt and provider snapshots', () => {
+  const view = buildCommunityPostPublicView({
+    id: 'post_generic',
+    imageUrl: '/outputs/generic.png',
+    promptVisibility: 'partial',
+    sharedPromptSnapshot: { publicPromptText: 'Approved public excerpt' },
+    providerModelSnapshot: {
+      providerDisplayName: 'Google Gemini AI',
+      modelDisplayName: 'Image Fast'
+    },
+    workflowSnapshot: { privateRuntimeField: 'must not be returned' },
+    reusePolicy: 'view_only'
+  });
+
+  assert.equal(view.promptPreview, 'Approved public excerpt');
+  assert.equal(view.providerModelDisplay, 'Google Gemini AI - Image Fast');
+  assert.equal(view.workflowSnapshot, undefined);
+  assert.equal(view.templateAvailability, false);
 });

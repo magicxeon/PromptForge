@@ -139,6 +139,22 @@ export class CommunityPostAccessService {
     }, actor);
     return buildCommunityPostPublicView(updated);
   }
+
+  async unpublishOwnPost(postId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    assertCanEditCommunityPost(post, actor);
+    const updated = await this.postRepository.unpublishByOwner(postId, actor);
+    await this.auditRepository.appendEvent({
+      action: 'community_post_owner_unpublished',
+      targetType: 'community_post',
+      targetId: postId,
+      reason: 'Owner unpublished the post.',
+      beforeSnapshot: { status: post.status, visibility: post.visibility },
+      afterSnapshot: { status: updated.status, visibility: updated.visibility }
+    }, actor);
+    return buildCommunityPostPublicView(updated);
+  }
 }
 
 function outputFileName(value) {

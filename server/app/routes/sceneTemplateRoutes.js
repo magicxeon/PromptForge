@@ -4,7 +4,7 @@ export function registerSceneTemplateRoutes(app, {
   app.post('/api/scene-templates/share-drafts', async (req, res) => {
     try {
       const { sourceGenerationId } = req.body || {};
-      const draft = await communityShareService.createSceneShareDraft(sourceGenerationId, req.actorContext);
+      const draft = await communityShareService.createGeneratedShareDraft(sourceGenerationId, req.actorContext);
       res.json(draft);
     } catch (err) {
       res.status(err.statusCode || 400).json({ error: err.message });
@@ -13,10 +13,10 @@ export function registerSceneTemplateRoutes(app, {
 
   app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
     try {
-      const { title, description, promptVisibility, officialTags, customTags } = req.body || {};
-      const post = await communityShareService.publishSceneTemplateShare(
+      const { title, description, promptVisibility, visibility, officialTags, customTags } = req.body || {};
+      const post = await communityShareService.publishGeneratedImageShare(
         req.params.draftId,
-        { title, description, promptVisibility, officialTags, customTags },
+        { title, description, promptVisibility, visibility, officialTags, customTags },
         req.actorContext
       );
       res.json(post);

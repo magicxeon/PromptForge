@@ -385,14 +385,17 @@
 
     const btnShareTemplate = document.getElementById("btn-lightbox-share-template");
     if (btnShareTemplate) {
-      const hasTemplate = item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object";
-      const isOwner = !item.username || item.username === (window.state?.username || 'user_demo');
-      if (hasTemplate && isOwner) {
+      const activeUserId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.();
+      const isOwner = item.ownerUserId
+        ? item.ownerUserId === activeUserId
+        : (!item.username || item.username === (window.state?.username || 'user_demo'));
+      const isCompleted = !item.status || item.status === "completed";
+      if (isOwner && isCompleted && item.id && item.imageUrl) {
         btnShareTemplate.style.display = "block";
         btnShareTemplate.onclick = () => {
-          if (window.ModelPromptForgeSceneSharePreview?.openSharePreview) {
-            window.ModelPromptForgeSceneSharePreview.openSharePreview(item.id);
-          }
+          window.ModelPromptForgeCommunitySharePreview?.openSharePreview?.(item.id, {
+            triggerElement: btnShareTemplate
+          });
         };
       } else {
         btnShareTemplate.style.display = "none";

@@ -23,6 +23,7 @@ import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
 import { registerAdminRoutes } from './routes/adminRoutes.js';
 import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
 import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoutes.js';
+import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
 import { communityClassificationService } from '../domain/community/CommunityClassificationService.js';
 
 export function resolveRequestUsername(req, {
@@ -94,6 +95,7 @@ export function createApp() {
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app);
   registerCommunityTaxonomyRoutes(app, { communityClassificationService });
+  registerCommunityShareRoutes(app, { communityShareService });
   registerSceneTemplateRoutes(app, {
     communityShareService
   });

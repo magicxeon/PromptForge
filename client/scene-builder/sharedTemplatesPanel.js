@@ -12,7 +12,7 @@
       if (!res.ok) throw new Error('Failed to fetch shared templates');
 
       const posts = await res.json();
-      renderSharedTemplatesList(posts);
+      renderSharedTemplatesList((posts || []).filter(post => post.templateAvailability === true));
 
     } catch (err) {
       console.error('[Shared Templates] Error refreshing list:', err);

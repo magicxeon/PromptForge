@@ -6,8 +6,16 @@ import { communityPostRepo } from '../../repositories/community/CommunityPostRep
 import { communityRemixRepo } from '../../repositories/community/RemixEventRepository.js';
 import { CommunityPostAccessService } from './CommunityPostAccessService.js';
 import { communityClassificationService } from './CommunityClassificationService.js';
+import {
+  applyPromptVisibilityToSnapshots,
+  buildGeneratedShareSnapshots,
+  canPublishAsRemixOnly,
+  isReusablePublishedSnapshot
+} from './communityShareSnapshot.js';
 
 const DRAFT_TTL_MS = 15 * 60 * 1000;
+const PROMPT_VISIBILITIES = new Set(['full', 'partial', 'remix_only', 'private']);
+const POST_VISIBILITIES = new Set(['public', 'unlisted', 'private']);
 
 export class CommunityShareService {
   constructor({
@@ -30,7 +38,7 @@ export class CommunityShareService {
     this.shareDrafts = new Map();
   }
 
-  async createSceneShareDraft(sourceGenerationId, actorContext) {
+  async createGeneratedShareDraft(sourceGenerationId, actorContext) {
     const actor = assertActorContext(actorContext);
     if (!sourceGenerationId) {
       throw new RepositoryContractError('source_generation_required', 'A source generation ID is required.');
@@ -40,20 +48,24 @@ export class CommunityShareService {
     if (!generation) {
       throw new RepositoryContractError('source_generation_not_found', 'The source generation result is not available.', 404);
     }
-    if (!generation.sceneTemplateSnapshot || typeof generation.sceneTemplateSnapshot !== 'object') {
-      throw new RepositoryContractError('scene_template_required', 'This image was not generated from a scene template.');
-    }
-
     const publicViewer = { userId: 'community_public', username: 'community_public', role: 'user' };
-    const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
-      generation.sceneTemplateSnapshot,
-      publicViewer,
-      { userId: generation.ownerUserId, username: generation.ownerUsername }
-    ));
+    const sanitizedSceneTemplate = generation.sceneTemplateSnapshot && typeof generation.sceneTemplateSnapshot === 'object'
+      ? stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
+        generation.sceneTemplateSnapshot,
+        publicViewer,
+        { userId: generation.ownerUserId, username: generation.ownerUsername }
+      ))
+      : null;
+    const snapshots = buildGeneratedShareSnapshots(generation, sanitizedSceneTemplate);
     const timestamp = this.now();
+    const classificationSnapshot = sanitizedSceneTemplate || {
+      authoringMode: snapshots.workflowSnapshot.authoringMode,
+      finalPromptSnapshot: snapshots.sharedPromptSnapshot.publicPromptText,
+      structuredSelectionsSnapshot: snapshots.workflowSnapshot.structuredSelections
+    };
     const taxonomySuggestion = await this.classificationService.classifyGeneration(
       generation,
-      sanitizedSnapshot
+      classificationSnapshot
     );
     const draft = {
       id: `draft_${timestamp}_${Math.random().toString(36).slice(2, 9)}`,
@@ -61,9 +73,17 @@ export class CommunityShareService {
       sourceGenerationId: generation.id,
       ownerUserId: actor.userId,
       ownerUsername: actor.username,
+      creatorProfileId: actor.profileId || null,
+      imageAssetId: generation.imageAssetId || generation.assetId || null,
+      thumbnailAssetId: generation.thumbnailAssetId || null,
       imageUrl: generation.imageUrl || '',
       thumbnailUrl: generation.thumbnailUrl || '',
-      sceneTemplateSnapshot: sanitizedSnapshot,
+      sourceType: sanitizedSceneTemplate ? 'scene_template' : 'generated_image',
+      title: '',
+      description: '',
+      promptVisibility: 'full',
+      visibility: 'public',
+      ...snapshots,
       taxonomySuggestion,
       createdAt: new Date(timestamp).toISOString(),
       expiresAt: new Date(timestamp + DRAFT_TTL_MS).toISOString()
@@ -74,33 +94,61 @@ export class CommunityShareService {
     return structuredClone(draft);
   }
 
-  async publishSceneTemplateShare(draftId, payload = {}, actorContext) {
+  async updateGeneratedShareDraft(draftId, payload = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const current = this.getDraftForOwner(draftId, actor.userId);
+    if (!current) {
+      throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
+    }
+
+    const next = {
+      ...current,
+      title: payload.title === undefined ? current.title : String(payload.title || '').trim(),
+      description: payload.description === undefined ? current.description : String(payload.description || '').trim(),
+      promptVisibility: payload.promptVisibility === undefined
+        ? current.promptVisibility
+        : validatePromptVisibility(payload.promptVisibility),
+      visibility: payload.visibility === undefined
+        ? current.visibility
+        : validatePostVisibility(payload.visibility)
+    };
+    this.shareDrafts.set(draftId, next);
+    return structuredClone(next);
+  }
+
+  async publishGeneratedImageShare(draftId, payload = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const draft = this.getDraftForOwner(draftId, actor.userId);
     if (!draft) {
       throw new RepositoryContractError('share_draft_not_found', 'Draft not found or expired.', 404);
     }
 
-    const title = String(payload.title || '').trim();
-    const promptVisibility = payload.promptVisibility;
+    const title = String(payload.title ?? draft.title ?? '').trim();
+    const promptVisibility = validatePromptVisibility(
+      payload.promptVisibility ?? draft.promptVisibility ?? 'full'
+    );
+    const visibility = validatePostVisibility(payload.visibility ?? draft.visibility ?? 'public');
     if (!title) throw new RepositoryContractError('post_title_required', 'Title is required.');
-    if (!promptVisibility) throw new RepositoryContractError('prompt_visibility_required', 'Prompt visibility setting is required.');
-    if (!['full', 'hidden', 'remix_only'].includes(promptVisibility)) {
-      throw new RepositoryContractError('invalid_prompt_visibility', 'Prompt visibility setting is invalid.');
-    }
 
-    const snapshot = stripEmbeddedBase64(draft.sceneTemplateSnapshot);
-    if (snapshot.authoringMode === 'manual' && promptVisibility === 'remix_only') {
+    const draftSnapshots = {
+      sharedPromptSnapshot: draft.sharedPromptSnapshot,
+      providerModelSnapshot: draft.providerModelSnapshot,
+      workflowSnapshot: draft.workflowSnapshot,
+      sceneTemplateSnapshot: draft.sceneTemplateSnapshot
+    };
+    if (promptVisibility === 'remix_only' && !canPublishAsRemixOnly(draftSnapshots)) {
+      const isManual = draftSnapshots.sharedPromptSnapshot?.authoringMode === 'manual'
+        || draftSnapshots.sceneTemplateSnapshot?.authoringMode === 'manual';
       throw new RepositoryContractError(
         'manual_remix_only_not_supported',
-        'Manual prompts cannot be hidden during remix. Please share as Full Prompt.'
+        isManual
+          ? 'Manual prompts cannot be hidden during remix. Please share as Full Prompt.'
+          : 'Remix Only requires a guided Scene Builder template. Please share a Full, Partial or Private Prompt.'
       );
     }
 
-    if (promptVisibility === 'remix_only') {
-      snapshot.finalPromptSnapshot = '';
-      snapshot.manualPromptSnapshot = '';
-    }
+    const publishedSnapshots = applyPromptVisibilityToSnapshots(draftSnapshots, promptVisibility);
+    const reusable = isReusablePublishedSnapshot(publishedSnapshots, promptVisibility);
 
     const taxonomy = await this.classificationService.preparePublishTaxonomy(
       draft.taxonomySuggestion,
@@ -111,15 +159,19 @@ export class CommunityShareService {
     );
     const post = await this.postRepository.create({
       title,
-      description: typeof payload.description === 'string' ? payload.description : '',
+      description: typeof payload.description === 'string' ? payload.description : draft.description,
       promptVisibility,
       imageUrl: draft.imageUrl,
       thumbnailUrl: draft.thumbnailUrl,
       sourceGenerationResultId: draft.sourceGenerationId,
       sourceGenerationId: draft.sourceGenerationId,
-      sceneTemplateSnapshot: snapshot,
-      visibility: 'public',
-      reusePolicy: 'remix_allowed',
+      creatorProfileId: draft.creatorProfileId,
+      imageAssetId: draft.imageAssetId,
+      thumbnailAssetId: draft.thumbnailAssetId,
+      sourceType: draft.sourceType,
+      ...publishedSnapshots,
+      visibility,
+      reusePolicy: reusable ? 'remix_allowed' : 'view_only',
       ...taxonomy
     }, actor);
 
@@ -127,10 +179,25 @@ export class CommunityShareService {
     return post;
   }
 
+  async createSceneShareDraft(sourceGenerationId, actorContext) {
+    return this.createGeneratedShareDraft(sourceGenerationId, actorContext);
+  }
+
+  async publishSceneTemplateShare(draftId, payload = {}, actorContext) {
+    return this.publishGeneratedImageShare(draftId, payload, actorContext);
+  }
+
   async getTemplateForViewer(postId, actorContext) {
     const actor = assertActorContext(actorContext);
     const post = await this.postAccessService.getPostForTemplateUse(postId, actor);
 
+    if (!post.sceneTemplateSnapshot || typeof post.sceneTemplateSnapshot !== 'object') {
+      throw new RepositoryContractError(
+        'community_template_unavailable',
+        'This post does not contain a reusable Scene Builder template.',
+        404
+      );
+    }
     const sanitizedSnapshot = stripEmbeddedBase64(sanitizeReferenceSlotsForPublic(
       post.sceneTemplateSnapshot,
       actor,
@@ -201,11 +268,34 @@ export class CommunityShareService {
   async moderateSharedPost(postId, moderation, actorContext) {
     return this.postAccessService.moderate(postId, moderation, actorContext);
   }
+
+  async unpublishOwnPost(postId, actorContext) {
+    return this.postAccessService.unpublishOwnPost(postId, actorContext);
+  }
 }
 
 export const communityShareService = new CommunityShareService();
 
 // Compatibility exports for existing app composition while routes migrate to the service object.
 export { communityPostRepo, communityRemixRepo };
+export const createGeneratedShareDraft = (...args) => communityShareService.createGeneratedShareDraft(...args);
+export const publishGeneratedImageShare = (...args) => communityShareService.publishGeneratedImageShare(...args);
 export const createSceneShareDraft = (...args) => communityShareService.createSceneShareDraft(...args);
 export const publishSceneTemplateShare = (...args) => communityShareService.publishSceneTemplateShare(...args);
+
+function validatePromptVisibility(value) {
+  if (!value) {
+    throw new RepositoryContractError('prompt_visibility_required', 'Prompt visibility setting is required.');
+  }
+  if (!PROMPT_VISIBILITIES.has(value)) {
+    throw new RepositoryContractError('invalid_prompt_visibility', 'Prompt visibility setting is invalid.');
+  }
+  return value;
+}
+
+function validatePostVisibility(value) {
+  if (!POST_VISIBILITIES.has(value)) {
+    throw new RepositoryContractError('invalid_post_visibility', 'Post visibility setting is invalid.');
+  }
+  return value;
+}

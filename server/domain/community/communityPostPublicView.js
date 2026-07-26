@@ -3,8 +3,16 @@ export function buildCommunityPostPublicView(post = {}) {
     ? post.sceneTemplateSnapshot
     : null;
   const promptVisibility = post.promptVisibility || 'hidden';
-  const promptPreview = promptVisibility === 'full'
-    ? trimPrompt(snapshot?.finalPromptSnapshot || snapshot?.manualPromptSnapshot || '')
+  const sharedPrompt = post.sharedPromptSnapshot && typeof post.sharedPromptSnapshot === 'object'
+    ? post.sharedPromptSnapshot
+    : null;
+  const promptPreview = ['full', 'partial'].includes(promptVisibility)
+    ? trimPrompt(
+      sharedPrompt?.publicPromptText
+        || snapshot?.finalPromptSnapshot
+        || snapshot?.manualPromptSnapshot
+        || ''
+    )
     : null;
 
   return {
@@ -29,9 +37,13 @@ export function buildCommunityPostPublicView(post = {}) {
     },
     promptVisibility,
     promptPreview,
-    providerModelDisplay: providerModelDisplay(snapshot?.providerModelSnapshot),
+    providerModelDisplay: providerModelDisplay(
+      post.providerModelSnapshot || snapshot?.providerModelSnapshot
+    ),
     remixAvailability: post.reusePolicy === 'remix_allowed',
-    templateAvailability: Boolean(snapshot) && post.reusePolicy !== 'view_only',
+    templateAvailability: Boolean(snapshot)
+      && post.reusePolicy !== 'view_only'
+      && promptVisibility !== 'private',
     counts: publicCounts(post.counts),
     createdAt: post.createdAt || null
   };

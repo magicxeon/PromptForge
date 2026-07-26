@@ -125,6 +125,8 @@ export class CommunityPostRepository {
       title,
       description: typeof recordInput.description === 'string' ? recordInput.description.trim() : '',
       sceneTemplateSnapshot: stripEmbeddedBase64(recordInput.sceneTemplateSnapshot || null),
+      sharedPromptSnapshot: stripEmbeddedBase64(recordInput.sharedPromptSnapshot || null),
+      providerModelSnapshot: stripEmbeddedBase64(recordInput.providerModelSnapshot || null),
       officialTags: normalizeStringArray(recordInput.officialTags),
       customTags: normalizeStringArray(recordInput.customTags),
       categoryCodes: normalizeStringArray(recordInput.categoryCodes),
@@ -218,6 +220,26 @@ export class CommunityPostRepository {
           actorUserId: actor.userId,
           moderatedAt: new Date().toISOString()
         },
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
+
+  async unpublishByOwner(id, actorContext) {
+    const actor = assertActorContext(actorContext);
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => post.id === id);
+      if (index < 0) throw new RepositoryContractError('community_post_not_found', 'Community post not found.', 404);
+      if (posts[index].ownerUserId !== actor.userId) {
+        throw new RepositoryContractError('community_post_forbidden', 'You do not have permission to unpublish this post.', 403);
+      }
+      const next = {
+        ...posts[index],
+        status: 'owner_unpublished',
+        visibility: VISIBILITY.PRIVATE,
         updatedAt: new Date().toISOString()
       };
       posts[index] = next;

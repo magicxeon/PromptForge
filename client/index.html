@@ -519,7 +519,8 @@
           <button id="btn-lightbox-add-to-template" class="btn-compact-neon btn-add-to-template-ref"
             style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-cyan); color: #000;" type="button">📥 Add to Template</button>
           <button id="btn-lightbox-share-template" class="btn-compact-neon"
-            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-purple); color: #fff;" type="button">📤 Share Scene Template</button>
+            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-purple); color: #fff;"
+            type="button" data-i18n="community.share.action">Share to Community</button>
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
@@ -637,13 +638,13 @@
     </div>
   </div>
 
-  <!-- Share Template Preview Modal -->
+  <!-- Share Generated Image Preview Modal -->
   <div id="share-template-modal" class="collection-modal app-dialog-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="share-modal-title-text">
-    <div class="collection-modal-card glass-card" style="max-width: 450px; width: 90%;">
+    <div class="collection-modal-card community-share-card glass-card">
       <div class="collection-modal-header">
         <div>
           <span class="collection-kicker" style="font-size: 0.6rem; color: var(--neon-cyan); letter-spacing: 0.1em; text-transform: uppercase;">Model Prompt Forge</span>
-          <h4 id="share-modal-title-text" style="margin-top: 0.25rem; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Share Scene Template</h4>
+          <h4 id="share-modal-title-text" data-i18n="community.share.heading">Share to Community</h4>
         </div>
       </div>
       <div class="app-dialog-body" style="padding: 1rem 0; text-align: left; display: flex; flex-direction: column; gap: 1rem;">
@@ -651,36 +652,51 @@
           <img id="share-modal-img" src="" alt="Preview Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-              <span class="sub-label">Template Title *</span>
-              <input type="text" id="share-modal-title" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15);" placeholder="Enter title...">
+              <span class="sub-label" data-i18n="community.share.title">Post title *</span>
+              <input type="text" id="share-modal-title" class="custom-select"
+                data-i18n-placeholder="community.share.titlePlaceholder" placeholder="Enter title...">
             </label>
           </div>
         </div>
 
         <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-          <span class="sub-label">Description</span>
-          <textarea id="share-modal-desc" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); height: 60px; font-size: 0.8rem;" placeholder="Brief description of the setup..."></textarea>
+          <span class="sub-label" data-i18n="community.share.description">Description</span>
+          <textarea id="share-modal-desc" class="custom-select"
+            data-i18n-placeholder="community.share.descriptionPlaceholder" placeholder="Describe this image..."></textarea>
         </label>
 
         <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-          <span class="sub-label">Prompt Visibility *</span>
+          <span class="sub-label" data-i18n="community.share.promptVisibility">Prompt visibility *</span>
           <select id="share-modal-visibility" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15);">
-            <option value="full">Full Prompt (Show prompt text and allow copy)</option>
-            <option value="remix_only">Remix Only (Hide prompt text, allow variables remix)</option>
+            <option value="full" data-i18n="community.share.prompt.full">Full prompt</option>
+            <option value="partial" data-i18n="community.share.prompt.partial">Partial prompt</option>
+            <option value="remix_only" data-i18n="community.share.prompt.remixOnly">Remix only</option>
+            <option value="private" data-i18n="community.share.prompt.private">Private prompt</option>
           </select>
         </label>
-        <p id="share-manual-warning" style="display: none; font-size: 0.72rem; color: var(--neon-gold); margin: 0;">
-          ⚠️ Manual prompts cannot be hidden during remix. Forced visibility: Full Prompt.
+        <p id="share-manual-warning" class="community-share-warning" hidden
+          data-i18n="community.share.remixUnavailable">
+          Remix Only is available for guided Scene Builder templates.
         </p>
 
-        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
-          <span class="sub-label" style="display: block; margin-bottom: 0.25rem; font-weight: bold;">Reference Slot Policies</span>
-          <ul id="share-modal-policies" style="font-size: 0.75rem; margin: 0; padding-left: 1.2rem; color: #ccc;"></ul>
-        </div>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem;">
+          <span class="sub-label" data-i18n="community.share.postVisibility">Post visibility *</span>
+          <select id="share-modal-post-visibility" class="custom-select">
+            <option value="public" data-i18n="community.post.visibility.public">Public</option>
+            <option value="unlisted" data-i18n="community.post.visibility.unlisted">Unlisted</option>
+            <option value="private" data-i18n="community.post.visibility.private">Private</option>
+          </select>
+        </label>
 
-        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
-          <span class="sub-label" style="display: block; margin-bottom: 0.25rem; font-weight: bold;">Replaceable Parameters</span>
-          <ul id="share-modal-variables" style="font-size: 0.75rem; margin: 0; padding-left: 1.2rem; color: #ccc;"></ul>
+        <div id="share-modal-template-details">
+          <div class="community-share-detail-section">
+            <span class="sub-label" data-i18n="community.share.referencePolicies">Reference slot policies</span>
+            <ul id="share-modal-policies"></ul>
+          </div>
+          <div class="community-share-detail-section">
+            <span class="sub-label" data-i18n="community.share.replaceableParameters">Replaceable parameters</span>
+            <ul id="share-modal-variables"></ul>
+          </div>
         </div>
 
         <section class="community-taxonomy-panel" aria-labelledby="share-taxonomy-title">
@@ -694,8 +710,10 @@
         <div id="share-modal-model-summary" class="sub-label" style="font-size: 0.72rem; color: #888;"></div>
       </div>
       <div class="app-dialog-footer" style="display: flex; gap: 0.55rem; justify-content: flex-end;">
-        <button id="btn-share-modal-cancel" class="btn-compact-neon" type="button" style="background: rgba(255,255,255,0.06); padding: 0.55rem 1.2rem; border-color: rgba(255,255,255,0.15);">Cancel</button>
-        <button id="btn-share-modal-publish" class="btn-compact-neon" type="button" style="background: var(--neon-cyan); color: #000; font-weight: bold; padding: 0.55rem 1.2rem;">Publish</button>
+        <button id="btn-share-modal-cancel" class="btn-compact-neon" type="button"
+          data-i18n="common.action.cancel">Cancel</button>
+        <button id="btn-share-modal-publish" class="btn-compact-neon community-share-publish" type="button"
+          data-i18n="community.share.publish">Publish</button>
       </div>
     </div>
   </div>
@@ -786,6 +804,8 @@
   <script src="/community/communityCreateLauncher.js"></script>
   <script src="/community/communityHomePage.js"></script>
   <script src="/community/communityTaxonomyPicker.js"></script>
+  <script src="/community/communityShareApi.js"></script>
+  <script src="/community/communitySharePreview.js"></script>
   <script src="/admin/adminApi.js"></script>
   <script src="/admin/adminPanel.js"></script>
   <script src="/core/persistence.js"></script>
@@ -816,7 +836,6 @@
   <script src="/scene-builder/sceneVariableControls.js"></script>
   <script src="/scene-builder/sceneReplacementChecklist.js"></script>
   <script src="/scene-builder/sceneHistorySlotPicker.js"></script>
-  <script src="/scene-builder/sceneSharePreview.js"></script>
   <script src="/scene-builder/sharedTemplatesPanel.js"></script>
   <script src="/scene-builder/sceneModeLabels.js"></script>
   <script src="/scene-builder/sceneBuilderController.js"></script>

@@ -71,7 +71,10 @@ export async function normalizeCommunityPostRecord(post = {}, mockUserRepository
     updatedAt: normalizeEpochOrIsoDate(post.updatedAt, createdAt),
     deletedAt: post.deletedAt ? normalizeEpochOrIsoDate(post.deletedAt) : null,
     metadata: post.metadata && typeof post.metadata === 'object' ? structuredClone(post.metadata) : {},
-    sceneTemplateSnapshot: stripEmbeddedBase64(post.sceneTemplateSnapshot || null)
+    sceneTemplateSnapshot: stripEmbeddedBase64(post.sceneTemplateSnapshot || null),
+    sharedPromptSnapshot: stripEmbeddedBase64(post.sharedPromptSnapshot || null),
+    providerModelSnapshot: stripEmbeddedBase64(post.providerModelSnapshot || null),
+    workflowSnapshot: stripEmbeddedBase64(post.workflowSnapshot || {})
   };
 }
 
