@@ -98,25 +98,8 @@ export class GeminiProvider extends BaseProvider {
         });
       }
 
-      // Append style/character references if provided (Slot A & Slot B) (Step 9)
-      if (options.resolvedStyleReferenceImageA) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedStyleReferenceImageB) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      // Append face references if provided (Slot A & Slot B) (Step 9)
+      // Face references precede style/pose so every provider follows the
+      // canonical reference-role manifest order.
       if (options.resolvedFaceReferenceImageA) {
         const image = normalizeImage(options.resolvedFaceReferenceImageA);
         input.push({
@@ -127,6 +110,23 @@ export class GeminiProvider extends BaseProvider {
       }
       if (options.resolvedFaceReferenceImageB) {
         const image = normalizeImage(options.resolvedFaceReferenceImageB);
+        input.push({
+          type: 'image',
+          mime_type: image.mimeType,
+          data: image.data
+        });
+      }
+
+      if (options.resolvedStyleReferenceImageA) {
+        const image = normalizeImage(options.resolvedStyleReferenceImageA);
+        input.push({
+          type: 'image',
+          mime_type: image.mimeType,
+          data: image.data
+        });
+      }
+      if (options.resolvedStyleReferenceImageB) {
+        const image = normalizeImage(options.resolvedStyleReferenceImageB);
         input.push({
           type: 'image',
           mime_type: image.mimeType,

@@ -72,6 +72,44 @@ test('Community-12 reaction routes pass canonical actor context to the service',
   assert.equal(received[3], actor);
 });
 
+test('Community feed route forwards opaque pagination cursor without decoding it', async () => {
+  const routes = createRouteHarness();
+  let receivedQuery = null;
+  registerCommunityEngagementRoutes(routes.app, {
+    engagementService: {},
+    rankingService: {
+      async listRankedPosts(query) {
+        receivedQuery = query;
+        return { items: [], nextCursor: null, hasMore: false };
+      }
+    },
+    moderationService: {},
+    communityFeaturePolicyService: {
+      async assertEnabled() {
+        return true;
+      }
+    }
+  });
+
+  const response = createResponse();
+  await routes.get('GET', '/api/community/posts')({
+    query: {
+      sort: 'trending',
+      period: 'month',
+      postType: 'template',
+      officialTag: 'content_type.fashion',
+      search: 'studio',
+      limit: '12',
+      cursor: 'opaque.signed-cursor'
+    }
+  }, response);
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(receivedQuery.cursor, 'opaque.signed-cursor');
+  assert.equal(receivedQuery.postType, 'template');
+  assert.equal(receivedQuery.officialTag, 'content_type.fashion');
+});
+
 function createRouteHarness() {
   const handlers = new Map();
   const register = method => (route, handler) => handlers.set(`${method} ${route}`, handler);

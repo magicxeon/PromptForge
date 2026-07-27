@@ -5,6 +5,45 @@
   const state = () => window.ModelPromptForgePlaygroundState?.getState?.() || null;
   const persist = patch => window.ModelPromptForgePlaygroundState?.patch?.(patch);
 
+  function resolveEngineSettings(data = state()) {
+    const catalog = window.state?.providerCatalog || { providers: [] };
+    const provider = catalog.providers?.find(item => item.id === data?.settings?.providerId)
+      || catalog.providers?.find(item => item.id === catalog.defaultProvider)
+      || catalog.providers?.[0]
+      || null;
+    const model = provider?.models?.find(item => item.id === data?.settings?.modelId)
+      || provider?.models?.find(item => item.id === provider.defaultModel)
+      || provider?.models?.[0]
+      || null;
+    const resolutions = model?.capabilities?.resolutions || [];
+    const requestedResolution = data?.settings?.resolution;
+    const resolution = resolutions.length
+      ? (resolutions.includes(requestedResolution)
+        ? requestedResolution
+        : (model?.defaults?.resolution || resolutions[0]))
+      : null;
+    return {
+      ...(data?.settings || {}),
+      providerId: provider?.id || '',
+      modelId: model?.id || '',
+      resolution
+    };
+  }
+
+  function getSelectedModel(data = state()) {
+    const settings = resolveEngineSettings(data);
+    const provider = window.state?.providerCatalog?.providers?.find(item => item.id === settings.providerId);
+    return provider?.models?.find(item => item.id === settings.modelId) || null;
+  }
+
+  function getReferenceCapabilities(data = state()) {
+    const capabilities = getSelectedModel(data)?.capabilities || {};
+    return {
+      imageReferences: capabilities.imageReferences === true,
+      maxReferenceImages: Number(capabilities.maxReferenceImages || 0)
+    };
+  }
+
   function buildManualPrompt(data) {
     const prompt = String(data.prompt || '').trim();
     const negative = String(data.negativePrompt || '').trim();
@@ -13,17 +52,18 @@
 
   function pricingInputs() {
     const data = state();
+    const settings = resolveEngineSettings(data);
     const refs = Object.values(data?.references || {}).filter(Boolean);
-    const provider = window.state?.providerCatalog?.providers?.find(item => item.id === data?.settings?.providerId);
-    const model = provider?.models?.find(item => item.id === data?.settings?.modelId);
+    const provider = window.state?.providerCatalog?.providers?.find(item => item.id === settings.providerId);
+    const model = provider?.models?.find(item => item.id === settings.modelId);
     return {
       routingMode: 'advanced',
       qualityTier: 'standard',
       generationMode: 'playground',
-      requestedProviderId: data?.settings?.providerId || null,
-      requestedModelId: data?.settings?.modelId || null,
-      resolution: data?.settings?.resolution || model?.defaults?.resolution || '1K',
-      aspectRatio: data?.settings?.aspectRatio || '6:8',
+      requestedProviderId: settings.providerId || null,
+      requestedModelId: settings.modelId || null,
+      resolution: settings.resolution || model?.defaults?.resolution || '1K',
+      aspectRatio: settings.aspectRatio || '6:8',
       quality: null,
       referenceCount: new Set(refs).size,
       outputCount: 1
@@ -31,6 +71,7 @@
   }
 
   function syncStudioSelections(data) {
+    data = { ...data, settings: resolveEngineSettings(data) };
     const studioState = window.state;
     const prior = {
       mode: studioState.mode,
@@ -98,6 +139,14 @@
   async function generate() {
     const data = state();
     if (!String(data?.prompt || '').trim()) { await window.AppDialog?.alert?.(window.ModelPromptForgeI18n?.t?.('playground.validation.promptRequired', {}, { defaultValue: 'Write a prompt before generating.' }) || 'Write a prompt before generating.', { title: window.ModelPromptForgeI18n?.t?.('playground.validation.promptRequiredTitle', {}, { defaultValue: 'Prompt required' }) || 'Prompt required' }); return; }
+    const referenceValidation = controls.references?.getValidation?.();
+    if (referenceValidation && !referenceValidation.valid) {
+      controls.references.focusFirstInvalid?.();
+      await window.AppDialog?.alert?.(referenceValidation.errors[0]?.message || 'Review the selected reference images.', {
+        title: window.ModelPromptForgeI18n?.t?.('playground.reference.validationTitle', {}, { defaultValue: 'Reference images need attention' }) || 'Reference images need attention'
+      });
+      return;
+    }
     if (controls.engine?.isComparisonActive?.()) return controls.engine.submitComparison();
     controls.result?.focus?.();
     const restore = syncStudioSelections(data);
@@ -138,7 +187,11 @@
     controls?.actions?.destroy?.();
     controls?.engine?.destroy?.();
     controls?.result?.destroy?.();
-    const data = window.ModelPromptForgePlaygroundState.load();
+    const loadedData = window.ModelPromptForgePlaygroundState.load();
+    const normalizedSettings = resolveEngineSettings(loadedData);
+    const settingsChanged = Object.keys(normalizedSettings).some(key => loadedData.settings?.[key] !== normalizedSettings[key]);
+    if (settingsChanged) persist({ settings: normalizedSettings });
+    const data = { ...loadedData, settings: normalizedSettings };
     const shared = window.ModelPromptForgeGenerationControls;
     controls = {};
     controls.composer = window.ModelPromptForgePromptComposer?.createPromptComposerPanel?.({
@@ -181,7 +234,15 @@
       onResultStateChange: resultSurface => persist({ resultSurface })
     });
     controls.prompt = shared.createPromptEditor({ mount: document.getElementById('playground-prompt-editor'), value: data, onChange: patch => { persist(patch); controls.actions.refresh({ debounce: true }); } });
-    controls.references = shared.createReferenceSlotManager({ mount: document.getElementById('playground-reference-slots'), value: data.references, onChange: references => { persist({ references }); controls.actions.refresh({ debounce: true }); } });
+    controls.references = shared.createReferenceSlotManager({
+      mount: document.getElementById('playground-reference-slots'),
+      value: data.references,
+      capabilities: getReferenceCapabilities(data),
+      onChange: references => {
+        persist({ references });
+        controls.actions.refresh({ debounce: true });
+      }
+    });
     controls.engine = shared.createEngineTargetComparisonPanel({
       mount: document.getElementById('playground-engine-target-panel'),
       idPrefix: 'playground-engine-target',
@@ -193,6 +254,7 @@
           settings: { providerId: next.providerId, modelId: next.modelId, resolution: next.resolution, aspectRatio: next.aspectRatio, width: next.width, height: next.height },
           comparisonSlots: Array.isArray(next.comparisonSlots) ? next.comparisonSlots : state()?.comparisonSlots || []
         });
+        controls.references?.setCapabilities?.(getReferenceCapabilities(state()));
         controls.actions?.refresh({ debounce: true });
       },
       getComparisonEstimate: async ({ slots }) => {

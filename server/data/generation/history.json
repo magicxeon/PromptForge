@@ -1,5 +1,374 @@
 [
   {
+    "id": "job_1785166807964_ibrq8z2s5",
+    "username": "user_alice",
+    "prompt": "Interpret the uploaded reference images only according to the following ordered role manifest. Reference image 1: character_reference_a: preserve the same character identity, face, hair, skin, and body proportions while allowing the requested destination pose, outfit, environment, and visual treatment. When role instructions conflict with incidental content visible in a reference, follow the role boundary and the destination prompt. A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+    "imageUrl": "/outputs/job_1785166807964_ibrq8z2s5.jpg",
+    "timestamp": 1785166820651,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "referenceSlotMapping": {
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1785166807964_ibrq8z2s5",
+      "createdAt": 1785166820651
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "12.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785166807964_ibrq8z2s5.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 17540,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 548479
+  },
+  {
+    "id": "job_1785162977431_je03njtoi",
+    "username": "user_alice",
+    "prompt": "A crisp commercial E-commerce product photograph of a 20-year-old male model wearing an oversized pastel green heavy-cotton hoodie and dark grey relaxed cargo pants. Visible thick cotton texture, clean seams, silver metal aglets on the drawstring, and detailed chest logo print. Full-body shot, dynamic street style pose, standing against a clean light grey studio backdrop. Bright white studio lighting, sharp details, vibrant colors, clear view of the apparel fit and silhouette, highly detailed, shot on professional full-frame camera, 8k quality, ready for E-commerce store listing.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+    "imageUrl": "/outputs/job_1785162977431_je03njtoi.jpg",
+    "timestamp": 1785162984145,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "A crisp commercial E-commerce product photograph of a 20-year-old male model wearing an oversized pastel green heavy-cotton hoodie and dark grey relaxed cargo pants. Visible thick cotton texture, clean seams, silver metal aglets on the drawstring, and detailed chest logo print. Full-body shot, dynamic street style pose, standing against a clean light grey studio backdrop. Bright white studio lighting, sharp details, vibrant colors, clear view of the apparel fit and silhouette, highly detailed, shot on professional full-frame camera, 8k quality, ready for E-commerce store listing.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "A crisp commercial E-commerce product photograph of a 20-year-old male model wearing an oversized pastel green heavy-cotton hoodie and dark grey relaxed cargo pants. Visible thick cotton texture, clean seams, silver metal aglets on the drawstring, and detailed chest logo print. Full-body shot, dynamic street style pose, standing against a clean light grey studio backdrop. Bright white studio lighting, sharp details, vibrant colors, clear view of the apparel fit and silhouette, highly detailed, shot on professional full-frame camera, 8k quality, ready for E-commerce store listing.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1785162977431_je03njtoi",
+      "createdAt": 1785162984145
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "6.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785162977431_je03njtoi.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11566,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 548612
+  },
+  {
+    "id": "job_1785162914099_vqemojch6",
+    "username": "user_alice",
+    "prompt": "A high-resolution professional studio fashion photography of a 25-year-old East Asian female model, showcasing a minimalist summer outfit. She is wearing a beige relaxed-fit linen button-up shirt with rolled-up sleeves, paired with high-waisted cream wide-leg trousers. Detailed fabric texture, soft natural linen folds, realistic stitching, and high-end garment quality. The model is standing in a three-quarter pose, smiling gently, holding a minimal canvas tote bag. Neutral aesthetic background, soft diffused window light, subtle soft shadows, cinematic lighting, shot on 85mm lens, f/1.8, sharp focus on the clothes, 8k resolution, photorealistic, commercial fashion catalog style.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+    "imageUrl": "/outputs/job_1785162914099_vqemojch6.jpg",
+    "timestamp": 1785162921494,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "A high-resolution professional studio fashion photography of a 25-year-old East Asian female model, showcasing a minimalist summer outfit. She is wearing a beige relaxed-fit linen button-up shirt with rolled-up sleeves, paired with high-waisted cream wide-leg trousers. Detailed fabric texture, soft natural linen folds, realistic stitching, and high-end garment quality. The model is standing in a three-quarter pose, smiling gently, holding a minimal canvas tote bag. Neutral aesthetic background, soft diffused window light, subtle soft shadows, cinematic lighting, shot on 85mm lens, f/1.8, sharp focus on the clothes, 8k resolution, photorealistic, commercial fashion catalog style.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "A high-resolution professional studio fashion photography of a 25-year-old East Asian female model, showcasing a minimalist summer outfit. She is wearing a beige relaxed-fit linen button-up shirt with rolled-up sleeves, paired with high-waisted cream wide-leg trousers. Detailed fabric texture, soft natural linen folds, realistic stitching, and high-end garment quality. The model is standing in a three-quarter pose, smiling gently, holding a minimal canvas tote bag. Neutral aesthetic background, soft diffused window light, subtle soft shadows, cinematic lighting, shot on 85mm lens, f/1.8, sharp focus on the clothes, 8k resolution, photorealistic, commercial fashion catalog style.\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "referenceSlotMapping": {},
+      "replaceableVariables": [],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1785162914099_vqemojch6",
+      "createdAt": 1785162921494
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785162914099_vqemojch6.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11658,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 637760
+  },
+  {
     "id": "job_1785135394799_ouq46p6rw",
     "username": "user_alice",
     "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated views of the same character arranged side by side in one horizontal row on a single portrait canvas, ordered from left to right: front view, exact side profile, and back view. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a plain light-neutral background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Do not add props, logos, text labels, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, young adult in early twenties, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance, balanced natural build with average proportions and relaxed posture, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, ivory white skin, smooth fair ivory complexion, soft smooth skin with a fine peach fuzz texture, delicate specular highlights, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",

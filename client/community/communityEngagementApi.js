@@ -14,11 +14,13 @@
     officialTag = '',
     postType = 'all',
     search = '',
-    limit = 24
+    limit = 24,
+    cursor = ''
   } = {}) => {
     const params = new URLSearchParams({ sort, period, postType, limit: String(limit) });
     if (officialTag) params.set('officialTag', officialTag);
     if (search) params.set('search', search);
+    if (cursor) params.set('cursor', cursor);
     return api(`/api/community/posts?${params}`);
   };
 

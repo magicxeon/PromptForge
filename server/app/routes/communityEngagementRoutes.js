@@ -25,7 +25,8 @@ export function registerCommunityEngagementRoutes(app, {
         officialTag: req.query.officialTag,
         postType: req.query.postType,
         search: req.query.search,
-        limit: req.query.limit
+        limit: req.query.limit,
+        cursor: req.query.cursor
       }));
     } catch (error) {
       return sendEngagementError(res, error);

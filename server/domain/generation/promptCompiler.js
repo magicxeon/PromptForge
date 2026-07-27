@@ -416,9 +416,6 @@ export function compilePromptOnServer(
       if (mode === "normal" && imageReferences?.outfitReference) {
         return "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
       }
-      if (imageReferences && imageReferences.styleMatch && !referenceOwnsAppearance) {
-        return "matching the style, colors, and clothing outfit from the original uploaded image";
-      }
     }
     if (groupName.toLowerCase() === "pose") {
       if (imageReferences && imageReferences.poseMatch) {
@@ -562,7 +559,12 @@ export function compilePromptOnServer(
     const characterReferenceText = imageReferences?.characterReference
       ? (imageReferences?.characterOverrides
         ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-        : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
+        : (imageReferences?.outfitReference
+          ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+          : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
+      : "";
+    const styleReferenceText = imageReferences?.styleMatch
+      ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
       : "";
     const scenePrompt = templateStr
       .replace("{subject}", fullSubject)
@@ -574,7 +576,7 @@ export function compilePromptOnServer(
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
       .replace("{quality}", quality);
-    prompt = [characterReferenceText, scenePrompt].filter(s => s !== "").join(", ");
+    prompt = [characterReferenceText, styleReferenceText, scenePrompt].filter(s => s !== "").join(", ");
   }
 
   // Clean double commas and spaces

@@ -9,6 +9,11 @@ import {
   normalizeRankingPeriod,
   normalizeRankingSort
 } from './communityEngagementPolicy.js';
+import {
+  decodeRepositoryCursor,
+  encodeRepositoryCursor,
+  RepositoryCursorError
+} from '../../repositories/RepositoryCursor.js';
 
 export class CommunityRankingService {
   constructor({
@@ -18,7 +23,8 @@ export class CommunityRankingService {
     commentRepository = communityCommentRepo,
     voteRepository = communityComparisonVoteRepo,
     policyLoader = loadCommunityEngagementPolicy,
-    now = () => new Date()
+    now = () => new Date(),
+    cursorSecret = process.env.COMMUNITY_RANKING_CURSOR_SECRET || 'local-community-ranking-cursor'
   } = {}) {
     this.postRepository = postRepository;
     this.eventRepository = eventRepository;
@@ -27,6 +33,7 @@ export class CommunityRankingService {
     this.voteRepository = voteRepository;
     this.policyLoader = policyLoader;
     this.now = now;
+    this.cursorSecret = cursorSecret;
   }
 
   async listRankedPosts({
@@ -35,12 +42,36 @@ export class CommunityRankingService {
     officialTag = null,
     postType = 'all',
     search = '',
-    limit = 24
+    limit = 24,
+    cursor = null
   } = {}) {
     const normalizedSort = normalizeRankingSort(sort);
     const normalizedPeriod = normalizeRankingPeriod(period);
     const policy = await this.policyLoader();
-    const windowEnd = this.now();
+    const normalizedPostType = ['image', 'template', 'comparison', 'collection'].includes(postType)
+      ? postType
+      : 'all';
+    const normalizedSearch = String(search || '').trim().toLocaleLowerCase('en-US').slice(0, 100);
+    const normalizedOfficialTag = typeof officialTag === 'string' && officialTag.trim()
+      ? officialTag.trim()
+      : null;
+    const cursorScope = JSON.stringify({
+      sort: normalizedSort,
+      period: normalizedPeriod,
+      officialTag: normalizedOfficialTag,
+      postType: normalizedPostType,
+      search: normalizedSearch,
+      algorithmVersion: policy.algorithmVersion
+    });
+    const cursorPayload = cursor
+      ? decodeRepositoryCursor(cursor, cursorScope, this.cursorSecret)
+      : null;
+    const windowEnd = cursorPayload?.windowEnd
+      ? new Date(cursorPayload.windowEnd)
+      : this.now();
+    if (Number.isNaN(windowEnd.getTime())) {
+      throw new RepositoryCursorError();
+    }
     const windowStart = new Date(
       windowEnd.getTime() - Number(policy.periodHours[normalizedPeriod]) * 60 * 60 * 1000
     );
@@ -49,10 +80,6 @@ export class CommunityRankingService {
       post.visibility === 'public'
       && ['active', 'published', 'reported'].includes(post.status)
     );
-    const normalizedPostType = ['image', 'template', 'comparison', 'collection'].includes(postType)
-      ? postType
-      : 'all';
-    const normalizedSearch = String(search || '').trim().toLocaleLowerCase('en-US').slice(0, 100);
     const posts = eligiblePosts
       .filter(post => normalizedPostType === 'all' || publicPostType(post) === normalizedPostType)
       .filter(post => !normalizedSearch || matchesSearch(post, normalizedSearch));
@@ -60,7 +87,7 @@ export class CommunityRankingService {
     const scored = await Promise.all(posts.map(async post => {
       const metrics = await this.calculateWindowMetrics(post, windowStart, windowEnd, policy);
       const rawScore = calculateRawScore(metrics, policy.weights);
-      const taxonomyMultiplier = taxonomyEligibility(post, officialTag, normalizedSort, policy);
+      const taxonomyMultiplier = taxonomyEligibility(post, normalizedOfficialTag, normalizedSort, policy);
       const moderationMultiplier = moderationEligibility(post);
       const postAgeHours = Math.max(
         0,
@@ -78,19 +105,46 @@ export class CommunityRankingService {
         metrics,
         rawScore,
         trendingScore,
-        eligible: moderationMultiplier > 0 && (!officialTag || taxonomyMultiplier > 0)
+        eligible: moderationMultiplier > 0 && (!normalizedOfficialTag || taxonomyMultiplier > 0)
       };
     }));
 
     const filtered = scored
       .filter(item => item.eligible)
       .sort((left, right) => compareRanked(left, right, normalizedSort));
+    const cursorComparable = cursorPayload
+      ? {
+        post: {
+          id: cursorPayload.id,
+          createdAt: cursorPayload.createdAt
+        },
+        rawScore: Number(cursorPayload.rawScore || 0),
+        trendingScore: Number(cursorPayload.trendingScore || 0)
+      }
+      : null;
+    const remaining = cursorComparable
+      ? filtered.filter(item => compareRanked(item, cursorComparable, normalizedSort) > 0)
+      : filtered;
+    const pageItems = remaining.slice(0, safeLimit);
+    const rankOffset = Math.max(0, Number(cursorPayload?.rankOffset || 0));
+    const hasMore = remaining.length > safeLimit;
+    const last = pageItems.at(-1);
+    const nextCursor = hasMore && last
+      ? encodeRepositoryCursor({
+        id: last.post.id,
+        createdAt: last.post.createdAt,
+        rawScore: last.rawScore,
+        trendingScore: last.trendingScore,
+        rankOffset: rankOffset + pageItems.length,
+        windowEnd: windowEnd.toISOString()
+      }, cursorScope, this.cursorSecret)
+      : null;
 
     return {
-      items: filtered.slice(0, safeLimit).map((item, index) => ({
+      items: pageItems.map((item, index) => ({
         ...buildCommunityPostPublicView(item.post),
         ranking: {
-          rank: index + 1,
+          rank: rankOffset + index + 1,
           score: roundScore(normalizedSort === 'trending' ? item.trendingScore : item.rawScore),
           metrics: item.metrics
         }
@@ -98,15 +152,15 @@ export class CommunityRankingService {
       ranking: {
         sort: normalizedSort,
         period: normalizedPeriod,
-        officialTag: officialTag || null,
+        officialTag: normalizedOfficialTag,
         windowStart: windowStart.toISOString(),
         windowEnd: windowEnd.toISOString(),
         algorithmVersion: policy.algorithmVersion,
         calculatedAt: windowEnd.toISOString()
       },
       facets: buildFacets(eligiblePosts),
-      nextCursor: null,
-      hasMore: filtered.length > safeLimit
+      nextCursor,
+      hasMore
     };
   }
 
@@ -242,12 +296,18 @@ function capEligibleComments(comments, cap) {
 
 function compareRanked(left, right, sort) {
   if (sort === 'latest') {
-    return (Date.parse(right.post.createdAt || '') || 0) - (Date.parse(left.post.createdAt || '') || 0);
+    const createdDifference =
+      (Date.parse(right.post.createdAt || '') || 0) - (Date.parse(left.post.createdAt || '') || 0);
+    if (createdDifference !== 0) return createdDifference;
+    return String(right.post.id || '').localeCompare(String(left.post.id || ''));
   }
   const leftScore = sort === 'trending' ? left.trendingScore : left.rawScore;
   const rightScore = sort === 'trending' ? right.trendingScore : right.rawScore;
   if (rightScore !== leftScore) return rightScore - leftScore;
-  return (Date.parse(right.post.createdAt || '') || 0) - (Date.parse(left.post.createdAt || '') || 0);
+  const createdDifference =
+    (Date.parse(right.post.createdAt || '') || 0) - (Date.parse(left.post.createdAt || '') || 0);
+  if (createdDifference !== 0) return createdDifference;
+  return String(right.post.id || '').localeCompare(String(left.post.id || ''));
 }
 
 function roundScore(value) {

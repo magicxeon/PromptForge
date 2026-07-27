@@ -6,6 +6,11 @@ import {
   CHARACTER_TYPE,
   normalizeCharacterType
 } from '../character-profiles/characterTypePolicy.js';
+import {
+  compileReferenceRoleDirective,
+  createReferenceRoleManifest,
+  validatePlaygroundReferenceRoles
+} from './referenceRolePolicy.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
@@ -32,6 +37,7 @@ function normalizeSceneBuilderState(value, mode) {
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
+  validatePlaygroundReferenceRoles(payload);
   const isCharacterCastingExport = payload.characterProfileContext?.purpose === 'character_casting_export';
   const requestedOutputCount = Number(payload.outputCount || 1);
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
@@ -116,7 +122,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     sceneTemplateSnapshot = sanitizeReferenceSlotsForPublic(sceneTemplateSnapshot, actorContext || {}, null);
   }
 
-  return {
+  const normalizedContext = {
     ...payload,
     mode,
     characterType,
@@ -146,6 +152,8 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     characterProfileContext: normalizeCharacterProfileContext(payload.characterProfileContext),
     referenceCount: new Set(activeReferenceValues).size
   };
+  normalizedContext.referenceRoleManifest = createReferenceRoleManifest(normalizedContext);
+  return normalizedContext;
 }
 
 export function compileGenerationContext(payload = {}, actorContext = null) {
@@ -165,6 +173,9 @@ export function compilePromptFromGenerationContext(context) {
     && typeof context.sceneBuilder.manualPromptText === 'string'
     ? context.sceneBuilder.manualPromptText.trim()
     : '';
+  const manualReferenceDirective = manualScenePrompt
+    ? compileReferenceRoleDirective(context)
+    : '';
   const reusableCharacterSheet = context.mode === 'character-sheet'
     && context.characterType === CHARACTER_TYPE.REUSABLE_MODEL;
   const castingExport = context.characterProfileContext?.purpose === 'character_casting_export';
@@ -173,7 +184,7 @@ export function compilePromptFromGenerationContext(context) {
   const basePrompt = context.userRole === 'admin' && adminPromptOverride
     ? adminPromptOverride
     : (manualScenePrompt
-      ? manualScenePrompt
+      ? [manualReferenceDirective, manualScenePrompt].filter(Boolean).join(' ')
     : compilePromptOnServer(
       context.selections,
       context.aspectRatio,
@@ -239,6 +250,7 @@ export function createQueueOptions(context, {
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
     sceneBuilder: context.sceneBuilder || null,
     sceneTemplateSnapshot: context.sceneTemplateSnapshot || null,
+    referenceRoleManifest: context.referenceRoleManifest || [],
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,

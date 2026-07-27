@@ -181,7 +181,9 @@
     }
 
     const isCharacterRefActive = (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
-      || (isTemplateActive && imageReferences.characterReference && Boolean(characterReferenceImageA || characterReferenceImageB));
+      || ((isTemplateActive || isPlaygroundSurface)
+        && imageReferences.characterReference
+        && Boolean(characterReferenceImageA || characterReferenceImageB));
 
     const submittedReferenceJobIds = {
       face: imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],

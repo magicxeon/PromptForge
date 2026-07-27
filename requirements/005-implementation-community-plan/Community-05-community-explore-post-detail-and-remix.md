@@ -10,6 +10,10 @@ comparison workspace, media activation, creator emphasis and comparison voting
 presentation are specified in
 `Community-05-001-shared-media-and-comparison-presentation.md`.
 
+Opaque cursor pagination, progressive loading, deterministic ranking windows,
+and visible facet-count removal are specified in
+`Community-05-002-community-feed-cursor-pagination.md`.
+
 ## 0. Delivery Gate
 
 This requirement follows

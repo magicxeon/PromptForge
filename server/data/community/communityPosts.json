@@ -1,5 +1,246 @@
 [
   {
+    "title": "Fashion 001",
+    "description": "description sample usage",
+    "promptVisibility": "full",
+    "imageUrl": "/outputs/job_1785166807964_ibrq8z2s5.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785166807964_ibrq8z2s5.webp",
+    "sourceGenerationResultId": "job_1785166807964_ibrq8z2s5",
+    "sourceGenerationId": "job_1785166807964_ibrq8z2s5",
+    "creatorProfileId": "creator_alice",
+    "postType": "template",
+    "sourceSceneTemplateSnapshotId": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "manual",
+      "source": "generation_result",
+      "publicPromptText": "A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "createdAt": "2026-07-27T15:40:20.651Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-lite-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-lite-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {
+      "schemaVersion": 1,
+      "mode": "normal",
+      "authoringMode": "manual",
+      "structuredSelections": {},
+      "generationSettings": {
+        "width": 896,
+        "height": 1200
+      }
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "manual",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {},
+      "manualPromptSnapshot": "A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",
+      "referenceSlotMapping": {
+        "character_reference": {
+          "required": true,
+          "policy": "required_user_replacement",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "defaultValue": null
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "providerDisplayName": "Google Gemini AI",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "modelDisplayName": "Nano Banana 2 Lite (Fastest & Cheapest)",
+        "resolutionAspectRatios": [
+          "1:1",
+          "16:9",
+          "9:16",
+          "6:8",
+          "4:5"
+        ],
+        "referenceSupportSummary": "up to 6 references",
+        "estimatedCreditCost": 1
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "width": "768",
+        "height": "1024",
+        "resolution": null
+      },
+      "createdFromGenerationId": "job_1785166807964_ibrq8z2s5",
+      "createdAt": 1785166820651
+    },
+    "visibility": "public",
+    "reusePolicy": "remix_allowed",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.commercial",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "market_context.social_media",
+        "dimensionId": "market_context",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "content_type.portrait",
+      "content_type.product",
+      "market_context.social_media",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "content_type.portrait",
+      "content_type.product",
+      "market_context.social_media",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.commercial",
+      "content_type.fashion",
+      "content_type.portrait",
+      "content_type.product",
+      "market_context.social_media",
+      "visual_style.realistic_photography",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-27T15:54:36.344Z"
+    },
+    "id": "post_1785166895576_g7e629j6",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "status": "published",
+    "createdAt": "2026-07-27T15:41:35.576Z",
+    "updatedAt": "2026-07-27T15:54:36.344Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "Branchmark comparison",
     "description": "",
     "postType": "comparison",
@@ -146,7 +387,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 3,
+      "views": 4,
       "likes": 1,
       "saves": 0,
       "comments": 0,
@@ -154,13 +395,13 @@
       "votes": 1
     },
     "engagementSummary": {
-      "viewCount": 3,
+      "viewCount": 4,
       "likeCount": 1,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 1,
-      "updatedAt": "2026-07-27T10:00:23.557Z"
+      "updatedAt": "2026-07-27T15:54:59.639Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -168,7 +409,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-27T10:00:23.557Z",
+    "updatedAt": "2026-07-27T15:54:59.639Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -302,7 +543,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
     "counts": {
-      "views": 6,
+      "views": 7,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -310,13 +551,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 6,
+      "viewCount": 7,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-27T10:00:29.373Z"
+      "updatedAt": "2026-07-27T15:55:13.571Z"
     },
     "id": "post_1785045545767_1r75hqrw",
     "schemaVersion": 1,
@@ -324,7 +565,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T05:59:05.767Z",
-    "updatedAt": "2026-07-27T10:00:29.373Z",
+    "updatedAt": "2026-07-27T15:55:13.571Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -498,7 +739,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-20T04:58:37.501Z",
-    "updatedAt": "2026-07-27T10:00:32.749Z",
+    "updatedAt": "2026-07-27T14:19:08.326Z",
     "deletedAt": null,
     "metadata": {},
     "engagementSummary": {
@@ -508,7 +749,7 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-27T10:00:32.749Z"
+      "updatedAt": "2026-07-27T14:19:08.326Z"
     }
   }
 ]

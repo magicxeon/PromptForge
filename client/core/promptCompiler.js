@@ -462,10 +462,6 @@
           const txt = "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
         }
-        if (state.imageReferences.styleMatch && !referenceOwnsAppearance) {
-          const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
-          return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
-        }
       }
       if (groupName.toLowerCase() === "pose") {
         if (state.imageReferences.poseMatch) {
@@ -664,10 +660,19 @@
         ? (cleanTextOnly
           ? (state.characterReferenceOverrides
             ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
+            : (state.imageReferences.outfitReference
+              ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+              : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
           : `<span class="token-reference">${state.characterReferenceOverrides
             ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"}</span>`)
+            : (state.imageReferences.outfitReference
+              ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+              : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")}</span>`)
+        : "";
+      const styleReferenceDirection = state.imageReferences.styleMatch
+        ? (cleanTextOnly
+          ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
+          : '<span class="token-reference">Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content</span>')
         : "";
       const scenePrompt = templateStr
         .replace("{subject}", fullSubject)
@@ -679,7 +684,7 @@
         .replace("{lighting}", lighting)
         .replace("{camera}", camera)
         .replace("{quality}", quality);
-      prompt = [characterReferenceText, scenePrompt].filter(s => s !== "").join(", ");
+      prompt = [characterReferenceText, styleReferenceDirection, scenePrompt].filter(s => s !== "").join(", ");
     }
 
     prompt = prompt.replace(/,(\s*,)+/g, ",");

@@ -10,16 +10,20 @@
     facets: null,
     items: [],
     loading: false,
+    loadingMore: false,
+    nextCursor: null,
+    hasMore: false,
+    paginationError: null,
     error: null
   };
 
   const translate = (key, fallback, variables = {}) =>
     window.ModelPromptForgeI18n?.t?.(key, variables, { defaultValue: fallback }) || fallback;
 
-  async function refresh() {
+  async function refresh({ append = false } = {}) {
     let root = document.querySelector('[data-community-feed]');
     if (!root) return;
-    if (state.loading) {
+    if (state.loading || state.loadingMore) {
       render(root);
       return;
     }
@@ -33,8 +37,15 @@
       return;
     }
 
-    state.loading = true;
-    state.error = null;
+    if (append && (!state.hasMore || !state.nextCursor)) return;
+    state.loading = !append;
+    state.loadingMore = append;
+    state.paginationError = null;
+    if (!append) {
+      state.error = null;
+      state.nextCursor = null;
+      state.hasMore = false;
+    }
     render(root);
     try {
       const result = await window.ModelPromptForgeCommunityEngagementApi.listPosts({
@@ -43,15 +54,34 @@
         postType: state.postType,
         officialTag: state.officialTag,
         search: state.search,
-        limit: 24
+        limit: 24,
+        cursor: append ? state.nextCursor : ''
       });
-      state.items = Array.isArray(result?.items) ? result.items : [];
+      const incoming = Array.isArray(result?.items) ? result.items : [];
+      if (append) {
+        const byId = new Map(state.items.map(item => [item.id, item]));
+        incoming.forEach(item => {
+          if (item?.id && !byId.has(item.id)) byId.set(item.id, item);
+        });
+        state.items = [...byId.values()];
+      } else {
+        state.items = incoming;
+      }
       state.facets = result?.facets || null;
+      state.nextCursor = typeof result?.nextCursor === 'string' && result.nextCursor
+        ? result.nextCursor
+        : null;
+      state.hasMore = result?.hasMore === true && Boolean(state.nextCursor);
     } catch (error) {
-      state.error = error;
-      state.items = [];
+      if (append) {
+        state.paginationError = error;
+      } else {
+        state.error = error;
+        state.items = [];
+      }
     } finally {
       state.loading = false;
+      state.loadingMore = false;
       render();
     }
   }
@@ -97,6 +127,8 @@
     grid.className = 'community-feed-grid';
     state.items.forEach(post => grid.appendChild(buildPostCard(post)));
     root.appendChild(grid);
+    const pagination = buildPagination();
+    if (pagination) root.appendChild(pagination);
   }
 
   function buildToolbar() {
@@ -142,12 +174,11 @@
     ].forEach(([value, label]) => {
       const button = document.createElement('button');
       const active = state.postType === value;
-      const count = state.facets?.postTypes?.[value];
       button.type = 'button';
       button.className = 'community-feed-type';
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
-      button.textContent = Number.isFinite(Number(count)) ? `${label} ${count}` : label;
+      button.textContent = label;
       button.addEventListener('click', () => {
         if (state.postType === value) return;
         state.postType = value;
@@ -171,20 +202,19 @@
     );
     tags.forEach(tag => region.appendChild(categoryButton(
       tag.id,
-      localizedLabel(tag.labels, tag.id),
-      state.facets?.officialTags?.find(item => item.id === tag.id)?.count || 0
+      localizedLabel(tag.labels, tag.id)
     )));
     return region;
   }
 
-  function categoryButton(value, label, count = null) {
+  function categoryButton(value, label) {
     const button = document.createElement('button');
     const active = state.officialTag === value;
     button.type = 'button';
     button.className = 'community-category-chip';
     button.classList.toggle('active', active);
     button.setAttribute('aria-pressed', String(active));
-    button.textContent = count === null ? label : `${label} ${count}`;
+    button.textContent = label;
     button.addEventListener('click', () => {
       if (state.officialTag === value) return;
       state.officialTag = value;
@@ -213,6 +243,37 @@
       refresh();
     });
     return form;
+  }
+
+  function buildPagination() {
+    if (!state.hasMore && !state.loadingMore && !state.paginationError) return null;
+    const footer = document.createElement('div');
+    footer.className = 'community-feed-pagination';
+
+    if (state.paginationError) {
+      const message = document.createElement('p');
+      message.className = 'community-feed-pagination-error';
+      message.textContent = translate(
+        'community.feed.loadMoreError',
+        'More posts could not be loaded. Your current results are still available.'
+      );
+      footer.appendChild(message);
+    }
+
+    if (state.hasMore || state.paginationError) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'btn-neon-outline community-feed-load-more';
+      button.disabled = state.loadingMore || !state.nextCursor;
+      button.textContent = state.loadingMore
+        ? translate('community.feed.loadingMore', 'Loading more...')
+        : state.paginationError
+          ? translate('community.feed.retryMore', 'Retry loading more')
+          : translate('community.feed.loadMore', 'Load more');
+      button.addEventListener('click', () => refresh({ append: true }));
+      footer.appendChild(button);
+    }
+    return footer;
   }
 
   function buildControl(sort, period, label) {

@@ -341,6 +341,9 @@ class QueueManager {
         characterSheetConfig: job.options.characterSheetConfig || null,
         characterProfileContext: job.options.characterProfileContext || null,
         outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
+        referenceRoleManifest: Array.isArray(job.options.referenceRoleManifest)
+          ? job.options.referenceRoleManifest
+          : [],
         storyReferenceHandoff: job.options.storyReferenceHandoff
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
           : null,
