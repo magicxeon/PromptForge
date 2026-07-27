@@ -1,5 +1,3 @@
-import fs from 'fs/promises';
-
 function sendError(res, error) {
   return res.status(error.statusCode || 400).json({
     error: {
@@ -205,7 +203,7 @@ export function registerCharacterProfileRoutes(app, {
     try {
       await assertCommunityEnabled();
       const filePath = await sharingService.getMediaFile(req.params.id, req.actorContext, 'image');
-      await fs.access(filePath);
+      res.set('Cache-Control', 'private, max-age=60');
       return res.sendFile(filePath);
     } catch (error) {
       return sendError(res, error);
@@ -217,7 +215,7 @@ export function registerCharacterProfileRoutes(app, {
       try {
         await assertCommunityEnabled();
         const filePath = await sharingService.getMediaFile(req.params.id, req.actorContext, mediaKind);
-        await fs.access(filePath);
+        res.set('Cache-Control', 'private, max-age=60');
         return res.sendFile(filePath);
       } catch (error) {
         return sendError(res, error);

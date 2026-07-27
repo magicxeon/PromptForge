@@ -1,6 +1,6 @@
 # Character Profile Master Roadmap
 
-**Status:** Implemented; validation pending
+**Status:** In progress - improvement 007 implemented, validation pending
 **Goal:** Turn an approved Character Sheet into a named, reusable and optionally
 public Character Profile.
 
@@ -102,6 +102,7 @@ Community character store.
 | `004-character-profile-page-and-usage-analytics.md` | Profile page and popularity metrics | 003, engagement events |
 | `005-fashion-and-scene-character-handoff.md` | Reusable selection contract | 001–004 |
 | `006-character-profile-qa-and-release-gates.md` | End-to-end release gates | All above |
+| `007-character-community-and-profile-improvements.md` | Community Character row, owner entry, sharing UX and public media correctness | 003, 004, Community |
 
 ## 5. Architecture
 
@@ -163,4 +164,6 @@ source of truth.
 - A second user can select an allowed Character in Fashion Blueprint.
 - Successful usage updates privacy-safe category aggregates exactly once.
 - Owner and viewer authorization tests pass.
+- Community home shows a dedicated Character row, the active user can open
+  `My Characters`, and a second user can view approved public Character media.
 - Existing Headshot, Character Sheet and Scene Builder behavior remains intact.

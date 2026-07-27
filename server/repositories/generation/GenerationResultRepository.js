@@ -22,6 +22,17 @@ export class GenerationResultRepository {
     return item?.ownerUserId === ownerUserId ? item : null;
   }
 
+  async findByIds(ids = []) {
+    const requestedIds = new Set((Array.isArray(ids) ? ids : []).filter(Boolean));
+    if (!requestedIds.size) return [];
+    const historyItems = await this.historyStore.readAll();
+    return Promise.all(
+      historyItems
+        .filter(item => requestedIds.has(item.id))
+        .map(item => normalizeGenerationHistoryRecord(item, this.userRepository))
+    );
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const owner = await this.userRepository.findById(ownerUserId);
     if (!owner) return createPage([]);
@@ -43,4 +54,3 @@ export class GenerationResultRepository {
 }
 
 export const generationResultRepo = new GenerationResultRepository();
-

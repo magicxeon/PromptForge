@@ -33,10 +33,10 @@
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
-    "visibility": "private",
+    "visibility": "public",
     "status": "active",
     "createdAt": "2026-07-27T06:58:24.296Z",
-    "updatedAt": "2026-07-27T06:58:24.296Z",
+    "updatedAt": "2026-07-27T07:58:52.721Z",
     "deletedAt": null,
     "metadata": {}
   }

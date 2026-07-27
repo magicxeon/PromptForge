@@ -1,5 +1,6 @@
 (() => {
   let currentProfile = null;
+  let sharingNotice = '';
   const t = (key, fallback) =>
     window.ModelPromptForgeI18n?.t?.(key, {}, { defaultValue: fallback }) || fallback;
 
@@ -68,6 +69,13 @@
       </section>
       <section class="character-profile-works"><h2>${t('character-profiles.works.title', 'Public work with this Character')}</h2><div data-character-works></div></section>
       ${isOwner && approved ? renderSharing(profile) : ''}`;
+    sharingNotice = '';
+    page.querySelector('.character-profile-media img')?.addEventListener('error', event => {
+      const media = event.currentTarget.closest('.character-profile-media');
+      if (!media) return;
+      media.classList.add('is-empty');
+      media.innerHTML = `<span>${escapeHtml(t('character-profiles.states.mediaUnavailable', 'Character image unavailable'))}</span>`;
+    }, { once: true });
     bindActions(page, profile, version);
     void renderWorks(page.querySelector('[data-character-works]'), profile.id);
   }
@@ -137,14 +145,32 @@
 
   function renderSharing(profile) {
     return `<section class="character-profile-sharing">
-      <div><span class="character-profile-kicker">${t('character-profiles.sharing.kicker', 'SHARING')}</span><h2>${t('character-profiles.sharing.title', 'Who can use this Character?')}</h2></div>
-      <label><span>${t('character-profiles.sharing.visibility', 'Visibility')}</span><select data-character-visibility>
-        ${options(['private', 'unlisted', 'public'], profile.visibility)}</select></label>
-      <label><span>${t('character-profiles.sharing.reuse', 'Reuse policy')}</span><select data-character-reuse>
-        ${options(['owner_only', 'view_only', 'public_reusable'], profile.reusePolicy)}</select></label>
-      <label class="character-rights-check"><input type="checkbox" data-character-rights> ${t('character-profiles.sharing.rights', 'I have the right to share this Character for reuse.')}</label>
-      <button type="button" class="btn-neon-outline" data-character-save-sharing>${t('character-profiles.sharing.save', 'Save sharing settings')}</button>
-      <p data-character-sharing-status role="status"></p>
+      <header class="character-profile-sharing-header">
+        <span class="character-profile-kicker">${t('character-profiles.sharing.kicker', 'SHARING')}</span>
+        <h2>${t('character-profiles.sharing.title', 'Who can use this Character?')}</h2>
+        <p>${t('character-profiles.sharing.description', 'Control discovery and whether other people may generate with this Character.')}</p>
+      </header>
+      <div class="character-profile-sharing-fields">
+        <label class="character-sharing-field"><span>${t('character-profiles.sharing.visibility', 'Visibility')}</span>
+          <select data-character-visibility>${options(['private', 'unlisted', 'public'], profile.visibility)}</select>
+          <small>${t('character-profiles.sharing.visibilityHelp', 'Choose where this Character can be discovered.')}</small>
+        </label>
+        <label class="character-sharing-field"><span>${t('character-profiles.sharing.reuse', 'Reuse permission')}</span>
+          <select data-character-reuse>${options(['owner_only', 'view_only', 'public_reusable'], profile.reusePolicy)}</select>
+          <small>${t('character-profiles.sharing.reuseHelp', 'Choose whether viewers may create images with this Character.')}</small>
+        </label>
+      </div>
+      <label class="character-rights-check" data-character-rights-field>
+        <input type="checkbox" data-character-rights ${profile.rightsDeclarationVersion ? 'checked' : ''}>
+        <span>${t('character-profiles.sharing.rights', 'I have the right to share this Character for reuse.')}</span>
+      </label>
+      <footer class="character-profile-sharing-footer">
+        <div>
+          <strong data-character-sharing-effective></strong>
+          <p data-character-sharing-status role="status">${escapeHtml(sharingNotice)}</p>
+        </div>
+        <button type="button" class="btn-neon-yellow-glow" data-character-save-sharing>${t('character-profiles.sharing.save', 'Save sharing settings')}</button>
+      </footer>
     </section>`;
   }
 
@@ -183,20 +209,56 @@
         { title: t('character-profiles.actions.characterSelected', 'Character selected') }
       );
     });
-    page.querySelector('[data-character-save-sharing]')?.addEventListener('click', async () => {
+    const visibility = page.querySelector('[data-character-visibility]');
+    const reuse = page.querySelector('[data-character-reuse]');
+    visibility?.addEventListener('change', () => syncSharingControls(page));
+    reuse?.addEventListener('change', () => syncSharingControls(page));
+    syncSharingControls(page);
+    page.querySelector('[data-character-save-sharing]')?.addEventListener('click', async event => {
       const status = page.querySelector('[data-character-sharing-status]');
+      const button = event.currentTarget;
       try {
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        status.textContent = t('character-profiles.sharing.saving', 'Saving sharing settings...');
         await window.ModelPromptForgeCharacterProfileApi.updateSharing(profile.id, {
-          visibility: page.querySelector('[data-character-visibility]').value,
-          reusePolicy: page.querySelector('[data-character-reuse]').value,
+          visibility: visibility.value,
+          reusePolicy: reuse.value,
           rightsDeclarationAccepted: page.querySelector('[data-character-rights]').checked
         });
-        status.textContent = t('character-profiles.sharing.saved', 'Sharing settings saved.');
+        sharingNotice = t('character-profiles.sharing.saved', 'Sharing settings saved.');
         await activate(profile.id);
       } catch (error) {
         status.textContent = error.message;
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
       }
     });
+  }
+
+  function syncSharingControls(page) {
+    const visibility = page.querySelector('[data-character-visibility]')?.value || 'private';
+    const reuse = page.querySelector('[data-character-reuse]')?.value || 'owner_only';
+    const rights = page.querySelector('[data-character-rights-field]');
+    const effective = page.querySelector('[data-character-sharing-effective]');
+    if (rights) rights.hidden = reuse !== 'public_reusable';
+    if (effective) effective.textContent = effectiveSharingLabel(visibility, reuse);
+  }
+
+  function effectiveSharingLabel(visibility, reuse) {
+    if (visibility === 'private') {
+      return t('character-profiles.sharing.effective.private', 'Current result: Private');
+    }
+    if (visibility === 'unlisted') {
+      return t('character-profiles.sharing.effective.unlisted', 'Current result: Available by direct link');
+    }
+    if (reuse === 'public_reusable') {
+      return t('character-profiles.sharing.effective.reusable', 'Current result: Public and available for reuse');
+    }
+    if (reuse === 'view_only') {
+      return t('character-profiles.sharing.effective.viewOnly', 'Current result: Public and view only');
+    }
+    return t('character-profiles.sharing.effective.ownerOnly', 'Current result: Public, only the owner can generate');
   }
 
   function statusLabel(profile) {

@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import path from 'path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { characterProfileRepo } from '../../repositories/character-profiles/CharacterProfileRepository.js';
@@ -112,9 +113,12 @@ export class CharacterProfileSharingService {
   async listPublic(query = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const page = await this.profileRepository.listPublic(query);
+    const summaries = await Promise.all(
+      page.items.map(item => this.buildPublicSummary(item, actor))
+    );
     return {
       ...page,
-      items: await Promise.all(page.items.map(item => this.buildPublicSummary(item, actor)))
+      items: await this.applyFeaturedWork(summaries, actor)
     };
   }
 
@@ -123,8 +127,10 @@ export class CharacterProfileSharingService {
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const version = await this.requireActiveVersion(profile);
     const stats = await this.usageService.getStats(profile.id);
+    const summary = await this.buildPublicSummary(profile, actor, version);
+    const [featuredSummary] = await this.applyFeaturedWork([summary], actor);
     return {
-      ...(await this.buildPublicSummary(profile, actor, version)),
+      ...featuredSummary,
       shortDescription: profile.shortDescription,
       personalitySummary: profile.personalitySummary,
       stats,
@@ -194,10 +200,12 @@ export class CharacterProfileSharingService {
       cursor: query.cursor || null,
       sort: query.sort || 'newest'
     }, actor);
+    const sourceIds = posts.items.map(post => post.sourceGenerationResultId).filter(Boolean);
+    const results = await this.generationResultRepository.findByIds(sourceIds);
+    const resultById = new Map(results.map(result => [result.id, result]));
     const matches = [];
     for (const post of posts.items) {
-      if (!post.sourceGenerationResultId) continue;
-      const result = await this.generationResultRepository.findById(post.sourceGenerationResultId);
+      const result = resultById.get(post.sourceGenerationResultId);
       if (result?.characterProfileContext?.characterProfileId === profile.id) {
         matches.push(buildCommunityPostPublicView(post));
       }
@@ -214,28 +222,72 @@ export class CharacterProfileSharingService {
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
     const version = await this.versionRepository.findById(profile.activeVersionId);
     const characterType = normalizeCharacterType(profile.characterType);
-    const canonicalAssetId = resolveCanonicalCharacterAsset(version, characterType);
+    const canonicalAssetId = version
+      ? resolveCanonicalCharacterAsset(version, characterType)
+      : null;
     if (!version || version.characterProfileId !== profile.id
       || !canonicalAssetId
       || (profile.ownerUserId !== actor.userId && version.status !== 'approved')) {
-      throw new RepositoryContractError('character_profile_media_not_found', 'Character image is unavailable.', 404);
+      throw new RepositoryContractError(
+        'character_profile_media_not_ready',
+        'Character image is not ready.',
+        409
+      );
     }
-    const result = await this.generationResultRepository.findById(canonicalAssetId);
     const derivativeUrl = characterType === 'reusable_model' && mediaKind === 'face'
       ? version.castingFacePreviewUrl
       : characterType === 'reusable_model' && mediaKind === 'thumbnail'
         ? version.castingFrontPreviewUrl
         : null;
-    const imageUrl = derivativeUrl || result?.imageUrl;
-    if (!imageUrl) {
-      throw new RepositoryContractError('character_profile_media_not_found', 'Character image is unavailable.', 404);
+    const derivativePath = await resolveExistingOutputPath(derivativeUrl);
+    if (derivativePath) return derivativePath;
+
+    const result = await this.generationResultRepository.findById(canonicalAssetId);
+    const canonicalPath = await resolveExistingOutputPath(result?.imageUrl);
+    if (canonicalPath) return canonicalPath;
+
+    throw new RepositoryContractError(
+      'character_profile_media_missing',
+      'Character image file is unavailable.',
+      404
+    );
+  }
+
+  async applyFeaturedWork(summaries = [], actorContext) {
+    if (!summaries.length) return summaries;
+    try {
+      const profileIds = new Set(summaries.map(item => item.id));
+      const posts = await this.communityPostRepository.listPublic(
+        { limit: 50, sort: 'newest' },
+        actorContext
+      );
+      const sourceIds = posts.items.map(post => post.sourceGenerationResultId).filter(Boolean);
+      const results = await this.generationResultRepository.findByIds(sourceIds);
+      const resultById = new Map(results.map(result => [result.id, result]));
+      const featuredByProfileId = new Map();
+
+      for (const post of posts.items) {
+        const result = resultById.get(post.sourceGenerationResultId);
+        const profileId = result?.characterProfileContext?.characterProfileId;
+        if (!profileIds.has(profileId) || featuredByProfileId.has(profileId)) continue;
+        const publicPost = buildCommunityPostPublicView(post);
+        const displayImageUrl = publicPost.thumbnailUrl || publicPost.imageUrl;
+        if (displayImageUrl) {
+          featuredByProfileId.set(profileId, {
+            displayImageUrl,
+            displayImageSource: 'featured_work'
+          });
+        }
+      }
+
+      return summaries.map(summary => ({
+        ...summary,
+        ...(featuredByProfileId.get(summary.id) || {})
+      }));
+    } catch (error) {
+      console.warn('[Character Profiles] Featured public work lookup failed:', error.message);
+      return summaries;
     }
-    const relative = String(imageUrl).replace(/^\/outputs\/?/, '');
-    const filePath = path.resolve(OUTPUTS_DIR, relative);
-    if (!filePath.startsWith(`${path.resolve(OUTPUTS_DIR)}${path.sep}`)) {
-      throw new RepositoryContractError('character_profile_media_not_found', 'Character image is unavailable.', 404);
-    }
-    return filePath;
   }
 
   async buildPublicSummary(profile, actor, providedVersion = null) {
@@ -243,6 +295,10 @@ export class CharacterProfileSharingService {
     const stats = await this.usageService.getStats(profile.id);
     const characterType = normalizeCharacterType(profile.characterType);
     const capabilities = getCharacterTypeCapabilities(characterType);
+    const canonicalImageUrl = `/api/community/character-profiles/${encodeURIComponent(profile.id)}/image`;
+    const thumbnailUrl = `/api/community/character-profiles/${encodeURIComponent(profile.id)}/thumbnail`;
+    const hasCastingPreview = characterType === 'reusable_model'
+      && Boolean(version.castingFrontPreviewUrl);
     return {
       id: profile.id,
       displayName: profile.displayName,
@@ -253,12 +309,15 @@ export class CharacterProfileSharingService {
       outfitBehavior: capabilities.outfitBehavior,
       creatorProfileId: profile.creatorProfileId || null,
       ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || null,
+      status: profile.status,
       reusePolicy: profile.reusePolicy,
       reuseStatus: reuseStatus(profile, actor),
       handoffAvailable: profile.ownerUserId === actor.userId || profile.reusePolicy === 'public_reusable',
-      imageUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/image`,
-      thumbnailUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/thumbnail`,
+      imageUrl: canonicalImageUrl,
+      thumbnailUrl,
       faceThumbnailUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/face`,
+      displayImageUrl: hasCastingPreview ? thumbnailUrl : canonicalImageUrl,
+      displayImageSource: hasCastingPreview ? 'casting_preview' : 'canonical_sheet',
       characterProfileVersionId: version.id,
       stats
     };
@@ -293,3 +352,17 @@ function sanitizeCompatibleAttributes(snapshot = {}) {
 }
 
 export const characterProfileSharingService = new CharacterProfileSharingService();
+
+async function resolveExistingOutputPath(imageUrl) {
+  if (typeof imageUrl !== 'string' || !imageUrl.startsWith('/outputs/')) return null;
+  const relative = imageUrl.slice('/outputs/'.length).replaceAll('/', path.sep);
+  const candidate = path.resolve(OUTPUTS_DIR, relative);
+  const root = path.resolve(OUTPUTS_DIR);
+  if (!candidate.startsWith(`${root}${path.sep}`)) return null;
+  try {
+    await fs.access(candidate);
+    return candidate;
+  } catch {
+    return null;
+  }
+}

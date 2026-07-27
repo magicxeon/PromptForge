@@ -22,6 +22,7 @@ for %%F in (
   "server\repositories\character-profiles\CharacterProfileRepository.js"
   "server\repositories\character-profiles\CharacterProfileVersionRepository.js"
   "server\repositories\character-profiles\CharacterUsageRepository.js"
+  "server\repositories\generation\GenerationResultRepository.js"
   "client\character-profiles\characterProfileApi.js"
   "client\character-profiles\characterProfileState.js"
   "client\character-profiles\characterTypeControl.js"
@@ -34,6 +35,8 @@ for %%F in (
   "client\core\promptCompiler.js"
   "client\community\communityCharacterSection.js"
   "client\community\communityCharacterDirectory.js"
+  "client\community\communityHomePage.js"
+  "client\community\communityMockUserSwitcher.js"
 ) do (
   node --check "%%~F"
   if errorlevel 1 exit /b 1

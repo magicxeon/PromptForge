@@ -14,17 +14,19 @@
     "activeVersionId": "charver_1785135501362_do0479ps",
     "creatorProfileId": "creator_alice",
     "idempotencyKey": "character-profile:job_1785135394799_ouq46p6rw",
-    "recordVersion": 3,
+    "recordVersion": 5,
     "id": "charprof_1785135501348_4te0f9xf",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
-    "visibility": "private",
+    "visibility": "public",
     "status": "approved",
     "createdAt": "2026-07-27T06:58:21.347Z",
-    "updatedAt": "2026-07-27T06:58:24.283Z",
+    "updatedAt": "2026-07-27T07:58:52.717Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "rightsDeclarationVersion": null,
+    "rightsDeclarationAcceptedAt": null
   },
   {
     "ownerUsernameSnapshot": "user_alice",

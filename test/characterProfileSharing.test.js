@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { canReuseCharacterProfile, reuseStatus } from '../server/domain/character-profiles/characterProfilePolicy.js';
+import { CharacterProfileSharingService } from '../server/domain/character-profiles/CharacterProfileSharingService.js';
 import { CommunityCharacterRepository } from '../server/repositories/community/CommunityCharacterRepository.js';
 
 const owner = { userId: 'usr_owner' };
@@ -68,4 +69,71 @@ test('public Styled Character projection is selectable in Scene without a Castin
   assert.deepEqual(page.items[0].destinationCapabilities, ['scene_builder']);
   assert.equal(page.items[0].outfitBehavior, 'preserve');
   assert.equal(page.items[0].canonicalCastingExportAssetId, null);
+});
+
+test('public Character summary prefers its newest public work and retains canonical fallback', async () => {
+  const profile = {
+    id: 'charprof_featured',
+    activeVersionId: 'charver_featured',
+    ownerUserId: owner.userId,
+    ownerUsernameSnapshot: 'owner',
+    displayName: 'Mina',
+    personalitySummary: 'Calm and precise',
+    intendedUses: ['fashion'],
+    characterType: 'reusable_model',
+    status: 'approved',
+    visibility: 'public',
+    reusePolicy: 'public_reusable'
+  };
+  const version = {
+    id: 'charver_featured',
+    characterProfileId: profile.id,
+    status: 'approved',
+    canonicalCastingExportAssetId: 'job_casting',
+    castingFrontPreviewUrl: '/outputs/front.webp'
+  };
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      listPublic: async () => ({ items: [profile], nextCursor: null, hasMore: false })
+    },
+    versionRepository: {
+      findById: async id => id === version.id ? version : null
+    },
+    generationResultRepository: {
+      findByIds: async ids => ids.includes('job_featured')
+        ? [{
+          id: 'job_featured',
+          characterProfileContext: { characterProfileId: profile.id }
+        }]
+        : []
+    },
+    communityPostRepository: {
+      listPublic: async () => ({
+        items: [{
+          id: 'post_featured',
+          sourceGenerationResultId: 'job_featured',
+          imageUrl: '/outputs/featured.png',
+          visibility: 'public',
+          status: 'published'
+        }],
+        nextCursor: null,
+        hasMore: false
+      })
+    },
+    usageService: {
+      getStats: async () => ({ totalOutputs: 4, byUseCase: { fashion: 4 } })
+    }
+  });
+
+  const page = await service.listPublic({}, viewer);
+  assert.equal(page.items[0].status, 'approved');
+  assert.equal(page.items[0].displayImageSource, 'featured_work');
+  assert.equal(
+    page.items[0].displayImageUrl,
+    '/api/scene-templates/shared/post_featured/thumbnail'
+  );
+  assert.equal(
+    page.items[0].thumbnailUrl,
+    '/api/community/character-profiles/charprof_featured/thumbnail'
+  );
 });

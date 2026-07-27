@@ -41,11 +41,18 @@
     <section data-community-character-list></section>`;
     const form = page.querySelector('[data-character-filters]');
     const list = page.querySelector('[data-community-character-list]');
+    const initialScope = new URL(window.location.href).searchParams.get('scope') === 'own'
+      ? 'own'
+      : 'public';
+    form.elements.scope.value = initialScope;
     const load = () => window.ModelPromptForgeCommunityCharacterSection.render(list, {
+      variant: 'directory',
       scope: form.elements.scope.value,
-      creator: form.elements.creator.value,
-      intendedUse: form.elements.intendedUse.value,
-      reusePolicy: form.elements.reusePolicy.value
+      filters: {
+        creator: form.elements.creator.value,
+        intendedUse: form.elements.intendedUse.value,
+        reusePolicy: form.elements.reusePolicy.value
+      }
     });
     form.addEventListener('submit', event => {
       event.preventDefault();
@@ -56,15 +63,22 @@
       form.elements.creator.disabled = own;
       form.elements.intendedUse.disabled = own;
       form.elements.reusePolicy.disabled = own;
+      const url = new URL(window.location.href);
+      if (own) url.searchParams.set('scope', 'own');
+      else url.searchParams.delete('scope');
+      window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}`);
       void load();
     });
-    void load();
+    form.elements.scope.dispatchEvent(new Event('change'));
   }
 
   window.addEventListener('modelpromptforge:route', event => {
     if (event.detail.pathname === '/community/characters') activate();
   });
   window.addEventListener('modelpromptforge:languagechange', () => {
+    if (location.pathname === '/community/characters') activate();
+  });
+  window.addEventListener('modelpromptforge:actorchange', () => {
     if (location.pathname === '/community/characters') activate();
   });
   window.ModelPromptForgeCommunityCharacterDirectory = { activate };

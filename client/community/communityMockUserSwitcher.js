@@ -7,7 +7,11 @@
   async function initMockUserSwitcher() {
     const switcherSelect = document.getElementById('mock-user-select');
     const switcherContainer = document.getElementById('mock-user-switcher-container');
+    const myCharactersButton = document.getElementById('btn-my-characters');
     if (!switcherSelect) return;
+    myCharactersButton?.addEventListener('click', () =>
+      window.ModelPromptForgeRouter?.navigate?.('/community/characters?scope=own')
+    );
 
     if (window.MPF_ENABLE_MOCK_USERS === false) {
       if (switcherContainer) switcherContainer.hidden = true;

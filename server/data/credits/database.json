@@ -10174,6 +10174,1190 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-07-27T06:58:32.745Z",
       "expiresAt": "2026-07-27T07:13:32.745Z"
+    },
+    {
+      "estimateId": "est_1785138848543_nd7dvl9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:08.543Z",
+      "expiresAt": "2026-07-27T08:09:08.543Z"
+    },
+    {
+      "estimateId": "est_1785138848552_e1k0ins",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:08.552Z",
+      "expiresAt": "2026-07-27T08:09:08.552Z"
+    },
+    {
+      "estimateId": "est_1785138848556_cwpmun9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:54:08.556Z",
+      "expiresAt": "2026-07-27T08:09:08.556Z"
+    },
+    {
+      "estimateId": "est_1785138875842_173aq3i",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:35.842Z",
+      "expiresAt": "2026-07-27T08:09:35.842Z"
+    },
+    {
+      "estimateId": "est_1785138875865_5qon4o0",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:35.865Z",
+      "expiresAt": "2026-07-27T08:09:35.865Z"
+    },
+    {
+      "estimateId": "est_1785138875865_e8h8fzq",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:54:35.865Z",
+      "expiresAt": "2026-07-27T08:09:35.865Z"
+    },
+    {
+      "estimateId": "est_1785138887912_zn65orz",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:47.912Z",
+      "expiresAt": "2026-07-27T08:09:47.912Z"
+    },
+    {
+      "estimateId": "est_1785138887919_09l6eqq",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:54:47.919Z",
+      "expiresAt": "2026-07-27T08:09:47.919Z"
+    },
+    {
+      "estimateId": "est_1785138887928_pcr4avq",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:54:47.928Z",
+      "expiresAt": "2026-07-27T08:09:47.928Z"
+    },
+    {
+      "estimateId": "est_1785138903645_sk1mly3",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:55:03.645Z",
+      "expiresAt": "2026-07-27T08:10:03.645Z"
+    },
+    {
+      "estimateId": "est_1785138903654_nis9y3m",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:55:03.654Z",
+      "expiresAt": "2026-07-27T08:10:03.654Z"
+    },
+    {
+      "estimateId": "est_1785138905459_6f3l523",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:55:05.459Z",
+      "expiresAt": "2026-07-27T08:10:05.459Z"
+    },
+    {
+      "estimateId": "est_1785139077428_f2w2cou",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:57:57.428Z",
+      "expiresAt": "2026-07-27T08:12:57.428Z"
+    },
+    {
+      "estimateId": "est_1785139077437_b1vjbua",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:57:57.437Z",
+      "expiresAt": "2026-07-27T08:12:57.437Z"
+    },
+    {
+      "estimateId": "est_1785139080703_yhvf0dz",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:00.703Z",
+      "expiresAt": "2026-07-27T08:13:00.703Z"
+    },
+    {
+      "estimateId": "est_1785139080711_89vtlp9",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:00.711Z",
+      "expiresAt": "2026-07-27T08:13:00.711Z"
+    },
+    {
+      "estimateId": "est_1785139094455_inqo3sh",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:14.455Z",
+      "expiresAt": "2026-07-27T08:13:14.455Z"
+    },
+    {
+      "estimateId": "est_1785139094474_knhi71i",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:14.474Z",
+      "expiresAt": "2026-07-27T08:13:14.474Z"
+    },
+    {
+      "estimateId": "est_1785139096917_hd2uyi9",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:16.917Z",
+      "expiresAt": "2026-07-27T08:13:16.917Z"
+    },
+    {
+      "estimateId": "est_1785139096924_4h0rjb7",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:16.924Z",
+      "expiresAt": "2026-07-27T08:13:16.924Z"
+    },
+    {
+      "estimateId": "est_1785139106752_acb93yg",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:58:26.752Z",
+      "expiresAt": "2026-07-27T08:13:26.752Z"
+    },
+    {
+      "estimateId": "est_1785139108446_94lxnhc",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:28.446Z",
+      "expiresAt": "2026-07-27T08:13:28.446Z"
+    },
+    {
+      "estimateId": "est_1785139108460_vn3b6fn",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:58:28.460Z",
+      "expiresAt": "2026-07-27T08:13:28.460Z"
+    },
+    {
+      "estimateId": "est_1785139108463_3x4o8nd",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:58:28.463Z",
+      "expiresAt": "2026-07-27T08:13:28.463Z"
+    },
+    {
+      "estimateId": "est_1785139144907_7lgozl1",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:59:04.907Z",
+      "expiresAt": "2026-07-27T08:14:04.907Z"
+    },
+    {
+      "estimateId": "est_1785139144915_lon6wcd",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T07:59:04.915Z",
+      "expiresAt": "2026-07-27T08:14:04.915Z"
+    },
+    {
+      "estimateId": "est_1785139148282_c05v9g4",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T07:59:08.282Z",
+      "expiresAt": "2026-07-27T08:14:08.282Z"
+    },
+    {
+      "estimateId": "est_1785139302745_x4w5axq",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:01:42.745Z",
+      "expiresAt": "2026-07-27T08:16:42.745Z"
+    },
+    {
+      "estimateId": "est_1785139302761_ub6ei90",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:01:42.761Z",
+      "expiresAt": "2026-07-27T08:16:42.761Z"
+    },
+    {
+      "estimateId": "est_1785139305190_bfk5leg",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T08:01:45.190Z",
+      "expiresAt": "2026-07-27T08:16:45.190Z"
+    },
+    {
+      "estimateId": "est_1785141194193_ktzkl9t",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:33:14.193Z",
+      "expiresAt": "2026-07-27T08:48:14.193Z"
+    },
+    {
+      "estimateId": "est_1785141194202_xkv4tq2",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:33:14.202Z",
+      "expiresAt": "2026-07-27T08:48:14.202Z"
+    },
+    {
+      "estimateId": "est_1785141194203_ruqrbpk",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T08:33:14.203Z",
+      "expiresAt": "2026-07-27T08:48:14.203Z"
+    },
+    {
+      "estimateId": "est_1785141521870_l34z1hy",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:38:41.870Z",
+      "expiresAt": "2026-07-27T08:53:41.870Z"
+    },
+    {
+      "estimateId": "est_1785141521878_5r9gg28",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T08:38:41.878Z",
+      "expiresAt": "2026-07-27T08:53:41.878Z"
+    },
+    {
+      "estimateId": "est_1785141521878_1nnc0v9",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T08:38:41.878Z",
+      "expiresAt": "2026-07-27T08:53:41.878Z"
+    },
+    {
+      "estimateId": "est_1785141565125_q3q72u6",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T08:39:25.125Z",
+      "expiresAt": "2026-07-27T08:54:25.125Z"
     }
   ],
   "reservations": [
