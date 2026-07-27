@@ -1,7 +1,7 @@
 # Simple and Advanced Generation Modes
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Business Requirement
 
@@ -23,11 +23,11 @@ Request contract:
 ```text
 routingMode: simple
 qualityTier
-templateVersionId
-referenceCount
-outputCount
-pricingPolicyVersion
 ```
+
+Template version, references, output count and pricing policy are resolved from
+the server-side Fashion draft/plan. The client may display them but does not
+submit them as trusted Simple routing inputs.
 
 The server maps each tier to an approved provider/model policy. Automatic
 multi-provider optimization is deferred; the first version may use a fixed
@@ -52,7 +52,20 @@ options/callbacks:
 - quality
 - supported output resolution
 - references and capability warnings
-- optional comparison/batch settings when approved
+- Fashion-owned output/batch summary
+
+Required component options:
+
+```text
+showComparison: false
+showActiveRun: false
+legacyStudioIds: false
+```
+
+Fashion batch means one to five Product Items expanded into deterministic shot
+operations. It does not mean AI model Comparison. A later requirement may add
+comparison as a separately quoted capability, but it is outside the initial
+Fashion MVP.
 
 Request:
 
@@ -64,8 +77,11 @@ quality
 resolution
 referenceCount
 outputCount
-pricingPolicyVersion
 ```
+
+Reference/output counts are checked against the resolved plan; pricing policy
+version is returned by the server estimate and quote rather than chosen by the
+client.
 
 Unsupported controls remain hidden based on provider catalog capability.
 
@@ -79,8 +95,8 @@ FashionGenerationSettings
 - modelId?
 - quality?
 - resolution?
-- comparisonSlots?
-- pricingEstimateId?
+- operationEstimateIds[]
+- quoteId?
 ```
 
 Switching modes:
@@ -117,4 +133,23 @@ test/fashionGenerationMode.test.js
 - Unsupported resolution is hidden and rejected if forged.
 - Simple and Advanced requests produce the same downstream plan shape.
 - Pricing policy is never hardcoded in client.
+- Fashion does not read or mutate Studio `window.state`.
+- Fashion does not use the global Studio estimate as the billable quote.
 
+## 8. Shared Estimate Isolation
+
+The current shared `generationActionBar.js` defaults to the legacy global
+`window.creditEstimateController`. Before Fashion mounts it, extend the shared
+component to accept an injected estimate adapter/controller while retaining the
+legacy default for Studio and Playground:
+
+```text
+estimateController?
+  getState()
+  subscribe(listener)
+  updateEstimate(inputs)
+```
+
+Fashion injects a Fashion quote adapter that displays aggregate operation cost
+from `FashionBlueprintQuote`. This prevents Studio, Playground and Fashion from
+overwriting each other's estimate state.

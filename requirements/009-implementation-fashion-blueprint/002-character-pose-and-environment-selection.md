@@ -1,7 +1,7 @@
 # Character, Pose and Environment Selection
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Business Requirement
 
@@ -35,10 +35,26 @@ Selection binds:
 ```text
 characterProfileId
 characterProfileVersionId
-canonicalCharacterReferenceAssetId
+characterReferenceAssetId
 attribution
 personalitySummarySnapshot
 ```
+
+Fashion must not construct this binding from public card data. It requests the
+existing authorized handoff:
+
+```text
+POST /api/community/characters/:id/handoffs
+body: { destination: "fashion_blueprint" }
+```
+
+The returned `CharacterDestinationHandoff` is stored actor-scoped through the
+Character Profile state contract and hydrated by Fashion Blueprint. A handoff
+is not a durable authorization token and is not stored as ownership proof in a
+plan. The server revalidates the Character/profile/version/reuse policy when
+resolving a quote and again when confirming a run. Only `reusable_model` with
+`outfitBehavior: replaceable` is accepted; Outfit Bound/Styled Characters are
+Scene-only until converted to an approved reusable casting version.
 
 Picker states:
 
@@ -205,10 +221,14 @@ No layer may silently override a higher-priority owned field.
 ## 6. Component Reuse
 
 - Character public cards/profile APIs from `006` and Community.
+- `client/character-profiles/characterHandoff.js` and
+  `characterProfileState.js` for the authorized actor-scoped handoff.
 - Visual option controls for pose/environment.
 - Scene variable resolver and validation where contracts match.
 - Existing `referenceSlotManager.js` for preview/clear behavior.
 - Router/cross-mode handoff for preselected Character.
+- Shared router navigation context so returning to Character Profile or
+  Community restores the source page.
 
 New orchestration:
 

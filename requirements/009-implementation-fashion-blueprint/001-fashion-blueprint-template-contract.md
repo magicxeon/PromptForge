@@ -1,7 +1,7 @@
 # Fashion Blueprint Template Contract
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Business Requirement
 
@@ -13,14 +13,29 @@ Template must show a representative final image and define what may be replaced.
 ```text
 FashionBlueprintTemplate
 - id
-- version
+- schemaVersion
 - ownerType: platform | community_creator
-- ownerId?
+- ownerUserId?
 - title
 - description
-- finalPreviewAssetId
 - status: draft | review | active | deprecated | blocked
 - visibility: private | unlisted | public
+- officialTags[]
+- attribution
+- activeVersionId?
+- createdAt
+- updatedAt
+- publishedAt?
+```
+
+Each mutable Template owns immutable version records:
+
+```text
+FashionBlueprintTemplateVersion
+- id
+- templateId
+- versionNumber
+- finalPreviewAssetId
 - compatibleProductTypes[]
 - defaultEnvironmentRecipe
 - compatibleEnvironmentIds[]
@@ -35,13 +50,13 @@ FashionBlueprintTemplate
 - replaceableVariables[]
 - supportedQualityTiers[]
 - advancedProviderRecommendations[]
-- officialTags[]
-- attribution
 - createdAt
 - publishedAt?
 ```
 
-Versions become immutable after a confirmed generation plan references them.
+`templateVersionId` is the only Template identifier stored in quotes, plans,
+runs and history. Versions become immutable after publication or after a
+confirmed generation plan references them.
 
 ## 3. Required Slots
 
@@ -65,6 +80,9 @@ product and shot metadata remains in the Fashion Blueprint contract.
 - Preview asset has provenance and rights metadata.
 - Community creator Template uses existing ownership/moderation/public snapshot
   policy.
+- Public responses use stable `ownerUserId` internally and a sanitized creator
+  snapshot for display. A username supplied by the client is never ownership
+  authority.
 - A deprecated Template remains readable for historical runs.
 - A Template default/recommended Character must be active and reusable for the
   current viewer. Template metadata never overrides the Character owner's reuse
@@ -101,6 +119,20 @@ ResolvedFashionBlueprint
 - warnings[]
 ```
 
+## 5.1 Entry and Handoff
+
+Community or Template cards navigate through
+`window.ModelPromptForgeRouter.navigateToResource()` to:
+
+```text
+/create/fashion?templateId=<templateId>
+```
+
+Fashion Blueprint resolves the current active version server-side and stores
+the resulting `templateVersionId` in its actor-scoped draft. A direct URL,
+refresh or unavailable Template must show a recoverable catalog state rather
+than silently selecting another Template.
+
 ## 6. Files
 
 ```text
@@ -111,6 +143,9 @@ server/app/routes/fashionBlueprintRoutes.js
 client/fashion-blueprint/fashionTemplateCatalog.js
 client/fashion-blueprint/fashionTemplateCard.js
 client/fashion-blueprint/fashionTemplateDetail.js
+client/shell/navigation.config.json
+client/shell/navigationRegistry.js
+client/shell/applicationShell.js
 ```
 
 Reuse Community media cards/lightbox where behavior matches. The catalog owns

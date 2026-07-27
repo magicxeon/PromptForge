@@ -9,7 +9,7 @@
 Allow merchants to create consistent selling images without understanding prompts, camera terminology or the full Advanced Studio.
 
 The user-facing Blueprint workflow is owned by
-`requirements/007-implementation-fashion-blueprint`. This commercial phase
+`requirements/009-implementation-fashion-blueprint`. This commercial phase
 replaces its development adapters with production Projects, PostgreSQL, Cloud
 Storage, durable jobs, payment-backed credits and operational policy. It must not
 fork the Blueprint page, plan resolver or shared generation controls.
@@ -79,7 +79,7 @@ Fashion module creates a validated plan, not jobs directly:
 Core Pricing, Ledger and Job Orchestrator validate and execute it.
 
 The production plan must remain compatible with
-`FashionBlueprintPlan` and `FashionBlueprintQuote` from requirements 007.
+`FashionBlueprintPlan` and `FashionBlueprintQuote` from requirements 009.
 Development-only owner IDs, JSON paths, local file references and mock estimates
 must not cross the production adapter boundary.
 

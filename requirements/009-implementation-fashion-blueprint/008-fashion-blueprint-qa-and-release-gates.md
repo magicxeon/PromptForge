@@ -1,7 +1,7 @@
 # Fashion Blueprint QA and Release Gates
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Automated Coverage
 
@@ -19,6 +19,9 @@ credit reservation/capture/release
 idempotent run submission
 partial success result grouping
 actor-scoped state/history/assets
+route/deep-link/navigation hierarchy
+shared estimate isolation
+reference upload registration and Base64 stripping
 ```
 
 Suggested files:
@@ -76,6 +79,26 @@ Template default model becomes private -> reopen Template
 -> picker shows other compatible models and exposes no unauthorized handoff.
 ```
 
+```text
+TC-FB-008 Navigation and resume
+Open Studio > Fashion Studio -> begin a draft -> open Character detail
+-> Back returns to the Fashion draft -> refresh /create/fashion
+-> actor-scoped draft is restored without reusing a stale quote.
+```
+
+```text
+TC-FB-009 Reference transport
+Upload front/back/detail -> inspect saved draft/quote/run
+-> only private asset/reference IDs are present -> no data:image value appears.
+```
+
+```text
+TC-FB-010 Estimate isolation
+Create a Studio estimate -> open Fashion and quote a batch
+-> Fashion displays its aggregate quote -> returning to Studio preserves the
+Studio estimate and neither workflow can submit the other's estimate ID.
+```
+
 ## 3. UX Gate
 
 - Beginner reaches valid quote with no prompt/provider knowledge.
@@ -120,5 +143,5 @@ community Template entry points.
 - No duplicate generation pipeline or engine component exists.
 - Product Owner approves at least three Template previews and pose packs.
 - Pilot user completes Simple flow without assistance.
-- Commercial Phase `008` records remaining PostgreSQL/GCP/payment blockers
+- Commercial Phase `010` records remaining PostgreSQL/GCP/payment blockers
   before paid production enablement.

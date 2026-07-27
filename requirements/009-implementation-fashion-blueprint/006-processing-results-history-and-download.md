@@ -1,7 +1,7 @@
 # Processing, Results, History and Download
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Business Requirement
 
@@ -40,6 +40,11 @@ Reuse:
 - result lightbox/detail components
 - existing collection/save/share actions where permitted
 
+`generationResultSurface.js` remains the shared result-card/lightbox owner.
+`fashionRunResults.js` provides only the Product Item/shot grouping adapter and
+passes normalized result items into shared presentation. It must not copy the
+Studio or Playground result surface.
+
 ## 4. Result Grouping
 
 ```text
@@ -68,7 +73,7 @@ MVP:
 - deterministic filename using sanitized Product/SKU and shot key
 
 Later commercial export presets are owned by
-`requirements/008-implementation-commercial-feature-plan/Phase2-16-*`.
+`requirements/010-implementation-commercial-feature-plan/Phase2-16-marketplace-export-presets.md`.
 
 ## 6. History
 
@@ -87,6 +92,20 @@ quote/credit references
 
 History remains owner-scoped. Sharing is an explicit action through Community.
 
+Every submitted generation request includes:
+
+```text
+sourceType: fashion_blueprint
+fashionBlueprintRunId
+fashionOperationId
+productItemKey
+characterProfileContext
+```
+
+The existing Character usage service records Fashion usage only after a
+successful eligible output. Failed, rejected or cancelled operations do not
+increase Character popularity.
+
 ## 7. Acceptance Tests
 
 - Refresh/restart preserves accepted run and completed results.
@@ -95,4 +114,3 @@ History remains owner-scoped. Sharing is an explicit action through Community.
 - Download never exposes another actor's asset.
 - Empty/queued/result states do not overlap or display contradictory text.
 - Mobile result groups remain navigable and image details open correctly.
-

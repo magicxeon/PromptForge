@@ -18,7 +18,7 @@
 - Character Profile in `requirements/006-implementation-character-profile` owns
   named reusable Characters, canonical casting exports and Character usage
   lineage.
-- Fashion Blueprint in `requirements/007-implementation-fashion-blueprint` owns
+- Fashion Blueprint in `requirements/009-implementation-fashion-blueprint` owns
   the beginner-facing Template-to-result workflow and shared-component
   composition.
 - Existing Studio Creative Configurator remains the advanced editor and consumes those shared contracts.
@@ -88,7 +88,7 @@ phase.
 |---|---|---|
 | External foundation | Visual Character Builder (`requirements/003-implementation-visual-character-builder-plan`) | Existing application |
 | External foundation | Character Profile (`requirements/006-implementation-character-profile`) | Visual Character Builder, Community |
-| External foundation | Fashion Blueprint (`requirements/007-implementation-fashion-blueprint`) | Character Profile, Scene Builder, Community |
+| External foundation | Fashion Blueprint (`requirements/009-implementation-fashion-blueprint`) | Character Profile, Scene Builder, Community |
 | Phase2-01 | Commercial Readiness and Google Cloud Alignment | Existing application, GCP concept |
 | Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Phase2-01 |
 | Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
@@ -207,7 +207,7 @@ registry, route and entitlement contracts.
 |---|---|---|
 | Visual Character Builder | Separate 003 plan | Product/UX/Technical |
 | Character Profile | Separate 006 plan | Identity/reuse/privacy |
-| Fashion Blueprint | Separate 007 plan | Consumer UX/plan contract |
+| Fashion Blueprint | Separate 009 plan | Consumer UX/plan contract |
 | Phase2-01 | Required first | Architecture/GCP decision |
 | Phase2-02 | Proposed | Architecture/Application shell |
 | Phase2-03 | Proposed | Data/Migration |

@@ -8,11 +8,12 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
 ## Read First
 
 1. `AGENTS.md`
-2. `requirements/009-technical-dept/000-master.md`
+2. `requirements/099-technical-dept/000-master.md`
 3. `000-master-fashion-blueprint-roadmap.md`
 4. The numbered requirement owning the task
 5. Character Profile `006`
-6. Relevant Scene Builder, Community and commercial `008` requirements
+6. Navigation/UI `008` and relevant Scene Builder, Community and commercial
+   `010` requirements
 7. Existing shared modules and tests
 
 ## Workflow
@@ -51,6 +52,11 @@ picker only when the user asks for another model or one of their own.
 - Do not count failed jobs as Character usage.
 - Do not hardcode tier pricing/routes in client.
 - Do not introduce React/Vite or new global state.
+- Do not implement Fashion as a new Studio mode. It owns `/create/fashion` and
+  an actor-scoped Fashion state module.
+- Keep AI model Comparison disabled in the Fashion MVP.
+- Do not save Base64 in Fashion drafts, plans, quotes or runs.
+- Do not use the Studio global credit estimate as a Fashion aggregate quote.
 
 ## File Ownership
 

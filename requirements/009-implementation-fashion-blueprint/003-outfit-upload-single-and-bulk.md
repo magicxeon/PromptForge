@@ -1,7 +1,7 @@
 # Outfit Upload: Single and Bulk
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Proposed
+**Status:** Architecture-aligned; implementation pending
 
 ## 1. Business Requirement
 
@@ -61,7 +61,46 @@ Reuse:
 - `client/clothing/clothingOptionRules.js`
 - shared reference slot component
 - existing image validation/reference normalization
-- future production Asset upload contract from commercial Phase2-06
+- future production Asset upload contract from
+  `requirements/010-implementation-commercial-feature-plan/Phase2-06-assets-storage-and-product-catalog.md`
+
+The existing `AssetRepository` under `server/repositories/assets/` is the
+development persistence foundation, but it is not yet a complete upload
+pipeline. Fashion implementation must add a domain-owned reference registration
+boundary rather than writing files or Asset records from routes.
+
+### 4.1 Reference Transport Boundary
+
+The browser may hold an optimized local preview temporarily. Before Quote or
+Run creation, every accepted outfit reference must resolve to an owner-scoped
+asset/reference ID:
+
+```text
+local file
+-> shared upload/optimization adapter
+-> Fashion reference registration endpoint
+-> validated private storage object
+-> AssetRepository record
+-> assetId returned to FashionProductItem
+```
+
+Saved Fashion state, Template snapshots, quotes and generation plans must never
+contain `data:image/...` values. History/job/output references use the optimized
+`ReferenceValue` contract from Scene-005. A legacy Base64 value may be accepted
+only as bounded upload transport in local development and must be stripped
+after registration; it must not be repeated in `/api/generate` operations.
+
+The first implementation may expose:
+
+```text
+POST /api/fashion-blueprints/reference-assets
+DELETE /api/fashion-blueprints/reference-assets/:assetId
+```
+
+Routes use `req.actorContext`; the domain validates media type, byte size,
+dimensions, purpose and ownership before delegating to storage and
+`AssetRepository`. Commercial Phase2-06 replaces storage, not this client
+contract.
 
 Extract general upload/preview behavior only if two consumers genuinely share
 it. Keep Character Sheet clothing ownership rules separate from Fashion
@@ -88,9 +127,12 @@ If an outfit reference is active:
 client/fashion-blueprint/fashionOutfitList.js
 client/fashion-blueprint/fashionOutfitItem.js
 client/fashion-blueprint/fashionOutfitValidation.js
+server/domain/fashion-blueprint/FashionReferenceAssetService.js
 server/domain/fashion-blueprint/FashionProductService.js
 server/repositories/fashion-blueprint/FashionProductRepository.js
+server/app/routes/fashionBlueprintRoutes.js
 test/fashionOutfitValidation.test.js
+test/fashionReferenceAsset.test.js
 ```
 
 ## 7. Acceptance Tests
@@ -101,4 +143,3 @@ test/fashionOutfitValidation.test.js
 - Provider reference limits are checked for every shot operation.
 - Partial upload failure preserves valid items.
 - Another actor cannot attach the owner's private outfit asset.
-
