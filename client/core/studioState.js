@@ -256,6 +256,7 @@ window.state = {
   language: "th",
   aspectRatio: "6:8",
   mode: "normal",
+  characterType: "reusable_model",
   userRole: "user",
   username: "user_demo",
   activeJobId: null,

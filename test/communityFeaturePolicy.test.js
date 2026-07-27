@@ -15,6 +15,7 @@ function flags(overrides = {}) {
       engagementEnabled: false,
       creatorProfilesEnabled: false,
       galleryEnabled: false,
+      characterProfilesEnabled: false,
       moderationEnabled: true,
       privateBeta: false,
       ...(overrides.community || {})
@@ -78,6 +79,8 @@ test('production masks internal Community features until private beta', { concur
           exploreEnabled: true,
           engagementEnabled: true,
           creatorProfilesEnabled: true,
+          galleryEnabled: true,
+          characterProfilesEnabled: true,
           moderationEnabled: true,
           privateBeta: false
         }

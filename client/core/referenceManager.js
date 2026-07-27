@@ -23,6 +23,7 @@
     state.characterReferenceJobIds = [];
     state.imageReferences.characterReference = false;
     state.characterReferenceOverrides = false;
+    window.ModelPromptForgeCharacterHandoff?.clear?.();
     const checkbox = document.getElementById("story-use-character-reference");
     const fileInput = document.getElementById("character-reference-file");
     if (checkbox) checkbox.checked = false;
@@ -486,6 +487,7 @@
 
   function assignCharacterReference(imageSrc, jobId = null) {
     if (state.mode !== "normal") return;
+    window.ModelPromptForgeCharacterHandoff?.clear?.();
     const cleanedSrc = cleanReferenceImageSrc(imageSrc);
     if (!state.characterReferenceImageA) {
       state.characterReferenceImageA = cleanedSrc;

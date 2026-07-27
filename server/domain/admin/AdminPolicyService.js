@@ -19,6 +19,18 @@ export class AdminPolicyService {
     return actor;
   }
 
+  assertCanModerateCharacter(actorContext) {
+    const actor = this.assertCanAccessBackoffice(actorContext);
+    if (actor.role !== 'admin') {
+      throw new RepositoryContractError(
+        'character_moderation_forbidden',
+        'Only admin can moderate Character Profiles.',
+        403
+      );
+    }
+    return actor;
+  }
+
   requireReason(reason, action = 'This action') {
     const normalized = String(reason || '').trim();
     if (normalized.length < 3) {

@@ -161,6 +161,12 @@
       image.loading = 'lazy';
       media.appendChild(image);
       media.addEventListener('click', () => {
+        if (kind === 'character' && item.characterProfileId) {
+          window.ModelPromptForgeRouter.navigate(
+            `/community/characters/${encodeURIComponent(item.characterProfileId)}`
+          );
+          return;
+        }
         const lightboxItem = {
           id: item.id,
           imageUrl: item.imageUrl,

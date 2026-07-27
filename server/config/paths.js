@@ -20,6 +20,7 @@ export const MIGRATIONS_DATA_DIR = path.resolve(DATA_ROOT, 'migrations');
 export const ASSETS_DATA_DIR = path.resolve(DATA_ROOT, 'assets');
 export const AUDIT_DATA_DIR = path.resolve(DATA_ROOT, 'audit');
 export const SCENE_TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'scene-templates');
+export const CHARACTER_PROFILES_DATA_DIR = path.resolve(DATA_ROOT, 'character-profiles');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -41,7 +42,10 @@ export const DATA_FILES = {
   comparisons: path.resolve(COMPARISONS_DATA_DIR, 'comparisons.json'),
   assets: path.resolve(ASSETS_DATA_DIR, 'assets.json'),
   auditLogs: path.resolve(AUDIT_DATA_DIR, 'auditLogs.json'),
-  sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json')
+  sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json'),
+  characterProfiles: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'profiles.json'),
+  characterProfileVersions: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'versions.json'),
+  characterUsageEvents: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'usageEvents.json')
 };
 
 export function resolveDataFile(name) {

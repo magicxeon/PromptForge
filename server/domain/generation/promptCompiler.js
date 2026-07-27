@@ -302,7 +302,17 @@ function buildCleanPromptSegments(activeSelections, getValue) {
   };
 }
 
-export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false, customColors = null, outfitReferenceOverrides = null) {
+export function compilePromptOnServer(
+  selections,
+  aspectRatio,
+  imageReferences,
+  mode,
+  templateName = "portrait",
+  isGptSafe = false,
+  customColors = null,
+  outfitReferenceOverrides = null,
+  options = {}
+) {
   const templateStr = templates[templateName] || templates["portrait"] || "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}";
 
   // Clone selections
@@ -452,6 +462,10 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   };
 
   const getCharacterSheetLayoutSegment = () => {
+    if (typeof options.characterSheetLayoutOverride === "string"
+      && options.characterSheetLayoutOverride.trim()) {
+      return options.characterSheetLayoutOverride.trim();
+    }
     const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
     const selectedLayout = getPromptValueWithColor(activeSelections["Sheet Layout"], "Sheet Layout");
     return selectedLayout && selectedLayout.trim() !== ""
@@ -493,7 +507,9 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = mode === "character-sheet"
-    ? compileClothingPromptParts(activeSelections, imageReferences, mode, outfitReferenceOverrides)
+    ? (options.omitCharacterSheetClothing
+      ? ""
+      : compileClothingPromptParts(activeSelections, imageReferences, mode, outfitReferenceOverrides))
     : compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");

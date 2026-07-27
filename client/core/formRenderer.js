@@ -20,6 +20,30 @@
     const container = document.getElementById("form-container");
     container.innerHTML = "";
 
+    if (state.mode === "character-sheet" && window.ModelPromptForgeCharacterTypeControl) {
+      container.appendChild(window.ModelPromptForgeCharacterTypeControl.create({
+        value: state.characterType,
+        onChange: nextType => {
+          state.characterType = nextType;
+          window.ModelPromptForgeCharacterTypeControl.applyCharacterSheetPolicy({
+            root: container,
+            state,
+            clearIncompatible: true
+          });
+          window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules?.();
+          window.rerenderDynamicForm?.({ preserveOpenAccordions: true });
+          window.updateAspectRatioCapabilityUI?.();
+          window.ModelPromptForgeCharacterTypeControl.applyOutputPolicy({
+            root: document,
+            state
+          });
+          window.updatePromptPreview?.();
+          void window.refreshGenerationCreditEstimate?.();
+          window.saveCurrentModeState?.();
+        }
+      }));
+    }
+
     state.schema.forEach((groupObj, groupIdx) => {
       const groupName = groupObj.group;
       if (!shouldRenderGroup(groupName)) return;
@@ -324,6 +348,11 @@
       content.appendChild(inner);
       accordion.appendChild(content);
       container.appendChild(accordion);
+    });
+    window.ModelPromptForgeCharacterTypeControl?.applyCharacterSheetPolicy?.({
+      root: container,
+      state,
+      clearIncompatible: false
     });
   }
 

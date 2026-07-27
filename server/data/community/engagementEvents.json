@@ -145,5 +145,18 @@
     "metadata": {
       "comparisonSlotId": "comparison_slot_1784871221518_x0mf65"
     }
+  },
+  {
+    "id": "engevt_42cbd9fc-45ff-41e1-9fbd-b4e0a62c7dd8",
+    "schemaVersion": 1,
+    "postId": "post_1784523517501_rtsukuz9",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1784523517501_rtsukuz9:usr_alice:2026-07-27T05:55:25.647Z",
+    "occurredAt": "2026-07-27T05:55:25.648Z",
+    "requestId": "req_1785131725644_4chxjil",
+    "metadata": {}
   }
 ]

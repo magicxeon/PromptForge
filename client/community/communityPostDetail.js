@@ -13,7 +13,7 @@
   }
 
   function activate(route) {
-    const match = String(route?.pathname || '').match(/^\/community\/([^/]+)$/);
+    const match = String(route?.pathname || '').match(/^\/community\/(?!characters$)([^/]+)$/);
     if (!match) {
       activePostId = null;
       return;

@@ -66,6 +66,9 @@ first mutation. A missing lazy file is equivalent to an empty store.
 | `assets` | `assets/assets.json` | array | `repositories/assets/AssetRepository.js` | Lazy | `assets`, `asset_variants` |
 | `auditLogs` | `audit/auditLogs.json` | array | `repositories/audit/AuditLogRepository.js` | Present | `audit_events` |
 | `sceneTemplateSnapshots` | `scene-templates/sceneTemplateSnapshots.json` | array | `repositories/scene-templates/SceneTemplateSnapshotRepository.js` | Lazy | `scene_template_snapshots`, `scene_template_versions` |
+| `characterProfiles` | `character-profiles/profiles.json` | array | `repositories/character-profiles/CharacterProfileRepository.js` | Present | `character_profiles` |
+| `characterProfileVersions` | `character-profiles/versions.json` | array | `repositories/character-profiles/CharacterProfileVersionRepository.js` | Present | `character_profile_versions` |
+| `characterUsageEvents` | `character-profiles/usageEvents.json` | array | `repositories/character-profiles/CharacterUsageRepository.js` | Present | `character_usage_events` |
 
 The complete logical-key mapping is maintained in
 `server/config/paths.js`. Add the directory constant and `DATA_FILES` entry
@@ -126,6 +129,13 @@ localized labels or allow custom tags to enter category/trending fields.
 Community characters, gallery records, and Scene Template snapshots are
 repository-ready but may not have runtime files until their first write. Do not
 create placeholder files merely to make the folders visible.
+
+Canonical Character Profiles use separate stores for mutable profile metadata,
+immutable visual versions, and idempotent successful-use events. Community
+Character records are sanitized public projections linked by
+`characterProfileId`; they are not the identity or usage source of truth.
+Casting export binaries remain in `client/outputs/` and are referenced by
+generation result or asset id.
 
 Creator profiles and follows are separate lazy stores. Profile follower/post
 counts are computed by `CreatorProfileService` from active follow relations and
@@ -249,7 +259,7 @@ Before adding a store:
 5. Use shared repository contracts, schema versioning, normalization, and cursor
    helpers where applicable.
 6. Add tests using a temporary file path.
-7. Update this README and `requirements/007-technical-dept/000-master.md` if the
+7. Update this README and `requirements/099-technical-dept/000-master.md` if the
    new capability changes architecture ownership.
 
 Never introduce a root-level JSON file under `server/`.

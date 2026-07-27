@@ -1,0 +1,56 @@
+[
+  {
+    "ownerUsernameSnapshot": "user_alice",
+    "displayName": "น้องเจน",
+    "slug": "character-2",
+    "shortDescription": "ทดสอบน้องเจน เหมาะสำหรับทำภาพ แฟชัน เครื่องสำอาง",
+    "personalitySummary": "สนุกสนาน ร่าเริง กินเก่ง",
+    "characterType": "reusable_model",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "reusePolicy": "owner_only",
+    "activeVersionId": "charver_1785135501362_do0479ps",
+    "creatorProfileId": "creator_alice",
+    "idempotencyKey": "character-profile:job_1785135394799_ouq46p6rw",
+    "recordVersion": 3,
+    "id": "charprof_1785135501348_4te0f9xf",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-07-27T06:58:21.347Z",
+    "updatedAt": "2026-07-27T06:58:24.283Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "ownerUsernameSnapshot": "user_alice",
+    "displayName": "น้องเจน",
+    "slug": "character",
+    "shortDescription": "ผู้หญิงหน้าหวาน",
+    "personalitySummary": "น้องเจน ผู้หญิงหน้าหวาน เหมาะาสำหรับสาย beauty blogger และสายขายของรวมไปถึงแฟชั่น",
+    "characterType": "reusable_model",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "reusePolicy": "owner_only",
+    "activeVersionId": "charver_1785131463248_6xeibwuz",
+    "creatorProfileId": "creator_alice",
+    "idempotencyKey": "character-profile:job_1785131305432_l4w6mobng",
+    "recordVersion": 3,
+    "id": "charprof_1785131463245_pbvnvs64",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "export_pending",
+    "createdAt": "2026-07-27T05:51:03.244Z",
+    "updatedAt": "2026-07-27T06:11:56.397Z",
+    "deletedAt": null,
+    "metadata": {}
+  }
+]

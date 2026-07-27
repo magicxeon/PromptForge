@@ -17,5 +17,24 @@
     "updatedAt": "2026-07-26T05:58:31.878Z",
     "deletedAt": null,
     "metadata": {}
+  },
+  {
+    "userId": "usr_alice",
+    "handle": "user-alice",
+    "displayName": "Alice Creator",
+    "bio": "",
+    "avatarAssetId": null,
+    "badgeCodes": [],
+    "membershipEnabled": false,
+    "status": "active",
+    "id": "creator_alice",
+    "schemaVersion": 1,
+    "ownerUserId": null,
+    "ownerUsername": null,
+    "visibility": "public",
+    "createdAt": "2026-07-27T05:51:03.242Z",
+    "updatedAt": "2026-07-27T05:51:03.242Z",
+    "deletedAt": null,
+    "metadata": {}
   }
 ]

@@ -1,7 +1,7 @@
 # Character Profile Page and Usage Analytics
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Proposed
+**Status:** Implemented; validation pending
 
 ## 1. Business Requirement
 
@@ -12,15 +12,22 @@ clear identity, creator attribution, generated work and popularity by use case.
 
 First viewport:
 
-- canonical casting preview
+- canonical Casting Export preview for Reusable Model or canonical outfit-bound
+  Character Sheet preview for Styled Character
+- explicit Character Type label and destination compatibility
 - Character name
 - owner/creator name linking to creator profile
 - short personality and intended usage
 - explicit availability badge: `Available to use`, `View only` or `Owner only`
 - `Use in Fashion Blueprint` primary action only when allowed
 - `Use in Scene Builder` secondary action only when allowed
+- owner action to create a new Reusable Model version from a Styled Character
 - owner-only `Edit Character` action for name, description, personality and
   intended usage
+- owner `Approve Reusable Model` and `Regenerate Casting` actions while a new
+  compliant initial result is in review
+- `Generate Casting Export` appears only for legacy/non-compliant Reusable
+  drafts and Styled-to-Reusable conversion, never as a mandatory second step
 
 Supporting content:
 
@@ -94,7 +101,6 @@ Public stats:
 ```text
 client/character-profiles/characterProfilePage.js
 client/character-profiles/characterProfileEditor.js
-client/character-profiles/characterUsageStats.js
 server/domain/character-profiles/CharacterUsageService.js
 server/app/routes/characterProfileRoutes.js
 test/characterUsageAnalytics.test.js
@@ -102,6 +108,10 @@ test/characterUsageAnalytics.test.js
 
 Add translation keys under an appropriate Character namespace and register it in
 the i18n manifest.
+
+Usage cards are a small profile-page composition and are implemented in
+`characterProfilePage.js`; no standalone `characterUsageStats.js` is required
+until another route needs the same presentation.
 
 ## 7. Acceptance Tests
 

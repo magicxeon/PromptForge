@@ -1,7 +1,7 @@
 # Character Sharing, Privacy and Reuse
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Proposed
+**Status:** Implemented; validation pending
 
 ## 1. Business Requirement
 
@@ -27,6 +27,13 @@ Rules:
 - `view_only`: public preview but no generation handoff.
 - `public_reusable`: selection allowed through sanitized handoff.
 - Public reuse is attribution-only in MVP; no credit transfer or royalty.
+
+Character Type narrows reuse permission:
+
+- Reusable Model: Fashion and Scene handoffs.
+- Styled Character: Scene handoff with its original outfit only.
+- Public reuse permission never upgrades a Styled Character into a Fashion-safe
+  model.
 
 ## 2.1 Community Character Section
 
@@ -64,13 +71,17 @@ public store:
 CommunityCharacterAsset
 - characterProfileId
 - characterProfileVersionId
+- characterType: reusable_model | styled_character
+- destinationCapabilities[]
+- outfitBehavior: replaceable | preserve
 - ownerUserId
 - creatorProfileId
 - displayName
 - shortDescription
 - personalitySummary
 - previewAssetId
-- canonicalCastingExportAssetId
+- canonicalCastingExportAssetId? (`reusable_model`)
+- canonicalCharacterSheetAssetId? (`styled_character`)
 - reusePolicy
 - officialTags
 - moderationStatus
@@ -96,6 +107,9 @@ CharacterSelectionHandoff
 - displayName
 - canonicalCharacterReferenceAssetId
 - compatibleAttributeSnapshot
+- characterType
+- destinationCapabilities[]
+- outfitBehavior
 - allowedUses[]
 - attribution
 - referencePolicy: public_reusable
@@ -110,7 +124,9 @@ authorization.
 
 - Only owner can publish/unpublish.
 - Admin can block with audited reason.
-- Public Characters require approved casting export and preview.
+- Public Reusable Models require an approved casting export and preview.
+- Public Styled Characters require an approved owned Character Sheet and keep
+  the original outfit in every Scene handoff.
 - Original recognizable-person reference requires a rights declaration before
   public reuse.
 - Deleting/unpublishing blocks future reuse but does not erase lawful historical
@@ -151,16 +167,21 @@ Add only owning Character modules:
 
 ```text
 server/domain/character-profiles/CharacterProfileSharingService.js
-client/character-profiles/characterShareDialog.js
+client/character-profiles/characterProfilePage.js
 client/community/communityCharacterSection.js
 test/characterProfileSharing.test.js
 ```
+
+The owner sharing controls are composed inside `characterProfilePage.js`.
+Keeping them with the owner profile state avoids a second dialog controller and
+still delegates all policy decisions to `CharacterProfileSharingService`.
 
 ## 7. Acceptance Tests
 
 - Private Character is absent from public API.
 - View-only Character has no usable handoff action.
-- Public handoff resolves only the approved casting export.
+- Public handoff resolves the approved Casting Export for Reusable Model or the
+  approved outfit-bound Character Sheet for Styled Character.
 - Unpublishing invalidates new handoff requests.
 - Another user cannot retrieve private face/outfit references.
 - Owner attribution remains on downstream generation lineage.

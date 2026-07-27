@@ -48,23 +48,28 @@ export class CreditReservationService {
     const normalized = value => value === undefined || value === null || value === '' ? null : String(value).trim();
     const normalizedResolution = value => normalized(value)?.toUpperCase() || null;
     const integer = (value, fallback) => Math.max(0, Math.floor(Number(value ?? fallback) || 0));
-    const mismatch =
-      normalized(route.routingMode) !== normalized(generationRequest.routingMode ?? route.routingMode) ||
-      normalized(route.qualityTier) !== normalized(generationRequest.qualityTier ?? route.qualityTier) ||
-      normalized(route.requestedProviderId) !== normalized(generationRequest.requestedProviderId) ||
-      normalized(route.requestedModelId) !== normalized(generationRequest.requestedModelId) ||
-      normalizedResolution(inputs.resolution) !== normalizedResolution(generationRequest.resolution) ||
-      normalized(inputs.aspectRatio) !== normalized(generationRequest.aspectRatio) ||
-      normalized(inputs.quality) !== normalized(generationRequest.quality) ||
-      integer(inputs.referenceCount, 0) !== integer(generationRequest.referenceCount, 0) ||
-      Math.max(1, integer(inputs.outputCount, 1)) !== Math.max(1, integer(generationRequest.outputCount, 1)) ||
-      normalized(inputs.generationMode) !== normalized(generationRequest.generationMode);
+    const comparisons = [
+      ['routingMode', normalized(route.routingMode), normalized(generationRequest.routingMode ?? route.routingMode)],
+      ['qualityTier', normalized(route.qualityTier), normalized(generationRequest.qualityTier ?? route.qualityTier)],
+      ['providerId', normalized(route.requestedProviderId), normalized(generationRequest.requestedProviderId)],
+      ['modelId', normalized(route.requestedModelId), normalized(generationRequest.requestedModelId)],
+      ['resolution', normalizedResolution(inputs.resolution), normalizedResolution(generationRequest.resolution)],
+      ['aspectRatio', normalized(inputs.aspectRatio), normalized(generationRequest.aspectRatio)],
+      ['quality', normalized(inputs.quality), normalized(generationRequest.quality)],
+      ['referenceCount', integer(inputs.referenceCount, 0), integer(generationRequest.referenceCount, 0)],
+      ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
+      ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)]
+    ];
+    const mismatches = comparisons
+      .filter(([, expected, actual]) => expected !== actual)
+      .map(([field, expected, actual]) => ({ field, expected, actual }));
 
-    if (mismatch) {
+    if (mismatches.length) {
       throw createCreditError(
         CREDIT_ERROR_CODES.ESTIMATE_STALE,
         'Generation request parameters do not match locked estimate.',
-        400
+        400,
+        { mismatches }
       );
     }
 

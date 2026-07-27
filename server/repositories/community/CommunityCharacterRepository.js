@@ -17,7 +17,9 @@ const CHARACTER_FALLBACK = [];
 const CHARACTER_TYPES = Object.freeze([
   'headshot_only',
   'full_character',
-  'face_and_outfit'
+  'face_and_outfit',
+  'reusable_model',
+  'styled_character'
 ]);
 const REFERENCE_POLICIES = Object.freeze([
   'private',
@@ -68,6 +70,11 @@ export class CommunityCharacterRepository {
   async findByIdForOwner(id, ownerUserId) {
     const item = await this.findById(id);
     return item?.ownerUserId === ownerUserId ? item : null;
+  }
+
+  async findByCharacterProfileId(characterProfileId) {
+    if (!characterProfileId) return null;
+    return (await this.readAll()).find(item => item.characterProfileId === characterProfileId) || null;
   }
 
   async findPublicById(id) {
@@ -144,6 +151,17 @@ export class CommunityCharacterRepository {
         'none'
       ),
       sceneBuilderHandoffSnapshot: stripEmbeddedBase64(recordInput.sceneBuilderHandoffSnapshot || null),
+      characterProfileId: recordInput.characterProfileId || null,
+      characterProfileVersionId: recordInput.characterProfileVersionId || null,
+      personalitySummary: String(recordInput.personalitySummary || '').trim().slice(0, 500),
+      intendedUses: normalizeStringArray(recordInput.intendedUses),
+      canonicalCastingExportAssetId: recordInput.canonicalCastingExportAssetId || null,
+      canonicalCharacterSheetAssetId: recordInput.canonicalCharacterSheetAssetId || null,
+      destinationCapabilities: destinationsForType(
+        recordInput.destinationCapabilities,
+        recordInput.characterType
+      ),
+      outfitBehavior: normalizeOutfitBehavior(recordInput.outfitBehavior, recordInput.characterType),
       sourceGenerationResultIds: Array.isArray(recordInput.sourceGenerationResultIds) ? recordInput.sourceGenerationResultIds : [],
       officialTags: normalizeStringArray(recordInput.officialTags),
       reusePolicy: pickAllowedValue(
@@ -170,6 +188,64 @@ export class CommunityCharacterRepository {
       return structuredClone(record);
     });
   }
+
+  async upsertProfileProjection(recordInput = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const characterProfileId = String(recordInput.characterProfileId || '').trim();
+    if (!characterProfileId) {
+      throw new RepositoryContractError('character_profile_id_required', 'Character Profile ID is required.');
+    }
+    const existing = await this.findByCharacterProfileId(characterProfileId);
+    if (!existing) return this.create(recordInput, actor);
+    return mutateJsonFile(this.characterFile, CHARACTER_FALLBACK, async items => {
+      if (!Array.isArray(items)) throw new TypeError('Community characters data must be an array.');
+      const index = items.findIndex(item => item.id === existing.id);
+      if (index < 0 || items[index].ownerUserId !== actor.userId) {
+        throw new RepositoryContractError('community_character_not_found', 'Community Character not found.', 404);
+      }
+      const now = new Date().toISOString();
+      items[index] = {
+        ...items[index],
+        displayName: String(recordInput.displayName || existing.displayName).trim().slice(0, 80),
+        description: String(recordInput.description ?? existing.description ?? '').trim().slice(0, 280),
+        personalitySummary: String(recordInput.personalitySummary ?? existing.personalitySummary ?? '').trim().slice(0, 500),
+        intendedUses: normalizeStringArray(recordInput.intendedUses ?? existing.intendedUses),
+        characterType: pickAllowedValue(
+          recordInput.characterType,
+          CHARACTER_TYPES,
+          existing.characterType || 'full_character'
+        ),
+        characterProfileVersionId: recordInput.characterProfileVersionId || existing.characterProfileVersionId || null,
+        previewImageAssetId: recordInput.previewImageAssetId || existing.previewImageAssetId || null,
+        canonicalCastingExportAssetId: Object.hasOwn(recordInput, 'canonicalCastingExportAssetId')
+          ? recordInput.canonicalCastingExportAssetId || null
+          : existing.canonicalCastingExportAssetId || null,
+        canonicalCharacterSheetAssetId: Object.hasOwn(recordInput, 'canonicalCharacterSheetAssetId')
+          ? recordInput.canonicalCharacterSheetAssetId || null
+          : existing.canonicalCharacterSheetAssetId || null,
+        destinationCapabilities: destinationsForType(
+          recordInput.destinationCapabilities ?? existing.destinationCapabilities,
+          recordInput.characterType || existing.characterType
+        ),
+        outfitBehavior: Object.hasOwn(recordInput, 'outfitBehavior')
+          ? normalizeOutfitBehavior(recordInput.outfitBehavior, recordInput.characterType || existing.characterType)
+          : normalizeOutfitBehavior(existing.outfitBehavior, existing.characterType),
+        sourceGenerationResultId: recordInput.sourceGenerationResultId || existing.sourceGenerationResultId || null,
+        sourceGenerationResultIds: Array.isArray(recordInput.sourceGenerationResultIds)
+          ? recordInput.sourceGenerationResultIds
+          : existing.sourceGenerationResultIds || [],
+        reusePolicy: pickAllowedValue(recordInput.reusePolicy, CHARACTER_REUSE_POLICIES, existing.reusePolicy),
+        visibility: pickAllowedValue(
+          recordInput.visibility,
+          [VISIBILITY.PRIVATE, VISIBILITY.PUBLIC, VISIBILITY.MEMBERS_ONLY],
+          existing.visibility
+        ),
+        status: recordInput.status || existing.status,
+        updatedAt: now
+      };
+      return structuredClone(items[index]);
+    });
+  }
 }
 
 function createPublicCharacterSummary(item) {
@@ -177,15 +253,36 @@ function createPublicCharacterSummary(item) {
     id: item.id,
     ownerUsername: item.ownerUsername || null,
     creatorProfileId: item.creatorProfileId || null,
+    characterProfileId: item.characterProfileId || null,
+    characterProfileVersionId: item.characterProfileVersionId || null,
     displayName: item.displayName || '',
     description: item.description || '',
+    personalitySummary: item.personalitySummary || '',
+    intendedUses: normalizeStringArray(item.intendedUses),
+    previewImageAssetId: item.previewImageAssetId || null,
+    canonicalCastingExportAssetId: item.canonicalCastingExportAssetId || null,
     characterType: item.characterType || 'full_character',
+    destinationCapabilities: destinationsForType(item.destinationCapabilities, item.characterType),
+    outfitBehavior: normalizeOutfitBehavior(item.outfitBehavior, item.characterType),
     faceReferencePolicy: publicReferencePolicy(item.faceReferencePolicy),
     outfitReferencePolicy: publicReferencePolicy(item.outfitReferencePolicy),
     reusePolicy: item.reusePolicy || 'view_only',
     handoffAvailable: Boolean(
-      hasHandoffSnapshot(item.sceneBuilderHandoffSnapshot)
-      && ['use_as_character', 'remix_with_required_replacements'].includes(item.reusePolicy)
+      (
+        item.characterProfileId
+        && (
+          item.canonicalCastingExportAssetId
+          || (
+            item.characterType === 'styled_character'
+            && item.canonicalCharacterSheetAssetId
+          )
+        )
+        && item.reusePolicy === 'use_as_character'
+      )
+      || (
+        hasHandoffSnapshot(item.sceneBuilderHandoffSnapshot)
+        && ['use_as_character', 'remix_with_required_replacements'].includes(item.reusePolicy)
+      )
     ),
     officialTags: normalizeStringArray(item.officialTags),
     visibility: VISIBILITY.PUBLIC,
@@ -211,6 +308,24 @@ function normalizeStringArray(value) {
       .map(item => item.trim())
       .filter(Boolean)
   )];
+}
+
+function normalizeDestinations(value) {
+  const allowed = new Set(['fashion_blueprint', 'scene_builder']);
+  return normalizeStringArray(value).filter(item => allowed.has(item));
+}
+
+function destinationsForType(value, characterType) {
+  const destinations = normalizeDestinations(value);
+  if (destinations.length) return destinations;
+  return characterType === 'styled_character'
+    ? ['scene_builder']
+    : ['fashion_blueprint', 'scene_builder'];
+}
+
+function normalizeOutfitBehavior(value, characterType) {
+  if (value === 'preserve' || value === 'replaceable') return value;
+  return characterType === 'styled_character' ? 'preserve' : 'replaceable';
 }
 
 export const communityCharacterRepo = new CommunityCharacterRepository();

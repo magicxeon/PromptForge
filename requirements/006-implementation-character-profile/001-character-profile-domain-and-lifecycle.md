@@ -1,7 +1,7 @@
 # Character Profile Domain and Lifecycle
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Proposed
+**Status:** Implemented; validation pending
 
 ## 1. Business Requirement
 
@@ -20,6 +20,7 @@ CharacterProfile
 - slug
 - shortDescription
 - personalitySummary
+- characterType: reusable_model | styled_character
 - intendedUses: fashion | scene_story | general
 - status: draft | export_pending | review | approved | archived | blocked
 - visibility: private | unlisted | public
@@ -37,6 +38,7 @@ CharacterProfileVersion
 - characterProfileId
 - versionNumber
 - sourceMode: character-sheet
+- characterType: reusable_model | styled_character
 - structuredCharacterSnapshot
 - sourceGenerationResultIds[]
 - canonicalHeadshotAssetId?
@@ -77,6 +79,16 @@ any non-archived -> blocked
 
 - Only owner/admin policy can edit profile metadata.
 - Only an approved version can be selected by another user.
+- `reusable_model` approval requires a successful canonical Casting candidate.
+  A new compliant Reusable Model result is that candidate immediately; it does
+  not require a second generation.
+- `styled_character` approval uses its owned canonical Character Sheet and is
+  outfit-bound.
+- `styled_character` may be handed to Scene Builder but never Fashion Blueprint.
+- Converting a Styled Character to a Reusable Model creates a new version and
+  runs the normal paid casting regeneration because the styled source is not a
+  standardized white three-view result; it never mutates an approved Styled
+  version in place.
 - Editing identity/body snapshot creates a new version.
 - Owner may edit `displayName`, `shortDescription`, `personalitySummary` and
   `intendedUses`.
@@ -102,14 +114,23 @@ Process:
 1. Validate actor owns the source result.
 2. Normalize compatible Character Sheet snapshot.
 3. Strip Base64 and temporary/private transport data.
-4. Create draft profile and version 1.
-5. Require standardized export before public reusable status.
+4. Create profile and version 1.
+5. Copy normalized Character Type from the owned source result.
+6. If the Reusable source contains the server-issued casting policy markers and
+   an owned output image, attach that same generation result as the canonical
+   Casting candidate and move the profile/version to `review`.
+7. Keep legacy/non-compliant Reusable sources in `draft` so the owner can run a
+   paid regeneration. Allow owner review and approval of the source Character
+   Sheet for `styled_character`.
 
 Output:
 
 - owner-safe Character Profile detail
 - immutable draft version
-- next action: generate casting export
+- next action determined by Character Type:
+  - `reusable_model`: review the initial standardized result; regenerate only
+    when rejected or non-compliant
+  - `styled_character`: review and approve the owned outfit-bound Character Sheet
 
 ## 5. Repository and API Design
 
@@ -118,12 +139,14 @@ Files:
 ```text
 server/domain/character-profiles/CharacterProfileService.js
 server/domain/character-profiles/characterProfilePolicy.js
+server/domain/character-profiles/characterTypePolicy.js
 server/repositories/character-profiles/CharacterProfileRepository.js
 server/repositories/character-profiles/CharacterProfileVersionRepository.js
 server/repositories/character-profiles/CharacterUsageRepository.js
 server/app/routes/characterProfileRoutes.js
 client/character-profiles/characterProfileApi.js
 client/character-profiles/characterProfileState.js
+client/character-profiles/characterTypeControl.js
 ```
 
 Endpoints:
@@ -135,6 +158,7 @@ GET    /api/character-profiles/:id
 PATCH  /api/character-profiles/:id
 POST   /api/character-profiles/:id/archive
 GET    /api/character-profiles/:id/versions
+POST   /api/character-profiles/:id/versions
 ```
 
 Repository interfaces must not expose JSON paths. Development JSON, future
@@ -161,6 +185,8 @@ Editable metadata validation:
 
 - Source result owned by another actor is rejected.
 - A draft cannot be publicly reusable.
+- A Styled Character cannot produce a Fashion handoff even when public reusable.
+- Legacy records without Character Type normalize to Reusable Model.
 - Updating identity creates a new version.
 - Archive prevents new handoffs but historical generation remains readable.
 - Repeating create with the same idempotency key returns the same profile.

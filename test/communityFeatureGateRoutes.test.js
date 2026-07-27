@@ -13,6 +13,7 @@ const disabledFlags = {
     engagementEnabled: false,
     creatorProfilesEnabled: false,
     galleryEnabled: false,
+    characterProfilesEnabled: false,
     moderationEnabled: false,
     privateBeta: false
   },

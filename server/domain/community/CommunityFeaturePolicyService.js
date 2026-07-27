@@ -15,6 +15,8 @@ const REQUIRED_BOOLEAN_PATHS = Object.freeze([
   'community.engagementEnabled',
   'community.creatorProfilesEnabled',
   'community.galleryEnabled',
+  'community.characterProfilesEnabled',
+  'community.characterProfilesEnabled',
   'community.moderationEnabled',
   'community.privateBeta',
   'development.mockActorSwitcherEnabled',
@@ -39,6 +41,8 @@ export class CommunityFeaturePolicyService {
       flags.community.engagementEnabled = false;
       flags.community.creatorProfilesEnabled = false;
       flags.community.galleryEnabled = false;
+      flags.community.characterProfilesEnabled = false;
+      flags.community.characterProfilesEnabled = false;
       flags.community.moderationEnabled = false;
       flags.development.mockActorSwitcherEnabled = false;
     }
@@ -113,6 +117,14 @@ export function validateCommunityFeatureFlags(flags) {
   }
   if (flags.community.galleryEnabled && !flags.community.creatorProfilesEnabled) {
     throw new TypeError('Community gallery requires creator profiles.');
+  }
+  if (flags.community.characterProfilesEnabled
+    && (!flags.community.galleryEnabled || !flags.community.creatorProfilesEnabled)) {
+    throw new TypeError('Character Profiles require Community gallery and creator profiles.');
+  }
+  if (flags.community.characterProfilesEnabled
+    && (!flags.community.galleryEnabled || !flags.community.creatorProfilesEnabled)) {
+    throw new TypeError('Character Profiles require Community gallery and creator profiles.');
   }
   if (flags.routing.automaticSimpleModeEnabled) {
     throw new TypeError('Automatic Simple provider routing must remain disabled in this phase.');

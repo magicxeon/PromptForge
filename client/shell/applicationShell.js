@@ -103,22 +103,30 @@
     lastRoute = route;
     const comparisonPage = route.pathname.startsWith('/comparisons');
     const communityPage = route.pathname === '/community';
-    const communityDetailPage = route.pathname.startsWith('/community/');
+    const characterDirectoryPage = route.pathname === '/community/characters';
+    const characterProfilePage = /^\/community\/characters\/[^/]+$/.test(route.pathname);
+    const communityDetailPage = route.pathname.startsWith('/community/')
+      && !characterDirectoryPage
+      && !characterProfilePage;
     const creatorProfilePage = route.pathname.startsWith('/creators/');
     const playgroundPage = route.pathname === '/playground';
     const adminPageRoute = route.pathname === '/admin';
-    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : communityDetailPage ? 'community-detail' : creatorProfilePage ? 'creator-profile' : playgroundPage ? 'playground' : adminPageRoute ? 'admin' : route.pathname === '/history' ? 'history' : 'studio';
+    document.body.dataset.appPage = comparisonPage ? 'comparisons' : communityPage ? 'community' : characterDirectoryPage ? 'community-characters' : characterProfilePage ? 'character-profile' : communityDetailPage ? 'community-detail' : creatorProfilePage ? 'creator-profile' : playgroundPage ? 'playground' : adminPageRoute ? 'admin' : route.pathname === '/history' ? 'history' : 'studio';
     const studio = document.querySelector('.app-workspace');
     const dashboard = document.getElementById('comparison-dashboard');
     const community = document.getElementById('community-home');
     const communityDetail = document.getElementById('community-post-detail');
+    const characterDirectory = document.getElementById('community-character-directory');
+    const characterProfile = document.getElementById('character-profile-page');
     const creatorProfile = document.getElementById('creator-profile-page');
     const playground = document.getElementById('playground-page');
     const admin = document.getElementById('admin-page');
-    if (studio) studio.hidden = comparisonPage || communityPage || communityDetailPage || creatorProfilePage || playgroundPage || adminPageRoute;
+    if (studio) studio.hidden = comparisonPage || communityPage || characterDirectoryPage || characterProfilePage || communityDetailPage || creatorProfilePage || playgroundPage || adminPageRoute;
     if (dashboard) dashboard.hidden = !comparisonPage;
     if (community) community.hidden = !communityPage;
     if (communityDetail) communityDetail.hidden = !communityDetailPage;
+    if (characterDirectory) characterDirectory.hidden = !characterDirectoryPage;
+    if (characterProfile) characterProfile.hidden = !characterProfilePage;
     if (creatorProfile) creatorProfile.hidden = !creatorProfilePage;
     if (playground) playground.hidden = !playgroundPage;
     if (admin) admin.hidden = !adminPageRoute;
@@ -129,7 +137,7 @@
       requestAnimationFrame(() => scrollToSection('visual-dashboard'));
     } else if (route.pathname === '/studio') {
       requestAnimationFrame(() => scrollToStudio(route));
-    } else if (communityPage || communityDetailPage || creatorProfilePage || playgroundPage || adminPageRoute) {
+    } else if (communityPage || characterDirectoryPage || characterProfilePage || communityDetailPage || creatorProfilePage || playgroundPage || adminPageRoute) {
       requestAnimationFrame(() => smoothScrollTo(0));
     } else if (!route.pathname.startsWith('/comparisons/')) {
       requestAnimationFrame(() => smoothScrollTo(route.state?.scrollY || 0));

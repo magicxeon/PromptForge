@@ -126,8 +126,14 @@ export class CommunityGalleryService {
       ...page,
       items: visibleItems.map(item => ({
         ...item,
-        imageUrl: `/api/community/characters/${encodeURIComponent(item.id)}/image`,
-        thumbnailUrl: `/api/community/characters/${encodeURIComponent(item.id)}/thumbnail`
+        id: item.characterProfileId || item.id,
+        communityCharacterProjectionId: item.characterProfileId ? item.id : null,
+        imageUrl: item.characterProfileId
+          ? `/api/community/character-profiles/${encodeURIComponent(item.characterProfileId)}/image`
+          : `/api/community/characters/${encodeURIComponent(item.id)}/image`,
+        thumbnailUrl: item.characterProfileId
+          ? `/api/community/character-profiles/${encodeURIComponent(item.characterProfileId)}/thumbnail`
+          : `/api/community/characters/${encodeURIComponent(item.id)}/thumbnail`
       }))
     };
   }
@@ -231,6 +237,7 @@ export class CommunityGalleryService {
       const post = item?.sourceCommunityPostId
         ? await this.postRepository.findById(item.sourceCommunityPostId)
         : null;
+      if (item?.characterProfileId && !item.sourceCommunityPostId) return summary;
       return post && isCommunityPostFeedVisible(post) ? summary : null;
     }));
     return decisions.filter(Boolean);

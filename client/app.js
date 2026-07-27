@@ -92,6 +92,16 @@ async function initApp() {
     if (!state.providerCatalog?.providers?.length) {
       throw new Error("No configured image providers are available.");
     }
+    if (!Array.isArray(bundle?.schema) || !Array.isArray(bundle?.library)) {
+      throw new Error("Attribute bundle is missing its schema or option library.");
+    }
+
+    state.schema = bundle.schema;
+    state.templates = bundle.templates || {};
+    state.order = Array.isArray(bundle.order) ? bundle.order : [];
+    state.library = bundle.library;
+    state.presets = bundle.presets || {};
+    await loadVisualAssetManifests();
 
     window.ModelPromptForgeStudioEngineTargetPanel?.destroy?.();
     window.ModelPromptForgeStudioEngineTargetPanel = window.ModelPromptForgeGenerationControls
@@ -131,9 +141,6 @@ async function initApp() {
       throw new Error('Generation result component is unavailable.');
     }
 
-    state.schema = bundle.schema;
-    state.templates = bundle.templates;
-    state.order = bundle.order;
     populateProviderList();
     document.querySelectorAll('#language-pill-selector .pill-btn').forEach(button => {
       button.classList.toggle('active', button.getAttribute('data-value') === state.language);
@@ -166,6 +173,7 @@ async function initApp() {
 
     // Restore persisted state for initial mode (Step 12)
     restoreCurrentModeState();
+    rerenderDynamicForm({ preserveOpenAccordions: false });
 
     if (window.ModelPromptForgeSceneBuilder?.init) {
       window.ModelPromptForgeSceneBuilder.init();
@@ -696,6 +704,8 @@ function bindEvents() {
         const meta = state.activeViewportJobMeta;
         if (meta && meta.mode === "headshot") {
           window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "build-character");
+        } else if (meta && meta.mode === "character-sheet") {
+          window.ModelPromptForgeCharacterProfileEditor?.openCreate?.(meta);
         } else {
           assignFaceReference(img.src, state.activeJobId);
           btnViewportUseFace.textContent = "👤 Face Locked!";
@@ -736,15 +746,23 @@ function bindEvents() {
   const btnLightboxUseFace = document.getElementById("btn-lightbox-use-face");
   const btnLightboxUseStyle = document.getElementById("btn-lightbox-use-style");
   const btnLightboxUseCharacter = document.getElementById("btn-lightbox-use-character");
+  const getOpenLightboxModal = () => {
+    const modal = document.getElementById("lightbox-modal");
+    return modal && modal.style.display !== "none" ? modal : null;
+  };
 
   if (btnLightboxUseFace) {
     btnLightboxUseFace.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         if (activeItem && activeItem.mode === "headshot") {
           closeLightbox();
           window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "build-character");
+        } else if (activeItem && activeItem.mode === "character-sheet") {
+          closeLightbox();
+          window.ModelPromptForgeCharacterProfileEditor?.openCreate?.(activeItem);
         } else {
           assignFaceReference(img.src, activeItem ? activeItem.id : null);
           closeLightbox();
@@ -756,7 +774,8 @@ function bindEvents() {
   if (btnLightboxUseStyle) {
     btnLightboxUseStyle.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         assignStyleReference(img.src, activeItem ? activeItem.id : null);
         closeLightbox();
@@ -767,7 +786,8 @@ function bindEvents() {
   if (btnLightboxUseCharacter) {
     btnLightboxUseCharacter.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         if (activeItem && activeItem.mode === "character-sheet") {
           closeLightbox();
@@ -873,7 +893,14 @@ function bindEvents() {
 
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || "Generation failed");
+          const serverError = data?.error;
+          const message = typeof serverError === "string"
+            ? serverError
+            : serverError?.message || data?.message || "Generation failed";
+          const error = new Error(message);
+          error.code = serverError?.code || data?.code || null;
+          error.details = serverError?.details || data?.details || null;
+          throw error;
         }
 
         const jobId = data.jobId;
@@ -1016,6 +1043,7 @@ function bindEvents() {
             provider,
             submodel,
             mode: generationPayload.mode,
+            characterType: generationPayload.characterType || null,
             generationSurface,
             selections: JSON.parse(JSON.stringify(generationPayload.selections || {})),
             referencedFaceJobIds: submittedReferenceJobIds.face,
@@ -1026,6 +1054,9 @@ function bindEvents() {
           };
           state.activeViewportJobMeta = jobMeta;
           publishGenerationStatus('completed', { jobId, job: jobMeta });
+          window.dispatchEvent(new CustomEvent('modelpromptforge:generationcompleted', {
+            detail: { job: jobMeta, request: generationPayload }
+          }));
 
           img.onclick = () => openLightbox(jobMeta);
 
@@ -1127,8 +1158,26 @@ function bindEvents() {
         loader.style.display = "none";
         errBanner.style.display = "flex";
         document.getElementById("error-message").textContent = err.message;
+        const errorDetails = document.getElementById("error-details");
+        const errorTechnicalMessage = document.getElementById("error-technical-message");
+        if (errorDetails && errorTechnicalMessage) {
+          const mismatchText = Array.isArray(err.details?.mismatches)
+            ? err.details.mismatches
+              .map(item => `${item.field}: estimated=${item.expected}, submitted=${item.actual}`)
+              .join(" | ")
+            : "";
+          const technicalMessage = [
+            err.code ? `Code: ${err.code}` : "",
+            mismatchText
+          ].filter(Boolean).join(" | ");
+          errorDetails.open = false;
+          errorDetails.style.display = technicalMessage ? "block" : "none";
+          errorTechnicalMessage.textContent = technicalMessage;
+        }
         placeholder.style.display = "flex";
-        publishGenerationStatus('failed', { error: { message: err.message } });
+        publishGenerationStatus('failed', {
+          error: { message: err.message, code: err.code || null, details: err.details || null }
+        });
       }
     });
   }
@@ -1389,6 +1438,11 @@ function toggleUIForMode() {
     window.ModelPromptForgeSceneBuilder.updateUi();
   }
   window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
+  window.ModelPromptForgeCharacterTypeControl?.applyCharacterSheetPolicy?.({
+    root: document,
+    state,
+    clearIncompatible: false
+  });
 }
 
 function updatePromptPreview() {

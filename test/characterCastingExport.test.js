@@ -1,0 +1,97 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { getCharacterCastingPolicy } from '../server/domain/character-profiles/characterCastingPolicy.js';
+import { normalizeGenerationContext, compileGenerationContext } from '../server/domain/generation/generationRequestService.js';
+
+test('casting export policy requires three full-body views and modest opaque white clothing', () => {
+  const policy = getCharacterCastingPolicy();
+  assert.equal(policy.layoutId, 'character-casting-three-view-v2');
+  assert.equal(policy.uniformPolicyId, 'casting-uniform-white-v1');
+  assert.equal(policy.aspectRatio, '6:8');
+  for (const phrase of ['three', 'front view', 'side profile', 'back view', 'head-to-feet', 'opaque', 'white']) {
+    assert.match(policy.promptDirective, new RegExp(phrase, 'i'));
+  }
+  assert.match(policy.promptDirective, /side by side in one horizontal row/i);
+  assert.match(policy.promptDirective, /never crop the head/i);
+  assert.doesNotMatch(policy.promptDirective, /three-quarter|2 by 2/i);
+  assert.match(
+    policy.promptDirective,
+    /(?:never|without)[^.]*\bunderwear\b/i,
+    'Casting policy must explicitly prohibit underwear.'
+  );
+});
+
+test('casting context enables the canonical character reference and prefixes policy', () => {
+  const payload = {
+    mode: 'character-sheet',
+    outputCount: 4,
+    selections: {},
+    characterReferenceImageA: '/outputs/source.png',
+    imageReferences: { characterReference: true },
+    characterProfileContext: {
+      purpose: 'character_casting_export',
+      characterProfileId: 'charprof_1',
+      characterProfileVersionId: 'charver_1'
+    }
+  };
+  const context = normalizeGenerationContext(payload, { userId: 'usr_owner' });
+  assert.equal(context.imageReferences.characterReference, true);
+  assert.equal(context.outputCount, 1);
+  const { compiledPrompt } = compileGenerationContext(payload, { userId: 'usr_owner' });
+  assert.ok(compiledPrompt.indexOf('front view') < compiledPrompt.length / 2);
+});
+
+test('destination Character usage treats the casting uniform as non-final clothing', () => {
+  const { compiledPrompt } = compileGenerationContext({
+    mode: 'normal',
+    selections: {},
+    characterReferenceImageA: '/outputs/casting.png',
+    imageReferences: { characterReference: true },
+    characterProfileContext: {
+      purpose: 'character_usage',
+      characterProfileId: 'charprof_1',
+      characterProfileVersionId: 'charver_1',
+      useCase: 'fashion',
+      sourceType: 'fashion_blueprint'
+    }
+  }, { userId: 'usr_viewer' });
+  assert.match(compiledPrompt, /white casting uniform.+must not be copied/i);
+  assert.match(compiledPrompt, /destination expression, pose, clothing/i);
+});
+
+test('Reusable Model Character Sheet strips editable clothing and outfit references', () => {
+  const payload = {
+    mode: 'character-sheet',
+    characterType: 'reusable_model',
+    aspectRatio: '1:1',
+    outputCount: 4,
+    selections: {
+      Face: { group: 'Face', id: 'face_1' },
+      Outfit: { group: 'Clothing', id: 'dress_1' },
+      'Sheet Layout': {
+        group: 'Body',
+        id: 'body.sheet_layout.front_side_back',
+        value: 'showing front, side and back views'
+      }
+    },
+    outfitReferenceImageFront: 'data:image/png;base64,private-outfit',
+    imageReferences: { outfitReference: true }
+  };
+  const context = normalizeGenerationContext(payload, { userId: 'usr_owner' });
+  const { compiledPrompt } = compileGenerationContext(payload, { userId: 'usr_owner' });
+
+  assert.equal(context.selections.Face.id, 'face_1');
+  assert.equal(context.selections.Outfit, undefined);
+  assert.equal(context.imageReferences.outfitReference, false);
+  assert.equal(context.aspectRatio, '6:8');
+  assert.equal(context.outputCount, 1);
+  assert.equal(context.characterSheetConfig.characterType, 'reusable_model');
+  assert.equal(context.characterSheetConfig.castingCandidate, true);
+  assert.equal(context.characterSheetConfig.layout.type, 'character-casting-three-view-v2');
+  assert.equal(context.characterSheetConfig.castingLayoutVersion, 'character-casting-three-view-v2');
+  assert.equal(context.characterSheetConfig.uniformPolicyVersion, 'casting-uniform-white-v1');
+  assert.match(compiledPrompt, /three clearly separated views/i);
+  assert.match(compiledPrompt, /front view, exact side profile, and back view/i);
+  assert.doesNotMatch(compiledPrompt, /three-quarter|2 by 2/i);
+  assert.doesNotMatch(compiledPrompt, /dress_1/i);
+});

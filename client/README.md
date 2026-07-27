@@ -15,7 +15,7 @@ The client supports these primary workflows:
 - access support and audit tools when the active actor has an allowed role.
 
 Project-wide file ownership rules remain defined in
-`requirements/007-technical-dept/000-master.md`. Read that document before
+`requirements/099-technical-dept/000-master.md`. Read that document before
 creating, moving, or renaming client files.
 
 ## 1. Runtime Model
@@ -55,6 +55,8 @@ The canonical route registry is `shell/navigationRegistry.js`.
 | --- | --- | --- |
 | `/` | Community | Default entry; treated as the Community route |
 | `/community` | Community | Discover shared images and workflows |
+| `/community/characters` | Community | Browse reusable public Characters |
+| `/community/characters/:characterId` | Community | Character profile, reuse rights, work, and usage |
 | `/studio` | Studio | Guided character, character-sheet, and scene creation |
 | `/playground` | Playground | Freeform prompt generation and model comparison |
 | `/history` | History | Actor-owned generated images and collections |
@@ -84,6 +86,7 @@ does not produce `Cannot GET`.
 | `admin/` | Support, audit, and backoffice UI |
 | `assets/` | Runtime visual assets shipped to the browser |
 | `clothing/` | Clothing rules, prompts, references, and visual configuration |
+| `character-profiles/` | Reusable Character lifecycle, casting export, profile, and handoff UI |
 | `community/` | Community page and local mock community workflows |
 | `comparisons/` | Comparison dashboard and summary components |
 | `core/` | Shared browser infrastructure and cross-feature services |
@@ -285,7 +288,7 @@ labels and error messages require catalog entries too.
 
 Before implementation:
 
-1. read `requirements/007-technical-dept/000-master.md`;
+1. read `requirements/099-technical-dept/000-master.md`;
 2. identify the owning route and feature folder;
 3. inspect the nearest module and its public namespace;
 4. identify shared controls and services that can be configured or extended;

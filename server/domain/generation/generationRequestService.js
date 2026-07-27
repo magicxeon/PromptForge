@@ -1,6 +1,11 @@
 import { compilePromptOnServer } from './promptCompiler.js';
 import { normalizeReferenceJobIds, stripEmbeddedReferenceDataFromSnapshot } from './referenceUtils.js';
 import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplateSanitizer.js';
+import { getCharacterCastingPolicy } from '../character-profiles/characterCastingPolicy.js';
+import {
+  CHARACTER_TYPE,
+  normalizeCharacterType
+} from '../character-profiles/characterTypePolicy.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
@@ -27,17 +32,31 @@ function normalizeSceneBuilderState(value, mode) {
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
+  const isCharacterCastingExport = payload.characterProfileContext?.purpose === 'character_casting_export';
+  const requestedOutputCount = Number(payload.outputCount || 1);
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
   const hasOutfitFront = Boolean(payload.outfitReferenceImageFront);
   const hasOutfitBack = Boolean(payload.outfitReferenceImageBack);
   const mode = payload.mode || 'normal';
+  const characterType = mode === 'character-sheet'
+    ? normalizeCharacterType(payload.characterType)
+    : null;
+  const reusableCharacterSheet = mode === 'character-sheet'
+    && characterType === CHARACTER_TYPE.REUSABLE_MODEL;
+  const castingPolicy = getCharacterCastingPolicy();
+  const normalizedAspectRatio = (isCharacterCastingExport || reusableCharacterSheet)
+    ? castingPolicy.aspectRatio
+    : (payload.aspectRatio || '1:1');
+  const normalizedOutputCount = (isCharacterCastingExport || reusableCharacterSheet)
+    ? castingPolicy.outputCount
+    : Math.max(1, Number.isFinite(requestedOutputCount) ? requestedOutputCount : 1);
   const hasTemplateOutfit = payload.sceneTemplateSnapshot
     && payload.sceneTemplateSnapshot.referenceSlotMapping
     && (payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_front_reference !== undefined
         || payload.sceneTemplateSnapshot.referenceSlotMapping.outfit_back_reference !== undefined);
-  const allowOutfit = mode === 'character-sheet'
+  const allowOutfit = (mode === 'character-sheet' && !reusableCharacterSheet)
     || hasTemplateOutfit
     || payload.generationSurface === 'playground';
   if (allowOutfit && hasOutfitBack && !hasOutfitFront) {
@@ -52,7 +71,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     faceMatch: payload.imageReferences?.faceMatch === true && hasFaceReference,
     styleMatch: mode === 'normal' && payload.imageReferences?.styleMatch === true && hasStyleReference,
     poseMatch: mode === 'normal' && payload.imageReferences?.poseMatch === true && hasStyleReference,
-    characterReference: mode === 'normal'
+    characterReference: (mode === 'normal' || isCharacterCastingExport)
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference,
     outfitReference: allowOutfit
@@ -62,7 +81,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     outfitReferenceBack: allowOutfit
       && hasOutfitFront
       && hasOutfitBack,
-    characterOverrides: mode === 'normal'
+    characterOverrides: (mode === 'normal' || isCharacterCastingExport)
       && payload.imageReferences?.characterReference === true
       && hasCharacterReference
       && payload.imageReferences?.characterOverrides === true
@@ -81,6 +100,11 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   ].filter(value => typeof value === 'string' && value.trim());
 
   const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
+  const selections = reusableCharacterSheet
+    ? Object.fromEntries(Object.entries(payload.selections || {}).filter(([, selection]) =>
+      selection?.group !== 'Clothing'
+    ))
+    : (payload.selections || {});
   let sceneTemplateSnapshot = payload.sceneTemplateSnapshot
     ? stripEmbeddedReferenceDataFromSnapshot(payload.sceneTemplateSnapshot)
     : null;
@@ -95,10 +119,13 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   return {
     ...payload,
     mode,
+    characterType,
+    selections,
     sceneBuilder,
     sceneTemplateSnapshot,
     template: payload.template || 'portrait',
-    aspectRatio: payload.aspectRatio || '1:1',
+    aspectRatio: normalizedAspectRatio,
+    outputCount: normalizedOutputCount,
     imageReferences,
     outfitReferenceOverrides,
     sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
@@ -107,17 +134,29 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     characterSheetConfig: createCharacterSheetConfigSnapshot({
       ...payload,
       mode,
+      characterType,
+      selections,
       imageReferences,
+      aspectRatio: normalizedAspectRatio,
+      outputCount: normalizedOutputCount,
       sourceOwnership: payload.sourceOwnership && typeof payload.sourceOwnership === 'object'
         ? payload.sourceOwnership
         : null
     }),
+    characterProfileContext: normalizeCharacterProfileContext(payload.characterProfileContext),
     referenceCount: new Set(activeReferenceValues).size
   };
 }
 
 export function compileGenerationContext(payload = {}, actorContext = null) {
   const context = normalizeGenerationContext(payload, actorContext);
+  return {
+    context,
+    compiledPrompt: compilePromptFromGenerationContext(context)
+  };
+}
+
+export function compilePromptFromGenerationContext(context) {
   const adminPromptOverride = typeof context.adminPromptOverride === 'string'
     ? context.adminPromptOverride.trim()
     : '';
@@ -126,7 +165,12 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
     && typeof context.sceneBuilder.manualPromptText === 'string'
     ? context.sceneBuilder.manualPromptText.trim()
     : '';
-  const compiledPrompt = context.userRole === 'admin' && adminPromptOverride
+  const reusableCharacterSheet = context.mode === 'character-sheet'
+    && context.characterType === CHARACTER_TYPE.REUSABLE_MODEL;
+  const castingExport = context.characterProfileContext?.purpose === 'character_casting_export';
+  const usesCastingLayout = reusableCharacterSheet || castingExport;
+  const castingPolicy = getCharacterCastingPolicy();
+  const basePrompt = context.userRole === 'admin' && adminPromptOverride
     ? adminPromptOverride
     : (manualScenePrompt
       ? manualScenePrompt
@@ -138,9 +182,35 @@ export function compileGenerationContext(payload = {}, actorContext = null) {
       context.template,
       context.isGptSafe,
       context.customColors,
-      context.outfitReferenceOverrides
+      context.outfitReferenceOverrides,
+      usesCastingLayout
+        ? {
+          characterSheetLayoutOverride: castingPolicy.promptDirective,
+          omitCharacterSheetClothing: true
+        }
+        : {}
     ));
-  return { context, compiledPrompt };
+  return castingExport
+    ? (context.userRole === 'admin' && adminPromptOverride
+      ? `${castingPolicy.promptDirective}, ${basePrompt}`
+      : basePrompt)
+    : context.characterProfileContext?.purpose === 'character_usage'
+      ? [
+        'Use the selected character reference only to preserve the same character identity and body proportions.',
+        context.characterProfileContext.outfitBehavior === 'preserve'
+          ? 'Preserve the original outfit identity and garment details from the outfit-bound character reference.'
+          : 'The fitted white casting uniform in that reference is not the target outfit and must not be copied.',
+        context.characterProfileContext.personalitySummarySnapshot
+          ? `Portray the character personality as: ${context.characterProfileContext.personalitySummarySnapshot}.`
+          : '',
+        context.characterProfileContext.outfitBehavior === 'preserve'
+          ? 'Follow the destination expression, pose, styling, and environment directions without replacing the original outfit.'
+          : 'Follow the destination expression, pose, clothing, styling, and environment directions.',
+        basePrompt
+      ].filter(Boolean).join(' ')
+      : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
+        ? `${castingPolicy.promptDirective}, ${basePrompt}`
+        : basePrompt;
 }
 
 export function createQueueOptions(context, {
@@ -160,6 +230,10 @@ export function createQueueOptions(context, {
   requestId = null
 }) {
   const references = context.imageReferences;
+  const {
+    authorizedCharacterReferenceAssetId,
+    ...persistedCharacterProfileContext
+  } = context.characterProfileContext || {};
   return {
     jobId,
     selections: context.selections && typeof context.selections === 'object' ? context.selections : {},
@@ -169,6 +243,13 @@ export function createQueueOptions(context, {
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,
     characterSheetConfig: context.characterSheetConfig || null,
+    characterProfileContext: context.characterProfileContext
+      ? persistedCharacterProfileContext
+      : null,
+    authorizedCharacterReferenceJobIds:
+      context.characterProfileContext?.purpose === 'character_usage'
+        ? normalizeReferenceJobIds([authorizedCharacterReferenceAssetId])
+        : [],
     outfitReferenceOverrides: context.outfitReferenceOverrides || normalizeOutfitReferenceOverrides(null),
     storyReferenceHandoff: context.mode === 'character-sheet'
       ? {
@@ -217,6 +298,25 @@ export function createQueueOptions(context, {
   };
 }
 
+function normalizeCharacterProfileContext(value) {
+  if (!value || typeof value !== 'object') return null;
+  const characterProfileId = String(value.characterProfileId || '').trim();
+  const characterProfileVersionId = String(value.characterProfileVersionId || '').trim();
+  if (!characterProfileId || !characterProfileVersionId) return null;
+  return {
+    purpose: value.purpose === 'character_casting_export' ? 'character_casting_export' : 'character_usage',
+    characterProfileId,
+    characterProfileVersionId,
+    useCase: ['fashion', 'scene_story', 'general'].includes(value.useCase) ? value.useCase : 'general',
+    sourceType: ['fashion_blueprint', 'scene_builder', 'direct_generation'].includes(value.sourceType)
+      ? value.sourceType
+      : 'direct_generation',
+    sourceId: typeof value.sourceId === 'string' ? value.sourceId : null,
+    characterType: normalizeCharacterType(value.characterType),
+    outfitBehavior: value.outfitBehavior === 'preserve' ? 'preserve' : 'replaceable'
+  };
+}
+
 export function createCharacterSheetConfigSnapshot(context = {}) {
   if (context.mode !== 'character-sheet') return null;
   const selections = context.selections && typeof context.selections === 'object'
@@ -228,10 +328,14 @@ export function createCharacterSheetConfigSnapshot(context = {}) {
   const hasBackReference = context.imageReferences?.outfitReferenceBack === true;
   const outfitSelectionIds = collectSelectionIds(selections, selection => selection?.group === 'Clothing');
   const layoutSelection = selections['Sheet Layout'];
+  const characterType = normalizeCharacterType(context.characterType);
+  const reusableModel = characterType === CHARACTER_TYPE.REUSABLE_MODEL;
+  const castingPolicy = reusableModel ? getCharacterCastingPolicy() : null;
 
   return {
     version: 1,
     mode: 'character-sheet',
+    characterType,
     sourceHeadshotIds: faceReferenceIds,
     identitySelectionIds: collectSelectionIds(selections, selection =>
       CHARACTER_SHEET_IDENTITY_GROUPS.has(selection?.group)
@@ -249,8 +353,15 @@ export function createCharacterSheetConfigSnapshot(context = {}) {
     outfitReferenceOverrides: normalizeOutfitReferenceOverrides(context.outfitReferenceOverrides),
     outfitSelectionIds,
     layout: {
-      type: layoutSelection?.id || 'body.sheet_layout.front_side_back'
+      type: reusableModel
+        ? castingPolicy.layoutId
+        : (layoutSelection?.id || 'body.sheet_layout.front_side_back')
     },
+    castingCandidate: reusableModel,
+    castingLayoutVersion: reusableModel ? castingPolicy.layoutId : null,
+    uniformPolicyVersion: reusableModel ? castingPolicy.uniformPolicyId : null,
+    aspectRatio: reusableModel ? castingPolicy.aspectRatio : (context.aspectRatio || null),
+    outputCount: reusableModel ? castingPolicy.outputCount : Number(context.outputCount || 1),
     sourceOwnership: context.sourceOwnership || null
   };
 }

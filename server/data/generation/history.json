@@ -1,5 +1,1515 @@
 [
   {
+    "id": "job_1785135394799_ouq46p6rw",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated views of the same character arranged side by side in one horizontal row on a single portrait canvas, ordered from left to right: front view, exact side profile, and back view. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a plain light-neutral background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Do not add props, logos, text labels, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, young adult in early twenties, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance, balanced natural build with average proportions and relaxed posture, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, ivory white skin, smooth fair ivory complexion, soft smooth skin with a fine peach fuzz texture, delicate specular highlights, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785135394799_ouq46p6rw.png",
+    "timestamp": 1785135424167,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "young adult in early twenties, 21 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_mature",
+        "value": "mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.003",
+        "value": "cupid's bow lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair with the forehead mostly open, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_08",
+        "value": "ivory white skin, smooth fair ivory complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "ivory",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "editorial portrait",
+          "classic lighting",
+          "structured visual tone"
+        ]
+      },
+      "Skin Texture": {
+        "id": "skin.text_05",
+        "value": "soft smooth skin with a fine peach fuzz texture, delicate specular highlights",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "soft"
+        ],
+        "gptPositiveWords": [
+          "close-up portraiture",
+          "detailed facial feature rendering",
+          "soft facial harmony"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_01",
+        "value": "adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "beauty-slim"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "elegant proportional guide"
+        ]
+      },
+      "Model Build": {
+        "id": "body.build_03",
+        "value": "balanced natural build with average proportions and relaxed posture",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "build",
+          "balanced"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "natural proportions"
+        ]
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "character-sheet-baseline",
+        "label": "Character Sheet Baseline",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [
+        "job_1785126581128_u6tep55rr"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.beauty_mature",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Eyebrows": "eyebrows.004",
+        "Nose": "nose.003",
+        "Lips": "lips.003",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Parting / Fringe": "hair_038",
+        "Color": "hair_014",
+        "Tone": "skin.tone_08",
+        "Skin Texture": "skin.text_05"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_01",
+        "Model Build": "body.build_03"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-three-view-v2"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-three-view-v2",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "character-sheet-baseline",
+          "label": "Character Sheet Baseline",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1785135394799_ouq46p6rw"
+    },
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 95,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 7017,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 454
+      },
+      "output_tokens": 1979,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 395
+      },
+      "total_tokens": 8996
+    },
+    "referencedFaceJobIds": [
+      "job_1785126581128_u6tep55rr"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "29.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785135394799_ouq46p6rw.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 9516,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 826730
+  },
+  {
+    "id": "job_1785133997888_br6e7sr2f",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet in a clean 2 by 2 grid showing the exact same character identity and body proportions in four clearly separated views ordered as follows: front view in the top-left panel, three-quarter view in the top-right panel, side profile in the bottom-left panel, and back view in the bottom-right panel. Keep the full body visible from head to feet in every view, with a neutral upright standing pose, level eye-height camera, even studio lighting, and a plain light-neutral background. Dress the character in an opaque, modest, unbranded, fitted white top with fitted full-length white bottoms or an equivalent modest one-piece garment. The garment must clearly reveal the body silhouette without transparency, lingerie, underwear, swimwear, cleavage emphasis, sexualized styling, logos, props, labels, dramatic gestures, perspective distortion, or cropped limbs. Preserve the source character's face, hair, skin, body proportions, and distinguishing identity consistently across all four views., female, young adult in early twenties, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance, balanced natural build with average proportions and relaxed posture, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, ivory white skin, smooth fair ivory complexion, soft smooth skin with a fine peach fuzz texture, delicate specular highlights, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 1:1)",
+    "imageUrl": "/outputs/job_1785133997888_br6e7sr2f.png",
+    "timestamp": 1785134023740,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "young adult in early twenties, 21 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_mature",
+        "value": "mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.003",
+        "value": "cupid's bow lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair with the forehead mostly open, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_08",
+        "value": "ivory white skin, smooth fair ivory complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "ivory",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "editorial portrait",
+          "classic lighting",
+          "structured visual tone"
+        ]
+      },
+      "Skin Texture": {
+        "id": "skin.text_05",
+        "value": "soft smooth skin with a fine peach fuzz texture, delicate specular highlights",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "soft"
+        ],
+        "gptPositiveWords": [
+          "close-up portraiture",
+          "detailed facial feature rendering",
+          "soft facial harmony"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_01",
+        "value": "adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "beauty-slim"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "elegant proportional guide"
+        ]
+      },
+      "Model Build": {
+        "id": "body.build_03",
+        "value": "balanced natural build with average proportions and relaxed posture",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "build",
+          "balanced"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "natural proportions"
+        ]
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "character-sheet-baseline",
+        "label": "Character Sheet Baseline",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [
+        "job_1785126581128_u6tep55rr"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.beauty_mature",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Eyebrows": "eyebrows.004",
+        "Nose": "nose.003",
+        "Lips": "lips.003",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Parting / Fringe": "hair_038",
+        "Color": "hair_014",
+        "Tone": "skin.tone_08",
+        "Skin Texture": "skin.text_05"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_01",
+        "Model Build": "body.build_03"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-four-view-v1"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-four-view-v1",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "1:1",
+      "outputCount": 1,
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "character-sheet-baseline",
+          "label": "Character Sheet Baseline",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1785133997888_br6e7sr2f"
+    },
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 70,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 6986,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 423
+      },
+      "output_tokens": 1538,
+      "output_tokens_details": {
+        "image_tokens": 1056,
+        "text_tokens": 482
+      },
+      "total_tokens": 8524
+    },
+    "referencedFaceJobIds": [
+      "job_1785126581128_u6tep55rr"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "25.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785133997888_br6e7sr2f.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 640,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 8396,
+    "width": 1024,
+    "height": 1024,
+    "originalBytes": 1145015
+  },
+  {
+    "id": "job_1785131305432_l4w6mobng",
+    "username": "user_alice",
+    "prompt": "Create a reusable character model wearing an opaque modest fitted white casting uniform with a fitted white top and full-length white bottoms, never underwear, lingerie, swimwear, or transparent fabric, character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, young adult in early twenties, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance, balanced natural build with average proportions and relaxed posture, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, ivory white skin, smooth fair ivory complexion, soft smooth skin with a fine peach fuzz texture, delicate specular highlights, wearing modest neutral character reference clothing, an opaque light gray fitted top and matching mid-thigh shorts, non-revealing, clean and practical for character sheet visibility, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785131305432_l4w6mobng.png",
+    "timestamp": 1785131365528,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "young adult in early twenties, 21 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_mature",
+        "value": "mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.003",
+        "value": "cupid's bow lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair with the forehead mostly open, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_08",
+        "value": "ivory white skin, smooth fair ivory complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "ivory",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "editorial portrait",
+          "classic lighting",
+          "structured visual tone"
+        ]
+      },
+      "Skin Texture": {
+        "id": "skin.text_05",
+        "value": "soft smooth skin with a fine peach fuzz texture, delicate specular highlights",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "soft"
+        ],
+        "gptPositiveWords": [
+          "close-up portraiture",
+          "detailed facial feature rendering",
+          "soft facial harmony"
+        ]
+      },
+      "Body Silhouette": {
+        "id": "body.female_silhouette_01",
+        "value": "adult female beauty slim body silhouette, softly feminine proportions, elegant natural stance",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "silhouette",
+          "female-body-silhouette",
+          "beauty-slim"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "elegant proportional guide"
+        ]
+      },
+      "Model Build": {
+        "id": "body.build_03",
+        "value": "balanced natural build with average proportions and relaxed posture",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "build",
+          "balanced"
+        ],
+        "gptPositiveWords": [
+          "clean full-body character reference",
+          "natural proportions"
+        ]
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": {
+      "mode": "character-sheet",
+      "identity": {
+        "source": "visual-character-selections",
+        "label": "Current visual character selections",
+        "owns": [
+          "gender",
+          "age",
+          "visual heritage",
+          "face",
+          "hair",
+          "skin"
+        ]
+      },
+      "body": {
+        "source": "body-visual-attributes",
+        "label": "Body visual attributes",
+        "owns": [
+          "body silhouette",
+          "proportion"
+        ]
+      },
+      "outfit": {
+        "source": "character-sheet-baseline",
+        "label": "Character Sheet Baseline",
+        "owns": [
+          "outfit",
+          "garment silhouette",
+          "colors",
+          "visible details"
+        ]
+      },
+      "layout": {
+        "source": "default-front-side-back",
+        "label": "Front / Side / Back",
+        "owns": [
+          "sheet layout"
+        ]
+      }
+    },
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [
+        "job_1785126581128_u6tep55rr"
+      ],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.beauty_mature",
+        "Face Shape": "face.006",
+        "Eyes": "eyes.001",
+        "Eyebrows": "eyebrows.004",
+        "Nose": "nose.003",
+        "Lips": "lips.003",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Parting / Fringe": "hair_038",
+        "Color": "hair_014",
+        "Tone": "skin.tone_08",
+        "Skin Texture": "skin.text_05"
+      },
+      "bodySelectionIds": {
+        "Body Silhouette": "body.female_silhouette_01",
+        "Model Build": "body.build_03"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "sourceOwnership": {
+        "mode": "character-sheet",
+        "identity": {
+          "source": "visual-character-selections",
+          "label": "Current visual character selections",
+          "owns": [
+            "gender",
+            "age",
+            "visual heritage",
+            "face",
+            "hair",
+            "skin"
+          ]
+        },
+        "body": {
+          "source": "body-visual-attributes",
+          "label": "Body visual attributes",
+          "owns": [
+            "body silhouette",
+            "proportion"
+          ]
+        },
+        "outfit": {
+          "source": "character-sheet-baseline",
+          "label": "Character Sheet Baseline",
+          "owns": [
+            "outfit",
+            "garment silhouette",
+            "colors",
+            "visible details"
+          ]
+        },
+        "layout": {
+          "source": "default-front-side-back",
+          "label": "Front / Side / Back",
+          "owns": [
+            "sheet layout"
+          ]
+        }
+      }
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1785131305432_l4w6mobng"
+    },
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 95,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 6890,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 327
+      },
+      "output_tokens": 6662,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 422
+      },
+      "total_tokens": 13552
+    },
+    "referencedFaceJobIds": [
+      "job_1785126581128_u6tep55rr"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "60.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785131305432_l4w6mobng.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11342,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 1975662
+  },
+  {
+    "id": "job_1785126581128_u6tep55rr",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, young adult in early twenties, thai person, mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics, diamond face, almond-shaped eyes, thin eyebrows, delicate narrow nose, cupid's bow lips, subtle friendly expression with relaxed lips, long dark brown hair, side-parted hair with the forehead mostly open, no bangs, silky smooth texture, polished natural texture flow, ivory white skin, smooth fair ivory complexion, soft smooth skin with a fine peach fuzz texture, delicate specular highlights, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785126581128_u6tep55rr.png",
+    "timestamp": 1785126603304,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female woman",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "young adult in early twenties, 21 years old",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai person",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_mature",
+        "value": "mature face exhibiting sophisticated elegance, calm confident gaze, graceful characteristics",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.001",
+        "value": "almond-shaped eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.004",
+        "value": "thin eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.003",
+        "value": "cupid's bow lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle warm friendly smile with relaxed lips and a gentle sparkle in the eyes, directing facial expression naturally without altering facial structure",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair, perfectly groomed strands with soft healthy highlights and natural flow",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair with the forehead mostly open, no bangs",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_08",
+        "value": "ivory white skin, smooth fair ivory complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "ivory",
+          "asian"
+        ],
+        "gptPositiveWords": [
+          "editorial portrait",
+          "classic lighting",
+          "structured visual tone"
+        ]
+      },
+      "Skin Texture": {
+        "id": "skin.text_05",
+        "value": "soft smooth skin with a fine peach fuzz texture, delicate specular highlights",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "soft"
+        ],
+        "gptPositiveWords": [
+          "close-up portraiture",
+          "detailed facial feature rendering",
+          "soft facial harmony"
+        ]
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 85,
+    "mimeType": "image/png",
+    "usage": {
+      "input_tokens": 161,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 161
+      },
+      "output_tokens": 1941,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 357
+      },
+      "total_tokens": 2102
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "22.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785126581128_u6tep55rr.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 427,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14908,
+    "width": 1024,
+    "height": 1536,
+    "originalBytes": 1853828
+  },
+  {
     "id": "job_1784871247636_eg8pu8t32",
     "username": "user_demo",
     "prompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",

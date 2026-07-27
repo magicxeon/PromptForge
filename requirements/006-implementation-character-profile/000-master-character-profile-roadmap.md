@@ -1,6 +1,6 @@
 # Character Profile Master Roadmap
 
-**Status:** Proposed for implementation before Fashion Blueprint  
+**Status:** Implemented; validation pending
 **Goal:** Turn an approved Character Sheet into a named, reusable and optionally
 public Character Profile.
 
@@ -10,9 +10,10 @@ A user can:
 
 1. Create a character through the existing Headshot and Character Sheet flow.
 2. Name the character and add a short personality/usage description.
-3. Generate a standardized Character Casting Sheet in a modest opaque white
-   fitted outfit.
-4. Pay the normal generation credit cost for that export.
+3. Generate the initial Reusable Model as a standardized Character Casting
+   Sheet in a modest opaque white fitted outfit.
+4. Pay once for that initial generation; a second export generation is not
+   required when the result already satisfies the casting contract.
 5. Keep the profile private or share it for other users.
 6. Discover shared Characters from a dedicated Character section in Community.
 7. Open a profile page showing creator attribution and privacy-safe usage
@@ -23,11 +24,43 @@ A user can:
 Character Profiles are reusable production assets, not ordinary Community posts
 and not raw uploaded face references.
 
+## 1.1 Character Type Contract
+
+Character Sheet Builder must ask for the Character purpose before Clothing is
+configured. This is a first-class type, not a Clothing checkbox:
+
+```text
+reusable_model
+- neutral identity/body production asset
+- Casting Uniform replaces ordinary Clothing controls
+- Clothing presets, colors, pattern, material, custom write-in and Outfit
+  Reference upload are not rendered as interactive choices
+- the initial Character Sheet generation is already the three-view Casting
+  candidate
+- compatible with Fashion Blueprint and Scene Builder
+
+styled_character
+- identity plus an outfit-bound look
+- ordinary Clothing controls and Outfit References remain available
+- the approved Character Sheet is the canonical reference
+- compatible with Scene Builder only
+- must be converted through a new Casting Export version before Fashion use
+```
+
+Legacy profiles and Character Sheet results without `characterType` normalize to
+`reusable_model`.
+
+The selector and its capability labels are owned by the reusable
+`client/character-profiles/characterTypeControl.js` component. Character Sheet,
+Character Profile and future Fashion pickers consume this shared contract rather
+than recreating separate controls.
+
 ## 2. Scope Decisions
 
 MVP decisions:
 
-- Standard export contains four views: front, three-quarter, side and back.
+- Standard export contains three views: front, exact side profile and back,
+  arranged side by side with every figure visible from head to feet.
 - The casting outfit is opaque, non-revealing, unbranded and white.
 - Only a generated/approved canonical export may become publicly reusable.
 - Private source uploads, Base64 payloads and provider request payloads are never
@@ -64,7 +97,7 @@ Community character store.
 | Requirement | Purpose | Dependency |
 |---|---|---|
 | `001-character-profile-domain-and-lifecycle.md` | Canonical profile/schema/state | Existing Character Sheet |
-| `002-standardized-character-casting-export.md` | Four-view white casting export | 001, generation/credits |
+| `002-standardized-character-casting-export.md` | Three-view white casting export | 001, generation/credits |
 | `003-character-sharing-privacy-and-reuse.md` | Visibility, reuse and public projection | 001, 002, Community |
 | `004-character-profile-page-and-usage-analytics.md` | Profile page and popularity metrics | 003, engagement events |
 | `005-fashion-and-scene-character-handoff.md` | Reusable selection contract | 001–004 |
@@ -75,7 +108,9 @@ Community character store.
 ```text
 Character Builder output
   -> CharacterProfile draft
-  -> quoted casting export generation
+  -> Reusable Model: initial standardized result enters review directly
+       -> optional paid regenerate for rejection, legacy data or conversion
+  -> Styled Character: owner approval of the outfit-bound source sheet
   -> approved canonical CharacterProfileVersion
   -> private profile
        -> optional public CommunityCharacter projection
@@ -122,7 +157,8 @@ source of truth.
 
 ## 8. Exit Criteria
 
-- A paid four-view casting export can be generated and approved.
+- A paid three-view Reusable Model can be generated once and approved without a
+  mandatory duplicate generation.
 - Public reuse never exposes private source references.
 - A second user can select an allowed Character in Fashion Blueprint.
 - Successful usage updates privacy-safe category aggregates exactly once.

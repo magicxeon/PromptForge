@@ -1,7 +1,7 @@
 # Fashion and Scene Character Handoff
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Proposed
+**Status:** Implemented; validation pending
 
 ## 1. Business Requirement
 
@@ -20,6 +20,9 @@ CharacterDestinationHandoff
 - displayName
 - personalitySummarySnapshot
 - intendedUsesSnapshot[]
+- characterType
+- destinationCapabilities[]
+- outfitBehavior: replaceable | preserve
 - compatibleAttributeSnapshot
 - attribution
 - sourceOwnerUserId
@@ -33,6 +36,10 @@ Destination-specific behavior:
   variation and environment under Blueprint ownership.
 - Scene Builder maps the asset to `character_reference` and leaves expression,
   pose and environment variable according to the active template.
+- Styled Character maps its canonical Character Sheet to Scene Builder with
+  `outfitBehavior: preserve`.
+- Fashion Blueprint accepts only `reusable_model` with
+  `outfitBehavior: replaceable`.
 
 ## 3. Client Flow
 
@@ -91,6 +98,7 @@ body: { destination }
 | identity/face/body | yes | no, unless Character removed |
 | stable hair | yes | controlled override only if supported |
 | casting white outfit | no | never carried as final Fashion garment |
+| Styled Character outfit | yes | preserved by Scene; Fashion handoff denied |
 | Fashion outfit | no | Fashion Blueprint |
 | expression | no | Scene/Blueprint control |
 | pose | no | Scene/Blueprint control |
@@ -109,5 +117,8 @@ when an outfit reference is supplied.
 - Switching mock actors does not leak pending handoff.
 - Successful destination generation writes one usage event.
 - Picker communicates reusable/view-only/owner-only state before selection.
+- Picker displays Reusable Model or Outfit Bound using icon and text.
+- Server rejects Styled Character Fashion handoff even if a stale client shows
+  the action.
 - Personality snapshot used by a confirmed run remains stable after owner edits
   the profile.

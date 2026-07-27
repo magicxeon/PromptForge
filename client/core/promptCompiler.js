@@ -519,6 +519,12 @@
     };
 
     const getCharacterSheetLayoutSegment = () => {
+      const reusableModel = state.characterType !== "styled_character";
+      if (reusableModel) {
+        const fixedLayout = window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING?.promptDirective
+          || "professional full-body reusable character casting sheet showing exactly three views side by side in one row, front view, exact side profile and back view, complete head-to-feet figure in every view with clear margins";
+        return cleanTextOnly ? fixedLayout : `<span class="token-pose">${fixedLayout}</span>`;
+      }
       const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
       const selectedLayout = getPromptValueForSelection(activeSelections["Sheet Layout"], "Sheet Layout");
       const layoutText = selectedLayout && selectedLayout.trim() !== ""
@@ -632,13 +638,20 @@
       prompt = elements.join(", ");
     } else if (state.mode === "character-sheet") {
       let sheetLayout = getCharacterSheetLayoutSegment();
+      const reusableModel = state.characterType !== "styled_character";
+      const characterTypeDirection = reusableModel
+        ? (cleanTextOnly
+          ? "reusable character model wearing an opaque modest fitted white casting uniform with a fitted white top and full-length white bottoms, never underwear, lingerie, swimwear, or transparent fabric"
+          : '<span class="token-reference">reusable character model wearing an opaque modest fitted white casting uniform with a fitted white top and full-length white bottoms, never underwear, lingerie, swimwear, or transparent fabric</span>')
+        : "";
       let elements = [
         sheetLayout,
+        characterTypeDirection,
         fullSubject,
         appearance,
         hair,
         skin,
-        clothing,
+        reusableModel ? "" : clothing,
         cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
         cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
         cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,

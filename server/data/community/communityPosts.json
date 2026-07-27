@@ -484,7 +484,7 @@
     "customTags": [],
     "categoryCodes": [],
     "counts": {
-      "views": 1,
+      "views": 2,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -498,17 +498,17 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-20T04:58:37.501Z",
-    "updatedAt": "2026-07-26T10:04:02.920Z",
+    "updatedAt": "2026-07-27T05:55:25.658Z",
     "deletedAt": null,
     "metadata": {},
     "engagementSummary": {
-      "viewCount": 1,
+      "viewCount": 2,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-26T10:04:02.920Z"
+      "updatedAt": "2026-07-27T05:55:25.658Z"
     }
   }
 ]

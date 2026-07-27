@@ -11,6 +11,7 @@
       engagementEnabled: false,
       creatorProfilesEnabled: false,
       galleryEnabled: false,
+      characterProfilesEnabled: false,
       moderationEnabled: false,
       privateBeta: false
     }),
@@ -73,6 +74,10 @@
 
   function isRouteEnabled(pathname, { defaultValue = true } = {}) {
     const path = String(pathname || '').replace(/\/$/, '') || '/community';
+    if (path === '/community/characters' || path.startsWith('/community/characters/')) {
+      return isEnabled('community.enabled', { defaultValue })
+        && isEnabled('community.characterProfilesEnabled', { defaultValue });
+    }
     if (path === '/community' || path.startsWith('/community/')) {
       return isEnabled('community.enabled', { defaultValue });
     }

@@ -137,7 +137,9 @@ export function normalizeReferenceValue(value) {
   };
 }
 
-export async function resolveReferenceForProvider(value, username) {
+export async function resolveReferenceForProvider(value, username, {
+  authorizedJobIds = []
+} = {}) {
   if (!value) return null;
   
   // Accept ReferenceValue objects or raw strings
@@ -154,7 +156,8 @@ export async function resolveReferenceForProvider(value, username) {
     const historyItem = await historyRepository.getById(norm.jobId);
     if (historyItem) {
       // Validate ownership (Phase 5 Security Check)
-      if (historyItem.username && historyItem.username !== username) {
+      const serverAuthorized = authorizedJobIds.includes(norm.jobId);
+      if (historyItem.username && historyItem.username !== username && !serverAuthorized) {
         console.warn(`[Reference Resolution] Ownership mismatch: job ${norm.jobId} belongs to ${historyItem.username}, requested by ${username}`);
         return null; // Reject access
       }

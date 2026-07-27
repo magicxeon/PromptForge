@@ -7,6 +7,7 @@ const INTERNAL_REQUIRED_FLAGS = Object.freeze([
   'engagementEnabled',
   'creatorProfilesEnabled',
   'galleryEnabled',
+  'characterProfilesEnabled',
   'moderationEnabled'
 ]);
 

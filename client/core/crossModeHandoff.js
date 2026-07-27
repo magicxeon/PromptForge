@@ -246,6 +246,12 @@
         btnUseFace.removeAttribute("title");
       }
     } else if (result.mode === "character-sheet") {
+      if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+        "community.characterProfilesEnabled"
+      ) === true) {
+        btnUseFace.style.display = "block";
+        btnUseFace.textContent = "Create Character Profile";
+      }
       btnUseCharacter.style.display = "block";
       btnUseCharacter.textContent = "Use in Scene Builder";
     } else {
@@ -294,6 +300,12 @@
       btnUseFace.style.display = "block";
       btnUseFace.textContent = "Build Character";
     } else if (result.mode === "character-sheet") {
+      if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+        "community.characterProfilesEnabled"
+      ) === true) {
+        btnUseFace.style.display = "block";
+        btnUseFace.textContent = "Create Character Profile";
+      }
       btnUseCharacter.style.display = "block";
       btnUseCharacter.textContent = "Use in Scene Builder";
     } else {
@@ -388,6 +400,16 @@
     document.body.classList.remove("app-dialog-open");
     activeHandoffContext = null;
   }
+
+  window.addEventListener("modelpromptforge:communityfeatureschange", () => {
+    if (state.activeViewportJobMeta) {
+      renderViewportHandoffActions(state.activeViewportJobMeta);
+    }
+    const lightbox = document.getElementById("lightbox-modal");
+    if (lightbox?.activeItem) {
+      renderLightboxHandoffActions(lightbox.activeItem);
+    }
+  });
 
   // Setup click listeners on DOM load
   document.addEventListener("DOMContentLoaded", () => {

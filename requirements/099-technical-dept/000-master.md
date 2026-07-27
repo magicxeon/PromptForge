@@ -1,5 +1,5 @@
-# Technical Debt & Code Quality Master Plan (007-technical-dept)
-**ID**: 007-technical-dept-master
+# Technical Debt & Code Quality Master Plan (099-technical-dept)
+**ID**: 099-technical-dept-master
 **Application**: `ModelPromptForge`
 
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
@@ -17,14 +17,14 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 
 ## 2. Refactoring Checklist
 
-*   **[Step 1: Modularize Client-Side Monolith](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/001-client-refactor-modularization.md)**
+*   **[Step 1: Modularize Client-Side Monolith](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/001-client-refactor-modularization.md)**
     *   Separate core state, constants, and mappings.
     *   Modularize reference managers and the prompt compiler.
     *   Decompose form renderer, persistence, and service layers (history, collection, generation, lightbox).
     *   Reduce `client/app.js` to an entry point bootstrap script.
     *   Update script imports in `client/index.html` in correct dependency order.
 
-*   **[Step 2: Reorganize Server Folder, Runtime Data, and Domain Modules](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-server-folder-reorganization.md)**
+*   **[Step 2: Reorganize Server Folder, Runtime Data, and Domain Modules](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-server-folder-reorganization.md)**
     *   Move runtime JSON files under `server/data/`.
     *   Add a central server path resolver.
     *   Standardize JSON read/write through a shared repository file store.
@@ -32,13 +32,13 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
     *   Extract repositories and route modules in safe phases.
     *   Final cleanup removes root-level compatibility re-export files and old data path fallbacks.
     *   Sub-phases:
-        *   [002-001 Data Relocation And Path Resolver](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-001-server-data-relocation-and-path-resolver.md)
-        *   [002-002 Shared JSON Store And Repository Write Contract](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-002-shared-json-store-and-repository-write-contract.md)
-        *   [002-003 Domain And Repository Folder Extraction](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-003-domain-and-repository-folder-extraction.md)
-        *   [002-004 Route Extraction And Server Bootstrap Cleanup](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-004-route-extraction-and-server-bootstrap-cleanup.md)
-        *   [002-005 Cleanup Documentation And Final Validation](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/002-005-cleanup-documentation-and-final-validation.md)
+        *   [002-001 Data Relocation And Path Resolver](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-001-server-data-relocation-and-path-resolver.md)
+        *   [002-002 Shared JSON Store And Repository Write Contract](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-002-shared-json-store-and-repository-write-contract.md)
+        *   [002-003 Domain And Repository Folder Extraction](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-003-domain-and-repository-folder-extraction.md)
+        *   [002-004 Route Extraction And Server Bootstrap Cleanup](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-004-route-extraction-and-server-bootstrap-cleanup.md)
+        *   [002-005 Cleanup Documentation And Final Validation](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/002-005-cleanup-documentation-and-final-validation.md)
 
-*   **[Step 3: Template Reference Control Visibility](file:///d:/development/ModelPromptForge/requirements/007-technical-dept/003-template-reference-controls-visibility.md)**
+*   **[Step 3: Template Reference Control Visibility](file:///d:/development/ModelPromptForge/requirements/099-technical-dept/003-template-reference-controls-visibility.md)**
     *   Hide standard reference controls when Scene Template replacements own the workflow.
     *   Prevent stale normal-mode Face/Style/Pose flags from entering template generation payloads.
 
@@ -78,6 +78,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Shared route error translation | `server/app/` |
 | Business rules and orchestration | `server/domain/<capability>/` |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
+| Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
 | Request actor/security middleware | `server/middleware/` |
@@ -100,6 +101,7 @@ Server placement rules:
 | Shared state, persistence, rendering, generation, and reference services | `client/core/` |
 | Localization runtime services and locale preference | `client/core/` |
 | Feature-specific behavior | `client/<feature>/` |
+| Character Profile modules | `client/character-profiles/` |
 | Scene Builder modules | `client/scene-builder/` |
 | Clothing modules | `client/clothing/` |
 | Comparison modules | `client/comparisons/` |
@@ -131,7 +133,7 @@ Client placement rules:
 | Migration and maintenance utilities | `scripts/` |
 | Automated tests and fixtures | `test/` and `test/fixtures/` |
 | Business and implementation requirements | `requirements/<phase-or-domain>/` |
-| Cross-project architecture and technical debt plans | `requirements/007-technical-dept/` |
+| Cross-project architecture and technical debt plans | `requirements/099-technical-dept/` |
 
 ### 4.4 New Folder Decision Rule
 

@@ -42,6 +42,10 @@ import { communityPostAccessService } from '../domain/community/CommunityPostAcc
 import { registerCommunityComparisonRoutes } from './routes/communityComparisonRoutes.js';
 import { communityCollectionShareService } from '../domain/community/CommunityCollectionShareService.js';
 import { registerCommunityCollectionRoutes } from './routes/communityCollectionRoutes.js';
+import { registerCharacterProfileRoutes } from './routes/characterProfileRoutes.js';
+import { characterProfileService } from '../domain/character-profiles/CharacterProfileService.js';
+import { characterCastingExportService } from '../domain/character-profiles/CharacterCastingExportService.js';
+import { characterProfileSharingService } from '../domain/character-profiles/CharacterProfileSharingService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -139,6 +143,12 @@ export function createApp() {
     moderationService: communityModerationService,
     communityFeaturePolicyService
   });
+  registerCharacterProfileRoutes(app, {
+    profileService: characterProfileService,
+    castingExportService: characterCastingExportService,
+    sharingService: characterProfileSharingService,
+    communityFeaturePolicyService
+  });
   registerCommunityGalleryRoutes(app, {
     galleryService: communityGalleryService,
     communityFeaturePolicyService
@@ -166,6 +176,7 @@ export function createApp() {
   // loads the app shell instead of falling through to Express 404 handling.
   app.get([
     '/community', '/community/', '/community/:postId', '/community/:postId/',
+    '/community/characters/:characterId', '/community/characters/:characterId/',
     '/creators/:handle', '/creators/:handle/',
     '/studio', '/studio/',
     '/playground', '/playground/',

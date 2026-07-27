@@ -8,6 +8,8 @@ import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
 import { creditReservationService } from '../credits/CreditReservationService.js';
 import { thumbnailService } from './thumbnailService.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
+import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
+import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -222,8 +224,25 @@ class QueueManager {
       const resolvedFaceB = await resolveReferenceForProvider(job.options.faceReferenceImageB, job.options.username);
       const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username);
       const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username);
-      const resolvedCharacterA = await resolveReferenceForProvider(job.options.characterReferenceImageA, job.options.username);
-      const resolvedCharacterB = await resolveReferenceForProvider(job.options.characterReferenceImageB, job.options.username);
+      const characterReferenceAccess = {
+        authorizedJobIds: job.options.authorizedCharacterReferenceJobIds || []
+      };
+      const resolvedCharacterA = await resolveReferenceForProvider(
+        job.options.characterReferenceImageA,
+        job.options.username,
+        characterReferenceAccess
+      );
+      const resolvedCharacterB = await resolveReferenceForProvider(
+        job.options.characterReferenceImageB,
+        job.options.username,
+        characterReferenceAccess
+      );
+      if (job.options.characterProfileContext?.purpose === 'character_usage'
+        && !resolvedCharacterA) {
+        const error = new Error('The approved Character reference is no longer available.');
+        error.code = 'character_reference_unavailable';
+        throw error;
+      }
       const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username);
       const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username);
 
@@ -320,6 +339,7 @@ class QueueManager {
           : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
+        characterProfileContext: job.options.characterProfileContext || null,
         outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
@@ -345,6 +365,12 @@ class QueueManager {
         historyEntry.thumbnailUrl = null;
       }
       await this.saveToHistory(historyEntry);
+      await characterCastingExportService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
+        console.warn(`[Queue] Character casting linkage failed for ${jobId}:`, error.message);
+      });
+      await characterUsageService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
+        console.warn(`[Queue] Character usage linkage failed for ${jobId}:`, error.message);
+      });
 
       let collectionWarning = null;
       try {

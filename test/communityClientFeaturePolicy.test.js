@@ -19,6 +19,7 @@ test('client Community policy follows server flags for navigation and feature co
       engagementEnabled: false,
       creatorProfilesEnabled: true,
       galleryEnabled: false,
+      characterProfilesEnabled: false,
       moderationEnabled: true,
       privateBeta: false
     },
@@ -36,6 +37,7 @@ test('client Community policy follows server flags for navigation and feature co
   assert.equal(context.window.ModelPromptForgeCommunityFeatures.isEnabled('community.enabled'), true);
   assert.equal(context.window.ModelPromptForgeCommunityFeatures.isEnabled('community.shareEnabled'), false);
   assert.equal(context.window.ModelPromptForgeCommunityFeatures.isRouteEnabled('/creators/alice'), true);
+  assert.equal(context.window.ModelPromptForgeCommunityFeatures.isRouteEnabled('/community/characters'), false);
   assert.equal(events.at(-1).type, 'modelpromptforge:communityfeatureschange');
 });
 

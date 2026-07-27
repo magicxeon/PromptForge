@@ -9,6 +9,7 @@ import { resolveReferenceForProvider } from '../server/domain/generation/referen
 
 const basePayload = {
   mode: 'character-sheet',
+  characterType: 'styled_character',
   selections: {},
   aspectRatio: '1:1',
   imageReferences: { outfitReference: false },

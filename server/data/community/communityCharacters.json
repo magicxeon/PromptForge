@@ -1,0 +1,43 @@
+[
+  {
+    "displayName": "น้องเจน",
+    "description": "ทดสอบน้องเจน เหมาะสำหรับทำภาพ แฟชัน เครื่องสำอาง",
+    "characterType": "reusable_model",
+    "creatorProfileId": null,
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1785135394799_ouq46p6rw",
+    "previewImageAssetId": "job_1785135394799_ouq46p6rw",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1785135501348_4te0f9xf",
+    "characterProfileVersionId": "charver_1785135501362_do0479ps",
+    "personalitySummary": "สนุกสนาน ร่าเริง กินเก่ง",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1785135394799_ouq46p6rw",
+    "canonicalCharacterSheetAssetId": "job_1785135394799_ouq46p6rw",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1785135394799_ouq46p6rw"
+    ],
+    "officialTags": [],
+    "reusePolicy": "view_only",
+    "id": "char_1785135504296_05fftbbd",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-07-27T06:58:24.296Z",
+    "updatedAt": "2026-07-27T06:58:24.296Z",
+    "deletedAt": null,
+    "metadata": {}
+  }
+]

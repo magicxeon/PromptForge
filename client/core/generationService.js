@@ -33,6 +33,9 @@
 
   function getGenerationPricingInputs(payload = null) {
     const request = payload || getGenerationRequestPayload();
+    const reusableCharacterSheet = request.mode === 'character-sheet'
+      && request.characterType !== 'styled_character';
+    const castingPolicy = window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING;
     const references = [
       request.faceReferenceImageA, request.faceReferenceImageB,
       request.styleReferenceImageA, request.styleReferenceImageB,
@@ -47,10 +50,14 @@
       requestedProviderId: request.provider,
       requestedModelId: request.submodel,
       resolution: request.imageResolution || '1K',
-      aspectRatio: request.aspectRatio || state.aspectRatio || '1:1',
+      aspectRatio: reusableCharacterSheet
+        ? (castingPolicy?.aspectRatio || '6:8')
+        : (request.aspectRatio || state.aspectRatio || '1:1'),
       quality: document.getElementById('image-quality-select')?.value || null,
       referenceCount: new Set(references).size,
-      outputCount: Number(document.getElementById('output-count-select')?.value || 1)
+      outputCount: reusableCharacterSheet
+        ? 1
+        : Number(request.outputCount || document.getElementById('output-count-select')?.value || 1)
     };
   }
 
@@ -160,7 +167,17 @@
     }
 
     if (state.mode === "character-sheet") {
-      imageReferences.outfitReference = Boolean(outfitReferenceImageFront);
+      const characterType = window.ModelPromptForgeCharacterTypeControl
+        ?.normalizeType?.(state.characterType) || "reusable_model";
+      imageReferences.outfitReference = characterType === "styled_character"
+        && Boolean(outfitReferenceImageFront);
+      if (characterType === "reusable_model") {
+        outfitReferenceImageFront = null;
+        outfitReferenceImageBack = null;
+        selections = Object.fromEntries(Object.entries(selections || {}).filter(([fieldName, selection]) =>
+          selection?.group !== "Clothing" && fieldName !== "Sheet Layout"
+        ));
+      }
     }
 
     const isCharacterRefActive = (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
@@ -202,17 +219,28 @@
       state.characterReferenceImageB = oldCharacterRefImageB;
     }
 
-    return {
+    const payload = {
       provider: document.getElementById("api-provider-select")?.value || null,
       submodel: document.getElementById("api-submodel-select")?.value || null,
       imageResolution: getSelectedImageResolution(),
       selections,
-      aspectRatio: state.aspectRatio,
+      aspectRatio: state.mode === "character-sheet"
+        && (window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType) || "reusable_model") === "reusable_model"
+          ? (window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING?.aspectRatio || "6:8")
+          : state.aspectRatio,
+      outputCount: state.mode === "character-sheet"
+        && (window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType) || "reusable_model") === "reusable_model"
+          ? 1
+          : Number(document.getElementById("output-count-select")?.value || 1),
       imageReferences,
       outfitReferenceOverrides: window.ModelPromptForgeOutfitReferenceController
         ?.normalizeOverrides?.(state.outfitReferenceOverrides) || state.outfitReferenceOverrides,
       sourceOwnership,
       mode: state.mode,
+      characterType: state.mode === "character-sheet"
+        ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType)
+          || "reusable_model"
+        : null,
       generationSurface: isPlaygroundSurface ? 'playground' : 'studio',
       sceneBuilder: state.mode === "normal"
         ? {
@@ -279,6 +307,7 @@
       adminPromptOverride: state.userRole === "admin" ? finalPrompt : null,
       estimateId: window.creditEstimateController?.getState()?.estimate?.estimateId || null
     };
+    return window.ModelPromptForgeCharacterCastingExport?.enrichGenerationPayload?.(payload) || payload;
   }
 
   function populateProviderList(preferredProvider = null) {
@@ -507,6 +536,10 @@
         : (state.language === "th"
           ? `โมเดลที่เลือกไม่รองรับอัตราส่วน ${ratio}`
           : `The selected model does not support ${ratio}.`);
+    });
+    window.ModelPromptForgeCharacterTypeControl?.applyOutputPolicy?.({
+      root: document,
+      state
     });
   }
 

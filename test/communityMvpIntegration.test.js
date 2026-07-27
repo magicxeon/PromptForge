@@ -12,6 +12,7 @@ function flags(overrides = {}) {
       engagementEnabled: true,
       creatorProfilesEnabled: true,
       galleryEnabled: true,
+      characterProfilesEnabled: true,
       moderationEnabled: true,
       privateBeta: false,
       ...overrides

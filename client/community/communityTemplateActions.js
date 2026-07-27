@@ -32,8 +32,15 @@
     useGalleryItem: galleryId => useHandoff(
       `/api/community/gallery/${encodeURIComponent(galleryId)}/use-template`
     ),
-    useCharacter: characterId => useHandoff(
-      `/api/community/characters/${encodeURIComponent(characterId)}/use-character`
-    )
+    useCharacter: async characterId => {
+      try {
+        return await window.ModelPromptForgeCharacterHandoff.useCharacter(
+          characterId,
+          'scene_builder'
+        );
+      } catch {
+        return useHandoff(`/api/community/characters/${encodeURIComponent(characterId)}/use-character`);
+      }
+    }
   };
 })();
