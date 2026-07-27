@@ -15,6 +15,9 @@ Required:
 - cross-user authorization denial
 - handoff conflict ownership
 - usage event idempotency and category aggregation
+- owner metadata/personality editing and optimistic concurrency
+- Community Character section filtering/deep links
+- picker reuse badge/action policy
 - archive/block/unpublish behavior
 - JSON record contains no Base64
 
@@ -54,6 +57,19 @@ Owner unpublishes -> cached public page may remain visually stale
 -> new handoff is rejected server-side
 ```
 
+```text
+TC-CP-005 Personality edit
+Owner edits personality -> Community/profile reflects new text
+-> new Fashion handoff snapshots new personality
+-> prior generation retains old snapshot
+```
+
+```text
+TC-CP-006 Character picker rights
+Reusable, view-only and owner-only Characters appear with distinct accessible
+status -> only authorized Character can be selected.
+```
+
 ## 3. UI Gates
 
 - Desktop and mobile profile page
@@ -62,6 +78,8 @@ Owner unpublishes -> cached public page may remain visually stale
 - credit estimate visible before export
 - owner name and reuse status clear
 - no buttons shown that server policy will always reject
+- Community Character section is directly reachable and refresh-safe
+- permission status uses icon + text + accessible label, not color alone
 
 ## 4. Release Order
 
@@ -82,4 +100,3 @@ deleting Character Profile data.
 - Public reuse works between two actors.
 - Existing Character Sheet and Scene Builder regression tests pass.
 - Product Owner approves casting uniform/layout previews before public launch.
-

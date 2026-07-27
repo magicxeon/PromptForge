@@ -24,6 +24,7 @@ Required card content:
 - body/silhouette visibility
 - Fashion usage count
 - reuse status
+- explicit status icon/text explaining whether the active user can select it
 
 Selection binds:
 
@@ -32,7 +33,17 @@ characterProfileId
 characterProfileVersionId
 canonicalCharacterReferenceAssetId
 attribution
+personalitySummarySnapshot
 ```
+
+Picker states:
+
+- `Available to use`: selectable and shows a familiar approved Character icon
+- `View only`: opens profile detail but selection is disabled
+- `Owner only`: disabled for non-owner; owner may use an approved own Character
+- destination incompatible: disabled with compatibility explanation
+
+Use Lucide icons, tooltips and accessible text. Never rely on color/icon alone.
 
 The casting white outfit is identity/silhouette evidence only. It must be
 explicitly suppressed as final clothing when an outfit slot is supplied.
@@ -117,4 +128,3 @@ server/domain/fashion-blueprint/FashionDirectionResolver.js
 - Pose variation does not replace garment or environment.
 - Environment override is limited to compatible values in Simple Mode.
 - Returning to Template default clears only the environment override.
-

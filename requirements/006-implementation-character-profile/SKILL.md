@@ -25,8 +25,12 @@ description: Implement or review ModelPromptForge Character Profile creation, st
 5. Enforce actor ownership on the server.
 6. Keep public handoffs asset-ID based and Base64-free.
 7. Record usage only after successful generation with an idempotency key.
-8. Add i18n keys for every visible string.
-9. Update requirement implementation notes and architecture paths if ownership
+8. Keep Community Character discovery, reuse badges and profile edit state
+   consistent with server policy.
+9. Snapshot editable personality metadata into each new handoff; never rewrite
+   historical jobs.
+10. Add i18n keys for every visible string.
+11. Update requirement implementation notes and architecture paths if ownership
    changes.
 
 ## File Ownership

@@ -78,7 +78,14 @@ any non-archived -> blocked
 - Only owner/admin policy can edit profile metadata.
 - Only an approved version can be selected by another user.
 - Editing identity/body snapshot creates a new version.
-- Name/description edits do not rewrite historical versions.
+- Owner may edit `displayName`, `shortDescription`, `personalitySummary` and
+  `intendedUses`.
+- Profile metadata edits increment optimistic `version` but do not create a new
+  visual CharacterProfileVersion unless identity/body/canonical assets change.
+- Name/personality/description edits do not rewrite historical generation or
+  handoff snapshots.
+- New handoffs snapshot the current display name and personality so future
+  generations can use the updated personality without changing old jobs.
 - Archive blocks new selections but preserves historical jobs and usage.
 - Blocked public profiles disappear from discovery immediately.
 
@@ -133,6 +140,16 @@ GET    /api/character-profiles/:id/versions
 Repository interfaces must not expose JSON paths. Development JSON, future
 PostgreSQL and test in-memory adapters must satisfy the same contract.
 
+Editable metadata validation:
+
+- owner only; admin moderation does not impersonate owner editing
+- trim text and enforce configurable limits
+- `displayName` required
+- `personalitySummary` maximum 500 characters in MVP
+- reject unsupported `intendedUses`
+- public-profile edits refresh the sanitized Community projection
+- use optimistic `version` to prevent one browser tab overwriting another
+
 ## 6. Impact
 
 - History remains immutable and is referenced, not copied.
@@ -148,4 +165,7 @@ PostgreSQL and test in-memory adapters must satisfy the same contract.
 - Archive prevents new handoffs but historical generation remains readable.
 - Repeating create with the same idempotency key returns the same profile.
 - Serialized records contain no embedded Base64.
-
+- Owner can edit personality and the next handoff contains the updated snapshot.
+- Existing generation lineage retains the personality snapshot used at that
+  time.
+- Non-owner metadata edit is rejected.

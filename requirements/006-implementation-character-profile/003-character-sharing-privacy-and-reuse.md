@@ -28,6 +28,33 @@ Rules:
 - `public_reusable`: selection allowed through sanitized handoff.
 - Public reuse is attribution-only in MVP; no credit transfer or royalty.
 
+## 2.1 Community Character Section
+
+Community must expose a distinct Character section reachable from the Community
+home/filter navigation:
+
+```text
+Community
+  Images
+  Comparisons
+  Templates
+  Characters
+```
+
+The Character section:
+
+- lists only active public Character projections
+- supports creator, intended-use and reusable/view-only filters
+- opens the Character Profile page when card image or title is selected
+- shows creator attribution and Fashion/Scene usage summary
+- shows `Use Character` only when current server policy permits reuse
+- reuses Community pagination, creator links, media loading and empty/error
+  states
+
+The initial route may be `/community/characters` or an equivalent registered
+Community sub-route, but it must use `ModelPromptForgeRouter` and support direct
+refresh/deep link.
+
 ## 3. Public Projection
 
 Extend the existing Community Character contract rather than creating a second
@@ -90,6 +117,24 @@ authorization.
   lineage immediately.
 - Public media is delivered through existing authorized Community media routes.
 
+## 5.1 Reuse Status Presentation
+
+Every public Character card and selection surface must show one status:
+
+| Policy | Visual treatment | Selection |
+|---|---|---|
+| `public_reusable` | approved reusable icon + `Available to use` | enabled |
+| `view_only` | eye/view icon + `View only` | disabled |
+| `owner_only` | lock icon + `Owner only` | disabled for others |
+| blocked/archived | unavailable label | absent from picker |
+
+- Use Lucide icons when available; do not use emoji as the only indicator.
+- Icon has tooltip, accessible label and accompanying text.
+- Disabled cards remain openable for details only when visibility allows.
+- The client display is explanatory; the server rechecks policy on handoff.
+- Owner sees `Edit Character` and sharing controls instead of a misleading
+  permission warning.
+
 ## 6. Implementation Files
 
 Extend:
@@ -98,6 +143,7 @@ Extend:
 server/repositories/community/CommunityCharacterRepository.js
 server/domain/community/CommunityGalleryService.js
 client/community/communityGalleryApi.js
+client/community/communityHomePage.js
 client/community/creatorProfilePage.js
 ```
 
@@ -106,6 +152,7 @@ Add only owning Character modules:
 ```text
 server/domain/character-profiles/CharacterProfileSharingService.js
 client/character-profiles/characterShareDialog.js
+client/community/communityCharacterSection.js
 test/characterProfileSharing.test.js
 ```
 
@@ -117,4 +164,8 @@ test/characterProfileSharing.test.js
 - Unpublishing invalidates new handoff requests.
 - Another user cannot retrieve private face/outfit references.
 - Owner attribution remains on downstream generation lineage.
-
+- Community Character section lists reusable and view-only cards with correct
+  status indicators.
+- Clicking a view-only card opens detail but cannot produce a handoff.
+- A stale `Available to use` client card is rejected if owner changes policy
+  before selection.

@@ -16,8 +16,11 @@ First viewport:
 - Character name
 - owner/creator name linking to creator profile
 - short personality and intended usage
-- `Use in Fashion Blueprint` primary action
-- `Use in Scene Builder` secondary action when allowed
+- explicit availability badge: `Available to use`, `View only` or `Owner only`
+- `Use in Fashion Blueprint` primary action only when allowed
+- `Use in Scene Builder` secondary action only when allowed
+- owner-only `Edit Character` action for name, description, personality and
+  intended usage
 
 Supporting content:
 
@@ -29,6 +32,15 @@ Supporting content:
 - created/updated date and reusable status
 
 Do not show private generations, private consumers or raw prompt/reference data.
+
+Owner edit behavior:
+
+- opens an accessible dialog or dedicated edit state
+- preloads current metadata
+- saves through Character Profile API with optimistic version
+- updates profile and Community Character projection after success
+- does not regenerate the casting sheet
+- clearly explains that personality changes apply to future uses only
 
 ## 3. Usage Counting
 
@@ -81,6 +93,7 @@ Public stats:
 
 ```text
 client/character-profiles/characterProfilePage.js
+client/character-profiles/characterProfileEditor.js
 client/character-profiles/characterUsageStats.js
 server/domain/character-profiles/CharacterUsageService.js
 server/app/routes/characterProfileRoutes.js
@@ -98,4 +111,6 @@ the i18n manifest.
 - Private work never appears publicly.
 - Stats filter by Character version but aggregate at profile level.
 - Mobile layout keeps actions and identity readable without overlap.
-
+- Non-owner never sees enabled Edit action.
+- Editing personality updates future handoff but not historical work metadata.
+- Reuse badge and enabled actions always agree with server response.

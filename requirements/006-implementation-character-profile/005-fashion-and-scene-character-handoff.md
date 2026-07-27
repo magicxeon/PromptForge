@@ -18,6 +18,8 @@ CharacterDestinationHandoff
 - characterProfileVersionId
 - characterReferenceAssetId
 - displayName
+- personalitySummarySnapshot
+- intendedUsesSnapshot[]
 - compatibleAttributeSnapshot
 - attribution
 - sourceOwnerUserId
@@ -36,6 +38,7 @@ Destination-specific behavior:
 
 ```text
 Character card/profile
+-> show current reuse status and destination compatibility
 -> request authorized handoff
 -> store actor-scoped short-lived handoff
 -> router navigates to destination
@@ -61,6 +64,18 @@ cards.
 3. Resolve canonical casting asset.
 4. Build sanitized handoff.
 5. Record selection intent only; record usage after successful generation.
+
+Picker behavior:
+
+- reusable Character shows a selectable check/Character icon and enabled
+  `Select Character` action
+- view-only/owner-only Character explains why it cannot be selected
+- destination-incompatible Character is disabled with a separate compatibility
+  reason, not mislabeled as an ownership restriction
+- owner may select their own approved Character even when public reuse is off,
+  subject to profile status and destination compatibility
+- policy and compatibility are returned by server; the picker does not infer
+  authorization from icon state
 
 Endpoint:
 
@@ -93,4 +108,6 @@ when an outfit reference is supplied.
 - Expired/unpublished handoff fails with a recoverable message.
 - Switching mock actors does not leak pending handoff.
 - Successful destination generation writes one usage event.
-
+- Picker communicates reusable/view-only/owner-only state before selection.
+- Personality snapshot used by a confirmed run remains stable after owner edits
+  the profile.

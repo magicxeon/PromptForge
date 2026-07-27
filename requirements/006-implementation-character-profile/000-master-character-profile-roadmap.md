@@ -14,9 +14,11 @@ A user can:
    fitted outfit.
 4. Pay the normal generation credit cost for that export.
 5. Keep the profile private or share it for other users.
-6. Open a profile page showing creator attribution and privacy-safe usage
+6. Discover shared Characters from a dedicated Character section in Community.
+7. Open a profile page showing creator attribution and privacy-safe usage
    statistics.
-7. Select the Character later from Fashion Blueprint or Scene Builder.
+8. Select the Character later from Fashion Blueprint or Scene Builder when the
+   creator's reuse policy permits it.
 
 Character Profiles are reusable production assets, not ordinary Community posts
 and not raw uploaded face references.
@@ -35,6 +37,12 @@ MVP decisions:
 - Character reuse is free in the first MVP. Attribution and usage counts are
   recorded; royalties and marketplace payouts are deferred.
 - Public Character reuse does not transfer ownership.
+- Community has a dedicated Character discovery section; public Characters must
+  not be mixed into ordinary image cards without a Character type/filter.
+- Character cards and pickers visibly distinguish reusable, view-only and
+  owner-only Characters before the user opens the detail page.
+- Owners may edit name, description, personality and intended usage. Historical
+  generation snapshots remain unchanged.
 
 ## 3. Existing Contracts To Reuse
 
@@ -120,4 +128,3 @@ source of truth.
 - Successful usage updates privacy-safe category aggregates exactly once.
 - Owner and viewer authorization tests pass.
 - Existing Headshot, Character Sheet and Scene Builder behavior remains intact.
-
