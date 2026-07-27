@@ -183,5 +183,7 @@
   "community.creator.cancel": "ยกเลิก",
   "community.creator.noCover": "ยังไม่ได้เลือกภาพปก",
   "community.creator.viewProfile": "ดูโปรไฟล์",
-  "community.creator.myLibrary": "คลังของฉัน"
+  "community.creator.myLibrary": "คลังของฉัน",
+  "community.creator.profile": "โปรไฟล์ผู้สร้าง",
+  "community.detail.post": "โพสต์"
 }

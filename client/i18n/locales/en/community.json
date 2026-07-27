@@ -183,5 +183,7 @@
   "community.creator.cancel": "Cancel",
   "community.creator.noCover": "No cover selected",
   "community.creator.viewProfile": "View profile",
-  "community.creator.myLibrary": "My library"
+  "community.creator.myLibrary": "My library",
+  "community.creator.profile": "Creator profile",
+  "community.detail.post": "Post"
 }

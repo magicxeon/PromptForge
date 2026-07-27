@@ -15,18 +15,35 @@
 </head>
 
 <body>
+  <a class="application-skip-link" href="#main-content">Skip to main content</a>
   <div class="app-container">
-    <!-- Header -->
-    <header class="app-header glass-card">
+    <header class="app-header">
       <div class="header-main-row">
         <div class="logo-area">
-          <h1>ModelPromptForge</h1>
-          <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
+          <a href="/community" data-route="/community" class="application-brand" aria-label="Momelo Home">
+            <span class="application-brand-mark" aria-hidden="true">M</span>
+            <span><strong>momelo</strong><small>Create · Share · Remix</small></span>
+          </a>
         </div>
 
-        <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
+        <div class="global-navigation-search">
+          <span class="global-search-icon" aria-hidden="true">⌕</span>
+          <input id="global-navigation-search" type="search" autocomplete="off"
+            placeholder="Search tools..." aria-label="Search application tools">
+          <div id="global-navigation-search-results" class="global-navigation-search-results"
+            role="listbox" hidden></div>
+        </div>
+
+        <div class="global-create-control" id="global-create-control">
+          <button type="button" id="global-create-trigger" class="global-create-trigger"
+            aria-haspopup="menu" aria-expanded="false">
+            <span aria-hidden="true">＋</span>
+            <span data-global-create-label>Create</span>
+          </button>
+          <div id="global-create-menu" class="global-create-menu" role="menu" hidden></div>
+        </div>
+
         <div class="header-status-area">
-          <!-- Profile/Role Toggle Dropdown -->
           <div class="header-toggle-group" id="mock-user-switcher-container">
             <span class="toggle-group-label">Active Mock User</span>
             <select class="custom-select" id="mock-user-select" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; background: rgba(0, 0, 0, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; outline: none; cursor: pointer; min-width: 140px;"></select>
@@ -53,9 +70,7 @@
             </div>
           </div>
 
-          <!-- Custom Glassmorphism Language Dropdown (Rightmost) -->
           <div class="header-toggle-group lang-dropdown-wrapper" id="language-selector-wrapper">
-            <!-- <span class="toggle-group-label" data-i18n="shell.languageLabel">Language</span> -->
             <div class="lang-dropdown-container" id="language-dropdown-container">
               <button type="button" class="lang-dropdown-trigger" id="lang-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Switch Language">
                 <span class="lang-icon">🌐</span>
@@ -67,20 +82,22 @@
           </div>
         </div>
       </div>
-      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without
-        policy violations.</p>
     </header>
 
-    <div class="application-nav-shell glass-card">
+    <div class="application-nav-shell">
       <button id="application-menu-button" class="application-menu-button" type="button"
         aria-expanded="false" aria-controls="application-navigation">
-        <span aria-hidden="true">&#9776;</span>
+        <span aria-hidden="true">☰</span>
         <span>Menu</span>
       </button>
       <nav id="application-navigation" class="application-navigation" aria-label="Primary navigation"></nav>
       <button id="application-menu-backdrop" class="application-menu-backdrop" type="button"
         aria-label="Close navigation" hidden></button>
     </div>
+
+    <span id="main-content" class="application-main-anchor" tabindex="-1"></span>
+    <nav id="application-breadcrumbs" class="application-breadcrumbs"
+      aria-label="Breadcrumb" hidden></nav>
 
     <!-- Main Workspace -->
     <main class="app-workspace">
@@ -821,6 +838,11 @@
   <script src="/character-profiles/characterHandoff.js"></script>
   <script src="/character-profiles/characterCastingExport.js"></script>
   <script src="/character-profiles/characterProfileEditor.js"></script>
+  <script src="/character-profiles/characterProfileViewMode.js"></script>
+  <script src="/character-profiles/characterProfileHero.js"></script>
+  <script src="/character-profiles/characterProfileStats.js"></script>
+  <script src="/character-profiles/characterProfileWorks.js"></script>
+  <script src="/character-profiles/characterSharingPanel.js"></script>
   <script src="/character-profiles/characterProfilePage.js"></script>
   <script src="/community/communityFeaturePolicy.js"></script>
   <script src="/community/communityEngagementApi.js"></script>
@@ -891,8 +913,11 @@
   <script src="/scene-builder/sceneBuilderController.js"></script>
   <script src="/app.js"></script>
   <script src="/comparison.js"></script>
+  <script src="/shell/navigationConfigService.js"></script>
   <script src="/shell/navigationRegistry.js"></script>
+  <script src="/shell/navigationContext.js"></script>
   <script src="/shell/router.js"></script>
+  <script src="/shell/breadcrumbService.js"></script>
   <script src="/shell/applicationShell.js"></script>
   <script src="/comparisons/comparisonApi.js"></script>
   <script src="/comparisons/comparisonSummaryCard.js"></script>

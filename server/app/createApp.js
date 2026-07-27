@@ -177,13 +177,17 @@ export function createApp() {
   // Browser routes are client-rendered. Keep this after every API route so a deep link
   // loads the app shell instead of falling through to Express 404 handling.
   app.get([
+    '/', '/home', '/home/',
     '/community', '/community/', '/community/:postId', '/community/:postId/',
     '/community/characters/:characterId', '/community/characters/:characterId/',
     '/creators/:handle', '/creators/:handle/',
     '/creators/:handle/:profileTab', '/creators/:handle/:profileTab/',
+    '/create/:workflow', '/create/:workflow/',
     '/studio', '/studio/',
     '/playground', '/playground/',
     '/history', '/history/',
+    '/library/images', '/library/images/',
+    '/compare', '/compare/',
     '/comparisons', '/comparisons/',
     '/comparisons/:setId', '/comparisons/:setId/',
     '/admin', '/admin/'

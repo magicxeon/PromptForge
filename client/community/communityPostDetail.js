@@ -52,14 +52,21 @@
     const back = document.createElement('button');
     back.type = 'button';
     back.className = 'community-detail-back';
-    back.textContent = t('community.detail.back', 'Back to Community');
-    back.addEventListener('click', () => window.ModelPromptForgeRouter.navigate('/community'));
+    back.textContent = t('common.action.back', 'Back');
+    back.addEventListener('click', () => window.ModelPromptForgeRouter.back({
+      canonicalParent: '/community'
+    }));
 
     const type = document.createElement('span');
     type.className = `community-post-type-badge is-${post.postType || 'image'}`;
     type.textContent = post.postType || 'image';
     const title = document.createElement('h1');
     title.textContent = post.title || t('community.creator.untitled', 'Untitled');
+    window.ModelPromptForgeBreadcrumbs?.setResource?.({
+      type: 'community-post',
+      id: post.id,
+      label: title.textContent
+    });
     const description = document.createElement('p');
     description.className = 'community-detail-description';
     description.textContent = post.description || '';

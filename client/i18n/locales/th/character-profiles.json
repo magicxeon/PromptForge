@@ -98,5 +98,18 @@
   "character-profiles.type.castingRatioLocked": "Reusable Model ล็อกอัตราส่วนไว้ที่ 6:8",
   "character-profiles.type.locked": "ล็อก",
   "character-profiles.actions.approveStyled": "อนุมัติตัวละครพร้อมชุด",
-  "character-profiles.actions.convertReusable": "สร้างเป็นโมเดลที่นำกลับมาใช้ได้"
+  "character-profiles.actions.convertReusable": "สร้างเป็นโมเดลที่นำกลับมาใช้ได้",
+  "character-profiles.media.zoom": "เปิดดูภาพ Character",
+  "character-profiles.media.alt": "ภาพอ้างอิง Character",
+  "character-profiles.media.sheet": "CHARACTER SHEET",
+  "character-profiles.media.download": "ดาวน์โหลดภาพอ้างอิง Character",
+  "character-profiles.metadata.type": "ประเภท",
+  "character-profiles.metadata.availability": "สถานะการใช้งาน",
+  "character-profiles.stats.label": "สถิติการใช้งาน Character",
+  "character-profiles.works.create": "สร้างภาพด้วย Character นี้",
+  "character-profiles.works.image": "ผลงานของ Character",
+  "character-profiles.view.owner": "มุมมองเจ้าของ",
+  "character-profiles.view.visitor": "มุมมองผู้เข้าชม",
+  "character-profiles.view.previewVisitor": "ดูแบบผู้เข้าชม",
+  "character-profiles.view.returnOwner": "กลับสู่มุมมองเจ้าของ"
 }

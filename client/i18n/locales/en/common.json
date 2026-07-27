@@ -9,6 +9,7 @@
   "common.action.copy": "Copy",
   "common.action.loadMore": "Load More",
   "common.action.refresh": "Refresh",
+  "common.action.back": "Back",
   "common.status.loading": "Loading...",
   "common.status.success": "Success",
   "common.status.failed": "Failed",

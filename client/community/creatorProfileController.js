@@ -61,6 +61,11 @@
   }
 
   function render(mount, model) {
+    window.ModelPromptForgeBreadcrumbs?.setResource?.({
+      type: 'creator-profile',
+      id: model.profile?.id || model.profile?.handle,
+      label: model.profile?.displayName || model.profile?.handle
+    });
     mount.replaceChildren();
     const headerMount = document.createElement('div');
     const tabsMount = document.createElement('div');

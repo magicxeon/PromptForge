@@ -238,7 +238,17 @@
     article.dataset.postType = post.postType || 'image';
 
     const openPost = () =>
-      window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`);
+      window.ModelPromptForgeRouter?.navigateToResource(
+        `/community/${encodeURIComponent(post.id)}`,
+        {
+          sourceLabel: translate('shell.navigation.items.home', 'Home'),
+          sourceViewId: 'community-feed',
+          sourceState: {
+            sort: state.sort,
+            period: state.period
+          }
+        }
+      );
     const media = document.createElement('div');
     media.className = 'community-post-media';
     if (post.postType === 'comparison' && post.comparisonSnapshot?.slots?.length) {

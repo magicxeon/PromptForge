@@ -169,7 +169,14 @@
 
   function openCommunityItem(item, triggerElement) {
     if (item.postType && item.id) {
-      window.ModelPromptForgeRouter?.navigate?.(`/community/${encodeURIComponent(item.id)}`);
+      window.ModelPromptForgeRouter?.navigateToResource?.(
+        `/community/${encodeURIComponent(item.id)}`,
+        {
+          sourceLabel: document.querySelector('.creator-profile-identity h1, .creator-profile-identity h2')
+            ?.textContent?.trim() || 'Creator profile',
+          sourceViewId: 'creator-profile'
+        }
+      );
       return;
     }
     const lightboxItem = {

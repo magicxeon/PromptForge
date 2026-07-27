@@ -70,8 +70,15 @@
   }
 
   function openProfile(characterId) {
-    window.ModelPromptForgeRouter.navigate(
-      `/community/characters/${encodeURIComponent(characterId)}`
+    window.ModelPromptForgeRouter.navigateToResource(
+      `/community/characters/${encodeURIComponent(characterId)}`,
+      {
+        sourceLabel: document.querySelector('.creator-profile-identity h1, .creator-profile-identity h2')
+          ?.textContent?.trim() || t('character-profiles.community.title', 'Characters'),
+        sourceViewId: location.pathname.startsWith('/creators/')
+          ? 'creator-characters'
+          : 'character-directory'
+      }
     );
   }
 

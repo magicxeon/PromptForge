@@ -9,6 +9,7 @@
   "common.action.copy": "คัดลอก",
   "common.action.loadMore": "โหลดเพิ่ม",
   "common.action.refresh": "รีเฟรช",
+  "common.action.back": "ย้อนกลับ",
   "common.status.loading": "กำลังโหลด...",
   "common.status.success": "สำเร็จ",
   "common.status.failed": "ไม่สำเร็จ",

@@ -30,9 +30,7 @@
         image.alt = post.title || translate('community.creator.postPreview', 'Community post');
         image.loading = 'lazy';
         media.appendChild(image);
-        media.addEventListener('click', () =>
-          window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`)
-        );
+        media.addEventListener('click', () => openPost(post));
         article.appendChild(media);
       }
 
@@ -43,13 +41,11 @@
       title.textContent = post.title || translate('community.creator.untitled', 'Untitled');
       title.setAttribute('role', 'link');
       title.tabIndex = 0;
-      title.addEventListener('click', () =>
-        window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`)
-      );
+      title.addEventListener('click', () => openPost(post));
       title.addEventListener('keydown', event => {
         if (!['Enter', ' '].includes(event.key)) return;
         event.preventDefault();
-        window.ModelPromptForgeRouter?.navigate(`/community/${encodeURIComponent(post.id)}`);
+        openPost(post);
       });
       copy.append(type, title);
       const disclosure = document.createElement('div');
@@ -72,6 +68,17 @@
       article.appendChild(copy);
       mount.appendChild(article);
     });
+  }
+
+  function openPost(post) {
+    window.ModelPromptForgeRouter?.navigateToResource(
+      `/community/${encodeURIComponent(post.id)}`,
+      {
+        sourceLabel: document.querySelector('.creator-profile-identity h1, .creator-profile-identity h2')
+          ?.textContent?.trim() || translate('community.creator.profile', 'Creator profile'),
+        sourceViewId: 'creator-portfolio'
+      }
+    );
   }
 
   window.ModelPromptForgeCreatorPortfolioGrid = { render };

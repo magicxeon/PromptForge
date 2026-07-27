@@ -98,5 +98,18 @@
   "character-profiles.type.castingRatioLocked": "Reusable Model casting is locked to 6:8.",
   "character-profiles.type.locked": "Locked",
   "character-profiles.actions.approveStyled": "Approve Styled Character",
-  "character-profiles.actions.convertReusable": "Create Reusable Model"
+  "character-profiles.actions.convertReusable": "Create Reusable Model",
+  "character-profiles.media.zoom": "Open Character image",
+  "character-profiles.media.alt": "Character reference image",
+  "character-profiles.media.sheet": "CHARACTER SHEET",
+  "character-profiles.media.download": "Download Character reference",
+  "character-profiles.metadata.type": "Type",
+  "character-profiles.metadata.availability": "Availability",
+  "character-profiles.stats.label": "Character usage statistics",
+  "character-profiles.works.create": "Create an image with this Character",
+  "character-profiles.works.image": "Character work",
+  "character-profiles.view.owner": "Owner View",
+  "character-profiles.view.visitor": "Visitor View",
+  "character-profiles.view.previewVisitor": "Preview as visitor",
+  "character-profiles.view.returnOwner": "Return to owner view"
 }
