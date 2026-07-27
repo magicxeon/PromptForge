@@ -143,7 +143,9 @@ source of truth.
 - Canonical profile versions are immutable after use.
 - Public projection is sanitized independently from owner detail.
 - All new visible strings use `i18nService`.
-- Client code remains browser-native IIFE modules loaded in dependency order.
+- Legacy Character route changes remain browser-native IIFEs while those routes
+  are legacy-owned. The approved React replacement follows
+  `requirements/009-migration-to-react/006-creator-user-and-character-profile-migration.md`.
 - First implementation may use a repository-backed local JSON adapter, but the
   contract must map directly to PostgreSQL in the commercial phase.
 

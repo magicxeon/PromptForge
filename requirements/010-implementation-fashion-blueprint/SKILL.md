@@ -51,7 +51,9 @@ picker only when the user asks for another model or one of their own.
 - Do not carry the white Character casting outfit as final clothing.
 - Do not count failed jobs as Character usage.
 - Do not hardcode tier pricing/routes in client.
-- Do not introduce React/Vite or new global state.
+- Implement the Fashion client in React under `web/` according to
+  `requirements/009-migration-to-react/007-fashion-blueprint-react-first-implementation.md`;
+  do not introduce new legacy globals or a duplicate Vanilla page.
 - Do not implement Fashion as a new Studio mode. It owns `/create/fashion` and
   an actor-scoped Fashion state module.
 - Keep AI model Comparison disabled in the Fashion MVP.

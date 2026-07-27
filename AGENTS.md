@@ -102,7 +102,16 @@ capability names where practical.
 ## 4. Client Architecture Rules
 
 - The application is browser-native Vanilla JavaScript with no client build
-  step. Use the established IIFE/global namespace pattern.
+  step today. Use the established IIFE/global namespace pattern for changes to
+  routes still owned by the legacy client.
+- The approved replacement frontend is defined by
+  `requirements/009-migration-to-react/`. New React source belongs under
+  `web/` and uses React, TypeScript and Vite.
+- React and Vanilla may coexist only through explicit route ownership. Never
+  mount both runtimes into the same page DOM or import legacy globals into
+  React.
+- Features scheduled to launch after their React migration must be implemented
+  once in React rather than built in Vanilla and migrated immediately.
 - Keep `client/app.js` as orchestration. Reusable behavior belongs to its feature
   module or `client/core/`.
 - Register browser scripts in dependency order in `client/index.html`.
@@ -119,6 +128,9 @@ capability names where practical.
   full-page navigation for internal routes.
 - Keep fixed-format controls dimensionally stable and responsive. Verify no
   overlapping or clipped text at desktop and mobile widths.
+- React work must also follow the component, UX/UI, accessibility, API, state
+  and cutover rules in
+  `requirements/009-migration-to-react/SKILL.md`.
 
 ## 5. State, Identity, and Ownership
 

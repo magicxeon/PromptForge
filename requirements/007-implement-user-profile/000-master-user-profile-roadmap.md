@@ -219,7 +219,9 @@ canonical public URL. Do not create `/my-profile` or `/my-characters` pages.
 - Actor switching aborts stale requests and refreshes owner-relative controls.
 - New visible strings use `community` or a dedicated `creator-profile`
   localization namespace with enabled-locale parity.
-- Client scripts remain browser-native IIFEs and load in dependency order.
+- Legacy route changes remain browser-native IIFEs while the legacy runtime owns
+  the route. The approved React replacement follows
+  `requirements/009-migration-to-react/006-creator-user-and-character-profile-migration.md`.
 - Owner controls are hidden when unavailable, not merely disabled.
 - Manage mode must not alter the public layout until the owner explicitly edits.
 

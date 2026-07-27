@@ -707,20 +707,28 @@ Long-term:
   -> 004 Scene Builder
   -> 005 Community
   -> 006 Character Profile
-  -> 007 Fashion Blueprint
-  -> 008 Commercial Platform and Google Cloud migration
-  -> 009 Technical Debt and architecture ownership
+  -> 007 User Profile
+  -> 008 UX/UI Adjustment
+  -> 009 React Frontend Migration
+  -> 010 Fashion Blueprint
+  -> 011 Commercial Platform and Google Cloud migration
+  -> 099 Technical Debt and architecture ownership
 ```
 
 Phase responsibilities:
 
 - `006-implementation-character-profile` turns approved Character Sheet outputs
   into named, versioned and optionally public reusable Characters.
-- `007-implementation-fashion-blueprint` owns the short
+- `007-implement-user-profile` owns the reusable public/owner Creator Profile.
+- `008-implement-adjusment-ui` owns the approved Momelo navigation and key
+  detail/generation layout references.
+- `009-migration-to-react` replaces the complete legacy browser client through
+  route-by-route cutover into React, TypeScript and Vite.
+- `010-implementation-fashion-blueprint` owns the short
   Template-to-Character-to-Outfit-to-Price workflow for e-commerce fashion.
-- `008-implementation-commercial-feature-plan` replaces development adapters
+- `011-implementation-commercial-feature-plan` replaces development adapters
   with authentication, PostgreSQL, Cloud Storage, durable jobs, payments and
   Google Cloud operations. It must productionize the Blueprint rather than
   recreate its UI or plan resolver.
-- `009-technical-dept` remains the canonical architecture and file-placement
+- `099-technical-dept` remains the canonical architecture and file-placement
   reference for every implementation phase.

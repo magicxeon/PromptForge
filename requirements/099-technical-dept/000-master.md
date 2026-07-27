@@ -10,7 +10,12 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 *   **Modularize `client/app.js`**: Split the giant monolithic file into smaller, focused modules based on functional concerns under `client/core/`.
 *   **Reorganize `server/`**: Separate runtime data, domain logic, repositories, route registration, middleware, and provider integrations.
 *   **Maintain Clean Global State**: Maintain `window.ModelPromptForgeState` as a unified state source of truth.
-*   **No Build Tool Dependency**: Keep using browser-native scripts and IIFEs loaded in order via `client/index.html` to avoid adding build complexity (Vite/Webpack).
+*   **Current Legacy Runtime**: Keep existing browser-native scripts and IIFEs
+    stable while they own customer routes.
+*   **Approved React Migration**: New React migration work follows
+    `requirements/009-migration-to-react/` and lives under `web/`. React and the
+    legacy client coexist only through explicit route ownership until the
+    legacy runtime is retired.
 *   **Improve Code Maintainability**: Allow developers to locate bugs and implement enhancements in focused service files without causing merge conflicts.
 
 ---
@@ -114,6 +119,29 @@ Server placement rules:
 | Generated image output | `client/outputs/` |
 | Main HTML shell and script ordering | `client/index.html` |
 | Global styling until a feature stylesheet boundary is introduced | `client/style.css` |
+
+The table above describes the current legacy client. The approved target
+frontend architecture is defined in
+`requirements/009-migration-to-react/000-master-react-migration-roadmap.md`.
+During migration:
+
+| React responsibility | Target location |
+|---|---|
+| React/Vite workspace and source | `web/` |
+| App composition, providers and routes | `web/src/app/` |
+| Reusable React components | `web/src/components/` |
+| React feature orchestration | `web/src/features/<feature>/` |
+| Shared React infrastructure | `web/src/lib/` |
+| React design tokens/global reset | `web/src/styles/` |
+
+Migration rules:
+
+* A route has exactly one frontend runtime owner.
+* React source must not import legacy `window.ModelPromptForge*` modules.
+* Server API/domain/repository contracts remain shared and authoritative.
+* New features scheduled for React must not be implemented twice.
+* Legacy client paths remain canonical only until their owning route passes the
+  React cutover and observation gates.
 
 Client placement rules:
 

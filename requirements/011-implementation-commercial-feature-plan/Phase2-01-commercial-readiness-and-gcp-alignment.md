@@ -32,9 +32,11 @@ Explicit conflict decisions:
 - The DigitalOcean/Supabase/R2 topology in
   `requirements/000-business-overview/04-mvp-infrastructure-costs.md` remains a
   historical cost comparison. The selected deployment target is Google Cloud.
-- The current client is browser-native Vanilla JavaScript with no build step.
-  Do not introduce React/Vite merely because the infrastructure concept uses it
-  as an example. Package the existing static client for Firebase Hosting first.
+- The current client is browser-native Vanilla JavaScript, but its approved
+  replacement is the React/Vite application defined in
+  `requirements/009-migration-to-react/`. Firebase Hosting targets the React
+  production build after route cutover; do not build another commercial-only
+  frontend.
 - Existing mock actor and JSON repositories are migration inputs, not production
   identity or persistence.
 - The current central pricing, credit, generation and provider contracts are
@@ -143,7 +145,7 @@ state.
 
 Inputs:
 
-- `requirements/009-technical-dept/000-master.md`
+- `requirements/099-technical-dept/000-master.md`
 - current client/server modules, repositories, runtime JSON and tests
 - infrastructure work package WP-01
 

@@ -211,8 +211,11 @@ i18next
 i18next-http-backend
 ```
 
-Do not introduce React-specific packages. Do not introduce a build tool only
-for localization.
+For legacy routes, do not introduce React-specific packages or a build tool only
+for localization. React-owned routes use `react-i18next` through the approved
+platform service in
+`requirements/009-migration-to-react/004-platform-services-routing-api-identity-i18n-and-state.md`
+and continue consuming the same catalog semantics.
 
 `i18next` owns:
 

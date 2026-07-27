@@ -8,7 +8,7 @@ description: Implement or review ModelPromptForge Character Profile creation, st
 ## Read First
 
 1. `AGENTS.md`
-2. `requirements/009-technical-dept/000-master.md`
+2. `requirements/099-technical-dept/000-master.md`
 3. `000-master-character-profile-roadmap.md`
 4. The numbered requirement owning the task
 5. Referenced Character Sheet, Scene Builder and Community requirements
@@ -53,7 +53,9 @@ references and cross-mode handoff. Do not copy them.
 - Never trust owner IDs from request body/query.
 - Never count selection/click as successful Character usage.
 - Never make canonical versions mutable after downstream use.
-- Do not add React/Vite or a second client state system.
+- Do not add React/Vite inside the legacy `client/` runtime or create a second
+  Character domain state. React migration work belongs under `web/` and follows
+  `requirements/009-migration-to-react/`.
 
 ## Validation Handoff
 

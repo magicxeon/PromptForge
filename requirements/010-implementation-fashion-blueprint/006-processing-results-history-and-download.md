@@ -73,7 +73,7 @@ MVP:
 - deterministic filename using sanitized Product/SKU and shot key
 
 Later commercial export presets are owned by
-`requirements/010-implementation-commercial-feature-plan/Phase2-16-marketplace-export-presets.md`.
+`requirements/011-implementation-commercial-feature-plan/Phase2-16-marketplace-export-presets.md`.
 
 ## 6. History
 

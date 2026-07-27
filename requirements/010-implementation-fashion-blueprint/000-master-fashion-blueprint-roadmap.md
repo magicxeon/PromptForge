@@ -245,7 +245,7 @@ contracts must migrate unchanged to:
 - real authentication and payment-backed credits
 
 Production enablement belongs to
-`requirements/010-implementation-commercial-feature-plan`.
+`requirements/011-implementation-commercial-feature-plan`.
 
 ## 9. Exit Criteria
 

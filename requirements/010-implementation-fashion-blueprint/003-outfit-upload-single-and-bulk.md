@@ -62,7 +62,7 @@ Reuse:
 - shared reference slot component
 - existing image validation/reference normalization
 - future production Asset upload contract from
-  `requirements/010-implementation-commercial-feature-plan/Phase2-06-assets-storage-and-product-catalog.md`
+  `requirements/011-implementation-commercial-feature-plan/Phase2-06-assets-storage-and-product-catalog.md`
 
 The existing `AssetRepository` under `server/repositories/assets/` is the
 development persistence foundation, but it is not yet a complete upload

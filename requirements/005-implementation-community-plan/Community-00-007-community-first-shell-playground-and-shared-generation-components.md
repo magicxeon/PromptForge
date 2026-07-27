@@ -273,8 +273,11 @@ client/style.css
 
 ### 5.3 Browser-Native Module Loading
 
-The project currently has no build tool. Components must use the established
-IIFE/global namespace pattern and be loaded before their feature consumers.
+This section governs the current legacy client only. Components changed while a
+route remains legacy-owned use the established IIFE/global namespace pattern
+and load before their feature consumers. The approved React replacement and
+route cutover are defined in `requirements/009-migration-to-react/`; React
+source must not extend this global namespace.
 
 ```text
 core services

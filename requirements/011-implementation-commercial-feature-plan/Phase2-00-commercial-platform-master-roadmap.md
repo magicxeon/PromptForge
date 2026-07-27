@@ -18,7 +18,7 @@
 - Character Profile in `requirements/006-implementation-character-profile` owns
   named reusable Characters, canonical casting exports and Character usage
   lineage.
-- Fashion Blueprint in `requirements/009-implementation-fashion-blueprint` owns
+- Fashion Blueprint in `requirements/010-implementation-fashion-blueprint` owns
   the beginner-facing Template-to-result workflow and shared-component
   composition.
 - Existing Studio Creative Configurator remains the advanced editor and consumes those shared contracts.
@@ -37,7 +37,7 @@
 - Production infrastructure:
   `requirements/Concept/infrastructure-gcloud.md`
 - Current repository ownership:
-  `requirements/009-technical-dept/000-master.md` and `AGENTS.md`
+  `requirements/099-technical-dept/000-master.md` and `AGENTS.md`
 - Commercial sequencing:
   this folder and `Phase2-01-commercial-readiness-and-gcp-alignment.md`
 
@@ -78,9 +78,10 @@ Solution Modules
 Solution modules must never call image providers, mutate balances or access persistence directly. They create validated plans and invoke core application services.
 
 Production uses Firebase Hosting, separate Cloud Run API/Worker services, Cloud
-Tasks, Cloud SQL PostgreSQL and private Cloud Storage. The current browser-native
-Vanilla JavaScript client remains valid; adopting React/Vite is not part of this
-phase.
+Tasks, Cloud SQL PostgreSQL and private Cloud Storage. The approved frontend
+target is the React/Vite application in `requirements/009-migration-to-react/`.
+Commercial work must consume its shared contracts without creating a second
+frontend or blocking independent backend migration.
 
 ## 3. Requirement Sequence
 
@@ -88,7 +89,7 @@ phase.
 |---|---|---|
 | External foundation | Visual Character Builder (`requirements/003-implementation-visual-character-builder-plan`) | Existing application |
 | External foundation | Character Profile (`requirements/006-implementation-character-profile`) | Visual Character Builder, Community |
-| External foundation | Fashion Blueprint (`requirements/009-implementation-fashion-blueprint`) | Character Profile, Scene Builder, Community |
+| External foundation | Fashion Blueprint (`requirements/010-implementation-fashion-blueprint`) | Character Profile, Scene Builder, Community |
 | Phase2-01 | Commercial Readiness and Google Cloud Alignment | Existing application, GCP concept |
 | Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Phase2-01 |
 | Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
