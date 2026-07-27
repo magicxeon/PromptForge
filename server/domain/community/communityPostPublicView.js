@@ -42,6 +42,7 @@ export function buildCommunityPostPublicView(post = {}) {
     providerModelDisplay: providerModelDisplay(
       post.providerModelSnapshot || snapshot?.providerModelSnapshot
     ),
+    generationMetadata: publicGenerationMetadata(post, snapshot),
     remixAvailability: post.reusePolicy === 'remix_allowed',
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
@@ -127,7 +128,7 @@ function communityMediaUrl(postId, kind) {
 
 function trimPrompt(value) {
   const normalized = typeof value === 'string' ? value.trim() : '';
-  return normalized ? normalized.slice(0, 280) : null;
+  return normalized || null;
 }
 
 function stringArray(value) {
@@ -139,6 +140,32 @@ function providerModelDisplay(snapshot) {
   const provider = typeof snapshot.providerDisplayName === 'string' ? snapshot.providerDisplayName : snapshot.providerId;
   const model = typeof snapshot.modelDisplayName === 'string' ? snapshot.modelDisplayName : snapshot.modelId;
   return [provider, model].filter(Boolean).join(' - ') || null;
+}
+
+function publicGenerationMetadata(post, snapshot) {
+  const settings = post.workflowSnapshot?.generationSettings
+    || snapshot?.generationSettingsSnapshot
+    || snapshot?.generationSettings
+    || {};
+  return {
+    aspectRatio: safeMetadataText(settings.aspectRatio),
+    width: safePositiveInteger(settings.width),
+    height: safePositiveInteger(settings.height),
+    resolution: safeMetadataText(settings.resolution)
+  };
+}
+
+function safeMetadataText(value) {
+  if (!['string', 'number'].includes(typeof value)) return null;
+  const normalized = String(value).trim();
+  return normalized ? normalized.slice(0, 80) : null;
+}
+
+function safePositiveInteger(value) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) && normalized > 0
+    ? Math.round(normalized)
+    : null;
 }
 
 function publicCounts(value) {

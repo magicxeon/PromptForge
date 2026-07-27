@@ -189,5 +189,20 @@
   "community.creator.viewProfile": "View profile",
   "community.creator.myLibrary": "My library",
   "community.creator.profile": "Creator profile",
-  "community.detail.post": "Post"
+  "community.detail.post": "Post",
+  "community.detail.fullscreen": "Fullscreen",
+  "community.detail.download": "Download",
+  "community.detail.copyPrompt": "Copy",
+  "community.detail.copied": "Copied",
+  "community.detail.copyFailed": "Copy failed",
+  "community.detail.showMore": "Show more",
+  "community.detail.showLess": "Show less",
+  "community.detail.model": "Model",
+  "community.detail.aspectRatio": "Aspect ratio",
+  "community.detail.imageSize": "Size",
+  "community.detail.metadataUnavailable": "Not available",
+  "community.detail.addToCollection": "Add to collection",
+  "community.detail.collectionComingSoon": "Coming soon",
+  "community.detail.moreFromCreator": "More from {name}",
+  "community.comments.empty": "No comments yet. Be the first to share your thoughts."
 }

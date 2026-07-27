@@ -25,6 +25,13 @@ test('public community post view exposes only allowlisted presentation fields', 
     sceneTemplateSnapshot: {
       finalPromptSnapshot: 'portrait with an intentionally long but public prompt',
       providerModelSnapshot: { providerId: 'gemini', modelId: 'image-fast' },
+      generationSettingsSnapshot: {
+        aspectRatio: '4:5',
+        width: 1024,
+        height: 1280,
+        resolution: '1K',
+        privateSeed: 12345
+      },
       referenceSlotMapping: { face: { imageUrl: '/outputs/private.png' } }
     }
   });
@@ -37,6 +44,13 @@ test('public community post view exposes only allowlisted presentation fields', 
   assert.equal(view.engagementSummary.saveCount, 2);
   assert.equal(view.promptPreview, 'portrait with an intentionally long but public prompt');
   assert.equal(view.providerModelDisplay, 'gemini - image-fast');
+  assert.deepEqual(view.generationMetadata, {
+    aspectRatio: '4:5',
+    width: 1024,
+    height: 1280,
+    resolution: '1K'
+  });
+  assert.equal(view.generationMetadata.privateSeed, undefined);
   assert.equal(view.imageUrl, '/api/scene-templates/shared/post_1/image');
   assert.equal(view.thumbnailUrl, '/api/scene-templates/shared/post_1/thumbnail');
   assert.equal(view.contentDisclosure, 'ai_generated');
@@ -61,13 +75,26 @@ test('generated-image public view reads the approved top-level prompt and provid
       providerDisplayName: 'Google Gemini AI',
       modelDisplayName: 'Image Fast'
     },
-    workflowSnapshot: { privateRuntimeField: 'must not be returned' },
+    workflowSnapshot: {
+      privateRuntimeField: 'must not be returned',
+      generationSettings: {
+        aspectRatio: '6:8',
+        width: '768',
+        height: '1024'
+      }
+    },
     reusePolicy: 'view_only'
   });
 
   assert.equal(view.promptPreview, 'Approved public excerpt');
   assert.equal(view.providerModelDisplay, 'Google Gemini AI - Image Fast');
   assert.equal(view.workflowSnapshot, undefined);
+  assert.deepEqual(view.generationMetadata, {
+    aspectRatio: '6:8',
+    width: 768,
+    height: 1024,
+    resolution: null
+  });
   assert.equal(view.templateAvailability, false);
   assert.equal(view.postType, 'image');
   assert.deepEqual(view.engagementSummary, {
@@ -79,6 +106,17 @@ test('generated-image public view reads the approved top-level prompt and provid
     comparisonVoteCount: 0,
     updatedAt: null
   });
+});
+
+test('approved public prompt is preserved for client-side disclosure controls', () => {
+  const prompt = `Detailed public prompt ${'with visible detail '.repeat(30)}`.trim();
+  const view = buildCommunityPostPublicView({
+    id: 'post_long_prompt',
+    promptVisibility: 'full',
+    sharedPromptSnapshot: { publicPromptText: prompt }
+  });
+
+  assert.equal(view.promptPreview, prompt);
 });
 
 test('collection public view exposes proxy items without history or output identifiers', () => {

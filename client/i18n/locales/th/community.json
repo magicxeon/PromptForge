@@ -189,5 +189,20 @@
   "community.creator.viewProfile": "ดูโปรไฟล์",
   "community.creator.myLibrary": "คลังของฉัน",
   "community.creator.profile": "โปรไฟล์ผู้สร้าง",
-  "community.detail.post": "โพสต์"
+  "community.detail.post": "โพสต์",
+  "community.detail.fullscreen": "เต็มหน้าจอ",
+  "community.detail.download": "ดาวน์โหลด",
+  "community.detail.copyPrompt": "คัดลอก",
+  "community.detail.copied": "คัดลอกแล้ว",
+  "community.detail.copyFailed": "คัดลอกไม่สำเร็จ",
+  "community.detail.showMore": "แสดงเพิ่มเติม",
+  "community.detail.showLess": "แสดงน้อยลง",
+  "community.detail.model": "โมเดล",
+  "community.detail.aspectRatio": "อัตราส่วนภาพ",
+  "community.detail.imageSize": "ขนาดภาพ",
+  "community.detail.metadataUnavailable": "ไม่มีข้อมูล",
+  "community.detail.addToCollection": "เพิ่มไปยังคอลเลกชัน",
+  "community.detail.collectionComingSoon": "กำลังพัฒนา",
+  "community.detail.moreFromCreator": "ผลงานเพิ่มเติมจาก {name}",
+  "community.comments.empty": "ยังไม่มีความคิดเห็น เริ่มแบ่งปันความคิดเห็นเป็นคนแรก"
 }

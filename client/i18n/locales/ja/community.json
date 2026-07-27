@@ -145,5 +145,20 @@
   "community.comparison.jointLeader": "同率首位",
   "community.detail.prompt": "プロンプト",
   "community.detail.share": "共有",
-  "community.feed.openPost": "コミュニティ投稿を開く"
+  "community.feed.openPost": "コミュニティ投稿を開く",
+  "community.detail.fullscreen": "全画面",
+  "community.detail.download": "ダウンロード",
+  "community.detail.copyPrompt": "コピー",
+  "community.detail.copied": "コピーしました",
+  "community.detail.copyFailed": "コピーできませんでした",
+  "community.detail.showMore": "もっと見る",
+  "community.detail.showLess": "閉じる",
+  "community.detail.model": "モデル",
+  "community.detail.aspectRatio": "アスペクト比",
+  "community.detail.imageSize": "画像サイズ",
+  "community.detail.metadataUnavailable": "利用できません",
+  "community.detail.addToCollection": "コレクションに追加",
+  "community.detail.collectionComingSoon": "近日公開",
+  "community.detail.moreFromCreator": "{name} のその他の作品",
+  "community.comments.empty": "コメントはまだありません。最初のコメントを投稿しましょう。"
 }

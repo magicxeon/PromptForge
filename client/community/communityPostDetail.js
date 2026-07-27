@@ -2,8 +2,8 @@
   let activePostId = null;
   let requestVersion = 0;
 
-  const t = (key, fallback) =>
-    window.ModelPromptForgeI18n?.t?.(key, {}, { defaultValue: fallback }) || fallback;
+  const t = (key, fallback, variables = {}) =>
+    window.ModelPromptForgeI18n?.t?.(key, variables, { defaultValue: fallback }) || fallback;
 
   function initialize() {
     window.addEventListener('modelpromptforge:route', event => activate(event.detail));
@@ -34,7 +34,7 @@
         window.ModelPromptForgeCommunityEngagementApi.listComments(postId)
       ]);
       if (version !== requestVersion) return;
-      render(mount, post, engagement, comments);
+      render(mount, post, engagement, comments, version);
       window.ModelPromptForgeCommunityEngagementApi.recordView(postId)
         .then(() => window.ModelPromptForgeCommunityFeed?.refresh?.())
         .catch(() => {});
@@ -47,7 +47,7 @@
     }
   }
 
-  function render(mount, post, engagement, comments) {
+  function render(mount, post, engagement, comments, version) {
     mount.replaceChildren();
     const back = document.createElement('button');
     back.type = 'button';
@@ -86,6 +86,50 @@
       'Prompt text is hidden by the creator.'
     );
 
+    if (['image', 'template'].includes(post.postType)) {
+      const page = document.createElement('div');
+      page.className = 'community-photo-detail-page';
+      const viewerMount = document.createElement('div');
+      viewerMount.className = 'community-photo-viewer-mount';
+      const viewer = window.ModelPromptForgeCommunityPhotoViewer.render({
+        mount: viewerMount,
+        post,
+        engagement,
+        onLike: async () => {
+          await window.ModelPromptForgeCommunityEngagementApi.setReaction(
+            post.id,
+            'like',
+            engagement.viewerState?.liked !== true
+          );
+          await load(post.id);
+        },
+        onSave: async () => {
+          await window.ModelPromptForgeCommunityEngagementApi.setReaction(
+            post.id,
+            'save',
+            engagement.viewerState?.saved !== true
+          );
+          await load(post.id);
+        },
+        onShare: () => sharePublicPost(post),
+        onReport: () => window.ModelPromptForgeReportPostDialog?.open?.(post.id),
+        onUseTemplate: () =>
+          window.ModelPromptForgeCommunityTemplateActions.usePostTemplate(post.id)
+      });
+      viewer.mainColumn.appendChild(buildComments(
+        post,
+        comments,
+        engagement.summary?.commentCount
+      ));
+      const more = document.createElement('section');
+      more.className = 'community-more-from';
+      more.hidden = true;
+      page.append(viewerMount, more);
+      mount.append(back, page);
+      loadMoreFromCreator(post, more, version);
+      return;
+    }
+
     const actions = buildEngagementActions(post, engagement);
     const workflow = buildWorkflowActions(post);
     const ownerActions = post.viewer?.isOwner ? buildOwnerActions(post) : null;
@@ -114,13 +158,19 @@
       promptRegion.append(promptHeading, promptTextarea);
       comparisonLayout.append(promptRegion, actions, workflow);
       if (ownerActions) comparisonLayout.appendChild(ownerActions);
-      mount.append(back, comparisonLayout, buildComments(post, comments));
+      mount.append(
+        back,
+        comparisonLayout,
+        buildComments(post, comments, engagement.summary?.commentCount)
+      );
       return;
     }
 
     const layout = document.createElement('div');
     layout.className = 'community-detail-layout';
-    const media = buildMedia(post, engagement);
+    const media = post.postType === 'collection'
+      ? buildCollectionMedia(post)
+      : document.createElement('div');
     const aside = document.createElement('aside');
     aside.className = 'community-detail-panel';
     aside.append(type, title, creator, description);
@@ -129,46 +179,11 @@
     if (ownerActions) aside.appendChild(ownerActions);
 
     layout.append(media, aside);
-    mount.append(back, layout, buildComments(post, comments));
-  }
-
-  function buildMedia(post, engagement) {
-    if (post.postType === 'comparison' && post.comparisonSnapshot?.slots?.length) {
-      return buildComparisonMedia(post, engagement);
-    }
-    if (post.postType === 'collection' && post.collectionSnapshot?.items?.length) {
-      return buildCollectionMedia(post);
-    }
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'community-detail-media';
-    const image = document.createElement('img');
-    image.src = post.imageUrl;
-    image.alt = post.title || t('community.creator.postPreview', 'Community post');
-    button.appendChild(image);
-    button.addEventListener('click', () => {
-      const item = {
-        id: post.id,
-        imageUrl: post.imageUrl,
-        thumbnailUrl: post.thumbnailUrl,
-        prompt: post.promptPreview || '',
-        provider: post.providerModelDisplay || 'Community',
-        submodel: post.postType || 'image',
-        createdAt: post.createdAt,
-        isCommunityPublic: true,
-        communityPost: post
-      };
-      window.openLightbox?.(item, {
-        triggerElement: button,
-        browseContext: {
-          source: 'community',
-          itemIds: [post.id],
-          items: [item],
-          activeIndex: 0
-        }
-      });
-    });
-    return button;
+    mount.append(back, layout, buildComments(
+      post,
+      comments,
+      engagement.summary?.commentCount
+    ));
   }
 
   function buildCollectionMedia(post) {
@@ -347,31 +362,19 @@
         gallery.disabled = false;
       }
     });
-    const character = document.createElement('button');
-    character.type = 'button';
-    character.textContent = t('community.character.create', 'Create Character');
-    character.addEventListener('click', async () => {
-      character.disabled = true;
-      try {
-        await window.ModelPromptForgeCommunityGalleryApi.createCharacter({
-          postId: post.id,
-          displayName: post.title || 'Character',
-          characterType: 'full_character'
-        });
-        character.textContent = t('community.character.created', 'Character created');
-      } finally {
-        character.disabled = false;
-      }
-    });
-    region.append(gallery, character);
+    region.appendChild(gallery);
     return region;
   }
 
-  function buildComments(post, page) {
+  function buildComments(post, page, totalCount) {
     const section = document.createElement('section');
     section.className = 'community-comments';
     const heading = document.createElement('h2');
-    heading.textContent = t('community.comments.title', 'Comments');
+    const loadedCount = Array.isArray(page?.items) ? page.items.length : 0;
+    const count = Number.isFinite(Number(totalCount))
+      ? Math.max(loadedCount, Number(totalCount))
+      : loadedCount;
+    heading.textContent = `${t('community.comments.title', 'Comments')} ${count}`;
     const form = document.createElement('form');
     const input = document.createElement('textarea');
     input.rows = 2;
@@ -394,6 +397,15 @@
     });
     const list = document.createElement('div');
     list.className = 'community-comment-list';
+    if (loadedCount === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'community-comments-empty';
+      empty.textContent = t(
+        'community.comments.empty',
+        'No comments yet. Be the first to share your thoughts.'
+      );
+      list.appendChild(empty);
+    }
     (page?.items || []).forEach(comment => {
       const article = document.createElement('article');
       const author = document.createElement('strong');
@@ -415,6 +427,63 @@
     });
     section.append(heading, form, list);
     return section;
+  }
+
+  async function loadMoreFromCreator(post, mount, version) {
+    if (!post.creator?.handle || !window.ModelPromptForgeCommunityCreatorApi?.getPortfolio) return;
+    try {
+      const page = await window.ModelPromptForgeCommunityCreatorApi.getPortfolio(
+        post.creator.handle,
+        { limit: 5, sort: 'latest' }
+      );
+      if (version !== requestVersion || activePostId !== post.id) return;
+      const items = (page?.items || [])
+        .filter(item => item.id !== post.id && (item.thumbnailUrl || item.imageUrl))
+        .slice(0, 4);
+      if (items.length === 0) return;
+      renderMoreFromCreator(mount, post, items);
+    } catch {
+      // Related creator work is optional and must not replace the active post.
+    }
+  }
+
+  function renderMoreFromCreator(mount, post, items) {
+    mount.replaceChildren();
+    mount.hidden = false;
+    const header = document.createElement('header');
+    const heading = document.createElement('h2');
+    heading.textContent = t(
+      'community.detail.moreFromCreator',
+      'More from {name}',
+      { name: post.creator?.displayName || post.creator?.username || 'Creator' }
+    );
+    const viewAll = document.createElement('button');
+    viewAll.type = 'button';
+    viewAll.textContent = t('community.creator.viewAll', 'View all');
+    viewAll.addEventListener('click', () => window.ModelPromptForgeRouter?.navigate(
+      `/creators/${encodeURIComponent(post.creator.handle)}`
+    ));
+    header.append(heading, viewAll);
+
+    const grid = document.createElement('div');
+    grid.className = 'community-more-from-grid';
+    items.forEach(item => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'community-more-from-card';
+      const image = document.createElement('img');
+      image.src = item.thumbnailUrl || item.imageUrl;
+      image.alt = item.title || t('community.creator.postPreview', 'Community post');
+      image.loading = 'lazy';
+      const title = document.createElement('strong');
+      title.textContent = item.title || t('community.creator.untitled', 'Untitled');
+      card.append(image, title);
+      card.addEventListener('click', () => window.ModelPromptForgeRouter?.navigate(
+        `/community/${encodeURIComponent(item.id)}`
+      ));
+      grid.appendChild(card);
+    });
+    mount.append(header, grid);
   }
 
   function renderStatus(mount, message, error = false) {
