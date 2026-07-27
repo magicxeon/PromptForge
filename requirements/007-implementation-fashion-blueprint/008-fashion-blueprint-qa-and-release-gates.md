@@ -10,6 +10,7 @@ Required test groups:
 ```text
 template version and slot validation
 Character visibility/reuse authorization
+Character recommendation ranking and picker tabs
 pose/environment ownership conflicts
 single/bulk outfit validation
 Simple/Advanced settings normalization
@@ -63,11 +64,27 @@ Change pose/environment/outfit after quote -> Generate disabled
 -> server rejects forged stale estimate.
 ```
 
+```text
+TC-FB-006 Non-technical model selection
+Open a Template with a reusable default model -> click Use this model once
+-> selected summary appears -> focus moves to Outfit upload.
+```
+
+```text
+TC-FB-007 Recommendation fallback
+Template default model becomes private -> reopen Template
+-> picker shows other compatible models and exposes no unauthorized handoff.
+```
+
 ## 3. UX Gate
 
 - Beginner reaches valid quote with no prompt/provider knowledge.
 - Primary action is visible at each step.
 - Optional pose/environment controls remain collapsed by default.
+- Character step initially shows the Template model and two alternative paths,
+  not the complete filter interface.
+- Character cards use readable full-body and face previews.
+- `Change model` restores prior picker tab, filters and scroll position.
 - Back/forward preserves draft without stale quote.
 - Generate moves to active processing/results.
 - Empty, loading, error, partial and completed states are distinct.
@@ -105,4 +122,3 @@ community Template entry points.
 - Pilot user completes Simple flow without assistance.
 - Commercial Phase `008` records remaining PostgreSQL/GCP/payment blockers
   before paid production enablement.
-

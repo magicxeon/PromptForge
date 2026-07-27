@@ -38,6 +38,9 @@ Template -> Character -> Outfit -> Quality & Price -> Generate
 Pose, environment, bulk and Advanced controls are progressive disclosure. Do
 not turn Simple Mode into Studio.
 
+Prefer one-action use of a valid Template model. Load the three-tab Character
+picker only when the user asks for another model or one of their own.
+
 ## Guardrails
 
 - Do not create a second Engine & Target Output component.

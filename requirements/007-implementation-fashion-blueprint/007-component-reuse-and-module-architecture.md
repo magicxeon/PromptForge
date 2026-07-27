@@ -40,6 +40,7 @@ client/fashion-blueprint/
   fashionBlueprintPersistence.js
   fashionTemplateCatalog.js
   fashionCharacterPicker.js
+  fashionCharacterRecommendation.js
   fashionOutfitList.js
   fashionDirectionControls.js
   fashionGenerationMode.js
@@ -61,6 +62,7 @@ Rules:
 server/domain/fashion-blueprint/
   FashionBlueprintService.js
   FashionBlueprintTemplateService.js
+  FashionCharacterRecommendationService.js
   FashionDirectionResolver.js
   FashionProductService.js
   FashionQuoteService.js
@@ -113,4 +115,3 @@ Core/Community/Character modules must not import Fashion UI/domain.
 - route does not trust body owner ID
 - invalid/circular dependency is absent
 - JSON and future PostgreSQL adapters pass repository contract tests
-

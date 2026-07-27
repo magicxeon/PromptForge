@@ -29,6 +29,8 @@ FashionBlueprintTemplate
 - lightingRecipe
 - compositionRecipe
 - characterSlotPolicy
+- defaultCharacterProfileVersionId?
+- recommendedCharacterProfileIds[]
 - outfitSlotPolicy
 - replaceableVariables[]
 - supportedQualityTiers[]
@@ -64,6 +66,11 @@ product and shot metadata remains in the Fashion Blueprint contract.
 - Community creator Template uses existing ownership/moderation/public snapshot
   policy.
 - A deprecated Template remains readable for historical runs.
+- A Template default/recommended Character must be active and reusable for the
+  current viewer. Template metadata never overrides the Character owner's reuse
+  policy.
+- If the default Character becomes unavailable, the Template remains usable and
+  opens the picker with other compatible recommendations.
 
 ## 5. Template Resolution
 
@@ -117,4 +124,5 @@ Fashion filtering and selection, not another generic gallery component.
 - Unauthorized private/community Template is inaccessible.
 - Overrides outside declared replaceable variables are rejected.
 - Public Template response contains no private reference or Base64.
-
+- An unauthorized default Character falls back to picker selection without
+  breaking the Template.

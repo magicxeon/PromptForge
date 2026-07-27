@@ -39,6 +39,15 @@ Uniform policy:
 Policy ID: `casting-uniform-white-v1`  
 Layout ID: `character-casting-four-view-v1`
 
+Selection derivatives:
+
+- Create a front full-body card thumbnail from the approved export.
+- Create a small face crop for fast identity recognition.
+- Derivatives are deterministic crops/resizes and do not require another AI
+  generation or additional generation credits.
+- The four-view original remains available in Character detail; list cards must
+  not shrink the whole sheet until the model is unreadable.
+
 ## 3. Generation Contract
 
 ```text
@@ -113,4 +122,5 @@ generation service. It never calls a provider or ledger repository directly.
   details in compiled prompt.
 - Confirm technical failure releases credits.
 - Confirm duplicate submission does not create duplicate charge/job.
-
+- Confirm card and face thumbnails inherit canonical export ownership and
+  visibility.

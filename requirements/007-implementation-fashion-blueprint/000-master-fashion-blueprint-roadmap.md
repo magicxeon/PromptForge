@@ -81,6 +81,17 @@ Default collapsed flow:
 5 Generate
 ```
 
+The Character step defaults to the Template's allowed model when available:
+
+```text
+Use this Template model (recommended)
+Choose another model
+Use one of my models
+```
+
+A beginner can accept the recommended model with one action and continue
+directly to Outfit upload.
+
 Progressive controls:
 
 - `Adjust pose` expands pose choices.
@@ -146,4 +157,3 @@ Production enablement belongs to `requirements/008-implementation-commercial-fea
 - Displayed quote matches reserved credits and accepted plan.
 - Character, garment, pose and environment ownership do not conflict.
 - Results group correctly by outfit and shot.
-
