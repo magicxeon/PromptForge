@@ -18,12 +18,26 @@
       const page = scope === 'own'
         ? await window.ModelPromptForgeCharacterProfileApi.listOwn({ limit })
         : await window.ModelPromptForgeCharacterProfileApi.listPublic(query);
-      if (!page.items?.length) {
-        container.innerHTML = `<p class="community-character-state">${t('character-profiles.community.empty', 'No public Characters yet.')}</p>`;
-        return;
-      }
-      container.innerHTML = `<div class="community-character-grid${variant === 'rail' ? ' is-rail' : ''}">${page.items.map(card).join('')}</div>`;
-      container.querySelectorAll('[data-character-id]').forEach(item => {
+      renderItems(container, page.items, { variant });
+    } catch (error) {
+      container.innerHTML = `<p class="community-character-state is-error">${escapeHtml(error.message)}</p>`;
+    }
+  }
+
+  function renderItems(container, items = [], options = {}) {
+    if (!container) return;
+    const variant = options.variant || 'directory';
+    container.dataset.characterVariant = variant;
+    if (!items.length) {
+      container.innerHTML = `<p class="community-character-state">${t('character-profiles.community.empty', 'No public Characters yet.')}</p>`;
+      return;
+    }
+    container.innerHTML = `<div class="community-character-grid${variant === 'rail' ? ' is-rail' : ''}">${items.map(card).join('')}</div>`;
+    bindCards(container);
+  }
+
+  function bindCards(container) {
+    container.querySelectorAll('[data-character-id]').forEach(item => {
         item.addEventListener('click', event => {
           if (event.target.closest('button, a')) return;
           openProfile(item.dataset.characterId);
@@ -33,29 +47,26 @@
           event.preventDefault();
           openProfile(item.dataset.characterId);
         });
-      });
-      container.querySelectorAll('[data-use-character]').forEach(button => {
+    });
+    container.querySelectorAll('[data-use-character]').forEach(button => {
         button.addEventListener('click', () =>
           window.ModelPromptForgeCharacterHandoff.useCharacter(button.dataset.useCharacter, 'scene_builder')
         );
-      });
-      container.querySelectorAll('[data-character-title]').forEach(link => {
+    });
+    container.querySelectorAll('[data-character-title]').forEach(link => {
         link.addEventListener('click', event => {
           event.preventDefault();
           openProfile(link.dataset.characterTitle);
         });
-      });
-      container.querySelectorAll('[data-character-media]').forEach(image => {
+    });
+    container.querySelectorAll('[data-character-media]').forEach(image => {
         image.addEventListener('error', () => {
           const media = image.closest('.community-character-card-media');
           if (!media) return;
           media.classList.add('is-unavailable');
           media.innerHTML = `<span>${escapeHtml(t('character-profiles.states.mediaUnavailable', 'Character image unavailable'))}</span>`;
         }, { once: true });
-      });
-    } catch (error) {
-      container.innerHTML = `<p class="community-character-state is-error">${escapeHtml(error.message)}</p>`;
-    }
+    });
   }
 
   function openProfile(characterId) {
@@ -101,5 +112,5 @@
   const actorMediaUrl = value =>
     window.ModelPromptForgeActorContext?.appendActorQuery?.(value) || value;
 
-  window.ModelPromptForgeCommunityCharacterSection = { render };
+  window.ModelPromptForgeCommunityCharacterSection = { render, renderItems };
 })();

@@ -11358,6 +11358,134 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-07-27T08:39:25.125Z",
       "expiresAt": "2026-07-27T08:54:25.125Z"
+    },
+    {
+      "estimateId": "est_1785146361016_wxnudbj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T09:59:21.016Z",
+      "expiresAt": "2026-07-27T10:14:21.016Z"
+    },
+    {
+      "estimateId": "est_1785146361031_q6tv886",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1.5",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1.5"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "normal"
+      },
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 10,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 95
+      },
+      "estimatedCredits": 95,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-07-27T09:59:21.031Z",
+      "expiresAt": "2026-07-27T10:14:21.031Z"
+    },
+    {
+      "estimateId": "est_1785146361040_fy4lkna",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T09:59:21.040Z",
+      "expiresAt": "2026-07-27T10:14:21.040Z"
+    },
+    {
+      "estimateId": "est_1785146666326_mheqzhj",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-27T10:04:26.326Z",
+      "expiresAt": "2026-07-27T10:19:26.326Z"
     }
   ],
   "reservations": [

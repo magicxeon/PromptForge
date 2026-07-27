@@ -71,8 +71,10 @@ export class CreatorProfileRepository {
           displayName: normalizeDisplayName(actor.displayName || actor.username || handle),
           bio: '',
           avatarAssetId: null,
+          presentation: normalizePresentation(),
           badgeCodes: [],
           membershipEnabled: false,
+          recordVersion: 1,
           status: 'active'
         }, {
           idPrefix: 'creator',
@@ -103,12 +105,24 @@ export class CreatorProfileRepository {
         );
       }
       const current = normalizeProfile(profiles[index]);
+      if (input.recordVersion !== undefined
+        && Number(input.recordVersion) !== current.recordVersion) {
+        throw new RepositoryContractError(
+          'creator_profile_version_conflict',
+          'Creator profile changed in another session. Refresh and try again.',
+          409
+        );
+      }
       const next = {
         ...current,
         displayName: input.displayName === undefined
           ? current.displayName
           : normalizeDisplayName(input.displayName),
         bio: input.bio === undefined ? current.bio : normalizeBio(input.bio),
+        presentation: input.presentation === undefined
+          ? current.presentation
+          : normalizePresentation(input.presentation, current.presentation),
+        recordVersion: current.recordVersion + 1,
         updatedAt: new Date().toISOString()
       };
       profiles[index] = next;
@@ -128,10 +142,14 @@ function normalizeProfile(value = {}) {
     avatarAssetId: typeof value.avatarAssetId === 'string' && value.avatarAssetId.trim()
       ? value.avatarAssetId.trim()
       : null,
+    presentation: normalizePresentation(value.presentation, {
+      avatarAssetId: value.avatarAssetId
+    }),
     badgeCodes: Array.isArray(value.badgeCodes)
       ? [...new Set(value.badgeCodes.filter(code => typeof code === 'string').map(code => code.trim()).filter(Boolean))]
       : [],
     membershipEnabled: value.membershipEnabled === true,
+    recordVersion: Math.max(1, Number(value.recordVersion) || 1),
     visibility: 'public',
     status: ['active', 'hidden', 'disabled', 'deleted'].includes(value.status)
       ? value.status
@@ -164,6 +182,92 @@ function normalizeDisplayName(value) {
 
 function normalizeBio(value) {
   return String(value || '').trim().replace(/\r\n/g, '\n').slice(0, 500);
+}
+
+function normalizePresentation(value = {}, fallback = {}) {
+  const source = value && typeof value === 'object' ? value : {};
+  const previous = fallback && typeof fallback === 'object' ? fallback : {};
+  return {
+    headline: normalizeOptionalText(pickValue(source, previous, 'headline'), 120),
+    creatorRoles: normalizeCodes(pickValue(source, previous, 'creatorRoles'), 4),
+    locationText: normalizeOptionalText(pickValue(source, previous, 'locationText'), 100),
+    websiteUrl: normalizeWebsiteUrl(pickValue(source, previous, 'websiteUrl')),
+    languageCodes: normalizeCodes(pickValue(source, previous, 'languageCodes'), 6),
+    contentCategoryCodes: normalizeCodes(
+      pickValue(source, previous, 'contentCategoryCodes'),
+      8
+    ),
+    avatarAssetId: normalizeOptionalId(
+      pickValue(source, previous, 'avatarAssetId')
+    ),
+    coverPostId: normalizeOptionalId(pickValue(source, previous, 'coverPostId')),
+    featuredPostIds: normalizeIds(pickValue(source, previous, 'featuredPostIds'), 4),
+    featuredCharacterProfileIds: normalizeIds(
+      pickValue(source, previous, 'featuredCharacterProfileIds'),
+      4
+    ),
+    featuredTemplatePostIds: normalizeIds(
+      pickValue(source, previous, 'featuredTemplatePostIds'),
+      4
+    ),
+    sectionOrder: normalizeSectionOrder(pickValue(source, previous, 'sectionOrder'))
+  };
+}
+
+function pickValue(source, fallback, key) {
+  return Object.prototype.hasOwnProperty.call(source, key) ? source[key] : fallback[key];
+}
+
+function normalizeOptionalText(value, maxLength) {
+  const normalized = String(value || '').trim().replace(/\s+/g, ' ').slice(0, maxLength);
+  return normalized || null;
+}
+
+function normalizeWebsiteUrl(value) {
+  const normalized = String(value || '').trim().slice(0, 300);
+  if (!normalized) return null;
+  let parsed;
+  try {
+    parsed = new URL(normalized);
+  } catch {
+    throw new RepositoryContractError(
+      'creator_website_invalid',
+      'Creator website must be a valid HTTPS URL.'
+    );
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new RepositoryContractError(
+      'creator_website_invalid',
+      'Creator website must be a valid HTTPS URL.'
+    );
+  }
+  return parsed.toString();
+}
+
+function normalizeCodes(value, limit) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .map(item => String(item || '').trim().toLocaleLowerCase('en-US'))
+    .filter(item => /^[a-z0-9]+(?:[_-][a-z0-9]+)*$/.test(item))
+  )].slice(0, limit);
+}
+
+function normalizeOptionalId(value) {
+  const normalized = String(value || '').trim();
+  return normalized && /^[a-zA-Z0-9_-]+$/.test(normalized) ? normalized : null;
+}
+
+function normalizeIds(value, limit) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map(normalizeOptionalId).filter(Boolean))].slice(0, limit);
+}
+
+function normalizeSectionOrder(value) {
+  const allowed = new Set(['featured', 'characters', 'templates', 'comparisons']);
+  const selected = Array.isArray(value)
+    ? [...new Set(value.filter(item => allowed.has(item)))]
+    : [];
+  return [...selected, ...[...allowed].filter(item => !selected.includes(item))];
 }
 
 function uniqueValue(preferred, existing) {

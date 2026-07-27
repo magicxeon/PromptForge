@@ -32,7 +32,22 @@ if errorlevel 1 goto :failed
 call :check "client\community\creatorPortfolioGrid.js"
 if errorlevel 1 goto :failed
 
-call :check "client\community\creatorProfilePage.js"
+call :check "client\community\creatorProfileComponents.js"
+if errorlevel 1 goto :failed
+
+call :check "client\community\creatorProfileHeader.js"
+if errorlevel 1 goto :failed
+
+call :check "client\community\creatorProfileTabs.js"
+if errorlevel 1 goto :failed
+
+call :check "client\community\creatorProfileOverview.js"
+if errorlevel 1 goto :failed
+
+call :check "client\community\creatorProfileController.js"
+if errorlevel 1 goto :failed
+
+call :check "client\community\accountProfileMenu.js"
 if errorlevel 1 goto :failed
 
 echo.

@@ -5,17 +5,20 @@ import {
 import { creatorProfileRepo } from '../../repositories/community/CreatorProfileRepository.js';
 import { creatorFollowRepo } from '../../repositories/community/CreatorFollowRepository.js';
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
+import { communityCharacterRepo } from '../../repositories/community/CommunityCharacterRepository.js';
 import { buildCommunityPostPublicView } from './communityPostPublicView.js';
 
 export class CreatorProfileService {
   constructor({
     profileRepository = creatorProfileRepo,
     followRepository = creatorFollowRepo,
-    postRepository = communityPostRepo
+    postRepository = communityPostRepo,
+    characterRepository = communityCharacterRepo
   } = {}) {
     this.profileRepository = profileRepository;
     this.followRepository = followRepository;
     this.postRepository = postRepository;
+    this.characterRepository = characterRepository;
   }
 
   async ensureProfileForActor(actorContext) {
@@ -33,9 +36,26 @@ export class CreatorProfileService {
   async updateOwnProfile(input = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const profile = await this.ensureProfileForActor(actor);
+    if (input.presentation !== undefined) {
+      await this.assertOwnedPublicPresentation(input.presentation, actor);
+    }
     const updated = await this.profileRepository.updateOwnProfile(profile.id, {
       displayName: input.displayName,
-      bio: input.bio
+      bio: input.bio,
+      presentation: input.presentation,
+      recordVersion: input.recordVersion
+    }, actor);
+    return this.buildPublicProfile(updated, actor);
+  }
+
+  async updateOwnPresentation(input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const profile = await this.ensureProfileForActor(actor);
+    const presentation = input.presentation || input;
+    await this.assertOwnedPublicPresentation(presentation, actor);
+    const updated = await this.profileRepository.updateOwnProfile(profile.id, {
+      presentation,
+      recordVersion: input.recordVersion
     }, actor);
     return this.buildPublicProfile(updated, actor);
   }
@@ -98,9 +118,44 @@ export class CreatorProfileService {
     return profile;
   }
 
+  async assertOwnedPublicPresentation(presentation = {}, actor) {
+    if (!presentation || typeof presentation !== 'object') return;
+    const postIds = uniqueIds([
+      presentation.coverPostId,
+      ...asArray(presentation.featuredPostIds),
+      ...asArray(presentation.featuredTemplatePostIds)
+    ]);
+    for (const postId of postIds) {
+      const post = await this.postRepository.findById(postId);
+      if (!post || post.ownerUserId !== actor.userId
+        || post.visibility !== 'public'
+        || !['active', 'published'].includes(post.status)) {
+        throw new RepositoryContractError(
+          'creator_presentation_item_forbidden',
+          'Profile presentation can only feature your active public work.',
+          409
+        );
+      }
+    }
+    for (const characterId of uniqueIds(asArray(presentation.featuredCharacterProfileIds))) {
+      const character = await this.characterRepository.findById(characterId)
+        || await this.characterRepository.findByCharacterProfileId?.(characterId);
+      if (!character || character.ownerUserId !== actor.userId
+        || character.visibility !== 'public'
+        || character.status !== 'active') {
+        throw new RepositoryContractError(
+          'creator_presentation_item_forbidden',
+          'Profile presentation can only feature your active public work.',
+          409
+        );
+      }
+    }
+  }
+
   async buildPublicProfile(profile, viewerContext) {
-    const [followerCount, portfolio] = await Promise.all([
+    const [followerCount, followingCount, portfolio] = await Promise.all([
       this.followRepository.countByCreatorProfileId(profile.id),
+      this.followRepository.countByFollowerUserId(profile.userId),
       this.postRepository.listPublic({
         limit: 1,
         filters: { ownerUserId: profile.userId }
@@ -118,16 +173,28 @@ export class CreatorProfileService {
       displayName: profile.displayName,
       bio: profile.bio,
       avatarAssetId: profile.avatarAssetId,
+      presentation: structuredClone(profile.presentation || {}),
+      badgeCodes: [...(profile.badgeCodes || [])],
       followerCount,
+      followingCount,
       publicPostCount: Number(portfolio.totalApprox) || 0,
       viewer: {
         isOwner: viewerIsOwner,
         isFollowing: viewerIsFollowing
       },
+      recordVersion: viewerIsOwner ? profile.recordVersion : undefined,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt
     };
   }
+}
+
+function uniqueIds(values) {
+  return [...new Set(values.filter(value => typeof value === 'string' && value.trim()).map(value => value.trim()))];
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
 }
 
 export const creatorProfileService = new CreatorProfileService();

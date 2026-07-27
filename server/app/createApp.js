@@ -27,6 +27,7 @@ import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
 import { communityClassificationService } from '../domain/community/CommunityClassificationService.js';
 import { communityFeaturePolicyService } from '../domain/community/CommunityFeaturePolicyService.js';
 import { creatorProfileService } from '../domain/community/CreatorProfileService.js';
+import { creatorProfilePageService } from '../domain/community/CreatorProfilePageService.js';
 import { registerCommunityCreatorRoutes } from './routes/communityCreatorRoutes.js';
 import { communityModerationService } from '../domain/community/CommunityModerationService.js';
 import { registerCommunityModerationRoutes } from './routes/communityModerationRoutes.js';
@@ -131,6 +132,7 @@ export function createApp() {
   });
   registerCommunityCreatorRoutes(app, {
     creatorProfileService,
+    creatorProfilePageService,
     communityFeaturePolicyService
   });
   registerCommunityModerationRoutes(app, {
@@ -178,6 +180,7 @@ export function createApp() {
     '/community', '/community/', '/community/:postId', '/community/:postId/',
     '/community/characters/:characterId', '/community/characters/:characterId/',
     '/creators/:handle', '/creators/:handle/',
+    '/creators/:handle/:profileTab', '/creators/:handle/:profileTab/',
     '/studio', '/studio/',
     '/playground', '/playground/',
     '/history', '/history/',

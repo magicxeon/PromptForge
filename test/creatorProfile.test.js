@@ -73,6 +73,57 @@ test('creator profile ensure is stable and owner updates cannot change handle', 
   assert.equal(updated.handle, 'user-alice');
 });
 
+test('creator presentation is normalized, versioned, and owner-only metadata is protected', async t => {
+  const fixture = await createFixture();
+  t.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
+  const profile = await fixture.service.getOwnProfile(alice);
+
+  const updated = await fixture.service.updateOwnProfile({
+    recordVersion: profile.recordVersion,
+    presentation: {
+      headline: 'Fashion and character creator',
+      creatorRoles: ['Fashion_Creator', 'Character-Designer'],
+      locationText: 'Bangkok, Thailand',
+      websiteUrl: 'https://example.com/creator',
+      languageCodes: ['TH', 'EN'],
+      contentCategoryCodes: ['fashion', 'character'],
+      featuredPostIds: []
+    }
+  }, alice);
+
+  assert.equal(updated.recordVersion, profile.recordVersion + 1);
+  assert.equal(updated.presentation.headline, 'Fashion and character creator');
+  assert.deepEqual(updated.presentation.languageCodes, ['th', 'en']);
+  assert.deepEqual(updated.presentation.featuredPostIds, []);
+
+  await assert.rejects(
+    () => fixture.service.updateOwnProfile({
+      recordVersion: profile.recordVersion,
+      presentation: { headline: 'Stale edit' }
+    }, alice),
+    error => error.code === 'creator_profile_version_conflict'
+  );
+
+  const publicProfile = await fixture.service.getPublicProfileByHandle(updated.handle, bob);
+  assert.equal(publicProfile.recordVersion, undefined);
+  assert.equal(publicProfile.presentation.headline, 'Fashion and character creator');
+
+  const cleared = await fixture.service.updateOwnProfile({
+    recordVersion: updated.recordVersion,
+    presentation: { websiteUrl: null }
+  }, alice);
+  assert.equal(cleared.presentation.websiteUrl, null);
+  assert.equal(cleared.presentation.headline, 'Fashion and character creator');
+
+  await assert.rejects(
+    () => fixture.service.updateOwnProfile({
+      recordVersion: cleared.recordVersion,
+      presentation: { coverPostId: 'post_owned_by_someone_else' }
+    }, alice),
+    error => error.code === 'creator_presentation_item_forbidden'
+  );
+});
+
 test('follow is idempotent, self-follow is blocked, and unfollow is idempotent', async t => {
   const fixture = await createFixture();
   t.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));

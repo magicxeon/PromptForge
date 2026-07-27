@@ -1,5 +1,5 @@
 (() => {
-  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/community\/[^/]+$/, /^\/community\/characters\/[^/]+$/, /^\/creators\/[^/]+$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/, /^\/admin$/];
+  const ROUTE_PATTERNS = [/^\/$/, /^\/community$/, /^\/community\/[^/]+$/, /^\/community\/characters\/[^/]+$/, /^\/creators\/[^/]+(?:\/(?:gallery|characters|templates|comparisons|collections))?$/, /^\/studio$/, /^\/playground$/, /^\/history$/, /^\/comparisons$/, /^\/comparisons\/[^/]+$/, /^\/admin$/];
   const modules = [
     { id: 'community', label: { en: 'Community', th: 'ชุมชน' }, description: { en: 'Discover workflows', th: 'ค้นหาไอเดีย' }, route: '/community', icon: 'community', order: 1 },
     { id: 'playground', label: { en: 'Playground', th: 'เพลย์กราวนด์' }, description: { en: 'Freeform prompting', th: 'เขียน Prompt อิสระ' }, route: '/playground', icon: 'playground', order: 15 },

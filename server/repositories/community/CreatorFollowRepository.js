@@ -29,6 +29,12 @@ export class CreatorFollowRepository {
     ).length;
   }
 
+  async countByFollowerUserId(followerUserId) {
+    return (await this.readAll()).filter(
+      follow => follow.followerUserId === followerUserId && follow.status === 'active'
+    ).length;
+  }
+
   async follow(creatorProfileId, actorContext) {
     const actor = assertActorContext(actorContext);
     return mutateJsonFile(this.followsFile, FOLLOW_FALLBACK, async follows => {

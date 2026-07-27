@@ -11,8 +11,23 @@
       body: input
     });
 
+  const updateOwnPresentation = input =>
+    apiJson('/api/community/creator-profiles/me/presentation', {
+      method: 'PATCH',
+      body: input
+    });
+
   const getProfile = handle =>
     apiJson(`/api/community/creators/${encodeURIComponent(handle)}`);
+
+  const getPage = (handle, query = {}) => {
+    const params = new URLSearchParams();
+    if (query.tab) params.set('tab', query.tab);
+    if (query.cursor) params.set('cursor', query.cursor);
+    if (query.limit) params.set('limit', String(query.limit));
+    const suffix = params.size ? `?${params}` : '';
+    return apiJson(`/api/community/creators/${encodeURIComponent(handle)}/page${suffix}`);
+  };
 
   const getPortfolio = (handle, query = {}) => {
     const params = new URLSearchParams();
@@ -36,7 +51,9 @@
   window.ModelPromptForgeCommunityCreatorApi = {
     getOwnProfile,
     updateOwnProfile,
+    updateOwnPresentation,
     getProfile,
+    getPage,
     getPortfolio,
     follow,
     unfollow

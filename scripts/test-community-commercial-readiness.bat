@@ -18,7 +18,7 @@ for %%F in (
   "client\community\communityTemplateActions.js"
   "client\community\communityComparisonShare.js"
   "client\community\communityCollectionShare.js"
-  "client\community\creatorProfilePage.js"
+  "client\community\creatorProfileController.js"
 ) do (
   node --check "%%~F"
   if errorlevel 1 exit /b 1

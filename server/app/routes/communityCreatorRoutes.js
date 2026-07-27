@@ -9,6 +9,7 @@ function sendCreatorError(res, error) {
 
 export function registerCommunityCreatorRoutes(app, {
   creatorProfileService,
+  creatorProfilePageService,
   communityFeaturePolicyService
 }) {
   const assertEnabled = () =>
@@ -28,6 +29,31 @@ export function registerCommunityCreatorRoutes(app, {
       await assertEnabled();
       return res.json(await creatorProfileService.updateOwnProfile(
         req.body || {},
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendCreatorError(res, error);
+    }
+  });
+
+  app.patch('/api/community/creator-profiles/me/presentation', async (req, res) => {
+    try {
+      await assertEnabled();
+      return res.json(await creatorProfileService.updateOwnPresentation(
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendCreatorError(res, error);
+    }
+  });
+
+  app.get('/api/community/creators/:handle/page', async (req, res) => {
+    try {
+      await assertEnabled();
+      return res.json(await creatorProfilePageService.getPage(
+        req.params.handle,
+        req.query || {},
         req.actorContext
       ));
     } catch (error) {

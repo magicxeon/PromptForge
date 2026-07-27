@@ -30,8 +30,18 @@
           <div class="header-toggle-group" id="mock-user-switcher-container">
             <span class="toggle-group-label">Active Mock User</span>
             <select class="custom-select" id="mock-user-select" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; background: rgba(0, 0, 0, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; outline: none; cursor: pointer; min-width: 140px;"></select>
-            <button type="button" class="header-my-characters" id="btn-my-characters"
-              data-i18n="character-profiles.community.myCharacters">My Characters</button>
+          </div>
+          <div class="account-profile-control" id="account-profile-control">
+            <button type="button" class="account-profile-trigger" id="account-profile-trigger"
+              aria-haspopup="menu" aria-expanded="false">
+              <span class="account-profile-avatar" id="account-profile-avatar" aria-hidden="true">ME</span>
+              <span id="account-profile-name">My profile</span>
+              <span class="account-profile-arrow" aria-hidden="true">&#9662;</span>
+            </button>
+            <div class="account-profile-menu glass-card" id="account-profile-menu" role="menu" hidden>
+              <button type="button" role="menuitem" data-profile-action="view">View profile</button>
+              <button type="button" role="menuitem" data-profile-action="library">My library</button>
+            </div>
           </div>
 
           <div class="credits-display-compact">
@@ -836,7 +846,12 @@
   <script src="/community/moderationBanner.js"></script>
   <script src="/community/followButton.js"></script>
   <script src="/community/creatorPortfolioGrid.js"></script>
-  <script src="/community/creatorProfilePage.js"></script>
+  <script src="/community/creatorProfileComponents.js"></script>
+  <script src="/community/creatorProfileHeader.js"></script>
+  <script src="/community/creatorProfileTabs.js"></script>
+  <script src="/community/creatorProfileOverview.js"></script>
+  <script src="/community/creatorProfileController.js"></script>
+  <script src="/community/accountProfileMenu.js"></script>
   <script src="/community/communityTaxonomyPicker.js"></script>
   <script src="/community/communityShareApi.js"></script>
   <script src="/community/communitySharePreview.js"></script>

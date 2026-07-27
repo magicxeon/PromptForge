@@ -146,7 +146,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 2,
+      "views": 3,
       "likes": 1,
       "saves": 0,
       "comments": 0,
@@ -154,13 +154,13 @@
       "votes": 1
     },
     "engagementSummary": {
-      "viewCount": 2,
+      "viewCount": 3,
       "likeCount": 1,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 1,
-      "updatedAt": "2026-07-26T10:16:18.398Z"
+      "updatedAt": "2026-07-27T10:00:23.557Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -168,7 +168,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-26T10:16:18.398Z",
+    "updatedAt": "2026-07-27T10:00:23.557Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -302,7 +302,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
     "counts": {
-      "views": 5,
+      "views": 6,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -310,13 +310,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 5,
+      "viewCount": 6,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-26T10:03:58.461Z"
+      "updatedAt": "2026-07-27T10:00:29.373Z"
     },
     "id": "post_1785045545767_1r75hqrw",
     "schemaVersion": 1,
@@ -324,7 +324,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T05:59:05.767Z",
-    "updatedAt": "2026-07-26T10:03:58.461Z",
+    "updatedAt": "2026-07-27T10:00:29.373Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -498,7 +498,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-20T04:58:37.501Z",
-    "updatedAt": "2026-07-27T05:55:25.658Z",
+    "updatedAt": "2026-07-27T10:00:32.749Z",
     "deletedAt": null,
     "metadata": {},
     "engagementSummary": {
@@ -508,7 +508,7 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-27T05:55:25.658Z"
+      "updatedAt": "2026-07-27T10:00:32.749Z"
     }
   }
 ]
