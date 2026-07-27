@@ -6,6 +6,11 @@
 
 Fashion users choose a model through three cost levels: ready template, paid template variation or custom creation. Approved identity is saved as a reusable Project-scoped Model Profile.
 
+Character Profile is the reusable person/identity source owned by
+`requirements/006-implementation-character-profile`. This phase adds
+Project/commercial policy around that source; it must not create a second
+Character Profile or casting-export flow.
+
 ## 2. Model Sources
 
 ### Ready Template
@@ -35,6 +40,8 @@ Fashion users choose a model through three cost levels: ready template, paid tem
 - Provider/model generation provenance
 - Consent/rights declaration for uploaded recognizable people
 - Status: draft, generating, review, approved, archived, blocked
+- Optional canonical `characterProfileId` and immutable
+  `characterProfileVersionId`
 
 ## 4. Cost and Safety
 

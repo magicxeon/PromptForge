@@ -22,6 +22,8 @@ users, credentials, sessions
 projects, project_members
 collections, collection_items
 assets, asset_links
+character_profiles, character_profile_versions, character_usage_events
+fashion_blueprint_templates, fashion_blueprint_runs, fashion_product_items
 products, product_variants
 model_profiles, consistency_profiles
 generation_batches, generation_jobs, generation_results
@@ -47,6 +49,8 @@ All timestamps use UTC. Public IDs are opaque. Financial rows use database trans
 - `server/collections.json`
 - queue/runtime records if durable records exist by migration time
 - generated output files and reference lineage
+- Character Profile and Fashion Blueprint development records if their local
+  adapters are implemented before database cutover
 
 ## 6. Migration Process
 

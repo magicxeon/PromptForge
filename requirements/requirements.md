@@ -662,6 +662,8 @@ Near-term:
 
 - stabilize cross-mode handoff UX
 - finish Character Sheet Builder visual controls
+- implement Character Profile, standardized casting export and private handoff
+- implement Fashion Blueprint Simple single-outfit workflow
 - complete body build and sheet layout visual assets
 - refine outfit base visual clarity
 - add seed/randomness control if providers support it
@@ -671,7 +673,7 @@ Near-term:
 Mid-term:
 
 - Story Mode refinement
-- reusable character library
+- public reusable Character library and privacy-safe usage analytics
 - collection workflow
 - prompt/workflow sharing
 - landing page and guided onboarding
@@ -697,3 +699,28 @@ Long-term:
 - photographer style library
 - marketplace export presets
 - durable batch generation and credit ledger
+
+## 20. Current Implementation Phase Index
+
+```text
+003 Visual Character Builder
+  -> 004 Scene Builder
+  -> 005 Community
+  -> 006 Character Profile
+  -> 007 Fashion Blueprint
+  -> 008 Commercial Platform and Google Cloud migration
+  -> 009 Technical Debt and architecture ownership
+```
+
+Phase responsibilities:
+
+- `006-implementation-character-profile` turns approved Character Sheet outputs
+  into named, versioned and optionally public reusable Characters.
+- `007-implementation-fashion-blueprint` owns the short
+  Template-to-Character-to-Outfit-to-Price workflow for e-commerce fashion.
+- `008-implementation-commercial-feature-plan` replaces development adapters
+  with authentication, PostgreSQL, Cloud Storage, durable jobs, payments and
+  Google Cloud operations. It must productionize the Blueprint rather than
+  recreate its UI or plan resolver.
+- `009-technical-dept` remains the canonical architecture and file-placement
+  reference for every implementation phase.

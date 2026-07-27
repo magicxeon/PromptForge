@@ -1,0 +1,123 @@
+# Character Profile Master Roadmap
+
+**Status:** Proposed for implementation before Fashion Blueprint  
+**Goal:** Turn an approved Character Sheet into a named, reusable and optionally
+public Character Profile.
+
+## 1. Product Outcome
+
+A user can:
+
+1. Create a character through the existing Headshot and Character Sheet flow.
+2. Name the character and add a short personality/usage description.
+3. Generate a standardized Character Casting Sheet in a modest opaque white
+   fitted outfit.
+4. Pay the normal generation credit cost for that export.
+5. Keep the profile private or share it for other users.
+6. Open a profile page showing creator attribution and privacy-safe usage
+   statistics.
+7. Select the Character later from Fashion Blueprint or Scene Builder.
+
+Character Profiles are reusable production assets, not ordinary Community posts
+and not raw uploaded face references.
+
+## 2. Scope Decisions
+
+MVP decisions:
+
+- Standard export contains four views: front, three-quarter, side and back.
+- The casting outfit is opaque, non-revealing, unbranded and white.
+- Only a generated/approved canonical export may become publicly reusable.
+- Private source uploads, Base64 payloads and provider request payloads are never
+  published.
+- Public usage statistics count successful generations and expose aggregates,
+  not identities of users who reused the Character.
+- Character reuse is free in the first MVP. Attribution and usage counts are
+  recorded; royalties and marketplace payouts are deferred.
+- Public Character reuse does not transfer ownership.
+
+## 3. Existing Contracts To Reuse
+
+| Capability | Canonical owner |
+|---|---|
+| Character attributes and Character Sheet | `requirements/003-implementation-visual-character-builder-plan` |
+| Cross-mode result handoff | `client/core/crossModeHandoff.js` |
+| Shared generation UI | `client/generation-controls/` |
+| Generation and credit lifecycle | existing client/server generation and credit domains |
+| Community public character projection | `CommunityCharacterRepository` and `CommunityGalleryService` |
+| Reference sanitization | `server/domain/scene-templates/` |
+| Actor and ownership | existing actor context, API client and repository contracts |
+
+Do not create a second Character Builder, generation pipeline, credit balance or
+Community character store.
+
+## 4. Requirement Sequence
+
+| Requirement | Purpose | Dependency |
+|---|---|---|
+| `001-character-profile-domain-and-lifecycle.md` | Canonical profile/schema/state | Existing Character Sheet |
+| `002-standardized-character-casting-export.md` | Four-view white casting export | 001, generation/credits |
+| `003-character-sharing-privacy-and-reuse.md` | Visibility, reuse and public projection | 001, 002, Community |
+| `004-character-profile-page-and-usage-analytics.md` | Profile page and popularity metrics | 003, engagement events |
+| `005-fashion-and-scene-character-handoff.md` | Reusable selection contract | 001–004 |
+| `006-character-profile-qa-and-release-gates.md` | End-to-end release gates | All above |
+
+## 5. Architecture
+
+```text
+Character Builder output
+  -> CharacterProfile draft
+  -> quoted casting export generation
+  -> approved canonical CharacterProfileVersion
+  -> private profile
+       -> optional public CommunityCharacter projection
+       -> CharacterSelectionHandoff
+            -> Fashion Blueprint
+            -> Scene Builder
+```
+
+Canonical ownership:
+
+```text
+server/domain/character-profiles/
+server/repositories/character-profiles/
+server/app/routes/characterProfileRoutes.js
+client/character-profiles/
+```
+
+Community keeps discovery, creator attribution, public media policy and
+engagement. It references a Character Profile/version and does not become its
+source of truth.
+
+## 6. Cross-Cutting Rules
+
+- Every mutation uses `req.actorContext`; body/query usernames are not trusted.
+- Public IDs are opaque and never treated as authorization.
+- Character references use asset/result IDs, never durable Base64.
+- All generation is quoted, reserved and captured/refunded through central
+  credit services.
+- Canonical profile versions are immutable after use.
+- Public projection is sanitized independently from owner detail.
+- All new visible strings use `i18nService`.
+- Client code remains browser-native IIFE modules loaded in dependency order.
+- First implementation may use a repository-backed local JSON adapter, but the
+  contract must map directly to PostgreSQL in the commercial phase.
+
+## 7. Non-Goals
+
+- Character marketplace sale, royalty or payout
+- Voice, biography generation or chat persona
+- Face training/fine-tuning
+- Guaranteed identity consistency across every provider
+- Sharing original private face/outfit uploads
+- Team ownership and character ownership transfer
+
+## 8. Exit Criteria
+
+- A paid four-view casting export can be generated and approved.
+- Public reuse never exposes private source references.
+- A second user can select an allowed Character in Fashion Blueprint.
+- Successful usage updates privacy-safe category aggregates exactly once.
+- Owner and viewer authorization tests pass.
+- Existing Headshot, Character Sheet and Scene Builder behavior remains intact.
+

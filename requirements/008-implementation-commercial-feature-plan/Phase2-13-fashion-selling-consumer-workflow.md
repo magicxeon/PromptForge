@@ -1,4 +1,4 @@
-# Phase 2-13 Fashion Selling Consumer Workflow
+# Phase 2-13 Fashion Blueprint Commercial Integration
 
 **Status:** Proposed - Awaiting Review  
 **Audience:** Thai small merchants  
@@ -8,9 +8,15 @@
 
 Allow merchants to create consistent selling images without understanding prompts, camera terminology or the full Advanced Studio.
 
+The user-facing Blueprint workflow is owned by
+`requirements/007-implementation-fashion-blueprint`. This commercial phase
+replaces its development adapters with production Projects, PostgreSQL, Cloud
+Storage, durable jobs, payment-backed credits and operational policy. It must not
+fork the Blueprint page, plan resolver or shared generation controls.
+
 ## 2. Entry and Project Setup
 
-Solution Home card: `สร้างภาพขายแฟชั่น`.
+Community/Solution Home card: `สร้างภาพขายแฟชั่น`.
 
 Wizard:
 
@@ -71,6 +77,25 @@ Fashion module creates a validated plan, not jobs directly:
 ```
 
 Core Pricing, Ledger and Job Orchestrator validate and execute it.
+
+The production plan must remain compatible with
+`FashionBlueprintPlan` and `FashionBlueprintQuote` from requirements 007.
+Development-only owner IDs, JSON paths, local file references and mock estimates
+must not cross the production adapter boundary.
+
+## 4.1 Production Adapter Responsibilities
+
+```text
+Character Profile/version -> PostgreSQL owner-scoped record
+Outfit references         -> private Cloud Storage assets
+Blueprint draft/run       -> PostgreSQL Project-scoped records
+Quote/reservation         -> transactional credit ledger
+Generation operations     -> durable jobs + Cloud Tasks
+Results                   -> Cloud Storage + result metadata
+```
+
+The current Vanilla JavaScript Blueprint client continues to consume stable
+HTTP contracts. A frontend framework rewrite is not required.
 
 ## 5. Collections
 

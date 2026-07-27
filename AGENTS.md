@@ -8,7 +8,7 @@ work to another agent.
 Before implementation:
 
 1. Read the requirement file that owns the requested feature.
-2. Read `requirements/007-technical-dept/000-master.md` for current architecture
+2. Read `requirements/009-technical-dept/000-master.md` for current architecture
    and file ownership.
 3. Inspect the nearest existing modules, tests, and runtime data contracts.
 4. Treat current canonical modules as authoritative over stale paths in older
@@ -26,7 +26,7 @@ Before creating, moving, or renaming any file:
 4. Create a new folder only when the capability needs multiple cohesive modules
    and its dependency direction is clear.
 5. If no documented location owns the capability, update
-   `requirements/007-technical-dept/000-master.md` in the same change.
+   `requirements/009-technical-dept/000-master.md` in the same change.
 6. Update imports, browser script ordering, fixtures, tests, and documentation
    whenever a file moves.
 7. Verify all new or moved files against this map during final validation.
