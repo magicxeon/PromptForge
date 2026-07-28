@@ -34,7 +34,9 @@ export function HistoryDetailRoute() {
         </Surface>
         <Surface className="p-5">
           <h1 className="text-xl">{item.data.submodel || item.data.provider}</h1>
-          <p className="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-6 text-[var(--mpf-text-muted)]">{item.data.prompt}</p>
+          {actor?.role === 'admin' ? (
+            <p className="max-h-80 overflow-auto whitespace-pre-wrap text-sm leading-6 text-[var(--mpf-text-muted)]">{item.data.prompt}</p>
+          ) : null}
           <dl className="grid grid-cols-2 gap-3 text-sm">
             <div><dt className="text-[var(--mpf-text-muted)]">{t('ui.history.size')}</dt><dd className="m-0">{item.data.width || '-'} × {item.data.height || '-'}</dd></div>
             <div><dt className="text-[var(--mpf-text-muted)]">{t('ui.history.credits')}</dt><dd className="m-0">{item.data.creditCost || '-'}</dd></div>

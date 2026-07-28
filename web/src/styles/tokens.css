@@ -1,11 +1,12 @@
 :root {
   color-scheme: dark;
   --mpf-bg: #070911;
+  --mpf-page-canvas: #03050b;
   --mpf-bg-raised: #0b0f1a;
   --mpf-surface: #0e1320;
   --mpf-surface-strong: #121827;
   --mpf-text: #f6f7fb;
-  --mpf-text-muted: #9aa3b8;
+  --mpf-text-muted: #9f9fba;
   --mpf-border: #242c3d;
   --mpf-border-strong: #354057;
   --mpf-cyan: #11c5ec;
@@ -18,8 +19,8 @@
   --mpf-header-height: 64px;
   --mpf-sidebar-width: 244px;
   --mpf-content-max: 1480px;
-  --mpf-radius-sm: 4px;
-  --mpf-radius-md: 8px;
+  --mpf-radius-sm: 10px;
+  --mpf-radius-md: 10px;
   --mpf-section-gap: 16px;
   --mpf-section-padding: 18px;
   --mpf-compact-control-height: 32px;
@@ -29,4 +30,9 @@
   --mpf-font-ui: var(--mpf-font-latin), var(--mpf-font-thai), system-ui, sans-serif;
   --mpf-sidebar-collapsed-width: 76px;
   --mpf-brand-gradient: linear-gradient(100deg, var(--mpf-cyan), var(--mpf-violet) 52%, var(--mpf-magenta));
+  --neon-cyan: var(--mpf-cyan);
+  --neon-purple: var(--mpf-violet);
+  --neon-yellow: #facc15;
+  --text-main: var(--mpf-text);
+  --text-muted: var(--mpf-text-muted);
 }

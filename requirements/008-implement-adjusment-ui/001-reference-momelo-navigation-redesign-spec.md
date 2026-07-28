@@ -2005,3 +2005,58 @@ independently of the feature requirement.
    `/api/health`.
 6. Footer version equals the root `package.json` version.
 7. No placeholder footer link produces a 404 route.
+## Studio Child Navigation Scroll Contract
+
+The Studio sidebar children (`Face Creation`, `Character Sheet`, and
+`Scene Builder`) target `#studio-configurator-title`, the visible
+`Studio Creative Configurator` heading. Selecting a child must:
+
+1. navigate to or retain the correct Studio mode;
+2. smoothly scroll the `Studio Creative Configurator` heading into view;
+3. work when selecting the already-active child after the user has scrolled
+   farther down the configurator;
+4. reserve the sticky application-header offset through `scroll-margin-top`.
+
+The reusable hash-scroll helper belongs under `web/src/lib/navigation/`; route
+components own the target element and loading-aware retry after their content is
+ready.
+
+## Shell Spacing and Navigation State Refinement
+
+### Shell hierarchy
+
+- The fixed Global Header remains full width.
+- Desktop workspace starts `16px` below the header and keeps `16px` outer
+  screen padding.
+- Sidebar and routed page column have a `16px` panel gap.
+- The page canvas uses `--mpf-page-canvas` and must be darker than foreground
+  feature panels.
+- Desktop Sidebar is a bordered foreground panel with a `4px` radius.
+- Mobile returns to an edge-attached drawer without desktop panel gaps or
+  rounded outer corners.
+
+### Navigation states
+
+Navigation uses a deliberate `4px` radius exception so it reads more strongly
+than the default `10px` form/button language.
+
+- Root and standalone items have a `42px` minimum height.
+- Child items have a `36px` minimum height with `4px` vertical padding.
+- Hover uses a restrained Cyan border/background without replacing the current
+  active route.
+- A standalone or child active route uses a three-pixel inset Cyan marker,
+  stronger Cyan border, and Cyan-to-subtle-yellow background.
+- When a child route is active, its parent `Studio` receives only a quiet Cyan
+  contextual background and no active inset marker.
+- Studio children are connected by a low-contrast vertical hierarchy rail.
+- Inactive items remain dimmed but readable and keyboard focus remains visible.
+
+### Acceptance criteria
+
+1. Hovering `Face Creation` while `Scene Builder` is active highlights the
+   hovered row while preserving Scene Builder's active treatment.
+2. Studio remains subtly highlighted whenever any of its three children is
+   active.
+3. Active standalone items use the same strong treatment as an active child.
+4. Sidebar, main content, and viewport edge preserve the desktop panel gap and
+   screen padding at supported widths.

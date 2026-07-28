@@ -75,19 +75,19 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
         children: [
           {
             id: 'face-creator',
-            path: '/studio',
+            path: '/studio#studio-configurator-title',
             labelKey: 'shell.navigation.items.faceCreator',
             icon: 'face'
           },
           {
             id: 'character-sheet',
-            path: '/studio?mode=character-sheet',
+            path: '/studio?mode=character-sheet#studio-configurator-title',
             labelKey: 'shell.navigation.items.characterSheet',
             icon: 'character'
           },
           {
             id: 'scene-builder',
-            path: '/studio/scene',
+            path: '/studio/scene#studio-configurator-title',
             labelKey: 'shell.navigation.items.sceneBuilder',
             icon: 'scene'
           }

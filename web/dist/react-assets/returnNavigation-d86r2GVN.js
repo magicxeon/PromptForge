@@ -1,0 +1,1 @@
+import{n as r}from"./index-iWKNoM3f.js";function e(t){return{mpfReturn:{to:`${t.pathname}${t.search}${t.hash}`,actorId:r()}}}function n(t){return!!(t?.startsWith("/")&&!t.startsWith("//"))}export{e as c,n as i};

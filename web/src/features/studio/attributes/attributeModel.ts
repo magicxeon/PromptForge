@@ -36,6 +36,17 @@ export type AttributeSelection = {
 
 type Bundle = z.infer<typeof attributesBundleSchema>;
 
+const legacySubcategoryByCategory: Record<string, string> = {
+  face: 'Face Shape',
+  eyes: 'Eyes',
+  eyebrows: 'Eyebrows',
+  nose: 'Nose',
+  lips: 'Lips',
+  expression: 'Expression',
+  photo_context: 'Fashion Photography Context',
+  scene_story: 'Fashion Story'
+};
+
 export function normalizeAttributeGroups(bundle: Bundle): AttributeGroup[] {
   const schema = Array.isArray(bundle.schema) ? bundle.schema : [];
   const options = bundle.library.flatMap(item => normalizeOption(item));
@@ -44,7 +55,9 @@ export function normalizeAttributeGroups(bundle: Bundle): AttributeGroup[] {
     const groupName = rawGroup.group;
     const fields = rawGroup.fields.flatMap(rawField => {
       if (!isRecord(rawField) || typeof rawField.name !== 'string') return [];
-      const fieldOptions = options.filter(option => option.subcategory === rawField.name);
+      const fieldOptions = options
+        .filter(option => option.subcategory === rawField.name)
+        .map(option => ({ ...option, group: groupName }));
       if (!fieldOptions.length) return [];
       return [{
         name: rawField.name,
@@ -105,7 +118,12 @@ export function localized(value: string | Record<string, string>) {
 }
 
 function normalizeOption(item: Record<string, unknown>): AttributeOption[] {
-  if (item.enabled === false || typeof item.id !== 'string' || typeof item.subcategory !== 'string') return [];
+  if (item.enabled === false || typeof item.id !== 'string') return [];
+  const category = typeof item.category === 'string' ? item.category : '';
+  const subcategory = typeof item.subcategory === 'string'
+    ? item.subcategory
+    : legacySubcategoryByCategory[category];
+  if (!subcategory) return [];
   const ui = isRecord(item.ui) ? item.ui : {};
   const prompt = isRecord(item.prompt) ? item.prompt : {};
   const phrase = typeof prompt.default === 'string'
@@ -116,8 +134,8 @@ function normalizeOption(item: Record<string, unknown>): AttributeOption[] {
   if (!phrase) return [];
   return [{
     id: item.id,
-    category: typeof item.category === 'string' ? item.category : '',
-    subcategory: item.subcategory,
+    category,
+    subcategory,
     label: typeof item.label === 'string' || isStringRecord(item.label) ? item.label : item.id,
     group: typeof ui.group === 'string' ? ui.group : '',
     prompt: phrase,

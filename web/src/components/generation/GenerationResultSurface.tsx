@@ -1,6 +1,6 @@
 import { ArrowDown, Download, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ComparisonWorkspace } from '../comparisons/ComparisonWorkspace';
 import { Button } from '../ui/Button';
@@ -10,29 +10,50 @@ import type { JobStatus } from '../../features/generation/schemas/generationSche
 import type { ComparisonSet } from '../../features/comparisons/schemas/comparisonSchemas';
 import { CollectionPickerDialog } from '../collections/CollectionPickerDialog';
 import { ShareGeneratedDialog } from '../community/ShareGeneratedDialog';
+import {
+  GenerationImageViewer,
+  type GenerationViewerItem
+} from '../media/GenerationImageViewer';
 
 export function GenerationResultSurface({
   job,
   comparison,
   pending,
   onGoToPrompt,
-  renderActions
+  renderActions,
+  showEmpty = false,
+  showGoToPrompt = true,
+  canRevealPrompt = false,
+  viewerContext
 }: {
   job?: JobStatus | null;
   comparison?: ComparisonSet | null;
   pending: boolean;
   onGoToPrompt: () => void;
   renderActions?: (job: JobStatus) => ReactNode;
+  showEmpty?: boolean;
+  showGoToPrompt?: boolean;
+  canRevealPrompt?: boolean;
+  viewerContext?: {
+    prompt?: string;
+    provider?: string;
+    model?: string;
+    estimatedCredit?: number;
+    parentImages?: GenerationViewerItem['parentImages'];
+  };
 }) {
   const { t } = useTranslation('playground');
+  const [viewerOpen, setViewerOpen] = useState(false);
   const run = comparison?.runs.at(-1);
   const visible = pending || job || run;
-  if (!visible) return null;
+  if (!visible && !showEmpty) return null;
   return (
     <section id="generation-results">
       <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div><span className="text-xs font-bold uppercase text-cyan-300">{t('playground.result.kicker')}</span><h2 className="m-0 mt-1 text-xl">{comparison ? comparison.name : t('playground.result.title')}</h2></div>
-        <Button variant="ghost" icon={<ArrowDown className="size-4" />} onClick={onGoToPrompt}>{t('playground.result.goToPrompt')}</Button>
+        {showGoToPrompt ? (
+          <Button variant="ghost" icon={<ArrowDown className="size-4" />} onClick={onGoToPrompt}>{t('playground.result.goToPrompt')}</Button>
+        ) : null}
       </header>
       {run ? (
         <>
@@ -53,7 +74,17 @@ export function GenerationResultSurface({
         <Surface className="overflow-hidden bg-black p-0">
           {job?.result?.imageUrl ? (
             <>
-              <div className="grid min-h-[520px] place-items-center p-3"><img src={apiMediaUrl(job.result.imageUrl) || ''} alt="" className="max-h-[76vh] w-full object-contain" /></div>
+              <button
+                type="button"
+                className="generation-result__open"
+                title={t('playground.result.openImage')}
+                onClick={() => setViewerOpen(true)}
+              >
+                <img
+                  src={apiMediaUrl(job.result.imageUrl) || ''}
+                  alt={t('playground.result.imageAlt')}
+                />
+              </button>
               <div className="flex flex-wrap gap-2 border-t border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3">
                 <a href={apiMediaUrl(job.result.imageUrl) || ''} download className="inline-flex min-h-10 items-center gap-2 border border-[var(--mpf-border)] px-4 text-sm font-semibold text-white no-underline"><Download className="size-4" />{t('playground.result.download')}</a>
                 {job.jobId || job.id ? (
@@ -65,6 +96,20 @@ export function GenerationResultSurface({
                 ) : null}
                 {renderActions?.(job)}
               </div>
+              <GenerationImageViewer
+                items={[toViewerItem(job, viewerContext)]}
+                activeId={job.jobId || job.id || null}
+                open={viewerOpen}
+                canRevealPrompt={canRevealPrompt}
+                onOpenChange={setViewerOpen}
+                onActiveIdChange={() => {}}
+                renderActions={() => (
+                  <>
+                    <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
+                    {renderActions?.(job)}
+                  </>
+                )}
+              />
             </>
           ) : (
             <div className="grid min-h-72 place-items-center p-6 text-center">
@@ -75,6 +120,38 @@ export function GenerationResultSurface({
       )}
     </section>
   );
+}
+
+function toViewerItem(
+  job: JobStatus,
+  context?: {
+    prompt?: string;
+    provider?: string;
+    model?: string;
+    estimatedCredit?: number;
+    parentImages?: GenerationViewerItem['parentImages'];
+  }
+): GenerationViewerItem {
+  const record = job as JobStatus & Record<string, unknown>;
+  const result = (job.result || {}) as Record<string, unknown>;
+  return {
+    id: job.jobId || job.id || '',
+    imageUrl: typeof job.result?.imageUrl === 'string' ? job.result.imageUrl : '',
+    title: typeof record.title === 'string' ? record.title : undefined,
+    prompt: context?.prompt,
+    provider: context?.provider,
+    model: context?.model,
+    timestamp: typeof record.timestamp === 'number'
+      ? record.timestamp
+      : typeof record.completedAt === 'number'
+        ? record.completedAt
+        : Date.now(),
+    generationDuration: job.result?.generationDuration,
+    width: typeof result.width === 'number' ? result.width : undefined,
+    height: typeof result.height === 'number' ? result.height : undefined,
+    creditCost: context?.estimatedCredit,
+    parentImages: context?.parentImages
+  };
 }
 
 function jobError(job?: JobStatus | null) {

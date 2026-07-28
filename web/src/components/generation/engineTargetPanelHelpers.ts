@@ -3,10 +3,9 @@ import type { ProviderCatalog } from '../../features/generation/schemas/generati
 
 export function createDefaultComparisonSlots(catalog: ProviderCatalog): ComparisonSlotInput[] {
   const provider = catalog.providers[0];
-  const first = provider?.models[0];
-  if (!provider || !first) return [];
-  const second = provider.models[1] || first;
-  return [first, second].map(model => ({
+  const models = provider?.models.slice(0, 2) || [];
+  if (!provider || !models.length) return [];
+  return models.map(model => ({
     id: createSlotId(),
     provider: provider.id,
     model: model.id

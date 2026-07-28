@@ -1,1 +1,0 @@
-import{j as e,P as s}from"./index-CQk2i36m.js";function d({className:r,...a}){return e.jsx("div",{className:s("rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]",r),...a})}export{d as S};

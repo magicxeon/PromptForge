@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowUp, Coins, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
@@ -29,6 +30,9 @@ import { getComparison } from '../../features/comparisons/api/comparisonApi';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { emitTelemetry } from '../../lib/telemetry/telemetry';
 import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
+import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
+import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
+import { GenerationReferenceActions } from './GenerationReferenceActions';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -49,8 +53,13 @@ type GenerationExperienceProps = {
   onCompleted?: (jobId: string) => void;
   blockedReason?: string | null;
   showEngine?: boolean;
+  layoutVariant?: 'stacked' | 'studio';
   referenceRoles?: GenerationReferenceRole[];
   renderResultActions?: (job: JobStatus) => ReactNode;
+  studioBuilder?: ReactNode;
+  studioModeSelector?: ReactNode;
+  studioQueueExtra?: ReactNode;
+  studioConfigActions?: ReactNode;
 };
 
 export function GenerationExperience({
@@ -72,8 +81,13 @@ export function GenerationExperience({
   onCompleted,
   blockedReason = null,
   showEngine = true,
+  layoutVariant = 'stacked',
   referenceRoles,
-  renderResultActions
+  renderResultActions,
+  studioBuilder,
+  studioModeSelector,
+  studioQueueExtra,
+  studioConfigActions
 }: GenerationExperienceProps) {
   const queryClient = useQueryClient();
   const { actor } = useActor();
@@ -262,34 +276,123 @@ export function GenerationExperience({
   const canAfford = comparison ? true : singleEstimate.data?.account.canAfford !== false;
   const pending = submitSingle.isPending || submitCompare.isPending || Boolean(jobId && !['completed', 'succeeded', 'failed', 'cancelled'].includes(job.data?.status || '')) || Boolean(comparisonSetId && ['queued', 'processing', 'streaming'].includes(comparisonResult.data?.runs.at(-1)?.status || ''));
   const submitError = submitSingle.error || submitCompare.error;
-
-  return (
-    <div className="space-y-5">
-      <div ref={node => { resultRef.current = node; }}>
-        <GenerationResultSurface
-          job={job.data}
-          comparison={comparisonResult.data}
-          pending={pending}
-          onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          renderActions={renderResultActions}
+  const effectiveResultActions = (completedJob: JobStatus) => (
+    <>
+      {model?.capabilities.imageReferences && completedJob.result?.imageUrl ? (
+        <GenerationReferenceActions
+          imageUrl={completedJob.result.imageUrl}
+          roles={referenceRoles}
+          value={references}
+          maxReferences={model.capabilities.maxReferenceImages}
+          onChange={setReferences}
         />
-      </div>
-      <div ref={node => { promptRef.current = node; }}>
-        {showPromptEditor ? <PromptEditor value={prompt} negativeValue={negativePrompt} onChange={setPrompt} onNegativeChange={setNegativePrompt} /> : null}
-      </div>
-      {surface === 'playground' && showPromptEditor ? <PromptComposerAssist onAccept={setPrompt} /> : null}
-      <ReferenceSlotGrid value={references} roles={referenceRoles} supported={model?.capabilities.imageReferences === true} maxReferences={model?.capabilities.maxReferenceImages || 0} onChange={setReferences} />
-      {showEngine ? <EngineTargetPanel
-        catalog={catalog.data}
-        value={engine}
-        comparison={comparison}
-        comparisonSlots={comparisonSlots}
-        allowComparison={allowComparison}
-        onChange={setEngine}
-        onComparisonChange={setComparison}
-        onSlotsChange={setComparisonSlots}
-      /> : null}
-      <Surface className="sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
+      ) : null}
+      {renderResultActions?.(completedJob)}
+    </>
+  );
+
+  const resultRegion = (
+    <div ref={node => { resultRef.current = node; }}>
+      <GenerationResultSurface
+        job={job.data}
+        comparison={comparisonResult.data}
+        pending={pending}
+        onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        renderActions={effectiveResultActions}
+        showEmpty={layoutVariant === 'studio'}
+        showGoToPrompt={layoutVariant !== 'studio'}
+        canRevealPrompt={actor?.role === 'admin'}
+        viewerContext={{
+          prompt,
+          provider: engine.provider,
+          model: engine.model,
+          estimatedCredit: estimate,
+          parentImages: Object.entries(references)
+            .filter((entry): entry is [string, string] => Boolean(entry[1]))
+            .map(([role, imageUrl]) => ({
+              id: role,
+              imageUrl
+            }))
+        }}
+      />
+    </div>
+  );
+  const promptRegion = (
+    <div ref={node => { promptRef.current = node; }}>
+      {showPromptEditor ? (
+        <PromptEditor
+          value={prompt}
+          negativeValue={negativePrompt}
+          onChange={setPrompt}
+          onNegativeChange={setNegativePrompt}
+        />
+      ) : layoutVariant === 'studio' && actor?.role === 'admin' ? (
+        <Surface className="studio-prompt-preview">
+          <label>
+            <span>{t('playground.prompt.label')}</span>
+            <textarea readOnly value={prompt} />
+          </label>
+          <details>
+            <summary>{t('playground.negative.label')}</summary>
+            <textarea
+              value={negativePrompt}
+              onChange={event => setNegativePrompt(event.target.value)}
+              placeholder={t('playground.negative.placeholder')}
+            />
+          </details>
+        </Surface>
+      ) : null}
+    </div>
+  );
+  const referencesRegion = (
+    <ReferenceSlotGrid
+      value={references}
+      roles={referenceRoles}
+      supported={model?.capabilities.imageReferences === true}
+      maxReferences={model?.capabilities.maxReferenceImages || 0}
+      compact={layoutVariant === 'studio'}
+      onChange={setReferences}
+    />
+  );
+  const engineRegion = showEngine ? (
+    <EngineTargetPanel
+      catalog={catalog.data}
+      value={engine}
+      comparison={comparison}
+      comparisonSlots={comparisonSlots}
+      comparisonEstimates={comparisonEstimate.data?.slots}
+      studioLayout={layoutVariant === 'studio'}
+      allowComparison={allowComparison}
+      onChange={setEngine}
+      onComparisonChange={setComparison}
+      onSlotsChange={setComparisonSlots}
+    />
+  ) : null;
+  const actionRegion = layoutVariant === 'studio' ? (
+    <Surface className="studio-generation-action">
+      <Button
+        className="studio-generate-button btn-neon-yellow-glow"
+        size="lg"
+        icon={<Sparkles className="size-5" />}
+        disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
+        onClick={() => comparison ? submitCompare.mutate() : submitSingle.mutate()}
+      >
+        <span>{pending
+          ? t('playground.result.generating')
+          : t('playground.action.generate')}</span>
+        <small>
+          {comparison
+            ? t('playground.estimate.comparisonDetail')
+            : estimate !== undefined
+              ? `${estimate} ${t('playground.comparison.credits')}`
+              : singleEstimate.isError || comparisonEstimate.isError
+                ? t('playground.estimate.unavailable')
+                : t('playground.estimate.pending')}
+        </small>
+      </Button>
+    </Surface>
+  ) : (
+    <Surface className="sticky bottom-3 z-30 flex flex-wrap items-center justify-between gap-4 border-cyan-400/35 bg-[#0e1320f2] p-4 shadow-[var(--mpf-shadow-raised)] backdrop-blur">
         <div className="flex items-center gap-3">
           <Coins className="size-6 text-amber-300" />
           <span><strong className="block">{singleEstimate.isFetching || comparisonEstimate.isFetching ? t('playground.estimate.loading') : estimate !== undefined ? `${estimate} ${t('playground.comparison.credits')}` : t('playground.estimate.pending')}</strong><small className="text-[var(--mpf-text-muted)]">{canAfford ? t('playground.estimate.locked') : t('playground.estimate.insufficient')}</small></span>
@@ -300,16 +403,71 @@ export function GenerationExperience({
             variant="primary"
             size="lg"
             icon={<Sparkles className="size-5" />}
-            disabled={!prompt.trim() || pending || !canAfford || estimate === undefined || Boolean(blockedReason)}
+            disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
             onClick={() => comparison ? submitCompare.mutate() : submitSingle.mutate()}
           >
             {pending ? t('playground.result.generating') : comparison ? t('playground.action.generateComparison') : t('playground.action.generate')}
           </Button>
         </div>
-      </Surface>
+    </Surface>
+  );
+  const messages = (
+    <>
       {submitError ? <p role="alert" className="text-sm text-red-300">{submitError.message}</p> : null}
       {blockedReason ? <p role="alert" className="text-sm text-amber-300">{blockedReason}</p> : null}
       {job.isError ? <p role="alert" className="text-sm text-red-300">{job.error.message}</p> : null}
+    </>
+  );
+
+  if (layoutVariant === 'studio') {
+    const queueRegion = (
+      <>
+        <Surface className="studio-job-context">
+          <header className="studio-job-context__heading">
+            <h2>{t('playground.queue.title')}</h2>
+            <Link to="/history">{t('playground.queue.viewAll')}</Link>
+          </header>
+          {jobId ? (
+            <div className="studio-job-context__row">
+              <span className="is-live" aria-hidden="true" />
+              <div>
+                <strong>{t('playground.queue.current')}</strong>
+                <small>{job.data?.status || t('playground.result.generating')}</small>
+              </div>
+            </div>
+          ) : (
+            <p>{t('playground.queue.empty')}</p>
+          )}
+        </Surface>
+        <StudioRecentGenerations limit={6} />
+        {studioQueueExtra}
+      </>
+    );
+    return (
+      <StudioGenerationWorkspace
+        modeSelector={studioModeSelector}
+        builder={studioBuilder}
+        result={resultRegion}
+        queue={queueRegion}
+        engine={engineRegion}
+        references={referencesRegion}
+        prompt={promptRegion}
+        configActions={studioConfigActions}
+        actions={actionRegion}
+        messages={messages}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {resultRegion}
+      {promptRegion}
+      {surface === 'playground' && showPromptEditor ? <PromptComposerAssist onAccept={setPrompt} /> : null}
+      {referencesRegion}
+      {engineRegion}
+      {actionRegion}
+      {messages}
     </div>
   );
 }

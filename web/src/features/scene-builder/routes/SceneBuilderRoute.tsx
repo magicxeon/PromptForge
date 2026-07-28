@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { BookOpen, FileText, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
 import { Button } from '../../../components/ui/Button';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
@@ -15,6 +16,16 @@ import {
   type AttributeSelection
 } from '../../studio/attributes/attributeModel';
 import { GuidedAttributeForm } from '../../studio/components/GuidedAttributeForm';
+import { StudioConfiguratorActions } from '../../studio/components/StudioConfiguratorActions';
+import { StudioModeSelector } from '../../studio/components/StudioModeSelector';
+import {
+  randomizeStudioSelections,
+  visibleStudioGroups
+} from '../../studio/studioModePolicy';
+import {
+  downloadStudioConfig,
+  lightweightStudioReferences
+} from '../../studio/studioConfigFile';
 import { requestSharedSceneTemplate } from '../api/sceneTemplateApi';
 import { HistoryReferencePicker } from '../components/HistoryReferencePicker';
 import { SharedTemplatePanel } from '../components/SharedTemplatePanel';
@@ -26,6 +37,7 @@ import {
   writeActorScopedDraft
 } from '../../../lib/persistence/actorScopedStorage';
 import { readHandoff } from '../../../lib/persistence/handoffStorage';
+import { scheduleHashTargetScroll } from '../../../lib/navigation/hashScroll';
 
 type AuthoringMode = 'guided' | 'manual';
 const FEATURE = 'scene-builder';
@@ -34,6 +46,8 @@ const SCHEMA_VERSION = 1;
 export function SceneBuilderRoute() {
   const { t } = useTranslation('react-ui');
   const { actor } = useActor();
+  const navigate = useNavigate();
+  const location = useLocation();
   const previousActorId = useRef(getActiveActorId());
   const initialHandoff = useMemo(loadSceneHandoff, []);
   const initialDraft = useMemo(() => loadSceneDraft(getActiveActorId()), []);
@@ -49,12 +63,17 @@ export function SceneBuilderRoute() {
     initialHandoff.snapshot?.structuredSelectionsSnapshot as Record<string, AttributeSelection>
       || initialDraft.selections
   );
+  const [lockedFields, setLockedFields] = useState<string[]>(initialDraft.lockedFields);
   const [snapshot, setSnapshot] = useState<SceneTemplateSnapshot | null>(initialHandoff.snapshot);
   const [references, setReferences] = useState<Partial<Record<GenerationReferenceRole, string>>>(initialHandoff.references);
   const [characterProfileContext] = useState<Record<string, unknown> | null>(initialHandoff.characterProfileContext);
   const [historyRole, setHistoryRole] = useState<GenerationReferenceRole>('character_reference');
   const bundle = useQuery({ queryKey: ['attribute-bundle'], queryFn: getAttributesBundle, staleTime: 10 * 60_000 });
   const groups = useMemo(() => bundle.data ? normalizeAttributeGroups(bundle.data) : [], [bundle.data]);
+  const sceneGroups = useMemo(
+    () => visibleStudioGroups(groups, 'scene', 'styled_character'),
+    [groups]
+  );
   const guidedPreview = useMemo(() => compileSelectionPreview(selections, 'headshot', 'styled_character'), [selections]);
   const useTemplate = useMutation({
     mutationFn: (template: SharedTemplate) => requestSharedSceneTemplate(template.id),
@@ -83,6 +102,7 @@ export function SceneBuilderRoute() {
     setMode(next.mode);
     setManualPrompt(next.manualPrompt);
     setSelections(next.selections);
+    setLockedFields(next.lockedFields);
     setSnapshot(null);
     setReferences({});
   }, [actor?.userId]);
@@ -93,57 +113,126 @@ export function SceneBuilderRoute() {
       actorId: actor.userId,
       feature: FEATURE,
       schemaVersion: SCHEMA_VERSION,
-      payload: { mode, manualPrompt, selections }
+      payload: { mode, manualPrompt, selections, lockedFields }
     });
-  }, [actor?.userId, manualPrompt, mode, selections]);
+  }, [actor?.userId, lockedFields, manualPrompt, mode, selections]);
+
+  useEffect(() => {
+    if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
+      scheduleHashTargetScroll(location.hash);
+    }
+  }, [bundle.isLoading, location.hash]);
 
   if (bundle.isLoading) return <LoadingState label={t('ui.scene.loading')} />;
   if (bundle.isError) return <ErrorState title={t('ui.scene.unavailable')} description={bundle.error.message} />;
   return (
-    <main>
-      <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--mpf-border)] pb-5">
-        <div><span className="text-xs font-bold uppercase text-cyan-300">Studio / Scene Builder</span><h1 className="mb-2 mt-2 text-3xl">{t('ui.scene.title')}</h1><p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('ui.scene.description')}</p></div>
-        <div className="flex gap-2">
-          <Button variant={mode === 'guided' ? 'primary' : 'secondary'} icon={<SlidersHorizontal className="size-4" />} onClick={() => setMode('guided')}>{t('ui.scene.guided')}</Button>
-          {mode === 'guided' ? (
-            <ConfirmDialog
-              trigger={<Button icon={<FileText className="size-4" />}>{t('ui.scene.manual')}</Button>}
-              title={t('ui.scene.copyTitle')}
-              description={t('ui.scene.copyDescription')}
-              confirmLabel={t('ui.scene.copyAction')}
-              onConfirm={() => { setManualPrompt(current => current || guidedPreview); setMode('manual'); }}
-            />
-          ) : <Button variant="primary" icon={<FileText className="size-4" />} onClick={() => setMode('manual')}>{t('ui.scene.manual')}</Button>}
+    <main className="studio-screen">
+      <header className="studio-screen__header">
+        <div className="studio-screen__title">
+          <strong>{t('ui.studio.title')}</strong>
+          <span>{t('ui.scene.title')}</span>
         </div>
       </header>
-      <SharedTemplatePanel onSelect={template => useTemplate.mutate(template)} />
-      {useTemplate.isError ? <p className="text-sm text-red-300">{useTemplate.error.message}</p> : null}
-      {snapshot ? <Surface className="mt-4 flex flex-wrap items-center justify-between gap-3 p-3"><span className="text-sm"><BookOpen className="mr-2 inline size-4 text-cyan-300" />{t('ui.scene.templateLoaded', { mode: snapshot.authoringMode })}</span><Button size="sm" variant="ghost" onClick={() => setSnapshot(null)}>{t('ui.action.clearTemplate')}</Button></Surface> : null}
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(430px,1.1fr)]">
-        <section>
-          {mode === 'guided' ? <GuidedAttributeForm groups={groups} mode="scene" characterType="styled_character" selections={selections} onChange={next => { setSelections(next); setSnapshot(null); }} /> : (
-            <Surface className="p-4"><label htmlFor="scene-manual-prompt" className="font-semibold">{t('ui.scene.manualLabel')}</label><textarea id="scene-manual-prompt" value={manualPrompt} onChange={event => { setManualPrompt(event.target.value); setSnapshot(null); }} className="mt-3 h-80 w-full resize-y border border-[var(--mpf-border-strong)] bg-black/35 p-4 text-sm leading-6" placeholder={t('ui.scene.manualPlaceholder')} /></Surface>
-          )}
-          {availableRoles.length ? <div className="mt-4"><HistoryReferencePicker roles={availableRoles} selectedRole={historyRole} onRoleChange={setHistoryRole} onPick={(role, imageUrl) => setReferences(current => ({ ...current, [role]: imageUrl }))} /></div> : null}
-        </section>
-        <section className="min-w-0">
-          <GenerationExperience
-            surface="studio"
-            generationMode="scene"
-            prompt={activePrompt}
-            onPromptChange={mode === 'manual' ? setManualPrompt : () => {}}
-            selections={activeSelections}
-            authoringMode={mode}
-            references={references}
-            onReferencesChange={setReferences}
-            sceneTemplateSnapshot={snapshot as unknown as Record<string, unknown> | null}
-            characterProfileContext={characterProfileContext}
-            allowComparison
-            showPromptEditor={false}
-            blockedReason={missing.length ? t('ui.scene.requiredReferences', { roles: missing.join(', ') }) : null}
+      <GenerationExperience
+        surface="studio"
+        generationMode="scene"
+        prompt={activePrompt}
+        onPromptChange={mode === 'manual' ? setManualPrompt : () => {}}
+        selections={activeSelections}
+        authoringMode={mode}
+        references={references}
+        onReferencesChange={setReferences}
+        sceneTemplateSnapshot={snapshot as unknown as Record<string, unknown> | null}
+        characterProfileContext={characterProfileContext}
+        allowComparison
+        showPromptEditor={false}
+        layoutVariant="studio"
+        blockedReason={missing.length ? t('ui.scene.requiredReferences', { roles: missing.join(', ') }) : null}
+        referenceRoles={availableRoles}
+        studioModeSelector={(
+          <StudioModeSelector
+            mode="scene"
+            onChange={next => {
+              navigate(next === 'scene'
+                ? '/studio/scene'
+                : next === 'character-sheet'
+                  ? '/studio?mode=character-sheet'
+                  : '/studio');
+            }}
           />
-        </section>
-      </div>
+        )}
+        studioBuilder={(
+          <>
+            <div className="studio-builder-panel__heading">
+              <h1>{t('ui.scene.title')}</h1>
+              <p>{t('ui.scene.description')}</p>
+            </div>
+            <div className="studio-scene-authoring">
+              <Button variant={mode === 'guided' ? 'primary' : 'secondary'} icon={<SlidersHorizontal className="size-4" />} onClick={() => setMode('guided')}>{t('ui.scene.guided')}</Button>
+              {mode === 'guided' ? (
+                <ConfirmDialog
+                  trigger={<Button icon={<FileText className="size-4" />}>{t('ui.scene.manual')}</Button>}
+                  title={t('ui.scene.copyTitle')}
+                  description={t('ui.scene.copyDescription')}
+                  confirmLabel={t('ui.scene.copyAction')}
+                  onConfirm={() => { setManualPrompt(current => current || guidedPreview); setMode('manual'); }}
+                />
+              ) : <Button variant="primary" icon={<FileText className="size-4" />} onClick={() => setMode('manual')}>{t('ui.scene.manual')}</Button>}
+            </div>
+            {snapshot ? <Surface className="studio-template-status"><span><BookOpen className="size-4 text-cyan-300" />{t('ui.scene.templateLoaded', { mode: snapshot.authoringMode })}</span><Button size="sm" variant="ghost" onClick={() => setSnapshot(null)}>{t('ui.action.clearTemplate')}</Button></Surface> : null}
+            {mode === 'guided' ? <GuidedAttributeForm
+              groups={groups}
+              mode="scene"
+              characterType="styled_character"
+              selections={selections}
+              lockedFields={lockedFields}
+              onLockChange={(fieldName, locked) => {
+                setLockedFields(current => locked
+                  ? [...new Set([...current, fieldName])]
+                  : current.filter(item => item !== fieldName));
+              }}
+              onChange={next => { setSelections(next); setSnapshot(null); }}
+            /> : (
+              <Surface className="studio-manual-prompt"><label htmlFor="scene-manual-prompt">{t('ui.scene.manualLabel')}</label><textarea id="scene-manual-prompt" value={manualPrompt} onChange={event => { setManualPrompt(event.target.value); setSnapshot(null); }} placeholder={t('ui.scene.manualPlaceholder')} /></Surface>
+            )}
+            {availableRoles.length ? <HistoryReferencePicker roles={availableRoles} selectedRole={historyRole} onRoleChange={setHistoryRole} onPick={(role, imageUrl) => setReferences(current => ({ ...current, [role]: imageUrl }))} /> : null}
+          </>
+        )}
+        studioConfigActions={(
+          <StudioConfiguratorActions
+            randomizeDisabled={mode === 'manual'}
+            onReset={() => {
+              setSelections({});
+              setLockedFields([]);
+              setManualPrompt('');
+              setSnapshot(null);
+              setReferences({});
+            }}
+            onRandomize={() => {
+              setSelections(randomizeStudioSelections(
+                sceneGroups,
+                new Set(lockedFields),
+                selections
+              ));
+              setSnapshot(null);
+            }}
+            onExport={() => downloadStudioConfig({
+              mode: 'scene',
+              authoringMode: mode,
+              selections: mode === 'guided' ? selections : {},
+              lockedFields,
+              manualPrompt: mode === 'manual' ? manualPrompt : '',
+              references: lightweightStudioReferences(references)
+            })}
+          />
+        )}
+        studioQueueExtra={(
+          <>
+            <SharedTemplatePanel onSelect={template => useTemplate.mutate(template)} />
+            {useTemplate.isError ? <p className="text-sm text-red-300">{useTemplate.error.message}</p> : null}
+          </>
+        )}
+      />
     </main>
   );
 }
@@ -152,13 +241,20 @@ function loadSceneDraft(actorId: string): {
   mode: AuthoringMode;
   manualPrompt: string;
   selections: Record<string, AttributeSelection>;
+  lockedFields: string[];
 } {
   type SceneDraft = {
     mode: AuthoringMode;
     manualPrompt: string;
     selections: Record<string, AttributeSelection>;
+    lockedFields?: string[];
   };
-  const empty: SceneDraft = { mode: 'guided', manualPrompt: '', selections: {} };
+  const empty: SceneDraft = {
+    mode: 'guided',
+    manualPrompt: '',
+    selections: {},
+    lockedFields: []
+  };
   const parsed = readActorScopedDraft<SceneDraft>({
     actorId,
     feature: FEATURE,
@@ -170,7 +266,8 @@ function loadSceneDraft(actorId: string): {
     manualPrompt: typeof parsed.manualPrompt === 'string' ? parsed.manualPrompt : '',
     selections: parsed.selections && typeof parsed.selections === 'object'
       ? parsed.selections
-      : {}
+      : {},
+    lockedFields: Array.isArray(parsed.lockedFields) ? parsed.lockedFields : []
   };
 }
 

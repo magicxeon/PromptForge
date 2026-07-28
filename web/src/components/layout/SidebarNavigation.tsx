@@ -25,6 +25,7 @@ import {
   type SidebarNavigationItem
 } from '../../app/routeRegistry/routes';
 import { cn } from '../../lib/utils/cn';
+import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
 
 const iconRegistry = {
   home: Home,
@@ -85,6 +86,7 @@ export function SidebarNavigation({
                     location={`${location.pathname}${location.search}`}
                     collapsed={collapsed}
                     studioOpen={studioOpen}
+                    child={false}
                     onToggleStudio={onToggleStudio}
                     onNavigate={onNavigate}
                   />
@@ -112,6 +114,7 @@ function SidebarItem({
   location,
   collapsed,
   studioOpen,
+  child,
   onToggleStudio,
   onNavigate
 }: {
@@ -119,6 +122,7 @@ function SidebarItem({
   location: string;
   collapsed: boolean;
   studioOpen: boolean;
+  child: boolean;
   onToggleStudio: () => void;
   onNavigate: () => void;
 }) {
@@ -156,6 +160,7 @@ function SidebarItem({
                 location={location}
                 collapsed={false}
                 studioOpen={studioOpen}
+                child
                 onToggleStudio={onToggleStudio}
                 onNavigate={onNavigate}
               />
@@ -169,10 +174,19 @@ function SidebarItem({
   return (
     <Link
       to={item.path || '/community'}
-      className={cn('sidebar-navigation__row', active && 'is-active')}
+      className={cn(
+        'sidebar-navigation__row',
+        child && 'is-child',
+        active && 'is-active'
+      )}
       aria-current={active ? 'page' : undefined}
       title={collapsed ? t(item.labelKey) : undefined}
-      onClick={onNavigate}
+      onClick={() => {
+        onNavigate();
+        if (item.path?.includes('#')) {
+          scheduleHashTargetScroll(item.path.slice(item.path.indexOf('#')));
+        }
+      }}
     >
       <Icon aria-hidden="true" />
       {!collapsed ? <span>{t(item.labelKey)}</span> : null}

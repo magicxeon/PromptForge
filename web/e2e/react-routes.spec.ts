@@ -74,3 +74,52 @@ test('shared application footer exposes health and package version metadata', as
     /^\d+\.\d+\.\d+/
   );
 });
+
+test('Studio restores visual options and progressive comparison cards', async ({ page }) => {
+  await page.goto('/studio');
+  await expect(page.locator('.studio-workspace')).toBeVisible();
+  await expect(page.locator('.studio-viewport-grid')).toBeVisible();
+  await expect(page.locator('.studio-configurator-pipeline')).toBeVisible();
+  await expect(page.locator('.studio-stage-navigation')).toHaveCount(0);
+  await expect(page.locator('.studio-mode-selector button')).toHaveCount(3);
+  await expect(page.locator('.engine-target-panel__model-grid')).toBeVisible();
+  await expect(page.locator('.engine-target-panel__output-grid')).toBeVisible();
+  await expect(page.locator('.studio-prompt-preview')).toHaveCount(0);
+  await expect(page.locator('.studio-generate-button')).toBeVisible();
+
+  const faceGroup = page.locator('.studio-attribute-group').filter({
+    has: page.locator('summary', { hasText: 'Face' })
+  });
+  await expect(faceGroup).toHaveAttribute('open', '');
+  await expect(faceGroup.locator('.visual-field-control-row select').first()).toBeVisible();
+  await expect(faceGroup.locator('.visual-field-lock').first()).toBeVisible();
+  await expect(faceGroup.locator('.visual-image-option').first()).toBeVisible();
+  expect(await faceGroup.locator('.visual-image-option').count()).toBeGreaterThanOrEqual(6);
+
+  await page.locator('.engine-target-panel > div').first().getByRole('button').click();
+  await expect(page.locator('.engine-target-panel__model-grid')).toHaveCount(0);
+  await expect(page.locator('.engine-target-panel__output-grid')).toBeVisible();
+  await expect(page.locator('.comparison-slot-card')).toHaveCount(2);
+  await expect(page.locator('.comparison-configurator__total')).toBeVisible();
+
+  const addModel = page.locator('.comparison-slot-add');
+  await addModel.click();
+  await addModel.click();
+  await expect(page.locator('.comparison-slot-card')).toHaveCount(4);
+  await expect(addModel).toHaveCount(0);
+});
+
+test('Studio mode control updates route, sidebar target and breadcrumb together', async ({ page }) => {
+  await page.goto('/studio');
+  const modes = page.locator('.studio-mode-selector button');
+
+  await modes.nth(1).click();
+  await expect(page).toHaveURL(/\/studio\?mode=character-sheet/);
+  await expect(page.locator('a[href="/studio?mode=character-sheet"]')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('breadcrumbs')).toContainText(/Character/i);
+
+  await page.locator('.studio-mode-selector button').nth(2).click();
+  await expect(page).toHaveURL(/\/studio\/scene/);
+  await expect(page.locator('a[href="/studio/scene"]')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('breadcrumbs')).toContainText(/Scene/i);
+});

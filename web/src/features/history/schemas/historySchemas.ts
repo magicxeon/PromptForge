@@ -13,7 +13,11 @@ export const historyItemSchema = z.object({
   mimeType: z.string().optional(),
   width: z.number().optional(),
   height: z.number().optional(),
-  generationDuration: z.union([z.string(), z.number()]).nullable().optional()
+  generationDuration: z.union([z.string(), z.number()]).nullable().optional(),
+  referencedFaceJobIds: z.array(z.string()).default([]),
+  referencedStyleJobIds: z.array(z.string()).default([]),
+  referencedCharacterJobIds: z.array(z.string()).default([]),
+  referencedOutfitJobIds: z.array(z.string()).default([])
 }).passthrough();
 
 export const historyPageSchema = z.object({

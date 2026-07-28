@@ -2,6 +2,8 @@
 @import "./tokens.css";
 @import "./shell.css";
 @import "./community-home.css";
+@import "./studio.css";
+@import "./media-viewer.css";
 
 * {
   box-sizing: border-box;
@@ -18,6 +20,7 @@ body {
   background: var(--mpf-bg);
   color: var(--mpf-text);
   font-family: var(--mpf-font-ui);
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -27,6 +30,7 @@ input,
 textarea,
 select {
   font: inherit;
+  border-radius: 10px;
 }
 
 button,

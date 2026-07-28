@@ -14,11 +14,15 @@ type Crumb = {
 export function Breadcrumbs() {
   const location = useLocation();
   const { t } = useTranslation('shell');
-  const crumbs = resolveCrumbs(location.pathname, key => String(t(key)));
+  const crumbs = resolveCrumbs(location.pathname, location.search, key => String(t(key)));
   if (!crumbs.length) return null;
 
   return (
-    <nav aria-label={t('shell.navigation.breadcrumbs')} className="mb-3 overflow-x-auto">
+    <nav
+      aria-label={t('shell.navigation.breadcrumbs')}
+      className="mb-3 overflow-x-auto"
+      data-testid="breadcrumbs"
+    >
       <ol className="m-0 flex min-w-max list-none items-center gap-1 p-0 text-xs text-[var(--mpf-text-muted)]">
         {crumbs.map((crumb, index) => (
           <li key={`${crumb.to || 'current'}:${crumb.label}`} className="flex items-center gap-1">
@@ -33,7 +37,7 @@ export function Breadcrumbs() {
   );
 }
 
-function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
+function resolveCrumbs(pathname: string, search: string, t: (key: string) => string): Crumb[] {
   if (pathname === '/' || pathname === '/home' || pathname === '/community') return [];
   const routeCrumb = (id: NavigationRouteId, link = false): Crumb => {
     const route = findNavigationRoute(id);
@@ -57,7 +61,16 @@ function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
     ];
   }
   if (pathname.startsWith('/studio') || pathname.startsWith('/create/simple') || pathname.startsWith('/create/characters')) {
-    return [home, routeCrumb('studio')];
+    const characterSheet = new URLSearchParams(search).get('mode') === 'character-sheet';
+    return [
+      home,
+      routeCrumb('studio', true),
+      {
+        label: t(characterSheet
+          ? 'shell.navigation.items.characterSheet'
+          : 'shell.navigation.items.faceCreator')
+      }
+    ];
   }
   if (pathname.startsWith('/create/fashion')) {
     return [home, routeCrumb('fashion')];

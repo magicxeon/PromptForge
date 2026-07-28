@@ -25,6 +25,8 @@ export function EngineTargetPanel({
   value,
   comparison,
   comparisonSlots,
+  comparisonEstimates,
+  studioLayout = false,
   allowComparison = true,
   onChange,
   onComparisonChange,
@@ -34,16 +36,20 @@ export function EngineTargetPanel({
   value: EngineValue;
   comparison: boolean;
   comparisonSlots: ComparisonSlotInput[];
+  comparisonEstimates?: Array<{ id: string; estimatedCredit: number }>;
+  studioLayout?: boolean;
   allowComparison?: boolean;
   onChange: (value: EngineValue) => void;
   onComparisonChange: (active: boolean) => void;
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
 }) {
   const { t } = useTranslation('playground');
+  const { t: tUi } = useTranslation('react-ui');
   const provider = catalog.providers.find(item => item.id === value.provider) || catalog.providers[0];
   const model = provider?.models.find(item => item.id === value.model) || provider?.models[0];
   const ratios = model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
   const resolutions = model?.capabilities.resolutions || [];
+  const dimensions = dimensionsForRatio(value.aspectRatio);
 
   function setProvider(providerId: string) {
     const next = catalog.providers.find(item => item.id === providerId);
@@ -57,49 +63,183 @@ export function EngineTargetPanel({
   }
 
   return (
-    <section id="generation-engine" className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--mpf-border)] pb-4">
-        <div><h2 className="m-0 text-lg">{t('playground.section.engine')}</h2><p className="mb-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('playground.engine.help')}</p></div>
-        {allowComparison ? <Button variant={comparison ? 'primary' : 'secondary'} icon={<Columns3 className="size-4" />} onClick={() => onComparisonChange(!comparison)}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null}
-      </div>
-      {!comparison ? (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t('playground.engine.provider')}><select value={value.provider} onChange={event => setProvider(event.target.value)} className="h-11 w-full border border-[var(--mpf-border)] bg-black/30 px-3">{catalog.providers.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field>
-          <Field label={t('playground.engine.model')}><select value={value.model} onChange={event => {
-            const next = provider?.models.find(item => item.id === event.target.value);
-            onChange({ ...value, model: event.target.value, resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
-          }} className="h-11 w-full border border-[var(--mpf-border)] bg-black/30 px-3">{provider?.models.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field>
-          {resolutions.length ? <Field label={t('playground.engine.resolution')}><select value={value.resolution || ''} onChange={event => onChange({ ...value, resolution: event.target.value || null })} className="h-11 w-full border border-[var(--mpf-border)] bg-black/30 px-3">{resolutions.map(item => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select></Field> : null}
-          <div className="sm:col-span-2"><span className="mb-2 block text-sm text-[var(--mpf-text-muted)]">{t('playground.engine.aspect')}</span><div className="flex flex-wrap gap-2">{ratios.map(ratio => <Button key={ratio} size="sm" variant={value.aspectRatio === ratio ? 'primary' : 'secondary'} onClick={() => onChange({ ...value, aspectRatio: ratio })}>{ratioLabels[ratio] || ratio}</Button>)}</div></div>
+    <section
+      id="generation-engine"
+      className={`engine-target-panel${studioLayout ? ' engine-target-panel--studio' : ''}`}
+    >
+      <div className="engine-target-panel__heading">
+        <div className="engine-target-panel__title">
+          {studioLayout ? (
+            <span className="studio-step-badge">
+              {tUi('ui.studio.stepLabel')} 2
+            </span>
+          ) : null}
+          <div>
+            <h2>{t('playground.section.engine')}</h2>
+            <p>{t('playground.engine.help')}</p>
+          </div>
         </div>
-      ) : (
-        <ComparisonConfigurator catalog={catalog} slots={comparisonSlots} onChange={onSlotsChange} />
-      )}
+        {allowComparison ? <Button className={`engine-comparison-toggle btn-compare-models${comparison ? ' active is-active' : ''}`} variant="secondary" icon={<Columns3 className="size-4" />} onClick={() => onComparisonChange(!comparison)}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null}
+      </div>
+      <div className="engine-target-panel__controls">
+        {!comparison ? (
+          <div className="engine-target-panel__model-grid">
+            <Field label={t('playground.engine.provider')}><select value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field>
+            <Field label={t('playground.engine.model')}><select value={value.model} onChange={event => {
+              const next = provider?.models.find(item => item.id === event.target.value);
+              onChange({ ...value, model: event.target.value, resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
+            }}>{provider?.models.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select>
+              {/* <small className="engine-target-panel__model-meta">
+                {model?.capabilities.maxReferenceImages || 0} {t('playground.comparison.referencesShort')}
+              </small> */}
+            </Field>
+            {resolutions.length ? <Field label={t('playground.engine.resolution')}><select value={value.resolution || ''} onChange={event => onChange({ ...value, resolution: event.target.value || null })}>{resolutions.map(item => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select></Field> : null}
+          </div>
+        ) : null}
+        <div className="engine-target-panel__output-grid">
+          <Field label={t('playground.engine.width')}><input readOnly value={dimensions.width} /></Field>
+          <Field label={t('playground.engine.height')}><input readOnly value={dimensions.height} /></Field>
+          <div className="engine-target-panel__aspect">
+            <span>{t('playground.engine.aspect')}</span>
+            <div>
+              {ratios.map(ratio => (
+                <Button
+                  key={ratio}
+                  className={value.aspectRatio === ratio ? 'is-selected' : ''}
+                  size="sm"
+                  variant={value.aspectRatio === ratio ? 'primary' : 'secondary'}
+                  onClick={() => onChange({ ...value, aspectRatio: ratio })}
+                >
+                  {ratioLabels[ratio] || ratio}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      {comparison ? (
+        <ComparisonConfigurator
+          catalog={catalog}
+          slots={comparisonSlots}
+          estimates={comparisonEstimates}
+          onChange={onSlotsChange}
+        />
+      ) : null}
     </section>
   );
 }
 
-function ComparisonConfigurator({ catalog, slots, onChange }: { catalog: ProviderCatalog; slots: ComparisonSlotInput[]; onChange: (slots: ComparisonSlotInput[]) => void }) {
+function ComparisonConfigurator({
+  catalog,
+  slots,
+  estimates,
+  onChange
+}: {
+  catalog: ProviderCatalog;
+  slots: ComparisonSlotInput[];
+  estimates?: Array<{ id: string; estimatedCredit: number }>;
+  onChange: (slots: ComparisonSlotInput[]) => void;
+}) {
   const { t } = useTranslation('playground');
+  const estimatedTotal = estimates?.length === slots.length
+    ? estimates.reduce(
+      (total, estimate) => total + estimate.estimatedCredit,
+      0
+    )
+    : undefined;
   function patch(index: number, next: Partial<ComparisonSlotInput>) {
     onChange(slots.map((slot, slotIndex) => slotIndex === index ? { ...slot, ...next } : slot));
   }
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between"><strong className="text-sm text-amber-300">{t('playground.comparison.title')}</strong><span className="text-xs text-[var(--mpf-text-muted)]">{slots.length} / 4</span></div>
-      <div className="grid gap-3 lg:grid-cols-2">
+    <div className="comparison-configurator">
+      <div className="comparison-configurator__heading"><div><strong>{t('playground.comparison.title')}</strong><p>{t('playground.comparison.description')}</p></div><span>{slots.length} / 4</span></div>
+      <div className="comparison-configurator__grid">
         {slots.map((slot, index) => {
           const provider = catalog.providers.find(item => item.id === slot.provider) || catalog.providers[0];
-          return <article key={slot.id} className="border border-[var(--mpf-border-strong)] bg-black/20 p-3"><div className="mb-3 flex items-center justify-between"><strong>{t('playground.comparison.slot')} {index + 1}</strong><Button size="icon" variant="ghost" title={t('playground.comparison.remove')} disabled={slots.length <= 2} icon={<X className="size-4" />} onClick={() => onChange(slots.filter(item => item.id !== slot.id))} /></div><div className="grid gap-3 sm:grid-cols-2"><Field label={t('playground.engine.provider')}><select value={slot.provider} onChange={event => {
-            const nextProvider = catalog.providers.find(item => item.id === event.target.value);
-            patch(index, { provider: event.target.value, model: nextProvider?.defaultModel || nextProvider?.models[0]?.id || '' });
-          }} className="h-10 w-full border border-[var(--mpf-border)] bg-black/35 px-2">{catalog.providers.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field><Field label={t('playground.engine.model')}><select value={slot.model} onChange={event => patch(index, { model: event.target.value })} className="h-10 w-full border border-[var(--mpf-border)] bg-black/35 px-2">{provider?.models.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field></div></article>;
+          const selectedModel = provider?.models.find(item => item.id === slot.model);
+          const estimate = estimates?.find(item => item.id === slot.id);
+          return (
+            <article key={slot.id} className="comparison-slot-card">
+              <div className="comparison-slot-card__heading">
+                <strong>{t('playground.comparison.slot')} {index + 1}</strong>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  title={t('playground.comparison.remove')}
+                  disabled={slots.length <= 1}
+                  icon={<X className="size-4" />}
+                  onClick={() => onChange(slots.filter(item => item.id !== slot.id))}
+                />
+              </div>
+              <div className="comparison-slot-card__fields">
+                <Field label={t('playground.engine.provider')}>
+                  <select
+                    value={slot.provider}
+                    onChange={event => {
+                      const nextProvider = catalog.providers.find(item => item.id === event.target.value);
+                      patch(index, {
+                        provider: event.target.value,
+                        model: nextProvider?.defaultModel || nextProvider?.models[0]?.id || ''
+                      });
+                    }}
+                  >
+                    {catalog.providers.map(item => (
+                      <option key={item.id} value={item.id}>{localized(item.displayName)}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label={t('playground.engine.model')}>
+                  <select
+                    value={slot.model}
+                    onChange={event => patch(index, { model: event.target.value })}
+                  >
+                    {provider?.models.map(item => (
+                      <option key={item.id} value={item.id}>{localized(item.displayName)}</option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+              <footer className="comparison-slot-card__meta">
+                <strong>
+                  {estimate
+                    ? `${estimate.estimatedCredit} ${t('playground.comparison.credits')}`
+                    : t('playground.estimate.pending')}
+                </strong>
+                <span>
+                  {selectedModel?.capabilities.maxReferenceImages || 0}{' '}
+                  {t('playground.comparison.referencesShort')}
+                </span>
+              </footer>
+            </article>
+          );
         })}
+        {slots.length < 4 ? (
+          <button
+            type="button"
+            className="comparison-slot-add"
+            onClick={() => {
+              const provider = catalog.providers[0];
+              onChange([...slots, {
+                id: createSlotId(),
+                provider: provider?.id || '',
+                model: provider?.defaultModel || provider?.models[0]?.id || ''
+              }]);
+            }}
+          >
+            <Plus aria-hidden="true" />
+            <strong>{t('playground.comparison.add')}</strong>
+            <span>{t('playground.comparison.addHelp')}</span>
+          </button>
+        ) : null}
       </div>
-      <Button className="mt-3" size="sm" disabled={slots.length >= 4} icon={<Plus className="size-4" />} onClick={() => {
-        const provider = catalog.providers[0];
-        onChange([...slots, { id: createSlotId(), provider: provider?.id || '', model: provider?.defaultModel || provider?.models[0]?.id || '' }]);
-      }}>{t('playground.comparison.add')}</Button>
+      <footer className="comparison-configurator__total">
+        <span>{t('playground.comparison.estimatedTotal')}</span>
+        <strong>
+          {estimatedTotal !== undefined
+            ? `${estimatedTotal} ${t('playground.comparison.credits')}`
+            : t('playground.estimate.pending')}
+        </strong>
+      </footer>
     </div>
   );
 }
@@ -110,6 +250,17 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function createSlotId() {
   return `slot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function dimensionsForRatio(ratio: string) {
+  const dimensions: Record<string, { width: number; height: number }> = {
+    '6:8': { width: 768, height: 1024 },
+    '1:1': { width: 1024, height: 1024 },
+    '9:16': { width: 768, height: 1365 },
+    '16:9': { width: 1365, height: 768 },
+    '4:5': { width: 819, height: 1024 }
+  };
+  return dimensions[ratio] || { width: 1024, height: 1024 };
 }
 
 function localized(value: string | Record<string, string>) {

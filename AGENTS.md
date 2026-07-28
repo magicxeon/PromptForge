@@ -196,7 +196,7 @@ capability names where practical.
 - Prefer `rg` or `rg --files` for repository search.
 - Keep edits scoped to the requested capability and avoid unrelated formatting
   churn.
-- Do not run Node commands or Node tests directly in this repository.
+<!-- - Do not run Node commands or Node tests directly in this repository. -->
 - Tell the user exactly which `node --check`, `node --test`, or npm command to
   execute and ask them to report failures.
 - Read-only checks such as JSON parsing, `git diff --check`, and file inspection

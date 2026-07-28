@@ -26,6 +26,7 @@ export function ReferenceSlotGrid({
   maxReferences,
   supported,
   roles,
+  compact = false,
   uploadReference,
   onChange
 }: {
@@ -33,6 +34,7 @@ export function ReferenceSlotGrid({
   maxReferences: number;
   supported: boolean;
   roles?: GenerationReferenceRole[];
+  compact?: boolean;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
 }) {
@@ -40,11 +42,11 @@ export function ReferenceSlotGrid({
   const activeCount = Object.values(value).filter(Boolean).length;
   if (!supported) return <p className="border border-[var(--mpf-border)] p-4 text-sm text-[var(--mpf-text-muted)]">{t('playground.reference.unsupported')}</p>;
   return (
-    <section>
-      <div className="mb-3 flex items-end justify-between gap-3">
+    <section className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}`}>
+      <div className="reference-slot-grid__heading mb-3 flex items-end justify-between gap-3">
         <div><h2 className="m-0 text-lg">{t('playground.reference.summaryTitle')}</h2><p className="mb-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('playground.reference.usage', { active: activeCount, max: maxReferences })}</p></div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="reference-slot-grid__items grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {definitions.filter(definition => !roles || roles.includes(definition.role)).map(definition => (
           <ReferenceSlot
             key={definition.role}
@@ -54,6 +56,7 @@ export function ReferenceSlotGrid({
             icon={definition.icon}
             value={value[definition.role]}
             disabled={!value[definition.role] && activeCount >= maxReferences}
+            compact={compact}
             uploadReference={uploadReference}
             onChange={next => onChange({ ...value, [definition.role]: next || undefined })}
           />
@@ -70,6 +73,7 @@ function ReferenceSlot({
   icon: Icon,
   value,
   disabled,
+  compact,
   uploadReference,
   onChange
 }: {
@@ -79,6 +83,7 @@ function ReferenceSlot({
   icon: typeof UserRound;
   value?: string;
   disabled: boolean;
+  compact: boolean;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
   onChange: (value: string | null) => void;
 }) {
@@ -113,13 +118,13 @@ function ReferenceSlot({
     }
   }
   return (
-    <article className="relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-black/20 p-3">
+    <article className={`reference-slot${compact ? ' reference-slot--compact' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-black/20 p-3`}>
       {value ? <img src={value} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" /> : null}
       <div className="relative flex h-full flex-col">
-        <Icon className="size-6 text-cyan-300" />
-        <strong className="mt-3 text-sm">{label}</strong>
-        <small className="mt-1 text-[var(--mpf-text-muted)]">{description}</small>
-        <div className="mt-auto flex gap-2 pt-3">
+        <Icon className="reference-slot__icon size-6 text-cyan-300" />
+        <strong className="reference-slot__label mt-3 text-sm">{label}</strong>
+        <small className="reference-slot__description mt-1 text-[var(--mpf-text-muted)]">{description}</small>
+        <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
           <Button size="sm" disabled={disabled || uploading} icon={<ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>
           {value ? <Button size="icon" variant="ghost" disabled={uploading} title={t('playground.reference.remove')} icon={<X className="size-4" />} onClick={() => onChange(null)} /> : null}
         </div>

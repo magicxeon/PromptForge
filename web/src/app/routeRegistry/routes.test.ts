@@ -11,9 +11,9 @@ describe('Momelo sidebar navigation registry', () => {
       .find(item => item.id === 'studio');
 
     expect(studio?.children?.map(item => [item.id, item.path])).toEqual([
-      ['face-creator', '/studio'],
-      ['character-sheet', '/studio?mode=character-sheet'],
-      ['scene-builder', '/studio/scene']
+      ['face-creator', '/studio#studio-configurator-title'],
+      ['character-sheet', '/studio?mode=character-sheet#studio-configurator-title'],
+      ['scene-builder', '/studio/scene#studio-configurator-title']
     ]);
   });
 

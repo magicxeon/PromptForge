@@ -31,6 +31,32 @@ describe('Studio attribute model', () => {
     expect(groups[0]!.fields[0]!.options[0]!.id).toBe('face.oval');
   });
 
+  it('maps legacy category-only face options into the owning UI field', () => {
+    const groups = normalizeAttributeGroups({
+      ...bundle,
+      schema: [{
+        group: 'Face',
+        fields: [{ name: 'Eyes', control: 'visual-select' }]
+      }],
+      library: [{
+        id: 'eyes.001',
+        category: 'eyes',
+        label: { en: 'Almond-shaped eyes' },
+        prompt: { default: 'almond-shaped eyes' },
+        ui: { group: 'Eyes' },
+        tags: ['eyes'],
+        enabled: true
+      }]
+    });
+
+    expect(groups[0]?.fields[0]?.name).toBe('Eyes');
+    expect(groups[0]?.fields[0]?.options[0]).toMatchObject({
+      id: 'eyes.001',
+      group: 'Face',
+      subcategory: 'Eyes'
+    });
+  });
+
   it('compiles canonical mode prefixes and selected prompt phrases', () => {
     const option = normalizeAttributeGroups(bundle)[0]!.fields[0]!.options[0]!;
     const selection = createSelection(option);

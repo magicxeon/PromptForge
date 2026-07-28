@@ -1,12 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, FileUser, Images, UserRound } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import {
+  ArrowRight,
+  ChevronRight,
+  FileUser,
+  History,
+  Save
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
 import { Button } from '../../../components/ui/Button';
 import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { Surface } from '../../../components/ui/Surface';
 import {
   getAttributesBundle,
   type GenerationReferenceRole
@@ -18,108 +23,347 @@ import {
   type AttributeSelection
 } from '../attributes/attributeModel';
 import { GuidedAttributeForm } from '../components/GuidedAttributeForm';
+import { StudioConfiguratorActions } from '../components/StudioConfiguratorActions';
+import { StudioModeSelector, type StudioMode } from '../components/StudioModeSelector';
 import { CreateCharacterProfileDialog } from '../../../components/profiles/CreateCharacterProfileDialog';
 import { useActor } from '../../../lib/auth/ActorProvider';
-import { getActiveActorId } from '../../../lib/auth/actorStore';
+import {
+  readActorScopedDraft,
+  writeActorScopedDraft
+} from '../../../lib/persistence/actorScopedStorage';
+import { loadStudioVisualManifests } from '../api/visualManifestApi';
+import {
+  filterStudioSelections,
+  randomizeStudioSelections,
+  visibleStudioGroups
+} from '../studioModePolicy';
+import { downloadStudioConfig } from '../studioConfigFile';
+import { scheduleHashTargetScroll } from '../../../lib/navigation/hashScroll';
 
-type StudioMode = 'headshot' | 'character-sheet';
+const STUDIO_DRAFT_FEATURE = 'studio';
+const STUDIO_DRAFT_VERSION = 2;
+type StudioCreationMode = Exclude<StudioMode, 'scene'>;
+
+type StudioDraft = {
+  selections: Record<string, AttributeSelection>;
+  references: Partial<Record<GenerationReferenceRole, string>>;
+  characterType: 'reusable_model' | 'styled_character';
+  lockedFields: string[];
+};
+
+const emptyDraft: StudioDraft = {
+  selections: {},
+  references: {},
+  characterType: 'reusable_model',
+  lockedFields: []
+};
 
 export function StudioRoute() {
   const { t } = useTranslation(['react-ui', 'shell']);
   const { actor } = useActor();
-  const previousActorId = useRef(getActiveActorId());
+  const navigate = useNavigate();
+  const location = useLocation();
   const [params, setParams] = useSearchParams();
-  const mode = params.get('mode') === 'character-sheet' ? 'character-sheet' : 'headshot';
-  const [characterType, setCharacterType] = useState<'reusable_model' | 'styled_character'>('reusable_model');
-  const [selections, setSelections] = useState<Record<string, AttributeSelection>>({});
+  const mode: StudioCreationMode = params.get('mode') === 'character-sheet'
+    ? 'character-sheet'
+    : 'headshot';
+  const [characterType, setCharacterType] =
+    useState<StudioDraft['characterType']>('reusable_model');
+  const [selections, setSelections] =
+    useState<Record<string, AttributeSelection>>({});
+  const [references, setReferences] =
+    useState<Partial<Record<GenerationReferenceRole, string>>>({});
+  const [lockedFields, setLockedFields] = useState<string[]>([]);
+  const hydratedActor = useRef<string | null>(null);
   const referenceJobId = params.get('referenceJobId') || '';
+
   const referenceJob = useQuery({
     queryKey: ['history-item', actor?.userId || 'loading', referenceJobId],
     queryFn: () => getHistoryItem(referenceJobId),
     enabled: Boolean(referenceJobId && actor)
   });
-  const [references, setReferences] = useState<Partial<Record<GenerationReferenceRole, string>>>({});
-  const activeReferences = mode === 'character-sheet' && referenceJob.data?.imageUrl
-    ? { ...references, face_reference: references.face_reference || referenceJob.data.imageUrl }
-    : references;
+  const bundle = useQuery({
+    queryKey: ['attribute-bundle'],
+    queryFn: getAttributesBundle,
+    staleTime: 10 * 60_000
+  });
+  const visualManifests = useQuery({
+    queryKey: ['studio-visual-manifests', mode],
+    queryFn: ({ signal }) => loadStudioVisualManifests(mode, signal),
+    staleTime: 30 * 60_000,
+    retry: false
+  });
+
   useEffect(() => {
-    if (!actor?.userId || previousActorId.current === actor.userId) return;
-    previousActorId.current = actor.userId;
-    setSelections({});
-    setReferences({});
-    setCharacterType('reusable_model');
-    setParams({});
+    if (!actor?.userId || hydratedActor.current === actor.userId) return;
+    const actorChanged = Boolean(
+      hydratedActor.current && hydratedActor.current !== actor.userId
+    );
+    const draft = readActorScopedDraft<StudioDraft>({
+      actorId: actor.userId,
+      feature: STUDIO_DRAFT_FEATURE,
+      schemaVersion: STUDIO_DRAFT_VERSION,
+      fallback: emptyDraft
+    });
+    setSelections(draft.selections || {});
+    setReferences(removeInlineReferences(draft.references || {}));
+    setCharacterType(draft.characterType || 'reusable_model');
+    setLockedFields(Array.isArray(draft.lockedFields) ? draft.lockedFields : []);
+    hydratedActor.current = actor.userId;
+    if (actorChanged) {
+      setParams(current => {
+        const next = new URLSearchParams(current);
+        next.delete('referenceJobId');
+        return next;
+      }, { replace: true });
+    }
   }, [actor?.userId, setParams]);
-  const bundle = useQuery({ queryKey: ['attribute-bundle'], queryFn: getAttributesBundle, staleTime: 10 * 60_000 });
-  const groups = useMemo(() => bundle.data ? normalizeAttributeGroups(bundle.data) : [], [bundle.data]);
-  const compatibleSelections = useMemo(() => {
-    if (mode !== 'character-sheet' || characterType !== 'reusable_model') return selections;
-    return Object.fromEntries(Object.entries(selections).filter(([, selection]) => selection.group !== 'Clothing'));
-  }, [characterType, mode, selections]);
+
+  useEffect(() => {
+    if (!actor?.userId || hydratedActor.current !== actor.userId) return;
+    const timer = window.setTimeout(() => {
+      writeActorScopedDraft({
+        actorId: actor.userId,
+        feature: STUDIO_DRAFT_FEATURE,
+        schemaVersion: STUDIO_DRAFT_VERSION,
+        payload: {
+          selections,
+          references: removeInlineReferences(references),
+          characterType,
+          lockedFields
+        }
+      });
+    }, 320);
+    return () => window.clearTimeout(timer);
+  }, [actor?.userId, characterType, lockedFields, references, selections]);
+
+  useEffect(() => {
+    if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
+      scheduleHashTargetScroll(location.hash);
+    }
+  }, [bundle.isLoading, location.hash, mode]);
+
+  const groups = useMemo(
+    () => bundle.data ? normalizeAttributeGroups(bundle.data) : [],
+    [bundle.data]
+  );
+  const visibleGroups = useMemo(
+    () => visibleStudioGroups(groups, mode, characterType),
+    [characterType, groups, mode]
+  );
+  const compatibleSelections = useMemo(
+    () => filterStudioSelections(selections, mode, characterType),
+    [characterType, mode, selections]
+  );
+  const compatibleReferences = useMemo(() => {
+    const next = { ...references };
+    if (mode === 'character-sheet' && characterType === 'reusable_model') {
+      delete next.outfit_front;
+      delete next.outfit_back;
+    }
+    if (mode === 'character-sheet' && referenceJob.data?.imageUrl) {
+      next.face_reference = next.face_reference || referenceJob.data.imageUrl;
+    }
+    return next;
+  }, [characterType, mode, referenceJob.data?.imageUrl, references]);
   const preview = useMemo(
     () => compileSelectionPreview(compatibleSelections, mode, characterType),
     [characterType, compatibleSelections, mode]
   );
-  if (bundle.isLoading) return <LoadingState label={t('ui.studio.loading')} />;
-  if (bundle.isError) return <ErrorState title={t('ui.studio.unavailable')} description={bundle.error.message} onRetry={() => void bundle.refetch()} />;
+  const referenceRoles = useMemo<GenerationReferenceRole[]>(() => {
+    if (mode === 'headshot') return ['face_reference', 'style_reference'];
+    if (characterType === 'reusable_model') {
+      return ['face_reference', 'character_reference', 'style_reference'];
+    }
+    return [
+      'face_reference',
+      'character_reference',
+      'style_reference',
+      'outfit_front',
+      'outfit_back'
+    ];
+  }, [characterType, mode]);
+
+  if (bundle.isLoading) {
+    return <LoadingState label={t('ui.studio.loading')} />;
+  }
+  if (bundle.isError) {
+    return (
+      <ErrorState
+        title={t('ui.studio.unavailable')}
+        description={bundle.error.message}
+        onRetry={() => void bundle.refetch()}
+      />
+    );
+  }
+
+  function saveDraft() {
+    if (!actor?.userId) return;
+    writeActorScopedDraft({
+      actorId: actor.userId,
+      feature: STUDIO_DRAFT_FEATURE,
+      schemaVersion: STUDIO_DRAFT_VERSION,
+      payload: {
+        selections,
+        references: removeInlineReferences(references),
+        characterType,
+        lockedFields
+      }
+    });
+  }
+
   return (
-    <main>
-      <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--mpf-border)] pb-5">
-        <div><span className="text-xs font-bold uppercase text-cyan-300">{t('shell.navigation.items.studio', { ns: 'shell' })}</span><h1 className="mb-2 mt-2 text-3xl">{t('ui.studio.title')}</h1><p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('ui.studio.description')}</p></div>
-        <div className="flex flex-wrap gap-2"><ModeButton mode="headshot" active={mode} icon={<UserRound className="size-4" />} onClick={() => setMode(setParams, 'headshot')}>{t('ui.studio.headshot')}</ModeButton><ModeButton mode="character-sheet" active={mode} icon={<Images className="size-4" />} onClick={() => setMode(setParams, 'character-sheet')}>{t('ui.studio.characterSheet')}</ModeButton><Link to="/studio/scene" className="inline-flex min-h-10 items-center border border-[var(--mpf-border-strong)] px-4 text-sm font-semibold text-white no-underline">{t('ui.studio.scene')}</Link></div>
+    <main className="studio-screen">
+      <header className="studio-screen__header">
+        <div className="studio-screen__title">
+          <strong>{t('shell.navigation.items.studio', { ns: 'shell' })}</strong>
+          <ChevronRight aria-hidden="true" />
+          <span>
+            {mode === 'headshot'
+              ? t('ui.studio.faceCreator')
+              : t('ui.studio.characterSheet')}
+          </span>
+        </div>
+        <div className="studio-screen__header-actions">
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={<Save aria-hidden="true" />}
+            onClick={saveDraft}
+          >
+            {t('ui.studio.saveDraft')}
+          </Button>
+          <Link to="/history">
+            <History aria-hidden="true" />
+            {t('ui.studio.history')}
+          </Link>
+        </div>
       </header>
-      {mode === 'character-sheet' ? (
-        <Surface className="mb-4 p-4">
-          <h2 className="m-0 text-lg">{t('ui.studio.characterOutput')}</h2>
-          <p className="text-sm text-[var(--mpf-text-muted)]">{t('ui.studio.characterOutputHelp')}</p>
-          <div className="flex flex-wrap gap-2"><Button variant={characterType === 'reusable_model' ? 'primary' : 'secondary'} icon={<FileUser className="size-4" />} onClick={() => setCharacterType('reusable_model')}>{t('ui.studio.reusable')}</Button><Button variant={characterType === 'styled_character' ? 'primary' : 'secondary'} onClick={() => setCharacterType('styled_character')}>{t('ui.studio.styled')}</Button></div>
-        </Surface>
-      ) : null}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(420px,1.05fr)]">
-        <section><GuidedAttributeForm groups={groups} mode={mode} characterType={characterType} selections={compatibleSelections} onChange={setSelections} /></section>
-        <section className="min-w-0">
-          <Surface className="mb-4 p-4"><span className="text-xs font-bold uppercase text-cyan-300">{t('ui.studio.preview')}</span><textarea readOnly value={preview} className="mt-3 h-44 w-full resize-y border border-[var(--mpf-border)] bg-black/35 p-3 text-xs leading-5 text-[var(--mpf-text-muted)]" /></Surface>
-          <GenerationExperience
-            surface="studio"
-            generationMode={mode}
-            prompt={preview}
-            onPromptChange={() => {}}
-            selections={compatibleSelections}
-            authoringMode="guided"
-            characterType={mode === 'character-sheet' ? characterType : null}
-            allowComparison={mode === 'headshot'}
-            showPromptEditor={false}
-            references={activeReferences}
-            onReferencesChange={setReferences}
-            renderResultActions={job => mode === 'headshot' && (job.jobId || job.id) ? (
-              <Link
-                to={`/studio?mode=character-sheet&referenceJobId=${encodeURIComponent(job.jobId || job.id || '')}`}
-                className="inline-flex min-h-10 items-center gap-2 border border-cyan-400/45 px-4 text-sm font-semibold text-cyan-200 no-underline"
-              >
-                {t('ui.studio.buildCharacter')} <ArrowRight className="size-4" />
-              </Link>
-            ) : mode === 'character-sheet' && (job.jobId || job.id) ? (
-              <>
-                <CreateCharacterProfileDialog jobId={job.jobId || job.id || ''} />
-                <Link
-                  to="/studio/scene"
-                  className="inline-flex min-h-10 items-center gap-2 border border-cyan-400/45 px-4 text-sm font-semibold text-cyan-200 no-underline"
-                >
-                  {t('ui.studio.buildScene')} <ArrowRight className="size-4" />
-                </Link>
-              </>
-            ) : null}
+
+      <GenerationExperience
+        surface="studio"
+        generationMode={mode}
+        prompt={preview}
+        onPromptChange={() => {}}
+        selections={compatibleSelections}
+        authoringMode="guided"
+        characterType={mode === 'character-sheet' ? characterType : null}
+        allowComparison={mode === 'headshot'}
+        showPromptEditor={false}
+        layoutVariant="studio"
+        references={compatibleReferences}
+        onReferencesChange={setReferences}
+        referenceRoles={referenceRoles}
+        studioModeSelector={(
+          <StudioModeSelector
+            mode={mode}
+            onChange={next => {
+              if (next === 'scene') {
+                navigate('/studio/scene');
+                return;
+              }
+              setParams(next === 'headshot' ? {} : { mode: next });
+            }}
           />
-        </section>
-      </div>
+        )}
+        studioBuilder={(
+          <>
+            <div className="studio-builder-panel__heading">
+              <h1>{t('ui.studio.buildTitle')}</h1>
+              <p>{t('ui.studio.description')}</p>
+            </div>
+          {mode === 'character-sheet' ? (
+            <section className="studio-character-type">
+              <h2>{t('ui.studio.characterOutput')}</h2>
+              <p>{t('ui.studio.characterOutputHelp')}</p>
+              <div>
+                <Button
+                  size="sm"
+                  variant={characterType === 'reusable_model' ? 'primary' : 'secondary'}
+                  icon={<FileUser aria-hidden="true" />}
+                  onClick={() => setCharacterType('reusable_model')}
+                >
+                  {t('ui.studio.reusable')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={characterType === 'styled_character' ? 'primary' : 'secondary'}
+                  onClick={() => setCharacterType('styled_character')}
+                >
+                  {t('ui.studio.styled')}
+                </Button>
+              </div>
+            </section>
+          ) : null}
+          {visualManifests.isError ? (
+            <p className="studio-visual-warning" role="status">
+              {t('ui.studio.visualFallback')}
+            </p>
+          ) : null}
+          <GuidedAttributeForm
+            groups={groups}
+            mode={mode}
+            characterType={characterType}
+            manifests={visualManifests.data}
+            selections={compatibleSelections}
+            lockedFields={lockedFields}
+            onLockChange={(fieldName, locked) => {
+              setLockedFields(current => locked
+                ? [...new Set([...current, fieldName])]
+                : current.filter(item => item !== fieldName));
+            }}
+            onChange={setSelections}
+          />
+          </>
+        )}
+        studioConfigActions={(
+          <StudioConfiguratorActions
+            onReset={() => {
+              setSelections({});
+              setReferences({});
+              setLockedFields([]);
+            }}
+            onRandomize={() => {
+              setSelections(randomizeStudioSelections(
+                visibleGroups,
+                new Set(lockedFields),
+                compatibleSelections
+              ));
+            }}
+            onExport={() => downloadStudioConfig({
+              mode,
+              characterType,
+              selections: compatibleSelections,
+              references: removeInlineReferences(compatibleReferences),
+              lockedFields
+            })}
+          />
+        )}
+        renderResultActions={job => mode === 'headshot' && (job.jobId || job.id) ? (
+          <Link
+            to={`/studio?mode=character-sheet&referenceJobId=${encodeURIComponent(job.jobId || job.id || '')}`}
+            className="studio-result-action"
+          >
+            {t('ui.studio.buildCharacter')} <ArrowRight aria-hidden="true" />
+          </Link>
+        ) : mode === 'character-sheet' && (job.jobId || job.id) ? (
+          <>
+            <CreateCharacterProfileDialog jobId={job.jobId || job.id || ''} />
+            <Link to="/studio/scene" className="studio-result-action">
+              {t('ui.studio.buildScene')} <ArrowRight aria-hidden="true" />
+            </Link>
+          </>
+        ) : null}
+      />
     </main>
   );
 }
 
-function ModeButton({ mode, active, icon, onClick, children }: { mode: StudioMode; active: StudioMode; icon: ReactNode; onClick: () => void; children: ReactNode }) {
-  return <Button variant={mode === active ? 'primary' : 'secondary'} icon={icon} onClick={onClick}>{children}</Button>;
-}
-
-function setMode(setParams: ReturnType<typeof useSearchParams>[1], mode: StudioMode) {
-  setParams(mode === 'headshot' ? {} : { mode });
+function removeInlineReferences(
+  references: Partial<Record<GenerationReferenceRole, string>>
+) {
+  return Object.fromEntries(
+    Object.entries(references)
+      .filter(([, value]) => value && !value.startsWith('data:'))
+  ) as Partial<Record<GenerationReferenceRole, string>>;
 }
