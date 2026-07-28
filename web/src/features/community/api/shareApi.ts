@@ -7,7 +7,9 @@ const shareDraftSchema = z.object({
   imageUrl: z.string().default(''),
   thumbnailUrl: z.string().default(''),
   promptVisibility: z.string().default('full'),
-  visibility: z.string().default('public')
+  visibility: z.string().default('public'),
+  faceReuseEligible: z.boolean().default(false),
+  faceReusePolicy: z.enum(['view_only', 'public_reusable']).default('view_only')
 }).passthrough();
 
 const publishedPostSchema = z.object({ id: z.string() }).passthrough();
@@ -27,6 +29,7 @@ export function publishGeneratedShare(
     description: string;
     promptVisibility: string;
     visibility: string;
+    faceReusePolicy: 'view_only' | 'public_reusable';
   }
 ) {
   return apiRequest(`/api/community/share-drafts/${encodeURIComponent(draftId)}/publish`, {

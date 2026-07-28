@@ -34,7 +34,13 @@ export function getClothingSourceOwnership(selections, referenceState, mode) {
   return 'fallback';
 }
 
-export function compileClothingPromptParts(selections, referenceState, mode, referenceOverrides = null) {
+export function compileClothingPromptParts(
+  selections,
+  referenceState,
+  mode,
+  referenceOverrides = null,
+  customColors = null
+) {
   const ownership = getClothingSourceOwnership(selections, referenceState, mode);
 
   if (ownership === 'standard') {
@@ -48,11 +54,17 @@ export function compileClothingPromptParts(selections, referenceState, mode, ref
       : 'matching the garment silhouette, colors, pattern, material appearance, and visible styling from the uploaded front outfit reference, inferring unseen back details naturally'];
     const overrides = normalizeReferenceOverrides(referenceOverrides);
     if (overrides.enabled) {
-      if (overrides.primaryColor && selections?.['Primary Color']?.value) {
-        parts.push(`changing the primary garment color to ${selections['Primary Color'].value}`);
+      const primaryTone = customColors?.['Primary Color']?.enabled
+        ? customColors['Primary Color'].color
+        : selections?.['Primary Color']?.value;
+      const secondaryTone = customColors?.['Secondary Color']?.enabled
+        ? customColors['Secondary Color'].color
+        : selections?.['Secondary Color']?.value;
+      if (overrides.primaryColor && primaryTone) {
+        parts.push(`changing the dominant garment tone to ${primaryTone}`);
       }
-      if (overrides.secondaryColor && selections?.['Secondary Color']?.value) {
-        parts.push(`changing the secondary garment color to ${selections['Secondary Color'].value}`);
+      if (overrides.secondaryColor && secondaryTone) {
+        parts.push(`changing the accent garment tone to ${secondaryTone}`);
       }
       if (overrides.pattern && selections?.Pattern?.value) {
         parts.push(`applying ${selections.Pattern.value}`);
@@ -86,18 +98,28 @@ export function compileClothingPromptParts(selections, referenceState, mode, ref
     if (baseText) parts.push(baseText);
 
     // 2. Primary Color
-    if (primaryColor && primaryColor.value) {
-      parts.push(`in ${primaryColor.value} as the primary garment color`);
+    const primaryTone = customColors?.['Primary Color']?.enabled
+      ? customColors['Primary Color'].color
+      : primaryColor?.value;
+    const secondaryTone = customColors?.['Secondary Color']?.enabled
+      ? customColors['Secondary Color'].color
+      : secondaryColor?.value;
+
+    if (primaryTone) {
+      parts.push(`dominant garment tone ${primaryTone}`);
     }
 
     // 3. Secondary Color
-    if (secondaryColor && secondaryColor.value) {
+    if (secondaryTone) {
       const hasPattern = pattern && pattern.id && pattern.id !== 'outfit.pattern.solid';
       if (hasPattern) {
-        parts.push(`with ${secondaryColor.value} secondary color in the pattern`);
+        parts.push(`coordinating accent garment tone ${secondaryTone} distributed through the pattern`);
       } else {
-        parts.push(`with ${secondaryColor.value} trim accents`);
+        parts.push(`coordinating accent garment tone ${secondaryTone}`);
       }
+    }
+    if (primaryTone || secondaryTone) {
+      parts.push('harmonize the selected garment tones naturally as one cohesive outfit color palette');
     }
 
     // 4. Pattern

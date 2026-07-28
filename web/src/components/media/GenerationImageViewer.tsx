@@ -12,6 +12,7 @@ import {
   type ReactNode
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { CollectionMembershipSection } from '../collections/CollectionMembershipSection';
 import { Button } from '../ui/Button';
@@ -28,10 +29,16 @@ export type GenerationViewerItem = {
   width?: number;
   height?: number;
   creditCost?: number;
+  generationMode?: string;
+  characterSheetConfig?: {
+    characterType?: 'reusable_model' | 'styled_character';
+  } | null;
   parentImages?: Array<{
     id: string;
     imageUrl: string;
     thumbnailUrl?: string | null;
+    role?: 'face' | 'character' | 'style' | 'outfit';
+    href?: string | null;
   }>;
 };
 
@@ -185,13 +192,38 @@ export function GenerationImageViewer({
                 <section className="generation-viewer__lineage">
                   <h3>{t('ui.viewer.parentLineage')}</h3>
                   <div>
-                    {item.parentImages.map(parent => (
-                      <img
-                        key={parent.id}
-                        src={apiMediaUrl(parent.thumbnailUrl || parent.imageUrl) || ''}
-                        alt={t('ui.viewer.parentImage')}
-                      />
-                    ))}
+                    {item.parentImages.map(parent => {
+                      const title = parent.role
+                        ? t(`ui.viewer.lineage.${parent.role}`)
+                        : t('ui.viewer.parentImage');
+                      const content = (
+                        <>
+                          <img
+                            src={apiMediaUrl(parent.thumbnailUrl || parent.imageUrl) || ''}
+                            alt={title}
+                          />
+                          {parent.role ? <small>{title}</small> : null}
+                        </>
+                      );
+                      return parent.href ? (
+                        <Link
+                          key={`${parent.role || 'reference'}:${parent.id}`}
+                          to={parent.href}
+                          title={title}
+                          onClick={() => onOpenChange(false)}
+                        >
+                          {content}
+                        </Link>
+                      ) : (
+                        <span
+                          className="generation-viewer__lineage-item"
+                          key={`${parent.role || 'reference'}:${parent.id}`}
+                          title={title}
+                        >
+                          {content}
+                        </span>
+                      );
+                    })}
                   </div>
                 </section>
               ) : null}

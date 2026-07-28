@@ -286,3 +286,15 @@ Output: directed scene without Character-reference framing leakage
 - Face and Character reference outputs meet their white-background contracts.
 - Scene output remains independently directed.
 - Focused prompt parity tests pass.
+
+## 13. Custom Color and Character Sheet Parity Addendum (2026-07-29)
+
+- Hair supports Base hair color plus optional Dimensional highlights.
+- Active custom hair colors disable preset color swatches and replace their
+  prompt phrase.
+- Clothing supports Dominant garment tone plus Accent garment tone; the server
+  harmonizes them as one outfit palette.
+- `GenerationRequestDraft`, `GenerationExperience` and `generationPayload()`
+  preserve `customColors`; a hard-coded empty object is a release blocker.
+- Character Sheet prompts use the fixed left-to-right orientation and prohibit
+  all visible typography and panel labels.

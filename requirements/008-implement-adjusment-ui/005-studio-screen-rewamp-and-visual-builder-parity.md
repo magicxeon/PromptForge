@@ -119,10 +119,12 @@ shown in `005-original-screen.jpeg`.
      Output, references, Live Prompt Preview, estimate, and Generate/Compare;
    - visual option rows expose six compact option cards when six or more
      options exist and desktop width is available;
-   - full-body and outfit controls retain their larger horizontal carousel.
+   - full-body and outfit controls use the shared wrapping visual grid with a
+     larger card-size variant.
 
 The main page owns vertical scrolling. Nested scrolling is limited to
-horizontal visual carousels and bounded queue/history lists.
+bounded queue/history lists; visual option fields wrap without horizontal
+scrolling.
 
 ### 6.2 Intermediate Width
 
@@ -134,7 +136,7 @@ would become difficult to inspect.
 
 - Render one column.
 - Generation Mode remains immediately reachable.
-- Accordions and visual carousels remain keyboard/touch operable.
+- Accordions and wrapping visual grids remain keyboard/touch operable.
 - Generation estimate and action remain near each other.
 - Do not use independent fixed-height panel scrolling on mobile.
 - No horizontal page scrolling is allowed.
@@ -228,7 +230,7 @@ The first parity release must support:
 
 - gender-compatible Body Silhouette manifests;
 - gender-compatible Outfit Base manifests;
-- large horizontal carousel treatment for full-body/outfit assets.
+- large wrapping-grid treatment for full-body/outfit assets.
 
 Fields such as Smile, Finish, Camera, Lighting, Quality, and attributes without
 manifest artwork remain available through compact non-image controls.
@@ -296,9 +298,9 @@ gate.
   not the only way to reach an option.
 - Options without artwork remain reachable through the dropdown and must not be
   rendered as an unbounded clipped chip row.
-- Compact visual rows wrap to additional rows on desktop when practical. Large
-  body/outfit cards remain a horizontally scrollable carousel with reachable
-  controls.
+- Compact and large visual controls use the same shared wrapping-grid
+  component. Body/outfit cards use a larger sizing variant but must remain
+  visible without horizontal scrolling.
 - Use `thumb` in compact cards and `preview` in large body/outfit cards.
 - Apply manifest `focalPoint` through `object-position`.
 - Preserve image aspect ratio without stretching.
@@ -651,7 +653,8 @@ Each risk requires an automated contract test or explicit E2E scenario.
 
 ### Step 3: Visual Option Components
 
-- split image, swatch, carousel, and text fallback controls;
+- split image, swatch, and text renderers over one shared wrapping-grid
+  primitive;
 - preserve one `AttributeSelection` output contract;
 - implement selected, disabled, loading, broken-image, and keyboard states.
 

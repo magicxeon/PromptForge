@@ -13,6 +13,10 @@ test('casting export policy requires three full-body views and modest opaque whi
   }
   assert.match(policy.promptDirective, /side by side in one horizontal row/i);
   assert.match(policy.promptDirective, /never crop the head/i);
+  assert.match(policy.promptDirective, /head aligned with the torso/i);
+  assert.match(policy.promptDirective, /viewer right/i);
+  assert.match(policy.promptDirective, /unlabeled image only/i);
+  assert.match(policy.promptDirective, /no text, captions, words, letters, panel titles/i);
   assert.doesNotMatch(policy.promptDirective, /three-quarter|2 by 2/i);
   assert.match(
     policy.promptDirective,
@@ -52,7 +56,9 @@ test('destination Character usage treats the casting uniform as non-final clothi
       characterProfileId: 'charprof_1',
       characterProfileVersionId: 'charver_1',
       useCase: 'fashion',
-      sourceType: 'fashion_blueprint'
+      sourceType: 'fashion_blueprint',
+      characterType: 'reusable_model',
+      outfitBehavior: 'replaceable'
     }
   }, { userId: 'usr_viewer' });
   assert.match(compiledPrompt, /white casting uniform.+must not be copied/i);
@@ -90,8 +96,41 @@ test('Reusable Model Character Sheet strips editable clothing and outfit referen
   assert.equal(context.characterSheetConfig.layout.type, 'character-casting-three-view-v2');
   assert.equal(context.characterSheetConfig.castingLayoutVersion, 'character-casting-three-view-v2');
   assert.equal(context.characterSheetConfig.uniformPolicyVersion, 'casting-uniform-white-v1');
-  assert.match(compiledPrompt, /three clearly separated views/i);
-  assert.match(compiledPrompt, /front view, exact side profile, and back view/i);
+  assert.match(compiledPrompt, /three clearly separated equal views/i);
+  assert.match(compiledPrompt, /front view.+exact side profile.+back view/i);
+  assert.match(compiledPrompt, /head aligned with the torso/i);
+  assert.match(compiledPrompt, /unlabeled image only/i);
   assert.doesNotMatch(compiledPrompt, /three-quarter|2 by 2/i);
   assert.doesNotMatch(compiledPrompt, /dress_1/i);
+});
+
+test('Styled Character Sheet compiles custom hair colors and garment tones', () => {
+  const { compiledPrompt } = compileGenerationContext({
+    mode: 'character-sheet',
+    characterType: 'styled_character',
+    selections: {
+      'Outfit Base': {
+        id: 'outfit.base.test',
+        value: 'a modest fitted fashion outfit',
+        group: 'Clothing',
+        category: 'clothing',
+        tags: ['outfit-base-unisex']
+      }
+    },
+    customColors: {
+      Color: {
+        enabled: true,
+        base: '#3a2418',
+        highlightEnabled: true,
+        highlight: '#c99662'
+      },
+      'Primary Color': { enabled: true, color: '#1f2937' },
+      'Secondary Color': { enabled: true, color: '#f8fafc' }
+    }
+  }, { userId: 'usr_owner' });
+
+  assert.match(compiledPrompt, /base hair color #3a2418/i);
+  assert.match(compiledPrompt, /dimensional hair highlights in #c99662/i);
+  assert.match(compiledPrompt, /dominant garment tone #1f2937/i);
+  assert.match(compiledPrompt, /coordinating accent garment tone #f8fafc/i);
 });

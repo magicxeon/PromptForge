@@ -1,5 +1,5 @@
 import { Lock, LockOpen } from 'lucide-react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import type {
@@ -14,39 +14,78 @@ import {
 import type { VisualFieldPresentation } from '../../features/studio/visual-options/visualOptionRegistry';
 import { VisualImagePicker } from './VisualImagePicker';
 import { VisualSwatchPicker } from './VisualSwatchPicker';
+import { CustomColorControl } from './CustomColorControl';
+import {
+  isCustomColorField,
+  isCustomHairColorActive,
+  type StudioCustomColors
+} from '../../features/studio/attributes/customColorModel';
 
 export function VisualOptionPicker({
   field,
   value,
   visual,
+  disabled = false,
+  disabledReason,
   locked = false,
+  customColors,
   onLockChange,
+  onCustomColorsChange,
   onChange
 }: {
   field: AttributeField;
   value?: AttributeSelection;
   visual?: VisualFieldPresentation | null;
+  disabled?: boolean;
+  disabledReason?: string;
   locked?: boolean;
+  customColors?: StudioCustomColors;
   onLockChange?: (locked: boolean) => void;
+  onCustomColorsChange?: (colors: StudioCustomColors) => void;
   onChange: (value: AttributeSelection | null) => void;
 }) {
   const { t } = useTranslation('react-ui');
+  const authorityId = useId();
   const [custom, setCustom] = useState(value?.isCustom ? value.value : '');
   const [showCustom, setShowCustom] = useState(value?.isCustom === true);
   useEffect(() => {
     setCustom(value?.isCustom ? value.value : '');
     setShowCustom(value?.isCustom === true);
   }, [value]);
-  const selectValue = showCustom ? '__custom__' : value?.id || '';
+  const hasCustomColorControl = Boolean(
+    customColors && isCustomColorField(field.group, field.name)
+  );
+  const selectValue = showCustom && !hasCustomColorControl
+    ? '__custom__'
+    : value?.isCustom
+      ? ''
+      : value?.id || '';
+  const isGarmentToneField = field.group === 'Clothing'
+    && (field.name === 'Primary Color' || field.name === 'Secondary Color');
+  const customHairColorActive = Boolean(
+    customColors
+    && field.group === 'Hair'
+    && field.name === 'Color'
+    && isCustomHairColorActive(customColors)
+  );
 
   function submitCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (custom.trim()) onChange(createCustomSelection(field, custom));
   }
   return (
-    <fieldset className="min-w-0 border-0 p-0">
+    <fieldset
+      className={`visual-field min-w-0 border-0 p-0${disabled ? ' is-reference-owned' : ''}`}
+      disabled={disabled}
+      aria-describedby={disabled && disabledReason ? authorityId : undefined}
+    >
       <legend className="mb-2 text-sm font-semibold">{field.name}</legend>
-      <div className="visual-field-control-row">
+      {disabled && disabledReason ? (
+        <p id={authorityId} className="visual-field__authority">
+          {t(disabledReason)}
+        </p>
+      ) : null}
+      {!isGarmentToneField ? <div className="visual-field-control-row">
         <select
           value={selectValue}
           aria-label={field.name}
@@ -64,7 +103,9 @@ export function VisualOptionPicker({
           {field.options.map(option => (
             <option key={option.id} value={option.id}>{localized(option.label)}</option>
           ))}
-          <option value="__custom__">{t('ui.visual.custom')}</option>
+          {hasCustomColorControl ? null : (
+            <option value="__custom__">{t('ui.visual.custom')}</option>
+          )}
         </select>
         <button
           type="button"
@@ -76,13 +117,27 @@ export function VisualOptionPicker({
         >
           {locked ? <Lock aria-hidden="true" /> : <LockOpen aria-hidden="true" />}
         </button>
-      </div>
-      {visual?.kind === 'image'
-        ? <VisualImagePicker presentation={visual} value={value} onChange={onChange} />
-        : visual?.kind === 'swatch'
-          ? <VisualSwatchPicker presentation={visual} value={value} onChange={onChange} />
+      </div> : null}
+      {!isGarmentToneField && visual?.kind === 'image'
+        ? <VisualImagePicker disabled={disabled} presentation={visual} value={value} onChange={onChange} />
+        : !isGarmentToneField && visual?.kind === 'swatch'
+          ? <VisualSwatchPicker
+            disabled={disabled || customHairColorActive}
+            presentation={visual}
+            value={value}
+            onChange={onChange}
+          />
           : null}
-      {showCustom ? (
+      {hasCustomColorControl && customColors && onCustomColorsChange ? (
+        <CustomColorControl
+          group={field.group}
+          fieldName={field.name}
+          colors={customColors}
+          disabled={disabled}
+          onChange={onCustomColorsChange}
+        />
+      ) : null}
+      {showCustom && !hasCustomColorControl ? (
         <form className="visual-custom-form" onSubmit={submitCustom}>
           <input
             value={custom}

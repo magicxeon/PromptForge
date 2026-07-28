@@ -175,13 +175,17 @@ function compactHairSegment(valuesByField) {
   const finish = normalizeHairPhrase(valuesByField["Finish"]);
   const lengthAdjective = getHairAdjective(length);
   const colorAdjective = getHairAdjective(color);
+  const hasCustomColorDirective =
+    /\bbase hair color\b|\bdimensional hair highlights\b/i.test(color);
 
   let base = cutStyle || legacyStyle || length || "";
   if (length && base && lengthAdjective && !base.toLowerCase().includes(lengthAdjective.toLowerCase())) {
     base = `${length}, ${base}`;
   }
   if (color && base) {
-    if (colorAdjective && !base.toLowerCase().includes(colorAdjective.toLowerCase())) {
+    if (hasCustomColorDirective) {
+      base = `${base}, ${color}`;
+    } else if (colorAdjective && !base.toLowerCase().includes(colorAdjective.toLowerCase())) {
       if (/\bcrew cut hairstyle\b/i.test(base)) {
         base = base.replace(/\bcrew cut hairstyle\b/i, `${colorAdjective} crew cut hairstyle`);
       } else if (/\bhairstyle\b/i.test(base)) {
@@ -321,8 +325,14 @@ export function compilePromptOnServer(
   const referenceOwnsAppearance = mode === "normal"
     && imageReferences?.characterReference
     && !imageReferences?.characterOverrides;
+  const characterClothingIsReplaceable = referenceOwnsAppearance
+    && options.characterReferenceOutfitBehavior === "replaceable"
+    && imageReferences?.outfitReference !== true;
   if (referenceOwnsAppearance) {
-    const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
+    const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body"]);
+    if (!characterClothingIsReplaceable) {
+      referenceOwnedGroups.add("Clothing");
+    }
     Object.keys(activeSelections).forEach(fieldName => {
       const selection = activeSelections[fieldName];
 
@@ -348,7 +358,7 @@ export function compilePromptOnServer(
     }
   }
   ["Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"].forEach(field => {
-    if (!referenceOwnsAppearance && customColors && customColors[field] && customColors[field].enabled) {
+    if ((!referenceOwnsAppearance || characterClothingIsReplaceable) && customColors && customColors[field] && customColors[field].enabled) {
       if (!activeSelections[field]) {
         const isModularColor = field === "Primary Color" || field === "Secondary Color";
         activeSelections[field] = {
@@ -373,22 +383,25 @@ export function compilePromptOnServer(
       if (fieldName === "Color") {
         if (cfg.enabled || cfg.highlightEnabled) {
           let parts = [];
-          if (baseVal && baseVal.trim() !== "") {
+          if (cfg.enabled && cfg.base) {
+            parts.push(`base hair color ${cfg.base}`);
+          } else if (baseVal && baseVal.trim() !== "") {
             parts.push(baseVal);
           } else {
             parts.push("hair");
           }
-          if (cfg.enabled) {
-            parts.push(`colored in ${cfg.base}`);
-          }
-          if (cfg.highlightEnabled) {
-            parts.push(`accented with custom highlights in ${cfg.highlight}`);
+          if (cfg.highlightEnabled && cfg.highlight) {
+            parts.push(
+              `dimensional hair highlights in ${cfg.highlight}, blended naturally through the hair strands`
+            );
           }
           return parts.join(", ");
         }
       } else if (fieldName === "Primary Color" || fieldName === "Secondary Color") {
         if (cfg.enabled && cfg.color) {
-          return cfg.color;
+          return fieldName === "Primary Color"
+            ? `dominant garment tone ${cfg.color}`
+            : `coordinating accent garment tone ${cfg.color}, harmonized naturally with the dominant garment tone`;
         }
       } else {
         if (cfg.enabled && baseVal && baseVal.trim() !== "") {
@@ -463,11 +476,17 @@ export function compilePromptOnServer(
       && options.characterSheetLayoutOverride.trim()) {
       return options.characterSheetLayoutOverride.trim();
     }
-    const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
+    const canonicalLayout = [
+      "professional full-body character model sheet showing exactly three clearly separated equal views of the same character in one horizontal row",
+      "ordered left to right: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera",
+      "in the side profile the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body",
+      "complete head-to-feet figure in every view at the same scale with generous clear margins above the hair and below the feet",
+      "unlabeled image only with no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark"
+    ].join(", ");
     const selectedLayout = getPromptValueWithColor(activeSelections["Sheet Layout"], "Sheet Layout");
     return selectedLayout && selectedLayout.trim() !== ""
-      ? `character model sheet, character design sheet, ${selectedLayout}`
-      : defaultLayout;
+      ? `${canonicalLayout}, apply this additional sheet presentation direction: ${selectedLayout}`
+      : canonicalLayout;
   };
 
   // Compile individual templates
@@ -506,7 +525,13 @@ export function compilePromptOnServer(
   let clothing = mode === "character-sheet"
     ? (options.omitCharacterSheetClothing
       ? ""
-      : compileClothingPromptParts(activeSelections, imageReferences, mode, outfitReferenceOverrides))
+      : compileClothingPromptParts(
+        activeSelections,
+        imageReferences,
+        mode,
+        outfitReferenceOverrides,
+        customColors
+      ))
     : compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");
@@ -549,6 +574,7 @@ export function compilePromptOnServer(
       skin,
       clothing,
       "on a solid pure white background",
+      "unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark",
       "photorealistic photography",
       "realistic camera imperfections",
       camera,
@@ -561,7 +587,9 @@ export function compilePromptOnServer(
         ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
         : (imageReferences?.outfitReference
           ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
-          : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
+          : options.characterReferenceOutfitBehavior === "replaceable"
+            ? "Preserve the character identity, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction"
+            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
       : "";
     const styleReferenceText = imageReferences?.styleMatch
       ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"

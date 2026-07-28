@@ -1,19 +1,23 @@
 import { Check } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import type { AttributeSelection } from '../../features/studio/attributes/attributeModel';
 import { createSelection, localized } from '../../features/studio/attributes/attributeModel';
 import type { VisualFieldPresentation } from '../../features/studio/visual-options/visualOptionRegistry';
+import { VisualOptionGrid } from './VisualOptionGrid';
 
 export function VisualSwatchPicker({
   presentation,
   value,
+  disabled = false,
   onChange
 }: {
   presentation: VisualFieldPresentation;
   value?: AttributeSelection;
+  disabled?: boolean;
   onChange: (value: AttributeSelection | null) => void;
 }) {
   return (
-    <div className="visual-swatch-picker" role="listbox" aria-orientation="horizontal">
+    <VisualOptionGrid variant="swatch" className="visual-swatch-picker">
       {presentation.items.map(item => {
         const selected = value?.id === item.option.id;
         const colors = item.colors || ['#596174', '#a8afc7'];
@@ -24,12 +28,17 @@ export function VisualSwatchPicker({
             className={`visual-swatch-option${selected ? ' is-selected' : ''}`}
             role="option"
             aria-selected={selected}
+            disabled={disabled}
             title={localized(item.option.label)}
             onClick={() => onChange(selected ? null : createSelection(item.option))}
           >
             <span
               className="visual-swatch-option__sample"
-              style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1] || colors[0]})` }}
+              data-pattern={item.pattern || 'solid'}
+              style={{
+                '--visual-swatch-a': colors[0],
+                '--visual-swatch-b': colors[1] || colors[0]
+              } as CSSProperties}
               aria-hidden="true"
             />
             <span>{localized(item.option.label)}</span>
@@ -37,6 +46,6 @@ export function VisualSwatchPicker({
           </button>
         );
       })}
-    </div>
+    </VisualOptionGrid>
   );
 }

@@ -10,6 +10,7 @@ import {
   referenceUploadSchema
 } from '../schemas/generationSchemas';
 import type { ComparisonEstimate } from '../schemas/generationSchemas';
+import type { StudioCustomColors } from '../../studio/attributes/customColorModel';
 
 export type GenerationReferenceRole =
   | 'face_reference'
@@ -31,8 +32,11 @@ export type GenerationRequestDraft = {
   generationSurface: 'playground' | 'studio' | 'fashion';
   references: Partial<Record<GenerationReferenceRole, string>>;
   selections?: Record<string, unknown>;
+  customColors?: StudioCustomColors;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
   characterProfileContext?: Record<string, unknown> | null;
+  characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
+  faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   authoringMode?: 'guided' | 'manual';
   characterType?: 'reusable_model' | 'styled_character' | null;
 };
@@ -136,7 +140,7 @@ export function generationPayload(
     generationSurface: draft.generationSurface,
     template: 'portrait',
     selections: draft.selections || {},
-    customColors: {},
+    customColors: draft.customColors || {},
     imageReferences: {
       faceMatch: Boolean(refs.face_reference),
       characterReference: Boolean(refs.character_reference),
@@ -159,6 +163,11 @@ export function generationPayload(
     },
     sceneTemplateSnapshot: draft.sceneTemplateSnapshot || null,
     characterProfileContext: draft.characterProfileContext || null,
+    characterReferenceOutfitBehavior:
+      draft.characterReferenceOutfitBehavior === 'replaceable'
+        ? 'replaceable'
+        : 'preserve',
+    faceReferenceContext: draft.faceReferenceContext || null,
     isGptSafe: false,
     routingMode: 'advanced',
     qualityTier: 'standard',

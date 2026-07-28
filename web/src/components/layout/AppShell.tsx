@@ -217,7 +217,7 @@ function GlobalHeader({
         <HeaderSelect
           id="react-language-select"
           label={t('shell.languageLabel')}
-          value={(i18n.resolvedLanguage || 'th').split('-')[0]}
+          value={resolveSupportedLocale(i18n.resolvedLanguage)}
           onValueChange={locale => void changeLocale(locale as 'th' | 'en')}
           className="global-header-select--language"
           options={[
@@ -252,6 +252,10 @@ function GlobalHeader({
 
 function readCollapsedPreference() {
   return localStorage.getItem(SIDEBAR_PREFERENCE_KEY) === 'true';
+}
+
+function resolveSupportedLocale(locale?: string): 'th' | 'en' {
+  return locale?.toLowerCase().startsWith('en') ? 'en' : 'th';
 }
 
 function isStudioLocation(pathname: string) {

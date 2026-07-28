@@ -1,7 +1,10 @@
 import { ImagePlus, UserRound, Palette, PersonStanding, Shirt, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Button } from '../ui/Button';
+import { apiMediaUrl } from '../../lib/api/apiClient';
+import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
 import {
   uploadGenerationReference,
   type GenerationReferenceRole
@@ -39,10 +42,19 @@ export function ReferenceSlotGrid({
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
 }) {
   const { t } = useTranslation('playground');
+  const location = useLocation();
   const activeCount = Object.values(value).filter(Boolean).length;
+  useEffect(() => {
+    if (location.hash === '#reference-images') {
+      scheduleHashTargetScroll(location.hash);
+    }
+  }, [location.hash]);
   if (!supported) return <p className="border border-[var(--mpf-border)] p-4 text-sm text-[var(--mpf-text-muted)]">{t('playground.reference.unsupported')}</p>;
   return (
-    <section className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}`}>
+    <section
+      id="reference-images"
+      className={`reference-slot-grid${compact ? ' reference-slot-grid--compact' : ''}`}
+    >
       <div className="reference-slot-grid__heading mb-3 flex items-end justify-between gap-3">
         <div><h2 className="m-0 text-lg">{t('playground.reference.summaryTitle')}</h2><p className="mb-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('playground.reference.usage', { active: activeCount, max: maxReferences })}</p></div>
       </div>
@@ -91,6 +103,13 @@ function ReferenceSlot({
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const sourceLabel = value
+    ? referenceSourceLabel(
+      value,
+      t('playground.reference.uploadedSource'),
+      t('playground.reference.source')
+    )
+    : '';
   useEffect(() => () => {
     if (value?.startsWith('blob:')) URL.revokeObjectURL(value);
   }, [value]);
@@ -118,12 +137,20 @@ function ReferenceSlot({
     }
   }
   return (
-    <article className={`reference-slot${compact ? ' reference-slot--compact' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-black/20 p-3`}>
-      {value ? <img src={value} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" /> : null}
+    <article className={`reference-slot${compact ? ' reference-slot--compact' : ''}${value ? ' is-populated' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-black/20 p-3`}>
       <div className="relative flex h-full flex-col">
-        <Icon className="reference-slot__icon size-6 text-cyan-300" />
+        {value ? (
+          <figure className="reference-slot__preview" title={sourceLabel}>
+            <img src={apiMediaUrl(value) || ''} alt={label} />
+          </figure>
+        ) : (
+          <Icon className="reference-slot__icon size-6 text-cyan-300" />
+        )}
         <strong className="reference-slot__label mt-3 text-sm">{label}</strong>
         <small className="reference-slot__description mt-1 text-[var(--mpf-text-muted)]">{description}</small>
+        {value ? (
+          <small className="reference-slot__source">{sourceLabel}</small>
+        ) : null}
         <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
           <Button size="sm" disabled={disabled || uploading} icon={<ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>
           {value ? <Button size="icon" variant="ghost" disabled={uploading} title={t('playground.reference.remove')} icon={<X className="size-4" />} onClick={() => onChange(null)} /> : null}
@@ -145,3 +172,15 @@ function readFileAsDataUrl(file: File) {
 }
 
 class ReferenceReadError extends Error {}
+
+function referenceSourceLabel(value: string, uploadedLabel: string, fallbackLabel: string) {
+  if (value.startsWith('data:') || value.startsWith('blob:')) return uploadedLabel;
+  const clean = value.replace(/[?#].*$/, '');
+  const filename = clean.split('/').filter(Boolean).at(-1);
+  if (!filename) return fallbackLabel;
+  try {
+    return decodeURIComponent(filename);
+  } catch {
+    return filename;
+  }
+}

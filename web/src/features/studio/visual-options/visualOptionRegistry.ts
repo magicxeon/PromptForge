@@ -14,6 +14,10 @@ type VisualFieldConfig = {
   fieldId?: string;
   variants?: Record<string, string>;
   optionMap?: Record<string, string>;
+  presentationOptionIds?: Partial<Record<
+    'female' | 'male',
+    ReadonlySet<string>
+  >>;
   size?: 'compact' | 'large';
 };
 
@@ -95,24 +99,48 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'hair.length.long': 'hair_003',
     'hair.length.extra_long': 'hair_004'
   }),
-  'Hair::Cut / Style': image('hair.cut_style', {
-    'hair.cut_style.ponytail': 'hair_008',
-    'hair.cut_style.messy_bun': 'hair_009',
-    'hair.cut_style.french_braid': 'hair_010',
-    'hair.cut_style.layered_hush_cut': 'hair_022',
-    'hair.cut_style.long_loose_waves': 'hair_023',
-    'hair.cut_style.side_swept': 'hair_024',
-    'hair.cut_style.wet_look': 'hair_025',
-    'hair.cut_style.wolf_cut': 'hair_026',
-    'hair.cut_style.crew_cut': 'hair_029',
-    'hair.cut_style.side_part': 'hair_030',
-    'hair.cut_style.undercut': 'hair_031',
-    'hair.cut_style.pompadour': 'hair_032',
-    'hair.cut_style.quiff': 'hair_033',
-    'hair.cut_style.textured_crop': 'hair_034',
-    'hair.cut_style.caesar_cut': 'hair_035',
-    'hair.cut_style.short_curly_crop': 'hair_036'
-  }),
+  'Hair::Cut / Style': {
+    ...image('hair.cut_style', {
+      'hair.cut_style.ponytail': 'hair_008',
+      'hair.cut_style.messy_bun': 'hair_009',
+      'hair.cut_style.french_braid': 'hair_010',
+      'hair.cut_style.layered_hush_cut': 'hair_022',
+      'hair.cut_style.long_loose_waves': 'hair_023',
+      'hair.cut_style.side_swept': 'hair_024',
+      'hair.cut_style.wet_look': 'hair_025',
+      'hair.cut_style.wolf_cut': 'hair_026',
+      'hair.cut_style.crew_cut': 'hair_029',
+      'hair.cut_style.side_part': 'hair_030',
+      'hair.cut_style.undercut': 'hair_031',
+      'hair.cut_style.pompadour': 'hair_032',
+      'hair.cut_style.quiff': 'hair_033',
+      'hair.cut_style.textured_crop': 'hair_034',
+      'hair.cut_style.caesar_cut': 'hair_035',
+      'hair.cut_style.short_curly_crop': 'hair_036'
+    }),
+    presentationOptionIds: {
+      female: new Set([
+        'hair_008',
+        'hair_009',
+        'hair_010',
+        'hair_022',
+        'hair_023',
+        'hair_024',
+        'hair_025',
+        'hair_026'
+      ]),
+      male: new Set([
+        'hair_029',
+        'hair_030',
+        'hair_031',
+        'hair_032',
+        'hair_033',
+        'hair_034',
+        'hair_035',
+        'hair_036'
+      ])
+    }
+  },
   'Hair::Texture': image('hair.texture', {
     'hair.texture.silky_smooth': 'hair.text_01',
     'hair.texture.coarse_thick': 'hair.text_02',
@@ -149,7 +177,10 @@ const visualFields: Record<string, VisualFieldConfig> = {
       male: 'clothing.outfit-base.male'
     },
     size: 'large'
-  }
+  },
+  'Clothing::Pattern': { kind: 'swatch' },
+  'Clothing::Material': { kind: 'swatch' },
+  'Clothing::Material / Surface': { kind: 'swatch' }
 };
 
 const swatches: Record<string, string[]> = {
@@ -191,7 +222,47 @@ const swatches: Record<string, string[]> = {
   'skin.makeup_04': ['#b9822f', '#ffe0a3'],
   'skin.freckles_01': ['#dea58b', '#f5cab4'],
   'skin.freckles_02': ['#dda185', '#f4c5ad'],
-  'skin.freckles_03': ['#d89a7d', '#efb99e']
+  'skin.freckles_03': ['#d89a7d', '#efb99e'],
+  'outfit.pattern.solid': ['#d4d4d8', '#d4d4d8'],
+  'outfit.pattern.subtle_stripe': ['#111827', '#e5e7eb'],
+  'outfit.pattern.plaid': ['#27272a', '#d4d4d8'],
+  'outfit.pattern.floral': ['#3f3f46', '#e4e4e7'],
+  'outfit.pattern.geometric': ['#18181b', '#a1a1aa'],
+  'outfit.pattern.color_block': ['#111827', '#f4f4f5'],
+  'outfit.material.cotton': ['#d4d4d8', '#f4f4f5'],
+  'outfit.material.denim': ['#3f3f46', '#71717a'],
+  'outfit.material.knit': ['#a1a1aa', '#52525b'],
+  'outfit.material.satin': ['#ffffff', '#d4d4d8'],
+  'outfit.material.wool': ['#d6d3d1', '#78716c'],
+  'outfit.material.leather_like': ['#18181b', '#52525b'],
+  'clothing.material.cotton': ['#d4d4d8', '#f4f4f5'],
+  'clothing.material.linen': ['#d6d3d1', '#fafaf9'],
+  'clothing.material.denim': ['#334155', '#64748b'],
+  'clothing.material.knit': ['#a1a1aa', '#52525b'],
+  'clothing.material.satin': ['#ffffff', '#d4d4d8'],
+  'clothing.material.leather': ['#18181b', '#57534e'],
+  'clothing.material.sequin': ['#71717a', '#f4f4f5']
+};
+
+const swatchPatterns: Record<string, string> = {
+  'outfit.pattern.subtle_stripe': 'stripe',
+  'outfit.pattern.plaid': 'plaid',
+  'outfit.pattern.floral': 'floral',
+  'outfit.pattern.geometric': 'geometric',
+  'outfit.pattern.color_block': 'color-block',
+  'outfit.material.cotton': 'cotton',
+  'outfit.material.denim': 'denim',
+  'outfit.material.knit': 'knit',
+  'outfit.material.satin': 'satin',
+  'outfit.material.wool': 'wool',
+  'outfit.material.leather_like': 'leather',
+  'clothing.material.cotton': 'cotton',
+  'clothing.material.linen': 'linen',
+  'clothing.material.denim': 'denim',
+  'clothing.material.knit': 'knit',
+  'clothing.material.satin': 'satin',
+  'clothing.material.leather': 'leather',
+  'clothing.material.sequin': 'sequin'
 };
 
 export function resolveVisualPresentation({
@@ -212,7 +283,8 @@ export function resolveVisualPresentation({
       return colors ? [{
         option,
         assetId: `swatch.${option.id}`,
-        colors
+        colors,
+        pattern: swatchPatterns[option.id]
       }] : [];
     });
     return items.length ? { kind: 'swatch', size: 'compact', items } : null;
@@ -230,6 +302,12 @@ export function resolveVisualPresentation({
     const attributeId = item.attributeId
       || config.optionMap?.[item.optionId]
       || item.optionId;
+    const presentationOptionIds = variant
+      ? config.presentationOptionIds?.[variant]
+      : undefined;
+    if (presentationOptionIds && !presentationOptionIds.has(attributeId)) {
+      return [];
+    }
     const option = optionsById.get(attributeId);
     const imageUrl = preferredImage(item);
     if (!option || !imageUrl) return [];

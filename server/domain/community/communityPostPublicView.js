@@ -47,6 +47,10 @@ export function buildCommunityPostPublicView(post = {}) {
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
+    faceReuseAvailability: post.status === 'published'
+      && post.visibility === 'public'
+      && post.sourceGenerationMode === 'headshot'
+      && post.faceReusePolicy === 'public_reusable',
     comparisonSnapshot: publicComparisonSnapshot(post),
     collectionSnapshot: publicCollectionSnapshot(post),
     contentDisclosure: 'ai_generated',

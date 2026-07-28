@@ -12,6 +12,9 @@ import {
 } from '../../../components/media/GenerationImageViewer';
 import { ShareGeneratedDialog } from '../../../components/community/ShareGeneratedDialog';
 import { WorkingCollectionToolbar } from '../../../components/collections/WorkingCollectionToolbar';
+import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
+import { CharacterReferenceSceneAction } from '../../../components/generation/CharacterReferenceSceneAction';
+import { CreateCharacterProfileDialog } from '../../../components/profiles/CreateCharacterProfileDialog';
 
 export function StudioRecentGenerations({ limit = 12 }: { limit?: number }) {
   const { t } = useTranslation('react-ui');
@@ -47,13 +50,20 @@ export function StudioRecentGenerations({ limit = 12 }: { limit?: number }) {
     width: item.width,
     height: item.height,
     creditCost: item.creditCost,
-    parentImages: lineageIds(item)
-      .map(parentId => historyItems.find(candidate => candidate.id === parentId))
-      .filter(parent => Boolean(parent?.imageUrl))
-      .map(parent => ({
-        id: parent!.id,
-        imageUrl: parent!.imageUrl,
-        thumbnailUrl: parent!.thumbnailUrl
+    generationMode: item.mode,
+    characterSheetConfig: item.characterSheetConfig,
+    parentImages: lineageReferences(item)
+      .map(reference => ({
+        ...reference,
+        parent: historyItems.find(candidate => candidate.id === reference.id)
+      }))
+      .filter(reference => Boolean(reference.parent?.imageUrl))
+      .map(reference => ({
+        id: reference.parent!.id,
+        imageUrl: reference.parent!.imageUrl,
+        thumbnailUrl: reference.parent!.thumbnailUrl,
+        role: reference.role,
+        href: `/history/${encodeURIComponent(reference.parent!.id)}`
       }))
   }));
 
@@ -107,22 +117,48 @@ export function StudioRecentGenerations({ limit = 12 }: { limit?: number }) {
           if (!open) setActiveId(null);
         }}
         onActiveIdChange={setActiveId}
-        renderActions={item => <ShareGeneratedDialog jobId={item.id} />}
+        renderActions={item => (
+          <>
+            {item.generationMode === 'headshot' ? (
+              <FaceReferenceDestinationDialog
+                source={{ sourceType: 'generation', sourceId: item.id }}
+                imageUrl={item.imageUrl}
+                onHandoffComplete={() => setActiveId(null)}
+              />
+            ) : null}
+            {item.generationMode === 'character-sheet' ? (
+              <>
+                <CreateCharacterProfileDialog jobId={item.id} />
+                <CharacterReferenceSceneAction
+                  imageUrl={item.imageUrl}
+                  sourceJobId={item.id}
+                  characterType={item.characterSheetConfig?.characterType
+                    || 'styled_character'}
+                  onHandoffComplete={() => setActiveId(null)}
+                />
+              </>
+            ) : null}
+            <ShareGeneratedDialog jobId={item.id} />
+          </>
+        )}
       />
     </>
   );
 }
 
-function lineageIds(item: {
+function lineageReferences(item: {
   referencedFaceJobIds: string[];
   referencedStyleJobIds: string[];
   referencedCharacterJobIds: string[];
   referencedOutfitJobIds: string[];
 }) {
-  return [...new Set([
-    ...item.referencedCharacterJobIds,
-    ...item.referencedFaceJobIds,
-    ...item.referencedStyleJobIds,
-    ...item.referencedOutfitJobIds
-  ])];
+  const references = [
+    ...item.referencedCharacterJobIds.map(id => ({ id, role: 'character' as const })),
+    ...item.referencedFaceJobIds.map(id => ({ id, role: 'face' as const })),
+    ...item.referencedStyleJobIds.map(id => ({ id, role: 'style' as const })),
+    ...item.referencedOutfitJobIds.map(id => ({ id, role: 'outfit' as const }))
+  ];
+  return references.filter((reference, index) =>
+    references.findIndex(candidate => candidate.id === reference.id) === index
+  );
 }

@@ -1,5 +1,5 @@
 import { FlaskConical } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GenerationExperience } from '../../../components/generation/GenerationExperience';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -7,6 +7,9 @@ import {
   readActorScopedDraft,
   writeActorScopedDraft
 } from '../../../lib/persistence/actorScopedStorage';
+import { getActiveActorId } from '../../../lib/auth/actorStore';
+import { readFaceReferenceHandoff } from '../../../lib/persistence/faceReferenceHandoff';
+import type { GenerationReferenceRole } from '../../generation/api/generationApi';
 
 const FEATURE = 'playground';
 const SCHEMA_VERSION = 1;
@@ -14,10 +17,37 @@ const SCHEMA_VERSION = 1;
 export function PlaygroundRoute() {
   const { t } = useTranslation(['react-ui', 'shell']);
   const { actor } = useActor();
-  const [prompt, setPrompt] = useState(() => loadPrompt(actor?.userId));
+  const [initialActorId] = useState(() => getActiveActorId());
+  const previousActorId = useRef<string | undefined>(initialActorId);
+  const [initialFaceHandoff] = useState(
+    () => readFaceReferenceHandoff(initialActorId, 'playground')
+  );
+  const [prompt, setPrompt] = useState(() => loadDraft(initialActorId).prompt);
+  const [references, setReferences] = useState<
+    Partial<Record<GenerationReferenceRole, string>>
+  >(() => ({
+    ...loadDraft(initialActorId).references,
+    ...(initialFaceHandoff?.referenceValue.imageUrl
+      ? { face_reference: initialFaceHandoff.referenceValue.imageUrl }
+      : {})
+  }));
+  const [faceReferenceContext, setFaceReferenceContext] = useState<
+    { authorizationToken: string; expiresAt?: string } | null
+  >(initialFaceHandoff
+    ? {
+      authorizationToken: initialFaceHandoff.authorizationToken,
+      expiresAt: initialFaceHandoff.expiresAt
+    }
+    : null);
 
   useEffect(() => {
-    setPrompt(loadPrompt(actor?.userId));
+    const actorId = actor?.userId;
+    if (!actorId || previousActorId.current === actorId) return;
+    previousActorId.current = actorId;
+    const draft = loadDraft(actorId);
+    setPrompt(draft.prompt);
+    setReferences(draft.references);
+    setFaceReferenceContext(draft.faceReferenceContext);
   }, [actor?.userId]);
 
   useEffect(() => {
@@ -26,9 +56,9 @@ export function PlaygroundRoute() {
       actorId: actor.userId,
       feature: FEATURE,
       schemaVersion: SCHEMA_VERSION,
-      payload: { prompt }
+      payload: { prompt, references, faceReferenceContext }
     });
-  }, [actor?.userId, prompt]);
+  }, [actor?.userId, faceReferenceContext, prompt, references]);
 
   return (
     <main>
@@ -42,18 +72,44 @@ export function PlaygroundRoute() {
         generationMode="playground"
         prompt={prompt}
         onPromptChange={setPrompt}
+        references={references}
+        onReferencesChange={next => {
+          if (next.face_reference !== references.face_reference) {
+            setFaceReferenceContext(null);
+          }
+          setReferences(next);
+        }}
+        faceReferenceContext={faceReferenceContext}
       />
     </main>
   );
 }
 
-function loadPrompt(actorId?: string) {
-  if (!actorId) return '';
-  const draft = readActorScopedDraft({
+function loadDraft(actorId?: string): {
+  prompt: string;
+  references: Partial<Record<GenerationReferenceRole, string>>;
+  faceReferenceContext: { authorizationToken: string; expiresAt?: string } | null;
+} {
+  const fallback = { prompt: '', references: {}, faceReferenceContext: null };
+  if (!actorId) return fallback;
+  const draft = readActorScopedDraft<{
+    prompt?: string;
+    references?: Partial<Record<GenerationReferenceRole, string>>;
+    faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
+  }>({
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
-    fallback: { prompt: '' }
+    fallback
   });
-  return typeof draft.prompt === 'string' ? draft.prompt : '';
+  return {
+    prompt: typeof draft.prompt === 'string' ? draft.prompt : '',
+    references: draft.references && typeof draft.references === 'object'
+      ? draft.references
+      : {},
+    faceReferenceContext: draft.faceReferenceContext
+      && typeof draft.faceReferenceContext.authorizationToken === 'string'
+      ? draft.faceReferenceContext
+      : null
+  };
 }

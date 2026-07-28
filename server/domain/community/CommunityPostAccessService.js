@@ -36,8 +36,11 @@ export class CommunityPostAccessService {
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     const isOwner = post.ownerUserId === actor.userId;
+    const publicView = buildCommunityPostPublicView(post);
     return {
-      ...buildCommunityPostPublicView(post),
+      ...publicView,
+      faceReuseAvailability: publicView.faceReuseAvailability
+        || (isOwner && post.sourceGenerationMode === 'headshot'),
       viewer: {
         isOwner,
         permissions: {

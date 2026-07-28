@@ -72,6 +72,46 @@ test('Story Character Reference preserves Expression while suppressing identity,
   );
 });
 
+test('Reusable Character Reference preserves identity while allowing replacement clothing', () => {
+  const prompt = compilePromptOnServer(
+    {
+      Gender: { value: 'female model', group: 'Character', category: 'character' },
+      Clothing: { value: 'navy tailored business suit', group: 'Clothing', category: 'clothing' },
+      Pose: { value: 'relaxed standing pose', group: 'Pose', category: 'pose' }
+    },
+    '1:1',
+    { characterReference: true },
+    'normal',
+    'portrait',
+    false,
+    null,
+    null,
+    { characterReferenceOutfitBehavior: 'replaceable' }
+  );
+
+  assert.doesNotMatch(prompt, /female model/);
+  assert.match(prompt, /navy tailored business suit/);
+  assert.match(prompt, /relaxed standing pose/);
+});
+
+test('Explicit Outfit Reference owns clothing even for a reusable Character Reference', () => {
+  const prompt = compilePromptOnServer(
+    {
+      Clothing: { value: 'navy tailored business suit', group: 'Clothing', category: 'clothing' }
+    },
+    '1:1',
+    { characterReference: true, outfitReference: true },
+    'normal',
+    'portrait',
+    false,
+    null,
+    null,
+    { characterReferenceOutfitBehavior: 'replaceable' }
+  );
+
+  assert.doesNotMatch(prompt, /navy tailored business suit/);
+});
+
 test('Expression exemption requires canonical group and category', () => {
   const prompt = compilePromptOnServer(
     {

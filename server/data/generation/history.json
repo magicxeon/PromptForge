@@ -1,5 +1,2077 @@
 [
   {
+    "id": "job_1785261665745_hiarxrfeg",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Preserve the original outfit identity and garment details from the outfit-bound character reference. Follow the destination expression, pose, styling, and environment directions without replacing the original outfit. Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, sharing a genuine candid laugh, engaging creator-style product reveal pose, natural movement, garment kept visible, expressive controlled editorial hand line, social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition, in a tidy contemporary creator studio designed for fashion content, refined restrained retail display elements, clear clean atmosphere (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785261665745_hiarxrfeg.jpg",
+    "timestamp": 1785261674066,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.003",
+        "value": "sharing a genuine candid laugh",
+        "label": "Candid Gentle Laugh",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "laugh",
+          "happy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.creator-reveal",
+        "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+        "label": "Creator Product Reveal",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.editorial",
+        "value": "expressive controlled editorial hand line",
+        "label": "Expressive Editorial Hands",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "editorial"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.creator",
+        "value": "in a tidy contemporary creator studio designed for fashion content",
+        "label": "Creator Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "label": "Refined Retail Display",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.social",
+        "value": "social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition",
+        "label": "Social Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "social",
+          "commerce-safe",
+          "mobile-feed"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785261665745_hiarxrfeg.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 20654,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 597070
+  },
+  {
+    "id": "job_1785261640168_vs74sh830",
+    "username": "user_alice",
+    "prompt": "sharing a genuine candid laugh, wearing a plain T-shirt with loose wide-leg jeans, simple geometric fabric pattern, structured denim fabric, natural linen fabric texture, engaging creator-style product reveal pose, natural movement, garment kept visible, expressive controlled editorial hand line, social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition, in a tidy contemporary creator studio designed for fashion content, refined restrained retail display elements, clear clean atmosphere (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785261640168_vs74sh830.jpg",
+    "timestamp": 1785261647775,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.003",
+        "value": "sharing a genuine candid laugh",
+        "label": "Candid Gentle Laugh",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "laugh",
+          "happy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.creator-reveal",
+        "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+        "label": "Creator Product Reveal",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.unisex.tshirt_wide_jeans",
+        "value": "wearing a plain T-shirt with loose wide-leg jeans",
+        "label": "T-shirt and Wide Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-unisex",
+          "casual",
+          "street"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pattern": {
+        "id": "outfit.pattern.geometric",
+        "value": "simple geometric fabric pattern",
+        "label": "Geometric",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "geometric"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.denim",
+        "value": "structured denim fabric",
+        "label": "Denim",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "denim"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material / Surface": {
+        "id": "clothing.material.linen",
+        "value": "natural linen fabric texture",
+        "label": "Natural Linen",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.editorial",
+        "value": "expressive controlled editorial hand line",
+        "label": "Expressive Editorial Hands",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "editorial"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.creator",
+        "value": "in a tidy contemporary creator studio designed for fashion content",
+        "label": "Creator Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "label": "Refined Retail Display",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.social",
+        "value": "social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition",
+        "label": "Social Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "social",
+          "commerce-safe",
+          "mobile-feed"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785261640168_vs74sh830.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 30036,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 775042
+  },
+  {
+    "id": "job_1785261100088_kuhnfqo92",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Preserve the original outfit identity and garment details from the outfit-bound character reference. Follow the destination expression, pose, styling, and environment directions without replacing the original outfit. Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, sharing a genuine candid laugh, engaging creator-style product reveal pose, natural movement, garment kept visible, natural relaxed hands kept clear of all key garment details, social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition, briefly looking down at a smartphone screen with a soft neutral expression, in a tidy contemporary creator studio designed for fashion content, refined restrained retail display elements, clear clean atmosphere (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785261100088_kuhnfqo92.jpg",
+    "timestamp": 1785261110461,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.003",
+        "value": "sharing a genuine candid laugh",
+        "label": "Candid Gentle Laugh",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "laugh",
+          "happy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.creator-reveal",
+        "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+        "label": "Creator Product Reveal",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.clear",
+        "value": "natural relaxed hands kept clear of all key garment details",
+        "label": "Hands Clear of Garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.creator",
+        "value": "in a tidy contemporary creator studio designed for fashion content",
+        "label": "Creator Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "label": "Refined Retail Display",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.social",
+        "value": "social-commerce fashion content, engaging natural presentation, mobile-feed-ready composition",
+        "label": "Social Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "social",
+          "commerce-safe",
+          "mobile-feed"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Story": {
+        "id": "scene_story.007",
+        "value": "briefly looking down at a smartphone screen with a soft neutral expression",
+        "label": "Checking Phone Briefly",
+        "isCustom": false,
+        "group": "Scene Story",
+        "category": "scene_story",
+        "tags": [
+          "scene_story",
+          "phone",
+          "candid"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785261100088_kuhnfqo92.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16116,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 577462
+  },
+  {
+    "id": "job_1785260938378_mqmzgp1f6",
+    "username": "user_alice",
+    "prompt": "professional full-body character model sheet showing exactly three clearly separated equal views of the same character in one horizontal row, ordered left to right: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera, in the side profile the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body, complete head-to-feet figure in every view at the same scale with generous clear margins above the hair and below the feet, unlabeled image only with no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, female, 21-year-old young adult, eurasian ethnicity, half european half asian, cute doll-like Asian features, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long hair, messy bun, base hair color #1a1919, dimensional hair highlights in #c58a5b, blended naturally through the hair strands, side-parted hair, no bangs, silky smooth texture, wearing a simple fitted top with high-waist wide-leg jeans, dominant garment tone #121f3b, harmonize the selected garment tones naturally as one cohesive outfit color palette, subtle vertical stripe pattern, structured denim fabric, on a solid pure white background, unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785260938378_mqmzgp1f6.jpg",
+    "timestamp": 1785260948734,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_eurasian",
+        "value": "eurasian ethnicity, half european half asian",
+        "label": "Eurasian (Mixed Asian-European)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "eurasian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Cut / Style": {
+        "id": "hair_009",
+        "value": "messy bun",
+        "label": "Messy Bun",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "value": "wearing a simple fitted top with high-waist wide-leg jeans",
+        "label": "Fitted T-shirt and High-waist Wide Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-female",
+          "casual",
+          "street"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pattern": {
+        "id": "outfit.pattern.subtle_stripe",
+        "value": "subtle vertical stripe pattern",
+        "label": "Subtle Stripe",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "stripe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.denim",
+        "value": "structured denim fabric",
+        "label": "Denim",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "denim"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material / Surface": {
+        "id": "clothing.material.cotton",
+        "value": "clean cotton fabric texture",
+        "label": "Clean Cotton",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Construction / Detail": {
+        "id": "clothing.detail.tailored",
+        "value": "precision tailoring and clean construction details",
+        "label": "Precision Tailoring",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "lookbook",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "styled_character",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.eth_eurasian",
+        "Beauty": "character.023",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Cut / Style": "hair_009",
+        "Texture": "hair.text_01",
+        "Parting / Fringe": "hair_038"
+      },
+      "bodySelectionIds": {},
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {
+        "Outfit Base": "outfit.base.female.tshirt_high_waist_wide_jeans",
+        "Pattern": "outfit.pattern.subtle_stripe",
+        "Material": "outfit.material.denim",
+        "Material / Surface": "clothing.material.cotton",
+        "Construction / Detail": "clothing.detail.tailored"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "castingCandidate": false,
+      "castingLayoutVersion": null,
+      "uniformPolicyVersion": null,
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "outfitBehavior": "preserve",
+      "sourceJobId": "job_1785260938378_mqmzgp1f6"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785260938378_mqmzgp1f6.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19036,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 571659
+  },
+  {
+    "id": "job_1785260715809_jqwfn51o6",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, eurasian ethnicity, half european half asian, cute doll-like Asian features, square face, phoenix eyes, soft arched eyebrows, delicate narrow nose, cupid's bow lips, subtle friendly smile, long hair, messy bun, base hair color #1a1919, dimensional hair highlights in #c58a5b, blended naturally through the hair strands, side-parted hair, no bangs, silky smooth texture, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785260715809_jqwfn51o6.jpg",
+    "timestamp": 1785260722305,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_eurasian",
+        "value": "eurasian ethnicity, half european half asian",
+        "label": "Eurasian (Mixed Asian-European)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "eurasian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.005",
+        "value": "square face",
+        "label": "Square face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.005",
+        "value": "phoenix eyes",
+        "label": "Phoenix eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.002",
+        "value": "soft arched eyebrows",
+        "label": "Soft arched eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "label": "Delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.003",
+        "value": "cupid's bow lips",
+        "label": "Cupid's bow lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Cut / Style": {
+        "id": "hair_009",
+        "value": "messy bun",
+        "label": "Messy Bun",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "6.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785260715809_jqwfn51o6.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 16104,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 628494
+  },
+  {
+    "id": "job_1785257870925_zcx9crwnk",
+    "username": "user_alice",
+    "prompt": "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose, female, 21-year-old young adult, scandinavian nordic ethnicity, beautiful model face, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long platinum blonde hair, French braid, silky smooth texture, porcelain skin, wearing a knee-length clean-line day dress with a modest waist shape, subtle vertical stripe pattern, soft wool blend texture, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785257870925_zcx9crwnk.jpg",
+    "timestamp": 1785257880245,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "custom.beauty",
+        "value": "beautiful model face",
+        "label": "beautiful model face",
+        "isCustom": true,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      },
+      "Cut / Style": {
+        "id": "hair_010",
+        "value": "French braid",
+        "label": "French Braid",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.female.simple_day_dress",
+        "value": "wearing a knee-length clean-line day dress with a modest waist shape",
+        "label": "Simple Day Dress",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-female",
+          "dress",
+          "feminine"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pattern": {
+        "id": "outfit.pattern.subtle_stripe",
+        "value": "subtle vertical stripe pattern",
+        "label": "Subtle Stripe",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "stripe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.wool",
+        "value": "soft wool blend texture",
+        "label": "Wool",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "wool"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material / Surface": {
+        "id": "clothing.material.linen",
+        "value": "natural linen fabric texture",
+        "label": "Natural Linen",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.fabric-demo",
+        "value": "natural fashion pose demonstrating fabric drape and movement without distorting the garment",
+        "label": "Fabric Demonstration",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "styled_character",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.eth_nordic",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Color": "hair_015",
+        "Tone": "skin.tone_02",
+        "Cut / Style": "hair_010",
+        "Texture": "hair.text_01"
+      },
+      "bodySelectionIds": {},
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {
+        "Outfit Base": "outfit.base.female.simple_day_dress",
+        "Pattern": "outfit.pattern.subtle_stripe",
+        "Material": "outfit.material.wool",
+        "Material / Surface": "clothing.material.linen"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "castingCandidate": false,
+      "castingLayoutVersion": null,
+      "uniformPolicyVersion": null,
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "outfitBehavior": "preserve",
+      "sourceJobId": "job_1785257870925_zcx9crwnk"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "9.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785257870925_zcx9crwnk.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 14854,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 525127
+  },
+  {
+    "id": "job_1785257742322_nuruj4ple",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, scandinavian nordic ethnicity, beautiful model face, rectangular face, monolid eyes, natural thick brows, delicate narrow nose, wide lips, subtle friendly smile, long platinum blonde hair, French braid, silky smooth texture, porcelain skin, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785257742322_nuruj4ple.jpg",
+    "timestamp": 1785257749610,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "custom.beauty",
+        "value": "beautiful model face",
+        "label": "beautiful model face",
+        "isCustom": true,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.018",
+        "value": "rectangular face",
+        "label": "Rectangular face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.002",
+        "value": "monolid eyes",
+        "label": "Monolid eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.003",
+        "value": "natural thick brows",
+        "label": "Natural thick brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "label": "Delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "label": "Wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      },
+      "Cut / Style": {
+        "id": "hair_010",
+        "value": "French braid",
+        "label": "French Braid",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "style"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785257742322_nuruj4ple.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 11970,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 592711
+  },
+  {
+    "id": "job_1785257197442_qjdzhxff8",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Preserve the character identity, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction, subtle playful smirk, wearing a plain T-shirt with loose wide-leg jeans, simple geometric fabric pattern, structured denim fabric, natural linen fabric texture, refined lookbook stance with a subtle weight shift and clean body line, natural relaxed hands kept clear of all key garment details, in a tidy contemporary creator studio designed for fashion content, refined restrained retail display elements, clear clean atmosphere (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785257197442_qjdzhxff8.jpg",
+    "timestamp": 1785257207548,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.008",
+        "value": "subtle playful smirk",
+        "label": "Playful Mild Smirk",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smirk",
+          "playful"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.weight-shift",
+        "value": "refined lookbook stance with a subtle weight shift and clean body line",
+        "label": "Lookbook Weight Shift",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.unisex.tshirt_wide_jeans",
+        "value": "wearing a plain T-shirt with loose wide-leg jeans",
+        "label": "T-shirt and Wide Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-unisex",
+          "casual",
+          "street"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pattern": {
+        "id": "outfit.pattern.geometric",
+        "value": "simple geometric fabric pattern",
+        "label": "Geometric",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "pattern",
+          "geometric"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.denim",
+        "value": "structured denim fabric",
+        "label": "Denim",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "denim"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material / Surface": {
+        "id": "clothing.material.linen",
+        "value": "natural linen fabric texture",
+        "label": "Natural Linen",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.clear",
+        "value": "natural relaxed hands kept clear of all key garment details",
+        "label": "Hands Clear of Garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.creator",
+        "value": "in a tidy contemporary creator studio designed for fashion content",
+        "label": "Creator Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "social"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.retail",
+        "value": "refined restrained retail display elements",
+        "label": "Refined Retail Display",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "social",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785257197442_qjdzhxff8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 17942,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 593953
+  },
+  {
+    "id": "job_1785252901631_2ahl7ssed",
+    "username": "user_alice",
+    "prompt": "subtle playful smirk, strong angular editorial fashion pose with an intentional asymmetrical line (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785252901631_2ahl7ssed.jpg",
+    "timestamp": 1785252909850,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.008",
+        "value": "subtle playful smirk",
+        "label": "Playful Mild Smirk",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smirk",
+          "playful"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.angular",
+        "value": "strong angular editorial fashion pose with an intentional asymmetrical line",
+        "label": "Strong Angular Editorial",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "editorial",
+          "campaign"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785252901631_2ahl7ssed.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 25938,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 731609
+  },
+  {
+    "id": "job_1785252827306_i2hm9cjvc",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated views of the same character arranged side by side in one horizontal row on a single portrait canvas, ordered from left to right: front view, exact side profile, and back view. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a solid pure white background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Do not add props, logos, text labels, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, 21-year-old young adult, scandinavian nordic ethnicity, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long platinum blonde hair, porcelain skin, natural bare-face look with authentic facial details, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785252827306_i2hm9cjvc.jpg",
+    "timestamp": 1785252836607,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_natural",
+        "value": "raw natural look, minimal makeup",
+        "label": "Raw natural look (minimal makeup)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.eth_nordic",
+        "Beauty": "character.beauty_natural",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Color": "hair_015",
+        "Tone": "skin.tone_02"
+      },
+      "bodySelectionIds": {},
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-three-view-v2"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-three-view-v2",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference_a"
+        ]
+      }
+    ],
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "sourceJobId": "job_1785252827306_i2hm9cjvc"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "9.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785252827306_i2hm9cjvc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 12746,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 456839
+  },
+  {
     "id": "job_1785244608159_yndhfb4vy",
     "username": "user_alice",
     "prompt": "headshot portrait, female, 21-year-old young adult, scandinavian nordic ethnicity, rectangular face, monolid eyes, natural thick brows, delicate narrow nose, wide lips, subtle playful smirk, long platinum blonde hair, porcelain skin, natural bare-face look with authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",

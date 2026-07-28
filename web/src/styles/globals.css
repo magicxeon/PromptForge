@@ -4,6 +4,7 @@
 @import "./community-home.css";
 @import "./studio.css";
 @import "./media-viewer.css";
+@import "./references.css";
 
 * {
   box-sizing: border-box;

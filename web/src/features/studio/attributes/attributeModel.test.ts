@@ -4,6 +4,10 @@ import {
   createSelection,
   normalizeAttributeGroups
 } from './attributeModel';
+import {
+  applyCustomColorSelectionAuthority,
+  createStudioCustomColors
+} from './customColorModel';
 
 describe('Studio attribute model', () => {
   const bundle = {
@@ -57,6 +61,34 @@ describe('Studio attribute model', () => {
     });
   });
 
+  it('maps legacy Hair subcategories into the canonical React fields', () => {
+    const groups = normalizeAttributeGroups({
+      ...bundle,
+      schema: [{
+        group: 'Hair',
+        fields: [
+          { name: 'Cut / Style', control: 'visual-select' },
+          { name: 'Texture', control: 'visual-select' },
+          { name: 'Parting / Fringe', control: 'visual-select' }
+        ]
+      }],
+      library: [
+        hairOption('hair_008', 'Style', 'Ponytail'),
+        hairOption('hair.text_01', 'Hair Texture', 'Silky Smooth'),
+        hairOption('hair_027', 'Bangs', 'See-through Bangs')
+      ]
+    });
+
+    expect(groups[0]?.fields.map(field => [
+      field.name,
+      field.options[0]?.id
+    ])).toEqual([
+      ['Cut / Style', 'hair_008'],
+      ['Texture', 'hair.text_01'],
+      ['Parting / Fringe', 'hair_027']
+    ]);
+  });
+
   it('compiles canonical mode prefixes and selected prompt phrases', () => {
     const option = normalizeAttributeGroups(bundle)[0]!.fields[0]!.options[0]!;
     const selection = createSelection(option);
@@ -66,10 +98,90 @@ describe('Studio attribute model', () => {
       'reusable_model'
     );
     expect(preview).toContain('three clearly separated views side by side');
-    expect(preview).toContain('front view, exact side profile, and back view');
+    expect(preview).toContain('front view, exact side profile facing toward the viewer right, and back view');
+    expect(preview).toContain('head aligned with the torso');
+    expect(preview).toContain('unlabeled image only');
     expect(preview).toContain('opaque modest fitted white casting uniform');
     expect(preview).toContain('on a solid pure white background');
     expect(preview).toContain('oval face');
+  });
+
+  it('uses custom hair colors and a harmonized two-tone garment palette', () => {
+    const preview = compileSelectionPreview(
+      {},
+      'character-sheet',
+      'styled_character',
+      {
+        Color: {
+          enabled: true,
+          base: '#3a2418',
+          highlightEnabled: true,
+          highlight: '#c99662'
+        },
+        'Primary Color': { enabled: true, color: '#1f2937' },
+        'Secondary Color': { enabled: true, color: '#f8fafc' }
+      }
+    );
+
+    expect(preview).toContain('base hair color #3a2418');
+    expect(preview).toContain('dimensional hair highlights in #c99662');
+    expect(preview).toContain('dominant garment tone #1f2937');
+    expect(preview).toContain('coordinating accent garment tone #f8fafc');
+    expect(preview).toContain('one cohesive outfit color palette');
+  });
+
+  it('removes legacy color selections when custom color controls own them', () => {
+    const colors = createStudioCustomColors({
+      Color: {
+        enabled: true,
+        base: '#3a2418',
+        highlightEnabled: false,
+        highlight: '#c99662'
+      }
+    });
+    const filtered = applyCustomColorSelectionAuthority({
+      Color: { id: 'hair_013' },
+      'Primary Color': { id: 'legacy.primary' },
+      'Secondary Color': { id: 'legacy.secondary' },
+      Pattern: { id: 'outfit.pattern.solid' }
+    }, colors);
+
+    expect(filtered).toEqual({
+      Pattern: { id: 'outfit.pattern.solid' }
+    });
+  });
+
+  it('keeps native clothing tone fields without exposing legacy color presets', () => {
+    const groups = normalizeAttributeGroups({
+      schema: [{
+        group: 'Clothing',
+        fields: [
+          { name: 'Primary Color', control: 'select' },
+          { name: 'Secondary Color', control: 'select' }
+        ]
+      }],
+      templates: {},
+      order: [],
+      presets: {},
+      library: [{
+        id: 'outfit.color.black',
+        category: 'clothing',
+        subcategory: 'Clothing Color',
+        label: { en: 'Black' },
+        prompt: { default: 'black' },
+        ui: { group: 'Clothing' },
+        tags: ['clothing', 'color'],
+        enabled: true
+      }]
+    });
+
+    expect(groups[0]?.fields.map(field => ({
+      name: field.name,
+      optionCount: field.options.length
+    }))).toEqual([
+      { name: 'Primary Color', optionCount: 0 },
+      { name: 'Secondary Color', optionCount: 0 }
+    ]);
   });
 
   it('keeps Face Creation as a front-facing white-background reference portrait', () => {
@@ -104,3 +216,16 @@ describe('Studio attribute model', () => {
     expect(preview).not.toContain('solid pure white background');
   });
 });
+
+function hairOption(id: string, subcategory: string, label: string) {
+  return {
+    id,
+    category: 'hair',
+    subcategory,
+    label: { en: label },
+    prompt: { default: label.toLowerCase() },
+    ui: { group: 'Hair' },
+    tags: ['hair'],
+    enabled: true
+  };
+}

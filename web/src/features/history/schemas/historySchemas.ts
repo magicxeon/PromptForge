@@ -14,6 +14,9 @@ export const historyItemSchema = z.object({
   width: z.number().optional(),
   height: z.number().optional(),
   generationDuration: z.union([z.string(), z.number()]).nullable().optional(),
+  characterSheetConfig: z.object({
+    characterType: z.enum(['reusable_model', 'styled_character']).optional()
+  }).passthrough().nullable().optional(),
   referencedFaceJobIds: z.array(z.string()).default([]),
   referencedStyleJobIds: z.array(z.string()).default([]),
   referencedCharacterJobIds: z.array(z.string()).default([]),

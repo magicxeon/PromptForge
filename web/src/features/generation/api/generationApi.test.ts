@@ -76,9 +76,43 @@ describe('React generation contract', () => {
     expect(characterSheet.characterType).toBe('reusable_model');
   });
 
+  it('forwards custom hair and garment colors to the canonical compiler', () => {
+    const payload = generationPayload(draft({
+      customColors: {
+        Color: {
+          enabled: true,
+          base: '#3a2418',
+          highlightEnabled: true,
+          highlight: '#c99662'
+        },
+        'Primary Color': { enabled: true, color: '#1f2937' },
+        'Secondary Color': { enabled: true, color: '#f8fafc' }
+      }
+    }));
+
+    expect(payload.customColors).toMatchObject({
+      Color: { base: '#3a2418', highlight: '#c99662' },
+      'Primary Color': { color: '#1f2937' },
+      'Secondary Color': { color: '#f8fafc' }
+    });
+  });
+
   it('keeps Scene, Playground and Fashion on the normal prompt compiler', () => {
     for (const generationMode of ['scene', 'playground', 'fashion'] as const) {
       expect(generationPayload(draft({ generationMode })).mode).toBe('normal');
     }
+  });
+
+  it('carries reusable and styled Character Reference outfit behavior', () => {
+    expect(generationPayload(draft({
+      generationMode: 'scene',
+      references: { character_reference: '/outputs/reusable-character.png' },
+      characterReferenceOutfitBehavior: 'replaceable'
+    })).characterReferenceOutfitBehavior).toBe('replaceable');
+
+    expect(generationPayload(draft({
+      generationMode: 'scene',
+      references: { character_reference: '/outputs/styled-character.png' }
+    })).characterReferenceOutfitBehavior).toBe('preserve');
   });
 });

@@ -33,6 +33,7 @@ import type { JobStatus } from '../../features/generation/schemas/generationSche
 import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
 import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
 import { GenerationReferenceActions } from './GenerationReferenceActions';
+import type { StudioCustomColors } from '../../features/studio/attributes/customColorModel';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -41,10 +42,13 @@ type GenerationExperienceProps = {
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
   selections?: Record<string, unknown>;
+  customColors?: StudioCustomColors;
   initialReferences?: Partial<Record<GenerationReferenceRole, string>>;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
   characterProfileContext?: Record<string, unknown> | null;
+  characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
+  faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
   authoringMode?: 'guided' | 'manual';
   characterType?: 'reusable_model' | 'styled_character' | null;
@@ -69,10 +73,13 @@ export function GenerationExperience({
   prompt: controlledPrompt,
   onPromptChange,
   selections,
+  customColors,
   initialReferences = {},
   references: controlledReferences,
   onReferencesChange,
   characterProfileContext = null,
+  characterReferenceOutfitBehavior = 'preserve',
+  faceReferenceContext = null,
   sceneTemplateSnapshot = null,
   authoringMode = 'manual',
   characterType = null,
@@ -153,11 +160,14 @@ export function GenerationExperience({
     generationSurface: surface,
     references,
     selections,
+    customColors,
     sceneTemplateSnapshot,
     characterProfileContext,
+    characterReferenceOutfitBehavior,
+    faceReferenceContext,
     authoringMode,
     characterType
-  }), [authoringMode, characterProfileContext, characterType, engine, generationMode, negativePrompt, prompt, references, sceneTemplateSnapshot, selections, surface]);
+  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, references, sceneTemplateSnapshot, selections, surface]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -308,10 +318,15 @@ export function GenerationExperience({
           estimatedCredit: estimate,
           parentImages: Object.entries(references)
             .filter((entry): entry is [string, string] => Boolean(entry[1]))
-            .map(([role, imageUrl]) => ({
-              id: role,
-              imageUrl
-            }))
+            .map(([role, imageUrl]) => {
+              const jobId = referenceJobId(imageUrl);
+              return {
+                id: jobId || role,
+                imageUrl,
+                role: lineageRole(role),
+                href: jobId ? `/history/${encodeURIComponent(jobId)}` : null
+              };
+            })
         }}
       />
     </div>
@@ -503,4 +518,16 @@ function createEstimateKey(draft: GenerationRequestDraft) {
       .map(([role]) => role)
       .sort()
   };
+}
+
+function referenceJobId(value: string) {
+  return value.match(/\/outputs\/(job_[a-zA-Z0-9_-]+)\.[a-zA-Z0-9]+/)?.[1] || null;
+}
+
+function lineageRole(role: string): 'face' | 'character' | 'style' | 'outfit' | undefined {
+  if (role === 'face_reference') return 'face';
+  if (role === 'character_reference') return 'character';
+  if (role === 'style_reference' || role === 'pose_reference') return 'style';
+  if (role === 'outfit_front' || role === 'outfit_back') return 'outfit';
+  return undefined;
 }

@@ -5,6 +5,8 @@
   "playground.reference.usage": "ใช้ภาพอ้างอิง {active} จาก {max} ภาพ",
   "playground.reference.invalidFile": "เลือกไฟล์ภาพที่มีขนาดไม่เกิน 12 MB",
   "playground.reference.readFailed": "ไม่สามารถอ่านไฟล์ภาพได้",
+  "playground.reference.uploadedSource": "รูปที่อัปโหลด",
+  "playground.reference.source": "รูปภาพอ้างอิง",
   "playground.estimate.insufficient": "เครดิตคงเหลือไม่เพียงพอ",
   "playground.title": "สร้างภาพแบบอิสระ",
   "playground.description": "เขียนพรอมป์เอง เพิ่มรูปอ้างอิง เลือกโมเดล และสร้างภาพผ่านระบบสร้างภาพที่ปลอดภัยชุดเดียวกัน",

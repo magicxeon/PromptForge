@@ -1,5 +1,11 @@
 import type { z } from 'zod';
 import type { attributesBundleSchema } from '../../generation/schemas/generationSchemas';
+import {
+  compileCustomColorPhrases,
+  createStudioCustomColors,
+  isCustomHairColorActive,
+  type StudioCustomColors
+} from './customColorModel';
 
 export type AttributeOption = {
   id: string;
@@ -47,6 +53,17 @@ const legacySubcategoryByCategory: Record<string, string> = {
   scene_story: 'Fashion Story'
 };
 
+const subcategoryAliasesByField: Record<string, readonly string[]> = {
+  'Hair::Cut / Style': ['Cut / Style', 'Style'],
+  'Hair::Texture': ['Texture', 'Hair Texture'],
+  'Hair::Parting / Fringe': ['Parting / Fringe', 'Bangs']
+};
+
+const nativeControlOnlyFields = new Set([
+  'Clothing::Primary Color',
+  'Clothing::Secondary Color'
+]);
+
 export function normalizeAttributeGroups(bundle: Bundle): AttributeGroup[] {
   const schema = Array.isArray(bundle.schema) ? bundle.schema : [];
   const options = bundle.library.flatMap(item => normalizeOption(item));
@@ -55,10 +72,18 @@ export function normalizeAttributeGroups(bundle: Bundle): AttributeGroup[] {
     const groupName = rawGroup.group;
     const fields = rawGroup.fields.flatMap(rawField => {
       if (!isRecord(rawField) || typeof rawField.name !== 'string') return [];
+      const subcategoryAliases = subcategoryAliasesByField[
+        `${groupName}::${rawField.name}`
+      ] || [rawField.name];
       const fieldOptions = options
-        .filter(option => option.subcategory === rawField.name)
+        .filter(option => subcategoryAliases.includes(option.subcategory))
         .map(option => ({ ...option, group: groupName }));
-      if (!fieldOptions.length) return [];
+      if (
+        !fieldOptions.length
+        && !nativeControlOnlyFields.has(`${groupName}::${rawField.name}`)
+      ) {
+        return [];
+      }
       return [{
         name: rawField.name,
         control: typeof rawField.control === 'string' ? rawField.control : 'select',
@@ -99,11 +124,23 @@ export function createCustomSelection(field: AttributeField, value: string): Att
 export function compileSelectionPreview(
   selections: Record<string, AttributeSelection>,
   mode: 'headshot' | 'character-sheet' | 'scene',
-  characterType: 'reusable_model' | 'styled_character'
+  characterType: 'reusable_model' | 'styled_character',
+  customColors?: StudioCustomColors
 ) {
+  const normalizedColors = createStudioCustomColors(customColors);
+  const colorPhrases = compileCustomColorPhrases(normalizedColors);
   const valuesForGroups = (groups: ReadonlySet<string>) =>
-    [...new Set(Object.values(selections)
-      .filter(selection => groups.has(selection.group))
+    [...new Set(Object.entries(selections)
+      .filter(([fieldName, selection]) => (
+        groups.has(selection.group)
+        && !(fieldName === 'Color'
+          && selection.group === 'Hair'
+          && isCustomHairColorActive(normalizedColors))
+        && !(selection.group === 'Clothing'
+          && (fieldName === 'Primary Color' || fieldName === 'Secondary Color')
+          && colorPhrases.garment.length)
+      ))
+      .map(([, selection]) => selection)
       .map(selection => selection.value)
       .filter(Boolean))];
 
@@ -111,6 +148,7 @@ export function compileSelectionPreview(
     return [
       ...valuesForGroups(new Set([
         'Character',
+        'Clothing',
         'Fashion Direction',
         'Scene Story',
         'Photographic Context',
@@ -120,6 +158,8 @@ export function compileSelectionPreview(
         'Camera',
         'Quality'
       ])),
+      ...colorPhrases.hair,
+      ...colorPhrases.garment,
       'photorealistic scene photography, natural composition, clear realistic details'
     ].join(', ').replace(/,\s*,/g, ',').trim();
   }
@@ -128,6 +168,7 @@ export function compileSelectionPreview(
     return [
       'headshot portrait',
       ...valuesForGroups(new Set(['Character', 'Face', 'Hair', 'Skin'])),
+      ...colorPhrases.hair,
       'showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head',
       'on a solid pure white background',
       'photorealistic photography',
@@ -155,11 +196,15 @@ export function compileSelectionPreview(
     : clothing;
 
   return [
-    'professional full-body character model sheet showing exactly three clearly separated views side by side: front view, exact side profile, and back view',
-    'complete head-to-feet figure in every view with clear margins, neutral upright standing pose',
+    'professional full-body character model sheet showing exactly three clearly separated views side by side in one horizontal row at the same scale, ordered left to right: front view, exact side profile facing toward the viewer right, and back view',
+    'in the side profile, the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body',
+    'complete head-to-feet figure in every view at the same scale with generous clear margins, neutral upright standing pose',
     ...identityAndBody,
+    ...colorPhrases.hair,
     ...styledClothing,
+    ...(characterType === 'styled_character' ? colorPhrases.garment : []),
     'on a solid pure white background',
+    'unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark',
     'photorealistic photography',
     'realistic camera imperfections',
     ...cameraAndQuality

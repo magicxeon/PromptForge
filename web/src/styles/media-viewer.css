@@ -220,6 +220,28 @@
   object-fit: cover;
 }
 
+.generation-viewer__lineage a,
+.generation-viewer__lineage-item {
+  display: grid;
+  gap: 0.2rem;
+  color: var(--mpf-text-muted);
+  font-size: 0.58rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.generation-viewer__lineage a:hover img {
+  border-color: var(--mpf-cyan);
+  box-shadow: 0 0 12px rgb(34 211 238 / 20%);
+}
+
+.generation-viewer__lineage small {
+  max-width: 62px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .generation-viewer__collection-section h3 {
   color: var(--mpf-violet);
 }

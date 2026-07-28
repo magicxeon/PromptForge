@@ -5,6 +5,8 @@
   "playground.reference.usage": "{active} of {max} references used.",
   "playground.reference.invalidFile": "Choose an image no larger than 12 MB.",
   "playground.reference.readFailed": "The image could not be read.",
+  "playground.reference.uploadedSource": "Uploaded image",
+  "playground.reference.source": "Reference image",
   "playground.estimate.insufficient": "Not enough available credits.",
   "playground.title": "Freeform image generation",
   "playground.description": "Write the prompt yourself, add references, choose a model and render through the same protected generation pipeline.",

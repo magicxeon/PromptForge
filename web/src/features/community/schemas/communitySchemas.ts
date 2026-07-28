@@ -61,6 +61,7 @@ export const communityPostSchema = z.object({
   }).default({}),
   remixAvailability: z.boolean().default(false),
   templateAvailability: z.boolean().default(false),
+  faceReuseAvailability: z.boolean().default(false),
   comparisonSnapshot: z.object({
     criteria: nullableText,
     slots: z.array(comparisonSlotSchema).default([])

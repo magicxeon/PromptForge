@@ -51,6 +51,8 @@ import { characterProfileSharingService } from '../domain/character-profiles/Cha
 import { resolveFrontendRoute } from './frontendRouteOwnership.js';
 import { registerFashionBlueprintRoutes } from './routes/fashionBlueprintRoutes.js';
 import { registerReferenceRoutes } from './routes/referenceRoutes.js';
+import { registerReferenceHandoffRoutes } from './routes/referenceHandoffRoutes.js';
+import { faceReferenceHandoffService } from '../domain/generation/FaceReferenceHandoffService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -130,6 +132,7 @@ export function createApp() {
   registerGenerationRoutes(app, sharedDependencies);
   registerFashionBlueprintRoutes(app, sharedDependencies);
   registerReferenceRoutes(app);
+  registerReferenceHandoffRoutes(app, { faceReferenceHandoffService });
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app, { communityFeaturePolicyService });

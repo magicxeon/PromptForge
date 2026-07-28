@@ -92,7 +92,117 @@ describe('Studio visual option registry', () => {
     expect(result?.size).toBe('large');
     expect(result?.items[0]?.option.id).toBe('body.female_silhouette_01');
   });
+
+  it('renders Clothing Pattern and Material fields as semantic swatches', () => {
+    const patternResult = resolveVisualPresentation({
+      field: clothingField('Pattern', 'outfit.pattern.plaid'),
+      manifests: {}
+    });
+    const materialResult = resolveVisualPresentation({
+      field: clothingField('Material', 'outfit.material.denim'),
+      manifests: {}
+    });
+    const surfaceResult = resolveVisualPresentation({
+      field: clothingField('Material / Surface', 'clothing.material.satin'),
+      manifests: {}
+    });
+
+    expect(patternResult).toMatchObject({
+      kind: 'swatch',
+      items: [{ pattern: 'plaid' }]
+    });
+    expect(materialResult).toMatchObject({
+      kind: 'swatch',
+      items: [{ pattern: 'denim' }]
+    });
+    expect(surfaceResult).toMatchObject({
+      kind: 'swatch',
+      items: [{ pattern: 'satin' }]
+    });
+  });
+
+  it('keeps Hair Cut / Style visuals presentation-aware like Vanilla', () => {
+    const field: AttributeField = {
+      name: 'Cut / Style',
+      control: 'visual-select',
+      group: 'Hair',
+      options: [
+        hairOption('hair_008', 'Ponytail'),
+        hairOption('hair_029', 'Crew Cut')
+      ]
+    };
+    const manifest = createManifest({
+      fieldId: 'hair.cut_style',
+      optionId: 'hair.cut_style.ponytail',
+      imageUrl: '/assets/visual-character-builder/headshot-v1/hair/ponytail.png'
+    });
+    manifest.items.push({
+      assetId: 'visual.hair.cut-style.crew-cut',
+      optionId: 'hair.cut_style.crew_cut',
+      slug: 'crew-cut',
+      alt: { en: 'Crew Cut' },
+      assets: {
+        preview: '/assets/visual-character-builder/headshot-v1/hair/crew-cut.png'
+      }
+    });
+
+    const female = resolveVisualPresentation({
+      field,
+      manifests: { 'hair.cut_style': manifest },
+      gender: selection('gender.female', 'Female')
+    });
+    const male = resolveVisualPresentation({
+      field,
+      manifests: { 'hair.cut_style': manifest },
+      gender: selection('gender.male', 'Male')
+    });
+
+    expect(female?.items.map(item => item.option.id)).toEqual(['hair_008']);
+    expect(male?.items.map(item => item.option.id)).toEqual(['hair_029']);
+  });
 });
+
+function hairOption(id: string, label: string): AttributeField['options'][number] {
+  return {
+    id,
+    category: 'hair',
+    subcategory: 'Style',
+    label,
+    group: 'Hair',
+    prompt: label.toLowerCase(),
+    tags: ['style']
+  };
+}
+
+function selection(id: string, label: string): AttributeSelection {
+  return {
+    id,
+    value: label.toLowerCase(),
+    label,
+    isCustom: false,
+    group: 'Character',
+    category: 'character',
+    tags: [],
+    gptPositiveWords: []
+  };
+}
+
+function clothingField(name: string, optionId: string): AttributeField {
+  return {
+    name,
+    control: 'select',
+    group: 'Clothing',
+    options: [{
+      id: optionId,
+      category: 'clothing',
+      subcategory: name,
+      label: optionId,
+      group: 'Clothing',
+      prompt: optionId,
+      tags: ['clothing']
+    }]
+  };
+}
 
 function createManifest({
   fieldId,

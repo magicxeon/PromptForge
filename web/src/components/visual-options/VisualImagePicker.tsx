@@ -4,24 +4,25 @@ import { useTranslation } from 'react-i18next';
 import type { AttributeSelection } from '../../features/studio/attributes/attributeModel';
 import { createSelection, localized } from '../../features/studio/attributes/attributeModel';
 import type { VisualFieldPresentation } from '../../features/studio/visual-options/visualOptionRegistry';
+import { VisualOptionGrid } from './VisualOptionGrid';
 
 export function VisualImagePicker({
   presentation,
   value,
+  disabled = false,
   onChange
 }: {
   presentation: VisualFieldPresentation;
   value?: AttributeSelection;
+  disabled?: boolean;
   onChange: (value: AttributeSelection | null) => void;
 }) {
   const { i18n } = useTranslation();
   const locale = (i18n.resolvedLanguage || 'en').split('-')[0] || 'en';
-
   return (
-    <div
+    <VisualOptionGrid
+      variant={presentation.size}
       className={`visual-image-picker visual-image-picker--${presentation.size}`}
-      role="listbox"
-      aria-orientation="horizontal"
     >
       {presentation.items.map(item => {
         const selected = value?.id === item.option.id;
@@ -33,6 +34,7 @@ export function VisualImagePicker({
             className={`visual-image-option${selected ? ' is-selected' : ''}`}
             role="option"
             aria-selected={selected}
+            disabled={disabled}
             onClick={() => onChange(selected ? null : createSelection(item.option))}
           >
             <span
@@ -59,11 +61,15 @@ export function VisualImagePicker({
                 />
               )}
             </span>
-            <span className="visual-image-option__label">{localized(item.option.label)}</span>
-            {selected ? <Check className="visual-image-option__check" aria-hidden="true" /> : null}
+            <span className="visual-image-option__label">
+              {localized(item.option.label)}
+            </span>
+            {selected ? (
+              <Check className="visual-image-option__check" aria-hidden="true" />
+            ) : null}
           </button>
         );
       })}
-    </div>
+    </VisualOptionGrid>
   );
 }

@@ -1,5 +1,9 @@
 import { compilePromptOnServer } from './promptCompiler.js';
-import { normalizeReferenceJobIds, stripEmbeddedReferenceDataFromSnapshot } from './referenceUtils.js';
+import {
+  normalizeReferenceJobIds,
+  normalizeReferenceValue,
+  stripEmbeddedReferenceDataFromSnapshot
+} from './referenceUtils.js';
 import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplateSanitizer.js';
 import { getCharacterCastingPolicy } from '../character-profiles/characterCastingPolicy.js';
 import {
@@ -11,6 +15,7 @@ import {
   createReferenceRoleManifest,
   validatePlaygroundReferenceRoles
 } from './referenceRolePolicy.js';
+import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 
@@ -47,11 +52,23 @@ function normalizePromptMode(payload) {
     : 'normal';
 }
 
+function normalizeCharacterReferenceOutfitBehavior(value) {
+  return value === 'replaceable' ? 'replaceable' : 'preserve';
+}
+
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
   validatePlaygroundReferenceRoles(payload);
   const isCharacterCastingExport = payload.characterProfileContext?.purpose === 'character_casting_export';
   const requestedOutputCount = Number(payload.outputCount || 1);
   const hasFaceReference = Boolean(payload.faceReferenceImageA || payload.faceReferenceImageB);
+  const faceReferenceJobId = normalizeReferenceValue(payload.faceReferenceImageA)?.jobId || null;
+  const faceReferenceAuthorization = payload.faceReferenceContext?.authorizationToken
+    ? faceReferenceHandoffService.verifyAuthorization(
+      payload.faceReferenceContext.authorizationToken,
+      actorContext,
+      faceReferenceJobId
+    )
+    : null;
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
   const hasOutfitFront = Boolean(payload.outfitReferenceImageFront);
@@ -118,6 +135,10 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   ].filter(value => typeof value === 'string' && value.trim());
 
   const sceneBuilder = normalizeSceneBuilderState(payload.sceneBuilder, mode);
+  const characterReferenceOutfitBehavior = normalizeCharacterReferenceOutfitBehavior(
+    payload.characterReferenceOutfitBehavior
+      || payload.characterProfileContext?.outfitBehavior
+  );
   const selections = reusableCharacterSheet
     ? Object.fromEntries(Object.entries(payload.selections || {}).filter(([, selection]) =>
       selection?.group !== 'Clothing'
@@ -138,6 +159,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     ...payload,
     mode,
     characterType,
+    characterReferenceOutfitBehavior,
     selections,
     sceneBuilder,
     sceneTemplateSnapshot,
@@ -162,6 +184,9 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
         : null
     }),
     characterProfileContext: normalizeCharacterProfileContext(payload.characterProfileContext),
+    authorizedFaceReferenceJobIds: faceReferenceAuthorization
+      ? normalizeReferenceJobIds([faceReferenceAuthorization.jobId])
+      : [],
     referenceCount: new Set(activeReferenceValues).size
   };
   normalizedContext.referenceRoleManifest = createReferenceRoleManifest(normalizedContext);
@@ -206,31 +231,52 @@ export function compilePromptFromGenerationContext(context) {
       context.isGptSafe,
       context.customColors,
       context.outfitReferenceOverrides,
-      usesCastingLayout
-        ? {
-          characterSheetLayoutOverride: castingPolicy.promptDirective,
-          omitCharacterSheetClothing: true
-        }
-        : {}
+      {
+        characterReferenceOutfitBehavior: context.characterReferenceOutfitBehavior,
+        ...(usesCastingLayout
+          ? {
+            characterSheetLayoutOverride: castingPolicy.promptDirective,
+            omitCharacterSheetClothing: true
+          }
+          : {})
+      }
     ));
+  const effectiveCharacterOutfitBehavior = normalizeCharacterReferenceOutfitBehavior(
+    context.characterReferenceOutfitBehavior
+      || context.characterProfileContext?.outfitBehavior
+  );
+  const preserveCharacterOutfit = effectiveCharacterOutfitBehavior === 'preserve'
+    && context.imageReferences?.outfitReference !== true;
+  const characterReferenceDirective = (
+    context.imageReferences?.characterReference
+    || context.characterProfileContext?.purpose === 'character_usage'
+  )
+    ? [
+      'Use the selected character reference only to preserve the same character identity and body proportions.',
+      preserveCharacterOutfit
+        ? 'Preserve the original outfit identity and garment details from the outfit-bound character reference.'
+        : context.imageReferences?.outfitReference === true
+          ? 'Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions.'
+          : 'The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied.',
+      preserveCharacterOutfit
+        ? 'Follow the destination expression, pose, styling, and environment directions without replacing the original outfit.'
+        : 'Follow the destination expression, pose, clothing, styling, and environment directions.'
+    ]
+    : [];
   return castingExport
     ? (context.userRole === 'admin' && adminPromptOverride
       ? `${castingPolicy.promptDirective}, ${basePrompt}`
       : basePrompt)
     : context.characterProfileContext?.purpose === 'character_usage'
       ? [
-        'Use the selected character reference only to preserve the same character identity and body proportions.',
-        context.characterProfileContext.outfitBehavior === 'preserve'
-          ? 'Preserve the original outfit identity and garment details from the outfit-bound character reference.'
-          : 'The fitted white casting uniform in that reference is not the target outfit and must not be copied.',
+        ...characterReferenceDirective,
         context.characterProfileContext.personalitySummarySnapshot
           ? `Portray the character personality as: ${context.characterProfileContext.personalitySummarySnapshot}.`
           : '',
-        context.characterProfileContext.outfitBehavior === 'preserve'
-          ? 'Follow the destination expression, pose, styling, and environment directions without replacing the original outfit.'
-          : 'Follow the destination expression, pose, clothing, styling, and environment directions.',
         basePrompt
       ].filter(Boolean).join(' ')
+      : characterReferenceDirective.length
+        ? [...characterReferenceDirective, basePrompt].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
         ? `${castingPolicy.promptDirective}, ${basePrompt}`
         : basePrompt;
@@ -267,6 +313,7 @@ export function createQueueOptions(context, {
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,
     characterSheetConfig: context.characterSheetConfig || null,
+    characterReferenceOutfitBehavior: context.characterReferenceOutfitBehavior,
     characterProfileContext: context.characterProfileContext
       ? persistedCharacterProfileContext
       : null,
@@ -274,12 +321,18 @@ export function createQueueOptions(context, {
       context.characterProfileContext?.purpose === 'character_usage'
         ? normalizeReferenceJobIds([authorizedCharacterReferenceAssetId])
         : [],
+    authorizedFaceReferenceJobIds: normalizeReferenceJobIds(
+      context.authorizedFaceReferenceJobIds
+    ),
     outfitReferenceOverrides: context.outfitReferenceOverrides || normalizeOutfitReferenceOverrides(null),
     storyReferenceHandoff: context.mode === 'character-sheet'
       ? {
         referenceType: 'character-sheet',
         identityLocked: true,
-        outfitLocked: true,
+        outfitLocked: context.characterType !== CHARACTER_TYPE.REUSABLE_MODEL,
+        outfitBehavior: context.characterType === CHARACTER_TYPE.REUSABLE_MODEL
+          ? 'replaceable'
+          : 'preserve',
         sourceJobId: null
       }
       : null,

@@ -35,6 +35,10 @@ export function registerGenerationRoutes(app, {
         req.actorContext
       );
       if (context.characterProfileContext?.purpose === 'character_usage') {
+        context.characterReferenceOutfitBehavior =
+          context.characterProfileContext.outfitBehavior === 'replaceable'
+            ? 'replaceable'
+            : 'preserve';
         const canonicalAssetId =
           context.characterProfileContext.authorizedCharacterReferenceAssetId;
         context.characterReferenceImageA = canonicalAssetId;

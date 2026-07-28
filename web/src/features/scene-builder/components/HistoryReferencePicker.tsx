@@ -26,7 +26,7 @@ export function HistoryReferencePicker({
   });
   if (!roles.length) return null;
   return (
-    <section className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4">
+    <section className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4" style={{ margin: '10px 0 0 0', border: 'inhirite' }} >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3"><h2 className="m-0 flex items-center gap-2 text-lg"><History className="size-5 text-cyan-300" />{t('ui.scene.historyReference')}</h2><select value={selectedRole} onChange={event => onRoleChange(event.target.value as GenerationReferenceRole)} className="h-10 border border-[var(--mpf-border)] bg-black/35 px-3 text-sm">{roles.map(role => <option key={role} value={role}>{role.replaceAll('_', ' ')}</option>)}</select></div>
       <div className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {history.data?.items.map(item => <button key={item.id} type="button" className="h-24 w-20 shrink-0 overflow-hidden border border-[var(--mpf-border)] bg-black" title={t('ui.scene.useAsReference', { role: selectedRole })} onClick={() => onPick(selectedRole, item.imageUrl)}><img src={apiMediaUrl(item.thumbnailUrl || item.imageUrl) || ''} alt="" className="h-full w-full object-cover object-top" /></button>)}

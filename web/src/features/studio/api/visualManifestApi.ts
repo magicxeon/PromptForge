@@ -11,10 +11,10 @@ const CHARACTER_SHEET_INDEX =
 const SAFE_ASSET_PREFIX = '/assets/visual-character-builder/';
 
 export async function loadStudioVisualManifests(
-  mode: 'headshot' | 'character-sheet',
+  mode: 'headshot' | 'character-sheet' | 'scene',
   signal?: AbortSignal
 ) {
-  const indexUrls = mode === 'character-sheet'
+  const indexUrls = mode !== 'headshot'
     ? [HEADSHOT_INDEX, CHARACTER_SHEET_INDEX]
     : [HEADSHOT_INDEX];
   const indexResults = await Promise.allSettled(

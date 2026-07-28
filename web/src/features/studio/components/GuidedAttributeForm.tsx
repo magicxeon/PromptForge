@@ -10,6 +10,10 @@ import {
   visibleStudioGroups,
   type GuidedStudioMode
 } from '../studioModePolicy';
+import type { GenerationReferenceRole } from '../../generation/api/generationApi';
+import { resolveFieldReferenceAuthority } from '../referenceAuthorityPolicy';
+import type { CharacterOutfitBehavior } from '../referenceAuthorityPolicy';
+import type { StudioCustomColors } from '../attributes/customColorModel';
 
 export function GuidedAttributeForm({
   groups,
@@ -17,8 +21,12 @@ export function GuidedAttributeForm({
   characterType,
   manifests,
   selections,
+  customColors,
+  references = {},
+  characterOutfitBehavior = 'preserve',
   lockedFields = [],
   onLockChange,
+  onCustomColorsChange,
   onChange
 }: {
   groups: AttributeGroup[];
@@ -26,8 +34,12 @@ export function GuidedAttributeForm({
   characterType: 'reusable_model' | 'styled_character';
   manifests?: Record<string, VisualManifest>;
   selections: Record<string, AttributeSelection>;
+  customColors: StudioCustomColors;
+  references?: Partial<Record<GenerationReferenceRole, string>>;
+  characterOutfitBehavior?: CharacterOutfitBehavior;
   lockedFields?: string[];
   onLockChange?: (fieldName: string, locked: boolean) => void;
+  onCustomColorsChange: (colors: StudioCustomColors) => void;
   onChange: (value: Record<string, AttributeSelection>) => void;
 }) {
   const visible = useMemo(
@@ -44,24 +56,39 @@ export function GuidedAttributeForm({
             <small>{group.fields.filter(field => selections[field.name]).length}/{group.fields.length}</small>
           </summary>
           <div className="studio-attribute-group__fields">
-            {group.fields.map(field => <VisualOptionPicker
-              key={field.name}
-              field={field}
-              value={selections[field.name]}
-              visual={resolveVisualPresentation({
+            {group.fields.map(field => {
+              const authority = resolveFieldReferenceAuthority(
                 field,
-                manifests: manifests || {},
-                gender
-              })}
-              locked={lockedFields.includes(field.name)}
-              onLockChange={locked => onLockChange?.(field.name, locked)}
-              onChange={selection => {
-                const next = { ...selections };
-                if (selection) next[field.name] = selection;
-                else delete next[field.name];
-                onChange(next);
-              }}
-            />)}
+                references,
+                characterOutfitBehavior
+              );
+              return (
+                <VisualOptionPicker
+                  key={field.name}
+                  field={field}
+                  value={selections[field.name]}
+                  visual={resolveVisualPresentation({
+                    field,
+                    manifests: manifests || {},
+                    gender
+                  })}
+                  disabled={Boolean(authority)}
+                  disabledReason={authority
+                    ? `ui.visual.referenceAuthority.${authority}`
+                    : undefined}
+                  locked={lockedFields.includes(field.name)}
+                  customColors={customColors}
+                  onLockChange={locked => onLockChange?.(field.name, locked)}
+                  onCustomColorsChange={onCustomColorsChange}
+                  onChange={selection => {
+                    const next = { ...selections };
+                    if (selection) next[field.name] = selection;
+                    else delete next[field.name];
+                    onChange(next);
+                  }}
+                />
+              );
+            })}
           </div>
         </details>
       ))}

@@ -19,6 +19,7 @@ import {
 const DRAFT_TTL_MS = 15 * 60 * 1000;
 const PROMPT_VISIBILITIES = new Set(['full', 'partial', 'remix_only', 'private']);
 const POST_VISIBILITIES = new Set(['public', 'unlisted', 'private']);
+const FACE_REUSE_POLICIES = new Set(['view_only', 'public_reusable']);
 
 export class CommunityShareService {
   constructor({
@@ -94,6 +95,9 @@ export class CommunityShareService {
       imageUrl: generation.imageUrl || '',
       thumbnailUrl: generation.thumbnailUrl || '',
       sourceType: sanitizedSceneTemplate ? 'scene_template' : 'generated_image',
+      sourceGenerationMode: generation.mode || null,
+      faceReuseEligible: generation.mode === 'headshot',
+      faceReusePolicy: 'view_only',
       title: '',
       description: '',
       promptVisibility: 'full',
@@ -125,7 +129,10 @@ export class CommunityShareService {
         : validatePromptVisibility(payload.promptVisibility),
       visibility: payload.visibility === undefined
         ? current.visibility
-        : validatePostVisibility(payload.visibility)
+        : validatePostVisibility(payload.visibility),
+      faceReusePolicy: payload.faceReusePolicy === undefined
+        ? current.faceReusePolicy
+        : validateFaceReusePolicy(payload.faceReusePolicy, current)
     };
     this.shareDrafts.set(draftId, next);
     return structuredClone(next);
@@ -143,6 +150,11 @@ export class CommunityShareService {
       payload.promptVisibility ?? draft.promptVisibility ?? 'full'
     );
     const visibility = validatePostVisibility(payload.visibility ?? draft.visibility ?? 'public');
+    const faceReusePolicy = validateFaceReusePolicy(
+      payload.faceReusePolicy ?? draft.faceReusePolicy ?? 'view_only',
+      draft,
+      visibility
+    );
     if (!title) throw new RepositoryContractError('post_title_required', 'Title is required.');
 
     const draftSnapshots = {
@@ -188,6 +200,8 @@ export class CommunityShareService {
       imageAssetId: draft.imageAssetId,
       thumbnailAssetId: draft.thumbnailAssetId,
       sourceType: draft.sourceType,
+      sourceGenerationMode: draft.sourceGenerationMode,
+      faceReusePolicy,
       ...publishedSnapshots,
       visibility,
       reusePolicy: reusable ? 'remix_allowed' : 'view_only',
@@ -340,4 +354,19 @@ function validatePostVisibility(value) {
     throw new RepositoryContractError('invalid_post_visibility', 'Post visibility setting is invalid.');
   }
   return value;
+}
+
+function validateFaceReusePolicy(value, draft = {}, visibility = draft.visibility) {
+  const normalized = String(value || 'view_only');
+  if (!FACE_REUSE_POLICIES.has(normalized)) {
+    throw new RepositoryContractError('face_reuse_policy_invalid', 'Face reuse policy is invalid.');
+  }
+  if (normalized === 'public_reusable'
+    && (!draft.faceReuseEligible || draft.sourceGenerationMode !== 'headshot' || visibility !== 'public')) {
+    throw new RepositoryContractError(
+      'face_reuse_policy_unavailable',
+      'Public Face reuse requires a public Face Creation result.'
+    );
+  }
+  return normalized;
 }

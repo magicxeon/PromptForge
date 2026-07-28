@@ -55,6 +55,31 @@ matching the clothing outfit from the uploaded front and back outfit references,
 - Prompt is not a Story Mode scene prompt.
 - Admin can inspect/edit final prompt before generation.
 
+## Three-View Orientation and Typography Guard (2026-07-29)
+
+Every Reusable and Styled Character Sheet uses this fixed contract:
+
+1. Left: front view facing directly toward the camera.
+2. Center: exact side profile facing toward the viewer's right.
+3. Right: back view facing directly away from the camera.
+
+In the center view, face, nose, chest, hips, knees and toes point in the same
+direction. The head stays aligned with the torso and must not turn toward the
+camera or opposite the body.
+
+The output is an unlabeled image only. Prompt policy prohibits text, captions,
+words, letters, `Front View`/`Side View`/`Back View` titles, arrows, numbers,
+borders, dividers, logos and watermarks.
+
+A legacy `Sheet Layout` may add presentation direction but cannot replace these
+orientation and no-text rules.
+
+Canonical owners:
+
+- `server/config/character-casting-policy.json`
+- `server/domain/generation/promptCompiler.js`
+- `web/src/features/studio/attributes/attributeModel.ts`
+
 ## Implementation Log
 
 ### 2026-07-18 - Prompt Compiler Contract Baseline

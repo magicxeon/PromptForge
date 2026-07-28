@@ -127,7 +127,7 @@ Create a schema-driven renderer. The component registry maps field types:
 select
 multi-select
 visual-card
-visual-carousel
+visual-grid
 text
 textarea
 checkbox/switch
@@ -180,6 +180,58 @@ Outfit Reference UI:
 - incompatible customization controls are hidden/disabled according to rule;
 - front/back ownership and provider limits are validated.
 
+### 8.1 Clothing Visual Parity Amendment
+
+Character Sheet and Scene Builder must consume one React Clothing presentation
+contract. They must not maintain separate Outfit, Pattern or Material renderers.
+
+Shared core fields:
+
+```text
+Outfit Base -> character-sheet visual manifest cards
+Pattern -> semantic CSS swatches
+Material -> semantic CSS surface swatches
+Primary Color / Secondary Color -> canonical Clothing color controls
+```
+
+Scene Builder may additionally expose commerce-oriented Clothing fields from the
+canonical schema, including `Material / Surface`, but the shared fields above
+must look and behave identically in both workflows.
+
+Implementation ownership:
+
+- `web/src/features/studio/visual-options/visualOptionRegistry.ts` owns field to
+  visual-presentation mapping;
+- `web/src/components/visual-options/VisualOptionPicker.tsx` and
+  `VisualSwatchPicker.tsx` own reusable rendering;
+- `web/src/features/studio/api/visualManifestApi.ts` loads Headshot and
+  Character Sheet manifests for Scene Builder as well as Character Sheet;
+- both routes pass the same manifest map into `GuidedAttributeForm`.
+
+Regression requirements:
+
+- Scene Builder must not silently fall back to dropdown-only Outfit Base when
+  the Character Sheet manifest is available;
+- Pattern, Material and Material / Surface must provide visual swatches while
+  retaining their accessible select fallback and custom write-in;
+- reference authority may disable these fields, but must not replace their
+  presentation implementation;
+- Reusable Model Scene handoff keeps these controls enabled, while Styled
+  Character and explicit Outfit Reference apply their existing ownership rules.
+- all image and swatch presentations use the shared React `VisualOptionGrid`
+  contract and wrap options onto additional rows; no visual field uses a
+  horizontal carousel or hides options beyond the viewport;
+- compact facial controls, large Body/Outfit cards and Pattern/Material
+  swatches vary only by the grid sizing variant, while selection, wrapping and
+  responsive behavior remain consistent in Character Sheet and Scene Builder;
+- Hair field normalization preserves the canonical aliases `Cut / Style` to
+  `Style`, `Texture` to `Hair Texture`, and `Parting / Fringe` to `Bangs`;
+  reviewed Cut / Style cards remain Female/Male presentation-aware and
+  dropdown-only options never render as empty visual cards;
+- successful `Use Face` and `Build Scene` lightbox handoffs close the viewer,
+  navigate with the `#reference-images` anchor and smoothly reveal the populated
+  Reference Images section on the destination surface.
+
 ## 9. Cross-Mode Handoff
 
 Replace loose globals with a versioned handoff contract:
@@ -221,7 +273,7 @@ Do not put large images in navigation state/localStorage.
 - visual manifest missing asset;
 - handoff from result to Character Profile;
 - estimate/payload equality;
-- mobile carousel and expanded-section scroll behavior.
+- responsive visual-grid wrapping and expanded-section scroll behavior.
 
 ## 12. Exit Criteria
 

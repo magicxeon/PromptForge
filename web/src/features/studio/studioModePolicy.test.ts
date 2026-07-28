@@ -64,6 +64,22 @@ describe('studioModePolicy', () => {
     expect(result['Face Shape']).toEqual(lockedSelection);
     expect(result['Hair Style']?.group).toBe('Hair');
   });
+
+  it('preserves but does not randomize fields controlled by a reference', () => {
+    const faceShape = selection('Face');
+    const result = randomizeStudioSelections(
+      [
+        groupWithField('Face', 'Face Shape'),
+        groupWithField('Face', 'Expression')
+      ],
+      new Set(),
+      { 'Face Shape': faceShape },
+      { face_reference: '/outputs/face.png' }
+    );
+
+    expect(result['Face Shape']).toEqual(faceShape);
+    expect(result.Expression?.group).toBe('Face');
+  });
 });
 
 describe('Studio reference mode policy', () => {

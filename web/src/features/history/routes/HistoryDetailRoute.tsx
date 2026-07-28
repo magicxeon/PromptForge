@@ -12,6 +12,7 @@ import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { deleteHistoryItem, getHistoryItem } from '../api/historyApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
+import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
 
 export function HistoryDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -45,6 +46,12 @@ export function HistoryDetailRoute() {
             <a href={apiMediaUrl(item.data.imageUrl) || ''} download className="inline-flex min-h-10 items-center gap-2 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] px-4 text-sm text-white no-underline"><Download className="size-4" />{t('ui.action.download')}</a>
             <CollectionPickerDialog jobId={item.data.id} />
             <ShareGeneratedDialog jobId={item.data.id} />
+            {item.data.mode === 'headshot' ? (
+              <FaceReferenceDestinationDialog
+                source={{ sourceType: 'generation', sourceId: item.data.id }}
+                imageUrl={item.data.imageUrl}
+              />
+            ) : null}
             <ConfirmDialog
               trigger={<Button variant="danger" icon={<Trash2 className="size-4" />}>{t('ui.action.delete')}</Button>}
               title={t('ui.history.deleteTitle')}

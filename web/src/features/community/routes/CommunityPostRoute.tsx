@@ -13,6 +13,7 @@ import { Surface } from '../../../components/ui/Surface';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { ComparisonWorkspace } from '../../../components/comparisons/ComparisonWorkspace';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
+import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { queryKeys } from '../../../lib/api/queryKeys';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -145,6 +146,12 @@ export function CommunityPostRoute() {
               >
                 {t('community.template.use')}
               </Button>
+            ) : null}
+            {item.faceReuseAvailability && primaryImage ? (
+              <FaceReferenceDestinationDialog
+                source={{ sourceType: 'community_post', sourceId: item.id }}
+                imageUrl={primaryImage}
+              />
             ) : null}
             {primaryImage ? (
               <>

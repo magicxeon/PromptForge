@@ -31,7 +31,9 @@ Rules:
 Character Type narrows reuse permission:
 
 - Reusable Model: Fashion and Scene handoffs.
-- Styled Character: Scene handoff with its original outfit only.
+- Styled Character: Scene handoff preserves its original outfit by default.
+  An explicitly selected or uploaded replacement outfit may override it in the
+  destination Scene Builder.
 - Public reuse permission never upgrades a Styled Character into a Fashion-safe
   model.
 
@@ -125,8 +127,9 @@ authorization.
 - Only owner can publish/unpublish.
 - Admin can block with audited reason.
 - Public Reusable Models require an approved casting export and preview.
-- Public Styled Characters require an approved owned Character Sheet and keep
-  the original outfit in every Scene handoff.
+- Public Styled Characters require an approved owned Character Sheet. Their
+  original outfit is the Scene default, while an explicit destination outfit
+  replacement is allowed.
 - Original recognizable-person reference requires a rights declaration before
   public reuse.
 - Deleting/unpublishing blocks future reuse but does not erase lawful historical
