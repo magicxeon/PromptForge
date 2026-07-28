@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Image as ImageIcon, Palette } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 
@@ -14,6 +14,7 @@ type StudioGenerationWorkspaceProps = {
   configActions?: ReactNode;
   actions: ReactNode;
   messages?: ReactNode;
+  focusResultSignal?: number;
 };
 
 export function StudioGenerationWorkspace({
@@ -26,14 +27,29 @@ export function StudioGenerationWorkspace({
   prompt,
   configActions,
   actions,
-  messages
+  messages,
+  focusResultSignal = 0
 }: StudioGenerationWorkspaceProps) {
   const { t } = useTranslation('react-ui');
   const [viewportCollapsed, setViewportCollapsed] = useState(false);
+  const viewportRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (focusResultSignal > 0) setViewportCollapsed(false);
+  }, [focusResultSignal]);
+
+  useEffect(() => {
+    if (focusResultSignal <= 0 || viewportCollapsed) return;
+    const animationFrame = window.requestAnimationFrame(() => {
+      viewportRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [focusResultSignal, viewportCollapsed]);
 
   return (
     <div className="studio-workspace">
       <section
+        ref={viewportRef}
         className={`studio-viewport-panel${viewportCollapsed ? ' is-collapsed' : ''}`}
         aria-labelledby="studio-viewport-title"
       >
@@ -89,16 +105,20 @@ export function StudioGenerationWorkspace({
           </section>
 
           <section className="studio-step-card studio-step-card--generation">
-            {engine}
-            {references}
-            {prompt}
-            <header className="studio-step-heading studio-step-heading--render">
-              <span>{t('ui.studio.stepLabel')} 3</span>
-              <h2>{t('ui.studio.renderPrompt')}</h2>
-            </header>
-            {configActions}
-            {actions}
-            {messages}
+            <div className="studio-generation-scroll-region">
+              {engine}
+              {references}
+              {prompt}
+            </div>
+            <div className="studio-generation-command-region">
+              <header className="studio-step-heading studio-step-heading--render">
+                <span>{t('ui.studio.stepLabel')} 3</span>
+                <h2>{t('ui.studio.renderPrompt')}</h2>
+              </header>
+              {configActions}
+              {actions}
+              {messages}
+            </div>
           </section>
         </div>
       </section>

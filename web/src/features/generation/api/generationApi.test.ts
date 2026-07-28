@@ -65,12 +65,20 @@ describe('React generation contract', () => {
   });
 
   it('preserves headshot and character-sheet generation modes', () => {
-    expect(generationPayload(draft()).generationMode).toBe('headshot');
+    const headshot = generationPayload(draft());
+    expect(headshot.generationMode).toBe('headshot');
+    expect(headshot.mode).toBe('headshot');
     const characterSheet = generationPayload(draft({
       generationMode: 'character-sheet',
       characterType: 'reusable_model'
     }));
     expect(characterSheet.mode).toBe('character-sheet');
     expect(characterSheet.characterType).toBe('reusable_model');
+  });
+
+  it('keeps Scene, Playground and Fashion on the normal prompt compiler', () => {
+    for (const generationMode of ['scene', 'playground', 'fashion'] as const) {
+      expect(generationPayload(draft({ generationMode })).mode).toBe('normal');
+    }
   });
 });

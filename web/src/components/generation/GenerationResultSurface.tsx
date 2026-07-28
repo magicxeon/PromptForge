@@ -1,4 +1,4 @@
-import { ArrowDown, Download, Image as ImageIcon } from 'lucide-react';
+import { ArrowDown, Download, Image as ImageIcon, LoaderCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ export function GenerationResultSurface({
   const { t } = useTranslation('playground');
   const [viewerOpen, setViewerOpen] = useState(false);
   const run = comparison?.runs.at(-1);
+  const loading = pending || isActiveGenerationStatus(job?.status);
   const visible = pending || job || run;
   if (!visible && !showEmpty) return null;
   return (
@@ -112,8 +113,41 @@ export function GenerationResultSurface({
               />
             </>
           ) : (
-            <div className="grid min-h-72 place-items-center p-6 text-center">
-              <div><span className="mx-auto grid size-12 place-items-center border border-[var(--mpf-border)] text-cyan-300"><ImageIcon /></span><strong className="mt-4 block">{job?.status || t('playground.result.preparing')}</strong><p className="text-sm text-[var(--mpf-text-muted)]">{jobError(job) || t('playground.result.emptyDescription')}</p></div>
+            <div
+              className="grid min-h-72 place-items-center p-6 text-center"
+              role={loading ? 'status' : undefined}
+              aria-live={loading ? 'polite' : undefined}
+              aria-busy={loading}
+            >
+              <div>
+                {loading ? (
+                  <span className="relative mx-auto grid size-16 place-items-center text-amber-300">
+                    <span
+                      className="absolute inset-1 animate-ping rounded-full border border-amber-300/35"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="absolute inset-0 rounded-full border border-amber-300/15 shadow-[0_0_32px_rgb(251_191_36_/_0.3)]"
+                      aria-hidden="true"
+                    />
+                    <LoaderCircle className="size-10 animate-spin" aria-hidden="true" />
+                  </span>
+                ) : (
+                  <span className="mx-auto grid size-12 place-items-center border border-[var(--mpf-border)] text-cyan-300">
+                    <ImageIcon aria-hidden="true" />
+                  </span>
+                )}
+                <strong className="mt-4 block">
+                  {loading
+                    ? t(generationStatusKey(job?.status))
+                    : job?.status || t('playground.result.preparing')}
+                </strong>
+                <p className="text-sm text-[var(--mpf-text-muted)]">
+                  {jobError(job) || (loading
+                    ? t('playground.result.preparing')
+                    : t('playground.result.emptyDescription'))}
+                </p>
+              </div>
             </div>
           )}
         </Surface>
@@ -157,4 +191,17 @@ function toViewerItem(
 function jobError(job?: JobStatus | null) {
   if (!job?.error) return '';
   return typeof job.error === 'string' ? job.error : job.error.message || job.error.code || '';
+}
+
+function isActiveGenerationStatus(status?: string) {
+  return ['queued', 'pending', 'processing', 'streaming', 'generating', 'running']
+    .includes((status || '').toLowerCase());
+}
+
+function generationStatusKey(status?: string) {
+  const normalized = (status || '').toLowerCase();
+  if (normalized === 'queued' || normalized === 'pending') {
+    return 'playground.result.queued' as const;
+  }
+  return 'playground.result.generating' as const;
 }

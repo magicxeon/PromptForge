@@ -60,10 +60,47 @@ describe('Studio attribute model', () => {
   it('compiles canonical mode prefixes and selected prompt phrases', () => {
     const option = normalizeAttributeGroups(bundle)[0]!.fields[0]!.options[0]!;
     const selection = createSelection(option);
-    expect(compileSelectionPreview(
+    const preview = compileSelectionPreview(
       { 'Face Shape': selection },
       'character-sheet',
       'reusable_model'
-    )).toContain('professional full-body three-view character casting sheet, oval face');
+    );
+    expect(preview).toContain('three clearly separated views side by side');
+    expect(preview).toContain('front view, exact side profile, and back view');
+    expect(preview).toContain('opaque modest fitted white casting uniform');
+    expect(preview).toContain('on a solid pure white background');
+    expect(preview).toContain('oval face');
+  });
+
+  it('keeps Face Creation as a front-facing white-background reference portrait', () => {
+    const option = normalizeAttributeGroups(bundle)[0]!.fields[0]!.options[0]!;
+    const preview = compileSelectionPreview(
+      { 'Face Shape': createSelection(option) },
+      'headshot',
+      'styled_character'
+    );
+    expect(preview).toContain('straight front-facing portrait');
+    expect(preview).toContain('solid pure white background');
+  });
+
+  it('does not leak Headshot framing into a guided Scene prompt', () => {
+    const sceneSelection = {
+      id: 'environment.studio',
+      value: 'in a modern fashion studio',
+      label: 'Modern fashion studio',
+      isCustom: false,
+      group: 'Environment',
+      category: 'environment',
+      tags: [],
+      gptPositiveWords: []
+    };
+    const preview = compileSelectionPreview(
+      { Environment: sceneSelection },
+      'scene',
+      'styled_character'
+    );
+    expect(preview).toContain('in a modern fashion studio');
+    expect(preview).not.toContain('headshot portrait');
+    expect(preview).not.toContain('solid pure white background');
   });
 });

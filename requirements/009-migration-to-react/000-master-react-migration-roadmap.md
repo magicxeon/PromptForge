@@ -222,6 +222,7 @@ generation control, engagement action or profile section.
 | 010 | Studio and Character Builder | Guided visual authoring and attribute controls |
 | 011 | Scene Builder and template workflows | Guided/manual scenes, variables and handoffs |
 | 012 | Quality, cutover and decommission | Security, performance, final switch and legacy removal |
+| 013 | Guided generation prompt parity | Correct Face, Character Sheet and Scene compiler-mode contracts |
 
 Steps 001-004 are mandatory foundation gates. Feature steps may overlap only
 when they consume released foundation APIs and do not edit the same legacy

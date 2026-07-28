@@ -98,16 +98,72 @@ export function createCustomSelection(field: AttributeField, value: string): Att
 
 export function compileSelectionPreview(
   selections: Record<string, AttributeSelection>,
-  mode: 'headshot' | 'character-sheet',
+  mode: 'headshot' | 'character-sheet' | 'scene',
   characterType: 'reusable_model' | 'styled_character'
 ) {
-  const phrases = Object.values(selections).map(selection => selection.value).filter(Boolean);
-  const prefix = mode === 'headshot'
-    ? 'headshot portrait'
-    : characterType === 'reusable_model'
-      ? 'professional full-body three-view character casting sheet'
-      : 'professional full-body character sheet';
-  return [prefix, ...phrases, 'photorealistic photography, clean anatomy, clear realistic details']
+  const valuesForGroups = (groups: ReadonlySet<string>) =>
+    [...new Set(Object.values(selections)
+      .filter(selection => groups.has(selection.group))
+      .map(selection => selection.value)
+      .filter(Boolean))];
+
+  if (mode === 'scene') {
+    return [
+      ...valuesForGroups(new Set([
+        'Character',
+        'Fashion Direction',
+        'Scene Story',
+        'Photographic Context',
+        'Pose',
+        'Environment',
+        'Lighting',
+        'Camera',
+        'Quality'
+      ])),
+      'photorealistic scene photography, natural composition, clear realistic details'
+    ].join(', ').replace(/,\s*,/g, ',').trim();
+  }
+
+  if (mode === 'headshot') {
+    return [
+      'headshot portrait',
+      ...valuesForGroups(new Set(['Character', 'Face', 'Hair', 'Skin'])),
+      'showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head',
+      'on a solid pure white background',
+      'photorealistic photography',
+      'realistic camera imperfections',
+      ...valuesForGroups(new Set(['Camera', 'Quality']))
+    ].join(', ').replace(/,\s*,/g, ',').trim();
+  }
+
+  const identityAndBody = valuesForGroups(new Set([
+    'Character',
+    'Face',
+    'Hair',
+    'Skin',
+    'Body'
+  ]));
+  const cameraAndQuality = valuesForGroups(new Set(['Camera', 'Quality']));
+  const clothing = characterType === 'reusable_model'
+    ? [
+      'wearing an opaque modest fitted white casting uniform with a fitted white short-sleeve top and fitted white mid-thigh shorts',
+      'never underwear, lingerie, swimwear, transparent fabric, or sexualized styling'
+    ]
+    : valuesForGroups(new Set(['Clothing']));
+  const styledClothing = characterType === 'styled_character' && !clothing.length
+    ? ['wearing modest neutral character reference clothing']
+    : clothing;
+
+  return [
+    'professional full-body character model sheet showing exactly three clearly separated views side by side: front view, exact side profile, and back view',
+    'complete head-to-feet figure in every view with clear margins, neutral upright standing pose',
+    ...identityAndBody,
+    ...styledClothing,
+    'on a solid pure white background',
+    'photorealistic photography',
+    'realistic camera imperfections',
+    ...cameraAndQuality
+  ]
     .join(', ')
     .replace(/,\s*,/g, ',')
     .trim();

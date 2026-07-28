@@ -33,6 +33,7 @@ import {
 } from '../../../lib/persistence/actorScopedStorage';
 import { loadStudioVisualManifests } from '../api/visualManifestApi';
 import {
+  filterStudioReferences,
   filterStudioSelections,
   randomizeStudioSelections,
   visibleStudioGroups
@@ -157,31 +158,20 @@ export function StudioRoute() {
   );
   const compatibleReferences = useMemo(() => {
     const next = { ...references };
-    if (mode === 'character-sheet' && characterType === 'reusable_model') {
-      delete next.outfit_front;
-      delete next.outfit_back;
-    }
     if (mode === 'character-sheet' && referenceJob.data?.imageUrl) {
       next.face_reference = next.face_reference || referenceJob.data.imageUrl;
     }
-    return next;
+    return filterStudioReferences(next, mode, characterType);
   }, [characterType, mode, referenceJob.data?.imageUrl, references]);
   const preview = useMemo(
     () => compileSelectionPreview(compatibleSelections, mode, characterType),
     [characterType, compatibleSelections, mode]
   );
   const referenceRoles = useMemo<GenerationReferenceRole[]>(() => {
-    if (mode === 'headshot') return ['face_reference', 'style_reference'];
-    if (characterType === 'reusable_model') {
-      return ['face_reference', 'character_reference', 'style_reference'];
+    if (mode === 'headshot' || characterType === 'reusable_model') {
+      return ['face_reference'];
     }
-    return [
-      'face_reference',
-      'character_reference',
-      'style_reference',
-      'outfit_front',
-      'outfit_back'
-    ];
+    return ['face_reference', 'outfit_front', 'outfit_back'];
   }, [characterType, mode]);
 
   if (bundle.isLoading) {

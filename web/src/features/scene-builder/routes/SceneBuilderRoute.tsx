@@ -74,7 +74,10 @@ export function SceneBuilderRoute() {
     () => visibleStudioGroups(groups, 'scene', 'styled_character'),
     [groups]
   );
-  const guidedPreview = useMemo(() => compileSelectionPreview(selections, 'headshot', 'styled_character'), [selections]);
+  const guidedPreview = useMemo(
+    () => compileSelectionPreview(selections, 'scene', 'styled_character'),
+    [selections]
+  );
   const useTemplate = useMutation({
     mutationFn: (template: SharedTemplate) => requestSharedSceneTemplate(template.id),
     onSuccess: next => {

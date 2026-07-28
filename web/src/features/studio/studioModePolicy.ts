@@ -3,6 +3,7 @@ import {
   type AttributeGroup,
   type AttributeSelection
 } from './attributes/attributeModel';
+import type { GenerationReferenceRole } from '../generation/api/generationApi';
 
 export type GuidedStudioMode = 'headshot' | 'character-sheet' | 'scene';
 export type CharacterOutputType = 'reusable_model' | 'styled_character';
@@ -42,6 +43,27 @@ export function filterStudioSelections(
         && selection.group === 'Clothing')
     )
   );
+}
+
+export function filterStudioReferences(
+  references: Partial<Record<GenerationReferenceRole, string>>,
+  mode: Exclude<GuidedStudioMode, 'scene'>,
+  characterType: CharacterOutputType
+) {
+  const allowed = mode === 'headshot'
+    ? new Set<GenerationReferenceRole>(['face_reference'])
+    : characterType === 'reusable_model'
+      ? new Set<GenerationReferenceRole>(['face_reference'])
+      : new Set<GenerationReferenceRole>([
+        'face_reference',
+        'outfit_front',
+        'outfit_back'
+      ]);
+  return Object.fromEntries(
+    Object.entries(references).filter(
+      ([role, value]) => allowed.has(role as GenerationReferenceRole) && Boolean(value)
+    )
+  ) as Partial<Record<GenerationReferenceRole, string>>;
 }
 
 export function randomizeStudioSelections(

@@ -169,6 +169,16 @@ Header เดิมใช้:
 
 ## 5. แนวคิด Navigation ใหม่
 
+### Global Header Select Contract
+
+Language and mock-actor switching use one shared React
+`web/src/components/layout/HeaderSelect.tsx` component. Both controls must use
+the same opaque dark trigger and native option palette, `color-scheme: dark`,
+high-contrast text, Cyan hover/focus treatment, keyboard-accessible labels, and
+responsive behavior. The language variant remains compact while the actor
+variant allows a wider display name. Windows native dropdown menus must not
+fall back to white options with low-contrast text.
+
 รูปแบบใหม่ใช้ Navigation 3 ระดับ:
 
 ```mermaid

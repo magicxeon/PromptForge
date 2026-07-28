@@ -1,0 +1,288 @@
+# 013 Guided Generation Prompt Parity and Mode Contract
+
+**Status:** Implemented; validation pending  
+**Depends on:** 009, 010, 011 and the canonical server generation pipeline
+
+## 1. Business Requirement
+
+React must preserve the output purpose of the three guided creation flows:
+
+1. **Face Creation** creates a reusable facial identity reference, not an
+   environmental portrait.
+2. **Character Sheet** creates a consistent multi-view full-body reference on a
+   white background.
+3. **Scene Builder** creates a directed scene and must not inherit the fixed
+   framing or white background of Face Creation or Character Sheet.
+
+The migration must reuse the established Vanilla prompt policy and the
+server-owned prompt compiler. React must not introduce a second final prompt
+compiler.
+
+## 2. Defect Summary
+
+The React request carried `generationMode: "headshot"` but serialized the
+legacy compiler field as `mode: "normal"`. The server therefore selected the
+normal Scene template and generated an ordinary photograph.
+
+Additional parity gaps:
+
+- Scene Guided preview was compiled with the Headshot preview prefix;
+- copying Guided Scene text into Manual could therefore introduce Headshot
+  framing;
+- Studio exposed Character and Style reference roles in modes where the server
+  intentionally rejected them;
+- the client preview did not describe the actual server-enforced white
+  background, multi-view layout, or casting clothing policy.
+
+## 3. Canonical Mode Mapping
+
+The browser request must serialize both fields consistently:
+
+| React `generationMode` | Server prompt `mode` | Purpose |
+|---|---|---|
+| `headshot` | `headshot` | Face identity reference |
+| `character-sheet` | `character-sheet` | Multi-view Character reference |
+| `scene` | `normal` | Guided/Manual Scene |
+| `playground` | `normal` | Freeform generation |
+| `fashion` | `normal` | Fashion destination generation |
+
+`server/domain/generation/generationRequestService.js` must derive the canonical
+prompt mode from `generationMode` again. This is a trust-boundary normalization
+and protects the server from stale or contradictory clients.
+
+## 4. Face Creation Output Contract
+
+The final server prompt must enforce:
+
+- head-and-shoulders reference portrait;
+- straight front-facing head;
+- direct camera gaze;
+- level head with no tilt;
+- solid pure white background;
+- photorealistic identity detail;
+- no Environment, Scene Story, Fashion Direction, clothing-scene, or
+  uncontrolled location text.
+
+Face Creation accepts `face_reference` only. Style, Pose, Character, and Outfit
+references must not appear as usable controls because the server does not apply
+those roles in Headshot mode.
+
+## 5. Character Sheet Output Contract
+
+### 5.1 Shared layout
+
+Both Character types use a clean full-body multi-view sheet on a solid pure
+white background with:
+
+- the same identity and body proportions across views;
+- complete head-to-feet framing with safe margins;
+- neutral upright stance;
+- even studio lighting and minimal perspective distortion.
+
+The approved Vanilla/Casting layout remains
+`character-casting-three-view-v2`: **front view, exact side profile and back
+view**, arranged side by side.
+
+The product description also mentioned an angled view. It is not substituted
+for the back view in this parity task because the current profile schema,
+Fashion garment inspection, public Character assets and QA fixtures depend on
+the back view. A future front/side/three-quarter/back layout requires a new
+versioned layout ID, migration rules and visual QA.
+
+### 5.2 Reusable Model
+
+- Clothing selections and Outfit references are absent from UI state and
+  request payload.
+- The server locks an opaque, modest, fitted white short-sleeve top and fitted
+  white mid-thigh shorts.
+- The uniform must never be underwear, lingerie, swimwear, transparent or
+  sexualized.
+- Output remains eligible for Character Profile/Fashion handoff.
+
+### 5.3 Styled Character
+
+- Selected or uploaded clothing remains part of the Character identity.
+- Outfit Front is required before Outfit Back can be used.
+- If no outfit is provided, the canonical modest reference-clothing fallback
+  applies.
+- Output remains on a solid pure white background.
+- Styled Character remains Scene-oriented and does not silently become a
+  replaceable Fashion model.
+
+Character Sheet accepts:
+
+```text
+Reusable Model: face_reference
+Styled Character: face_reference, outfit_front, outfit_back
+```
+
+Character, Style and Pose references belong to Scene Builder and must not be
+displayed as functional Character Sheet inputs.
+
+## 6. Scene Builder Contract
+
+Guided Scene preview and Manual-copy source must use Scene selections:
+
+```text
+Character
+Fashion Direction
+Scene Story
+Photographic Context
+Pose
+Environment
+Lighting
+Camera
+Quality
+```
+
+It must not prepend `headshot portrait`, fixed front-facing framing, or a solid
+white background.
+
+Scene Builder retains explicit Face, Character, Style, Pose and Outfit roles,
+subject to model capability and template slot policy. Final Guided compilation
+continues on the server. Manual mode submits user-owned prompt text plus the
+canonical reference-role directive.
+
+## 7. Software Design
+
+### Client request boundary
+
+`web/src/features/generation/api/generationApi.ts`
+
+- map React workflow mode to canonical server prompt mode;
+- keep pricing and generation `generationMode` identical;
+- preserve current lightweight reference payload contract.
+
+### Client preview
+
+`web/src/features/studio/attributes/attributeModel.ts`
+
+- provide mode-specific preview assembly for `headshot`,
+  `character-sheet`, and `scene`;
+- previews explain canonical behavior but do not replace server compilation.
+
+### Studio reference policy
+
+`web/src/features/studio/studioModePolicy.ts`
+
+- filter selections and references by active Studio mode and Character type;
+- remove stale incompatible references before estimate and submission.
+
+`web/src/features/studio/routes/StudioRoute.tsx`
+
+- render only reference slots that are effective for the active workflow;
+- map Headshot result handoff to `face_reference`.
+
+### Scene orchestration
+
+`web/src/features/scene-builder/routes/SceneBuilderRoute.tsx`
+
+- compile Guided preview using Scene mode;
+- use that Scene preview when the user confirms copying Guided text into
+  Manual.
+
+### Server trust boundary
+
+`server/domain/generation/generationRequestService.js`
+
+- normalize prompt mode from `generationMode`;
+- keep the canonical server compiler authoritative.
+
+`server/config/character-casting-policy.json`
+
+- retain versioned three-view casting policy;
+- explicitly require a solid pure white background.
+
+## 8. Input, Process and Output
+
+### Face Creation
+
+```text
+Input: compatible identity selections + optional Face reference
+Process: mode normalization -> Headshot compiler -> provider request
+Output: front-facing white-background facial reference
+```
+
+### Reusable Character
+
+```text
+Input: identity/body selections + optional Face reference
+Process: prune Clothing -> lock casting policy -> Character Sheet compiler
+Output: three-view full-body white-uniform casting reference
+```
+
+### Styled Character
+
+```text
+Input: identity/body + selected/uploaded outfit
+Process: clothing ownership resolution -> Character Sheet compiler
+Output: three-view full-body outfit-bound reference on white
+```
+
+### Scene
+
+```text
+Input: Guided selections or Manual prompt + role-mapped references
+Process: normal Scene compiler/reference authority -> provider request
+Output: directed scene without Character-reference framing leakage
+```
+
+## 9. Impact and Compatibility
+
+- Existing API shape remains compatible.
+- Old clients that send a contradictory `mode` are corrected by server
+  `generationMode` normalization.
+- Existing three-view Character assets remain valid.
+- Credit estimates are unaffected because provider/model/resolution/reference
+  count and output count are unchanged.
+- Hiding ineffective Studio reference controls prevents users from believing an
+  ignored reference was submitted.
+- Scene templates and Manual prompts retain their current snapshot contracts.
+
+## 10. Implementation Plan
+
+1. Correct React `generationMode -> mode` serialization.
+2. Add server-side defensive mode normalization.
+3. Restore mode-specific client previews.
+4. Compile Scene Guided preview with Scene rules.
+5. Filter Studio reference roles to server-supported inputs.
+6. Make the casting background explicitly pure white.
+7. Add client request, preview, reference-policy and server integration tests.
+8. Run quick React validation and focused Node prompt tests.
+
+## 11. Testing
+
+### Automated
+
+- Headshot request serializes `mode: "headshot"`.
+- Headshot compiled prompt contains front-facing and pure-white directives and
+  excludes Environment.
+- Reusable Character prompt contains three views, fitted white uniform and pure
+  white background while excluding selected Clothing.
+- Styled Character prompt contains selected outfit and pure white background
+  without casting-uniform text.
+- Scene prompt contains Environment and excludes Headshot/white-background
+  directives.
+- Studio reference policy strips ineffective Character/Style/Pose/Outfit roles
+  according to mode.
+
+### Manual UI
+
+1. Generate Face Creation and verify front-facing head-and-shoulders output on
+   white.
+2. Generate Reusable Model and verify three complete views with white casting
+   clothing.
+3. Generate Styled Character with an outfit and verify the outfit appears
+   consistently across all views on white.
+4. Generate Guided Scene and verify selected pose/environment appear without
+   white reference-sheet framing.
+5. Switch Guided Scene to Manual with copy confirmation and verify copied text
+   is Scene-directed.
+
+## 12. Exit Criteria
+
+- All three flows resolve to the correct server compiler branch.
+- UI reference controls match effective server behavior.
+- Face and Character reference outputs meet their white-background contracts.
+- Scene output remains independently directed.
+- Focused prompt parity tests pass.

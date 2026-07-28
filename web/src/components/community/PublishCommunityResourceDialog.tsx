@@ -9,11 +9,13 @@ export function PublishCommunityResourceDialog({
   title,
   description,
   actionLabel,
+  triggerClassName,
   publish
 }: {
   title: string;
   description: string;
   actionLabel: string;
+  triggerClassName?: string;
   publish: (input: { title: string; description: string }) => Promise<unknown>;
 }) {
   const { t } = useTranslation('react-ui');
@@ -35,7 +37,7 @@ export function PublishCommunityResourceDialog({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button icon={<Share2 className="size-4" />}>{actionLabel}</Button>
+        <Button className={triggerClassName} icon={<Share2 className="size-4" />}>{actionLabel}</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/75 backdrop-blur-sm" />

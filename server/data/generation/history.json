@@ -1,5 +1,648 @@
 [
   {
+    "id": "job_1785244608159_yndhfb4vy",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, scandinavian nordic ethnicity, rectangular face, monolid eyes, natural thick brows, delicate narrow nose, wide lips, subtle playful smirk, long platinum blonde hair, porcelain skin, natural bare-face look with authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785244608159_yndhfb4vy.jpg",
+    "timestamp": 1785244614673,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_natural",
+        "value": "raw natural look, minimal makeup",
+        "label": "Raw natural look (minimal makeup)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.018",
+        "value": "rectangular face",
+        "label": "Rectangular face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.002",
+        "value": "monolid eyes",
+        "label": "Monolid eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.003",
+        "value": "natural thick brows",
+        "label": "Natural thick brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "label": "Delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "label": "Wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.008",
+        "value": "subtle playful smirk",
+        "label": "Playful Mild Smirk",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smirk",
+          "playful"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "6.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785244608159_yndhfb4vy.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 19668,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 641021
+  },
+  {
+    "id": "job_1785237231043_fybdolu0o",
+    "username": "user_alice",
+    "prompt": "female, 21-year-old young adult, scandinavian nordic ethnicity, raw natural look, minimal makeup, rectangular face, monolid eyes, natural thick brows, delicate narrow nose, wide lips, subtle playful smirk, long hair, platinum blonde hair, porcelain skin (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785237231043_fybdolu0o.jpg",
+    "timestamp": 1785237238761,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_natural",
+        "value": "raw natural look, minimal makeup",
+        "label": "Raw natural look (minimal makeup)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.018",
+        "value": "rectangular face",
+        "label": "Rectangular face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.002",
+        "value": "monolid eyes",
+        "label": "Monolid eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.003",
+        "value": "natural thick brows",
+        "label": "Natural thick brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "label": "Delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "label": "Wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.008",
+        "value": "subtle playful smirk",
+        "label": "Playful Mild Smirk",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smirk",
+          "playful"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785237231043_fybdolu0o.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 34006,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 794497
+  },
+  {
+    "id": "job_1785236436336_zamnwv5cj",
+    "username": "user_alice",
+    "prompt": "female, 21-year-old young adult, scandinavian nordic ethnicity, raw natural look, minimal makeup, rectangular face, monolid eyes, natural thick brows, delicate narrow nose, wide lips, subtle playful smirk, long hair, platinum blonde hair, porcelain skin (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785236436336_zamnwv5cj.jpg",
+    "timestamp": 1785236443696,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.eth_nordic",
+        "value": "scandinavian nordic ethnicity",
+        "label": "Nordic / Scandinavian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "nordic"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.beauty_natural",
+        "value": "raw natural look, minimal makeup",
+        "label": "Raw natural look (minimal makeup)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.018",
+        "value": "rectangular face",
+        "label": "Rectangular face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.002",
+        "value": "monolid eyes",
+        "label": "Monolid eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.003",
+        "value": "natural thick brows",
+        "label": "Natural thick brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.003",
+        "value": "delicate narrow nose",
+        "label": "Delicate narrow nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.012",
+        "value": "wide lips",
+        "label": "Wide lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.008",
+        "value": "subtle playful smirk",
+        "label": "Playful Mild Smirk",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smirk",
+          "playful"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_015",
+        "value": "platinum blonde hair",
+        "label": "Platinum Blonde",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_02",
+        "value": "porcelain skin",
+        "label": "Porcelain skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "porcelain"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "thumbnailUrl": "/outputs/thumbnails/job_1785236436336_zamnwv5cj.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 478,
+    "thumbnailHeight": 640,
+    "thumbnailBytes": 33076,
+    "width": 896,
+    "height": 1200,
+    "originalBytes": 778578
+  },
+  {
     "id": "job_1785166807964_ibrq8z2s5",
     "username": "user_alice",
     "prompt": "Interpret the uploaded reference images only according to the following ordered role manifest. Reference image 1: character_reference_a: preserve the same character identity, face, hair, skin, and body proportions while allowing the requested destination pose, outfit, environment, and visual treatment. When role instructions conflict with incidental content visible in a reference, follow the role boundary and the destination prompt. A high-resolution commercial fashion product photograph of a cute 22-year-old East Asian female model with a cheerful expression, posing in a bright minimalist pastel studio. She is wearing a soft lavender knitted cropped cardigan with pastel yellow buttons, paired with a pleated high-waisted cream tennis skirt. Detailed yarn texture, natural fabric folds, and fine clothing seams. The studio room is decorated with subtle pastel props including a small sage green ceramic vase with a single tulip, pastel pink aesthetic books stacked on a mini table, a cozy woven rug, and a minimalist lamp. Soft daylighting, dreamy pastel color palette, soft shadows, sharp focus on the clothing outfit, shot on 85mm portrait lens, f/1.8, cinematic soft aesthetic, photorealistic, 8k quality, perfect for E-commerce store banner and social media product showcase\n\nAvoid: blur, blurry, low quality, low resolution, extra limbs, mutated hands, missing fingers, deformed body, distorted face, ugly, unnatural skin texture, oversaturated, unrealistic fabric, distorted clothes, wrong garment seams, floating accessories, messy background, cluttered backdrop, harsh shadows, overexposed, underexposed, watermark, text, signature, logo overlay, cheap look.",

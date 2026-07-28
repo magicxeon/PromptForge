@@ -20,6 +20,7 @@ import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 import { MomeloBrand } from '../brand/MomeloBrand';
 import { SidebarNavigation } from './SidebarNavigation';
 import { AppFooter } from './AppFooter';
+import { HeaderSelect } from './HeaderSelect';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -213,39 +214,33 @@ function GlobalHeader({
           <strong>{credits ?? '...'}</strong>
           <Coins aria-hidden="true" />
         </Link>
-        <label className="sr-only" htmlFor="react-language-select">
-          {t('shell.languageLabel')}
-        </label>
-        <select
+        <HeaderSelect
           id="react-language-select"
+          label={t('shell.languageLabel')}
           value={(i18n.resolvedLanguage || 'th').split('-')[0]}
-          onChange={event => void changeLocale(event.target.value as 'th' | 'en')}
-          className="global-header__language"
-        >
-          <option value="th">TH</option>
-          <option value="en">EN</option>
-        </select>
+          onValueChange={locale => void changeLocale(locale as 'th' | 'en')}
+          className="global-header-select--language"
+          options={[
+            { value: 'th', label: 'TH' },
+            { value: 'en', label: 'EN' }
+          ]}
+        />
         <div className="global-header__account">
           <span className="global-header__avatar" aria-hidden="true">
             {actor ? initials : <UserRound />}
           </span>
           {showSwitcher ? (
-            <>
-              <label className="sr-only" htmlFor="react-actor-select">
-                {t('shell.activeUserLabel')}
-              </label>
-              <select
-                id="react-actor-select"
-                value={actor?.userId || ''}
-                onChange={event => void onSwitchActor(event.target.value)}
-              >
-                {users.map(user => (
-                  <option key={user.id} value={user.id}>
-                    {user.displayName}
-                  </option>
-                ))}
-              </select>
-            </>
+            <HeaderSelect
+              id="react-actor-select"
+              label={t('shell.activeUserLabel')}
+              value={actor?.userId || ''}
+              onValueChange={actorId => void onSwitchActor(actorId)}
+              className="global-header-select--actor"
+              options={users.map(user => ({
+                value: user.id,
+                label: user.displayName
+              }))}
+            />
           ) : (
             <span>{actor?.displayName || '...'}</span>
           )}

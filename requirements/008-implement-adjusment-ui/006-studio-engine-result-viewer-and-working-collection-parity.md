@@ -1,7 +1,7 @@
 # 006 Studio Engine, Result Viewer, and Working Collection Parity
 
-**Status:** Ready for validation  
-**Owner:** React generation, media, Studio, and Collections capabilities  
+**Status:** Ready for validation
+**Owner:** React generation, media, Studio, and Collections capabilities
 **Visual baseline:** `005-original-screen.jpeg` and the active/inactive
 Comparison screenshots supplied during review
 
@@ -262,3 +262,111 @@ comparison slot markup therefore uses semantic component classes only.
   class. Its active state is
   `translateY(-1px) scale(0.99)` with
   `rgba(251, 191, 36, 0.5) 0 0 12px` glow.
+
+## 13. Active Generation Loading Feedback
+
+`GenerationResultSurface` must visually distinguish an idle result viewport
+from work that is actively being submitted or processed:
+
+- idle state keeps the static image placeholder and setup guidance;
+- `pending`, `queued`, `processing`, `streaming`, `generating`, and `running`
+  states replace the static image icon with a continuously rotating loading
+  indicator and a restrained pulse ring;
+- queued jobs use the localized queued label; other active jobs use the
+  localized generating label;
+- the active status container exposes `role="status"`, `aria-live="polite"`,
+  and `aria-busy="true"`;
+- failed or cancelled jobs must stop the loading animation and continue to show
+  their canonical error message;
+- Studio and Playground reuse this behavior through the same
+  `web/src/components/generation/GenerationResultSurface.tsx` component.
+
+Acceptance checks:
+
+1. Before generation, the placeholder remains static.
+2. Immediately after Generate, the viewport displays animated progress even
+   before the first job-poll response arrives.
+3. The animation remains visible while the job is queued or processing.
+4. Completion replaces the loader with the generated image.
+5. Failure stops the loader and displays the returned error.
+6. Clicking Generate immediately expands a collapsed Studio Render panel and
+   smooth-scrolls its heading into view; navigation must not wait for the
+   estimate, enqueue, or polling response.
+
+## 14. Sticky Engine and Generate Availability
+
+The desktop Studio configurator must preserve the retained Vanilla control-panel
+behavior while the Character visual options and attribute form extend beyond
+the viewport:
+
+- the Engine and Target Output card sizes to its own content and must not stretch
+  to the height of the Attribute card;
+- both configurator cards use the retained layered treatment: a subtle
+  `rgba(255,255,255,0.08)` border, dark raised surface and restrained outer
+  shadow; the Engine card additionally uses the retained Violet
+  `rgba(139,92,246,0.05)` inset glow and `rgba(139,92,246,0.22)` border;
+- at desktop widths above `1180px`, the card uses `position: sticky` and remains
+  offset below the fixed global header with a `16px` breathing space;
+- the sticky card includes Engine settings, compatible references, permitted
+  prompt controls, configuration commands, messages and the Generate CTA so the
+  user can generate without returning to the beginning or end of a long
+  attribute form;
+- its maximum height is the available viewport height below the header;
+- when Comparison or reference content exceeds that height, only the sticky
+  card receives a thin internal vertical scrollbar;
+- the configurator parent must not use overflow containment that disables sticky
+  positioning;
+- at `1180px` and below, the two columns stack and the Engine card returns to
+  normal document flow with no internal height limit.
+
+Acceptance checks:
+
+1. On desktop, scroll through a long Face or Character attribute form and verify
+   that Engine and Generate remain visible.
+2. Verify that the Engine card ends at its own content when the Attribute card
+   is taller.
+3. Expand Comparison beyond one viewport and verify the Engine card can scroll
+   internally.
+4. At tablet/mobile width, verify the card is not sticky and does not cover the
+   attribute form.
+
+## 15. Studio Working Collection and Two-row Recent Grid
+
+The Studio queue column restores the compact Vanilla working-collection
+workflow without reviving legacy global state:
+
+- a reusable React `WorkingCollectionToolbar` appears above Recent generations;
+- the toolbar loads only the active actor's Collections through the canonical
+  Collection API and actor-scoped TanStack Query key;
+- selecting `All Images` or one Collection changes the Recent-history request's
+  `collectionId`; filtering must occur on the server rather than by leaking or
+  combining another actor's browser data;
+- the toolbar shows the selected Collection's image count and provides `+ New`,
+  `Edit`, and `Share Collection`;
+- creating a Collection selects it as the active filter after the API succeeds;
+- Edit is disabled for `All Images`;
+- Share is disabled for `All Images` and empty Collections, and otherwise uses
+  the existing Community Collection publish dialog and server policy;
+- selecting a Collection does not silently add future generations to it.
+  Membership remains an explicit action in the shared Collection picker;
+- Recent generations requests at most 12 thumbnails and displays six columns by
+  two rows on desktop, adapting to fewer columns at narrow widths;
+- an empty selected Collection retains the toolbar and shows a compact empty
+  state instead of removing the whole Recent section.
+
+Implementation ownership:
+
+- `web/src/components/collections/WorkingCollectionToolbar.tsx`
+- `web/src/components/collections/CollectionEditorDialog.tsx`
+- `web/src/features/studio/components/StudioRecentGenerations.tsx`
+- `web/src/styles/studio.css`
+
+Acceptance checks:
+
+1. Select a Collection and verify only its images appear in Recent generations.
+2. Select All Images and verify the actor's latest images return.
+3. Create a Collection and verify it becomes the active empty filter.
+4. Edit the active Collection and verify the dropdown refreshes.
+5. Verify Share is available only for a non-empty selected Collection.
+6. With 12 or more history items, verify exactly two rows of six thumbnails on
+   desktop and a responsive multi-row grid on mobile.

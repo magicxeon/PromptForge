@@ -114,6 +114,7 @@ export function GenerationExperience({
   const [comparisonSlots, setComparisonSlots] = useState<ComparisonSlotInput[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
   const [comparisonSetId, setComparisonSetId] = useState<string | null>(null);
+  const [resultFocusSequence, setResultFocusSequence] = useState(0);
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
   const completedJobRef = useRef<string | null>(null);
 
@@ -195,7 +196,6 @@ export function GenerationExperience({
         surface,
         status: response.status
       });
-      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
     onError: error => emitTelemetry('generation_transition', {
       actorId: actor?.userId,
@@ -220,7 +220,6 @@ export function GenerationExperience({
         surface,
         status: response.status
       });
-      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
     onError: error => emitTelemetry('generation_transition', {
       actorId: actor?.userId,
@@ -368,6 +367,20 @@ export function GenerationExperience({
       onSlotsChange={setComparisonSlots}
     />
   ) : null;
+  const submitGenerationRequest = () => {
+    if (layoutVariant === 'studio') {
+      setResultFocusSequence(current => current + 1);
+    } else {
+      window.requestAnimationFrame(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    if (comparison) {
+      submitCompare.mutate();
+      return;
+    }
+    submitSingle.mutate();
+  };
   const actionRegion = layoutVariant === 'studio' ? (
     <Surface className="studio-generation-action">
       <Button
@@ -375,7 +388,7 @@ export function GenerationExperience({
         size="lg"
         icon={<Sparkles className="size-5" />}
         disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
-        onClick={() => comparison ? submitCompare.mutate() : submitSingle.mutate()}
+        onClick={submitGenerationRequest}
       >
         <span>{pending
           ? t('playground.result.generating')
@@ -404,7 +417,7 @@ export function GenerationExperience({
             size="lg"
             icon={<Sparkles className="size-5" />}
             disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
-            onClick={() => comparison ? submitCompare.mutate() : submitSingle.mutate()}
+            onClick={submitGenerationRequest}
           >
             {pending ? t('playground.result.generating') : comparison ? t('playground.action.generateComparison') : t('playground.action.generate')}
           </Button>
@@ -439,7 +452,7 @@ export function GenerationExperience({
             <p>{t('playground.queue.empty')}</p>
           )}
         </Surface>
-        <StudioRecentGenerations limit={6} />
+        <StudioRecentGenerations limit={12} />
         {studioQueueExtra}
       </>
     );
@@ -455,6 +468,7 @@ export function GenerationExperience({
         configActions={studioConfigActions}
         actions={actionRegion}
         messages={messages}
+        focusResultSignal={resultFocusSequence}
       />
     );
   }

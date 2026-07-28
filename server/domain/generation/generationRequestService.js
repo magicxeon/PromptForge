@@ -36,6 +36,17 @@ function normalizeSceneBuilderState(value, mode) {
   };
 }
 
+function normalizePromptMode(payload) {
+  if (payload.generationMode === 'headshot') return 'headshot';
+  if (payload.generationMode === 'character-sheet') return 'character-sheet';
+  if (['scene', 'playground', 'fashion'].includes(payload.generationMode)) {
+    return 'normal';
+  }
+  return ['headshot', 'character-sheet', 'normal'].includes(payload.mode)
+    ? payload.mode
+    : 'normal';
+}
+
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
   validatePlaygroundReferenceRoles(payload);
   const isCharacterCastingExport = payload.characterProfileContext?.purpose === 'character_casting_export';
@@ -45,7 +56,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
   const hasOutfitFront = Boolean(payload.outfitReferenceImageFront);
   const hasOutfitBack = Boolean(payload.outfitReferenceImageBack);
-  const mode = payload.mode || 'normal';
+  const mode = normalizePromptMode(payload);
   const characterType = mode === 'character-sheet'
     ? normalizeCharacterType(payload.characterType)
     : null;

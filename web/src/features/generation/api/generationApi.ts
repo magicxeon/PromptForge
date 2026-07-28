@@ -130,7 +130,7 @@ export function generationPayload(
     imageResolution: draft.imageResolution,
     aspectRatio: draft.aspectRatio,
     outputCount: draft.outputCount,
-    mode: draft.generationMode === 'character-sheet' ? 'character-sheet' : 'normal',
+    mode: promptModeForGenerationMode(draft.generationMode),
     characterType: draft.characterType || null,
     generationMode: draft.generationMode,
     generationSurface: draft.generationSurface,
@@ -165,6 +165,14 @@ export function generationPayload(
     estimateId: request.estimateId || null,
     requestId: request.requestId || null
   };
+}
+
+function promptModeForGenerationMode(
+  generationMode: GenerationRequestDraft['generationMode']
+) {
+  if (generationMode === 'headshot') return 'headshot';
+  if (generationMode === 'character-sheet') return 'character-sheet';
+  return 'normal';
 }
 
 export function pricingPayload(draft: GenerationRequestDraft) {

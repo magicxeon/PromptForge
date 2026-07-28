@@ -4,6 +4,7 @@ import type {
   AttributeSelection
 } from './attributes/attributeModel';
 import {
+  filterStudioReferences,
   filterStudioSelections,
   randomizeStudioSelections,
   visibleStudioGroups
@@ -62,6 +63,33 @@ describe('studioModePolicy', () => {
 
     expect(result['Face Shape']).toEqual(lockedSelection);
     expect(result['Hair Style']?.group).toBe('Hair');
+  });
+});
+
+describe('Studio reference mode policy', () => {
+  const references = {
+    face_reference: '/outputs/face.png',
+    character_reference: '/outputs/character.png',
+    style_reference: '/outputs/style.png',
+    pose_reference: '/outputs/pose.png',
+    outfit_front: '/outputs/front.png',
+    outfit_back: '/outputs/back.png'
+  };
+
+  it('keeps only identity input for Face Creation and reusable casting', () => {
+    expect(filterStudioReferences(references, 'headshot', 'reusable_model'))
+      .toEqual({ face_reference: '/outputs/face.png' });
+    expect(filterStudioReferences(references, 'character-sheet', 'reusable_model'))
+      .toEqual({ face_reference: '/outputs/face.png' });
+  });
+
+  it('allows identity and outfit inputs for a Styled Character sheet', () => {
+    expect(filterStudioReferences(references, 'character-sheet', 'styled_character'))
+      .toEqual({
+        face_reference: '/outputs/face.png',
+        outfit_front: '/outputs/front.png',
+        outfit_back: '/outputs/back.png'
+      });
   });
 });
 
