@@ -106,7 +106,9 @@ export function CommunityPostRoute() {
         {t('community.detail.back')}
       </ContextBackLink>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]">
+      <div className={item.postType === 'comparison'
+        ? 'grid gap-5'
+        : 'grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]'}>
         {item.postType === 'comparison' && item.comparisonSnapshot ? (
           <ComparisonWorkspace
             mode="public"

@@ -84,12 +84,14 @@ export class CommunityComparisonShareService {
       sourceComparisonSetId: set.id,
       imageUrl: primary.result.imageUrl,
       thumbnailUrl: primary.result.imageUrl,
-      promptVisibility: input.promptVisibility === 'private' ? 'private' : 'partial',
+      promptVisibility: input.promptVisibility === 'private' ? 'private' : 'full',
       sharedPromptSnapshot: {
         schemaVersion: 1,
         authoringMode: 'guided',
         source: 'comparison',
-        publicPromptText: input.promptVisibility === 'private' ? null : String(run.sourcePrompt || '').slice(0, 320)
+        publicPromptText: input.promptVisibility === 'private'
+          ? null
+          : String(run.sourcePrompt || '')
       },
       workflowSnapshot: { comparison: comparisonSnapshot },
       comparisonSnapshot,

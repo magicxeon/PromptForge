@@ -28,6 +28,10 @@ export const comparisonRunSchema = z.object({
   id: z.string(),
   status: z.string(),
   sourcePrompt: z.string().default(''),
+  configurationSnapshot: z.object({
+    mode: z.string().optional(),
+    generationMode: z.string().optional()
+  }).passthrough().optional(),
   estimatedTotalCredit: z.number().default(0),
   actualTotalCredit: z.number().default(0),
   createdAt: z.number(),

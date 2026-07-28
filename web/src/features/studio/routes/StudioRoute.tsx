@@ -304,7 +304,7 @@ export function StudioRoute() {
         authoringMode="guided"
         characterType={mode === 'character-sheet' ? characterType : null}
         customColors={customColors}
-        allowComparison={mode === 'headshot'}
+        allowComparison
         showPromptEditor={false}
         layoutVariant="studio"
         references={compatibleReferences}

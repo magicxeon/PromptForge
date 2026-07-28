@@ -2,6 +2,7 @@
   "ui.action.addCollection": "เพิ่มลง Collection",
   "ui.action.approve": "อนุมัติ Character",
   "ui.action.cancel": "ยกเลิก",
+  "ui.action.save": "บันทึก",
   "ui.action.close": "ปิด",
   "ui.action.clearTemplate": "ล้าง Template",
   "ui.action.create": "สร้าง",

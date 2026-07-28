@@ -10,13 +10,19 @@ export function PublishCommunityResourceDialog({
   description,
   actionLabel,
   triggerClassName,
+  allowPromptVisibility = false,
   publish
 }: {
   title: string;
   description: string;
   actionLabel: string;
   triggerClassName?: string;
-  publish: (input: { title: string; description: string }) => Promise<unknown>;
+  allowPromptVisibility?: boolean;
+  publish: (input: {
+    title: string;
+    description: string;
+    promptVisibility: 'full' | 'private';
+  }) => Promise<unknown>;
 }) {
   const { t } = useTranslation('react-ui');
   const [open, setOpen] = useState(false);
@@ -30,7 +36,8 @@ export function PublishCommunityResourceDialog({
     const form = new FormData(event.currentTarget);
     mutation.mutate({
       title: String(form.get('title') || '').trim(),
-      description: String(form.get('description') || '').trim()
+      description: String(form.get('description') || '').trim(),
+      promptVisibility: form.get('promptVisibility') === 'private' ? 'private' : 'full'
     });
   }
 
@@ -54,6 +61,19 @@ export function PublishCommunityResourceDialog({
           <form className="mt-5 grid gap-3" onSubmit={submit}>
             <input name="title" required maxLength={120} placeholder={t('ui.share.postTitle')} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3" />
             <textarea name="description" maxLength={1000} placeholder={t('ui.share.postDescription')} className="h-28 resize-y border border-[var(--mpf-border)] bg-black/35 p-3" />
+            {allowPromptVisibility ? (
+              <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">
+                {t('ui.share.promptVisibility')}
+                <select
+                  name="promptVisibility"
+                  defaultValue="full"
+                  className="h-11 border border-[var(--mpf-border)] bg-[var(--mpf-bg-raised)] px-3 text-white"
+                >
+                  <option value="full">{t('ui.share.full')}</option>
+                  <option value="private">{t('ui.character.private')}</option>
+                </select>
+              </label>
+            ) : null}
             <div className="flex justify-end gap-2">
               <Dialog.Close asChild><Button type="button" variant="ghost">{t('ui.action.cancel')}</Button></Dialog.Close>
               <Button type="submit" variant="primary" disabled={mutation.isPending}>

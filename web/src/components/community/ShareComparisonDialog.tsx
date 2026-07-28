@@ -9,6 +9,7 @@ export function ShareComparisonDialog({ setId }: { setId: string }) {
       title={t('ui.comparisons.shareTitle')}
       description={t('ui.comparisons.shareDescription')}
       actionLabel={t('ui.comparisons.share')}
+      allowPromptVisibility
       publish={input => publishComparisonToCommunity(setId, input)}
     />
   );

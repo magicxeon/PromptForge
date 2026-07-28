@@ -275,5 +275,18 @@
     "occurredAt": "2026-07-27T20:02:21.812Z",
     "requestId": "req_1785182541807_ncg13th",
     "metadata": {}
+  },
+  {
+    "id": "engevt_c2730ba2-7e3f-40dd-8ea7-102fadbe7b7d",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_demo",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785056931508_vjbdsexw:usr_demo:2026-07-28T18:53:33.350Z",
+    "occurredAt": "2026-07-28T18:53:33.350Z",
+    "requestId": "req_1785264813347_jgd4c54",
+    "metadata": {}
   }
 ]

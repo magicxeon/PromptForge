@@ -59,8 +59,13 @@ test('Community-05 publishes only completed comparison slots and exposes proxy m
       })
     }
   });
-  await service.publish('cmp_1', { title: 'Public comparison' }, alice);
+  await service.publish('cmp_1', {
+    title: 'Public comparison',
+    promptVisibility: 'private'
+  }, alice);
   assert.equal(stored.postType, 'comparison');
+  assert.equal(stored.promptVisibility, 'private');
+  assert.equal(stored.sharedPromptSnapshot.publicPromptText, null);
   assert.equal(stored.comparisonSnapshot.slots.length, 2);
   const publicView = buildCommunityPostPublicView(stored);
   assert.equal(publicView.comparisonSnapshot.slots[0].imageUrl.includes('/outputs/'), false);
@@ -118,6 +123,7 @@ test('Community comparison sharing selects the latest publishable rerun', async 
   });
 
   await service.publish('cmp_rerun', {}, alice);
+  assert.equal(stored.promptVisibility, 'full');
   assert.equal(stored.sharedPromptSnapshot.publicPromptText, 'latest prompt');
   assert.equal(stored.comparisonSnapshot.slots.length, 2);
 });

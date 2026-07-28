@@ -174,7 +174,7 @@ export function GenerationExperience({
     return () => window.clearTimeout(timer);
   }, [draft]);
 
-  const canEstimate = Boolean(debouncedDraft?.provider && debouncedDraft.submodel && debouncedDraft.prompt.trim());
+  const canEstimate = Boolean(debouncedDraft?.provider && debouncedDraft.submodel);
   const estimateKey = debouncedDraft ? createEstimateKey(debouncedDraft) : null;
   const singleEstimate = useQuery({
     queryKey: ['generation-estimate', actor?.userId || 'loading', estimateKey],
@@ -375,6 +375,8 @@ export function GenerationExperience({
       comparison={comparison}
       comparisonSlots={comparisonSlots}
       comparisonEstimates={comparisonEstimate.data?.slots}
+      comparisonEstimating={comparisonEstimate.isFetching}
+      comparisonEstimateError={comparisonEstimate.error?.message || null}
       studioLayout={layoutVariant === 'studio'}
       allowComparison={allowComparison}
       onChange={setEngine}

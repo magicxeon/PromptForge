@@ -51,7 +51,11 @@ export function deleteComparison(setId: string) {
 
 export function publishComparisonToCommunity(
   setId: string,
-  input: { title: string; description: string }
+  input: {
+    title: string;
+    description: string;
+    promptVisibility: 'full' | 'private';
+  }
 ) {
   return apiRequest(`/api/community/comparisons/${encodeURIComponent(setId)}/publish`, {
     method: 'POST',

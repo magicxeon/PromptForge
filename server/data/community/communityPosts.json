@@ -387,7 +387,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 4,
+      "views": 5,
       "likes": 2,
       "saves": 1,
       "comments": 0,
@@ -395,13 +395,13 @@
       "votes": 1
     },
     "engagementSummary": {
-      "viewCount": 4,
+      "viewCount": 5,
       "likeCount": 2,
       "saveCount": 1,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 1,
-      "updatedAt": "2026-07-28T00:39:39.773Z"
+      "updatedAt": "2026-07-28T18:53:33.718Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -409,7 +409,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-28T00:39:39.773Z",
+    "updatedAt": "2026-07-28T18:53:33.718Z",
     "deletedAt": null,
     "metadata": {}
   },

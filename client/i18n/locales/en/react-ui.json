@@ -2,6 +2,7 @@
   "ui.action.addCollection": "Add to collection",
   "ui.action.approve": "Approve Character",
   "ui.action.cancel": "Cancel",
+  "ui.action.save": "Save",
   "ui.action.close": "Close",
   "ui.action.clearTemplate": "Clear template",
   "ui.action.create": "Create",

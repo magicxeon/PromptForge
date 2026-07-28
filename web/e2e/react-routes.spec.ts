@@ -115,11 +115,17 @@ test('Studio mode control updates route, sidebar target and breadcrumb together'
 
   await modes.nth(1).click();
   await expect(page).toHaveURL(/\/studio\?mode=character-sheet/);
-  await expect(page.locator('a[href="/studio?mode=character-sheet"]')).toHaveClass(/is-active/);
+  await expect(
+    page.locator('a[href="/studio?mode=character-sheet#studio-configurator-title"]')
+  ).toHaveClass(/is-active/);
   await expect(page.getByTestId('breadcrumbs')).toContainText(/Character/i);
+  await expect(page.locator('.engine-comparison-toggle')).toBeVisible();
 
   await page.locator('.studio-mode-selector button').nth(2).click();
   await expect(page).toHaveURL(/\/studio\/scene/);
-  await expect(page.locator('a[href="/studio/scene"]')).toHaveClass(/is-active/);
+  await expect(
+    page.locator('a[href="/studio/scene#studio-configurator-title"]')
+  ).toHaveClass(/is-active/);
   await expect(page.getByTestId('breadcrumbs')).toContainText(/Scene/i);
+  await expect(page.locator('.engine-comparison-toggle')).toBeVisible();
 });

@@ -20,7 +20,7 @@ export class ComparisonOrchestrator {
 
   async estimate(payload, actor) {
     const { username, userId } = actor;
-    const { context } = compileGenerationContext(payload);
+    const { context } = compileGenerationContext(payload, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
     const pricedSlots = await Promise.all(slots.map(async slot => {
       const estimate = await this.creditReservation.estimate({
@@ -42,7 +42,7 @@ export class ComparisonOrchestrator {
 
   async create(payload, actor) {
     const { username, userId } = actor;
-    const { context, compiledPrompt } = compileGenerationContext(payload);
+    const { context, compiledPrompt } = compileGenerationContext(payload, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
     const pricedSlots = slots.map(slot => {

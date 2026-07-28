@@ -1,9 +1,10 @@
-import { Columns3, Plus, X } from 'lucide-react';
+import { Columns3 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
+import { ComparisonConfigurator } from '../comparisons/ComparisonConfigurator';
 
 const ratioLabels: Record<string, string> = {
   '6:8': '6:8 Portrait',
@@ -26,6 +27,8 @@ export function EngineTargetPanel({
   comparison,
   comparisonSlots,
   comparisonEstimates,
+  comparisonEstimating = false,
+  comparisonEstimateError = null,
   studioLayout = false,
   allowComparison = true,
   onChange,
@@ -37,6 +40,8 @@ export function EngineTargetPanel({
   comparison: boolean;
   comparisonSlots: ComparisonSlotInput[];
   comparisonEstimates?: Array<{ id: string; estimatedCredit: number }>;
+  comparisonEstimating?: boolean;
+  comparisonEstimateError?: string | null;
   studioLayout?: boolean;
   allowComparison?: boolean;
   onChange: (value: EngineValue) => void;
@@ -122,6 +127,8 @@ export function EngineTargetPanel({
           catalog={catalog}
           slots={comparisonSlots}
           estimates={comparisonEstimates}
+          estimating={comparisonEstimating}
+          estimateError={comparisonEstimateError}
           onChange={onSlotsChange}
         />
       ) : null}
@@ -129,127 +136,8 @@ export function EngineTargetPanel({
   );
 }
 
-function ComparisonConfigurator({
-  catalog,
-  slots,
-  estimates,
-  onChange
-}: {
-  catalog: ProviderCatalog;
-  slots: ComparisonSlotInput[];
-  estimates?: Array<{ id: string; estimatedCredit: number }>;
-  onChange: (slots: ComparisonSlotInput[]) => void;
-}) {
-  const { t } = useTranslation('playground');
-  const estimatedTotal = estimates?.length === slots.length
-    ? estimates.reduce(
-      (total, estimate) => total + estimate.estimatedCredit,
-      0
-    )
-    : undefined;
-  function patch(index: number, next: Partial<ComparisonSlotInput>) {
-    onChange(slots.map((slot, slotIndex) => slotIndex === index ? { ...slot, ...next } : slot));
-  }
-  return (
-    <div className="comparison-configurator">
-      <div className="comparison-configurator__heading"><div><strong>{t('playground.comparison.title')}</strong><p>{t('playground.comparison.description')}</p></div><span>{slots.length} / 4</span></div>
-      <div className="comparison-configurator__grid">
-        {slots.map((slot, index) => {
-          const provider = catalog.providers.find(item => item.id === slot.provider) || catalog.providers[0];
-          const selectedModel = provider?.models.find(item => item.id === slot.model);
-          const estimate = estimates?.find(item => item.id === slot.id);
-          return (
-            <article key={slot.id} className="comparison-slot-card">
-              <div className="comparison-slot-card__heading">
-                <strong>{t('playground.comparison.slot')} {index + 1}</strong>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  title={t('playground.comparison.remove')}
-                  disabled={slots.length <= 1}
-                  icon={<X className="size-4" />}
-                  onClick={() => onChange(slots.filter(item => item.id !== slot.id))}
-                />
-              </div>
-              <div className="comparison-slot-card__fields">
-                <Field label={t('playground.engine.provider')}>
-                  <select
-                    value={slot.provider}
-                    onChange={event => {
-                      const nextProvider = catalog.providers.find(item => item.id === event.target.value);
-                      patch(index, {
-                        provider: event.target.value,
-                        model: nextProvider?.defaultModel || nextProvider?.models[0]?.id || ''
-                      });
-                    }}
-                  >
-                    {catalog.providers.map(item => (
-                      <option key={item.id} value={item.id}>{localized(item.displayName)}</option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label={t('playground.engine.model')}>
-                  <select
-                    value={slot.model}
-                    onChange={event => patch(index, { model: event.target.value })}
-                  >
-                    {provider?.models.map(item => (
-                      <option key={item.id} value={item.id}>{localized(item.displayName)}</option>
-                    ))}
-                  </select>
-                </Field>
-              </div>
-              <footer className="comparison-slot-card__meta">
-                <strong>
-                  {estimate
-                    ? `${estimate.estimatedCredit} ${t('playground.comparison.credits')}`
-                    : t('playground.estimate.pending')}
-                </strong>
-                <span>
-                  {selectedModel?.capabilities.maxReferenceImages || 0}{' '}
-                  {t('playground.comparison.referencesShort')}
-                </span>
-              </footer>
-            </article>
-          );
-        })}
-        {slots.length < 4 ? (
-          <button
-            type="button"
-            className="comparison-slot-add"
-            onClick={() => {
-              const provider = catalog.providers[0];
-              onChange([...slots, {
-                id: createSlotId(),
-                provider: provider?.id || '',
-                model: provider?.defaultModel || provider?.models[0]?.id || ''
-              }]);
-            }}
-          >
-            <Plus aria-hidden="true" />
-            <strong>{t('playground.comparison.add')}</strong>
-            <span>{t('playground.comparison.addHelp')}</span>
-          </button>
-        ) : null}
-      </div>
-      <footer className="comparison-configurator__total">
-        <span>{t('playground.comparison.estimatedTotal')}</span>
-        <strong>
-          {estimatedTotal !== undefined
-            ? `${estimatedTotal} ${t('playground.comparison.credits')}`
-            : t('playground.estimate.pending')}
-        </strong>
-      </footer>
-    </div>
-  );
-}
-
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]"><span>{label}</span>{children}</label>;
-}
-
-function createSlotId() {
-  return `slot_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function dimensionsForRatio(ratio: string) {
