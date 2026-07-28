@@ -1,6 +1,6 @@
 # React Frontend Migration Master Roadmap
 
-**Status:** Approved planning baseline  
+**Status:** Implemented; final validation pending
 **Scope:** Complete replacement of the browser-native Vanilla JavaScript client  
 **Target:** React + TypeScript + Vite SPA, backed by the existing server contracts  
 **Strategy:** New frontend application in the same repository with route-by-route cutover
@@ -11,6 +11,22 @@ ModelPromptForge must move to a frontend platform that can support Community,
 Creator Profiles, reusable Characters, Fashion Blueprint, generation tools and
 commercial workflows without continuing to grow one HTML document, one global
 stylesheet and a large graph of ordered browser scripts.
+
+## Implementation Result
+
+- `web/` is the only browser route runtime.
+- Express serves the production Vite build for every registered browser route.
+- Community, Profiles, Character, Library, Collections, Comparisons, Credits,
+  Admin, Playground, Studio, Scene Builder, and Fashion Blueprint are
+  route-level lazy-loaded React features.
+- Shared generation, reference, engine, result, comparison, media, engagement,
+  Character, and collection controls are reusable React components.
+- Fashion Blueprint uses actor-owned uploads, locked quotes, aggregate atomic
+  credit reservations, idempotent bulk runs, and grouped results.
+- `client/i18n`, assets, and outputs remain retained server-served data
+  boundaries. Legacy browser source is no longer a runtime owner and remains
+  only until the post-validation deletion gate.
+- `scripts/validate-react-migration.bat` is the single Windows validation gate.
 
 The migration must:
 
@@ -240,7 +256,7 @@ without an agreed contract first.
 
 ## 8. Route Cutover Strategy
 
-During migration:
+Historical migration strategy:
 
 - Vite dev server serves React locally and proxies `/api` to Express;
 - Express remains the API and legacy-client host;
@@ -253,6 +269,16 @@ During migration:
 - navigation becomes fully client-side again after all customer routes are React-owned.
 
 Do not make both routers observe the same route in one document.
+
+Current implementation state:
+
+- every registered browser route is React-owned;
+- Express serves only the React index for those routes;
+- React Router owns internal navigation and direct links;
+- only retained assets, localization catalogs and generated/uploaded media are
+  served from the former client/runtime data tree;
+- a missing React production build fails visibly and never falls back to the
+  legacy client.
 
 Each route cutover requires:
 

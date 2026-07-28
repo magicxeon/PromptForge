@@ -1,7 +1,16 @@
 # 002 React Workspace, Toolchain and Runtime Coexistence
 
-**Status:** Foundation gate  
+**Status:** Implemented; coexistence ended at React cutover
 **Depends on:** 001 inventory baseline
+
+## Implementation Progress
+
+The `web/` workspace, root command delegation, Vite proxy, React providers, and
+server-side frontend route ownership are implemented.
+`server/config/frontend-route-ownership.json` remains the route source of truth,
+but every registered customer route now resolves to React. A missing production
+build fails visibly instead of silently serving the legacy application.
+Route-level lazy loading keeps feature code outside the initial shell.
 
 ## 1. Business Requirement
 
@@ -80,33 +89,31 @@ must never enter a Vite variable.
 
 ## 5. Integrated Route Ownership
 
-Add a server-owned route ownership configuration when the first route is ready:
+The migration introduced a server-owned route ownership configuration:
 
 ```text
 server/config/frontend-route-ownership.json
 ```
 
-Conceptual record:
+Historical transition record:
 
 ```json
 {
   "version": 1,
-  "defaultRuntime": "legacy",
+  "defaultRuntime": "react",
   "routes": [
-    { "pattern": "/community", "runtime": "react", "enabled": false }
+    { "pattern": "/community", "runtime": "react", "enabled": true }
   ]
 }
 ```
 
-Create a route ownership resolver under the server app composition capability.
-It must:
+The route ownership resolver under the server app composition capability:
 
 - ignore `/api/*`;
 - match explicit browser routes;
-- return React index only for enabled React routes;
-- return legacy index for legacy routes;
+- return the React index for every enabled browser route;
 - fail with 404 for unknown routes rather than returning an unrelated app;
-- support a global emergency fallback to legacy during migration.
+- expose a response header used by cutover E2E tests.
 
 The exact file location must follow the server architecture map at
 implementation time. Route matching behavior requires unit tests.
@@ -168,19 +175,18 @@ server contract tests.
 
 ## 9. Rollback
 
-- Route runtime ownership is reversible without data migration.
-- React must not write a new incompatible server record before its server
-  contract is released.
-- A failed React route can return to legacy while shared API data remains valid.
-- Remove rollback only after the observation window in 012.
+- Shared API records remain runtime-independent and migration-compatible.
+- The current runtime no longer falls back to legacy browser code.
+- Source deletion remains delayed until the validation and observation gate in
+  012 so release rollback can use source control without maintaining two live
+  clients.
 
 ## 10. Acceptance Criteria
 
 - React starts independently through Vite.
 - API proxy preserves actor headers and media requests.
 - Production React build is deterministic.
-- A test-only React route and a legacy route can deep-link correctly.
-- Browser back/forward across runtime boundaries is predictable.
+- Canonical React routes can deep-link correctly.
+- Browser back/forward remains inside React Router and preserves detail context.
 - Unknown routes do not receive a false success.
 - No secret appears in the built bundle.
-

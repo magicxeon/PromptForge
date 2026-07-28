@@ -1,6 +1,6 @@
 # 001 Current System Inventory and Parity Baseline
 
-**Status:** Required before React scaffold behavior work  
+**Status:** Implemented and archived as migration evidence
 **Purpose:** Capture executable behavior from code and tests so migration does
 not depend on incomplete historical requirements.
 
@@ -224,4 +224,3 @@ Behavior changes belong to the requirement that owns the affected route.
 - Every migration phase links to parity rows.
 - Known requirement/code discrepancies are recorded.
 - No React feature route starts before its parity baseline is approved.
-

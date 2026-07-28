@@ -220,12 +220,14 @@ class QueueManager {
       const startTime = Date.now();
 
       // Resolve local /outputs/ files to base64 for API transmission
-      const resolvedFaceA = await resolveReferenceForProvider(job.options.faceReferenceImageA, job.options.username);
-      const resolvedFaceB = await resolveReferenceForProvider(job.options.faceReferenceImageB, job.options.username);
-      const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username);
-      const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username);
+      const referenceAccess = { ownerUserId: job.options.payerUserId || null };
+      const resolvedFaceA = await resolveReferenceForProvider(job.options.faceReferenceImageA, job.options.username, referenceAccess);
+      const resolvedFaceB = await resolveReferenceForProvider(job.options.faceReferenceImageB, job.options.username, referenceAccess);
+      const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username, referenceAccess);
+      const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username, referenceAccess);
       const characterReferenceAccess = {
-        authorizedJobIds: job.options.authorizedCharacterReferenceJobIds || []
+        authorizedJobIds: job.options.authorizedCharacterReferenceJobIds || [],
+        ownerUserId: job.options.payerUserId || null
       };
       const resolvedCharacterA = await resolveReferenceForProvider(
         job.options.characterReferenceImageA,
@@ -243,8 +245,8 @@ class QueueManager {
         error.code = 'character_reference_unavailable';
         throw error;
       }
-      const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username);
-      const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username);
+      const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username, referenceAccess);
+      const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username, referenceAccess);
 
       const uniqueReferences = dedupeResolvedReferenceImages([
         ['characterA', resolvedCharacterA],

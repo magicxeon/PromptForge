@@ -7,6 +7,8 @@ const __dirname = path.dirname(__filename);
 export const SERVER_ROOT = path.resolve(__dirname, '..');
 export const PROJECT_ROOT = path.resolve(SERVER_ROOT, '..');
 export const CLIENT_ROOT = path.resolve(PROJECT_ROOT, 'client');
+export const WEB_ROOT = path.resolve(PROJECT_ROOT, 'web');
+export const WEB_DIST_ROOT = path.resolve(WEB_ROOT, 'dist');
 export const OUTPUTS_DIR = path.resolve(CLIENT_ROOT, 'outputs');
 
 export const DATA_ROOT = path.resolve(SERVER_ROOT, 'data');
@@ -21,6 +23,7 @@ export const ASSETS_DATA_DIR = path.resolve(DATA_ROOT, 'assets');
 export const AUDIT_DATA_DIR = path.resolve(DATA_ROOT, 'audit');
 export const SCENE_TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'scene-templates');
 export const CHARACTER_PROFILES_DATA_DIR = path.resolve(DATA_ROOT, 'character-profiles');
+export const FASHION_BLUEPRINT_DATA_DIR = path.resolve(DATA_ROOT, 'fashion-blueprint');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -45,7 +48,9 @@ export const DATA_FILES = {
   sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json'),
   characterProfiles: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'profiles.json'),
   characterProfileVersions: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'versions.json'),
-  characterUsageEvents: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'usageEvents.json')
+  characterUsageEvents: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'usageEvents.json'),
+  fashionBlueprintQuotes: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'quotes.json'),
+  fashionBlueprintRuns: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'runs.json')
 };
 
 export function resolveDataFile(name) {

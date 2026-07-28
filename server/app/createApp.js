@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import path from 'path';
-import { CLIENT_ROOT, PROJECT_ROOT } from '../config/paths.js';
+import { CLIENT_ROOT, OUTPUTS_DIR, PROJECT_ROOT, WEB_DIST_ROOT } from '../config/paths.js';
 import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
@@ -47,6 +48,9 @@ import { registerCharacterProfileRoutes } from './routes/characterProfileRoutes.
 import { characterProfileService } from '../domain/character-profiles/CharacterProfileService.js';
 import { characterCastingExportService } from '../domain/character-profiles/CharacterCastingExportService.js';
 import { characterProfileSharingService } from '../domain/character-profiles/CharacterProfileSharingService.js';
+import { resolveFrontendRoute } from './frontendRouteOwnership.js';
+import { registerFashionBlueprintRoutes } from './routes/fashionBlueprintRoutes.js';
+import { registerReferenceRoutes } from './routes/referenceRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -87,7 +91,12 @@ export function createApp() {
   app.use(cors());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
   app.use(actorContextMiddleware);
-  app.use(express.static(CLIENT_ROOT));
+  app.use('/react-assets', express.static(path.join(WEB_DIST_ROOT, 'react-assets')));
+  // React retains only runtime data/media boundaries from the former client
+  // tree. Legacy scripts, HTML and styles are intentionally not web-served.
+  app.use('/assets', express.static(path.join(CLIENT_ROOT, 'assets')));
+  app.use('/i18n', express.static(path.join(CLIENT_ROOT, 'i18n')));
+  app.use('/outputs', express.static(OUTPUTS_DIR));
   app.use('/sub-app-game-character', express.static(path.join(PROJECT_ROOT, 'sub-app-game-character')));
 
   app.use((req, res, next) => {
@@ -119,6 +128,8 @@ export function createApp() {
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
+  registerFashionBlueprintRoutes(app, sharedDependencies);
+  registerReferenceRoutes(app);
   registerHistoryRoutes(app, sharedDependencies);
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app, { communityFeaturePolicyService });
@@ -174,25 +185,15 @@ export function createApp() {
     communityFeaturePolicyService
   });
 
-  // Browser routes are client-rendered. Keep this after every API route so a deep link
-  // loads the app shell instead of falling through to Express 404 handling.
-  app.get([
-    '/', '/home', '/home/',
-    '/community', '/community/', '/community/:postId', '/community/:postId/',
-    '/community/characters/:characterId', '/community/characters/:characterId/',
-    '/creators/:handle', '/creators/:handle/',
-    '/creators/:handle/:profileTab', '/creators/:handle/:profileTab/',
-    '/create/:workflow', '/create/:workflow/',
-    '/studio', '/studio/',
-    '/playground', '/playground/',
-    '/history', '/history/',
-    '/library/images', '/library/images/',
-    '/compare', '/compare/',
-    '/comparisons', '/comparisons/',
-    '/comparisons/:setId', '/comparisons/:setId/',
-    '/admin', '/admin/'
-  ], (req, res) => {
-    res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
+  // All registered browser routes are owned by the React SPA.
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    const frontendRoute = resolveFrontendRoute(req.path);
+    if (!frontendRoute.matched) return next();
+    const indexPath = path.join(WEB_DIST_ROOT, 'index.html');
+    if (!fs.existsSync(indexPath)) return next();
+    res.setHeader('x-mpf-frontend-runtime', frontendRoute.runtime);
+    return res.sendFile(indexPath);
   });
 
   app.locals.modelPromptForge = {

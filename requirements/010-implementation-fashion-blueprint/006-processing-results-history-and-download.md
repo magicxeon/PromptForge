@@ -1,7 +1,11 @@
 # Processing, Results, History and Download
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** React MVP implemented; final validation pending
+
+Grouped polling shows each product status/result and partial failures. Canonical
+QueueManager history remains authoritative; completed items expose Download,
+Add to Collection, and Share controls.
 
 ## 1. Business Requirement
 

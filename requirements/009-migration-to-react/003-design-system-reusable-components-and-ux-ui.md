@@ -1,6 +1,6 @@
 # 003 Design System, Reusable Components and UX/UI
 
-**Status:** Foundation gate  
+**Status:** Implemented; visual validation pending
 **Depends on:** 002 workspace
 
 ## 1. Business Requirement
@@ -54,6 +54,10 @@ and rebuild components. Temporary legacy matching CSS must be route-scoped and
 tracked for removal.
 
 ## 4. Component Layers
+
+This is the reusable component catalog, not an instruction to create empty
+speculative wrappers. Implement a primitive when a migrated workflow needs it,
+then reuse that owner rather than creating route-local copies.
 
 ### UI primitives
 
@@ -234,7 +238,7 @@ exist only in development and must not ship as public navigation.
 - Shared primitives are used by at least Community and Profile before the system expands.
 - No migrated route imports legacy CSS.
 - No duplicate dialog, button or engagement implementation exists.
-- Thai, English and Japanese labels fit supported layouts.
+- Thai and English labels fit supported layouts; future locales must pass the
+  same longest-label gate before their manifest entry is enabled.
 - Components meet keyboard and focus requirements.
 - Token changes propagate predictably across migrated routes.
-

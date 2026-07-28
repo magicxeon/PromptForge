@@ -1,7 +1,11 @@
 # Component Reuse and Module Architecture
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Required architecture gate
+**Status:** Architecture gate implemented
+
+The canonical client owner is `web/src/features/fashion-blueprint/`. It reuses
+React Template/Character cards, reference slots, engine controls, buttons,
+surfaces, collection picker, and Community sharing dialog.
 
 ## 1. Principle
 

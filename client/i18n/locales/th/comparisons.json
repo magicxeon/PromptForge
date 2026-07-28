@@ -1,4 +1,12 @@
 {
+  "comparisons.viewer.noOutput": "ยังไม่มีผลลัพธ์สำหรับการเปรียบเทียบ",
+  "comparisons.viewer.previous": "ผลลัพธ์ก่อนหน้า",
+  "comparisons.viewer.next": "ผลลัพธ์ถัดไป",
+  "comparisons.viewer.zoomOut": "ย่อภาพ",
+  "comparisons.viewer.zoomIn": "ขยายภาพ",
+  "comparisons.viewer.promptLabel": "พรอมป์การเปรียบเทียบ",
+  "comparisons.viewer.vote": "โหวต",
+  "comparisons.viewer.voted": "โหวตแล้ว",
   "comparisons.kicker": "ชุดทดสอบโมเดลที่บันทึกไว้",
   "comparisons.title": "ประวัติการเปรียบเทียบ AI",
   "comparisons.subtitle": "ค้นหาและเปิดชุดเปรียบเทียบเดิมโดยไม่โหลดรายละเอียดการสร้างทั้งหมด",

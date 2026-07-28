@@ -1,7 +1,10 @@
 # Simple and Advanced Generation Modes
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** React MVP implemented; routing policy expansion deferred
+
+Simple tiers resolve provider/model on the server. Advanced mode reuses the
+shared React Engine control and the public provider capability catalog.
 
 ## 1. Business Requirement
 

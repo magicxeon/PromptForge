@@ -249,5 +249,31 @@
     "occurredAt": "2026-07-27T17:43:06.344Z",
     "requestId": "req_1785174186329_o9eez0e",
     "metadata": {}
+  },
+  {
+    "id": "engevt_aea726e4-a57a-459b-90ac-a2baa60777d2",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "like_added",
+    "targetId": null,
+    "dedupeKey": "like_added:post_1785056931508_vjbdsexw:usr_alice:2026-07-27T20:02:20.262Z",
+    "occurredAt": "2026-07-27T20:02:20.264Z",
+    "requestId": "req_1785182540258_q9zjdac",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_e3b1657b-a2ac-4e7f-ad1f-52ced1d73e85",
+    "schemaVersion": 1,
+    "postId": "post_1785056931508_vjbdsexw",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "save_added",
+    "targetId": null,
+    "dedupeKey": "save_added:post_1785056931508_vjbdsexw:usr_alice:2026-07-27T20:02:21.810Z",
+    "occurredAt": "2026-07-27T20:02:21.812Z",
+    "requestId": "req_1785182541807_ncg13th",
+    "metadata": {}
   }
 ]

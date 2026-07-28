@@ -89,9 +89,14 @@ to the durable internal user id.
 images and thumbnails live under `client/outputs/`; they are not JSON data-store
 files.
 
-The future `assets/assets.json` store contains normalized asset metadata and
-storage keys. It must reference files by ids or relative paths rather than
-embedding image bytes.
+The lazy `assets/assets.json` store contains normalized actor-owned asset
+metadata and relative storage keys. React generation uploads are validated by
+`server/domain/assets/ReferenceAssetService.js`, written beneath
+`client/outputs/references/<actor>/`, and registered here before a lightweight
+URL can enter a generation request. Fashion uses the same service with the
+`fashion-references` namespace. Provider transport bytes are resolved
+server-side only after ownership validation; image bytes never belong in this
+JSON store.
 
 Queue state is currently operational/in-memory state. A generation history
 record is not a durable queue replacement.

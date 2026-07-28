@@ -111,6 +111,70 @@ export class CreditReservationService {
     });
   }
 
+  async reservePlan({ userId, quoteId, planId, operations, idempotencyKey }) {
+    if (!userId || !quoteId || !planId || !idempotencyKey || !Array.isArray(operations) || !operations.length) {
+      throw createCreditError(
+        CREDIT_ERROR_CODES.ESTIMATE_STALE,
+        'A complete Fashion credit plan is required.',
+        400
+      );
+    }
+    const allocations = [];
+    for (const operation of operations) {
+      const estimate = this.estimateCache.get(operation.estimateId)
+        || await this.accountRepo.getEstimateById(operation.estimateId);
+      if (!estimate || estimate.userId !== userId) {
+        throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_NOT_FOUND, 'A plan estimate is missing or belongs to another actor.', 404);
+      }
+      if (new Date(estimate.expiresAt) < new Date()) {
+        throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_EXPIRED, 'A plan estimate has expired.', 400);
+      }
+      const expected = operation.generationRequest || {};
+      const actual = {
+        providerId: estimate.routing?.requestedProviderId,
+        modelId: estimate.routing?.requestedModelId,
+        resolution: estimate.pricingInputs?.resolution,
+        aspectRatio: estimate.pricingInputs?.aspectRatio,
+        referenceCount: Number(estimate.pricingInputs?.referenceCount || 0),
+        outputCount: Number(estimate.pricingInputs?.outputCount || 1),
+        generationMode: estimate.pricingInputs?.generationMode
+      };
+      const mismatches = Object.entries(actual)
+        .filter(([field, value]) => String(value ?? '') !== String(expected[field] ?? ''))
+        .map(([field, value]) => ({ field, expected: value, actual: expected[field] }));
+      if (mismatches.length) {
+        throw createCreditError(
+          CREDIT_ERROR_CODES.ESTIMATE_STALE,
+          'A Fashion operation does not match its locked estimate.',
+          400,
+          { operationId: operation.operationId, mismatches }
+        );
+      }
+      allocations.push({
+        operationId: operation.operationId,
+        estimateId: estimate.estimateId,
+        requestId: operation.requestId,
+        jobId: operation.jobId,
+        amountCredits: estimate.estimatedCredits,
+        expiresAt: estimate.expiresAt,
+        pricingSnapshot: {
+          providerId: estimate.routing.requestedProviderId,
+          modelId: estimate.routing.requestedModelId,
+          pricingPolicyVersion: estimate.pricingPolicyVersion,
+          estimatedCredits: estimate.estimatedCredits,
+          breakdown: estimate.breakdown
+        }
+      });
+    }
+    return this.accountRepo.reserveCreditPlan({
+      userId,
+      quoteId,
+      planId,
+      idempotencyKey,
+      allocations
+    });
+  }
+
   async refundForJob({ userId, reservationId, jobId, reasonCode = 'technical_failure', metadata = {} }) {
     return this.accountRepo.refundReservation({
       userId,

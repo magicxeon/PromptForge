@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {
   isBase64Reference,
@@ -63,7 +64,7 @@ test('stripEmbeddedReferenceDataFromSnapshot performs deep sanitization of all b
   assert.equal(stripped.nestedMetadata.safeField, 'hello world');
 });
 
-test('resolveReferenceForProvider checks owner verification and blocks raw bypassing', async () => {
+test('resolveReferenceForProvider checks owner verification and blocks raw bypassing', async t => {
   // Stub getById to return a mock history entry
   historyRepository.getById = async (jobId) => {
     if (jobId === 'job_owner123') {
@@ -77,39 +78,40 @@ test('resolveReferenceForProvider checks owner verification and blocks raw bypas
   };
 
   // Mock outputs file existence
-  const outputsDir = path.resolve(process.cwd(), 'client/outputs');
-  await fs.promises.mkdir(outputsDir, { recursive: true });
+  const outputsDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'mpf-reference-resolution-'));
+  t.after(() => fs.promises.rm(outputsDir, { recursive: true, force: true }));
   const testFilePath = path.join(outputsDir, 'job_owner123.png');
   await fs.promises.writeFile(testFilePath, 'dummy image data');
 
   try {
     // 1. Correct owner -> succeeds and reads file
-    const resolvedSucceed = await resolveReferenceForProvider('job_owner123', 'user_alice');
+    const options = { outputsDirectory: outputsDir };
+    const resolvedSucceed = await resolveReferenceForProvider('job_owner123', 'user_alice', options);
     assert.ok(resolvedSucceed);
     assert.match(resolvedSucceed, /^data:image\/png;base64,/);
 
     // 2. Ownership mismatch -> returns null
-    const resolvedFail = await resolveReferenceForProvider('job_owner123', 'user_bob');
+    const resolvedFail = await resolveReferenceForProvider('job_owner123', 'user_bob', options);
     assert.equal(resolvedFail, null);
 
     // 3. Base64 fallback -> returns value
     const base64Val = 'data:image/png;base64,abc';
-    const resolvedBase64 = await resolveReferenceForProvider(base64Val, 'user_bob');
+    const resolvedBase64 = await resolveReferenceForProvider(base64Val, 'user_bob', options);
     assert.equal(resolvedBase64, base64Val);
 
     // 4. Ownership bypass attempt for non-existent job output -> should return null
-    const resolvedBypass = await resolveReferenceForProvider('/outputs/job_unknown123.png', 'user_bob');
+    const resolvedBypass = await resolveReferenceForProvider('/outputs/job_unknown123.png', 'user_bob', options);
     assert.equal(resolvedBypass, null);
 
     // 5. Bypass attempt for non-fixture custom filename -> should return null
-    const resolvedRaw = await resolveReferenceForProvider('/outputs/some_private_photo.png', 'user_bob');
+    const resolvedRaw = await resolveReferenceForProvider('/outputs/some_private_photo.png', 'user_bob', options);
     assert.equal(resolvedRaw, null);
 
     // 6. Accessing dev fixture (starting with test_ or fixture_) -> should succeed
     const fixtureFilePath = path.join(outputsDir, 'test_fixture_style.png');
     await fs.promises.writeFile(fixtureFilePath, 'dummy style data');
     try {
-      const resolvedFixture = await resolveReferenceForProvider('/outputs/test_fixture_style.png', 'user_bob');
+      const resolvedFixture = await resolveReferenceForProvider('/outputs/test_fixture_style.png', 'user_bob', options);
       assert.ok(resolvedFixture);
       assert.match(resolvedFixture, /^data:image\/png;base64,/);
     } finally {

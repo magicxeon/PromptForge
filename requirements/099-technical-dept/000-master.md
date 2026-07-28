@@ -10,12 +10,9 @@ This directory tracks refactoring tasks, technical debt payments, and modulariza
 *   **Modularize `client/app.js`**: Split the giant monolithic file into smaller, focused modules based on functional concerns under `client/core/`.
 *   **Reorganize `server/`**: Separate runtime data, domain logic, repositories, route registration, middleware, and provider integrations.
 *   **Maintain Clean Global State**: Maintain `window.ModelPromptForgeState` as a unified state source of truth.
-*   **Current Legacy Runtime**: Keep existing browser-native scripts and IIFEs
-    stable while they own customer routes.
-*   **Approved React Migration**: New React migration work follows
-    `requirements/009-migration-to-react/` and lives under `web/`. React and the
-    legacy client coexist only through explicit route ownership until the
-    legacy runtime is retired.
+*   **Canonical React Runtime**: React + TypeScript + Vite under `web/` owns all
+    customer browser routes. Legacy browser modules are retained only as
+    decommission evidence until the final validation/observation gate.
 *   **Improve Code Maintainability**: Allow developers to locate bugs and implement enhancements in focused service files without causing merge conflicts.
 
 ---
@@ -84,6 +81,8 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Business rules and orchestration | `server/domain/<capability>/` |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
+| Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
+| Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
 | Request actor/security middleware | `server/middleware/` |
@@ -98,56 +97,38 @@ Server placement rules:
 *   A domain module should not hard-code runtime JSON paths.
 *   Data access should be replaceable without rewriting route or domain contracts.
 
-### 4.2 Client
+### 4.2 Frontend
 
 | File responsibility | Canonical location |
 |---|---|
-| Application bootstrap and top-level wiring | `client/app.js` |
-| Shared state, persistence, rendering, generation, and reference services | `client/core/` |
-| Localization runtime services and locale preference | `client/core/` |
-| Feature-specific behavior | `client/<feature>/` |
-| Character Profile modules | `client/character-profiles/` |
-| Scene Builder modules | `client/scene-builder/` |
-| Clothing modules | `client/clothing/` |
-| Comparison modules | `client/comparisons/` |
-| Reusable cross-feature generation UI | `client/generation-controls/` |
-| Navigation and application shell | `client/shell/` |
-| Reusable visual option controls | `client/visual-controls/` |
+| React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
+| React navigation metadata | `web/src/app/routeRegistry/` |
+| React routes and feature orchestration | `web/src/features/<feature>/` |
+| Reusable React UI and workflow components | `web/src/components/` |
+| Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |
+| Server-owned feature exposure client | `web/src/lib/permissions/` |
+| Design tokens and global responsive styling | `web/src/styles/` |
 | Runtime application assets | `client/assets/<feature>/` |
-| Self-hosted third-party browser libraries | `client/assets/vendor/<library>/` |
 | Translation manifests, schemas, and locale catalogs | `client/i18n/` |
 | Generated image output | `client/outputs/` |
-| Main HTML shell and script ordering | `client/index.html` |
-| Global styling until a feature stylesheet boundary is introduced | `client/style.css` |
+| Legacy browser source pending post-validation deletion | `client/` excluding retained data/assets |
 
-The table above describes the current legacy client. The approved target
-frontend architecture is defined in
-`requirements/009-migration-to-react/000-master-react-migration-roadmap.md`.
-During migration:
+Frontend rules:
 
-| React responsibility | Target location |
-|---|---|
-| React/Vite workspace and source | `web/` |
-| App composition, providers and routes | `web/src/app/` |
-| Reusable React components | `web/src/components/` |
-| React feature orchestration | `web/src/features/<feature>/` |
-| Shared React infrastructure | `web/src/lib/` |
-| React design tokens/global reset | `web/src/styles/` |
-
-Migration rules:
-
-* A route has exactly one frontend runtime owner.
+* Every browser route has React as its only runtime owner.
 * React source must not import legacy `window.ModelPromptForge*` modules.
-* Server API/domain/repository contracts remain shared and authoritative.
-* New features scheduled for React must not be implemented twice.
-* Legacy client paths remain canonical only until their owning route passes the
-  React cutover and observation gates.
+* Server API/domain/repository contracts remain authoritative.
+* Browser image uploads are persisted through the shared server asset domain;
+  React generation state stores lightweight actor-owned references, not Base64.
+* New customer functionality is implemented once under `web/`.
+* `client/i18n`, `client/assets`, and `client/outputs` remain retained runtime
+  data boundaries; other legacy client files are not implementation precedents.
 
 Client placement rules:
 
-*   Keep `client/app.js` as orchestration code; move reusable feature logic into its owning module.
-*   Extend an existing feature folder before creating another cross-feature global module.
-*   Browser-native scripts must be registered in dependency order in `client/index.html`.
+*   Keep route orchestration inside its React feature owner.
+*   Extend an existing feature/component owner before adding another global abstraction.
 *   `client/i18n/` contains source-controlled UI translations, never runtime user data or AI prompt text.
 *   Browser libraries installed through npm but served without a build tool must be copied to `client/assets/vendor/<library>/` before use.
 *   Generated output is runtime data and must not be treated as a source asset.

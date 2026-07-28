@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
+import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -138,7 +139,10 @@ export function normalizeReferenceValue(value) {
 }
 
 export async function resolveReferenceForProvider(value, username, {
-  authorizedJobIds = []
+  authorizedJobIds = [],
+  ownerUserId = null,
+  assetRepository = assetRepo,
+  outputsDirectory = OUTPUTS_DIR
 } = {}) {
   if (!value) return null;
   
@@ -164,7 +168,7 @@ export async function resolveReferenceForProvider(value, username, {
       
       // Resolve the actual file path on disk
       const filename = path.basename(historyItem.imageUrl || `${norm.jobId}.png`);
-      const filePath = path.join(OUTPUTS_DIR, filename);
+      const filePath = path.join(outputsDirectory, filename);
       try {
         const fileBuffer = await fs.readFile(filePath);
         const mimeType = mimeTypeFromFilename(filename);
@@ -176,7 +180,26 @@ export async function resolveReferenceForProvider(value, username, {
     }
   }
 
-  // 3. Fallback to raw legacy path resolution (e.g. startup/test fixtures)
+  // 3. Resolve actor-owned registered uploads. Public-looking local URLs are
+  // never sufficient by themselves; the asset record must belong to the payer.
+  if (norm.imageUrl?.startsWith('/outputs/') && ownerUserId) {
+    const asset = await assetRepository.findByPublicUrlForOwner(norm.imageUrl, ownerUserId);
+    if (asset?.storageKey) {
+      const filePath = path.resolve(outputsDirectory, asset.storageKey);
+      const relative = path.relative(outputsDirectory, filePath);
+      if (!relative.startsWith('..') && !path.isAbsolute(relative)) {
+        try {
+          const fileBuffer = await fs.readFile(filePath);
+          return `data:${asset.mimeType || mimeTypeFromFilename(filePath)};base64,${fileBuffer.toString('base64')}`;
+        } catch (err) {
+          console.error(`[Reference Resolution] Failed to read registered asset ${asset.id}:`, err.message);
+          return null;
+        }
+      }
+    }
+  }
+
+  // 4. Fallback to raw legacy path resolution (e.g. startup/test fixtures)
   if (typeof value === 'string' && value.startsWith('/outputs/')) {
     const filename = path.basename(value);
     const isFixture = filename.startsWith('fixture_') || filename.startsWith('test_');
@@ -184,7 +207,7 @@ export async function resolveReferenceForProvider(value, username, {
       return null; // Block raw bypass of history ownership check
     }
     try {
-      const filePath = path.join(OUTPUTS_DIR, filename);
+      const filePath = path.join(outputsDirectory, filename);
       const fileBuffer = await fs.readFile(filePath);
       const mimeType = mimeTypeFromFilename(filename);
       return `data:${mimeType};base64,${fileBuffer.toString('base64')}`;

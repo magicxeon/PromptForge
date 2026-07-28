@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "defaultRuntime": "react",
+  "routes": [
+    {
+      "id": "community-home",
+      "patterns": ["/", "/home", "/community"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "community-characters",
+      "patterns": ["/community/characters", "/community/characters/:characterId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "community-post",
+      "patterns": ["/community/:postId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "creator-profile",
+      "patterns": ["/creators/:handle", "/creators/:handle/:profileTab"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "create",
+      "patterns": ["/create/:workflow", "/studio", "/studio/:workflow"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "playground",
+      "patterns": ["/playground"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "history",
+      "patterns": ["/history", "/history/:jobId", "/library", "/library/images"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "comparisons",
+      "patterns": ["/compare", "/comparisons", "/comparisons/:setId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "admin",
+      "patterns": ["/admin"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "collections",
+      "patterns": ["/collections", "/collections/:collectionId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "credits",
+      "patterns": ["/credits"],
+      "runtime": "react",
+      "enabled": true
+    }
+  ]
+}

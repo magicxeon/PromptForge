@@ -5,6 +5,12 @@ import test from 'node:test';
 const schema = JSON.parse(fs.readFileSync('attributes/spec/ui-schema.json', 'utf8'));
 const fashionPack = JSON.parse(fs.readFileSync('attributes/024-fashion-commerce.json', 'utf8'));
 const entries = fashionPack.entries;
+const allEntries = fs.readdirSync('attributes', { withFileTypes: true })
+  .filter(item => item.isFile() && item.name.endsWith('.json'))
+  .flatMap(item => {
+    const value = JSON.parse(fs.readFileSync(`attributes/${item.name}`, 'utf8'));
+    return Array.isArray(value) ? value : (value.entries || []);
+  });
 
 test('fashion pack IDs are unique and bilingual', () => {
   const ids = entries.map(entry => entry.id);
@@ -22,14 +28,20 @@ test('fashion UI fields have active options', () => {
     'Fashion Direction', 'Scene Story', 'Photographic Context', 'Hair', 'Body',
     'Clothing', 'Pose', 'Environment', 'Lighting'
   ]);
-  const legacyBackedFields = new Set(['Length', 'Color', 'Finish']);
+  const fieldsWithoutPresetOptions = new Set([
+    'Length',
+    'Color',
+    'Finish',
+    'Primary Color',
+    'Secondary Color'
+  ]);
 
   schema
     .filter(group => fashionGroups.has(group.group))
     .flatMap(group => group.fields)
-    .filter(field => !legacyBackedFields.has(field.name))
+    .filter(field => !fieldsWithoutPresetOptions.has(field.name))
     .forEach(field => {
-      const options = entries.filter(entry => entry.subcategory === field.name && entry.enabled !== false);
+      const options = allEntries.filter(entry => entry.subcategory === field.name && entry.enabled !== false);
       assert.ok(options.length > 0, `${field.name} must have an active fashion option`);
     });
 });

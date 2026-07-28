@@ -1,4 +1,12 @@
 {
+  "comparisons.viewer.noOutput": "No comparison output is available.",
+  "comparisons.viewer.previous": "Previous result",
+  "comparisons.viewer.next": "Next result",
+  "comparisons.viewer.zoomOut": "Zoom out",
+  "comparisons.viewer.zoomIn": "Zoom in",
+  "comparisons.viewer.promptLabel": "Comparison prompt",
+  "comparisons.viewer.vote": "Vote",
+  "comparisons.viewer.voted": "Voted",
   "comparisons.kicker": "SAVED MODEL TESTS",
   "comparisons.title": "Comparison History",
   "comparisons.subtitle": "Find and reopen model comparisons without loading full generation details.",

@@ -52,6 +52,17 @@ export class AssetRepository {
     return asset?.ownerUserId === ownerUserId ? asset : null;
   }
 
+  async findByPublicUrlForOwner(publicUrl, ownerUserId) {
+    if (!publicUrl || !ownerUserId) return null;
+    const items = await this.readAll();
+    const asset = items.find(item =>
+      item.publicUrl === publicUrl
+      && item.ownerUserId === ownerUserId
+      && item.status !== 'deleted'
+    );
+    return asset ? structuredClone(asset) : null;
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const items = (await this.readAll())

@@ -3,9 +3,19 @@
   "version": "1.0.0",
   "type": "module",
   "main": "server/server.js",
+  "workspaces": [
+    "web"
+  ],
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
+    "dev:server": "nodemon server/server.js",
+    "dev:web": "npm run dev --workspace web",
+    "build:web": "npm run build --workspace web",
+    "test:web": "npm run test --workspace web",
+    "test:web:e2e": "npm run test:e2e --workspace web",
+    "lint:web": "npm run lint --workspace web",
+    "typecheck:web": "npm run typecheck --workspace web",
     "test": "node --test",
     "test:character-sheet": "node scripts/test-character-sheet-release-gate.js",
     "test:prompt-cleanup": "node scripts/test-prompt-cleanup.js",

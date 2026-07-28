@@ -1,7 +1,11 @@
 # Outfit Upload: Single and Bulk
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** React MVP implemented; final validation pending
+
+One to five products are supported. Each PNG/JPEG/WebP reference is uploaded
+individually to an actor-owned asset boundary before quote/run submission;
+Base64 is not persisted in Fashion records.
 
 ## 1. Business Requirement
 

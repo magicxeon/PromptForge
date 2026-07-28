@@ -67,3 +67,57 @@ test('Community-05 publishes only completed comparison slots and exposes proxy m
   assert.match(publicView.comparisonSnapshot.slots[0].imageUrl, /comparison-slots\/slot_a\/image$/);
   assert.equal(JSON.stringify(publicView).includes('job_a'), false);
 });
+
+test('Community comparison sharing selects the latest publishable rerun', async () => {
+  let stored = null;
+  const failedRun = {
+    id: 'run_failed',
+    status: 'failed',
+    sourcePrompt: 'old prompt',
+    slots: []
+  };
+  const completedRun = {
+    id: 'run_latest',
+    status: 'completed',
+    sourcePrompt: 'latest prompt',
+    slots: ['a', 'b'].map((suffix, index) => ({
+      id: `slot_${suffix}`,
+      position: index + 1,
+      status: 'completed',
+      jobId: `job_${suffix}`,
+      result: { imageUrl: `/outputs/${suffix}.png` }
+    }))
+  };
+  const service = new CommunityComparisonShareService({
+    comparisonOrchestrator: {
+      get: async () => ({
+        id: 'cmp_rerun',
+        name: 'Rerun',
+        runs: [failedRun, completedRun]
+      })
+    },
+    postRepository: {
+      readAll: async () => [],
+      create: async input => {
+        stored = input;
+        return { ...input, id: 'post_rerun', ownerUserId: alice.userId };
+      }
+    },
+    profileService: {
+      ensureProfileForActor: async () => ({ id: 'creator_alice' })
+    },
+    classificationService: {
+      classifyGeneration: async value => ({ suggestions: [], sourcePrompt: value.prompt }),
+      preparePublishTaxonomy: async () => ({
+        officialTags: [],
+        customTags: [],
+        categoryCodes: [],
+        trendingCategoryCodes: []
+      })
+    }
+  });
+
+  await service.publish('cmp_rerun', {}, alice);
+  assert.equal(stored.sharedPromptSnapshot.publicPromptText, 'latest prompt');
+  assert.equal(stored.comparisonSnapshot.slots.length, 2);
+});

@@ -1,7 +1,7 @@
 # Fashion Blueprint QA and Release Gates
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** Automated coverage added; final batch and visual QA pending
 
 ## 1. Automated Coverage
 

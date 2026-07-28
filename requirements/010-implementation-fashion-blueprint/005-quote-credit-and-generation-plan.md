@@ -1,7 +1,11 @@
 # Quote, Credit and Generation Plan
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** Implemented; final validation pending
+
+The implementation creates one locked estimate per product and reserves all
+accepted operation credits atomically through `reservePlan` before enqueue.
+Deterministic plan/job IDs and idempotency prevent duplicate submission.
 
 ## 1. Business Requirement
 

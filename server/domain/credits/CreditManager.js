@@ -1,5 +1,11 @@
-import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
-import { creditLedgerRepo } from '../../repositories/credits/CreditLedgerRepository.js';
+import {
+  CreditAccountRepository,
+  creditAccountRepo
+} from '../../repositories/credits/CreditAccountRepository.js';
+import {
+  CreditLedgerRepository,
+  creditLedgerRepo
+} from '../../repositories/credits/CreditLedgerRepository.js';
 import { mockUserRepo } from '../../repositories/identity/MockUserRepository.js';
 import { CreditDomainError, createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
 
@@ -7,19 +13,26 @@ export { CreditDomainError as CreditError };
 
 export class CreditManager {
   constructor({
-    accountRepo = creditAccountRepo,
-    ledgerRepo = creditLedgerRepo,
-    userRepo = mockUserRepo
+    accountRepo,
+    ledgerRepo,
+    userRepo = mockUserRepo,
+    databaseFile
   } = {}) {
-    this.accountRepo = accountRepo;
-    this.ledgerRepo = ledgerRepo;
+    this.accountRepo = accountRepo || (databaseFile
+      ? new CreditAccountRepository({ databaseFile, userRepository: userRepo })
+      : creditAccountRepo);
+    this.ledgerRepo = ledgerRepo || (databaseFile
+      ? new CreditLedgerRepository({ databaseFile, userRepository: userRepo })
+      : creditLedgerRepo);
     this.userRepo = userRepo;
   }
 
   async resolveUserId(usernameOrId) {
     if (!usernameOrId) return 'usr_demo';
     const user = await this.userRepo.findById(usernameOrId) || await this.userRepo.findByUsername(usernameOrId);
-    return user ? user.id : usernameOrId;
+    if (user) return user.id;
+    const legacyAccount = await this.accountRepo.getAccountByUserId(usernameOrId);
+    return legacyAccount?.userId || usernameOrId;
   }
 
   async getUserInfo(usernameOrId) {
@@ -71,11 +84,18 @@ export class CreditManager {
 
   async refund(usernameOrId, amount = 1, metadata = {}) {
     const userId = await this.resolveUserId(usernameOrId);
+    const reason = metadata.reason || 'generation_refund';
+    const relatedJobId = metadata.jobId || null;
     const res = await this.accountRepo.grantCredits({
       userId,
       amountCredits: Math.abs(amount),
-      reason: metadata.reason || 'generation_refund',
-      actorContext: { userId, isMockActor: true }
+      reason,
+      actorContext: { userId, isMockActor: true },
+      operationType: reason === 'lost_job_refund' ? 'lost_job_refund' : 'generation_refund',
+      relatedJobId,
+      idempotencyKey: metadata.idempotencyKey
+        || `legacy-refund:${userId}:${relatedJobId || metadata.requestId || Date.now()}:${reason}`,
+      metadata
     });
     return res.account.availableCredits;
   }
@@ -94,7 +114,11 @@ export class CreditManager {
       userId,
       amountCredits: netCost,
       reason: 'lost_job_refund',
-      actorContext: { userId, isMockActor: true }
+      actorContext: { userId, isMockActor: true },
+      operationType: 'lost_job_refund',
+      relatedJobId: jobId,
+      idempotencyKey: `lost-job-refund:${userId}:${jobId}`,
+      metadata: { ...metadata, jobId }
     });
 
     return { refunded: true, amount: netCost, credits: res.account.availableCredits };

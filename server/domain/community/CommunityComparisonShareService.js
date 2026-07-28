@@ -23,7 +23,13 @@ export class CommunityComparisonShareService {
   async publish(setId, input = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const set = await this.comparisonOrchestrator.get(setId, actor);
-    const run = set?.runs?.[0];
+    const run = [...(set?.runs || [])].reverse().find(candidate => {
+      const completedSlots = (candidate?.slots || []).filter(slot =>
+        slot.status === 'completed' && typeof slot.result?.imageUrl === 'string'
+      );
+      return ['completed', 'partially_completed'].includes(candidate?.status)
+        && completedSlots.length >= 2;
+    });
     const slots = (run?.slots || []).filter(slot =>
       slot.status === 'completed' && typeof slot.result?.imageUrl === 'string'
     );

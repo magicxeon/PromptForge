@@ -24,6 +24,7 @@
   "shell.navigation.items.myImages": "รูปภาพของฉัน",
   "shell.navigation.items.myCharacters": "Characters ของฉัน",
   "shell.navigation.items.characters": "Characters",
+  "shell.navigation.items.collections": "คอลเลกชัน",
   "shell.navigation.items.admin": "Admin",
   "shell.navigation.descriptions.home": "สำรวจผลงานจาก Community",
   "shell.navigation.descriptions.studio": "สร้าง Character และ Scene ด้วยตัวช่วย",
@@ -38,6 +39,7 @@
   "shell.navigation.descriptions.admin": "เครื่องมือ Support และ Audit",
   "shell.navigation.create": "สร้างภาพ",
   "shell.navigation.menu": "เมนู",
+  "shell.navigation.breadcrumbs": "เส้นทางนำทาง",
   "shell.navigation.collapse": "พับเมนู",
   "shell.navigation.searchLabel": "ค้นหาเครื่องมือในแอป",
   "shell.navigation.searchPlaceholder": "ค้นหาเครื่องมือ..."

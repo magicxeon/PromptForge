@@ -1,7 +1,11 @@
 # Character, Pose and Environment Selection
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** React MVP implemented; expanded direction packs deferred
+
+The MVP uses authorized Character handoffs plus bounded pose/environment
+selectors. Server run confirmation revalidates Character version, reuse policy,
+destination capability, and canonical reference asset.
 
 ## 1. Business Requirement
 

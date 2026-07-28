@@ -1,7 +1,22 @@
 # 005 Community, Public Media and Engagement Migration
 
-**Status:** First customer-facing React vertical slice  
+**Status:** Implemented and React-owned; browser QA pending
 **Depends on:** 001-004
+
+## Implementation Progress
+
+The first Community vertical slice passed automated foundation validation:
+
+- `web/src/features/community/schemas/communitySchemas.ts` validates sanitized
+  public records without accepting private source snapshots.
+- `web/src/features/community/api/communityApi.ts` owns React Community HTTP.
+- `CommunityHomeRoute.tsx` owns URL filters and cursor pagination.
+- `CommunityPostRoute.tsx` owns artwork viewing, metadata, prompt visibility,
+  engagement, comments, related creator work, and template handoff.
+- Shared `MediaCard`, `MediaStage`, `CreatorIdentity`, `EngagementBar`, and
+  `CommentThread` components serve both list and detail composition.
+- Community Template handoff is consumed directly by the React Scene Builder
+  through an actor-bound session envelope. No legacy bridge script is loaded.
 
 ## 1. Why This Migrates First
 
@@ -187,4 +202,3 @@ Run current Community server tests unchanged as regression coverage.
 - Engagement and pagination pass parity.
 - Shared components are ready for Profiles and Library.
 - Route can roll back without changing Community data.
-

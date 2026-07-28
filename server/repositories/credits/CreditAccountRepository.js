@@ -268,6 +268,162 @@ export class CreditAccountRepository {
     });
   }
 
+  async reserveCreditPlan({
+    userId,
+    planId,
+    quoteId,
+    idempotencyKey,
+    allocations = [],
+    relatedTemplateId = null
+  }) {
+    if (!userId || !planId || !quoteId || !idempotencyKey || !Array.isArray(allocations) || !allocations.length) {
+      throw createCreditError(
+        CREDIT_ERROR_CODES.RESERVATION_CONFLICT,
+        'User, plan, quote, idempotency key, and allocations are required.',
+        400
+      );
+    }
+    const normalized = allocations.map(allocation => {
+      const amountCredits = Number(allocation.amountCredits);
+      if (
+        !allocation.operationId
+        || !allocation.estimateId
+        || !allocation.requestId
+        || !allocation.jobId
+        || !Number.isInteger(amountCredits)
+        || amountCredits <= 0
+      ) {
+        throw createCreditError(
+          CREDIT_ERROR_CODES.RESERVATION_CONFLICT,
+          'Every plan allocation requires operation, estimate, request, job, and positive credit values.',
+          400
+        );
+      }
+      return { ...allocation, amountCredits };
+    });
+    const totalCredits = normalized.reduce((sum, allocation) => sum + allocation.amountCredits, 0);
+    const now = new Date().toISOString();
+
+    return mutateJsonFile(this.databaseFile, DB_FALLBACK, async data => {
+      await this.migrateLegacyDataIfNeeded(data);
+      const allocationKey = operationId => `reserve-plan:${idempotencyKey}:${operationId}`;
+      const existingEntries = normalized.map(allocation =>
+        data.ledgerEntries.find(entry => entry.idempotencyKey === allocationKey(allocation.operationId))
+      );
+      if (existingEntries.some(Boolean)) {
+        if (!existingEntries.every(Boolean)) {
+          throw createCreditError(
+            CREDIT_ERROR_CODES.RESERVATION_CONFLICT,
+            'Plan reservation is incomplete and cannot be replayed.',
+            409
+          );
+        }
+        const reservations = existingEntries.map(entry =>
+          data.reservations.find(reservation => reservation.reservationId === entry.reservationId)
+        );
+        const matches = reservations.every((reservation, index) =>
+          reservation
+          && reservation.userId === userId
+          && reservation.estimateId === normalized[index].estimateId
+          && reservation.jobId === normalized[index].jobId
+          && reservation.amountCredits === normalized[index].amountCredits
+        );
+        if (!matches) {
+          throw createCreditError(
+            CREDIT_ERROR_CODES.ESTIMATE_STALE,
+            'Plan idempotency key conflicts with different allocation inputs.',
+            409
+          );
+        }
+        return {
+          account: structuredClone(data.accounts.find(account => account.userId === userId)),
+          reservations: structuredClone(reservations),
+          duplicate: true
+        };
+      }
+
+      let account = data.accounts.find(entry => entry.userId === userId);
+      if (!account) {
+        const user = await this.userRepository.findById(userId);
+        account = {
+          schemaVersion: 2,
+          userId,
+          username: user?.username || userId,
+          availableCredits: 0,
+          reservedCredits: 0,
+          status: 'active',
+          lifetimeGrantedCredits: 0,
+          lifetimeCapturedCredits: 0,
+          createdAt: now,
+          updatedAt: now
+        };
+        data.accounts.push(account);
+      }
+      if (account.status !== 'active' || account.availableCredits < totalCredits) {
+        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, 'Insufficient credits for the Fashion plan.', 402, {
+          requiredCredits: totalCredits,
+          availableCredits: account.availableCredits
+        });
+      }
+
+      account.availableCredits -= totalCredits;
+      account.reservedCredits += totalCredits;
+      account.updatedAt = now;
+      const reservations = normalized.map((allocation, index) => {
+        const reservationId = `rsv_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 8)}`;
+        const reservation = {
+          schemaVersion: 1,
+          reservationId,
+          estimateId: allocation.estimateId,
+          userId,
+          requestId: allocation.requestId,
+          jobId: allocation.jobId,
+          amountCredits: allocation.amountCredits,
+          status: 'reserved',
+          pricingSnapshot: allocation.pricingSnapshot || {},
+          relatedTemplateId,
+          createdAt: now,
+          updatedAt: now,
+          expiresAt: allocation.expiresAt || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          capturedAt: null,
+          refundedAt: null,
+          terminalReason: null,
+          metadata: { planId, quoteId, operationId: allocation.operationId }
+        };
+        data.reservations.push(reservation);
+        data.ledgerEntries.push({
+          schemaVersion: 2,
+          ledgerEntryId: `clg_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 8)}`,
+          userId,
+          operationType: 'reserve',
+          amountCredits: allocation.amountCredits,
+          availableDelta: -allocation.amountCredits,
+          reservedDelta: allocation.amountCredits,
+          availableAfter: account.availableCredits,
+          reservedAfter: account.reservedCredits,
+          reservationId,
+          estimateId: allocation.estimateId,
+          relatedJobId: allocation.jobId,
+          relatedTemplateId,
+          providerId: allocation.pricingSnapshot?.providerId || null,
+          modelId: allocation.pricingSnapshot?.modelId || null,
+          pricingPolicyVersion: allocation.pricingSnapshot?.pricingPolicyVersion || 'unknown',
+          idempotencyKey: allocationKey(allocation.operationId),
+          reasonCode: 'fashion_plan_reserved',
+          actorUserId: userId,
+          createdAt: now,
+          metadata: { planId, quoteId, operationId: allocation.operationId }
+        });
+        return reservation;
+      });
+      return {
+        account: structuredClone(account),
+        reservations: structuredClone(reservations),
+        duplicate: false
+      };
+    });
+  }
+
   async captureReservation({ userId, reservationId, jobId = null, idempotencyKey = null, metadata = {} }) {
     const key = idempotencyKey || `capture:${reservationId || jobId}`;
     const now = new Date().toISOString();
@@ -441,7 +597,16 @@ export class CreditAccountRepository {
     });
   }
 
-  async grantCredits({ userId, amountCredits, idempotencyKey = null, reason = 'mock_grant', actorContext = null }) {
+  async grantCredits({
+    userId,
+    amountCredits,
+    idempotencyKey = null,
+    reason = 'mock_grant',
+    actorContext = null,
+    operationType = 'grant',
+    relatedJobId = null,
+    metadata = {}
+  }) {
     const amount = Number(amountCredits);
     if (!Number.isInteger(amount) || amount <= 0) {
       throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, 'Grant amount must be a positive integer.', 400);
@@ -489,17 +654,18 @@ export class CreditAccountRepository {
         schemaVersion: 2,
         ledgerEntryId: `clg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
         userId,
-        operationType: 'grant',
+        operationType,
         amountCredits: amount,
         availableDelta: amount,
         reservedDelta: 0,
         availableAfter: account.availableCredits,
         reservedAfter: account.reservedCredits,
+        relatedJobId,
         idempotencyKey: key,
         reasonCode: reason,
         actorUserId: actorContext?.userId || userId,
         createdAt: now,
-        metadata: {}
+        metadata
       };
       data.ledgerEntries.push(ledgerEntry);
 

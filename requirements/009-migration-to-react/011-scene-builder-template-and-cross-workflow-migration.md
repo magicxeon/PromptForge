@@ -1,7 +1,26 @@
 # 011 Scene Builder, Templates and Cross-Workflow Migration
 
-**Status:** Final complex feature migration  
+**Status:** Implemented and React-owned; final validation pending
 **Depends on:** 004, 005, 006, 009 and 010
+
+## Implementation Result
+
+The released React ownership is:
+
+```text
+web/src/features/scene-builder/routes/SceneBuilderRoute.tsx
+web/src/features/scene-builder/api/sceneTemplateApi.ts
+web/src/features/scene-builder/schemas/sceneTemplateSchemas.ts
+web/src/features/scene-builder/components/SharedTemplatePanel.tsx
+web/src/features/scene-builder/components/HistoryReferencePicker.tsx
+web/src/components/generation/GenerationExperience.tsx
+```
+
+Guided/Manual state is explicit and actor-scoped. Shared template snapshots are
+Zod-validated, required roles block submission, History images map into explicit
+roles, Community and Character handoffs are actor-bound, and all generation
+continues through the shared server-owned estimate/queue pipeline. Template and
+History queries include viewer identity in their Query keys.
 
 ## 1. Business Requirement
 

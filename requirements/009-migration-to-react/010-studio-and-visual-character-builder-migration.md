@@ -1,7 +1,26 @@
 # 010 Studio and Visual Character Builder Migration
 
-**Status:** High-risk migration; begin after 009  
+**Status:** Implemented and React-owned; final validation pending
 **Depends on:** Shared generation platform and current Character requirements
+
+## Implementation Result
+
+The released React ownership is:
+
+```text
+web/src/features/studio/routes/StudioRoute.tsx
+web/src/features/studio/attributes/attributeModel.ts
+web/src/features/studio/components/GuidedAttributeForm.tsx
+web/src/components/visual-options/VisualOptionPicker.tsx
+web/src/components/generation/GenerationExperience.tsx
+web/src/components/profiles/CreateCharacterProfileDialog.tsx
+```
+
+Studio consumes the server attribute bundle, derives mode-compatible selections,
+uses the shared generation/reference/credit/result platform, prunes Clothing
+from Reusable Model state and hands generated outputs to Character creation by
+stable job ID. Actor switching clears route-owned private selections and
+references. No legacy global state is consumed.
 
 ## 1. Business Requirement
 
@@ -212,4 +231,3 @@ Do not put large images in navigation state/localStorage.
 - Reference and clothing payloads are correct.
 - Schema-driven controls cover all current attributes.
 - Cross-mode handoff is versioned and actor-safe.
-

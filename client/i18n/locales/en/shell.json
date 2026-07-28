@@ -23,6 +23,7 @@
   "shell.navigation.items.comparisons": "Compare AI",
   "shell.navigation.items.myImages": "My Images",
   "shell.navigation.items.myCharacters": "My Characters",
+  "shell.navigation.items.collections": "Collections",
   "shell.navigation.items.characters": "Characters",
   "shell.navigation.items.admin": "Admin",
   "shell.navigation.descriptions.home": "Discover community work",
@@ -38,6 +39,7 @@
   "shell.navigation.descriptions.admin": "Support and audit tools",
   "shell.navigation.create": "Create",
   "shell.navigation.menu": "Menu",
+  "shell.navigation.breadcrumbs": "Breadcrumb",
   "shell.navigation.collapse": "Collapse menu",
   "shell.navigation.searchLabel": "Search application tools",
   "shell.navigation.searchPlaceholder": "Search tools..."

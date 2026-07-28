@@ -1,4 +1,39 @@
-# ModelPromptForge Client
+# ModelPromptForge Retained Client Data and Legacy Source
+
+> **Current architecture:** `web/` is the canonical React + TypeScript + Vite
+> browser application. Do not add customer-facing routes, components, state, or
+> behavior to `client/`. Express serves only `client/assets/`, `client/i18n/`,
+> and `client/outputs/`; it does not serve this folder's legacy HTML, scripts,
+> or stylesheet.
+
+Current ownership:
+
+```text
+web/src/app/                    React bootstrap, providers and router
+web/src/components/             reusable React UI/product components
+web/src/features/<feature>/     route and feature orchestration
+web/src/lib/                    API, actor, i18n, persistence and telemetry
+client/assets/                  retained source-controlled browser assets
+client/i18n/                    retained locale manifest/catalogs
+client/outputs/                 local MVP generated/uploaded media
+```
+
+All new frontend work belongs under `web/`. Never introduce another
+`window.ModelPromptForge*` API or restore `window.state` as a React dependency.
+Uploaded references use `POST /api/references`; React stores the returned
+actor-owned `/outputs/...` URL rather than Base64.
+
+Physical removal of the remaining Vanilla files is gated by
+`requirements/009-migration-to-react/012-quality-security-performance-cutover-and-legacy-decommission.md`.
+Run `scripts\validate-react-migration.bat` before closing that gate.
+
+## Archived Legacy Documentation
+
+The remainder of this file documents the retired Vanilla runtime for deletion
+and parity evidence only. **Do not follow its placement, routing, global-state,
+or script-order instructions for current implementation.**
+
+# Legacy ModelPromptForge Client
 
 `client/` contains the browser application for ModelPromptForge. The current
 client is a server-rendered static shell with browser-native JavaScript, HTML,

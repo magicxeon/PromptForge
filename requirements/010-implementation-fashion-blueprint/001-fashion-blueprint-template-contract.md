@@ -1,7 +1,11 @@
 # Fashion Blueprint Template Contract
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Architecture-aligned; implementation pending
+**Status:** React MVP implemented; final validation pending
+
+The React Template picker consumes sanitized reusable Community Template posts.
+The quote service revalidates template visibility and reuse policy on the
+server before issuing or confirming a quote.
 
 ## 1. Business Requirement
 

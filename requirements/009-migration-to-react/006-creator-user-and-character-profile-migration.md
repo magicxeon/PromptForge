@@ -1,6 +1,6 @@
 # 006 Creator, User and Character Profile Migration
 
-**Status:** Planned after Community  
+**Status:** Implemented and React-owned; final validation pending
 **Depends on:** 005 shared Community/media components
 
 ## 1. Business Requirement
@@ -184,4 +184,3 @@ record. Do not create permanent duplicated localStorage payloads.
 - Community/Profile cards share components.
 - Character permission and handoff behavior matches server policy.
 - Private media and identity data remain protected.
-

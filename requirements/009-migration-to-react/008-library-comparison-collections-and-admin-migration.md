@@ -1,7 +1,18 @@
 # 008 Library, Comparison, Collections and Admin Migration
 
-**Status:** Planned  
+**Status:** Implemented and React-owned; final validation pending
 **Depends on:** 003-007 shared media, generation and profile components
+
+## Implementation Result
+
+History, Collections, Comparisons, Credits and Admin are actor-scoped React
+routes. Single-image results reuse Collection and generated-image share dialogs.
+Collection detail and private Comparison detail reuse
+`PublishCommunityResourceDialog` to publish grouped snapshots through their
+existing server-owned Community endpoints. Private and Community Comparison
+views share `ComparisonWorkspace`; only the private owner surface exposes winner
+mutation, deletion and publish controls. Comparison publishing selects the
+latest publishable run rather than assuming the first attempt succeeded.
 
 ## 1. Business Requirement
 
@@ -153,4 +164,3 @@ Rules:
 - Community and private permissions remain distinct.
 - Admin remains server-gated and audited.
 - Legacy History, Comparison and Admin route owners can be retired.
-

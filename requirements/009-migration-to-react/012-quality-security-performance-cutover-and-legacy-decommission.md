@@ -1,6 +1,6 @@
 # 012 Quality, Security, Performance, Cutover and Legacy Decommission
 
-**Status:** Final release gate, applied incrementally to every phase  
+**Status:** Implemented release gate; user validation and legacy source deletion pending
 **Depends on:** 001-011
 
 ## 1. Business Requirement
@@ -75,6 +75,9 @@ No parity test may compare private raw references in logs or snapshots.
 - private queries are not persisted publicly;
 - prompt/reference logs are sanitized;
 - uploaded media validates type/size on server;
+- newly uploaded generation references are registered as actor-owned assets and
+  resolved for providers only after a server ownership check;
+- generation JSON and durable snapshots do not carry newly uploaded Base64;
 - external URLs are not blindly rendered or fetched;
 - admin routes are server role-gated;
 - public snapshots pass sanitization;
@@ -85,6 +88,7 @@ No parity test may compare private raw references in logs or snapshots.
 Set measured budgets after the first production build, then enforce:
 
 - route-level lazy loading;
+- route-owned localization namespace loading;
 - no full app feature bundle on Community entry;
 - stable image dimensions;
 - responsive image/thumbnail usage;
@@ -93,6 +97,7 @@ Set measured budgets after the first production build, then enforce:
 - virtualize only lists that measurably need it;
 - avoid unnecessary global rerenders;
 - monitor bundle growth by feature chunk.
+- production source maps are not publicly emitted by the Vite build.
 
 Initial target guidance:
 
@@ -115,7 +120,8 @@ Every route gate includes:
 - contrast and non-color state;
 - reduced motion;
 - 390px-class mobile and desktop viewport;
-- Thai/English/Japanese longest-label checks;
+- longest-label checks for every manifest-enabled locale, plus a future-locale
+  stress fixture before enabling another language;
 - empty/loading/error/permission screenshots;
 - media failure and slow-loading behavior.
 
@@ -170,6 +176,16 @@ After every route is React-owned:
 Deletion must be based on import/route/runtime evidence. Do not delete visual
 assets or server contracts simply because the legacy consumer disappeared.
 
+Current cutover state:
+
+- Express serves only `web/dist/index.html` for registered browser routes.
+- `/react-assets`, retained `/assets`, `/i18n`, and `/outputs` are the only
+  frontend/runtime static boundaries.
+- legacy `client/app.js`, `client/index.html`, and `client/style.css` are not
+  web-served.
+- physical legacy source deletion remains gated on the final validation batch
+  and observation/rollback closure.
+
 ## 10. Production Alignment
 
 Final frontend:
@@ -193,4 +209,3 @@ Cloud Storage, durable jobs and payments.
 - Generation, credits and references pass canonical tests.
 - Frontend build/deployment is documented and reproducible.
 - Legacy files are removed only after observation and rollback closure.
-

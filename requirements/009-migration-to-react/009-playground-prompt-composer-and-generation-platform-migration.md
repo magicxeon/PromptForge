@@ -1,7 +1,16 @@
 # 009 Playground, Prompt Composer and Generation Platform Migration
 
-**Status:** Planned after read-heavy routes  
+**Status:** Implemented and React-owned; final validation pending
 **Depends on:** 001-008
+
+## Implementation Result
+
+`GenerationExperience` is the single provider/reference/estimate/submission
+surface used by Playground, Studio and Scene Builder. Its result surface owns
+download, History detail, Collection assignment and Community share actions for
+completed single-image jobs, and links completed Comparison runs to the shared
+Comparison detail workspace. Fashion uses the same provider and actor-owned
+reference contracts while retaining its aggregate quote/run coordinator.
 
 ## 1. Business Requirement
 
@@ -100,6 +109,19 @@ The server remains authoritative for:
 
 Reference state contains stable asset/output IDs and preview metadata. Temporary
 browser object URLs are revoked. Durable Base64 storage is forbidden.
+
+Browser uploads use this transport:
+
+```text
+File -> POST /api/references -> actor-owned AssetRepository record
+     -> lightweight /outputs/references/... value in generation state
+     -> server ownership check and provider-only Base64 resolution at queue time
+```
+
+The upload endpoint accepts only PNG, JPEG and WebP images up to 12 MB, validates
+the actual bytes and dimensions, and rejects unknown reference roles. It removes
+the file if asset persistence fails. Fashion uses the same domain service through
+its `/api/fashion-blueprints/assets` route and isolated namespace.
 
 ## 5. Generation State Machine
 
@@ -221,6 +243,6 @@ server regressions.
 - Shared generation components have no Studio-specific global dependency.
 - Estimate and request snapshots match.
 - References reach provider pipeline under correct roles.
+- Generation requests and durable snapshots contain no newly uploaded Base64.
 - Polling is actor-safe and leak-free.
 - Fashion and later editors can compose the same component contracts.
-

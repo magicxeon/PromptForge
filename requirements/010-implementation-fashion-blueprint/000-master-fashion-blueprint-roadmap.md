@@ -1,6 +1,11 @@
 # Fashion Blueprint Master Roadmap
 
-**Status:** Architecture-aligned; implementation pending before the commercial infrastructure cutover
+**Status:** React MVP implemented; final validation pending
+
+**Canonical implementation:** `web/src/features/fashion-blueprint/`,
+`server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`,
+and `server/app/routes/fashionBlueprintRoutes.js`. Any legacy
+`client/fashion-blueprint/` path below is superseded by this React owner.
 **Goal:** Give non-technical fashion sellers a short, predictable workflow that
 turns clothing references into e-commerce-ready model images.
 

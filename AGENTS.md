@@ -45,15 +45,17 @@ Server middleware                    server/middleware/
 AI provider integrations             server/providers/
 Server configuration                 server/config/
 
-Client bootstrap/orchestration       client/app.js
-Client shared infrastructure         client/core/
-Client feature modules               client/<feature>/
-Shared generation UI                 client/generation-controls/
-Client navigation and shell          client/shell/
-Reusable visual controls             client/visual-controls/
-Localization catalogs/runtime data   client/i18n/
+React bootstrap and routing           web/src/main.tsx and web/src/app/
+React shared components               web/src/components/
+React feature modules                 web/src/features/<feature>/
+React shared infrastructure           web/src/lib/
+React navigation metadata             web/src/app/routeRegistry/
+React actor-scoped persistence        web/src/lib/persistence/
+React feature exposure policy         web/src/lib/permissions/
+React styles and tokens               web/src/styles/
+Localization catalogs/runtime data    client/i18n/
 Client runtime visual assets         client/assets/<feature>/
-Self-hosted browser dependencies      client/assets/vendor/<library>/
+Generated image output               client/outputs/
 
 Visual authoring source sets          visual-assets/character-builder/
 Maintenance/migration scripts         scripts/
@@ -61,18 +63,22 @@ Automated tests and fixtures           test/ and test/fixtures/
 Requirements and plans                requirements/<phase-or-domain>/
 ```
 
-Current client feature owners include:
+Current React feature owners include:
 
 ```text
-client/admin/
-client/character-profiles/
-client/clothing/
-client/community/
-client/comparisons/
-client/credits/
-client/playground/
-client/prompt-composer/
-client/scene-builder/
+web/src/features/admin/
+web/src/features/collections/
+web/src/features/community/
+web/src/features/comparisons/
+web/src/features/credits/
+web/src/features/fashion-blueprint/
+web/src/features/generation/
+web/src/features/history/
+web/src/features/playground/
+web/src/features/profiles/
+web/src/features/prompt-composer/
+web/src/features/scene-builder/
+web/src/features/studio/
 ```
 
 Current server domain and repository capabilities should follow matching
@@ -101,46 +107,37 @@ capability names where practical.
 
 ## 4. Client Architecture Rules
 
-- The application is browser-native Vanilla JavaScript with no client build
-  step today. Use the established IIFE/global namespace pattern for changes to
-  routes still owned by the legacy client.
-- The approved replacement frontend is defined by
-  `requirements/009-migration-to-react/`. New React source belongs under
-  `web/` and uses React, TypeScript and Vite.
-- React and Vanilla may coexist only through explicit route ownership. Never
-  mount both runtimes into the same page DOM or import legacy globals into
-  React.
-- Features scheduled to launch after their React migration must be implemented
-  once in React rather than built in Vanilla and migrated immediately.
-- Keep `client/app.js` as orchestration. Reusable behavior belongs to its feature
-  module or `client/core/`.
-- Register browser scripts in dependency order in `client/index.html`.
-- Reuse shared components instead of copying Studio UI into Playground or other
-  pages.
-- `client/generation-controls/` owns shared prompt, reference, engine/comparison,
-  action, and result presentation used by Studio and Playground.
-- Shared components receive state, options, and callbacks. They must not create a
-  second Studio state or perform provider calls directly.
+- React + TypeScript + Vite under `web/` is the only browser runtime owner.
+- Do not add customer behavior to `client/index.html`, `client/app.js`, legacy
+  IIFEs, `window.state`, or `window.ModelPromptForge*` globals.
+- `client/i18n/`, `client/assets/`, and `client/outputs/` remain server-served
+  data/assets until their storage migration requirements are implemented.
+- Use React Router for internal navigation and TanStack Query for server state.
+- API calls use `web/src/lib/api/apiClient.ts`; every response boundary should
+  have an owning Zod schema.
+- Actor-relative query keys include actor identity, and actor switching clears
+  the Query cache and actor-owned drafts.
+- Reuse components under `web/src/components/`; feature orchestration belongs
+  under `web/src/features/<feature>/`.
+- Shared components receive state, options, and callbacks. They must not call AI
+  providers or create a parallel generation/credit pipeline.
 - Capability-driven controls must hide unsupported fields. For example, Output
   Resolution appears only when the active model exposes
   `capabilities.resolutions`.
-- Use `window.ModelPromptForgeRouter` for application navigation. Do not force
-  full-page navigation for internal routes.
+- Use React Router `Link`, `NavLink`, and navigation hooks for internal routes.
 - Keep fixed-format controls dimensionally stable and responsive. Verify no
   overlapping or clipped text at desktop and mobile widths.
-- React work must also follow the component, UX/UI, accessibility, API, state
-  and cutover rules in
+- Follow the component, UX/UI, accessibility, API, state, and release rules in
   `requirements/009-migration-to-react/SKILL.md`.
 
 ## 5. State, Identity, and Ownership
 
-- `window.state` remains the canonical compatibility state for Studio.
-- Feature-specific state such as Playground or Scene Builder must use its owning
-  state module and versioned persistence contract.
+- Feature state belongs to its React route/store and versioned persistence
+  contract. Do not revive the legacy compatibility state.
 - Browser persistence containing user work must be actor-scoped. Switching mock
   users must not leak history, queue state, prompts, templates, or settings.
-- Client API calls should use `client/core/apiClient.js` so the active actor
-  header is attached consistently.
+- Client API calls use `web/src/lib/api/apiClient.ts` so the active actor header
+  is attached consistently.
 - Server ownership decisions must use `req.actorContext`, not a trusted
   `username` supplied in request body or query parameters.
 - Keep mock actor contracts migration-compatible with future authentication and
@@ -169,7 +166,7 @@ capability names where practical.
 
 ## 7. Localization
 
-- All new user-visible strings must use `client/core/i18nService.js`.
+- All new React user-visible strings must use `react-i18next`.
 - Add keys to an appropriate namespace under
   `client/i18n/locales/<locale>/<namespace>.json`.
 - Keep key and interpolation-variable parity for every enabled locale.
@@ -196,7 +193,7 @@ capability names where practical.
 - Prefer `rg` or `rg --files` for repository search.
 - Keep edits scoped to the requested capability and avoid unrelated formatting
   churn.
-- Do not run Node commands or Node tests directly in this repository.
+<!-- - Do not run Node commands or Node tests directly in this repository. -->
 - Tell the user exactly which `node --check`, `node --test`, or npm command to
   execute and ask them to report failures.
 - Read-only checks such as JSON parsing, `git diff --check`, and file inspection
