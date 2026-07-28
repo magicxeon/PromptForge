@@ -109,6 +109,7 @@ Server placement rules:
 | Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |
 | Server-owned feature exposure client | `web/src/lib/permissions/` |
 | Design tokens and global responsive styling | `web/src/styles/` |
+| Canonical UI visual language and agent guidance | `requirements/Knowledge/ui-design-system-and-visual-language.md` |
 | Runtime application assets | `client/assets/<feature>/` |
 | Translation manifests, schemas, and locale catalogs | `client/i18n/` |
 | Generated image output | `client/outputs/` |

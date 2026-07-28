@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import { initializeI18n } from './lib/i18n/i18n';
+import '@fontsource/poppins/500.css';
+import '@fontsource/noto-sans-thai/500.css';
 import './styles/globals.css';
 
 await initializeI18n();

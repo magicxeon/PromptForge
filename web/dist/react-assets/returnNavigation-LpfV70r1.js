@@ -1,1 +1,0 @@
-import{l as r}from"./index-BVonNVw4.js";function e(t){return{mpfReturn:{to:`${t.pathname}${t.search}${t.hash}`,actorId:r()}}}function n(t){return!!(t?.startsWith("/")&&!t.startsWith("//"))}export{e as c,n as i};

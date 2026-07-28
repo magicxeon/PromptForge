@@ -1,33 +1,25 @@
-import { useMemo, type FormEvent } from 'react';
-import { Link, NavLink, Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import {
   Coins,
-  Columns3,
-  FlaskConical,
-  FolderOpen,
-  History,
-  Home,
+  Menu,
   Search,
-  Settings,
-  Shirt,
   Sparkles,
   UserRound,
-  UsersRound
+  X
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { apiRequest } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { changeLocale, i18n } from '../../lib/i18n/i18n';
-import { cn } from '../../lib/utils/cn';
 import { Breadcrumbs } from './Breadcrumbs';
-import {
-  visibleNavigationRoutes,
-  type NavigationRouteId
-} from '../../app/routeRegistry/routes';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
+import { MomeloBrand } from '../brand/MomeloBrand';
+import { SidebarNavigation } from './SidebarNavigation';
+import { AppFooter } from './AppFooter';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -37,22 +29,17 @@ const creditResponseSchema = z.object({
   })
 });
 
-const navIcons = {
-  home: Home,
-  characters: UsersRound,
-  studio: Sparkles,
-  fashion: Shirt,
-  playground: FlaskConical,
-  comparisons: Columns3,
-  history: History,
-  collections: FolderOpen,
-  admin: Settings
-} satisfies Record<NavigationRouteId, typeof Home>;
+const SIDEBAR_PREFERENCE_KEY = 'momelo.shell.sidebar-collapsed';
 
 export function AppShell() {
-  const { t } = useTranslation(['shell', 'credits', 'community']);
+  const { t } = useTranslation('shell');
   const { actor, mockUsers, mockSwitcherEnabled, switchActor } = useActor();
   const { isEnabled } = useFeaturePolicy();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(readCollapsedPreference);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [studioOpen, setStudioOpen] = useState(true);
+  const mobileTrigger = useRef<HTMLButtonElement>(null);
   const actorId = actor?.userId || 'loading';
   const credits = useQuery({
     queryKey: queryKeys.credits(actorId),
@@ -60,39 +47,88 @@ export function AppShell() {
     enabled: Boolean(actor)
   });
 
+  useEffect(() => {
+    setMobileOpen(false);
+    if (isStudioLocation(location.pathname)) setStudioOpen(true);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') return;
+      setMobileOpen(false);
+      mobileTrigger.current?.focus();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileOpen]);
+
+  function toggleCollapsed() {
+    setCollapsed(value => {
+      const next = !value;
+      localStorage.setItem(SIDEBAR_PREFERENCE_KEY, String(next));
+      return next;
+    });
+  }
+
   return (
-    <div className="min-h-screen" data-testid="application-shell">
+    <div
+      className={`app-shell${collapsed ? ' app-shell--collapsed' : ''}`}
+      data-testid="application-shell"
+    >
       <GlobalHeader
         actor={actor}
         users={mockUsers}
         showSwitcher={mockSwitcherEnabled}
         credits={credits.data?.account.availableCredits}
         onSwitchActor={switchActor}
+        menuTriggerRef={mobileTrigger}
+        onOpenMenu={() => setMobileOpen(true)}
       />
-      <div className="mx-auto grid max-w-[var(--mpf-content-max)] grid-cols-1 px-3 pb-8 pt-[calc(var(--mpf-header-height)+12px)] md:grid-cols-[var(--mpf-sidebar-width)_minmax(0,1fr)] md:gap-4 md:px-5">
-        <aside className="sticky top-[calc(var(--mpf-header-height)+12px)] z-20 mb-4 self-start overflow-x-auto border-b border-[var(--mpf-border)] bg-[var(--mpf-bg)] md:mb-0 md:h-[calc(100vh-var(--mpf-header-height)-28px)] md:overflow-visible md:border md:bg-[var(--mpf-bg-raised)]">
-          <nav className="flex min-w-max gap-1 p-2 md:min-w-0 md:flex-col" aria-label={t('shell.navigation.menu', 'Menu')}>
-            {visibleNavigationRoutes(actor?.role)
-              .filter(item => item.id !== 'characters' || isEnabled('community.characterProfilesEnabled'))
-              .filter(item => item.id !== 'home' || isEnabled('community.enabled'))
-              .map(item => {
-              const Icon = navIcons[item.id];
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  className={({ isActive }) => navClass(isActive)}
-                >
-                  <Icon className="size-5 shrink-0" aria-hidden="true" />
-                  <span>{t(item.labelKey)}</span>
-                </NavLink>
-              );
-              })}
-          </nav>
+      <div className="app-shell__workspace">
+        {mobileOpen ? (
+          <button
+            type="button"
+            className="app-shell__backdrop"
+            aria-label={t('shell.navigation.close')}
+            onClick={() => {
+              setMobileOpen(false);
+              mobileTrigger.current?.focus();
+            }}
+          />
+        ) : null}
+        <aside className={`app-sidebar${mobileOpen ? ' is-open' : ''}`}>
+          <div className="app-sidebar__mobile-heading">
+            <MomeloBrand />
+            <button
+              type="button"
+              className="app-sidebar__close"
+              aria-label={t('shell.navigation.close')}
+              onClick={() => {
+                setMobileOpen(false);
+                mobileTrigger.current?.focus();
+              }}
+            >
+              <X aria-hidden="true" />
+            </button>
+          </div>
+          <SidebarNavigation
+            role={actor?.role}
+            collapsed={collapsed}
+            studioOpen={studioOpen}
+            communityEnabled={isEnabled('community.enabled')}
+            charactersEnabled={isEnabled('community.characterProfilesEnabled')}
+            onToggleCollapsed={toggleCollapsed}
+            onToggleStudio={() => setStudioOpen(value => !value)}
+            onNavigate={() => setMobileOpen(false)}
+          />
         </aside>
-        <div className="min-w-0">
-          <Breadcrumbs />
-          <Outlet />
+        <div className="app-shell__page-column">
+          <div className="app-shell__content">
+            {location.pathname !== '/community' ? <Breadcrumbs /> : null}
+            <Outlet />
+          </div>
+          <AppFooter />
         </div>
       </div>
     </div>
@@ -104,18 +140,28 @@ function GlobalHeader({
   users,
   showSwitcher,
   credits,
-  onSwitchActor
+  onSwitchActor,
+  menuTriggerRef,
+  onOpenMenu
 }: {
   actor: ReturnType<typeof useActor>['actor'];
   users: ReturnType<typeof useActor>['mockUsers'];
   showSwitcher: boolean;
   credits?: number;
   onSwitchActor: (actorId: string) => Promise<void>;
+  menuTriggerRef: React.RefObject<HTMLButtonElement | null>;
+  onOpenMenu: () => void;
 }) {
   const { t } = useTranslation(['shell', 'credits', 'community']);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialSearch = useMemo(() => searchParams.get('search') || '', [searchParams]);
+  const initials = actor?.displayName
+    ?.split(/\s+/)
+    .slice(0, 2)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase() || 'M';
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -125,72 +171,94 @@ function GlobalHeader({
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 h-[var(--mpf-header-height)] border-b border-[var(--mpf-border)] bg-[#070911f2] backdrop-blur">
-      <div className="mx-auto flex h-full max-w-[var(--mpf-content-max)] items-center gap-3 px-4">
-        <Link to="/community" className="flex shrink-0 items-center gap-2 text-white no-underline">
-          <span className="grid size-8 place-items-center rounded-[var(--mpf-radius-sm)] border border-cyan-400/60 bg-gradient-to-br from-cyan-400/20 to-pink-500/20 font-bold text-cyan-200">M</span>
-          <strong className="hidden text-lg sm:block">momelo</strong>
+    <header className="global-header">
+      <div className="global-header__inner">
+        <button
+          ref={menuTriggerRef}
+          type="button"
+          className="global-header__menu"
+          aria-label={t('shell.navigation.menu')}
+          onClick={onOpenMenu}
+        >
+          <Menu aria-hidden="true" />
+        </button>
+        <Link to="/community" className="global-header__brand" aria-label={t('shell.navigation.homeLabel')}>
+          <MomeloBrand />
         </Link>
-        <form className="relative hidden max-w-xl flex-1 lg:block" onSubmit={submitSearch}>
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--mpf-text-muted)]" aria-hidden="true" />
+        <form className="global-header__search" onSubmit={submitSearch}>
+          <Search aria-hidden="true" />
           <input
             key={initialSearch}
             name="search"
             defaultValue={initialSearch}
-            aria-label={t('shell.navigation.searchLabel', 'Search')}
-            placeholder={t('community.feed.searchPlaceholder', { ns: 'community', defaultValue: 'Search Community' })}
-            className="h-10 w-full rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] pl-10 pr-3 text-sm text-white"
+            aria-label={t('shell.navigation.searchLabel')}
+            placeholder={t('community.feed.searchPlaceholder', {
+              ns: 'community',
+              defaultValue: 'Search Community'
+            })}
           />
         </form>
-        <Link
-          to="/studio"
-          className="ml-auto hidden min-h-10 items-center gap-2 rounded-[var(--mpf-radius-sm)] bg-gradient-to-r from-cyan-500 to-pink-500 px-4 text-sm font-semibold text-white no-underline sm:flex"
-        >
-          <Sparkles className="size-4" aria-hidden="true" />
-          {t('shell.navigation.create', 'Create')}
+        <Link to="/studio" className="global-header__create">
+          <Sparkles aria-hidden="true" />
+          <span>{t('shell.navigation.create')}</span>
         </Link>
-        <NavLink to="/credits" className="flex min-h-10 items-center gap-2 border-l border-[var(--mpf-border)] pl-3 text-sm text-amber-300 no-underline" title={t('badge.available', { ns: 'credits', defaultValue: 'Available Credits' })}>
-          <Coins className="size-4" aria-hidden="true" />
+        <Link
+          to="/credits"
+          className="global-header__credits"
+          title={t('badge.available', {
+            ns: 'credits',
+            defaultValue: 'Available Credits'
+          })}
+        >
           <strong>{credits ?? '...'}</strong>
-        </NavLink>
-        <label className="sr-only" htmlFor="react-language-select">{t('shell.languageLabel', 'Language')}</label>
+          <Coins aria-hidden="true" />
+        </Link>
+        <label className="sr-only" htmlFor="react-language-select">
+          {t('shell.languageLabel')}
+        </label>
         <select
           id="react-language-select"
           value={(i18n.resolvedLanguage || 'th').split('-')[0]}
           onChange={event => void changeLocale(event.target.value as 'th' | 'en')}
-          className="h-9 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] px-2 text-xs"
+          className="global-header__language"
         >
           <option value="th">TH</option>
           <option value="en">EN</option>
         </select>
-        {showSwitcher ? (
-          <>
-            <label className="sr-only" htmlFor="react-actor-select">{t('shell.activeUserLabel', 'Active Mock User')}</label>
-            <select
-              id="react-actor-select"
-              value={actor?.userId || ''}
-              onChange={event => void onSwitchActor(event.target.value)}
-              className="h-9 max-w-36 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] px-2 text-xs"
-            >
-              {users.map(user => <option key={user.id} value={user.id}>{user.displayName}</option>)}
-            </select>
-          </>
-        ) : (
-          <span className="flex items-center gap-2 text-sm">
-            <UserRound className="size-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{actor?.displayName || '...'}</span>
+        <div className="global-header__account">
+          <span className="global-header__avatar" aria-hidden="true">
+            {actor ? initials : <UserRound />}
           </span>
-        )}
+          {showSwitcher ? (
+            <>
+              <label className="sr-only" htmlFor="react-actor-select">
+                {t('shell.activeUserLabel')}
+              </label>
+              <select
+                id="react-actor-select"
+                value={actor?.userId || ''}
+                onChange={event => void onSwitchActor(event.target.value)}
+              >
+                {users.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {user.displayName}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <span>{actor?.displayName || '...'}</span>
+          )}
+        </div>
       </div>
     </header>
   );
 }
 
-function navClass(active: boolean) {
-  return cn(
-    'flex min-h-11 items-center gap-3 rounded-[var(--mpf-radius-sm)] px-3 py-2 text-sm no-underline transition',
-    active
-      ? 'bg-cyan-400/10 text-cyan-200 ring-1 ring-inset ring-cyan-400/35'
-      : 'text-[var(--mpf-text-muted)] hover:bg-white/5 hover:text-white'
-  );
+function readCollapsedPreference() {
+  return localStorage.getItem(SIDEBAR_PREFERENCE_KEY) === 'true';
+}
+
+function isStudioLocation(pathname: string) {
+  return pathname === '/studio' || pathname === '/studio/scene' || pathname === '/create/scenes';
 }

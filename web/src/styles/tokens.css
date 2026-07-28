@@ -20,5 +20,13 @@
   --mpf-content-max: 1480px;
   --mpf-radius-sm: 4px;
   --mpf-radius-md: 8px;
+  --mpf-section-gap: 16px;
+  --mpf-section-padding: 18px;
+  --mpf-compact-control-height: 32px;
   --mpf-shadow-raised: 0 18px 48px rgb(0 0 0 / 32%);
+  --mpf-font-latin: "Poppins";
+  --mpf-font-thai: "Noto Sans Thai";
+  --mpf-font-ui: var(--mpf-font-latin), var(--mpf-font-thai), system-ui, sans-serif;
+  --mpf-sidebar-collapsed-width: 76px;
+  --mpf-brand-gradient: linear-gradient(100deg, var(--mpf-cyan), var(--mpf-violet) 52%, var(--mpf-magenta));
 }

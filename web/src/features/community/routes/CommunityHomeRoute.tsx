@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { listCommunityPosts, type CommunityFilters } from '../api/communityApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { CommunityHero } from '../components/CommunityHero';
 
 const postTypes = ['all', 'image', 'template', 'comparison', 'collection'] as const;
 const periods = ['latest', 'week', 'month', 'year'] as const;
@@ -54,19 +55,22 @@ export function CommunityHomeRoute() {
   }
 
   return (
-    <main>
-      <section className="mb-5 border-b border-[var(--mpf-border)] pb-5">
-        <p className="mb-2 text-xs font-bold uppercase tracking-normal text-cyan-300">{t('shell.navigation.items.home', { ns: 'shell' })}</p>
-        <h1 className="m-0 text-2xl sm:text-3xl">{t('community.feed.title')}</h1>
-        {filters.search ? (
-          <p className="mb-0 text-sm text-[var(--mpf-text-muted)]">
-            {t('community.feed.searchLabel')}: <strong className="text-white">{filters.search}</strong>
-          </p>
-        ) : null}
-      </section>
+    <main className="community-home">
+      {!filters.search ? <CommunityHero posts={posts} /> : null}
 
-      <section className="mb-6 space-y-3" aria-label={t('community.feed.typeLabel')}>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+      <section className="community-discovery" aria-labelledby="community-discovery-title">
+        <div className="community-discovery__heading">
+          <div>
+            <span>{t('community.home.discoveryEyebrow')}</span>
+            <h2 id="community-discovery-title">{t('community.feed.title')}</h2>
+          </div>
+          {filters.search ? (
+            <p>
+              {t('community.feed.searchLabel')}: <strong>{filters.search}</strong>
+            </p>
+          ) : null}
+        </div>
+        <div className="community-discovery__filters" aria-label={t('community.feed.typeLabel')}>
           {postTypes.map(type => (
             <FilterButton
               key={type}
@@ -77,7 +81,7 @@ export function CommunityHomeRoute() {
             </FilterButton>
           ))}
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="community-discovery__periods">
           {periods.map(period => (
             <FilterButton
               key={period}
@@ -102,7 +106,7 @@ export function CommunityHomeRoute() {
       {!query.isLoading && !query.isError && !posts.length ? (
         <EmptyState title={t('community.feed.empty')} />
       ) : null}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite">
+      <section className="community-feed-grid" aria-live="polite">
         {posts.map(post => <MediaCard key={post.id} post={post} />)}
       </section>
       {query.hasNextPage ? (
@@ -134,7 +138,7 @@ function FilterButton({
     <Button
       size="sm"
       variant={active ? 'primary' : 'secondary'}
-      className="shrink-0"
+      className="community-discovery__filter-button shrink-0"
       aria-pressed={active}
       onClick={onClick}
     >

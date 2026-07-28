@@ -27,9 +27,14 @@ for (const path of routes) {
 test('mobile shell keeps primary navigation reachable', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes('mobile'), 'Mobile project only');
   await page.goto('/community');
+  await page.locator('.global-header__menu').click();
   const nav = page.locator('aside nav');
   await expect(nav).toBeVisible();
   await expect(nav.locator('a[href="/studio"]')).toBeVisible();
+  await expect(nav.locator('a[href="/studio?mode=character-sheet"]')).toBeVisible();
+  await expect(nav.locator('a[href="/studio/scene"]')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.app-sidebar')).not.toHaveClass(/is-open/);
 });
 
 test('locale and mock actor controls remain operational after React cutover', async ({ page }) => {
@@ -59,4 +64,13 @@ test('legacy browser entry points are no longer web-served', async ({ request })
   ]);
   expect(script.status()).toBe(404);
   expect(stylesheet.status()).toBe(404);
+});
+
+test('shared application footer exposes health and package version metadata', async ({ page }) => {
+  await page.goto('/community');
+  await expect(page.getByTestId('system-status-footer')).toBeAttached();
+  await expect(page.getByTestId('site-footer')).toHaveAttribute(
+    'data-app-version',
+    /^\d+\.\d+\.\d+/
+  );
 });

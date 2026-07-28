@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./shell.css";
+@import "./community-home.css";
 
 * {
   box-sizing: border-box;
@@ -15,7 +17,8 @@ body {
   min-height: 100vh;
   background: var(--mpf-bg);
   color: var(--mpf-text);
-  font-family: Inter, "Noto Sans Thai", "Noto Sans JP", system-ui, sans-serif;
+  font-family: var(--mpf-font-ui);
+  font-weight: 500;
   letter-spacing: 0;
 }
 
@@ -46,4 +49,11 @@ img {
 
 #root {
   min-height: 100vh;
+}
+
+.mpf-section-surface {
+  padding: var(--mpf-section-padding);
+  border: 1px solid rgb(53 64 87 / 58%);
+  border-radius: var(--mpf-radius-md);
+  background: rgb(11 15 26 / 76%);
 }

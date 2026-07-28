@@ -1748,3 +1748,260 @@ test/applicationShellRoutes.test.js
 - ไม่มี feature detail page hard-code global parent
 - Navigation ใช้งานได้ด้วย keyboard และ mobile
 - ไม่มี actor data หรือ navigation state รั่วข้ามผู้ใช้
+
+---
+
+## 41. React Visual Identity Restoration Addendum
+
+This addendum is cumulative. It does not replace or remove any requirement
+above. The React application must restore the approved Momelo visual identity
+and information hierarchy instead of treating functional route parity as
+visual acceptance.
+
+### 41.1 Normative references
+
+The following files are required implementation references:
+
+- [`001-landing-page_rewamp.png`](./001-landing-page_rewamp.png) defines the
+  logged-in Home/Community composition, header, sidebar, content density,
+  active states, and cyan-magenta brand treatment.
+- [`001-logo-and-icon.png`](./001-logo-and-icon.png) defines the Momelo mark,
+  wordmark proportions, dark-surface usage, and compact application icon.
+
+Existing working product behavior, API contracts, permissions, actor scoping,
+and responsive routes remain authoritative. The visual references must not be
+used to invent unavailable features or fake metrics.
+
+### 41.2 Product naming decision
+
+`Studio` is a collapsible parent navigation item. Its three implemented child
+workflows are:
+
+| Menu | Thai | Canonical destination |
+|---|---|---|
+| Face Creator | สร้างใบหน้า | `/studio` |
+| Character Sheet | สร้าง Character | `/studio?mode=character-sheet` |
+| Scene Builder | สร้าง Scene | `/studio/scene` |
+
+Selecting the Studio parent expands or collapses the children without changing
+route. A direct link to any child automatically expands Studio and highlights
+only the matching child. The last expanded state may be stored as non-sensitive
+shell preference data.
+
+### 41.3 Brand and typography
+
+- English UI uses bundled `Poppins` at weight 500 as the primary family.
+- Thai UI uses bundled `Noto Sans Thai` at weight 500.
+- Fonts must be shipped with the web workspace and must not depend on a remote
+  CDN at runtime.
+- The Momelo logo is a reusable brand component with full and compact variants.
+- The mark must follow `001-logo-and-icon.png`: cyan-to-violet-to-magenta
+  outline, white sparkle, and white lowercase wordmark on the dark shell.
+- Do not use the composite reference PNG directly as a runtime logo because it
+  includes multiple examples and a background.
+
+### 41.4 Home and Community composition
+
+`/community` is both Home and Community. It must contain:
+
+1. a compact editorial hero with a literal Community value proposition;
+2. primary `Create` and secondary `Explore templates` actions;
+3. a visual collage built only from public Community media returned by the
+   existing API;
+4. a Community discovery header with search/filter controls;
+5. the existing paginated Community feed;
+6. actual post, template, creator, and engagement data where available.
+
+If there is insufficient public media, the collage reduces its item count and
+must not show broken placeholders or fabricated artwork. Existing pagination,
+search, post type, ranking period, ownership, and detail navigation behavior
+must remain operational.
+
+### 41.5 Application shell layout
+
+Desktop:
+
+- fixed global header, approximately 64 pixels high;
+- fixed/sticky expanded sidebar, approximately 244 pixels wide;
+- sidebar groups: Home, Create, Explore, My Library, and role-aware Operations;
+- one-line menu labels with Lucide icons;
+- cyan active icon/text plus restrained cyan-magenta edge treatment;
+- content reflows when the sidebar is collapsed.
+
+Mobile:
+
+- the sidebar becomes a modal drawer opened from a familiar menu icon;
+- selecting a destination closes the drawer;
+- Escape and backdrop click close the drawer;
+- focus returns to the trigger;
+- the desktop wordmark may collapse to the compact Momelo mark.
+
+The global header retains only working controls: Momelo brand, search, Create,
+credits, language, and actor/account controls. Controls without implemented
+behavior must not be displayed merely because they appear in the prototype.
+
+### 41.6 CSS ownership
+
+React CSS must be organized by responsibility:
+
+```text
+web/src/styles/tokens.css          shared color, spacing, typography and sizing tokens
+web/src/styles/globals.css         reset and global element behavior
+web/src/styles/shell.css           header, sidebar, drawer and shell reflow
+web/src/styles/community-home.css  Home/Community hero, filters and feed composition
+```
+
+Feature-specific selectors must be scoped beneath a feature root class. Avoid
+copying legacy global selectors or accumulating route-specific styles inside
+`globals.css`.
+
+### 41.7 Software implementation plan
+
+Modify:
+
+```text
+web/src/components/layout/AppShell.tsx
+web/src/app/routeRegistry/routes.ts
+web/src/features/community/routes/CommunityHomeRoute.tsx
+web/src/components/media/MediaCard.tsx
+web/src/styles/tokens.css
+web/src/styles/globals.css
+client/i18n/locales/en/shell.json
+client/i18n/locales/th/shell.json
+client/i18n/locales/en/community.json
+client/i18n/locales/th/community.json
+```
+
+Create under existing owners:
+
+```text
+web/src/assets/brand/momelo-mark.svg
+web/src/components/brand/MomeloBrand.tsx
+web/src/components/layout/SidebarNavigation.tsx
+web/src/features/community/components/CommunityHero.tsx
+web/src/styles/shell.css
+web/src/styles/community-home.css
+```
+
+Implementation order:
+
+1. add bundled fonts, brand asset, and typography tokens;
+2. extend navigation metadata with groups and Studio children;
+3. build the reusable Sidebar/Drawer from that metadata;
+4. rebuild the global header around working controls;
+5. add the data-driven Community hero while preserving the existing query;
+6. style the feed and media cards to match the approved density;
+7. verify all deep links, actor/locale controls, filters, pagination, and
+   contextual navigation.
+
+### 41.8 Acceptance and regression gates
+
+- The first desktop viewport is recognizably the Momelo prototype, not a generic
+  dashboard.
+- Studio visibly contains Face Creator, Character Sheet, and Scene Builder.
+- The correct Studio child remains highlighted for query-string and nested
+  routes.
+- English and Thai use their required bundled font families at weight 500.
+- Community media, filters, pagination, and detail links still use canonical
+  API data.
+- No broken media is introduced when fewer than four public posts exist.
+- Desktop at 1440x900 and mobile at 390x844 have no overlapping, clipped, or
+  unreachable navigation controls.
+- Keyboard focus, drawer dismissal, active route semantics, and reduced-motion
+  behavior are verified.
+
+## 42. Shared Surface, Navigation Emphasis, and Footer Addendum
+
+### 42.1 Business Requirement
+
+The Momelo application shell must make generated media the strongest visual
+signal. Navigation and discovery controls must remain easy to find without
+competing with images, while every route must feel like one coherent product.
+
+The shell therefore requires:
+
+1. compact discovery filter controls;
+2. slightly rounded, separated page sections with restrained borders;
+3. dimmed inactive navigation items and a clearly emphasized active item;
+4. a reusable system-status footer; and
+5. a reusable professional site footer containing product information,
+   support links, legal placeholders, copyright, and the application version.
+
+### 42.2 Visual Contract
+
+- Repeated page sections use a low-contrast raised surface, a one-pixel border,
+  `8px` maximum corner radius, and visible spacing from adjacent sections.
+- A section must not become a decorative nested card. Cards remain reserved for
+  repeated media/items while section surfaces organize page hierarchy.
+- Inactive navigation rows use reduced contrast. Hover and keyboard focus raise
+  their contrast; only the route-active row uses the Cyan accent and full
+  opacity.
+- Community type and period controls use a compact `32px` control height,
+  smaller horizontal padding, and `11px` label text.
+- Footer links that have no implemented destination are rendered visibly
+  disabled and must not navigate to a fake or broken route.
+- The version displayed in the footer is injected from the root
+  `package.json`; source components must not hard-code a release version.
+
+### 42.3 Reusable Component Ownership
+
+```text
+web/src/components/layout/SystemStatusFooter.tsx
+  API connectivity and service-availability summary
+
+web/src/components/layout/SiteFooter.tsx
+  Contact, Knowledge, Blog, legal placeholders, copyright and version
+
+web/src/components/layout/AppFooter.tsx
+  Composition boundary for both footer tiers
+
+web/src/styles/shell.css
+  Footer layout, navigation emphasis and shell-level responsive rules
+
+web/src/styles/community-home.css
+  Community section layout and compact discovery controls only
+
+web/src/styles/tokens.css
+  Shared surface, border, radius, spacing and typography tokens
+```
+
+`AppShell.tsx` mounts `AppFooter` once after routed content. Feature routes must
+not create their own copies.
+
+### 42.4 System Status Semantics
+
+The MVP status footer checks `GET /api/health` through the canonical React API
+client and a Zod boundary.
+
+- A successful response marks the API gateway operational.
+- Queue and History labels describe availability through that gateway; they do
+  not claim deep subsystem telemetry.
+- A failed or timed-out check renders all dependent services unavailable
+  without hiding the footer or blocking page use.
+- Status text must not rely on color alone.
+
+Deep queue metrics, provider latency, and incident history remain deferred
+until a dedicated operational-health contract exists.
+
+### 42.5 Documentation Source of Truth
+
+All frontend agents must read:
+
+`requirements/Knowledge/ui-design-system-and-visual-language.md`
+
+before creating or substantially changing a user-visible React component.
+`AGENTS.md` links to this document so the visual contract is discoverable
+independently of the feature requirement.
+
+### 42.6 Acceptance Criteria
+
+1. Community discovery controls are visibly one density level smaller.
+2. Main Community sections have consistent spacing, restrained borders, and
+   small corner radii at desktop and mobile widths.
+3. Inactive sidebar items are dimmer than the selected route but remain readable
+   and keyboard accessible.
+4. Every React route receives the same two-tier footer from `AppShell`.
+5. API status changes between operational and unavailable based on
+   `/api/health`.
+6. Footer version equals the root `package.json` version.
+7. No placeholder footer link produces a 404 route.

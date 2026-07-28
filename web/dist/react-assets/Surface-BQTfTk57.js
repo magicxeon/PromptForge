@@ -1,1 +1,0 @@
-import{j as e,K as s}from"./index-BVonNVw4.js";function d({className:r,...a}){return e.jsx("div",{className:s("rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]",r),...a})}export{d as S};

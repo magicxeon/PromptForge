@@ -6,11 +6,13 @@ import type { CommunityPost } from '../../features/community/schemas/communitySc
 export function MediaStage({
   post,
   className,
-  eager = false
+  eager = false,
+  fit = 'contain'
 }: {
   post: CommunityPost;
   className?: string;
   eager?: boolean;
+  fit?: 'contain' | 'cover';
 }) {
   const images = getPostImages(post);
 
@@ -44,7 +46,7 @@ export function MediaStage({
         src={apiMediaUrl(images[0]) || ''}
         alt=""
         loading={eager ? 'eager' : 'lazy'}
-        className="h-full w-full object-contain"
+        className={cn('h-full w-full', fit === 'cover' ? 'object-cover object-top' : 'object-contain')}
       />
     </div>
   );
