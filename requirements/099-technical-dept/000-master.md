@@ -82,6 +82,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
+| Canonical Template definitions, immutable versions, use sessions and usage events | `server/domain/templates/`, `server/repositories/templates/`, `server/data/templates/` |
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
@@ -104,6 +105,8 @@ Server placement rules:
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | React navigation metadata | `web/src/app/routeRegistry/` |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
+| Template serialization and client contracts | `web/src/features/templates/` |
+| Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
 | Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |
