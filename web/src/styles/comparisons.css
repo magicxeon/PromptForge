@@ -350,6 +350,7 @@
   position: relative;
   height: clamp(360px, 58vh, 720px);
   overflow: hidden;
+  overscroll-behavior: contain;
   background: #000;
   cursor: grab;
   touch-action: none;

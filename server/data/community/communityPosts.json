@@ -214,7 +214,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
     "counts": {
-      "views": 2,
+      "views": 3,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -222,13 +222,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 2,
+      "viewCount": 3,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-27T17:42:56.508Z"
+      "updatedAt": "2026-07-28T19:02:24.089Z"
     },
     "id": "post_1785166895576_g7e629j6",
     "schemaVersion": 1,
@@ -236,7 +236,7 @@
     "ownerUsername": "user_alice",
     "status": "published",
     "createdAt": "2026-07-27T15:41:35.576Z",
-    "updatedAt": "2026-07-27T17:42:56.508Z",
+    "updatedAt": "2026-07-28T19:02:24.089Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -401,7 +401,7 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 1,
-      "updatedAt": "2026-07-28T18:53:33.718Z"
+      "updatedAt": "2026-07-28T19:02:04.387Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -409,7 +409,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-28T18:53:33.718Z",
+    "updatedAt": "2026-07-28T19:02:04.387Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -543,7 +543,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
     "counts": {
-      "views": 7,
+      "views": 8,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -551,13 +551,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 7,
+      "viewCount": 8,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-28T05:12:03.977Z"
+      "updatedAt": "2026-07-28T19:00:57.019Z"
     },
     "id": "post_1785045545767_1r75hqrw",
     "schemaVersion": 1,
@@ -565,7 +565,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T05:59:05.767Z",
-    "updatedAt": "2026-07-28T05:12:03.977Z",
+    "updatedAt": "2026-07-28T19:00:57.019Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -725,7 +725,7 @@
     "customTags": [],
     "categoryCodes": [],
     "counts": {
-      "views": 3,
+      "views": 4,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -739,17 +739,17 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-20T04:58:37.501Z",
-    "updatedAt": "2026-07-27T17:43:06.359Z",
+    "updatedAt": "2026-07-28T19:02:26.012Z",
     "deletedAt": null,
     "metadata": {},
     "engagementSummary": {
-      "viewCount": 3,
+      "viewCount": 4,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-27T17:43:06.359Z"
+      "updatedAt": "2026-07-28T19:02:26.012Z"
     }
   }
 ]

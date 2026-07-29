@@ -10,12 +10,12 @@ import {
   RotateCcw
 } from 'lucide-react';
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
-  type ReactNode,
-  type WheelEvent as ReactWheelEvent
+  type ReactNode
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -88,6 +88,48 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   );
   const prompt = props.run.sourcePrompt || availableSlots[0]?.submittedPrompt || '';
 
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const viewport = event.target.closest<HTMLElement>(
+        '[data-comparison-slot-id]'
+      );
+      if (!viewport || !workspace.contains(viewport)) return;
+
+      const slotId = viewport.dataset.comparisonSlotId;
+      if (!slotId) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      const delta = event.deltaY < 0 ? 0.15 : -0.15;
+
+      if (syncView) {
+        setSharedTransform(current => clampTransform({
+          ...current,
+          scale: current.scale + delta
+        }));
+        return;
+      }
+
+      setSlotTransforms(current => {
+        const transform = current[slotId] || DEFAULT_TRANSFORM;
+        return {
+          ...current,
+          [slotId]: clampTransform({
+            ...transform,
+            scale: transform.scale + delta
+          })
+        };
+      });
+    };
+
+    workspace.addEventListener('wheel', handleWheel, { passive: false });
+    return () => workspace.removeEventListener('wheel', handleWheel);
+  }, [syncView]);
+
   if (!availableSlots.length) {
     return (
       <Surface className="p-6 text-sm text-[var(--mpf-text-muted)]">
@@ -146,12 +188,6 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
       });
       return next;
     });
-  }
-
-  function wheel(slotId: string, event: ReactWheelEvent<HTMLDivElement>) {
-    event.preventDefault();
-    const delta = event.deltaY < 0 ? 0.15 : -0.15;
-    writeTransform(slotId, current => ({ ...current, scale: current.scale + delta }));
   }
 
   function startDrag(slotId: string, event: ReactPointerEvent<HTMLDivElement>) {
@@ -289,7 +325,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
 
                 <div
                   className="comparison-result-panel__viewport"
-                  onWheel={event => wheel(slot.id, event)}
+                  data-comparison-slot-id={slot.id}
                   onPointerDown={event => startDrag(slot.id, event)}
                   onPointerMove={event => drag(slot.id, event)}
                   onPointerUp={stopDrag}

@@ -60,6 +60,8 @@ reference instead of creating route-specific variants.
   visible panels. When disabled, each panel keeps its own transform.
 - Provide Zoom Out, Zoom In, Fit, Reset and Fullscreen controls.
 - Mouse wheel zoom and pointer/touch drag must work inside each image viewport.
+  While the pointer is over a comparison image, the wheel event is consumed by
+  zoom and must not scroll the containing page.
 - Use `object-fit: contain`; users must be able to inspect the complete output.
 - Highlight the owner-selected winner or public vote leaders with a restrained
   gold border and winner label.
