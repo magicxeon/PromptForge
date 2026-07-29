@@ -6,6 +6,7 @@
 @import "./studio.css";
 @import "./comparisons.css";
 @import "./media-viewer.css";
+@import "./media-carousel.css";
 @import "./references.css";
 
 * {

@@ -1,3 +1,5 @@
+import { imagePresentationService as defaultImagePresentationService } from '../../domain/assets/ImagePresentationService.js';
+
 function sendSceneTemplateError(
   res,
   error,
@@ -16,7 +18,8 @@ function sendSceneTemplateError(
 
 export function registerSceneTemplateRoutes(app, {
   communityShareService,
-  communityFeaturePolicyService
+  communityFeaturePolicyService,
+  imagePresentationService = defaultImagePresentationService
 }) {
   app.post('/api/scene-templates/share-drafts', async (req, res) => {
     try {
@@ -60,6 +63,36 @@ export function registerSceneTemplateRoutes(app, {
       return res.json(await communityShareService.getSharedPost(req.params.postId, req.actorContext));
     } catch (err) {
       return sendSceneTemplateError(res, err, 'scene_template_read_failed', 500);
+    }
+  });
+
+  app.get('/api/scene-templates/shared/:postId/presentations/:profileId', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('community.enabled');
+      const filePath = await communityShareService.getSharedPostMediaFile(
+        req.params.postId,
+        'thumbnail',
+        req.actorContext
+      );
+      const presentation = await imagePresentationService.renderFile(
+        filePath,
+        req.params.profileId
+      );
+      if (req.headers?.['if-none-match'] === presentation.etag) {
+        return res.status(304).end();
+      }
+      res.setHeader('Content-Type', presentation.contentType);
+      res.setHeader('Content-Length', String(presentation.contentLength));
+      res.setHeader('Cache-Control', 'private, max-age=3600');
+      res.setHeader('ETag', presentation.etag);
+      return res.send(presentation.buffer);
+    } catch (err) {
+      return sendSceneTemplateError(
+        res,
+        err,
+        'scene_template_presentation_unavailable',
+        404
+      );
     }
   });
 

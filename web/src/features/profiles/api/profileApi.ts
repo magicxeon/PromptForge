@@ -6,8 +6,15 @@ import {
   ownerCharacterDetailSchema,
   characterWorksSchema,
   creatorPageSchema,
-  followResponseSchema
+  followResponseSchema,
+  ownCreatorProfileSchema
 } from '../schemas/profileSchemas';
+
+export function getMyCreatorProfile() {
+  return apiRequest('/api/community/creator-profiles/me', {
+    schema: ownCreatorProfileSchema
+  });
+}
 
 export function getCreatorPage(handle: string, tab: string) {
   const query = new URLSearchParams({ tab, limit: '18' });

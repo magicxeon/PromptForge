@@ -11,6 +11,7 @@ import { Surface } from '../../../components/ui/Surface';
 import { getAttributesBundle } from '../../generation/api/generationApi';
 import type { GenerationReferenceRole } from '../../generation/api/generationApi';
 import { loadStudioVisualManifests } from '../../studio/api/visualManifestApi';
+import { getMyCreatorProfile } from '../../profiles/api/profileApi';
 import {
   compileSelectionPreview,
   normalizeAttributeGroups,
@@ -99,6 +100,14 @@ export function SceneBuilderRoute() {
     staleTime: 30 * 60_000,
     retry: false
   });
+  const ownCreatorProfile = useQuery({
+    queryKey: ['creator-profile', 'me', actor?.userId || 'loading'],
+    queryFn: getMyCreatorProfile,
+    enabled: Boolean(actor)
+  });
+  const creatorProfileBase = ownCreatorProfile.data
+    ? `/creators/${encodeURIComponent(ownCreatorProfile.data.handle)}`
+    : null;
   const groups = useMemo(() => bundle.data ? normalizeAttributeGroups(bundle.data) : [], [bundle.data]);
   const sceneGroups = useMemo(
     () => visibleStudioGroups(groups, 'scene', 'styled_character'),
@@ -320,6 +329,7 @@ export function SceneBuilderRoute() {
               roles={availableRoles}
               selectedRole={historyRole}
               onRoleChange={setHistoryRole}
+              viewAllHref={creatorProfileBase ? `${creatorProfileBase}/gallery` : null}
               onPick={(role, imageUrl) => {
                 if (role === 'character_reference') {
                   setCharacterOutfitBehavior('preserve');
@@ -367,7 +377,10 @@ export function SceneBuilderRoute() {
         )}
         studioQueueExtra={(
           <>
-            <SharedTemplatePanel onSelect={template => useTemplate.mutate(template)} />
+            <SharedTemplatePanel
+              viewAllHref={creatorProfileBase ? `${creatorProfileBase}/templates` : null}
+              onSelect={template => useTemplate.mutate(template)}
+            />
             {useTemplate.isError ? <p className="text-sm text-red-300">{useTemplate.error.message}</p> : null}
           </>
         )}

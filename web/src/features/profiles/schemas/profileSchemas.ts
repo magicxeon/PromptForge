@@ -81,6 +81,12 @@ const profileSchema = z.object({
   createdAt: z.string().nullable().optional()
 });
 
+export const ownCreatorProfileSchema = z.object({
+  id: z.string(),
+  handle: z.string(),
+  displayName: z.string()
+}).passthrough();
+
 export const creatorPageSchema = z.object({
   schemaVersion: z.number(),
   profile: profileSchema,

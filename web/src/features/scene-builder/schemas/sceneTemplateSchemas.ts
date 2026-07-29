@@ -28,6 +28,9 @@ export const sharedTemplateSchema = z.object({
   description: z.string().default(''),
   thumbnailUrl: z.string().nullable().optional(),
   imageUrl: z.string().nullable().optional(),
+  presentationUrls: z.object({
+    templateCard: z.string().nullable().optional()
+  }).default({}),
   ownerUsername: z.string().nullable().optional(),
   promptVisibility: z.string().optional(),
   sceneTemplateSnapshot: sceneTemplateSnapshotSchema.optional(),

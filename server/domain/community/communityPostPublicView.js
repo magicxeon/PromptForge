@@ -28,6 +28,9 @@ export function buildCommunityPostPublicView(post = {}) {
     description: post.description || '',
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
+    presentationUrls: (post.thumbnailUrl || post.imageUrl) ? {
+      templateCard: communityPresentationUrl(post.id, 'template-card-person-focus')
+    } : {},
     officialTags: stringArray(post.officialTags),
     customTags: stringArray(post.customTags),
     taxonomy: {
@@ -128,6 +131,12 @@ function publicPostType(post) {
 
 function communityMediaUrl(postId, kind) {
   return postId ? `/api/scene-templates/shared/${encodeURIComponent(postId)}/${kind}` : null;
+}
+
+function communityPresentationUrl(postId, profileId) {
+  return postId
+    ? `/api/scene-templates/shared/${encodeURIComponent(postId)}/presentations/${encodeURIComponent(profileId)}`
+    : null;
 }
 
 function trimPrompt(value) {

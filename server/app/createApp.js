@@ -53,6 +53,7 @@ import { registerFashionBlueprintRoutes } from './routes/fashionBlueprintRoutes.
 import { registerReferenceRoutes } from './routes/referenceRoutes.js';
 import { registerReferenceHandoffRoutes } from './routes/referenceHandoffRoutes.js';
 import { faceReferenceHandoffService } from '../domain/generation/FaceReferenceHandoffService.js';
+import { imagePresentationService } from '../domain/assets/ImagePresentationService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -185,7 +186,8 @@ export function createApp() {
   });
   registerSceneTemplateRoutes(app, {
     communityShareService,
-    communityFeaturePolicyService
+    communityFeaturePolicyService,
+    imagePresentationService
   });
 
   // All registered browser routes are owned by the React SPA.

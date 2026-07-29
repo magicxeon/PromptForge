@@ -11,6 +11,7 @@
 | `comparisons/` | Comparison orchestration and validation |
 | `credits/` | Credit balance, deduction, refund and ledger behavior |
 | `generation/` | Queue processing, prompt compilation, reference resolution, image utilities and thumbnails |
+| `assets/` | Shared reference-asset behavior and allowlisted image-presentation profiles |
 | `identity/` | Actor context helpers |
 | `scene-templates/` | Scene Template snapshot, variable, slot and privacy rules |
 
@@ -24,7 +25,13 @@ Approved local bridge examples:
 - `generation/thumbnailService.js` writes the single derived `preview-v1`
   profile under `client/outputs/thumbnails/`. The legacy directory and
   `thumbnailUrl` field names remain compatibility contracts; detail,
-  Fullscreen and Download surfaces use the original output.
+  fullscreen and download surfaces continue to use the uncropped original.
+- `assets/ImagePresentationService.js` renders bounded, in-memory-cached
+  presentation variants from authorized local media. Profile dimensions and
+  Sharp operations are server allowlists; browser callers cannot supply raw
+  resize/crop options. The `template-card-person-focus` profile uses Sharp
+  attention cropping for full-frame Template cards without changing
+  `preview-v1`.
 
 JSON state must go through repositories or `server/repositories/json/jsonFileStore.js`.
 
