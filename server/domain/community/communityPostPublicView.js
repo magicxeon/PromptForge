@@ -155,7 +155,8 @@ function publicGenerationMetadata(post, snapshot) {
     aspectRatio: safeMetadataText(settings.aspectRatio),
     width: safePositiveInteger(settings.width),
     height: safePositiveInteger(settings.height),
-    resolution: safeMetadataText(settings.resolution)
+    resolution: safeMetadataText(settings.resolution),
+    generationDuration: safeMetadataText(settings.generationDuration)
   };
 }
 

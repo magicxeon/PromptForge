@@ -133,6 +133,30 @@ function SidebarItem({
     : isSidebarNavigationTargetActive(item.id, location);
 
   if (item.children) {
+    if (collapsed) {
+      const collapsedDestination = item.children.find(child => child.id === 'scene-builder')
+        || item.children[0];
+      return (
+        <div className={cn('sidebar-navigation__parent', active && 'is-active')}>
+          <Link
+            to={collapsedDestination?.path || '/studio/scene'}
+            className={cn('sidebar-navigation__row', active && 'is-active')}
+            aria-current={active ? 'page' : undefined}
+            title={t(item.labelKey)}
+            onClick={() => {
+              onNavigate();
+              const path = collapsedDestination?.path;
+              if (path?.includes('#')) {
+                scheduleHashTargetScroll(path.slice(path.indexOf('#')));
+              }
+            }}
+          >
+            <Icon aria-hidden="true" />
+          </Link>
+        </div>
+      );
+    }
+
     return (
       <div className={cn('sidebar-navigation__parent', active && 'is-active')}>
         <button
@@ -140,18 +164,15 @@ function SidebarItem({
           className="sidebar-navigation__row"
           aria-expanded={studioOpen}
           onClick={onToggleStudio}
-          title={collapsed ? t(item.labelKey) : undefined}
         >
           <Icon aria-hidden="true" />
-          {!collapsed ? <span>{t(item.labelKey)}</span> : null}
-          {!collapsed ? (
-            <ChevronDown
-              className={cn('sidebar-navigation__chevron', studioOpen && 'is-open')}
-              aria-hidden="true"
-            />
-          ) : null}
+          <span>{t(item.labelKey)}</span>
+          <ChevronDown
+            className={cn('sidebar-navigation__chevron', studioOpen && 'is-open')}
+            aria-hidden="true"
+          />
         </button>
-        {studioOpen && !collapsed ? (
+        {studioOpen ? (
           <div className="sidebar-navigation__children">
             {item.children.map(child => (
               <SidebarItem

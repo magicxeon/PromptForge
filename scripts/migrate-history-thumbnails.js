@@ -3,7 +3,10 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { MIGRATIONS_DATA_DIR, resolveDataFile } from '../server/config/paths.js';
-import { ThumbnailService } from '../server/domain/generation/thumbnailService.js';
+import {
+  PREVIEW_PROFILE,
+  ThumbnailService
+} from '../server/domain/generation/thumbnailService.js';
 
 const HISTORY_FILE = resolveDataFile('history');
 const COMPARISONS_FILE = resolveDataFile('comparisons');
@@ -42,6 +45,7 @@ export async function runMigration(options = parseArgs(process.argv.slice(2)), p
   const sourceFingerprint = fingerprintHistory(history);
   const report = {
     mode: options.dryRun ? 'dry-run' : options.resume ? 'resume' : 'apply',
+    targetProfile: PREVIEW_PROFILE,
     startedAt: new Date(startedAt).toISOString(),
     sourceFingerprint,
     scanned: history.length,
@@ -113,7 +117,7 @@ export async function runMigration(options = parseArgs(process.argv.slice(2)), p
       const batch = pending.slice(offset, offset + BATCH_SIZE);
       const results = await mapWithConcurrency(batch, options.concurrency, async item => {
         try {
-          const metadata = await service.createForHistoryItem(item);
+          const metadata = await service.createForHistoryItem(item, { overwrite: true });
           return { id: item.id, metadata };
         } catch (error) {
           return { id: item.id, error: error.message };
@@ -164,6 +168,7 @@ async function mapWithConcurrency(items, concurrency, worker) {
 
 function hasCompleteThumbnailMetadata(item) {
   return Boolean(
+    item.thumbnailProfile === PREVIEW_PROFILE &&
     item.thumbnailUrl && item.thumbnailMimeType && item.thumbnailWidth && item.thumbnailHeight &&
     item.thumbnailBytes && item.width && item.height && item.originalBytes
   );

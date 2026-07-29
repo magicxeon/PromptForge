@@ -1,4 +1,4 @@
-import { Grid3X3, Images, Sparkles, UsersRound } from 'lucide-react';
+import { FlaskConical, Grid3X3, Images, Sparkles, UsersRound } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MediaStage } from '../../../components/media/MediaStage';
@@ -28,6 +28,10 @@ export function CommunityHero({ posts }: { posts: CommunityPost[] }) {
           <Link className="community-hero__secondary" to="/community?type=template">
             <Grid3X3 aria-hidden="true" />
             {t('community.home.exploreTemplates')}
+          </Link>
+          <Link className="community-hero__secondary" to="/playground">
+            <FlaskConical aria-hidden="true" />
+            {t('community.home.openPlayground')}
           </Link>
         </div>
         <dl className="community-hero__stats">

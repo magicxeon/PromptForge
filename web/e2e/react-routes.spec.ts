@@ -30,11 +30,36 @@ test('mobile shell keeps primary navigation reachable', async ({ page }, testInf
   await page.locator('.global-header__menu').click();
   const nav = page.locator('aside nav');
   await expect(nav).toBeVisible();
-  await expect(nav.locator('a[href="/studio"]')).toBeVisible();
-  await expect(nav.locator('a[href="/studio?mode=character-sheet"]')).toBeVisible();
-  await expect(nav.locator('a[href="/studio/scene"]')).toBeVisible();
+  await expect(nav.locator('a[href="/studio#studio-configurator-title"]')).toBeVisible();
+  await expect(
+    nav.locator('a[href="/studio?mode=character-sheet#studio-configurator-title"]')
+  ).toBeVisible();
+  await expect(
+    nav.locator('a[href="/studio/scene#studio-configurator-title"]')
+  ).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('.app-sidebar')).not.toHaveClass(/is-open/);
+});
+
+test('collapsed Studio icon opens Scene Builder while expanded Studio remains an accordion', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes('mobile'), 'Desktop project only');
+  await page.goto('/community');
+
+  const expandedStudio = page.locator(
+    '.sidebar-navigation__parent > button.sidebar-navigation__row'
+  ).first();
+  await expect(expandedStudio).toHaveAttribute(
+    'aria-expanded',
+    /true|false/
+  );
+
+  await page.locator('.sidebar-navigation__collapse').click();
+  const collapsedStudio = page.locator(
+    'a[href="/studio/scene#studio-configurator-title"][title]'
+  );
+  await expect(collapsedStudio).toBeVisible();
+  await collapsedStudio.click();
+  await expect(page).toHaveURL(/\/studio\/scene#studio-configurator-title$/);
 });
 
 test('locale and mock actor controls remain operational after React cutover', async ({ page }) => {

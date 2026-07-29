@@ -6,12 +6,14 @@ import { OUTPUTS_DIR } from '../../config/paths.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+export const PREVIEW_PROFILE = 'preview-v1';
+
 export class ThumbnailService {
   constructor({
     outputsDir = OUTPUTS_DIR,
     thumbnailDir = path.join(OUTPUTS_DIR, 'thumbnails'),
-    maxDimension = 640,
-    quality = 78
+    maxDimension = 1280,
+    quality = 86
   } = {}) {
     this.outputsDir = outputsDir;
     this.thumbnailDir = thumbnailDir;
@@ -62,7 +64,12 @@ export class ThumbnailService {
           fit: 'inside',
           withoutEnlargement: true
         })
-        .webp({ quality: this.quality })
+        .webp({
+          quality: this.quality,
+          alphaQuality: this.quality,
+          effort: 4,
+          smartSubsample: true
+        })
         .toFile(temporaryPath);
       await fs.rename(temporaryPath, thumbnailPath);
     } catch (error) {
@@ -83,6 +90,7 @@ export class ThumbnailService {
       sharp(thumbnailBuffer).metadata()
     ]);
     return {
+      thumbnailProfile: PREVIEW_PROFILE,
       thumbnailUrl: `/outputs/thumbnails/${thumbnailFilename}`,
       thumbnailMimeType: 'image/webp',
       thumbnailWidth: thumbnailMetadata.width || null,

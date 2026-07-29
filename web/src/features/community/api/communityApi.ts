@@ -14,6 +14,7 @@ export type CommunityFilters = {
   sort: 'latest' | 'trending';
   period: 'week' | 'month' | 'year';
   postType: 'all' | 'image' | 'template' | 'comparison' | 'collection';
+  officialTag: string;
   search: string;
 };
 
@@ -25,6 +26,7 @@ export function listCommunityPosts(filters: CommunityFilters, cursor?: string | 
     limit: '18'
   });
   if (filters.search) query.set('search', filters.search);
+  if (filters.officialTag) query.set('officialTag', filters.officialTag);
   if (cursor) query.set('cursor', cursor);
   return apiRequest(`/api/community/posts?${query}`, { schema: communityFeedPageSchema });
 }

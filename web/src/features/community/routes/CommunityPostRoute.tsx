@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Copy, Download, Expand, Repeat2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Copy, Download, Expand, FolderPlus, Repeat2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,6 @@ import { EngagementBar } from '../../../components/community/EngagementBar';
 import { MediaStage } from '../../../components/media/MediaStage';
 import { Button } from '../../../components/ui/Button';
 import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { Surface } from '../../../components/ui/Surface';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { ComparisonWorkspace } from '../../../components/comparisons/ComparisonWorkspace';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
@@ -38,6 +37,7 @@ export function CommunityPostRoute() {
   const queryClient = useQueryClient();
   const { actor } = useActor();
   const [expandedPrompt, setExpandedPrompt] = useState(false);
+  const fullscreenStageRef = useRef<HTMLDivElement>(null);
   const post = useQuery({
     queryKey: queryKeys.communityPost(postId, actor?.userId || 'loading'),
     queryFn: () => getCommunityPost(postId),
@@ -101,44 +101,121 @@ export function CommunityPostRoute() {
     || null;
 
   return (
-    <main>
+    <main className="community-post-page">
       <ContextBackLink fallbackTo="/community" className="mb-3">
         {t('community.detail.back')}
       </ContextBackLink>
 
-      <div className={item.postType === 'comparison'
-        ? 'grid gap-5'
-        : 'grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]'}>
-        {item.postType === 'comparison' && item.comparisonSnapshot ? (
-          <ComparisonWorkspace
-            mode="public"
-            run={toPublicComparisonRun(item)}
-            winnerJobId={engagement.data?.voteSummary.leaderSlotIds[0] || null}
-            winnerJobIds={engagement.data?.voteSummary.leaderSlotIds || []}
-            publicVoteJobId={engagement.data?.viewerState.comparisonVoteSlotId || null}
-            onVote={item.viewer?.permissions.canVoteComparison === false ? undefined : slotId => comparisonVote.mutate(slotId)}
-          />
-        ) : (
-          <Surface className="overflow-hidden bg-black p-0">
-            <MediaStage post={item} eager className="min-h-[420px] max-h-[76vh] aspect-auto" />
-          </Surface>
-        )}
-        <aside className="min-w-0">
+      <div className={`community-post-layout${item.postType === 'comparison' ? ' is-comparison' : ''}`}>
+        <div className="community-post-layout__media-column">
+          {item.postType === 'comparison' && item.comparisonSnapshot ? (
+            <section className="community-post-comparison-panel">
+              <ComparisonWorkspace
+                mode="public"
+                run={toPublicComparisonRun(item)}
+                winnerJobId={engagement.data?.voteSummary.leaderSlotIds[0] || null}
+                winnerJobIds={engagement.data?.voteSummary.leaderSlotIds || []}
+                publicVoteJobId={engagement.data?.viewerState.comparisonVoteSlotId || null}
+                onVote={item.viewer?.permissions.canVoteComparison === false
+                  ? undefined
+                  : slotId => comparisonVote.mutate(slotId)}
+              />
+            </section>
+          ) : (
+            <section className="community-post-media-panel">
+              <div
+                ref={fullscreenStageRef}
+                className="community-post-media-panel__fullscreen-stage"
+              >
+                <MediaStage
+                  post={item}
+                  eager
+                  fit="contain"
+                  source="original"
+                  className="community-post-media-panel__stage"
+                />
+              </div>
+              <div className="community-post-media-panel__footer">
+                <span>{item.generationMetadata.aspectRatio || t('community.detail.metadataUnavailable')}</span>
+                <span>{formatImageSize(item)}</span>
+                {item.createdAt ? (
+                  <time dateTime={item.createdAt}>
+                    {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' })
+                      .format(new Date(item.createdAt))}
+                  </time>
+                ) : null}
+                {primaryImage ? (
+                  <div className="community-post-media-panel__tools">
+                    <Button
+                      size="icon"
+                      title={t('community.detail.fullscreen')}
+                      onClick={() => void requestElementFullscreen(fullscreenStageRef.current)}
+                    >
+                      <Expand className="size-4" aria-hidden="true" />
+                    </Button>
+                    <a
+                      href={apiMediaUrl(primaryImage) || ''}
+                      download
+                      title={t('community.detail.download')}
+                    >
+                      <Download className="size-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          )}
+
+          <section className="community-post-comments-panel">
+            <CommentThread postId={item.id} />
+          </section>
+        </div>
+
+        <aside className="community-post-information-panel">
           <CreatorIdentity creator={item.creator} createdAt={item.createdAt} />
-          <div className="my-5">
-            <span className="text-xs font-bold uppercase text-cyan-300">{item.postType}</span>
-            <h1 className="mb-2 mt-2 text-2xl">{item.title || t('community.creator.untitled')}</h1>
-            {item.description ? <p className="text-sm leading-6 text-[var(--mpf-text-muted)]">{item.description}</p> : null}
+          <div className="community-post-information-panel__identity">
+            <div className="community-post-information-panel__tags">
+              <span>{formatPublicLabel(item.officialTags[0] || item.postType)}</span>
+              {item.officialTags.slice(1, 4).map(tag => (
+                <span key={tag}>{formatPublicLabel(tag)}</span>
+              ))}
+            </div>
+            <h1>{item.title || t('community.creator.untitled')}</h1>
+            {item.description ? <p>{item.description}</p> : null}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {item.officialTags.map(tag => (
-              <span key={tag} className="rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] px-2 py-1 text-xs text-[var(--mpf-text-muted)]">
-                {tag}
-              </span>
-            ))}
-          </div>
+
           <EngagementBar post={item} />
-          <div className="mt-4 flex flex-wrap gap-2">
+
+          {item.promptPreview ? (
+            <section className="community-post-prompt" aria-labelledby="community-post-prompt-title">
+              <div>
+                <h2 id="community-post-prompt-title">{t('community.detail.prompt')}</h2>
+                <Button
+                  size="sm"
+                  icon={<Copy className="size-4" />}
+                  onClick={() => void navigator.clipboard.writeText(item.promptPreview || '')}
+                >
+                  {t('community.detail.copyPrompt')}
+                </Button>
+              </div>
+              <p className={expandedPrompt ? '' : 'is-collapsed'}>{item.promptPreview}</p>
+              {item.promptPreview.length > 360 ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExpandedPrompt(value => !value)}
+                >
+                  {t(expandedPrompt
+                    ? 'community.detail.showLess'
+                    : 'community.detail.showMore')}
+                </Button>
+              ) : null}
+            </section>
+          ) : null}
+
+          <Metadata post={item} />
+
+          <div className="community-post-information-panel__actions">
             {item.templateAvailability ? (
               <Button
                 variant="primary"
@@ -155,60 +232,17 @@ export function CommunityPostRoute() {
                 imageUrl={primaryImage}
               />
             ) : null}
-            {primaryImage ? (
-              <>
-                <Button
-                  size="icon"
-                  title={t('community.detail.fullscreen')}
-                  onClick={() => void requestImageFullscreen(primaryImage)}
-                >
-                  <Expand className="size-4" aria-hidden="true" />
-                </Button>
-                <a
-                  href={apiMediaUrl(primaryImage) || ''}
-                  download
-                  className="inline-flex size-10 items-center justify-center rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border-strong)] bg-[var(--mpf-surface)] text-white"
-                  title={t('community.detail.download')}
-                >
-                  <Download className="size-4" aria-hidden="true" />
-                </a>
-              </>
-            ) : null}
+            <Button
+              disabled
+              icon={<FolderPlus className="size-4" />}
+              title={t('community.detail.collectionUnavailable')}
+            >
+              {t('community.detail.addToCollection')}
+            </Button>
           </div>
           {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
-          <Metadata post={item} />
         </aside>
       </div>
-
-      <section className="my-5 grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
-        <Surface className="p-5">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="m-0 text-lg">{t('community.detail.prompt')}</h2>
-            {item.promptPreview ? (
-              <Button
-                size="sm"
-                icon={<Copy className="size-4" />}
-                onClick={() => void navigator.clipboard.writeText(item.promptPreview || '')}
-              >
-                {t('community.detail.copyPrompt')}
-              </Button>
-            ) : null}
-          </div>
-          <div className="rounded-[var(--mpf-radius-sm)] border border-cyan-400/45 bg-[var(--mpf-bg)] p-4 shadow-[inset_0_0_0_1px_rgb(240_45_145_/_0.24)]">
-            <p className={`m-0 whitespace-pre-wrap text-sm leading-6 text-[var(--mpf-text-muted)] ${expandedPrompt ? '' : 'line-clamp-6'}`}>
-              {item.promptPreview || t('community.detail.promptHidden')}
-            </p>
-          </div>
-          {item.promptPreview && item.promptPreview.length > 360 ? (
-            <Button variant="ghost" size="sm" className="mt-2" onClick={() => setExpandedPrompt(value => !value)}>
-              {t(expandedPrompt ? 'community.detail.showLess' : 'community.detail.showMore')}
-            </Button>
-          ) : null}
-        </Surface>
-        <Surface className="p-5">
-          <CommentThread postId={item.id} />
-        </Surface>
-      </section>
 
       <MoreFromCreator
         postId={item.id}
@@ -223,14 +257,16 @@ export function CommunityPostRoute() {
 function Metadata({ post }: { post: CommunityPost }) {
   const { t } = useTranslation('community');
   const metadata = post.generationMetadata;
-  const size = metadata.width && metadata.height
-    ? `${metadata.width} × ${metadata.height}`
-    : metadata.resolution;
+  const size = formatImageSize(post);
   return (
-    <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[var(--mpf-border)] pt-4 text-sm">
+    <dl className="community-post-metadata">
       <MetadataItem label={t('community.detail.model')} value={post.providerModelDisplay} />
       <MetadataItem label={t('community.detail.aspectRatio')} value={metadata.aspectRatio} />
       <MetadataItem label={t('community.detail.imageSize')} value={size} />
+      <MetadataItem
+        label={t('community.detail.generationDuration')}
+        value={formatDuration(metadata.generationDuration)}
+      />
     </dl>
   );
 }
@@ -239,10 +275,30 @@ function MetadataItem({ label, value }: { label: string; value?: string | null }
   const { t } = useTranslation('community');
   return (
     <div>
-      <dt className="text-xs text-[var(--mpf-text-muted)]">{label}</dt>
-      <dd className="m-0 mt-1 text-white">{value || t('community.detail.metadataUnavailable')}</dd>
+      <dt>{label}</dt>
+      <dd>{value || t('community.detail.metadataUnavailable')}</dd>
     </div>
   );
+}
+
+function formatImageSize(post: CommunityPost) {
+  const { width, height, resolution } = post.generationMetadata;
+  return width && height ? `${width} × ${height}` : resolution || null;
+}
+
+function formatDuration(value?: string | number | null) {
+  const duration = Number(value);
+  return Number.isFinite(duration) && duration > 0
+    ? `${duration.toFixed(1)}s`
+    : null;
+}
+
+function formatPublicLabel(value: string) {
+  return value
+    .replace(/^[a-z0-9_-]+[.:/]/i, '')
+    .replace(/[._/-]+/g, ' ')
+    .replace(/\b\w/g, character => character.toUpperCase())
+    .trim();
 }
 
 function toPublicComparisonRun(post: CommunityPost): ComparisonRun {
@@ -292,21 +348,22 @@ function MoreFromCreator({
       sort: 'latest',
       period: 'week',
       postType: 'all',
+      officialTag: '',
       search
     }),
     enabled: Boolean(search)
   });
   const items = posts.data?.items.filter(item => item.id !== postId).slice(0, 4) || [];
   return (
-    <section className="mt-8">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg">{t('community.detail.moreFromCreator', { name: creatorName })}</h2>
-        <Link className="text-sm text-cyan-300" to={`/community?search=${encodeURIComponent(search)}`}>
+    <section className="community-more-from-creator">
+      <div className="community-more-from-creator__heading">
+        <h2>{t('community.detail.moreFromCreator', { name: creatorName })}</h2>
+        <Link to={`/community?search=${encodeURIComponent(search)}`}>
           {t('community.creator.viewAll')}
         </Link>
       </div>
       {items.length ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="community-more-from-creator__grid">
           {items.map(item => <MediaCard key={item.id} post={item} />)}
         </div>
       ) : (
@@ -316,18 +373,7 @@ function MoreFromCreator({
   );
 }
 
-async function requestImageFullscreen(imageUrl: string) {
-  const image = document.createElement('img');
-  image.src = apiMediaUrl(imageUrl) || '';
-  image.alt = '';
-  image.style.objectFit = 'contain';
-  image.style.background = '#000';
-  image.style.width = '100%';
-  image.style.height = '100%';
-  document.body.append(image);
-  try {
-    await image.requestFullscreen();
-  } finally {
-    image.remove();
-  }
+async function requestElementFullscreen(element: HTMLElement | null) {
+  if (!element?.requestFullscreen) return;
+  await element.requestFullscreen();
 }

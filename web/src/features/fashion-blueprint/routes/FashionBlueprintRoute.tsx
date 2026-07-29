@@ -60,7 +60,13 @@ export function FashionBlueprintRoute() {
 
   const templates = useInfiniteQuery({
     queryKey: ['fashion-templates', actorId],
-    queryFn: ({ pageParam }) => listCommunityPosts({ sort: 'trending', period: 'month', postType: 'template', search: '' }, pageParam),
+    queryFn: ({ pageParam }) => listCommunityPosts({
+      sort: 'trending',
+      period: 'month',
+      postType: 'template',
+      officialTag: '',
+      search: ''
+    }, pageParam),
     enabled: Boolean(actor),
     initialPageParam: null as string | null,
     getNextPageParam: page => page.nextCursor || undefined

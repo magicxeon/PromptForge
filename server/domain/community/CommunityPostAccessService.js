@@ -3,6 +3,7 @@ import path from 'path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { auditLogRepo } from '../../repositories/audit/AuditLogRepository.js';
 import { communityPostRepo } from '../../repositories/community/CommunityPostRepository.js';
+import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import {
   assertCanEditCommunityPost,
   assertCanViewCommunityPost,
@@ -15,11 +16,13 @@ export class CommunityPostAccessService {
   constructor({
     postRepository = communityPostRepo,
     auditRepository = auditLogRepo,
-    classificationService = communityClassificationService
+    classificationService = communityClassificationService,
+    generationRepository = generationResultRepo
   } = {}) {
     this.postRepository = postRepository;
     this.auditRepository = auditRepository;
     this.classificationService = classificationService;
+    this.generationRepository = generationRepository;
   }
 
   async listPublicPosts(query = {}, actorContext = null) {
@@ -36,7 +39,13 @@ export class CommunityPostAccessService {
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
     const isOwner = post.ownerUserId === actor.userId;
-    const publicView = buildCommunityPostPublicView(post);
+    const sourceGenerationId = post.sourceGenerationResultId || post.sourceGenerationId;
+    const generation = sourceGenerationId
+      ? await this.generationRepository.findById(sourceGenerationId)
+      : null;
+    const publicView = buildCommunityPostPublicView(
+      withGenerationMetadataFallback(post, generation)
+    );
     return {
       ...publicView,
       faceReuseAvailability: publicView.faceReuseAvailability
@@ -196,6 +205,34 @@ export class CommunityPostAccessService {
     }, actor);
     return buildCommunityPostPublicView(updated);
   }
+}
+
+function withGenerationMetadataFallback(post, generation) {
+  if (!generation) return post;
+  const existing = post.workflowSnapshot?.generationSettings || {};
+  const snapshotSettings = generation.sceneTemplateSnapshot?.generationSettingsSnapshot || {};
+  return {
+    ...post,
+    workflowSnapshot: {
+      ...(post.workflowSnapshot || {}),
+      generationSettings: {
+        aspectRatio: existing.aspectRatio
+          ?? snapshotSettings.aspectRatio
+          ?? generation.aspectRatio
+          ?? null,
+        width: existing.width ?? snapshotSettings.width ?? generation.width ?? null,
+        height: existing.height ?? snapshotSettings.height ?? generation.height ?? null,
+        resolution: existing.resolution
+          ?? snapshotSettings.resolution
+          ?? generation.resolution
+          ?? null,
+        generationDuration: existing.generationDuration
+          ?? generation.generationDuration
+          ?? generation.usage?.latency_ms
+          ?? null
+      }
+    }
+  };
 }
 
 function outputFileName(value) {

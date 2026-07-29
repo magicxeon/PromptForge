@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { runMigration } from '../scripts/migrate-history-thumbnails.js';
+import { PREVIEW_PROFILE } from '../server/domain/generation/thumbnailService.js';
 
 async function createFixture() {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'history-migration-'));
@@ -27,6 +28,7 @@ async function createFixture() {
       await fs.mkdir(thumbnailDir, { recursive: true });
       await fs.writeFile(path.join(thumbnailDir, `${item.id}.webp`), 'thumbnail', 'utf8');
       return {
+        thumbnailProfile: PREVIEW_PROFILE,
         thumbnailUrl: `/outputs/thumbnails/${item.id}.webp`, thumbnailMimeType: 'image/webp',
         thumbnailWidth: 640, thumbnailHeight: 480, thumbnailBytes: 9,
         width: 1200, height: 900, originalBytes: 8

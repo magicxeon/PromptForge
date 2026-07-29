@@ -68,6 +68,10 @@ function genericGeneration() {
     provider: 'gemini',
     submodel: 'image-fast',
     mode: 'headshot',
+    aspectRatio: '4:5',
+    width: 896,
+    height: 1200,
+    generationDuration: '7.8',
     selections: {
       faceShape: 'oval',
       referenceImage: 'data:image/png;base64,PRIVATE',
@@ -110,7 +114,13 @@ test('partial prompt publishing stores only a bounded public-safe excerpt', asyn
   assert.deepEqual(post.workflowSnapshot, {
     schemaVersion: 1,
     mode: 'headshot',
-    authoringMode: 'guided'
+    authoringMode: 'guided',
+    generationSettings: {
+      width: 896,
+      height: 1200,
+      aspectRatio: '4:5',
+      generationDuration: '7.8'
+    }
   });
   assert.equal(post.reusePolicy, 'view_only');
   assert.equal(post.postType, 'image');

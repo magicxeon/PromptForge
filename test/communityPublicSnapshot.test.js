@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { buildCommunityPostPublicView } from '../server/domain/community/communityPostPublicView.js';
+import { CommunityPostAccessService } from '../server/domain/community/CommunityPostAccessService.js';
 
 test('public community post view exposes only allowlisted presentation fields', () => {
   const view = buildCommunityPostPublicView({
@@ -30,6 +31,7 @@ test('public community post view exposes only allowlisted presentation fields', 
         width: 1024,
         height: 1280,
         resolution: '1K',
+        generationDuration: 12.4,
         privateSeed: 12345
       },
       referenceSlotMapping: { face: { imageUrl: '/outputs/private.png' } }
@@ -48,7 +50,8 @@ test('public community post view exposes only allowlisted presentation fields', 
     aspectRatio: '4:5',
     width: 1024,
     height: 1280,
-    resolution: '1K'
+    resolution: '1K',
+    generationDuration: '12.4'
   });
   assert.equal(view.generationMetadata.privateSeed, undefined);
   assert.equal(view.imageUrl, '/api/scene-templates/shared/post_1/image');
@@ -93,7 +96,8 @@ test('generated-image public view reads the approved top-level prompt and provid
     aspectRatio: '6:8',
     width: 768,
     height: 1024,
-    resolution: null
+    resolution: null,
+    generationDuration: null
   });
   assert.equal(view.templateAvailability, false);
   assert.equal(view.postType, 'image');
@@ -117,6 +121,51 @@ test('approved public prompt is preserved for client-side disclosure controls', 
   });
 
   assert.equal(view.promptPreview, prompt);
+});
+
+test('public detail recovers safe generation metadata from legacy source history', async () => {
+  const service = new CommunityPostAccessService({
+    postRepository: {
+      async findById() {
+        return {
+          id: 'post_legacy',
+          ownerUserId: 'usr_alice',
+          ownerUsername: 'user_alice',
+          status: 'published',
+          visibility: 'public',
+          sourceGenerationResultId: 'job_legacy',
+          workflowSnapshot: { schemaVersion: 1, authoringMode: 'manual' }
+        };
+      }
+    },
+    generationRepository: {
+      async findById() {
+        return {
+          id: 'job_legacy',
+          width: 896,
+          height: 1200,
+          generationDuration: '7.8',
+          sceneTemplateSnapshot: {
+            generationSettingsSnapshot: { aspectRatio: '4:5' }
+          }
+        };
+      }
+    }
+  });
+
+  const view = await service.getPublicPost('post_legacy', {
+    userId: 'usr_viewer',
+    username: 'viewer',
+    role: 'user'
+  });
+
+  assert.deepEqual(view.generationMetadata, {
+    aspectRatio: '4:5',
+    width: 896,
+    height: 1200,
+    resolution: null,
+    generationDuration: '7.8'
+  });
 });
 
 test('collection public view exposes proxy items without history or output identifiers', () => {

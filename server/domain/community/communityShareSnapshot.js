@@ -56,7 +56,10 @@ export function applyPromptVisibilityToSnapshots(snapshots = {}, promptVisibilit
     workflowSnapshot = {
       schemaVersion: workflowSnapshot.schemaVersion || 1,
       mode: workflowSnapshot.mode || null,
-      authoringMode: workflowSnapshot.authoringMode || 'guided'
+      authoringMode: workflowSnapshot.authoringMode || 'guided',
+      generationSettings: sanitizeGenerationSettings({
+        generationSettings: workflowSnapshot.generationSettings || {}
+      })
     };
     sceneTemplateSnapshot = null;
   } else if (promptVisibility === 'remix_only') {
@@ -103,7 +106,15 @@ function createPartialPrompt(value) {
 function sanitizeGenerationSettings(generation) {
   const source = generation.metadata?.generationSettings || generation.generationSettings || {};
   const allowed = {};
-  for (const key of ['width', 'height', 'resolution', 'aspectRatio', 'quality', 'outputCount']) {
+  for (const key of [
+    'width',
+    'height',
+    'resolution',
+    'aspectRatio',
+    'quality',
+    'outputCount',
+    'generationDuration'
+  ]) {
     const value = source[key] ?? generation[key];
     if (value !== null && value !== undefined
       && (typeof value === 'string' || Number.isFinite(Number(value)))) {

@@ -27,6 +27,7 @@ export function CommunityHomeRoute() {
       postType: postTypes.includes(typeValue as typeof postTypes[number])
         ? typeValue as CommunityFilters['postType']
         : 'all',
+      officialTag: String(params.get('category') || '').trim(),
       search: String(params.get('search') || '').trim()
     };
   }, [params]);
@@ -38,12 +39,16 @@ export function CommunityHomeRoute() {
     getNextPageParam: page => page.nextCursor || undefined
   });
   const posts = query.data?.pages.flatMap(page => page.items) || [];
+  const categories = query.data?.pages[0]?.facets?.officialTags || [];
 
-  function updateFilter(name: 'type' | 'period', value: string) {
+  function updateFilter(name: 'type' | 'period' | 'category', value: string) {
     const next = new URLSearchParams(params);
     if (name === 'type') {
       if (value === 'all') next.delete('type');
       else next.set('type', value);
+    } else if (name === 'category') {
+      if (!value) next.delete('category');
+      else next.set('category', value);
     } else if (value === 'latest') {
       next.delete('period');
       next.delete('sort');
@@ -92,6 +97,28 @@ export function CommunityHomeRoute() {
             </FilterButton>
           ))}
         </div>
+        {categories.length || filters.officialTag ? (
+          <div
+            className="community-discovery__categories"
+            aria-label={t('community.feed.categoryLabel')}
+          >
+            <FilterButton
+              active={!filters.officialTag}
+              onClick={() => updateFilter('category', '')}
+            >
+              {t('community.feed.categoryAll')}
+            </FilterButton>
+            {categories.map(category => (
+              <FilterButton
+                key={category.id}
+                active={filters.officialTag === category.id}
+                onClick={() => updateFilter('category', category.id)}
+              >
+                {formatCategoryLabel(category.id)}
+              </FilterButton>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       {query.isLoading ? <LoadingState label={t('community.feed.loading')} /> : null}
@@ -123,6 +150,14 @@ export function CommunityHomeRoute() {
       ) : null}
     </main>
   );
+}
+
+function formatCategoryLabel(value: string) {
+  return value
+    .replace(/^[a-z0-9_-]+[.:/]/i, '')
+    .replace(/[._/-]+/g, ' ')
+    .replace(/\b\w/g, character => character.toUpperCase())
+    .trim();
 }
 
 function FilterButton({

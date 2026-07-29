@@ -7,14 +7,16 @@ export function MediaStage({
   post,
   className,
   eager = false,
-  fit = 'contain'
+  fit = 'contain',
+  source = 'preview'
 }: {
   post: CommunityPost;
   className?: string;
   eager?: boolean;
   fit?: 'contain' | 'cover';
+  source?: 'preview' | 'original';
 }) {
-  const images = getPostImages(post);
+  const images = getPostImages(post, source);
 
   if (!images.length) {
     return (
@@ -52,17 +54,26 @@ export function MediaStage({
   );
 }
 
-function getPostImages(post: CommunityPost) {
+function getPostImages(post: CommunityPost, source: 'preview' | 'original') {
   if (post.postType === 'comparison') {
     return post.comparisonSnapshot?.slots
       .filter(slot => slot.status === 'completed')
-      .map(slot => slot.thumbnailUrl || slot.imageUrl)
-      .filter(Boolean) || [];
+      .map(slot => selectMediaSource(slot, source))
+      .filter((image): image is string => Boolean(image)) || [];
   }
   if (post.postType === 'collection') {
     return post.collectionSnapshot?.items
-      .map(item => item.thumbnailUrl || item.imageUrl)
+      .map(item => selectMediaSource(item, source))
       .filter((image): image is string => Boolean(image)) || [];
   }
-  return [post.thumbnailUrl || post.imageUrl].filter((image): image is string => Boolean(image));
+  return [selectMediaSource(post, source)].filter((image): image is string => Boolean(image));
+}
+
+function selectMediaSource(
+  media: { imageUrl?: string | null; thumbnailUrl?: string | null },
+  source: 'preview' | 'original'
+) {
+  return source === 'original'
+    ? media.imageUrl || media.thumbnailUrl || null
+    : media.thumbnailUrl || media.imageUrl || null;
 }

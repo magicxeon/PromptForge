@@ -57,7 +57,8 @@ export const communityPostSchema = z.object({
     aspectRatio: nullableText,
     width: z.number().nullable().optional(),
     height: z.number().nullable().optional(),
-    resolution: nullableText
+    resolution: nullableText,
+    generationDuration: z.union([z.string(), z.number()]).nullable().optional()
   }).default({}),
   remixAvailability: z.boolean().default(false),
   templateAvailability: z.boolean().default(false),
@@ -99,7 +100,19 @@ export const communityFeedPageSchema = z.object({
     algorithmVersion: z.string(),
     calculatedAt: z.string()
   }),
-  facets: z.unknown().optional(),
+  facets: z.object({
+    postTypes: z.object({
+      all: count,
+      image: count,
+      template: count,
+      comparison: count,
+      collection: count
+    }).optional(),
+    officialTags: z.array(z.object({
+      id: z.string(),
+      count
+    })).default([])
+  }).optional(),
   nextCursor: nullableText,
   hasMore: z.boolean()
 });

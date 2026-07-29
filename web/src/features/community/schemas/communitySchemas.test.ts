@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { communityPostSchema } from './communitySchemas';
+import { communityFeedPageSchema, communityPostSchema } from './communitySchemas';
 
 describe('communityPostSchema', () => {
   it('normalizes a minimal public image post without requiring private snapshot data', () => {
@@ -31,5 +31,30 @@ describe('communityPostSchema', () => {
     });
 
     expect(post.comparisonSnapshot?.slots).toHaveLength(1);
+  });
+
+  it('preserves feed category facets for discovery filtering', () => {
+    const page = communityFeedPageSchema.parse({
+      items: [],
+      ranking: {
+        sort: 'latest',
+        period: 'week',
+        officialTag: null,
+        windowStart: '2026-07-01T00:00:00.000Z',
+        windowEnd: '2026-07-29T00:00:00.000Z',
+        algorithmVersion: 'test',
+        calculatedAt: '2026-07-29T00:00:00.000Z'
+      },
+      facets: {
+        postTypes: { all: 2, image: 1, template: 1, comparison: 0, collection: 0 },
+        officialTags: [{ id: 'content_type.fashion', count: 2 }]
+      },
+      nextCursor: null,
+      hasMore: false
+    });
+
+    expect(page.facets?.officialTags).toEqual([
+      { id: 'content_type.fashion', count: 2 }
+    ]);
   });
 });

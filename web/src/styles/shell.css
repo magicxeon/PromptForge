@@ -202,8 +202,11 @@
   display: grid;
   min-height: 100vh;
   grid-template-columns: var(--mpf-sidebar-width) minmax(0, 1fr);
-  gap: 16px;
-  padding: calc(var(--mpf-header-height) + 16px) 16px 0;
+  gap: var(--mpf-section-gap);
+  padding:
+    calc(var(--mpf-header-height) + var(--mpf-section-gap))
+    var(--mpf-section-gap)
+    0;
   transition: grid-template-columns 180ms ease;
 }
 

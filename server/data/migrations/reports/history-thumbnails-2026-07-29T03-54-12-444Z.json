@@ -1,0 +1,18 @@
+{
+  "mode": "apply",
+  "targetProfile": "preview-v1",
+  "startedAt": "2026-07-29T03:54:00.744Z",
+  "sourceFingerprint": "aef7df415ff1a1ed274d22c713d62a71f6147197fca543459f8d13cad771bbf2",
+  "scanned": 115,
+  "candidates": 115,
+  "migrated": 115,
+  "skipped": 0,
+  "missingOriginal": [],
+  "failed": [],
+  "orphanComparisonJobIds": [
+    "job_1784867371160_l8px1uij4"
+  ],
+  "interrupted": false,
+  "elapsedMs": 11700,
+  "completedAt": "2026-07-29T03:54:12.444Z"
+}

@@ -21,7 +21,10 @@ Domain modules should depend on repository contracts or shared repository helper
 Approved local bridge examples:
 
 - `generation/QueueManager.js` writes image binaries to `client/outputs/` because provider output files are static assets.
-- `generation/thumbnailService.js` writes thumbnail files under `client/outputs/thumbnails/`.
+- `generation/thumbnailService.js` writes the single derived `preview-v1`
+  profile under `client/outputs/thumbnails/`. The legacy directory and
+  `thumbnailUrl` field names remain compatibility contracts; detail,
+  Fullscreen and Download surfaces use the original output.
 
 JSON state must go through repositories or `server/repositories/json/jsonFileStore.js`.
 
