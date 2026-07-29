@@ -14,6 +14,7 @@ import {
   readPlaygroundUiPreferences,
   writePlaygroundUiPreferences
 } from '../playgroundUiPreferences';
+import { useSearchParams } from 'react-router-dom';
 
 const FEATURE = 'playground';
 const SCHEMA_VERSION = 1;
@@ -24,6 +25,9 @@ export function PlaygroundRoute() {
   const [initialActorId] = useState(() => getActiveActorId());
   const [loadedActorId, setLoadedActorId] = useState(initialActorId);
   const previousActorId = useRef<string | undefined>(initialActorId);
+  const [searchParams] = useSearchParams();
+  const initialComparisonActive = searchParams.get('compare') === '1';
+
   const [initialFaceHandoff] = useState(
     () => readFaceReferenceHandoff(initialActorId, 'playground')
   );
@@ -83,6 +87,7 @@ export function PlaygroundRoute() {
         <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('ui.playground.description')}</p>
       </header>
       <GenerationExperience
+        initialComparisonActive={initialComparisonActive}
         surface="playground"
         generationMode="playground"
         prompt={prompt}

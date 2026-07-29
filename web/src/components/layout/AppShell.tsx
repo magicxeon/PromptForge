@@ -47,6 +47,9 @@ export function AppShell() {
     queryFn: () => apiRequest('/api/credits/account', { schema: creditResponseSchema }),
     enabled: Boolean(actor)
   });
+  const createTarget = location.pathname.startsWith('/comparisons')
+    ? '/playground?compare=1'
+    : '/studio';
 
   useEffect(() => {
     setMobileOpen(false);
@@ -78,6 +81,7 @@ export function AppShell() {
       data-testid="application-shell"
     >
       <GlobalHeader
+        createTarget={createTarget}
         actor={actor}
         users={mockUsers}
         showSwitcher={mockSwitcherEnabled}
@@ -137,6 +141,7 @@ export function AppShell() {
 }
 
 function GlobalHeader({
+  createTarget,
   actor,
   users,
   showSwitcher,
@@ -145,6 +150,7 @@ function GlobalHeader({
   menuTriggerRef,
   onOpenMenu
 }: {
+  createTarget: string;
   actor: ReturnType<typeof useActor>['actor'];
   users: ReturnType<typeof useActor>['mockUsers'];
   showSwitcher: boolean;
@@ -199,7 +205,7 @@ function GlobalHeader({
             })}
           />
         </form>
-        <Link to="/studio" className="global-header__create">
+        <Link to={createTarget} className="global-header__create">
           <Sparkles aria-hidden="true" />
           <span>{t('shell.navigation.create')}</span>
         </Link>

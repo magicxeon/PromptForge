@@ -68,6 +68,7 @@ type GenerationExperienceProps = {
   selections?: Record<string, unknown>;
   customColors?: StudioCustomColors;
   initialReferences?: Partial<Record<GenerationReferenceRole, string>>;
+  initialComparisonActive?: boolean;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
   characterProfileContext?: Record<string, unknown> | null;
@@ -101,6 +102,7 @@ export function GenerationExperience({
   selections,
   customColors,
   initialReferences = {},
+  initialComparisonActive = false,
   references: controlledReferences,
   onReferencesChange,
   characterProfileContext = null,
@@ -200,10 +202,18 @@ export function GenerationExperience({
       catalog.data,
       fallbackSlots
     );
-    setComparison(allowComparison && preference.active);
+    setComparison(
+      allowComparison && (initialComparisonActive || preference.active)
+    );
     setComparisonSlots(preference.slots);
     setComparisonPreferencesActorId(actor.userId);
-  }, [actor, allowComparison, catalog.data, comparisonPreferencesActorId]);
+  }, [
+    actor,
+    allowComparison,
+    catalog.data,
+    comparisonPreferencesActorId,
+    initialComparisonActive
+  ]);
 
   useEffect(() => {
     if (!actor || comparisonPreferencesActorId !== actor.userId || comparisonSlots.length < 2) {
