@@ -10,6 +10,10 @@ import {
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { readFaceReferenceHandoff } from '../../../lib/persistence/faceReferenceHandoff';
 import type { GenerationReferenceRole } from '../../generation/api/generationApi';
+import {
+  readPlaygroundUiPreferences,
+  writePlaygroundUiPreferences
+} from '../playgroundUiPreferences';
 
 const FEATURE = 'playground';
 const SCHEMA_VERSION = 1;
@@ -18,11 +22,15 @@ export function PlaygroundRoute() {
   const { t } = useTranslation(['react-ui', 'shell']);
   const { actor } = useActor();
   const [initialActorId] = useState(() => getActiveActorId());
+  const [loadedActorId, setLoadedActorId] = useState(initialActorId);
   const previousActorId = useRef<string | undefined>(initialActorId);
   const [initialFaceHandoff] = useState(
     () => readFaceReferenceHandoff(initialActorId, 'playground')
   );
   const [prompt, setPrompt] = useState(() => loadDraft(initialActorId).prompt);
+  const [recentExpanded, setRecentExpanded] = useState(
+    () => readPlaygroundUiPreferences(initialActorId).recentExpanded
+  );
   const [references, setReferences] = useState<
     Partial<Record<GenerationReferenceRole, string>>
   >(() => ({
@@ -48,23 +56,30 @@ export function PlaygroundRoute() {
     setPrompt(draft.prompt);
     setReferences(draft.references);
     setFaceReferenceContext(draft.faceReferenceContext);
+    setRecentExpanded(readPlaygroundUiPreferences(actorId).recentExpanded);
+    setLoadedActorId(actorId);
   }, [actor?.userId]);
 
   useEffect(() => {
-    if (!actor?.userId) return;
+    if (!actor?.userId || loadedActorId !== actor.userId) return;
     writeActorScopedDraft({
       actorId: actor.userId,
       feature: FEATURE,
       schemaVersion: SCHEMA_VERSION,
       payload: { prompt, references, faceReferenceContext }
     });
-  }, [actor?.userId, faceReferenceContext, prompt, references]);
+  }, [actor?.userId, faceReferenceContext, loadedActorId, prompt, references]);
+
+  useEffect(() => {
+    if (!actor?.userId || loadedActorId !== actor.userId) return;
+    writePlaygroundUiPreferences(actor.userId, { recentExpanded });
+  }, [actor?.userId, loadedActorId, recentExpanded]);
 
   return (
     <main>
       <header className="mb-5 border-b border-[var(--mpf-border)] pb-5">
         <span className="flex items-center gap-2 text-xs font-bold uppercase text-cyan-300"><FlaskConical className="size-4" />{t('shell.navigation.items.playground', { ns: 'shell' })}</span>
-        <h1 className="mb-2 mt-2 text-3xl">{t('ui.playground.title')}</h1>
+        <h1 className="mb-1 mt-2 text-3xl">{t('ui.playground.title')}</h1>
         <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('ui.playground.description')}</p>
       </header>
       <GenerationExperience
@@ -80,6 +95,9 @@ export function PlaygroundRoute() {
           setReferences(next);
         }}
         faceReferenceContext={faceReferenceContext}
+        layoutVariant="playground"
+        recentExpanded={recentExpanded}
+        onRecentExpandedChange={setRecentExpanded}
       />
     </main>
   );

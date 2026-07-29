@@ -30,4 +30,28 @@ describe('MediaStage media source', () => {
       '/api/scene-templates/shared/post_media_source/image'
     );
   });
+
+  it('uses the shared count-aware attention presentation for comparisons', () => {
+    const comparison = communityPostSchema.parse({
+      id: 'post_comparison',
+      postType: 'comparison',
+      creator: { displayName: 'Creator' },
+      comparisonSnapshot: {
+        slots: ['a', 'b', 'c'].map(slotId => ({
+          slotId,
+          imageUrl: `/api/community/posts/post_comparison/comparison-slots/${slotId}/image`,
+          thumbnailUrl: `/api/community/posts/post_comparison/comparison-slots/${slotId}/image`,
+          status: 'completed'
+        }))
+      },
+      engagementSummary: {}
+    });
+    const { container } = render(<MediaStage post={comparison} />);
+
+    expect(container.firstElementChild).toHaveAttribute('data-image-count', '3');
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      '/api/community/posts/post_comparison/comparison-slots/a/presentations/comparison-card-3-person-focus'
+    );
+  });
 });

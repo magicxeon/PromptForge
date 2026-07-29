@@ -102,7 +102,7 @@ export function CharacterProfileRoute() {
         </Surface>
         <Surface className="p-6">
           <span className="text-xs font-bold uppercase text-cyan-300">{t('character-profiles.page.kicker')}</span>
-          <h1 className="mb-2 mt-2 text-3xl">{character.displayName}</h1>
+          <h1 className="mb-1 mt-2 text-3xl">{character.displayName}</h1>
           <p className="text-sm text-[var(--mpf-text-muted)]">{t('character-profiles.page.by')} <strong className="text-white">@{character.ownerUsername}</strong></p>
           <p className="my-6 leading-7 text-[var(--mpf-text-muted)]">{character.personalitySummary || character.shortDescription}</p>
           <div className="grid gap-3 sm:grid-cols-2">

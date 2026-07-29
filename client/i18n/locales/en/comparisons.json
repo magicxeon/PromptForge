@@ -1,4 +1,5 @@
 {
+  "comparisons.viewer.exitFullscreen": "Exit fullscreen",
   "comparisons.viewer.noOutput": "No comparison output is available.",
   "comparisons.viewer.previous": "Previous result",
   "comparisons.viewer.next": "Next result",

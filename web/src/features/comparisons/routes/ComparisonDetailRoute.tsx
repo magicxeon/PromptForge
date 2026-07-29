@@ -18,6 +18,11 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { ShareComparisonDialog } from '../../../components/community/ShareComparisonDialog';
 import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
 import { CollectionPickerDialog } from '../../../components/collections/CollectionPickerDialog';
+import {
+  comparisonNeedsPolling,
+  comparisonRunStatus,
+  newestComparisonRun
+} from '../comparisonRunState';
 
 export function ComparisonDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -33,8 +38,7 @@ export function ComparisonDetailRoute() {
     queryFn: () => getComparison(setId),
     enabled: Boolean(setId && actor),
     refetchInterval: query => {
-      const status = query.state.data?.runs.at(-1)?.status;
-      return status && ['queued', 'processing', 'streaming'].includes(status) ? 1500 : false;
+      return comparisonNeedsPolling(setId, query.state.data) ? 1500 : false;
     }
   });
   const winner = useMutation({
@@ -58,11 +62,11 @@ export function ComparisonDetailRoute() {
   });
   if (comparison.isLoading) return <LoadingState label={t('ui.comparisons.loadingOne')} />;
   if (comparison.isError || !comparison.data) return <ErrorState title={t('ui.comparisons.unavailableOne')} description={comparison.error?.message} onRetry={() => void comparison.refetch()} />;
-  const run = comparison.data.runs.at(-1);
+  const run = newestComparisonRun(comparison.data);
   const faceReferenceEligible = run?.configurationSnapshot?.mode === 'headshot';
   const canShare = Boolean(
     run
-    && ['completed', 'partially_completed'].includes(run.status)
+    && ['completed', 'partially_completed'].includes(comparisonRunStatus(run) || '')
     && run.slots.filter(slot => slot.status === 'completed' && slot.result?.imageUrl).length >= 2
   );
   return (

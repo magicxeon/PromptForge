@@ -13,6 +13,64 @@ const SUPPORTED_REFERENCE_MIME_TYPES = new Set([
   'image/tiff',
   'image/webp'
 ]);
+// Explicit pixel sizes keep ModelArk from inferring orientation from prompt prose.
+const STANDARD_SIZE_MAP = {
+  '1K': {
+    '1:1': '1024x1024',
+    '4:3': '1152x864',
+    '3:4': '864x1152',
+    '16:9': '1312x736',
+    '9:16': '736x1312',
+    '3:2': '1248x832',
+    '2:3': '832x1248',
+    '4:5': '896x1120',
+    '21:9': '1568x672'
+  },
+  '2K': {
+    '1:1': '2048x2048',
+    '4:3': '2304x1728',
+    '3:4': '1728x2304',
+    '16:9': '2848x1600',
+    '9:16': '1600x2848',
+    '3:2': '2496x1664',
+    '2:3': '1664x2496',
+    '4:5': '1792x2240',
+    '21:9': '3136x1344'
+  },
+  '3K': {
+    '1:1': '3072x3072',
+    '4:3': '3456x2592',
+    '3:4': '2592x3456',
+    '16:9': '4096x2304',
+    '9:16': '2304x4096',
+    '3:2': '3744x2496',
+    '2:3': '2496x3744',
+    '4:5': '2688x3360',
+    '21:9': '4704x2016'
+  },
+  '4K': {
+    '1:1': '4096x4096',
+    '4:3': '4704x3520',
+    '3:4': '3520x4704',
+    '16:9': '5504x3040',
+    '9:16': '3040x5504',
+    '3:2': '4992x3328',
+    '2:3': '3328x4992',
+    '4:5': '3584x4480',
+    '21:9': '6240x2656'
+  }
+};
+const SEEDREAM_FIVE_PRO_SIZE_OVERRIDES = {
+  '1K': {
+    '16:9': '1424x800'
+  },
+  '2K': {
+    '4:3': '2368x1776',
+    '3:4': '1776x2368',
+    '16:9': '2816x1584',
+    '9:16': '1584x2816'
+  }
+};
 
 function normalizeBaseUrl(value) {
   const baseUrl = typeof value === 'string' && value.trim() ? value.trim() : DEFAULT_BASE_URL;
@@ -66,9 +124,33 @@ function summarizeReference(value) {
 
 function sanitizePayloadForLogging(payload) {
   const sanitized = { ...payload };
+  if (sanitized.prompt) sanitized.prompt = '[prompt omitted]';
   if (Array.isArray(sanitized.image)) sanitized.image = sanitized.image.map(summarizeReference);
   else if (sanitized.image) sanitized.image = summarizeReference(sanitized.image);
   return sanitized;
+}
+
+export function resolveModelArkOutputSize({
+  model,
+  resolution = '2K',
+  aspectRatio = '1:1'
+} = {}) {
+  const normalizedResolution = String(resolution || '2K').toUpperCase();
+  const normalizedRatio = aspectRatio === '6:8' ? '3:4' : String(aspectRatio || '1:1');
+  if (normalizedRatio === 'auto') return normalizedResolution;
+
+  const resolutionMap = STANDARD_SIZE_MAP[normalizedResolution];
+  if (!resolutionMap) {
+    throw new Error(`ModelArk output resolution ${normalizedResolution} is not mapped.`);
+  }
+  const proOverride = /^(dola-)?seedream-5-0-pro-/i.test(model || '')
+    ? SEEDREAM_FIVE_PRO_SIZE_OVERRIDES[normalizedResolution]?.[normalizedRatio]
+    : null;
+  const resolvedSize = proOverride || resolutionMap[normalizedRatio];
+  if (!resolvedSize) {
+    throw new Error(`ModelArk aspect ratio ${aspectRatio} is not mapped for ${normalizedResolution}.`);
+  }
+  return resolvedSize;
 }
 
 function extractApiErrorMessage(apiError, status) {
@@ -91,6 +173,16 @@ function extractApiErrorMessage(apiError, status) {
     }
   }
   return `ModelArk request failed with HTTP ${status}.`;
+}
+
+function summarizeApiErrorForLogging(apiError, status) {
+  const source = apiError && typeof apiError === 'object' ? apiError : {};
+  return {
+    code: source.code || null,
+    type: source.type || null,
+    param: source.param || null,
+    message: extractApiErrorMessage(apiError, status)
+  };
 }
 
 function mimeTypeForOutputFormat(outputFormat, model) {
@@ -143,10 +235,21 @@ export class ModelArkSeedreamProvider extends BaseProvider {
     }
 
     const responseFormat = modelConfig.defaults?.responseFormat || 'b64_json';
+    let resolvedSize;
+    try {
+      resolvedSize = resolveModelArkOutputSize({
+        model,
+        resolution,
+        aspectRatio: options.aspectRatio || '1:1'
+      });
+    } catch (error) {
+      throw this.createError('invalid_request', error.message, false);
+    }
+
     const payload = {
       model,
       prompt,
-      size: resolution,
+      size: resolvedSize,
       response_format: responseFormat,
       stream: false,
       watermark: modelConfig.defaults?.watermark === true
@@ -194,7 +297,7 @@ export class ModelArkSeedreamProvider extends BaseProvider {
         status: response.status,
         requestId,
         payload: sanitizePayloadForLogging(payload),
-        response: data
+        response: summarizeApiErrorForLogging(data?.error || data, response.status)
       }, null, 2));
       throw this.normalizeApiError(data.error || data, response.status, requestId);
     }
@@ -228,6 +331,9 @@ export class ModelArkSeedreamProvider extends BaseProvider {
         resolvedModel: data.model || image.model || model,
         requestId,
         responseSize: image.size || null,
+        requestedAspectRatio: options.aspectRatio || '1:1',
+        requestedResolution: resolution,
+        resolvedSize,
         responseFormat,
         sourceUrlReturned: Boolean(image.url)
       }

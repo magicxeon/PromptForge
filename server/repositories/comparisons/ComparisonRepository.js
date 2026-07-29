@@ -81,15 +81,22 @@ export class ComparisonRepository {
     if (normalizedSearch) {
       sets = sets.filter(set => getComparisonSearchText(set).includes(normalizedSearch));
     }
-    if (status !== 'all') sets = sets.filter(set => matchesComparisonStatus(set.runs[0]?.status, status));
+    if (status !== 'all') {
+      sets = sets.filter(set =>
+        matchesComparisonStatus(getComparisonRunStatus(findNewestRun(set.runs)), status)
+      );
+    }
     if (cutoff) sets = sets.filter(set => Number(set.updatedAt || 0) >= cutoff);
     sets.sort(compareSets);
     if (decodedCursor) sets = sets.filter(set => compareSets(set, decodedCursor) > 0);
     const pageSets = sets.slice(0, safeLimit);
     const hasMore = sets.length > safeLimit;
     const items = pageSets.map(set => {
-      const latestRun = set.runs[0] || null;
-      const completedSlots = latestRun?.slots?.filter(slot => slot.status === 'completed') || [];
+      const latestRun = findNewestRun(set.runs);
+      const completedSlots = latestRun?.slots?.filter(slot =>
+        ['completed', 'succeeded'].includes(String(slot.status || '').toLowerCase())
+      ) || [];
+      const aggregateStatus = getComparisonRunStatus(latestRun);
       return {
         id: set.id,
         name: set.name,
@@ -99,12 +106,12 @@ export class ComparisonRepository {
         createdAt: set.createdAt,
         updatedAt: set.updatedAt,
         runCount: set.runs.length,
-        status: latestRun?.status || 'draft',
+        status: aggregateStatus,
         completedCount: completedSlots.length,
         slotCount: latestRun?.slots?.length || 0,
         providers: [...new Set(latestRun?.slots?.map(slot => slot.provider) || [])],
         models: [...new Set(latestRun?.slots?.map(slot => slot.model) || [])],
-        previewImages: completedSlots.slice(0, 3).map(slot => {
+        previewImages: completedSlots.slice(0, 4).map(slot => {
           const historyItem = historyById.get(slot.jobId);
           return {
             jobId: slot.jobId,
@@ -116,12 +123,12 @@ export class ComparisonRepository {
         }),
         latestRun: latestRun ? {
           id: latestRun.id,
-          status: latestRun.status,
+          status: aggregateStatus,
           estimatedTotalCredit: latestRun.estimatedTotalCredit,
           actualTotalCredit: latestRun.actualTotalCredit,
           createdAt: latestRun.createdAt,
           completedAt: latestRun.completedAt,
-          slotCount: latestRun.slots.length
+          slotCount: latestRun.slots?.length || 0
         } : null
       };
     });
@@ -217,7 +224,7 @@ export class ComparisonRepository {
     return this.mutate(async data => {
       const set = this.getSetOrThrow(data, setId);
       if (!isOwnedBy(set, normalizeOwner(owner))) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
-      if (payload.name !== undefined) set.name = normalizeText(payload.name, 'name', 100, true);
+      if (payload.name !== undefined) set.name = normalizeText(payload.name, 'name', 120, true);
       if (payload.description !== undefined) set.description = normalizeText(payload.description, 'description', 1000);
       set.updatedAt = Date.now();
       return structuredClone(set);
@@ -282,7 +289,37 @@ function isHistoryOwnedBy(item, owner) {
   return Boolean(username && owner.username && username === owner.username);
 }
 
+function findNewestRun(runs) {
+  if (!Array.isArray(runs)) return null;
+  return runs.reduce((newest, candidate) => {
+    if (!newest) return candidate;
+    return Number(candidate.createdAt || 0) > Number(newest.createdAt || 0)
+      ? candidate
+      : newest;
+  }, null);
+}
 
+function getComparisonRunStatus(run) {
+  if (!run) return 'draft';
+  const slots = Array.isArray(run.slots) ? run.slots : [];
+  if (!slots.length) return String(run.status || 'draft').toLowerCase();
+  const statuses = slots.map(slot => String(slot.status || '').toLowerCase());
+  const terminalStatuses = new Set(['completed', 'succeeded', 'failed', 'cancelled']);
+  const allTerminal = statuses.every(status => terminalStatuses.has(status));
+  const completedCount = statuses.filter(status =>
+    status === 'completed' || status === 'succeeded'
+  ).length;
+
+  if (allTerminal && completedCount === statuses.length) return 'completed';
+  if (allTerminal && completedCount > 0) return 'partially_completed';
+  if (allTerminal) return 'failed';
+  if (statuses.some(status =>
+    ['processing', 'streaming', 'generating', 'running'].includes(status)
+  )) {
+    return 'processing';
+  }
+  return 'queued';
+}
 
 function compareSets(a, b) {
   const updatedDifference = Number(b.updatedAt || 0) - Number(a.updatedAt || 0);

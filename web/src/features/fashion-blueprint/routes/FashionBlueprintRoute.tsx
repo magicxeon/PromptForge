@@ -195,7 +195,7 @@ export function FashionBlueprintRoute() {
     <main>
       <header className="mb-5 border-b border-[var(--mpf-border)] pb-5">
         <span className="text-xs font-bold uppercase text-cyan-300">{t('fashion.eyebrow')}</span>
-        <h1 className="mb-2 mt-2 text-3xl">{t('fashion.title')}</h1>
+        <h1 className="mb-1 mt-2 text-3xl">{t('fashion.title')}</h1>
         <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('fashion.description')}</p>
       </header>
       <StepRail current={step} />

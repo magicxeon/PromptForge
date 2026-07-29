@@ -95,6 +95,84 @@ test('comparison summaries paginate without returning full runs', async t => {
   assert.equal(new Set([...first.items, ...second.items].map(item => item.id)).size, 3);
 });
 
+test('comparison summaries expose completed preview images and aggregate fields', async t => {
+  const { repository, directory } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await repository.createSetWithRun({
+    username: 'user_demo',
+    name: 'Preview summary',
+    description: '',
+    idempotencyKey: 'preview_summary',
+    run: run('preview_summary')
+  });
+  await repository.updateRun(created.set.id, created.run.id, target => {
+    target.status = 'completed';
+    target.slots = [{
+      ...target.slots[0],
+      provider: 'gemini',
+      model: 'gemini-image',
+      jobId: 'job_preview',
+      status: 'completed',
+      result: { imageUrl: '/outputs/job_preview.png' }
+    }];
+  });
+  await fs.writeFile(repository.historyFile, JSON.stringify([{
+    id: 'job_preview',
+    username: 'user_demo',
+    imageUrl: '/outputs/job_preview.png',
+    thumbnailUrl: '/api/history/job_preview/thumbnail'
+  }]), 'utf8');
+
+  const [summary] = (await repository.listPage('user_demo')).items;
+  assert.equal(summary.status, 'completed');
+  assert.equal(summary.slotCount, 1);
+  assert.equal(summary.completedCount, 1);
+  assert.deepEqual(summary.previewImages, [{
+    jobId: 'job_preview',
+    thumbnailUrl: '/api/history/job_preview/thumbnail',
+    imageUrl: '/outputs/job_preview.png',
+    width: null,
+    height: null
+  }]);
+});
+
+test('comparison summaries expose up to four previews in slot order', async t => {
+  const { repository, directory } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await repository.createSetWithRun({
+    username: 'user_demo',
+    name: 'Four preview summary',
+    description: '',
+    idempotencyKey: 'four_preview_summary',
+    run: run('four_preview_summary')
+  });
+  const history = Array.from({ length: 5 }, (_, index) => ({
+    id: `job_${index + 1}`,
+    username: 'user_demo',
+    imageUrl: `/outputs/job_${index + 1}.png`,
+    thumbnailUrl: `/outputs/thumbnails/job_${index + 1}.webp`
+  }));
+  await repository.updateRun(created.set.id, created.run.id, target => {
+    target.status = 'completed';
+    target.slots = history.map((item, index) => ({
+      id: `slot_${index + 1}`,
+      position: index,
+      provider: 'gemini',
+      model: 'gemini-image',
+      jobId: item.id,
+      status: 'completed',
+      result: { imageUrl: item.imageUrl }
+    }));
+  });
+  await fs.writeFile(repository.historyFile, JSON.stringify(history), 'utf8');
+
+  const [summary] = (await repository.listPage('user_demo')).items;
+  assert.deepEqual(
+    summary.previewImages.map(item => item.jobId),
+    ['job_1', 'job_2', 'job_3', 'job_4']
+  );
+});
+
 test('comparison summaries support MVP search and status filters', async t => {
   const { repository, directory } = await createRepository();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

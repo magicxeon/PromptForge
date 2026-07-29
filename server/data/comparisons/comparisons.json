@@ -2,6 +2,924 @@
   "version": 1,
   "sets": [
     {
+      "id": "cmp_set_1785326895180_4jkvr3",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Movie Poster Comparison I",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785326895180,
+      "updatedAt": 1785327054170,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785326895174_2l90y5mw",
+          "status": "completed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785326895178,
+          "completedAt": 1785326944264,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785326865220_ra2hpt",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_surfjev",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895183_maewunhy5",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "8.0",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895191_00tws3y"
+            },
+            {
+              "id": "slot_1785326865220_19i163",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_0krf9um",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895264_0knt18mnk",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895264_0knt18mnk.png",
+                "usage": {
+                  "input_tokens": 172,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 172
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6412
+                },
+                "mimeType": "image/png",
+                "generationDuration": "48.7",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895273_10zgxo2"
+            },
+            {
+              "id": "slot_1785326888716_fqmitl",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_g9sgm1v",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895298_e5d4p34fu",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895298_e5d4p34fu.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "10.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895323_v3qe1s2"
+            }
+          ],
+          "id": "cmp_run_1785326895180_ed743u"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785324894992_9jitkx",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785324894992,
+      "updatedAt": 1785324895012,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785324894984_dsu3ue6h",
+          "status": "failed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785324894990,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785324789780_ixill7",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_2u2c3ab",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324789780_zvsar1",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_i4s5tek",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324859952_hhwjji",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_wl7nep0",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            }
+          ],
+          "id": "cmp_run_1785324894992_wx9mu0"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785324875955_zgmx5s",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785324875955,
+      "updatedAt": 1785324875972,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785324875945_wg70bz0x",
+          "status": "failed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785324875951,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785324789780_ixill7",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_2u2c3ab",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324789780_zvsar1",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_i4s5tek",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324859952_hhwjji",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_wl7nep0",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            }
+          ],
+          "id": "cmp_run_1785324875955_mbjnvf"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785323229216_70mgz7",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Lady with dog and cat",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785323229216,
+      "updatedAt": 1785324706406,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785323229209_0mzx22os",
+          "status": "completed",
+          "sourcePrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785323229213,
+          "completedAt": 1785323290594,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785323196522_t7lvfy",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_zrs090f",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229220_g923ocoeh",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229220_g923ocoeh.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.9",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229229_s5213fi"
+            },
+            {
+              "id": "slot_1785323196522_kz9pth",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_pqqockm",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229302_w638yypyy",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229302_w638yypyy.png",
+                "usage": {
+                  "input_tokens": 235,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 235
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6475
+                },
+                "mimeType": "image/png",
+                "generationDuration": "61.1",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229309_gu9n70q"
+            },
+            {
+              "id": "slot_1785323219816_gd07rv",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_eudl51v",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229337_84yun878a",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229337_84yun878a.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "9.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229349_kgaltlr"
+            }
+          ],
+          "id": "cmp_run_1785323229216_rx2s2x"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785313074511_apmq91",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785313074511,
+      "updatedAt": 1785324681176,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785313074495_1xmzqmju",
+          "status": "queued",
+          "sourcePrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785313074499,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785312877583_a8984z",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_bjlzz80",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            },
+            {
+              "id": "slot_1785312877583_0peket",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_7d1aihr",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            },
+            {
+              "id": "slot_1785313064074_hn9c23",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_7tw8pvl",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            }
+          ],
+          "id": "cmp_run_1785313074511_nwcwjj"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785308051174_ml8n8r",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785308051174,
+      "updatedAt": 1785324684758,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785308051165_1o31yyha",
+          "status": "completed",
+          "sourcePrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785308051170,
+          "completedAt": 1785308103707,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785307409407_lqlehz",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_asq636h",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051180_o2cxw5ogi",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051180_o2cxw5ogi.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.3",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051188_5o08y8k"
+            },
+            {
+              "id": "slot_1785307409407_dc5r4j",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_3kegxyw",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051198_cj0bc8wu7",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051198_cj0bc8wu7.png",
+                "usage": {
+                  "input_tokens": 143,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 143
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6383
+                },
+                "mimeType": "image/png",
+                "generationDuration": "52.2",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051230_iut608r"
+            },
+            {
+              "id": "slot_1785308041574_4mysbe",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_id0izph",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051243_xoobqvr01",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051243_xoobqvr01.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 16464,
+                  "total_tokens": 16464
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "9.0",
+                "width": 3136,
+                "height": 1344
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051270_yhsszk1"
+            }
+          ],
+          "id": "cmp_run_1785308051174_3wf52t"
+        }
+      ]
+    },
+    {
       "id": "cmp_set_1784871247627_81eq1w",
       "username": "user_demo",
       "name": "AI Model Comparison",

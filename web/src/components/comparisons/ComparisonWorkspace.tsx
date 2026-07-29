@@ -4,6 +4,7 @@ import {
   Crown,
   Download,
   Maximize2,
+  Minimize2,
   Minus,
   Move,
   Plus,
@@ -77,6 +78,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   );
   const [pageStart, setPageStart] = useState(0);
   const [syncView, setSyncView] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [sharedTransform, setSharedTransform] = useState<ViewTransform>(DEFAULT_TRANSFORM);
   const [slotTransforms, setSlotTransforms] = useState<Record<string, ViewTransform>>({});
   const maximumPageStart = Math.max(0, availableSlots.length - PAGE_SIZE);
@@ -129,6 +131,14 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
     workspace.addEventListener('wheel', handleWheel, { passive: false });
     return () => workspace.removeEventListener('wheel', handleWheel);
   }, [syncView]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === workspaceRef.current);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   if (!availableSlots.length) {
     return (
@@ -217,7 +227,11 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
     }
   }
 
-  async function fullscreen() {
+  async function toggleFullscreen() {
+    if (document.fullscreenElement === workspaceRef.current) {
+      await document.exitFullscreen?.();
+      return;
+    }
     if (!workspaceRef.current?.requestFullscreen) return;
     await workspaceRef.current.requestFullscreen();
   }
@@ -284,10 +298,17 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
         <Button
           variant="ghost"
           size="sm"
-          icon={<Maximize2 className="size-4" />}
-          onClick={() => void fullscreen()}
+          title={isFullscreen
+            ? t('comparisons.viewer.exitFullscreen')
+            : t('comparisons.viewer.fullscreen')}
+          icon={isFullscreen
+            ? <Minimize2 className="size-4" />
+            : <Maximize2 className="size-4" />}
+          onClick={() => void toggleFullscreen()}
         >
-          {t('comparisons.viewer.fullscreen')}
+          {isFullscreen
+            ? t('comparisons.viewer.exitFullscreen')
+            : t('comparisons.viewer.fullscreen')}
         </Button>
       </div>
 

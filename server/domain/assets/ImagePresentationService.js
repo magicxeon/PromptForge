@@ -1,5 +1,7 @@
 import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
+import path from 'path';
+import { OUTPUTS_DIR } from '../../config/paths.js';
 
 export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
   'template-card-person-focus': Object.freeze({
@@ -10,17 +12,39 @@ export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
     positionStrategy: 'attention',
     format: 'webp',
     quality: 86
-  })
+  }),
+  'comparison-card-1-person-focus': comparisonProfile(
+    'comparison-card-1-person-focus',
+    864,
+    648
+  ),
+  'comparison-card-2-person-focus': comparisonProfile(
+    'comparison-card-2-person-focus',
+    432,
+    648
+  ),
+  'comparison-card-3-person-focus': comparisonProfile(
+    'comparison-card-3-person-focus',
+    288,
+    648
+  ),
+  'comparison-card-4-person-focus': comparisonProfile(
+    'comparison-card-4-person-focus',
+    432,
+    324
+  )
 });
 
 export class ImagePresentationService {
   constructor({
     sharpLoader = () => import('sharp').then(module => module.default),
     statLoader = filePath => fs.stat(filePath),
+    outputsDirectory = OUTPUTS_DIR,
     maxCacheEntries = 96
   } = {}) {
     this.sharpLoader = sharpLoader;
     this.statLoader = statLoader;
+    this.outputsDirectory = outputsDirectory;
     this.maxCacheEntries = maxCacheEntries;
     this.sharpPromise = null;
     this.cache = new Map();
@@ -77,6 +101,10 @@ export class ImagePresentationService {
     return result;
   }
 
+  renderOutputUrl(outputUrl, profileId) {
+    return this.renderFile(resolveOutputFile(outputUrl, this.outputsDirectory), profileId);
+  }
+
   async getSharp() {
     this.sharpPromise ||= this.sharpLoader();
     return this.sharpPromise;
@@ -98,6 +126,42 @@ export function resolveImagePresentationProfile(profileId) {
     throw error;
   }
   return profile;
+}
+
+function comparisonProfile(id, width, height) {
+  return Object.freeze({
+    id,
+    width,
+    height,
+    fit: 'cover',
+    positionStrategy: 'attention',
+    format: 'webp',
+    quality: 86
+  });
+}
+
+function resolveOutputFile(outputUrl, outputsDirectory) {
+  if (typeof outputUrl !== 'string' || !outputUrl.startsWith('/outputs/')) {
+    const error = new Error('Image presentation source is unavailable.');
+    error.code = 'image_presentation_source_not_found';
+    error.statusCode = 404;
+    throw error;
+  }
+  const candidate = outputUrl.slice('/outputs/'.length).replaceAll('/', path.sep);
+  const resolved = path.resolve(outputsDirectory, candidate);
+  const relative = path.relative(outputsDirectory, resolved);
+  if (
+    !candidate
+    || !relative
+    || relative.startsWith(`..${path.sep}`)
+    || path.isAbsolute(relative)
+  ) {
+    const error = new Error('Image presentation source is unavailable.');
+    error.code = 'image_presentation_source_not_found';
+    error.statusCode = 404;
+    throw error;
+  }
+  return resolved;
 }
 
 export const imagePresentationService = new ImagePresentationService();

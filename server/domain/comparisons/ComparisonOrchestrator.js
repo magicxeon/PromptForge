@@ -126,7 +126,19 @@ export class ComparisonOrchestrator {
           estimateId: slot.estimateId,
           requestId: `${idempotencyKey}:${slot.id}`
         }));
-        enqueuedSlots.push({ slotId: slot.id, jobId, reservationId: reservationResult.reservation.reservationId, providerStreaming: stream });
+        const enqueuedSlot = {
+          slotId: slot.id,
+          jobId,
+          reservationId: reservationResult.reservation.reservationId,
+          providerStreaming: stream
+        };
+        enqueuedSlots.push(enqueuedSlot);
+        await this.repository.updateRun(setId, runId, targetRun => {
+          const targetSlot = targetRun.slots.find(item => item.id === slot.id);
+          if (!targetSlot) return;
+          targetSlot.jobId ||= jobId;
+          targetSlot.reservationId ||= reservationResult.reservation.reservationId;
+        });
       }
       const run = await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.slots.forEach(slot => {
@@ -171,11 +183,27 @@ export class ComparisonOrchestrator {
         })
         .map(item => [item.id, item])
     );
+    const historyByComparisonSlot = new Map(
+      history
+        .filter(item => {
+          if (item.ownerUserId && actor.userId && item.ownerUserId !== actor.userId) return false;
+          if (!item.ownerUserId && (item.ownerUsername || item.username) !== actor.username) return false;
+          return item.comparisonSetId === set.id
+            && item.comparisonRunId
+            && item.comparisonSlotId;
+        })
+        .map(item => [
+          comparisonSlotKey(item.comparisonRunId, item.comparisonSlotId),
+          item
+        ])
+    );
     const hydrated = structuredClone(set);
     hydrated.runs?.forEach(run => {
       run.slots?.forEach(slot => {
-        const historyItem = historyById.get(slot.jobId);
+        const historyItem = historyById.get(slot.jobId)
+          || historyByComparisonSlot.get(comparisonSlotKey(run.id, slot.id));
         if (!historyItem) return;
+        slot.jobId ||= historyItem.id;
         slot.result = {
           ...(slot.result || {}),
           imageUrl: slot.result?.imageUrl || historyItem.imageUrl || null,
@@ -214,12 +242,23 @@ export class ComparisonOrchestrator {
   }
 
   async reconcileRun(setId, run) {
+    const history = await this.repository.readHistory();
+    const historyByComparisonSlot = new Map(
+      history
+        .filter(item =>
+          item.comparisonSetId === setId
+          && item.comparisonRunId === run.id
+          && item.comparisonSlotId
+        )
+        .map(item => [comparisonSlotKey(item.comparisonRunId, item.comparisonSlotId), item])
+    );
     const statuses = await Promise.all(run.slots.map(slot =>
       slot.jobId ? this.queueManager.getJobStatus(slot.jobId) : null
     ));
     const lostSlots = run.slots.filter((slot, index) =>
       slot.jobId
       && !statuses[index]
+      && !historyByComparisonSlot.has(comparisonSlotKey(run.id, slot.id))
       && (
         ['queued', 'processing', 'streaming'].includes(slot.status)
         || slot.error?.code === 'job_state_lost'
@@ -239,10 +278,25 @@ export class ComparisonOrchestrator {
     await this.repository.updateRun(setId, run.id, targetRun => {
       targetRun.slots.forEach((slot, index) => {
         const status = statuses[index];
+        const historyItem = historyByComparisonSlot.get(comparisonSlotKey(targetRun.id, slot.id));
         if (status) {
           slot.status = status.status;
           slot.result = status.result || slot.result;
           slot.error = status.error || null;
+        } else if (historyItem?.imageUrl) {
+          slot.jobId ||= historyItem.id;
+          slot.status = 'completed';
+          slot.result = {
+            ...(slot.result || {}),
+            imageUrl: slot.result?.imageUrl || historyItem.imageUrl,
+            usage: slot.result?.usage || historyItem.usage || null,
+            mimeType: slot.result?.mimeType || historyItem.mimeType || null,
+            generationDuration: slot.result?.generationDuration
+              || historyItem.generationDuration
+              || null
+          };
+          slot.thumbnailUrl ||= historyItem.thumbnailUrl || null;
+          slot.error = null;
         } else if (slot.jobId && ['queued', 'processing', 'streaming'].includes(slot.status)) {
           slot.status = 'failed';
           slot.error = {
@@ -338,4 +392,8 @@ function createConfigurationSnapshot(context) {
     customColors: structuredClone(context.customColors || {}),
     isGptSafe: context.isGptSafe === true
   };
+}
+
+function comparisonSlotKey(runId, slotId) {
+  return `${String(runId || '')}:${String(slotId || '')}`;
 }

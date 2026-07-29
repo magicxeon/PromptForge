@@ -1,7 +1,14 @@
-import { ChevronDown, ChevronUp, Image as ImageIcon, Palette } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  Image as ImageIcon,
+  Palette,
+  SlidersHorizontal
+} from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
+import { GenerationCommandRegion } from './GenerationCommandRegion';
 
 type StudioGenerationWorkspaceProps = {
   modeSelector: ReactNode;
@@ -15,6 +22,8 @@ type StudioGenerationWorkspaceProps = {
   actions: ReactNode;
   messages?: ReactNode;
   focusResultSignal?: number;
+  showRenderPromptHeading?: boolean;
+  comparisonActive?: boolean;
 };
 
 export function StudioGenerationWorkspace({
@@ -28,11 +37,14 @@ export function StudioGenerationWorkspace({
   configActions,
   actions,
   messages,
-  focusResultSignal = 0
+  focusResultSignal = 0,
+  showRenderPromptHeading = true,
+  comparisonActive = false
 }: StudioGenerationWorkspaceProps) {
   const { t } = useTranslation('react-ui');
   const [viewportCollapsed, setViewportCollapsed] = useState(false);
   const viewportRef = useRef<HTMLElement | null>(null);
+  const configuratorRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (focusResultSignal > 0) setViewportCollapsed(false);
@@ -61,29 +73,50 @@ export function StudioGenerationWorkspace({
               <p>{t('ui.studio.viewportDescription')}</p>
             </div>
           </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={viewportCollapsed
-              ? <ChevronDown aria-hidden="true" />
-              : <ChevronUp aria-hidden="true" />}
-            aria-expanded={!viewportCollapsed}
-            aria-controls="studio-viewport-content"
-            onClick={() => setViewportCollapsed(current => !current)}
-          >
-            {viewportCollapsed
-              ? t('ui.studio.expandViewport')
-              : t('ui.studio.collapseViewport')}
-          </Button>
+          <div className="studio-panel-heading__actions">
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={<SlidersHorizontal aria-hidden="true" />}
+              onClick={() => configuratorRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              })}
+            >
+              {t('ui.studio.backToConfigurator')}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={viewportCollapsed
+                ? <ChevronDown aria-hidden="true" />
+                : <ChevronUp aria-hidden="true" />}
+              aria-expanded={!viewportCollapsed}
+              aria-controls="studio-viewport-content"
+              onClick={() => setViewportCollapsed(current => !current)}
+            >
+              {viewportCollapsed
+                ? t('ui.studio.expandViewport')
+                : t('ui.studio.collapseViewport')}
+            </Button>
+          </div>
         </header>
 
-        <div id="studio-viewport-content" className="studio-viewport-grid" hidden={viewportCollapsed}>
+        <div
+          id="studio-viewport-content"
+          className={`studio-viewport-grid${comparisonActive ? ' is-comparison' : ''}`}
+          hidden={viewportCollapsed}
+        >
           <div className="studio-active-render">{result}</div>
           <aside className="studio-queue-column">{queue}</aside>
         </div>
       </section>
 
-      <section className="studio-configurator-panel" aria-labelledby="studio-configurator-title">
+      <section
+        ref={configuratorRef}
+        className="studio-configurator-panel"
+        aria-labelledby="studio-configurator-title"
+      >
         <header className="studio-panel-heading">
           <div className="studio-panel-heading__title">
             <Palette aria-hidden="true" />
@@ -110,15 +143,12 @@ export function StudioGenerationWorkspace({
               {references}
               {prompt}
             </div>
-            <div className="studio-generation-command-region">
-              <header className="studio-step-heading studio-step-heading--render">
-                <span>{t('ui.studio.stepLabel')} 3</span>
-                <h2>{t('ui.studio.renderPrompt')}</h2>
-              </header>
-              {configActions}
-              {actions}
-              {messages}
-            </div>
+            <GenerationCommandRegion
+              showPromptHeading={showRenderPromptHeading}
+              configActions={configActions}
+              actions={actions}
+              messages={messages}
+            />
           </section>
         </div>
       </section>

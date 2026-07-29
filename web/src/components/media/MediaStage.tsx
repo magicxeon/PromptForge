@@ -2,6 +2,10 @@ import { Images } from 'lucide-react';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { cn } from '../../lib/utils/cn';
 import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
+import {
+  ComparisonThumbnailGrid,
+  comparisonThumbnailProfileId
+} from '../comparisons/ComparisonThumbnailGrid';
 
 export function MediaStage({
   post,
@@ -16,6 +20,31 @@ export function MediaStage({
   fit?: 'contain' | 'cover';
   source?: 'preview' | 'original';
 }) {
+  if (post.postType === 'comparison') {
+    const slots = post.comparisonSnapshot?.slots
+      .filter(slot =>
+        slot.status === 'completed'
+        && Boolean(slot.thumbnailUrl || slot.imageUrl)
+      )
+      .slice(0, 4) || [];
+    const profileId = comparisonThumbnailProfileId(slots.length);
+    return (
+      <ComparisonThumbnailGrid
+        className={className}
+        eager={eager}
+        items={slots.map(slot => ({
+          id: slot.slotId,
+          imageUrl: slot.imageUrl,
+          thumbnailUrl: slot.thumbnailUrl,
+          presentationUrl:
+            `/api/community/posts/${encodeURIComponent(post.id)}`
+            + `/comparison-slots/${encodeURIComponent(slot.slotId)}`
+            + `/presentations/${profileId}`
+        }))}
+      />
+    );
+  }
+
   const images = getPostImages(post, source);
 
   if (!images.length) {
@@ -26,7 +55,7 @@ export function MediaStage({
     );
   }
 
-  if (post.postType === 'comparison' || post.postType === 'collection') {
+  if (post.postType === 'collection') {
     return (
       <div className={cn('grid aspect-[4/3] grid-cols-2 gap-1 overflow-hidden bg-black', className)}>
         {images.slice(0, 4).map((image, index) => (
@@ -55,12 +84,6 @@ export function MediaStage({
 }
 
 function getPostImages(post: CommunityPost, source: 'preview' | 'original') {
-  if (post.postType === 'comparison') {
-    return post.comparisonSnapshot?.slots
-      .filter(slot => slot.status === 'completed')
-      .map(slot => selectMediaSource(slot, source))
-      .filter((image): image is string => Boolean(image)) || [];
-  }
   if (post.postType === 'collection') {
     return post.collectionSnapshot?.items
       .map(item => selectMediaSource(item, source))

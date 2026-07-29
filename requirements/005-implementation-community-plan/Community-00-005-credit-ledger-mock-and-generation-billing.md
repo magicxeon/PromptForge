@@ -3,7 +3,7 @@
 **Status:** Complete - Mock JSON phase validated 2026-07-26
 **Feature type:** Credit foundation for real AI generation  
 **Business source of truth:** `requirements/000-business-overview/03-ai-provider-costs-and-credits.md`  
-**Architecture source of truth:** `requirements/007-technical-dept/000-master.md`  
+**Architecture source of truth:** `requirements/099-technical-dept/000-master.md`
 **Depends on:** Mock Actor Context, provider registry, generation queue, repository contracts  
 **Created:** 2026-07-19  
 **Revised:** 2026-07-23
@@ -1085,6 +1085,41 @@ estimate expired
 technical failure refund
 ```
 
+### 11.4 Credit Exhaustion Dialog and Queue Gate
+
+- Generate remains actionable when a valid estimate exists but the current
+  actor cannot afford it; activating the command opens a focused credit dialog
+  rather than silently disabling the workflow.
+- The dialog displays current available credits and the server-estimated amount
+  required for the selected normal or Comparison generation.
+- Mock actors may grant 100 credits through the existing
+  `POST /api/credits/mock-grants` endpoint. The dialog must not introduce a
+  second recharge endpoint or mutate browser-only balances.
+- A successful mock grant refreshes the shared actor-scoped account cache,
+  ledger, header balance, and generation estimates. Generation does not
+  auto-submit after a grant; the user reviews and presses Generate again.
+- Non-mock actors are directed to the Credits route. Real payment remains out of
+  scope for this phase.
+- The generation queue is projected only after the server returns a job or
+  Comparison set identifier. An insufficient-credit attempt is not a queued
+  generation and must not render queue progress.
+
+Owning files:
+
+```text
+web/src/features/credits/components/CreditExhaustedDialog.tsx
+  reusable controlled credit-shortfall dialog
+
+web/src/components/generation/GenerationExperience.tsx
+  estimate/account gate, mock grant mutation, and server-admission boundary
+
+web/src/components/generation/GenerationQueueStatus.tsx
+  renders only accepted queue work
+
+web/src/features/credits/api/creditApi.ts
+  canonical account and mock-grant API calls
+```
+
 ---
 
 ## 12. File-Level Implementation Plan
@@ -1167,6 +1202,8 @@ test/creditReservationService.test.js
 test/creditGenerationBilling.test.js
 test/creditComparisonBilling.test.js
 test/creditLegacyMigration.test.js
+web/src/features/credits/components/CreditExhaustedDialog.test.tsx
+web/src/components/generation/GenerationQueueStatus.test.tsx
 ```
 
 Required cases:
@@ -1197,6 +1234,9 @@ Required cases:
 | TC-005-016 | Enqueue fails after reserve | Immediate refund |
 | TC-005-017 | Legacy credit file migration | Balance/history preserved, migration runs once |
 | TC-005-018 | Active user switch | Client reloads correct balance and estimate |
+| TC-005-019 | Insufficient normal generation | Dialog opens and no queue projection is created |
+| TC-005-020 | Insufficient Comparison generation | Dialog shows aggregate requirement and no slot rows are created |
+| TC-005-021 | Mock grant from dialog | Shared account cache refreshes and dialog closes without auto-generating |
 
 Concurrency test:
 
@@ -1213,6 +1253,10 @@ UI smoke test:
 5. Generate and confirm available/reserved balances transition.
 6. Simulate a technical failure and confirm refund state.
 7. Run a comparison and confirm total plus per-slot settlement.
+8. Reduce the active mock actor below the estimate, press Generate, and confirm
+   the credit dialog opens without a queue card.
+9. Add 100 mock credits from the dialog, confirm the header/account balance
+   refreshes, and press Generate again explicitly.
 
 ---
 
@@ -1260,7 +1304,7 @@ Gemini Antigravity must follow this execution protocol.
 ### 15.1 Before Editing
 
 1. Read this entire requirement.
-2. Read `requirements/007-technical-dept/000-master.md`.
+2. Read `requirements/099-technical-dept/000-master.md`.
 3. Inspect all existing files listed in Section 8.1.
 4. Inspect `server/config/providers.json` and use its exact provider/model IDs.
 5. Inspect `git status` and preserve unrelated user changes.

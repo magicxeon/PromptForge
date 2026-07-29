@@ -3,11 +3,13 @@
 @import "./shell.css";
 @import "./community-home.css";
 @import "./community-detail.css";
+@import "./generation.css";
 @import "./studio.css";
 @import "./comparisons.css";
 @import "./media-viewer.css";
 @import "./media-carousel.css";
 @import "./references.css";
+@import "./playground.css";
 
 * {
   box-sizing: border-box;

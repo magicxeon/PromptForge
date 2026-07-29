@@ -337,6 +337,8 @@ export function createQueueOptions(context, {
       }
       : null,
     mode: context.mode,
+    generationMode: context.generationMode || null,
+    generationSurface: context.generationSurface || null,
     template: context.template,
     isGptSafe: context.isGptSafe,
     username,

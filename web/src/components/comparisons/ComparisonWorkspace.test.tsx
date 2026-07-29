@@ -1,7 +1,7 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { comparisonRunSchema } from '../../features/comparisons/schemas/comparisonSchemas';
 import { ComparisonWorkspace } from './ComparisonWorkspace';
 
@@ -22,6 +22,7 @@ describe('ComparisonWorkspace', () => {
               fit: 'Fit',
               reset: 'Reset',
               fullscreen: 'Fullscreen',
+              exitFullscreen: 'Exit fullscreen',
               previous: 'Previous',
               next: 'Next',
               download: 'Download',
@@ -75,5 +76,54 @@ describe('ComparisonWorkspace', () => {
     await waitFor(() => {
       expect(image?.style.transform).toContain('scale(1.15)');
     });
+  });
+
+  it('toggles fullscreen through the same toolbar control', async () => {
+    const run = comparisonRunSchema.parse({
+      id: 'run_fullscreen',
+      status: 'completed',
+      createdAt: Date.now(),
+      slots: [{
+        id: 'slot_1',
+        provider: 'gemini',
+        model: 'model_a',
+        status: 'completed',
+        result: { imageUrl: '/outputs/result.png' }
+      }]
+    });
+    let fullscreenElement: Element | null = null;
+    Object.defineProperty(document, 'fullscreenElement', {
+      configurable: true,
+      get: () => fullscreenElement
+    });
+    const requestFullscreen = vi.fn(async function (this: Element) {
+      fullscreenElement = this;
+      document.dispatchEvent(new Event('fullscreenchange'));
+    });
+    const exitFullscreen = vi.fn(async () => {
+      fullscreenElement = null;
+      document.dispatchEvent(new Event('fullscreenchange'));
+    });
+    Object.defineProperty(HTMLElement.prototype, 'requestFullscreen', {
+      configurable: true,
+      value: requestFullscreen
+    });
+    Object.defineProperty(document, 'exitFullscreen', {
+      configurable: true,
+      value: exitFullscreen
+    });
+
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <ComparisonWorkspace mode="generation" run={run} />
+      </I18nextProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fullscreen' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Exit fullscreen' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: 'Exit fullscreen' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Fullscreen' })).toBeVisible());
+    expect(requestFullscreen).toHaveBeenCalledTimes(1);
+    expect(exitFullscreen).toHaveBeenCalledTimes(1);
   });
 });

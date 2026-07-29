@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowUp, Coins, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
@@ -26,14 +25,39 @@ import {
   type GenerationRequestDraft
 } from '../../features/generation/api/generationApi';
 import { useGenerationJob } from '../../features/generation/hooks/useGenerationJob';
-import { getComparison } from '../../features/comparisons/api/comparisonApi';
+import {
+  getComparison,
+  updateComparison
+} from '../../features/comparisons/api/comparisonApi';
+import {
+  comparisonNeedsPolling,
+  comparisonRunStatus,
+  newestComparisonRun
+} from '../../features/comparisons/comparisonRunState';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { emitTelemetry } from '../../lib/telemetry/telemetry';
 import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
 import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
 import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
+import { PlaygroundGenerationWorkspace } from './PlaygroundGenerationWorkspace';
 import { GenerationReferenceActions } from './GenerationReferenceActions';
 import type { StudioCustomColors } from '../../features/studio/attributes/customColorModel';
+import { PlaygroundRecentGenerations } from '../../features/playground/components/PlaygroundRecentGenerations';
+import {
+  GenerationQueueStatus,
+  type GenerationProcessQueueItem
+} from './GenerationQueueStatus';
+import {
+  readComparisonGenerationPreferences,
+  writeComparisonGenerationPreferences
+} from '../../features/comparisons/comparisonGenerationPreferences';
+import {
+  getCreditAccount,
+  grantMockCredits
+} from '../../features/credits/api/creditApi';
+import { CreditExhaustedDialog } from '../../features/credits/components/CreditExhaustedDialog';
+import { queryKeys } from '../../lib/api/queryKeys';
+import { ApiError } from '../../lib/api/apiError';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -57,7 +81,9 @@ type GenerationExperienceProps = {
   onCompleted?: (jobId: string) => void;
   blockedReason?: string | null;
   showEngine?: boolean;
-  layoutVariant?: 'stacked' | 'studio';
+  layoutVariant?: 'stacked' | 'studio' | 'playground';
+  recentExpanded?: boolean;
+  onRecentExpandedChange?: (expanded: boolean) => void;
   referenceRoles?: GenerationReferenceRole[];
   renderResultActions?: (job: JobStatus) => ReactNode;
   studioBuilder?: ReactNode;
@@ -89,6 +115,8 @@ export function GenerationExperience({
   blockedReason = null,
   showEngine = true,
   layoutVariant = 'stacked',
+  recentExpanded = true,
+  onRecentExpandedChange = () => {},
   referenceRoles,
   renderResultActions,
   studioBuilder,
@@ -97,8 +125,8 @@ export function GenerationExperience({
   studioConfigActions
 }: GenerationExperienceProps) {
   const queryClient = useQueryClient();
-  const { actor } = useActor();
-  const { t } = useTranslation('playground');
+  const { actor, mockSwitcherEnabled } = useActor();
+  const { t, i18n } = useTranslation('playground');
   const promptRef = useRef<HTMLElement | null>(null);
   const resultRef = useRef<HTMLElement | null>(null);
   const initialPromptRef = useRef(initialPrompt);
@@ -119,16 +147,33 @@ export function GenerationExperience({
   const [engine, setEngine] = useState<EngineValue>({ provider: '', model: '', resolution: null, aspectRatio: '6:8' });
   const [comparison, setComparison] = useState(false);
   const [comparisonSlots, setComparisonSlots] = useState<ComparisonSlotInput[]>([]);
+  const [comparisonJobBindings, setComparisonJobBindings] = useState<Array<{
+    slotId: string;
+    jobId?: string | null;
+  }>>([]);
   const [jobId, setJobId] = useState<string | null>(null);
   const [comparisonSetId, setComparisonSetId] = useState<string | null>(null);
   const [resultFocusSequence, setResultFocusSequence] = useState(0);
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
+  const [comparisonPreferencesActorId, setComparisonPreferencesActorId] = useState<string | null>(null);
+  const [creditDialogOpen, setCreditDialogOpen] = useState(false);
   const completedJobRef = useRef<string | null>(null);
+  const actorId = actor?.userId || 'loading';
 
   const catalog = useQuery({ queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000 });
+  const creditAccount = useQuery({
+    queryKey: queryKeys.credits(actorId),
+    queryFn: getCreditAccount,
+    enabled: Boolean(actor),
+    staleTime: 15_000
+  });
   useEffect(() => {
     setJobId(null);
     setComparisonSetId(null);
+    setComparison(false);
+    setComparisonSlots([]);
+    setComparisonPreferencesActorId(null);
+    setCreditDialogOpen(false);
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
@@ -145,8 +190,36 @@ export function GenerationExperience({
       resolution: model?.capabilities.resolutions?.[0] || model?.defaults?.resolution || null,
       aspectRatio: model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'
     });
-    setComparisonSlots(createDefaultComparisonSlots(catalog.data));
   }, [catalog.data, engine.provider]);
+
+  useEffect(() => {
+    if (!actor || !catalog.data || comparisonPreferencesActorId === actor.userId) return;
+    const fallbackSlots = createDefaultComparisonSlots(catalog.data);
+    const preference = readComparisonGenerationPreferences(
+      actor.userId,
+      catalog.data,
+      fallbackSlots
+    );
+    setComparison(allowComparison && preference.active);
+    setComparisonSlots(preference.slots);
+    setComparisonPreferencesActorId(actor.userId);
+  }, [actor, allowComparison, catalog.data, comparisonPreferencesActorId]);
+
+  useEffect(() => {
+    if (!actor || comparisonPreferencesActorId !== actor.userId || comparisonSlots.length < 2) {
+      return;
+    }
+    writeComparisonGenerationPreferences(actor.userId, {
+      active: allowComparison && comparison,
+      slots: comparisonSlots
+    });
+  }, [
+    actor,
+    allowComparison,
+    comparison,
+    comparisonPreferencesActorId,
+    comparisonSlots
+  ]);
 
   const draft = useMemo<GenerationRequestDraft>(() => ({
     provider: engine.provider,
@@ -196,6 +269,11 @@ export function GenerationExperience({
       const estimate = singleEstimate.data || await estimateGeneration(draft);
       return submitGeneration(draft, estimate.estimate.estimateId);
     },
+    onMutate: () => {
+      setJobId(null);
+      setComparisonSetId(null);
+      setComparisonJobBindings([]);
+    },
     onSuccess: response => {
       setComparisonSetId(null);
       setJobId(response.jobId);
@@ -207,22 +285,31 @@ export function GenerationExperience({
         status: response.status
       });
     },
-    onError: error => emitTelemetry('generation_transition', {
-      actorId: actor?.userId,
-      mode: generationMode,
-      surface,
-      status: 'enqueue_failed',
-      errorCode: 'code' in error ? String(error.code) : null
-    })
+    onError: error => {
+      emitTelemetry('generation_transition', {
+        actorId: actor?.userId,
+        mode: generationMode,
+        surface,
+        status: 'enqueue_failed',
+        errorCode: 'code' in error ? String(error.code) : null
+      });
+      if (isInsufficientCreditError(error)) setCreditDialogOpen(true);
+    }
   });
   const submitCompare = useMutation({
     mutationFn: async () => {
       const estimate = comparisonEstimate.data || await estimateComparison(draft, comparisonSlots);
       return submitComparison(draft, comparisonSlots, estimate);
     },
+    onMutate: () => {
+      setJobId(null);
+      setComparisonSetId(null);
+      setComparisonJobBindings([]);
+    },
     onSuccess: response => {
       setJobId(null);
       setComparisonSetId(response.setId);
+      setComparisonJobBindings(response.jobs);
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         comparisonSetId: response.setId,
@@ -231,13 +318,16 @@ export function GenerationExperience({
         status: response.status
       });
     },
-    onError: error => emitTelemetry('generation_transition', {
-      actorId: actor?.userId,
-      mode: generationMode,
-      surface,
-      status: 'comparison_enqueue_failed',
-      errorCode: 'code' in error ? String(error.code) : null
-    })
+    onError: error => {
+      emitTelemetry('generation_transition', {
+        actorId: actor?.userId,
+        mode: generationMode,
+        surface,
+        status: 'comparison_enqueue_failed',
+        errorCode: 'code' in error ? String(error.code) : null
+      });
+      if (isInsufficientCreditError(error)) setCreditDialogOpen(true);
+    }
   });
   const job = useGenerationJob(jobId);
   const comparisonResult = useQuery({
@@ -248,8 +338,34 @@ export function GenerationExperience({
     },
     enabled: Boolean(comparisonSetId && actor),
     refetchInterval: query => {
-      const status = query.state.data?.runs.at(-1)?.status;
-      return status && ['queued', 'processing', 'streaming'].includes(status) ? 1400 : false;
+      return comparisonNeedsPolling(comparisonSetId, query.state.data) ? 1400 : false;
+    }
+  });
+  const comparisonRun = newestComparisonRun(comparisonResult.data);
+  const derivedComparisonStatus = comparisonRunStatus(comparisonRun);
+  const renameComparison = useMutation({
+    mutationFn: (name: string) => {
+      if (!comparisonSetId) throw new Error('A comparison set ID is required.');
+      return updateComparison(comparisonSetId, { name });
+    },
+    onSuccess: updatedComparison => {
+      queryClient.setQueryData(
+        ['comparison', actor?.userId || 'loading', comparisonSetId],
+        updatedComparison
+      );
+      void queryClient.invalidateQueries({
+        queryKey: ['comparisons', actor?.userId || 'loading']
+      });
+    }
+  });
+  const grantCredits = useMutation({
+    mutationFn: () => grantMockCredits(100),
+    onSuccess: response => {
+      queryClient.setQueryData(queryKeys.credits(actorId), response);
+      void queryClient.invalidateQueries({ queryKey: ['credit-ledger', actorId] });
+      void queryClient.invalidateQueries({ queryKey: ['generation-estimate', actorId] });
+      void queryClient.invalidateQueries({ queryKey: ['comparison-estimate', actorId] });
+      setCreditDialogOpen(false);
     }
   });
   useEffect(() => {
@@ -277,14 +393,58 @@ export function GenerationExperience({
       status: job.data.status
     });
   }, [actor?.userId, generationMode, job.data?.status, jobId, surface]);
+  useEffect(() => {
+    if (
+      !comparisonSetId
+      || !derivedComparisonStatus
+      || !['completed', 'partially_completed', 'failed', 'cancelled']
+        .includes(derivedComparisonStatus)
+    ) {
+      return;
+    }
+    void queryClient.invalidateQueries({ queryKey: ['history'] });
+    void queryClient.invalidateQueries({ queryKey: ['credits'] });
+  }, [comparisonSetId, derivedComparisonStatus, queryClient]);
 
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
   const model = catalog.data.providers.find(item => item.id === engine.provider)?.models.find(item => item.id === engine.model);
   const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit : singleEstimate.data?.estimate.estimatedCredits;
-  const canAfford = comparison ? true : singleEstimate.data?.account.canAfford !== false;
-  const pending = submitSingle.isPending || submitCompare.isPending || Boolean(jobId && !['completed', 'succeeded', 'failed', 'cancelled'].includes(job.data?.status || '')) || Boolean(comparisonSetId && ['queued', 'processing', 'streaming'].includes(comparisonResult.data?.runs.at(-1)?.status || ''));
+  const availableCredits = comparison
+    ? creditAccount.data?.account.availableCredits
+    : singleEstimate.data?.account.availableCredits
+      ?? creditAccount.data?.account.availableCredits;
+  const canAfford = estimate === undefined
+    || availableCredits === undefined
+    || availableCredits >= estimate;
+  const pending = submitSingle.isPending
+    || submitCompare.isPending
+    || Boolean(jobId && !['completed', 'succeeded', 'failed', 'cancelled']
+      .includes(job.data?.status || ''))
+    || comparisonNeedsPolling(comparisonSetId, comparisonResult.data);
   const submitError = submitSingle.error || submitCompare.error;
+  const comparisonQueueItems: GenerationProcessQueueItem[] = comparison
+    && (
+      Boolean(comparisonSetId)
+      || Boolean(comparisonRun)
+    )
+    ? comparisonSlots.map(slot => {
+        const persistedSlot = comparisonRun?.slots.find(item => item.id === slot.id);
+        const binding = comparisonJobBindings.find(item => item.slotId === slot.id);
+        const provider = catalog.data.providers.find(item => item.id === slot.provider);
+        const providerModel = provider?.models.find(item => item.id === slot.model);
+        return {
+          slotId: slot.id,
+          providerLabel: localizedLabel(provider?.displayName, i18n.resolvedLanguage)
+            || slot.provider,
+          modelLabel: localizedLabel(providerModel?.displayName, i18n.resolvedLanguage)
+            || slot.model,
+          jobId: persistedSlot?.jobId || binding?.jobId || null,
+          status: persistedSlot?.status
+            || 'queued'
+        };
+      })
+    : [];
   const effectiveResultActions = (completedJob: JobStatus) => (
     <>
       {model?.capabilities.imageReferences && completedJob.result?.imageUrl ? (
@@ -308,9 +468,16 @@ export function GenerationExperience({
         pending={pending}
         onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
         renderActions={effectiveResultActions}
-        showEmpty={layoutVariant === 'studio'}
+        showEmpty={layoutVariant === 'studio' || layoutVariant === 'playground'}
         showGoToPrompt={layoutVariant !== 'studio'}
+        comparisonActive={comparison}
         canRevealPrompt={actor?.role === 'admin'}
+        onRenameComparison={comparisonSetId
+          && ['completed', 'partially_completed'].includes(derivedComparisonStatus || '')
+          ? name => renameComparison.mutateAsync(name)
+          : undefined}
+        comparisonRenamePending={renameComparison.isPending}
+        comparisonRenameError={renameComparison.error?.message || null}
         viewerContext={{
           prompt,
           provider: engine.provider,
@@ -331,7 +498,9 @@ export function GenerationExperience({
       />
     </div>
   );
-  const promptRegion = (
+  const hasVisiblePromptRegion = showPromptEditor
+    || (layoutVariant === 'studio' && actor?.role === 'admin');
+  const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
       {showPromptEditor ? (
         <PromptEditor
@@ -339,6 +508,7 @@ export function GenerationExperience({
           negativeValue={negativePrompt}
           onChange={setPrompt}
           onNegativeChange={setNegativePrompt}
+          variant={layoutVariant === 'playground' ? 'playground' : 'default'}
         />
       ) : layoutVariant === 'studio' && actor?.role === 'admin' ? (
         <Surface className="studio-prompt-preview">
@@ -357,14 +527,14 @@ export function GenerationExperience({
         </Surface>
       ) : null}
     </div>
-  );
+  ) : null;
   const referencesRegion = (
     <ReferenceSlotGrid
       value={references}
       roles={referenceRoles}
       supported={model?.capabilities.imageReferences === true}
       maxReferences={model?.capabilities.maxReferenceImages || 0}
-      compact={layoutVariant === 'studio'}
+      compact={layoutVariant === 'studio' || layoutVariant === 'playground'}
       onChange={setReferences}
     />
   );
@@ -377,7 +547,7 @@ export function GenerationExperience({
       comparisonEstimates={comparisonEstimate.data?.slots}
       comparisonEstimating={comparisonEstimate.isFetching}
       comparisonEstimateError={comparisonEstimate.error?.message || null}
-      studioLayout={layoutVariant === 'studio'}
+      studioLayout={layoutVariant === 'studio' || layoutVariant === 'playground'}
       allowComparison={allowComparison}
       onChange={setEngine}
       onComparisonChange={setComparison}
@@ -385,6 +555,10 @@ export function GenerationExperience({
     />
   ) : null;
   const submitGenerationRequest = () => {
+    if (estimate !== undefined && !canAfford) {
+      setCreditDialogOpen(true);
+      return;
+    }
     if (layoutVariant === 'studio') {
       setResultFocusSequence(current => current + 1);
     } else {
@@ -398,13 +572,15 @@ export function GenerationExperience({
     }
     submitSingle.mutate();
   };
-  const actionRegion = layoutVariant === 'studio' ? (
+  const usesStudioCommandPresentation = layoutVariant === 'studio'
+    || layoutVariant === 'playground';
+  const actionRegion = usesStudioCommandPresentation ? (
     <Surface className="studio-generation-action">
       <Button
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
         icon={<Sparkles className="size-5" />}
-        disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
+        disabled={!prompt.trim() || pending || Boolean(blockedReason)}
         onClick={submitGenerationRequest}
       >
         <span>{pending
@@ -433,7 +609,7 @@ export function GenerationExperience({
             variant="primary"
             size="lg"
             icon={<Sparkles className="size-5" />}
-            disabled={!prompt.trim() || pending || (estimate !== undefined && !canAfford) || Boolean(blockedReason)}
+            disabled={!prompt.trim() || pending || Boolean(blockedReason)}
             onClick={submitGenerationRequest}
           >
             {pending ? t('playground.result.generating') : comparison ? t('playground.action.generateComparison') : t('playground.action.generate')}
@@ -443,32 +619,40 @@ export function GenerationExperience({
   );
   const messages = (
     <>
-      {submitError ? <p role="alert" className="text-sm text-red-300">{submitError.message}</p> : null}
+      <CreditExhaustedDialog
+        open={creditDialogOpen}
+        requiredCredits={estimate}
+        availableCredits={availableCredits}
+        canGrantMockCredits={Boolean(actor?.isMockActor || mockSwitcherEnabled)}
+        grantPending={grantCredits.isPending}
+        grantError={grantCredits.error?.message || null}
+        onOpenChange={setCreditDialogOpen}
+        onGrantMockCredits={() => grantCredits.mutate()}
+      />
+      {submitError && !isInsufficientCreditError(submitError)
+        ? <p role="alert" className="text-sm text-red-300">{submitError.message}</p>
+        : null}
       {blockedReason ? <p role="alert" className="text-sm text-amber-300">{blockedReason}</p> : null}
       {job.isError ? <p role="alert" className="text-sm text-red-300">{job.error.message}</p> : null}
     </>
+  );
+  const queueStatusRegion = (
+    <GenerationQueueStatus
+      jobId={jobId}
+      jobStatus={job.data?.status}
+      comparisonSetId={comparisonSetId}
+      comparisonStatus={derivedComparisonStatus
+        || (comparisonSetId ? 'queued' : null)}
+      comparisonItems={comparisonQueueItems}
+      submitting={Boolean(jobId || comparisonSetId)
+        && (submitSingle.isPending || submitCompare.isPending)}
+    />
   );
 
   if (layoutVariant === 'studio') {
     const queueRegion = (
       <>
-        <Surface className="studio-job-context">
-          <header className="studio-job-context__heading">
-            <h2>{t('playground.queue.title')}</h2>
-            <Link to="/history">{t('playground.queue.viewAll')}</Link>
-          </header>
-          {jobId ? (
-            <div className="studio-job-context__row">
-              <span className="is-live" aria-hidden="true" />
-              <div>
-                <strong>{t('playground.queue.current')}</strong>
-                <small>{job.data?.status || t('playground.result.generating')}</small>
-              </div>
-            </div>
-          ) : (
-            <p>{t('playground.queue.empty')}</p>
-          )}
-        </Surface>
+        {queueStatusRegion}
         <StudioRecentGenerations limit={12} />
         {studioQueueExtra}
       </>
@@ -486,6 +670,27 @@ export function GenerationExperience({
         actions={actionRegion}
         messages={messages}
         focusResultSignal={resultFocusSequence}
+        showRenderPromptHeading={Boolean(promptRegion && prompt.trim())}
+        comparisonActive={comparison}
+      />
+    );
+  }
+
+  if (layoutVariant === 'playground') {
+    return (
+      <PlaygroundGenerationWorkspace
+        prompt={promptRegion}
+        result={resultRegion}
+        queue={queueStatusRegion}
+        recent={<PlaygroundRecentGenerations />}
+        engine={engineRegion}
+        references={referencesRegion}
+        actions={actionRegion}
+        messages={messages}
+        showRenderPromptHeading={Boolean(promptRegion && prompt.trim())}
+        recentExpanded={recentExpanded}
+        onRecentExpandedChange={onRecentExpandedChange}
+        comparisonActive={comparison}
       />
     );
   }
@@ -501,6 +706,14 @@ export function GenerationExperience({
       {messages}
     </div>
   );
+}
+
+function localizedLabel(
+  value: string | Record<string, string> | undefined,
+  language = 'en'
+) {
+  if (typeof value === 'string') return value;
+  return value?.[language] || value?.en || Object.values(value || {})[0] || '';
 }
 
 function createEstimateKey(draft: GenerationRequestDraft) {
@@ -532,4 +745,8 @@ function lineageRole(role: string): 'face' | 'character' | 'style' | 'outfit' | 
   if (role === 'style_reference' || role === 'pose_reference') return 'style';
   if (role === 'outfit_front' || role === 'outfit_back') return 'outfit';
   return undefined;
+}
+
+function isInsufficientCreditError(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.code === 'credit_insufficient';
 }

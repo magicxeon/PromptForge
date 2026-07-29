@@ -5,7 +5,8 @@ export function registerHistoryRoutes(app, {
   queueManager,
   collectionManager,
   comparisonOrchestrator,
-  resolveRequestUsername
+  resolveRequestUsername,
+  imagePresentationService
 }) {
   app.get('/api/history', async (req, res) => {
     try {
@@ -44,6 +45,32 @@ export function registerHistoryRoutes(app, {
     return res.json(item);
   });
 
+  app.get('/api/history/:id/presentations/:profileId', async (req, res) => {
+    try {
+      const item = await historyRepository.getById(req.params.id);
+      if (!item || !isHistoryOwnedByActor(item, req.actorContext)) {
+        return res.status(404).json({
+          error: {
+            code: 'history_entry_not_found',
+            message: 'History entry not found.'
+          }
+        });
+      }
+      const presentation = await imagePresentationService.renderOutputUrl(
+        item.thumbnailUrl || item.imageUrl,
+        req.params.profileId
+      );
+      return sendPresentation(req, res, presentation);
+    } catch (error) {
+      return res.status(error.statusCode || 404).json({
+        error: {
+          code: error.code || 'history_presentation_unavailable',
+          message: error.message || 'History presentation is unavailable.'
+        }
+      });
+    }
+  });
+
   app.delete('/api/history/:id', async (req, res) => {
     const username = resolveRequestUsername(req, { allowBody: false });
     const success = await queueManager.deleteHistoryEntryForUser(req.params.id, username);
@@ -53,4 +80,21 @@ export function registerHistoryRoutes(app, {
     await comparisonOrchestrator.removeHistoryJob(req.params.id);
     return res.json({ success: true });
   });
+}
+
+function isHistoryOwnedByActor(item, actor) {
+  if (item.ownerUserId && actor?.userId) return item.ownerUserId === actor.userId;
+  const username = item.ownerUsername || item.username || 'user_demo';
+  return Boolean(actor?.username && username === actor.username);
+}
+
+function sendPresentation(req, res, presentation) {
+  if (req.headers?.['if-none-match'] === presentation.etag) {
+    return res.status(304).end();
+  }
+  res.setHeader('Content-Type', presentation.contentType);
+  res.setHeader('Content-Length', String(presentation.contentLength));
+  res.setHeader('Cache-Control', 'private, max-age=3600');
+  res.setHeader('ETag', presentation.etag);
+  return res.send(presentation.buffer);
 }

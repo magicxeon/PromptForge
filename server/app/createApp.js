@@ -134,7 +134,10 @@ export function createApp() {
   registerFashionBlueprintRoutes(app, sharedDependencies);
   registerReferenceRoutes(app);
   registerReferenceHandoffRoutes(app, { faceReferenceHandoffService });
-  registerHistoryRoutes(app, sharedDependencies);
+  registerHistoryRoutes(app, {
+    ...sharedDependencies,
+    imagePresentationService
+  });
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app, { communityFeaturePolicyService });
   registerCommunityTaxonomyRoutes(app, {
@@ -177,7 +180,8 @@ export function createApp() {
   registerCommunityComparisonRoutes(app, {
     comparisonShareService: communityComparisonShareService,
     postAccessService: communityPostAccessService,
-    communityFeaturePolicyService
+    communityFeaturePolicyService,
+    imagePresentationService
   });
   registerCommunityCollectionRoutes(app, {
     collectionShareService: communityCollectionShareService,

@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ModelArkSeedreamProvider } from '../server/providers/ModelArkSeedreamProvider.js';
+import {
+  ModelArkSeedreamProvider,
+  resolveModelArkOutputSize
+} from '../server/providers/ModelArkSeedreamProvider.js';
 
 const modelConfig = {
   id: 'seedream-5-0-lite-260128',
@@ -62,7 +65,7 @@ test('ModelArk sends b64_json image generation request and normalizes output', a
 
     assert.equal(captured.url, 'https://ark.ap-southeast.bytepluses.com/api/v3/images/generations');
     assert.equal(captured.body.model, modelConfig.id);
-    assert.equal(captured.body.size, '2K');
+    assert.equal(captured.body.size, '2048x2048');
     assert.equal(captured.body.response_format, 'b64_json');
     assert.equal(captured.body.output_format, 'png');
     assert.equal(captured.body.watermark, false);
@@ -114,7 +117,7 @@ test('ModelArk omits output_format for Seedream 4 models', async () => {
     });
 
     assert.equal(captured.body.model, seedreamFourConfig.id);
-    assert.equal(captured.body.size, '2K');
+    assert.equal(captured.body.size, '2048x2048');
     assert.equal(captured.body.response_format, 'b64_json');
     assert.equal(Object.hasOwn(captured.body, 'output_format'), false);
     assert.equal(result.mimeType, 'image/jpeg');
@@ -122,6 +125,59 @@ test('ModelArk omits output_format for Seedream 4 models', async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('ModelArk resolves selected Seedream aspect ratio into explicit provider dimensions', () => {
+  assert.equal(resolveModelArkOutputSize({
+    model: seedreamFourConfig.id,
+    resolution: '2K',
+    aspectRatio: '6:8'
+  }), '1728x2304');
+  assert.equal(resolveModelArkOutputSize({
+    model: seedreamFourConfig.id,
+    resolution: '2K',
+    aspectRatio: '16:9'
+  }), '2848x1600');
+  assert.equal(resolveModelArkOutputSize({
+    model: modelConfig.id,
+    resolution: '3K',
+    aspectRatio: '4:5'
+  }), '2688x3360');
+});
+
+test('ModelArk sends an explicit portrait size for a 6:8 generation', async () => {
+  const originalFetch = globalThis.fetch;
+  let captured;
+  globalThis.fetch = async (url, options) => {
+    captured = { url, body: JSON.parse(options.body) };
+    return mockJsonResponse({
+      data: [{ b64_json: 'OUTPUT', size: '1728x2304' }]
+    });
+  };
+
+  try {
+    const provider = new ModelArkSeedreamProvider('secret', { defaultModel: seedreamFourConfig.id });
+    const result = await provider.generateImage('portrait fashion image', {
+      submodel: seedreamFourConfig.id,
+      modelConfig: seedreamFourConfig,
+      imageResolution: '2K',
+      aspectRatio: '6:8'
+    });
+
+    assert.equal(captured.body.size, '1728x2304');
+    assert.equal(result.providerMetadata.resolvedSize, '1728x2304');
+    assert.equal(result.providerMetadata.requestedAspectRatio, '6:8');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('ModelArk keeps resolution-level sizing only when aspect ratio is auto', () => {
+  assert.equal(resolveModelArkOutputSize({
+    model: modelConfig.id,
+    resolution: '2K',
+    aspectRatio: 'auto'
+  }), '2K');
 });
 
 test('ModelArk maps sensitive output failures into moderation_blocked', async () => {

@@ -221,7 +221,7 @@
   height: calc(100vh - var(--mpf-header-height) - 32px);
   overflow: hidden auto;
   border: 1px solid rgb(53 64 87 / 58%);
-  border-radius: 4px;
+  border-radius: 10px;
   background: rgb(7 10 18 / 96%);
 }
 

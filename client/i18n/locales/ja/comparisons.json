@@ -1,4 +1,5 @@
 {
+  "comparisons.viewer.exitFullscreen": "全画面を終了",
   "comparisons.kicker": "保存されたモデルテスト",
   "comparisons.title": "AI比較履歴",
   "comparisons.subtitle": "生成の詳細をすべて読み込むことなく、モデル比較を検索して再開できます。",

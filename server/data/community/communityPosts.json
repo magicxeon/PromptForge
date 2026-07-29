@@ -1,5 +1,178 @@
 [
   {
+    "title": "Movie Poster Comparison",
+    "description": "Simple test comparison",
+    "postType": "comparison",
+    "creatorProfileId": "creator_alice",
+    "sourceComparisonSetId": "cmp_set_1785326895180_4jkvr3",
+    "imageUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+    "thumbnailUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+    "promptVisibility": "full",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "comparison",
+      "publicPromptText": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh."
+    },
+    "workflowSnapshot": {
+      "comparison": {
+        "schemaVersion": 1,
+        "criteria": null,
+        "slots": [
+          {
+            "slotId": "slot_1785326865220_ra2hpt",
+            "position": 1,
+            "providerDisplayName": {
+              "en": "Google Gemini AI",
+              "th": "Google Gemini AI"
+            },
+            "modelDisplayName": {
+              "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+              "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+            "generationDuration": "8.0"
+          },
+          {
+            "slotId": "slot_1785326865220_19i163",
+            "position": 2,
+            "providerDisplayName": {
+              "en": "OpenAI",
+              "th": "OpenAI"
+            },
+            "modelDisplayName": {
+              "en": "GPT-Image 1 Mini (Cheapest)",
+              "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1785326895264_0knt18mnk.png",
+            "generationDuration": "48.7"
+          },
+          {
+            "slotId": "slot_1785326888716_fqmitl",
+            "position": 3,
+            "providerDisplayName": {
+              "en": "BytePlus ModelArk Seedream",
+              "th": "BytePlus ModelArk Seedream"
+            },
+            "modelDisplayName": {
+              "en": "Seedream 4.0 (Cheapest)",
+              "th": "Seedream 4.0 (ประหยัดที่สุด)"
+            },
+            "imageUrl": "/outputs/job_1785326895298_e5d4p34fu.jpg",
+            "generationDuration": "10.1"
+          }
+        ]
+      }
+    },
+    "comparisonSnapshot": {
+      "schemaVersion": 1,
+      "criteria": null,
+      "slots": [
+        {
+          "slotId": "slot_1785326865220_ra2hpt",
+          "position": 1,
+          "providerDisplayName": {
+            "en": "Google Gemini AI",
+            "th": "Google Gemini AI"
+          },
+          "modelDisplayName": {
+            "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+            "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+          "generationDuration": "8.0"
+        },
+        {
+          "slotId": "slot_1785326865220_19i163",
+          "position": 2,
+          "providerDisplayName": {
+            "en": "OpenAI",
+            "th": "OpenAI"
+          },
+          "modelDisplayName": {
+            "en": "GPT-Image 1 Mini (Cheapest)",
+            "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1785326895264_0knt18mnk.png",
+          "generationDuration": "48.7"
+        },
+        {
+          "slotId": "slot_1785326888716_fqmitl",
+          "position": 3,
+          "providerDisplayName": {
+            "en": "BytePlus ModelArk Seedream",
+            "th": "BytePlus ModelArk Seedream"
+          },
+          "modelDisplayName": {
+            "en": "Seedream 4.0 (Cheapest)",
+            "th": "Seedream 4.0 (ประหยัดที่สุด)"
+          },
+          "imageUrl": "/outputs/job_1785326895298_e5d4p34fu.jpg",
+          "generationDuration": "10.1"
+        }
+      ]
+    },
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.82,
+    "sourceGenerationResultId": null,
+    "sourceSceneTemplateSnapshotId": null,
+    "sceneTemplateSnapshot": null,
+    "providerModelSnapshot": null,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-29T12:38:25.437Z"
+    },
+    "id": "post_1785327054205_scyb6exr",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "status": "published",
+    "createdAt": "2026-07-29T12:10:54.204Z",
+    "updatedAt": "2026-07-29T12:38:25.437Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "Fashion 001",
     "description": "description sample usage",
     "promptVisibility": "full",

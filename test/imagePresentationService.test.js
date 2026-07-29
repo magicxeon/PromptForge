@@ -61,3 +61,57 @@ test('unknown presentation profiles fail closed', () => {
     error => error.code === 'image_presentation_profile_not_found' && error.statusCode === 404
   );
 });
+
+test('comparison card profiles match each count-aware tile geometry', () => {
+  const expected = {
+    'comparison-card-1-person-focus': [864, 648],
+    'comparison-card-2-person-focus': [432, 648],
+    'comparison-card-3-person-focus': [288, 648],
+    'comparison-card-4-person-focus': [432, 324]
+  };
+
+  for (const [profileId, [width, height]] of Object.entries(expected)) {
+    const profile = resolveImagePresentationProfile(profileId);
+    assert.equal(profile.width, width);
+    assert.equal(profile.height, height);
+    assert.equal(profile.fit, 'cover');
+    assert.equal(profile.positionStrategy, 'attention');
+    assert.equal(profile.format, 'webp');
+  }
+});
+
+test('output presentation sources stay inside the configured output directory', async () => {
+  const sources = [];
+  const sharp = filePath => {
+    sources.push(filePath);
+    const pipeline = {
+      rotate: () => pipeline,
+      resize: () => pipeline,
+      webp: () => pipeline,
+      toBuffer: async () => ({
+        data: Buffer.from('comparison-preview'),
+        info: { width: 432, height: 648 }
+      })
+    };
+    return pipeline;
+  };
+  sharp.strategy = { attention: 'sharp-attention' };
+  const service = new ImagePresentationService({
+    outputsDirectory: '/safe/outputs',
+    sharpLoader: async () => sharp,
+    statLoader: async () => ({ size: 100, mtimeMs: 1 })
+  });
+
+  await service.renderOutputUrl(
+    '/outputs/thumbnails/job_1.webp',
+    'comparison-card-2-person-focus'
+  );
+  assert.match(sources[0], /safe[\\/]outputs[\\/]thumbnails[\\/]job_1\.webp$/);
+  await assert.rejects(
+    async () => service.renderOutputUrl(
+      '/outputs/../private.png',
+      'comparison-card-2-person-focus'
+    ),
+    error => error.code === 'image_presentation_source_not_found'
+  );
+});

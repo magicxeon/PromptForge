@@ -10,6 +10,7 @@ import { thumbnailService } from './thumbnailService.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
+import { logGenerationDiagnostic } from './generationDiagnostics.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -34,6 +35,15 @@ function normalizeJobError(error) {
       : [],
     retryable: error.retryable === true
   };
+}
+
+function parseProviderDimensions(value) {
+  const match = typeof value === 'string'
+    ? value.match(/^(\d+)x(\d+)$/i)
+    : null;
+  return match
+    ? { width: Number(match[1]), height: Number(match[2]) }
+    : { width: null, height: null };
 }
 
 // Read local static output image and convert it back to base64
@@ -110,7 +120,7 @@ class QueueManager {
     this.jobs.set(jobId, job);
     this.queue.push(jobId);
     
-    console.log(`[Queue] Job ${jobId} enqueued. Queue length: ${this.queue.length}`);
+    logGenerationDiagnostic(job, 'enqueued', { queueLength: this.queue.length });
     this.processNext();
     
     return jobId;
@@ -150,7 +160,9 @@ class QueueManager {
         imageUrl: job.result.imageUrl,
         usage: job.result.usage,
         mimeType: job.result.mimeType,
-        generationDuration: job.result.generationDuration
+        generationDuration: job.result.generationDuration,
+        width: job.result.width || null,
+        height: job.result.height || null
       })}\n\n`);
       res.end();
       return true;
@@ -281,6 +293,7 @@ class QueueManager {
       job.options.resolvedOutfitReferenceImageFront = uniqueReferences.outfitFront;
       job.options.resolvedOutfitReferenceImageBack = uniqueReferences.outfitBack;
 
+      logGenerationDiagnostic(job, 'provider_dispatch');
       let result;
       if (job.options.stream) {
         result = await providerInstance.generateImageStream(job.prompt, job.options, (eventObj) => {
@@ -324,12 +337,17 @@ class QueueManager {
       job.creditCharged = true;
 
       // Only expose a completed output after its matching reservation is captured.
+      const providerDimensions = parseProviderDimensions(
+        result.providerMetadata?.responseSize
+      );
       job.status = 'completed';
       job.result = {
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
         mimeType,
-        generationDuration: durationSec
+        generationDuration: durationSec,
+        width: providerDimensions.width,
+        height: providerDimensions.height
       };
 
       // Persist parent lineage and duration metadata to history database
@@ -365,6 +383,8 @@ class QueueManager {
         providerConfigVersion: job.options.providerConfigVersion || null,
         creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         mimeType,
+        width: providerDimensions.width,
+        height: providerDimensions.height,
         usage: result.usage || null,
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
         referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
@@ -381,6 +401,8 @@ class QueueManager {
         console.warn(`[Queue] Thumbnail generation failed for ${jobId}:`, thumbnailError.message);
         historyEntry.thumbnailUrl = null;
       }
+      job.result.width = historyEntry.width || providerDimensions.width;
+      job.result.height = historyEntry.height || providerDimensions.height;
       await this.saveToHistory(historyEntry);
       await characterCastingExportService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
         console.warn(`[Queue] Character casting linkage failed for ${jobId}:`, error.message);
@@ -407,9 +429,19 @@ class QueueManager {
         sceneBuilder: job.options.sceneBuilder || null,
         sceneTemplateSnapshot: historyEntry.sceneTemplateSnapshot || null,
         generationDuration: durationSec,
+        width: historyEntry.width || null,
+        height: historyEntry.height || null,
         collectionWarning
       });
       this.emitLifecycle(job, 'completed', { result: job.result });
+      logGenerationDiagnostic(job, 'completed', {
+        resolvedProviderSize: result.providerMetadata?.resolvedSize
+          || result.providerMetadata?.responseSize
+          || null,
+        returnedWidth: historyEntry.width || providerDimensions.width,
+        returnedHeight: historyEntry.height || providerDimensions.height,
+        durationSeconds: durationSec
+      });
 
     } catch (err) {
       console.error(`[Queue] Job ${jobId} failed:`, err);
@@ -444,6 +476,9 @@ class QueueManager {
         creditRefunded: job.creditRefunded === true
       });
       this.emitLifecycle(job, 'failed', { error: job.error });
+      logGenerationDiagnostic(job, 'failed', {
+        errorCode: job.error.code || null
+      });
     } finally {
       // Close all SSE connections
       job.listeners.forEach(({ res, keepAliveTimer }) => {
@@ -536,7 +571,9 @@ class QueueManager {
         imageUrl: completed.imageUrl,
         usage: completed.usage || null,
         mimeType: completed.mimeType || null,
-        generationDuration: completed.generationDuration || null
+        generationDuration: completed.generationDuration || null,
+        width: completed.width || null,
+        height: completed.height || null
       },
       error: null,
       recoveredFromHistory: true
