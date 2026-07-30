@@ -103,6 +103,16 @@ describe('React generation contract', () => {
     }
   });
 
+  it('keeps Additional Direction separate from the guided prompt snapshot', () => {
+    const payload = generationPayload(draft({
+      authoringMode: 'guided',
+      additionalDirection: 'subtle natural asymmetry'
+    }));
+
+    expect(payload.additionalDirection).toBe('subtle natural asymmetry');
+    expect(payload.sceneBuilder.manualPromptText).toBe('');
+  });
+
   it('carries reusable and styled Character Reference outfit behavior', () => {
     expect(generationPayload(draft({
       generationMode: 'scene',

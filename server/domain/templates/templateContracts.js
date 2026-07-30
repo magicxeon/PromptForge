@@ -107,6 +107,7 @@ export function createPublicTemplateProjection(version) {
       : '',
     replaceableVariables: structuredClone(version.publicInputSchema?.inputs || [])
   };
+  delete projection.additionalDirectionSnapshot;
   if (version.promptVisibility === 'remix_only') {
     projection.structuredSelectionsSnapshot = redactLockedSelectionValues(
       snapshot.structuredSelectionsSnapshot,

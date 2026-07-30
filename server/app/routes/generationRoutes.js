@@ -35,6 +35,8 @@ export function registerGenerationRoutes(app, {
           ...req.body,
           sceneTemplateSnapshot: templateExecution.executionSnapshot,
           selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+          additionalDirection:
+            templateExecution.executionSnapshot.additionalDirectionSnapshot || '',
           sceneBuilder: {
             ...(req.body.sceneBuilder || {}),
             authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
@@ -164,7 +166,10 @@ export function registerGenerationRoutes(app, {
       if (error.toJSON) {
         res.status(error.statusCode || 400).json(error.toJSON());
       } else {
-        res.status(error.statusCode || 500).json({ error: error.message });
+        res.status(error.statusCode || 500).json({
+          error: error.message,
+          ...(error.code ? { code: error.code } : {})
+        });
       }
     }
   });

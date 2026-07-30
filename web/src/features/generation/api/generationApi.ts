@@ -26,6 +26,7 @@ export type GenerationRequestDraft = {
   submodel: string;
   prompt: string;
   negativePrompt?: string;
+  additionalDirection?: string;
   aspectRatio: string;
   imageResolution: string | null;
   outputCount: number;
@@ -156,6 +157,7 @@ export function generationPayload(
     template: 'portrait',
     selections: draft.selections || {},
     customColors: draft.customColors || {},
+    additionalDirection: draft.additionalDirection || '',
     imageReferences: {
       faceMatch: Boolean(refs.face_reference),
       characterReference: Boolean(refs.character_reference),

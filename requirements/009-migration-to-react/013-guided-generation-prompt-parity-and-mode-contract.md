@@ -143,6 +143,42 @@ subject to model capability and template slot policy. Final Guided compilation
 continues on the server. Manual mode submits user-owned prompt text plus the
 canonical reference-role directive.
 
+## 6.1 Additional Direction Contract
+
+All Guided Studio modes (`headshot`, `character-sheet`, and `scene`) provide one
+optional **Additional Direction** field after the structured attribute controls.
+It supports experienced creators who need a short private direction that is not
+represented by the visual cards or dropdown catalog.
+
+Rules:
+
+- maximum length is 300 Unicode characters after trimming;
+- the UI shows a live `current / 300` counter and does not accept additional
+  characters after the limit;
+- the field is actor-scoped and restored with the owning Studio or Scene draft;
+- Reset Form clears the field while Surprise Me does not modify it;
+- the value is submitted as `additionalDirection`, separate from `selections`,
+  `manualPromptText`, and the client prompt preview;
+- the server validates the same 300-character limit and returns the stable error
+  code `additional_direction_too_long` for an invalid caller;
+- the canonical server compiler applies it only in Guided authoring and only
+  where compatible with locked mode framing, reference authority, safety, and
+  provider constraints;
+- Manual Scene and Playground do not use this field because their primary
+  prompt is already directly editable.
+
+Template behavior:
+
+- `additionalDirectionSnapshot` is stored in the immutable private execution
+  snapshot when the owner publishes a Guided Template;
+- it is never added to `replaceableVariables` or `publicInputSchema`;
+- it is removed from the public Template projection even when Prompt Visibility
+  is `full`;
+- a Template consumer cannot view, replace, clear, or override it;
+- Template generation resolves the value from the server-owned immutable
+  Template Version, never from a consumer request;
+- changing it requires the owner to publish a new Template Version.
+
 ## 7. Software Design
 
 ### Client request boundary
@@ -172,6 +208,14 @@ canonical reference-role directive.
 
 - render only reference slots that are effective for the active workflow;
 - map Headshot result handoff to `face_reference`.
+- persist and pass the actor-owned Additional Direction for Face Creation and
+  Character Sheet.
+
+`web/src/features/studio/components/AdditionalDirectionField.tsx`
+
+- provide the reusable localized textarea, description, and character counter;
+- remain presentation-only and receive value/change/disabled state from the
+  owning route.
 
 ### Scene orchestration
 
@@ -180,6 +224,13 @@ canonical reference-role directive.
 - compile Guided preview using Scene mode;
 - use that Scene preview when the user confirms copying Guided text into
   Manual.
+- show Additional Direction only for normal Guided authoring and hide it while
+  consuming a Template.
+
+`web/src/features/templates/templateSerializer.ts`
+
+- store `additionalDirectionSnapshot` in private execution snapshots;
+- never infer a replaceable input from this field.
 
 ### Server trust boundary
 
@@ -187,6 +238,13 @@ canonical reference-role directive.
 
 - normalize prompt mode from `generationMode`;
 - keep the canonical server compiler authoritative.
+- validate Additional Direction and pass it to the compiler only for Guided
+  Studio execution.
+
+`server/domain/templates/templateContracts.js`
+
+- remove `additionalDirectionSnapshot` from every public projection;
+- preserve the private field when applying allowed Template replacements.
 
 `server/config/character-casting-policy.json`
 
@@ -249,6 +307,8 @@ Output: directed scene without Character-reference framing leakage
 6. Make the casting background explicitly pure white.
 7. Add client request, preview, reference-policy and server integration tests.
 8. Run quick React validation and focused Node prompt tests.
+9. Add the shared Additional Direction field, actor-scoped persistence,
+   request/compiler handling, and private Template snapshot policy.
 
 ## 11. Testing
 
@@ -265,6 +325,12 @@ Output: directed scene without Character-reference framing leakage
   directives.
 - Studio reference policy strips ineffective Character/Style/Pose/Outfit roles
   according to mode.
+- Additional Direction is included in estimate and generation requests as a
+  separate field and is compiled in Face, Character Sheet, and Guided Scene.
+- Additional Direction over 300 characters is rejected by the server.
+- Template public projections omit `additionalDirectionSnapshot`, Template
+  replacement schemas never expose it, and server-side Template execution keeps
+  applying the immutable private value.
 
 ### Manual UI
 

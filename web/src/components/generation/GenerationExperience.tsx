@@ -68,6 +68,7 @@ type GenerationExperienceProps = {
   initialPrompt?: string;
   prompt?: string;
   onPromptChange?: (prompt: string) => void;
+  additionalDirection?: string;
   selections?: Record<string, unknown>;
   customColors?: StudioCustomColors;
   initialReferences?: Partial<Record<GenerationReferenceRole, string>>;
@@ -108,6 +109,7 @@ export function GenerationExperience({
   initialPrompt = '',
   prompt: controlledPrompt,
   onPromptChange,
+  additionalDirection = '',
   selections,
   customColors,
   initialReferences = {},
@@ -270,6 +272,7 @@ export function GenerationExperience({
     submodel: engine.model,
     prompt,
     negativePrompt,
+    additionalDirection,
     aspectRatio: engine.aspectRatio,
     imageResolution: engine.resolution,
     outputCount: 1,
@@ -287,7 +290,7 @@ export function GenerationExperience({
     faceReferenceContext,
     authoringMode,
     characterType
-  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -808,6 +811,7 @@ function createEstimateKey(draft: GenerationRequestDraft) {
     submodel: draft.submodel,
     prompt: draft.prompt,
     negativePrompt: draft.negativePrompt,
+    additionalDirection: draft.additionalDirection,
     aspectRatio: draft.aspectRatio,
     imageResolution: draft.imageResolution,
     outputCount: draft.outputCount,

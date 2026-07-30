@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  ADDITIONAL_DIRECTION_MAX_LENGTH,
   compileGenerationContext,
   normalizeGenerationContext
 } from '../server/domain/generation/generationRequestService.js';
@@ -37,7 +38,11 @@ test('React Reusable Character Sheet uses casting layout and white uniform', () 
 
   assert.equal(context.mode, 'character-sheet');
   assert.equal(context.characterType, 'reusable_model');
-  assert.match(compiledPrompt, /front view, exact side profile, and back view/i);
+  assert.match(
+    compiledPrompt,
+    /front view facing directly toward the camera.*exact side profile facing toward the viewer right.*back view facing directly away from the camera/i
+  );
+  assert.match(compiledPrompt, /head aligned with the torso/i);
   assert.match(compiledPrompt, /fitted white short-sleeve top/i);
   assert.match(compiledPrompt, /solid pure white background/i);
   assert.doesNotMatch(compiledPrompt, /red evening dress/i);
@@ -58,7 +63,11 @@ test('React Styled Character Sheet preserves selected clothing on white', () => 
     }
   }, actor);
 
-  assert.match(compiledPrompt, /front view, side view, and back view/i);
+  assert.match(
+    compiledPrompt,
+    /front view facing directly toward the camera.*exact side profile facing toward the viewer right.*back view facing directly away from the camera/i
+  );
+  assert.match(compiledPrompt, /head aligned with the torso/i);
   assert.match(compiledPrompt, /wearing a tailored navy suit/i);
   assert.match(compiledPrompt, /solid pure white background/i);
   assert.doesNotMatch(compiledPrompt, /casting uniform/i);
@@ -79,6 +88,70 @@ test('React Scene generationMode remains scene-directed and is not forced to whi
   assert.match(compiledPrompt, /warm Bangkok cafe/i);
   assert.doesNotMatch(compiledPrompt, /straight front-facing portrait/i);
   assert.doesNotMatch(compiledPrompt, /solid pure white background/i);
+});
+
+test('Guided Studio compiles Additional Direction without weakening mode framing', () => {
+  const { context, compiledPrompt } = compileGenerationContext({
+    generationMode: 'headshot',
+    generationSurface: 'studio',
+    additionalDirection: 'subtle natural asymmetry and restrained editorial polish',
+    selections: {
+      Gender: selection('female', 'Character', 'character')
+    }
+  }, actor);
+
+  assert.equal(
+    context.additionalDirection,
+    'subtle natural asymmetry and restrained editorial polish'
+  );
+  assert.match(compiledPrompt, /subtle natural asymmetry/i);
+  assert.match(compiledPrompt, /straight front-facing portrait/i);
+  assert.match(compiledPrompt, /solid pure white background/i);
+});
+
+test('Additional Direction rejects requests over 300 characters and ignores Manual Scene', () => {
+  assert.throws(
+    () => normalizeGenerationContext({
+      generationMode: 'scene',
+      generationSurface: 'studio',
+      sceneBuilder: { authoringMode: 'guided' },
+      additionalDirection: 'x'.repeat(ADDITIONAL_DIRECTION_MAX_LENGTH + 1)
+    }, actor),
+    error => error.code === 'additional_direction_too_long'
+  );
+
+  const manual = normalizeGenerationContext({
+    generationMode: 'scene',
+    generationSurface: 'studio',
+    sceneBuilder: {
+      authoringMode: 'manual',
+      manualPromptText: 'A complete manual prompt'
+    },
+    additionalDirection: 'must be ignored'
+  }, actor);
+  assert.equal(manual.additionalDirection, '');
+});
+
+test('Template snapshot Additional Direction cannot be overridden by the caller', () => {
+  const { context, compiledPrompt } = compileGenerationContext({
+    generationMode: 'scene',
+    generationSurface: 'studio',
+    sceneBuilder: { authoringMode: 'guided' },
+    additionalDirection: 'consumer override',
+    sceneTemplateSnapshot: {
+      authoringMode: 'guided',
+      structuredSelectionsSnapshot: {},
+      referenceSlotMapping: {},
+      additionalDirectionSnapshot: 'immutable creator direction'
+    },
+    selections: {
+      Environment: selection('inside a clean studio', 'Environment', 'environment')
+    }
+  }, actor);
+
+  assert.equal(context.additionalDirection, 'immutable creator direction');
+  assert.match(compiledPrompt, /immutable creator direction/i);
+  assert.doesNotMatch(compiledPrompt, /consumer override/i);
 });
 
 function selection(value, group, category) {

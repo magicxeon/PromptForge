@@ -25,6 +25,7 @@ export const sceneTemplateSnapshotSchema = z.object({
   finalPromptSnapshot: z.string().default(''),
   structuredSelectionsSnapshot: z.record(z.string(), z.unknown()).default({}),
   manualPromptSnapshot: z.string().default(''),
+  additionalDirectionSnapshot: z.string().max(300).optional(),
   referenceSlotMapping: z.record(z.string(), z.record(z.string(), z.unknown())).default({}),
   replaceableVariables: z.array(replaceableVariableSchema).default([]),
   providerModelSnapshot: z.record(z.string(), z.unknown()).nullable().optional(),

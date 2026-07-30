@@ -22,6 +22,7 @@ export function buildSceneTemplateSnapshot(input: {
   selections: Record<string, AttributeSelection>;
   customColors: StudioCustomColors;
   references: Partial<Record<GenerationReferenceRole, string>>;
+  additionalDirection?: string;
 }): SceneTemplateSnapshot {
   const variables = input.authoringMode === 'guided'
     ? Object.entries(input.selections).map(([fieldName, selection]) => ({
@@ -78,7 +79,10 @@ export function buildSceneTemplateSnapshot(input: {
     replaceableVariables: [...variables, ...referenceVariables],
     providerModelSnapshot: {},
     generationSettingsSnapshot: {},
-    customColorsSnapshot: input.customColors
+    customColorsSnapshot: input.customColors,
+    additionalDirectionSnapshot: input.authoringMode === 'guided'
+      ? String(input.additionalDirection || '').trim()
+      : ''
   };
 }
 

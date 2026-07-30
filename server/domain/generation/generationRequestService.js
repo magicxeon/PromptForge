@@ -18,6 +18,20 @@ import {
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
+export const ADDITIONAL_DIRECTION_MAX_LENGTH = 300;
+
+export function normalizeAdditionalDirection(value) {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  if ([...normalized].length > ADDITIONAL_DIRECTION_MAX_LENGTH) {
+    const error = new Error(
+      `Additional Direction cannot exceed ${ADDITIONAL_DIRECTION_MAX_LENGTH} characters.`
+    );
+    error.statusCode = 400;
+    error.code = 'additional_direction_too_long';
+    throw error;
+  }
+  return normalized;
+}
 
 function normalizeOutfitReferenceOverrides(value) {
   const raw = value && typeof value === 'object' ? value : {};
@@ -155,6 +169,18 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     // template capability proves ownership.
     sceneTemplateSnapshot = sanitizeReferenceSlotsForPublic(sceneTemplateSnapshot, actorContext || {}, null);
   }
+  const snapshotAdditionalDirection =
+    typeof sceneTemplateSnapshot?.additionalDirectionSnapshot === 'string'
+      ? sceneTemplateSnapshot.additionalDirectionSnapshot
+      : null;
+  const acceptsAdditionalDirection = snapshotAdditionalDirection !== null
+    || (payload.generationSurface === 'studio'
+      && (mode !== 'normal' || sceneBuilder?.authoringMode === 'guided'));
+  const additionalDirection = normalizeAdditionalDirection(
+    acceptsAdditionalDirection
+      ? snapshotAdditionalDirection ?? payload.additionalDirection
+      : ''
+  );
 
   const normalizedContext = {
     ...payload,
@@ -164,6 +190,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     selections,
     sceneBuilder,
     sceneTemplateSnapshot,
+    additionalDirection,
     template: payload.template || 'portrait',
     aspectRatio: normalizedAspectRatio,
     outputCount: normalizedOutputCount,
@@ -237,6 +264,7 @@ export function compilePromptFromGenerationContext(context) {
       context.outfitReferenceOverrides,
       {
         characterReferenceOutfitBehavior: context.characterReferenceOutfitBehavior,
+        additionalDirection: context.additionalDirection,
         ...(usesCastingLayout
           ? {
             characterSheetLayoutOverride: castingPolicy.promptDirective,

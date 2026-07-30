@@ -429,6 +429,8 @@ export class ComparisonOrchestrator {
         ...payload,
         sceneTemplateSnapshot: templateExecution.executionSnapshot,
         selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+        additionalDirection:
+          templateExecution.executionSnapshot.additionalDirectionSnapshot || '',
         sceneBuilder: {
           ...(payload.sceneBuilder || {}),
           authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',

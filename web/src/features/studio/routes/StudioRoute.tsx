@@ -50,6 +50,8 @@ import {
   defaultStudioCustomColors,
   type StudioCustomColors
 } from '../attributes/customColorModel';
+import { ADDITIONAL_DIRECTION_MAX_LENGTH } from '../additionalDirectionContract';
+import { AdditionalDirectionField } from '../components/AdditionalDirectionField';
 
 const STUDIO_DRAFT_FEATURE = 'studio';
 const STUDIO_DRAFT_VERSION = 2;
@@ -61,6 +63,7 @@ type StudioDraft = {
   characterType: 'reusable_model' | 'styled_character';
   lockedFields: string[];
   customColors?: StudioCustomColors;
+  additionalDirection?: string;
 };
 
 const emptyDraft: StudioDraft = {
@@ -68,7 +71,8 @@ const emptyDraft: StudioDraft = {
   references: {},
   characterType: 'reusable_model',
   lockedFields: [],
-  customColors: defaultStudioCustomColors
+  customColors: defaultStudioCustomColors,
+  additionalDirection: ''
 };
 
 export function StudioRoute() {
@@ -92,6 +96,7 @@ export function StudioRoute() {
   const [customColors, setCustomColors] = useState<StudioCustomColors>(
     createStudioCustomColors()
   );
+  const [additionalDirection, setAdditionalDirection] = useState('');
   const initialFaceHandoff = useMemo(
     () => readFaceReferenceHandoff(getActiveActorId(), 'character_sheet'),
     []
@@ -145,6 +150,13 @@ export function StudioRoute() {
     setCharacterType(draft.characterType || 'reusable_model');
     setLockedFields(Array.isArray(draft.lockedFields) ? draft.lockedFields : []);
     setCustomColors(createStudioCustomColors(draft.customColors));
+    setAdditionalDirection(
+      typeof draft.additionalDirection === 'string'
+        ? Array.from(draft.additionalDirection)
+          .slice(0, ADDITIONAL_DIRECTION_MAX_LENGTH)
+          .join('')
+        : ''
+    );
     hydratedActor.current = actor.userId;
     if (actorChanged) {
       setFaceReferenceContext(null);
@@ -185,12 +197,13 @@ export function StudioRoute() {
           references: removeInlineReferences(references),
           characterType,
           lockedFields,
-          customColors
+          customColors,
+          additionalDirection
         }
       });
     }, 320);
     return () => window.clearTimeout(timer);
-  }, [actor?.userId, characterType, customColors, lockedFields, references, selections]);
+  }, [actor?.userId, additionalDirection, characterType, customColors, lockedFields, references, selections]);
 
   useEffect(() => {
     if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
@@ -267,7 +280,8 @@ export function StudioRoute() {
         references: removeInlineReferences(references),
         characterType,
         lockedFields,
-        customColors
+        customColors,
+        additionalDirection
       }
     });
   }
@@ -306,6 +320,7 @@ export function StudioRoute() {
         prompt={preview}
         onPromptChange={() => {}}
         selections={generationSelections}
+        additionalDirection={additionalDirection}
         authoringMode="guided"
         characterType={mode === 'character-sheet' ? characterType : null}
         customColors={customColors}
@@ -386,6 +401,10 @@ export function StudioRoute() {
             onCustomColorsChange={setCustomColors}
             onChange={setSelections}
           />
+          <AdditionalDirectionField
+            value={additionalDirection}
+            onChange={setAdditionalDirection}
+          />
           </>
         )}
         studioConfigActions={(
@@ -395,6 +414,7 @@ export function StudioRoute() {
               setReferences({});
               setLockedFields([]);
               setCustomColors(createStudioCustomColors());
+              setAdditionalDirection('');
             }}
             onRandomize={() => {
               setSelections(randomizeStudioSelections(
@@ -411,6 +431,7 @@ export function StudioRoute() {
               characterType,
               selections: generationSelections,
               customColors,
+              additionalDirection,
               references: removeInlineReferences(compatibleReferences),
               lockedFields
             })}

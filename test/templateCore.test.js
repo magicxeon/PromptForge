@@ -46,6 +46,7 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
     sourceCommunityPostId: 'post_1'
   }, viewer);
   assert.equal(handoff.sceneTemplateSnapshot.finalPromptSnapshot, '');
+  assert.equal(handoff.sceneTemplateSnapshot.additionalDirectionSnapshot, undefined);
   assert.equal(
     handoff.sceneTemplateSnapshot.referenceSlotMapping.face_reference.value,
     undefined
@@ -57,6 +58,10 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
     environment: { id: 'environment.rooftop', value: 'city rooftop' }
   });
   assert.equal(resolved.executionSnapshot.finalPromptSnapshot, snapshot.finalPromptSnapshot);
+  assert.equal(
+    resolved.executionSnapshot.additionalDirectionSnapshot,
+    'private creator direction'
+  );
   assert.equal(
     resolved.executionSnapshot.structuredSelectionsSnapshot.Environment.value,
     'city rooftop'
@@ -102,6 +107,14 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
   }, actor);
   assert.equal(republished.version.versionNumber, 2);
   assert.notEqual(republished.version.id, published.version.id);
+  const fullPromptHandoff = await service.createUseSession({
+    templateId: published.template.id,
+    sourceCommunityPostId: 'post_2'
+  }, viewer);
+  assert.equal(
+    fullPromptHandoff.sceneTemplateSnapshot.additionalDirectionSnapshot,
+    undefined
+  );
 
   const pinnedSession = await service.resolveSession(handoff.useSession.id, viewer, {
     environment: { id: 'environment.cafe', value: 'original cafe' }
@@ -187,6 +200,7 @@ function createSnapshot() {
       'Face Shape': { id: 'face.oval', value: 'oval face' }
     },
     manualPromptSnapshot: '',
+    additionalDirectionSnapshot: 'private creator direction',
     referenceSlotMapping: {
       face_reference: {
         required: false,

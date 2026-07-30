@@ -496,6 +496,7 @@ StudioDraftV2
 - characterType
 - expandedGroups[]
 - selections
+- additionalDirection
 - references
 - engineSelection
 - comparisonEnabled
@@ -509,6 +510,9 @@ Rules:
 - Route/local React state owns transient UI state.
 - Actor-scoped persistence owns restorable drafts.
 - Large Base64 images are forbidden.
+- `additionalDirection` is an optional actor-owned Guided Studio value governed
+  by `requirements/009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`;
+  it is limited to 300 characters and is not a Template replaceable variable.
 - Actor switching clears active result, estimate, references, selections, and
   incompatible Query cache before rendering the next actor.
 - Migration from a compatible existing React draft is explicit and tested;

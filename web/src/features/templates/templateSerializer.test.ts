@@ -22,10 +22,15 @@ describe('Template serializer', () => {
       finalPrompt: 'A fashion portrait',
       selections: { Environment: selection },
       customColors: createStudioCustomColors(),
-      references: { character_reference: '/outputs/job_character.png' }
+      references: { character_reference: '/outputs/job_character.png' },
+      additionalDirection: 'private creator formula'
     });
 
     expect(snapshot.replaceableVariables.some(item => item.sourceFieldName === 'Environment')).toBe(true);
+    expect(snapshot.replaceableVariables.some(
+      item => item.sourceFieldName === 'additionalDirectionSnapshot'
+    )).toBe(false);
+    expect(snapshot.additionalDirectionSnapshot).toBe('private creator formula');
     expect(snapshot.referenceSlotMapping.character_reference?.value).toBe('/outputs/job_character.png');
 
     const replacements = buildTemplateReplacements({

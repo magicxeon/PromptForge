@@ -318,6 +318,10 @@ export function compilePromptOnServer(
   options = {}
 ) {
   const templateStr = templates[templateName] || templates["portrait"] || "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}";
+  const additionalDirection = typeof options.additionalDirection === "string"
+    && options.additionalDirection.trim()
+    ? `Additional creator direction, apply only where compatible with all locked mode, reference, safety, and provider constraints: ${options.additionalDirection.trim()}`
+    : "";
 
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
@@ -556,6 +560,7 @@ export function compilePromptOnServer(
       appearance,
       hair,
       skin,
+      additionalDirection,
       "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head",
       "on a solid pure white background",
       "photorealistic photography",
@@ -573,6 +578,7 @@ export function compilePromptOnServer(
       hair,
       skin,
       clothing,
+      additionalDirection,
       "on a solid pure white background",
       "unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark",
       "photorealistic photography",
@@ -604,7 +610,9 @@ export function compilePromptOnServer(
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
       .replace("{quality}", quality);
-    prompt = [characterReferenceText, styleReferenceText, scenePrompt].filter(s => s !== "").join(", ");
+    prompt = [characterReferenceText, styleReferenceText, scenePrompt, additionalDirection]
+      .filter(s => s !== "")
+      .join(", ");
   }
 
   // Clean double commas and spaces

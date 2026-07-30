@@ -57,6 +57,8 @@ import {
   restrictCustomColorsForReferences,
   type StudioCustomColors
 } from '../../studio/attributes/customColorModel';
+import { ADDITIONAL_DIRECTION_MAX_LENGTH } from '../../studio/additionalDirectionContract';
+import { AdditionalDirectionField } from '../../studio/components/AdditionalDirectionField';
 import {
   buildSceneTemplateSnapshot,
   buildTemplateReplacements
@@ -99,6 +101,9 @@ export function SceneBuilderRoute() {
     createStudioCustomColors(
       readSnapshotCustomColors(initialHandoff.snapshot) || initialDraft.customColors
     )
+  );
+  const [additionalDirection, setAdditionalDirection] = useState(
+    initialDraft.additionalDirection
   );
   const [snapshot, setSnapshot] = useState<SceneTemplateSnapshot | null>(initialHandoff.snapshot);
   const [templateUseContext, setTemplateUseContext] = useState<TemplateUseContext | null>(
@@ -178,8 +183,10 @@ export function SceneBuilderRoute() {
     finalPrompt: mode === 'manual' ? manualPrompt : guidedPreview,
     selections: generationGuidedSelections,
     customColors: effectiveCustomColors,
-    references
+    references,
+    additionalDirection
   }), [
+    additionalDirection,
     effectiveCustomColors,
     generationGuidedSelections,
     guidedPreview,
@@ -252,6 +259,7 @@ export function SceneBuilderRoute() {
     setSelections(next.selections);
     setLockedFields(next.lockedFields);
     setCustomColors(createStudioCustomColors(next.customColors));
+    setAdditionalDirection(next.additionalDirection);
     setSnapshot(null);
     setTemplateUseContext(null);
     clearHandoff('scene-template');
@@ -311,9 +319,16 @@ export function SceneBuilderRoute() {
       actorId: actor.userId,
       feature: FEATURE,
       schemaVersion: SCHEMA_VERSION,
-      payload: { mode, manualPrompt, selections, lockedFields, customColors }
+      payload: {
+        mode,
+        manualPrompt,
+        selections,
+        lockedFields,
+        customColors,
+        additionalDirection
+      }
     });
-  }, [actor?.userId, customColors, lockedFields, manualPrompt, mode, selections]);
+  }, [actor?.userId, additionalDirection, customColors, lockedFields, manualPrompt, mode, selections]);
 
   useEffect(() => {
     if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
@@ -337,6 +352,7 @@ export function SceneBuilderRoute() {
         prompt={activePrompt}
         onPromptChange={mode === 'manual' ? setManualPrompt : () => {}}
         selections={activeSelections}
+        additionalDirection={templateUseContext ? '' : additionalDirection}
         customColors={effectiveCustomColors}
         authoringMode={mode}
         references={references}
@@ -417,7 +433,8 @@ export function SceneBuilderRoute() {
               setTemplateUseContext(null);
               clearHandoff('scene-template');
             }} /> : null}
-            {mode === 'guided' ? <GuidedAttributeForm
+            {mode === 'guided' ? <>
+            <GuidedAttributeForm
               groups={groups}
               mode="scene"
               characterType="styled_character"
@@ -441,7 +458,17 @@ export function SceneBuilderRoute() {
                 setSelections(next);
                 if (!templateUseContext) setSnapshot(null);
               }}
-            /> : (
+            />
+            {templateUseContext ? null : (
+              <AdditionalDirectionField
+                value={additionalDirection}
+                onChange={value => {
+                  setAdditionalDirection(value);
+                  setSnapshot(null);
+                }}
+              />
+            )}
+            </> : (
               <Surface className="studio-manual-prompt"><label htmlFor="scene-manual-prompt">{t('ui.scene.manualLabel')}</label><textarea id="scene-manual-prompt" value={manualPrompt} onChange={event => {
                 setManualPrompt(event.target.value);
                 if (!templateUseContext) setSnapshot(null);
@@ -469,6 +496,7 @@ export function SceneBuilderRoute() {
               setSelections({});
               setLockedFields([]);
               setCustomColors(createStudioCustomColors());
+              setAdditionalDirection('');
               setManualPrompt('');
               setSnapshot(null);
               setTemplateUseContext(null);
@@ -496,6 +524,7 @@ export function SceneBuilderRoute() {
               customColors,
               lockedFields,
               manualPrompt: mode === 'manual' ? manualPrompt : '',
+              additionalDirection: mode === 'guided' ? additionalDirection : '',
               characterReferenceOutfitBehavior: characterOutfitBehavior,
               references: lightweightStudioReferences(references)
             })}
@@ -521,6 +550,7 @@ function loadSceneDraft(actorId: string): {
   selections: Record<string, AttributeSelection>;
   lockedFields: string[];
   customColors: StudioCustomColors;
+  additionalDirection: string;
 } {
   type SceneDraft = {
     mode: AuthoringMode;
@@ -528,13 +558,15 @@ function loadSceneDraft(actorId: string): {
     selections: Record<string, AttributeSelection>;
     lockedFields?: string[];
     customColors?: Partial<StudioCustomColors>;
+    additionalDirection?: string;
   };
   const empty: SceneDraft = {
     mode: 'guided',
     manualPrompt: '',
     selections: {},
     lockedFields: [],
-    customColors: createStudioCustomColors()
+    customColors: createStudioCustomColors(),
+    additionalDirection: ''
   };
   const parsed = readActorScopedDraft<SceneDraft>({
     actorId,
@@ -549,7 +581,12 @@ function loadSceneDraft(actorId: string): {
       ? parsed.selections
       : {},
     lockedFields: Array.isArray(parsed.lockedFields) ? parsed.lockedFields : [],
-    customColors: createStudioCustomColors(parsed.customColors)
+    customColors: createStudioCustomColors(parsed.customColors),
+    additionalDirection: typeof parsed.additionalDirection === 'string'
+      ? Array.from(parsed.additionalDirection)
+        .slice(0, ADDITIONAL_DIRECTION_MAX_LENGTH)
+        .join('')
+      : ''
   };
 }
 
