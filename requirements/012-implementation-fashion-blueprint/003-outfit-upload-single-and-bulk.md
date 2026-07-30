@@ -1,7 +1,7 @@
 # Outfit Upload: Single and Bulk
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React MVP implemented; final validation pending
+**Status:** Front/back upload prototype implemented; Product Item contract completion pending
 
 One to five products are supported. Each PNG/JPEG/WebP reference is uploaded
 individually to an actor-owned asset boundary before quote/run submission;
@@ -21,12 +21,13 @@ FashionProductItem
 - name
 - sku?
 - productType: top | bottom | dress | clothing_set
+- outfitScope: full_look | top_only | bottom_only | single_item
 - colorNotes?
 - integrityLevel: creative | balanced | strict
 - references
   - frontAssetId
   - backAssetId?
-  - detailAssetIds[]
+  - detailAssetIds[]? (reserved, not active in current MVP)
 - status
 ```
 
@@ -35,7 +36,7 @@ Rules:
 - one to five Product Items
 - front is required
 - back is recommended for back-view operations
-- detail is optional and provider capability/count limited
+- detail is reserved until Reference Processing and provider contracts expose it
 - no Base64 in saved plan/template snapshot
 - duplicate reference file may be deduplicated by checksum within owner scope
 
@@ -61,12 +62,12 @@ Bulk:
 
 Reuse:
 
-- `client/clothing/outfitReferenceController.js`
-- `client/clothing/clothingOptionRules.js`
-- shared reference slot component
-- existing image validation/reference normalization
+- `web/src/components/generation/ReferenceSlotGrid.tsx`
+- `web/src/components/generation/ReferenceScopeSelector.tsx`
+- `web/src/components/generation/ReferenceProcessingPreview.tsx`
+- existing server image validation and reference normalization
 - future production Asset upload contract from
-  `requirements/011-implementation-commercial-feature-plan/Phase2-06-assets-storage-and-product-catalog.md`
+  `requirements/013-implementation-commercial-feature-plan/Phase2-06-assets-storage-and-product-catalog.md`
 
 The existing `AssetRepository` under `server/repositories/assets/` is the
 development persistence foundation, but it is not yet a complete upload
@@ -94,12 +95,17 @@ contain `data:image/...` values. History/job/output references use the optimized
 only as bounded upload transport in local development and must be stripped
 after registration; it must not be repeated in `/api/generate` operations.
 
-The first implementation may expose:
+The current prototype exposes:
 
 ```text
-POST /api/fashion-blueprints/reference-assets
-DELETE /api/fashion-blueprints/reference-assets/:assetId
+POST /api/fashion-blueprints/assets
 ```
+
+It returns an actor-owned `imageUrl` backed by an Asset record. The plan
+currently transports that lightweight URL. Before commercial storage migration,
+the public DTO should also return and persist the stable `assetId`; URL remains
+display data, not durable identity. Deletion/revocation is pending and must be
+added through the Asset domain rather than deleting a file from the route.
 
 Routes use `req.actorContext`; the domain validates media type, byte size,
 dimensions, purpose and ownership before delegating to storage and
@@ -124,6 +130,11 @@ If an outfit reference is active:
 - hide or disable conflicting preset garment shape controls
 - retain only allowed customizations explicitly declared by Template/policy
 - explain that strict integrity can reduce pose freedom
+
+`outfitScope` is mandatory authority input, not display metadata. The server
+defaults omitted legacy values to `full_look`, but new UI submissions must
+explicitly send the user's selected scope. Quote and Run must resolve the same
+scope through the shared Reference Processing Pipeline.
 
 ### 5.1 Deferred Per-Item Pose Variation
 
@@ -152,12 +163,15 @@ The initial MVP remains `locked` or explicitly user-selected. Automatic
 ## 6. Files
 
 ```text
-client/fashion-blueprint/fashionOutfitList.js
-client/fashion-blueprint/fashionOutfitItem.js
-client/fashion-blueprint/fashionOutfitValidation.js
-server/domain/fashion-blueprint/FashionReferenceAssetService.js
-server/domain/fashion-blueprint/FashionProductService.js
-server/repositories/fashion-blueprint/FashionProductRepository.js
+web/src/features/fashion-blueprint/routes/FashionBlueprintRoute.tsx
+web/src/features/fashion-blueprint/api/fashionBlueprintApi.ts
+web/src/features/fashion-blueprint/schemas/fashionSchemas.ts
+web/src/components/generation/ReferenceSlotGrid.tsx
+server/domain/fashion-blueprint/FashionAssetService.js
+server/domain/fashion-blueprint/FashionBlueprintService.js
+server/domain/fashion-blueprint/FashionGenerationContext.js
+server/domain/reference-processing/
+server/repositories/assets/AssetRepository.js
 server/app/routes/fashionBlueprintRoutes.js
 test/fashionOutfitValidation.test.js
 test/fashionReferenceAsset.test.js
@@ -171,5 +185,19 @@ test/fashionReferenceAsset.test.js
 - Provider reference limits are checked for every shot operation.
 - Partial upload failure preserves valid items.
 - Another actor cannot attach the owner's private outfit asset.
+- Outfit scope is preserved from upload UI through Quote, Run, processing
+  lineage and provider directive.
+- Identical references in a Bulk run reuse the same owner-scoped processed
+  derivative.
 - Future per-item pose variation cannot copy the Outfit wearer's pose or alter
   Character, garment, Template scene or visual style authority.
+
+## 8. Implementation Plan
+
+1. Add `outfitScope` to React Product Item state, API type and Zod schema.
+2. Return stable Asset ID with preview URL from the upload endpoint and migrate
+   new draft/plan records to use the ID.
+3. Add per-item validation and processing preview/warnings before Quote.
+4. Preserve one-to-five item orchestration while deduplicating identical
+   processed derivatives.
+5. Add actor-isolation, partial-upload, provider-capacity and Bulk cache tests.

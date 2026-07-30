@@ -1,7 +1,7 @@
 # Quote, Credit and Generation Plan
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Implemented; final validation pending
+**Status:** Atomic prototype implemented; complete public quote contract and recovery validation pending
 
 The implementation creates one locked estimate per product and reserves all
 accepted operation credits atomically through `reservePlan` before enqueue.
@@ -39,7 +39,10 @@ productItemKey
 shotKey
 poseKey
 referenceAssetIds[]
+outfitScope
 providerRoute
+referenceCount
+referenceProcessingPlanFingerprint
 creditEstimateId
 estimatedCredits
 ```
@@ -57,8 +60,10 @@ FashionBlueprintQuote
 - operationCount
 - outputCount
 - referenceCountByOperation
+- referenceProcessingPlanFingerprintByOperation
 - estimatedCredits
 - maximumCredits
+- templateCreditComponent
 - expiresAt
 - warnings[]
 ```
@@ -71,9 +76,11 @@ Inputs affecting the hash:
 - Template/version
 - Character/version
 - Product Items and reference roles
+- Outfit scope and allowed garment overrides
 - pose/environment
 - Simple tier or Advanced provider settings
 - output count/resolution
+- Reference Processing policy version and resolved plan fingerprint
 
 Any change invalidates the quote.
 
@@ -83,6 +90,13 @@ a trusted provider route. Each operation estimate must lock the exact provider,
 model, resolution, reference count and output count that will later be sent to
 the generation pipeline. This is required by the current
 `CreditReservationService` stale-estimate validation.
+
+For each Product Item, `FashionGenerationContext` must resolve Template,
+Character and Outfit references through
+`prepareGenerationReferences()` before estimating. Quote and Run independently
+recompute that plan. The locked estimate and submitted generation request must
+contain the same `referenceProcessingPlanFingerprint`; a mismatch is
+`credit_estimate_stale` and no job is enqueued.
 
 ## 4. Credit Lifecycle
 
@@ -142,6 +156,7 @@ Routes translate HTTP and delegate to:
 ```text
 FashionBlueprintService
 FashionQuoteService
+FashionGenerationContext
 CreditReservationService
 generationRequestService / QueueManager
 ```
@@ -153,6 +168,7 @@ server/domain/fashion-blueprint/FashionBlueprintService.js
 server/domain/fashion-blueprint/FashionQuoteService.js
 server/domain/fashion-blueprint/FashionPlanHash.js
 server/domain/fashion-blueprint/FashionRunService.js
+server/domain/fashion-blueprint/FashionGenerationContext.js
 server/repositories/fashion-blueprint/FashionBlueprintQuoteRepository.js
 server/repositories/fashion-blueprint/FashionBlueprintRunRepository.js
 server/domain/credits/CreditReservationService.js
@@ -163,6 +179,11 @@ server/app/routes/fashionBlueprintRoutes.js
 `FashionRunService` may use the canonical generation context/queue option
 helpers and injected `QueueManager`; it must not call an HTTP generation route,
 provider adapter or ledger repository directly.
+
+The `/resolve` endpoint currently returns route/quality/resolution information
+only. Before it becomes the authoritative pre-quote preview, extend its response
+with a sanitized plan summary rather than exposing internal prompts or private
+reference values.
 
 ## 6. UX
 
@@ -175,6 +196,8 @@ Review displays:
 - estimated/maximum credits
 - current available credits
 - warnings and quote expiry
+- AI generation and Template usage credit components
+- per-operation reference count and processing warnings when actionable
 
 `Generate` is enabled only for a current valid quote and sufficient credits.
 
@@ -188,3 +211,21 @@ Review displays:
 - Fashion MVP never submits Comparison slots; aggregate price is based only on
   accepted Product/shot operations.
 - Every operation request exactly matches its locked estimate inputs.
+- Quote and Run reject a changed Reference Processing fingerprint before queue
+  submission.
+- Template usage credits are included once per output and the combined total is
+  reserved atomically.
+- Plan hash includes Template version, Character version, outfit scope,
+  reference identities, direction assignment and output recipe.
+
+## 8. Implementation Plan
+
+1. Extend normalized plan/quote/run DTOs and Zod schemas with immutable version,
+   operation and processing summary fields.
+2. Resolve Template, Character and references once through
+   `FashionGenerationContext` for each Quote operation.
+3. Recompute the same context during Run and compare the locked estimate,
+   Template pricing and processing fingerprint.
+4. Atomically reserve every accepted operation before the first enqueue.
+5. Add stale scope/reference/version, concurrent submission, partial settlement
+   and restart-idempotency tests.

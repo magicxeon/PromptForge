@@ -1,7 +1,7 @@
 # Character, Pose and Environment Selection
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React MVP implemented; expanded direction packs deferred
+**Status:** Basic React selectors implemented; recommended picker and versioned direction packs pending
 
 The MVP uses authorized Character handoffs plus bounded pose/environment
 selectors. Server run confirmation revalidates Character version, reuse policy,
@@ -195,6 +195,12 @@ Initial popular e-commerce poses:
 Templates choose three or four compatible operations. Pose changes must remain
 natural and must not override a shot that explicitly requires front/back detail.
 
+The current prototype stores one normalized `poseDirection` and
+`environmentDirection` for the whole run and produces one operation per Product
+Item. Versioned packs, multi-shot expansion and per-item assignments are target
+MVP work; the UI must not imply they are active until the resolved server plan
+returns those operations.
+
 ### 3.1 Deferred Bulk Pose Variation Policy
 
 Bulk Outfit runs will later support controlled pose variation between Product
@@ -293,28 +299,38 @@ User environment override -> environment only
 
 No layer may silently override a higher-priority owned field.
 
+This table is explanatory only. Runtime precedence is produced by
+`server/domain/reference-processing/ReferenceAuthorityPlanner.js` and
+`server/config/reference-processing-policy.json`. Fashion code must not create
+another hard-coded authority matrix.
+
 ## 6. Component Reuse
 
 - Character public cards/profile APIs from `006` and Community.
-- `client/character-profiles/characterHandoff.js` and
-  `characterProfileState.js` for the authorized actor-scoped handoff.
-- Visual option controls for pose/environment.
-- Scene variable resolver and validation where contracts match.
-- Existing `referenceSlotManager.js` for preview/clear behavior.
-- Router/cross-mode handoff for preselected Character.
+- `web/src/components/profiles/CharacterCard.tsx`.
+- `web/src/features/profiles/api/profileApi.ts` for authorized handoffs.
+- `web/src/lib/persistence/handoffStorage.ts` for actor-scoped route handoff.
+- Shared visual/select controls where their contracts match.
+- `web/src/components/generation/ReferenceSlotGrid.tsx` for reference
+  preview/clear/upload behavior.
+- React Router navigation context for preselected Character.
+- Shared Reference Processing preview, scope and warning components for runtime
+  authority feedback.
 - Shared router navigation context so returning to Character Profile or
   Community restores the source page.
 
 New orchestration:
 
 ```text
-client/fashion-blueprint/fashionCharacterPicker.js
-client/fashion-blueprint/fashionCharacterRecommendation.js
-client/fashion-blueprint/fashionPoseControls.js
-client/fashion-blueprint/fashionEnvironmentControls.js
+web/src/features/fashion-blueprint/components/FashionCharacterPicker.tsx
+web/src/features/fashion-blueprint/components/FashionDirectionControls.tsx
 server/domain/fashion-blueprint/FashionDirectionResolver.js
 server/domain/fashion-blueprint/FashionCharacterRecommendationService.js
 ```
+
+Do not create these component files until the current route has enough
+complexity to justify extraction. The first extraction should move cohesive
+sections out of `FashionBlueprintRoute.tsx`, not duplicate its state.
 
 ## 7. Acceptance Tests
 
@@ -332,3 +348,16 @@ server/domain/fashion-blueprint/FashionCharacterRecommendationService.js
   sheet.
 - Deferred Bulk Pose Variation produces deterministic per-item assignments,
   preserves role authority and invalidates stale quotes when assignments change.
+- Quote and run recompute the same Reference Processing plan and reject a
+  changed processing fingerprint.
+
+## 8. Implementation Plan
+
+1. Extract the current Character section only when implementing the
+   Recommended/My/Community picker states.
+2. Add server-filtered deterministic recommendations and reason codes.
+3. Define versioned pose/environment pack contracts and make Template versions
+   reference them.
+4. Resolve a complete direction assignment before Quote and include it in the
+   plan hash.
+5. Add per-item pose modes only after the locked/explicit Bulk E2E passes.

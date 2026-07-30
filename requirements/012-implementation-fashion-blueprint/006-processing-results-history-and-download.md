@@ -1,7 +1,7 @@
 # Processing, Results, History and Download
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React MVP implemented; final validation pending
+**Status:** Basic polling/results implemented; grouped shot UX and recovery validation pending
 
 Grouped polling shows each product status/result and partial failures. Canonical
 QueueManager history remains authoritative; completed items expose Download,
@@ -39,14 +39,14 @@ queued | processing | partially_completed | completed | failed | cancelled
 
 Reuse:
 
-- `generationResultSurface.js`
-- history polling and actor-scoped APIs
-- result lightbox/detail components
+- `web/src/components/generation/GenerationResultSurface.tsx`
+- TanStack Query history/run polling and actor-scoped APIs
+- shared media detail/viewer components
 - existing collection/save/share actions where permitted
 
-`generationResultSurface.js` remains the shared result-card/lightbox owner.
-`fashionRunResults.js` provides only the Product Item/shot grouping adapter and
-passes normalized result items into shared presentation. It must not copy the
+The current `FashionRunResults` prototype is embedded in
+`FashionBlueprintRoute.tsx`. Extract it only when adding Product/shot grouping,
+and pass normalized result items into shared presentation. It must not copy the
 Studio or Playground result surface.
 
 ## 4. Result Grouping
@@ -73,11 +73,11 @@ Each result shows:
 MVP:
 
 - download individual result
-- download selected successful results
+- download selected successful results (pending)
 - deterministic filename using sanitized Product/SKU and shot key
 
 Later commercial export presets are owned by
-`requirements/011-implementation-commercial-feature-plan/Phase2-16-marketplace-export-presets.md`.
+`requirements/013-implementation-commercial-feature-plan/Phase2-16-marketplace-export-presets.md`.
 
 ## 6. History
 
@@ -92,6 +92,8 @@ shotKey
 poseKey
 generation settings snapshot
 quote/credit references
+referenceProcessingLineage
+templateUseContext
 ```
 
 History remains owner-scoped. Sharing is an explicit action through Community.
@@ -118,3 +120,17 @@ increase Character popularity.
 - Download never exposes another actor's asset.
 - Empty/queued/result states do not overlap or display contradictory text.
 - Mobile result groups remain navigable and image details open correctly.
+- Every successful result retains Template version/use session, Character
+  version, Product Item, outfit scope and Reference Processing lineage.
+- Restart recovery never creates a second charge or duplicate job for an
+  already accepted operation.
+
+## 8. Implementation Plan
+
+1. Normalize Fashion operations into shared result/media item contracts.
+2. Extract Product/shot grouping from the route without copying generic media
+   actions.
+3. Persist sufficient operation lineage for refresh/server-restart recovery.
+4. Add deterministic individual/selected download behavior and filenames.
+5. Test queued, partial, failed, completed, mobile viewer and cross-actor asset
+   access states.

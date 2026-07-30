@@ -12,9 +12,9 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
 3. `000-master-fashion-blueprint-roadmap.md`
 4. The numbered requirement owning the task
 5. Character Profile `006`
-6. Navigation/UI `008` and relevant Scene Builder, Community and commercial
-   `010` requirements
-7. Existing shared modules and tests
+6. Template Core `010` and Reference Processing Pipeline `011`
+7. Navigation/UI `008`, Community and commercial `013` requirements
+8. Existing shared modules and tests
 
 ## Workflow
 
@@ -22,11 +22,15 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
 2. Extend shared owners only for genuinely reusable behavior.
 3. Keep Fashion-specific orchestration under `fashion-blueprint`.
 4. Build/validate a deterministic plan before requesting a quote.
-5. Invalidate quote after any cost-affecting change.
-6. Submit through canonical credit and generation services.
-7. Group output by Product Item and shot operation.
-8. Preserve actor scope, private references and Character attribution.
-9. Add i18n keys and desktop/mobile state checks.
+5. Resolve every Product Item through the shared Reference Processing Pipeline.
+6. Bind the exact processed reference count and plan fingerprint into estimate
+   and run inputs.
+7. Invalidate quote after any cost- or authority-affecting change.
+8. Submit through canonical credit and generation services.
+9. Group output by Product Item and shot operation.
+10. Preserve actor scope, private references, Template lineage and Character
+    attribution.
+11. Add i18n keys and desktop/mobile state checks.
 
 ## UX Rule
 
@@ -46,6 +50,8 @@ picker only when the user asks for another model or one of their own.
 
 - Do not create a second Engine & Target Output component.
 - Do not create a second prompt compiler, provider gateway, queue or ledger.
+- Do not create a second Template version/use-session runtime.
+- Do not create a Fashion-specific reference authority matrix or processor.
 - Do not persist Base64 in plans/templates.
 - Do not trust owner, price, credit or provider capability from client.
 - Do not carry the white Character casting outfit as final clothing.
@@ -59,11 +65,16 @@ picker only when the user asks for another model or one of their own.
 - Keep AI model Comparison disabled in the Fashion MVP.
 - Do not save Base64 in Fashion drafts, plans, quotes or runs.
 - Do not use the Studio global credit estimate as a Fashion aggregate quote.
+- Do not trust a client reference count, processing fingerprint, Template
+  version, output recipe or Simple route.
+- Do not enable reserved `outfit_detail` until Template, Reference Processing,
+  provider and DTO contracts all support it.
 
 ## File Ownership
 
 ```text
-client/fashion-blueprint/
+web/src/features/fashion-blueprint/
+web/src/components/generation/
 server/domain/fashion-blueprint/
 server/repositories/fashion-blueprint/
 server/app/routes/fashionBlueprintRoutes.js
@@ -72,5 +83,7 @@ server/config/fashion-quality-tiers.json
 
 ## Validation Handoff
 
-Do not run Node commands. Give the user exact syntax/test commands plus manual
-single-outfit, bulk, stale-quote, cross-user and partial-failure scenarios.
+Follow repository validation rules in `AGENTS.md`. Report exact commands and
+results for Fashion domain tests, React tests, typecheck, i18n, lint/build, plus
+manual single-outfit, bulk, stale-quote, cross-user, reference-authority and
+partial-failure scenarios.

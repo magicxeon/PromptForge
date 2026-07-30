@@ -1,11 +1,11 @@
 # Fashion Blueprint Master Roadmap
 
-**Status:** React MVP implemented; final validation pending
+**Status:** React prototype implemented; MVP completion and release validation pending
 
 **Canonical implementation:** `web/src/features/fashion-blueprint/`,
 `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`,
-and `server/app/routes/fashionBlueprintRoutes.js`. Any legacy
-`client/fashion-blueprint/` path below is superseded by this React owner.
+and `server/app/routes/fashionBlueprintRoutes.js`. Legacy `client/` modules are
+not implementation owners and must not be recreated.
 **Goal:** Give non-technical fashion sellers a short, predictable workflow that
 turns clothing references into e-commerce-ready model images.
 
@@ -30,7 +30,8 @@ camera in Simple Mode.
 - Supported initial product types: tops, bottoms, dresses and clothing sets.
 - Single upload: one outfit.
 - Bulk upload: maximum five outfits per Blueprint run.
-- Front reference is required; back/detail are optional.
+- Front reference is required; back is optional. Detail references are reserved
+  until Template, Reference Processing and provider contracts expose that role.
 - A Template shows an actual final-result preview.
 - A Template supplies scene, lighting, composition and a small pose-variation
   pack.
@@ -40,8 +41,9 @@ camera in Simple Mode.
 - Advanced Mode reuses provider/model/quality/resolution/reference controls.
   AI model Comparison is disabled for the Fashion MVP because outfit batches
   already create multiple billable operations.
-- Initial pack produces three or four outputs per outfit according to Template
-  version.
+- The current prototype produces one output per outfit. MVP shot packs may
+  produce multiple outputs only after the immutable Template version exposes a
+  validated `outputRecipe`; output count must never be inferred in the client.
 - Pricing is calculated and explicitly confirmed before processing.
 - Results remain in actor-scoped history and may be downloaded or collected.
 
@@ -61,7 +63,7 @@ camera in Simple Mode.
 | `requirements/Concept/infrastructure-gcloud.md` | Adapter boundary for storage, jobs and secrets |
 | User Profile `007` | Creator attribution and navigation to Character owners |
 | Navigation/UI adjustment `008` | Studio hierarchy, route context and breadcrumbs |
-| Commercial plan `010` | PostgreSQL, Cloud Storage, durable jobs, payments |
+| Commercial plan `013` | PostgreSQL, Cloud Storage, durable jobs, payments |
 | Reference Processing Pipeline `011` | Shared reference-role authority, Outfit isolation, preprocessing policy and processing lineage |
 
 Fashion Blueprint builds a validated generation plan. It does not call providers,
@@ -73,14 +75,28 @@ pipeline.
 - Customer-facing name: `Fashion Studio`.
 - Canonical route: `/create/fashion`.
 - Navigation placement: child of `Studio`.
-- The item already exists in `client/shell/navigation.config.json` but remains
-  disabled until the Fashion page, route module and release gate are ready.
-- Fashion Studio is its own page/state owner. It is **not** a new
-  `window.state.mode`, does not use the nonexistent `guided` Studio mode and
-  must not mount inside the current Studio form.
-- Enabling the item requires a `fashion-blueprint` route/module definition and
-  Page Outlet handling in the shared shell. Existing Home, Studio and detail
-  navigation context must remain intact.
+- The React route and navigation entry are registered in
+  `web/src/app/routeRegistry/routes.ts`.
+- Fashion Studio is its own React route/state owner. It is **not** a Studio
+  generation mode and must not mount inside the Studio configurator.
+- The route may remain available for internal prototype testing while public
+  discovery, Bulk, Advanced and Community Template entry points are controlled
+  independently by server-owned feature exposure.
+- Existing Home, Studio and detail navigation context must remain intact.
+
+### 3.1 Current Prototype Baseline And Remaining MVP Gaps
+
+| Capability | Current baseline | Required before MVP release |
+|---|---|---|
+| Template | Community Template post creates an actor-bound Template use session | Filter to Fashion-compatible published versions and display final preview, input contract and version |
+| Character | Authorized `fashion_blueprint` handoff is revalidated server-side | Recommended/My/Community picker states and unavailable-default fallback |
+| Outfit | One to five front references; back optional; actor-owned asset URLs | Explicit `outfitScope`, clearer per-item validation, optional detail role only after policy support |
+| Reference processing | Shared authority plan, deterministic normalization, provider ordering and lineage | Show shared processing preview/warnings in Fashion and run cross-surface E2E |
+| Direction | One pose and environment direction per run | Versioned curated packs and optional bounded per-item pose assignment |
+| Routing | Simple tier selection and shared Advanced engine component | Move Simple route preferences from code into server configuration |
+| Quote | Per-item estimates and aggregate maximum | Display expiry, per-operation breakdown, Template fee and processing warnings |
+| Run | Atomic plan reservation, canonical queue and partial status | Cancellation/retry policy, richer grouped results and complete restart recovery test |
+| Outputs | One output per Product Item | Template-owned shot recipe and deterministic Product/shot grouping |
 
 ## 4. Requirement Sequence
 
@@ -167,6 +183,8 @@ Template + Character + outfit count + outputs + quality + maximum credits
 
 6. Resolve Plan and Quote
    -> server revalidates Template, Character, assets and provider capability
+   -> run the canonical Reference Processing Pipeline for every Product Item
+   -> bind processed reference count and processing-plan fingerprint
    -> expand Product Items into deterministic shot operations
    -> lock one credit estimate per operation
    -> return aggregate maximum price, warnings and expiry
@@ -200,6 +218,7 @@ FashionBlueprintPlan
 - characterProfileId
 - characterProfileVersionId
 - productItems[]
+- productItems[].outfitScope: full_look | top_only | bottom_only | single_item
 - poseVariationPackVersionId
 - environmentSelection
 - routingMode: simple | advanced
@@ -208,28 +227,30 @@ FashionBlueprintPlan
 - outputRecipe
 - quoteId
 - operationEstimateIds[]
+- referenceProcessingPlanFingerprintByOperation
 - idempotencyKey
 ```
 
 The server validates all IDs, ownership, provider capability, output count,
 reference count and quote consistency before accepting the plan.
 
-### 6.1 Implementation Order to Minimize Rework
+### 6.1 Remaining Implementation Order To Minimize Rework
 
 ```text
-1. 007 architecture gate:
-   route/page scaffold, actor-scoped state and shared-component injection points
-2. 001 Template repository/version resolver and catalog
-3. 002 authorized Character handoff/picker and direction ownership
-4. 003 private reference registration and Product Item orchestration
-5. 004 Simple/Advanced normalization and server tier routing
-6. 005 operation estimates, aggregate quote/reservation and run submission
-7. 006 grouped processing/results/history/download
-8. 008 automated/manual QA, then enable Fashion navigation feature
+1. Align `001` with Template Core immutable versions and Fashion compatibility.
+2. Finish `003` Product Item/outfit-scope UI on the shared Reference controls.
+3. Move `004` Simple routing tiers into server configuration.
+4. Extend `002` direction packs and resolve optional per-item pose assignments.
+5. Extend `005` quote DTO with operation breakdown, expiry and processing
+   fingerprints already enforced by the server.
+6. Finish `006` shot grouping, recovery and result actions using shared media
+   components.
+7. Complete `008` automated/manual QA, then enable public entry flags in the
+   rollout order.
 ```
 
-The navigation item remains disabled until step 8 passes. Individual domain
-tests may run earlier without exposing an incomplete customer route.
+The route may remain visible for internal prototype validation. Public entry
+flags must remain closed until step 7 passes.
 
 ## 7. Non-Goals
 
@@ -256,7 +277,7 @@ contracts must migrate unchanged to:
 - real authentication and payment-backed credits
 
 Production enablement belongs to
-`requirements/011-implementation-commercial-feature-plan`.
+`requirements/013-implementation-commercial-feature-plan`.
 
 ## 9. Exit Criteria
 
@@ -265,4 +286,6 @@ Production enablement belongs to
 - Bulk run supports one to five outfits and partial results.
 - Displayed quote matches reserved credits and accepted plan.
 - Character, garment, pose and environment ownership do not conflict.
+- Every operation uses the shared Reference Processing authority projection,
+  processed reference count and immutable plan fingerprint.
 - Results group correctly by outfit and shot.

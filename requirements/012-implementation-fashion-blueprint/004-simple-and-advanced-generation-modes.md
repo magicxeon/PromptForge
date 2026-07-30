@@ -1,7 +1,7 @@
 # Simple and Advanced Generation Modes
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React MVP implemented; routing policy expansion deferred
+**Status:** Simple/Advanced prototype implemented; configured routing policy pending
 
 Simple tiers resolve provider/model on the server. Advanced mode reuses the
 shared React Engine control and the public provider capability catalog.
@@ -47,8 +47,8 @@ It may show a plain-language quality, wait-time and credit description.
 
 ## 3. Advanced Mode
 
-Reuse `client/generation-controls/engineTargetComparisonPanel.js` with Fashion
-options/callbacks:
+Reuse `web/src/components/generation/EngineTargetPanel.tsx` with Fashion
+props/callbacks:
 
 - provider
 - model
@@ -60,9 +60,8 @@ options/callbacks:
 Required component options:
 
 ```text
-showComparison: false
-showActiveRun: false
-legacyStudioIds: false
+comparison: false
+allowComparison: false
 ```
 
 Fashion batch means one to five Product Items expanded into deterministic shot
@@ -74,17 +73,16 @@ Request:
 
 ```text
 routingMode: advanced
-providerId
-modelId
+requestedProviderId
+requestedModelId
 quality
 resolution
-referenceCount
-outputCount
 ```
 
-Reference/output counts are checked against the resolved plan; pricing policy
-version is returned by the server estimate and quote rather than chosen by the
-client.
+Reference/output counts are never trusted Advanced inputs. They are computed
+from the resolved Fashion operations and canonical Reference Processing plan;
+pricing policy version is returned by the server estimate and quote rather than
+chosen by the client.
 
 Unsupported controls remain hidden based on provider catalog capability.
 
@@ -118,11 +116,18 @@ Switching modes:
 - Fallback requires a new warning/quote unless accepted policy explicitly allows
   an equivalent route.
 
+The current prototype still defines `QUALITY_ROUTE_PREFERENCES` inside
+`FashionBlueprintService.js`. Move that table to
+`server/config/fashion-quality-tiers.json` and resolve it through a domain
+`FashionRoutingPolicyService` before public MVP release. Provider IDs, model
+IDs and pricing must not be duplicated in React.
+
 ## 6. Files
 
 ```text
-client/fashion-blueprint/fashionGenerationMode.js
-client/fashion-blueprint/fashionQualityTierPicker.js
+web/src/features/fashion-blueprint/routes/FashionBlueprintRoute.tsx
+web/src/components/generation/EngineTargetPanel.tsx
+web/src/features/generation/api/generationApi.ts
 server/domain/fashion-blueprint/FashionRoutingPolicyService.js
 server/config/fashion-quality-tiers.json
 test/fashionGenerationMode.test.js
@@ -136,23 +141,30 @@ test/fashionGenerationMode.test.js
 - Unsupported resolution is hidden and rejected if forged.
 - Simple and Advanced requests produce the same downstream plan shape.
 - Pricing policy is never hardcoded in client.
-- Fashion does not read or mutate Studio `window.state`.
+- Fashion does not read or mutate Studio route/store state.
 - Fashion does not use the global Studio estimate as the billable quote.
 
 ## 8. Shared Estimate Isolation
 
-The current shared `generationActionBar.js` defaults to the legacy global
-`window.creditEstimateController`. Before Fashion mounts it, extend the shared
-component to accept an injected estimate adapter/controller while retaining the
-legacy default for Studio and Playground:
+Fashion owns a TanStack Query/Mutation quote resource keyed by actor and plan
+hash. It displays aggregate operation cost from `FashionBlueprintQuote`;
+Studio and Playground keep their own generation estimate resources. Shared
+presentation components receive estimate values and callbacks as props and
+must not read a global estimate controller.
 
-```text
-estimateController?
-  getState()
-  subscribe(listener)
-  updateEstimate(inputs)
-```
+Actor switching clears Query cache and any actor-owned Fashion draft, mode
+preference and quote. A quote is invalidated when Template session, Character,
+Product Item, outfit scope, direction, route, resolution or output recipe
+changes.
 
-Fashion injects a Fashion quote adapter that displays aggregate operation cost
-from `FashionBlueprintQuote`. This prevents Studio, Playground and Fashion from
-overwriting each other's estimate state.
+## 9. Implementation Plan
+
+1. Add and validate `server/config/fashion-quality-tiers.json`.
+2. Resolve Simple routes through `FashionRoutingPolicyService`; remove the
+   in-code model table.
+3. Keep Advanced controls on the shared `EngineTargetPanel` with Comparison
+   disabled and unsupported capabilities hidden.
+4. Version actor-scoped Simple/Advanced draft preferences without persisting a
+   quote as reusable state.
+5. Test unavailable preferred routes, forged capabilities and mode-switch quote
+   invalidation.

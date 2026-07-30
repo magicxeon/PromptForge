@@ -1,7 +1,7 @@
 # Fashion Blueprint Template Contract
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React MVP implemented; final validation pending
+**Status:** Template Core handoff prototype implemented; Fashion contract completion pending
 
 The React Template picker consumes sanitized reusable Community Template posts.
 The quote service revalidates template visibility and reuse policy on the
@@ -62,16 +62,27 @@ FashionBlueprintTemplateVersion
 runs and history. Versions become immutable after publication or after a
 confirmed generation plan references them.
 
+The current prototype starts with a Community post ID and
+`templateUseSessionId`. The server resolves that session to an immutable
+Template version. Before MVP release, `templateVersionId` and
+`sourceCommunityPostId` must be copied into the resolved Fashion plan, quote,
+run operation and generation lineage. Client-supplied version IDs are never
+trusted.
+
 ## 3. Required Slots
 
 ```text
 character_reference  required
 outfit_front         required per Product Item
 outfit_back          optional per Product Item
-outfit_detail        optional per Product Item
 environment          template default, optionally replaceable
 pose_pack            template default, optionally replaceable
 ```
+
+`outfit_detail` is reserved. It becomes active only after Template Core,
+Reference Processing policy, provider capacity validation and Fashion schemas
+all expose the role. The MVP must not accept an undocumented extra image and
+silently send it as another role.
 
 The Template may map to a sanitized Scene Template snapshot, but Fashion-specific
 product and shot metadata remains in the Fashion Blueprint contract.
@@ -125,35 +136,56 @@ ResolvedFashionBlueprint
 
 ## 5.1 Entry and Handoff
 
-Community or Template cards navigate through
-`window.ModelPromptForgeRouter.navigateToResource()` to:
+Community or Template cards use React Router navigation to:
 
 ```text
 /create/fashion?templateId=<templateId>
 ```
 
-Fashion Blueprint resolves the current active version server-side and stores
-the resulting `templateVersionId` in its actor-scoped draft. A direct URL,
+`web/src/features/fashion-blueprint/routes/FashionBlueprintRoute.tsx` reads the
+query parameter, requests the canonical Template handoff/use session, and
+stores the resulting IDs in actor-scoped draft state. Fashion Blueprint resolves
+the current active version server-side and stores the resulting
+`templateVersionId` in that draft. A direct URL,
 refresh or unavailable Template must show a recoverable catalog state rather
 than silently selecting another Template.
 
 ## 6. Files
 
 ```text
-server/domain/fashion-blueprint/FashionBlueprintTemplateService.js
-server/domain/fashion-blueprint/fashionBlueprintTemplatePolicy.js
-server/repositories/fashion-blueprint/FashionBlueprintTemplateRepository.js
+server/domain/templates/TemplateCoreService.js
+server/repositories/templates/
+server/domain/community/CommunityPostAccessService.js
+server/domain/fashion-blueprint/FashionBlueprintService.js
+server/domain/fashion-blueprint/FashionGenerationContext.js
 server/app/routes/fashionBlueprintRoutes.js
-client/fashion-blueprint/fashionTemplateCatalog.js
-client/fashion-blueprint/fashionTemplateCard.js
-client/fashion-blueprint/fashionTemplateDetail.js
-client/shell/navigation.config.json
-client/shell/navigationRegistry.js
-client/shell/applicationShell.js
+web/src/features/fashion-blueprint/routes/FashionBlueprintRoute.tsx
+web/src/components/media/MediaCard.tsx
+web/src/components/templates/TemplateUseButton.tsx
+web/src/features/templates/
+web/src/app/routeRegistry/routes.ts
 ```
 
-Reuse Community media cards/lightbox where behavior matches. The catalog owns
-Fashion filtering and selection, not another generic gallery component.
+Do not create a Fashion Template repository or second immutable-version model.
+Template Core owns definitions, versions, use sessions and pricing. Fashion
+owns compatibility filtering and Product Item bindings only. Reuse Community
+media cards/detail behavior where it matches.
+
+## 6.1 Fashion Compatibility Contract
+
+A published Template is selectable only when all are true:
+
+- `templateKind` supports `scene_image`;
+- compatible consumers include `fashion`;
+- a valid final preview exists;
+- the public input schema exposes Character and Outfit bindings needed by the
+  Fashion recipe;
+- hidden prompt policy can execute server-side;
+- current actor may create a use session;
+- the active provider plan can accept the processed reference count.
+
+The UI may pre-filter for convenience, but quote and run services repeat every
+check through Template Core and Reference Processing.
 
 ## 7. Acceptance Tests
 
@@ -165,3 +197,17 @@ Fashion filtering and selection, not another generic gallery component.
 - Public Template response contains no private reference or Base64.
 - An unauthorized default Character falls back to picker selection without
   breaking the Template.
+- Quote, run and output lineage retain the exact immutable Template version and
+  source Community post.
+
+## 8. Implementation Plan
+
+1. Extend the Template public DTO/schema with sanitized Fashion compatibility
+   and output-recipe metadata; do not expose the execution snapshot.
+2. Filter the React Fashion picker by compatibility and create the use session
+   through the existing Template handoff.
+3. Resolve and copy immutable `templateVersionId` plus source post ID into the
+   normalized Fashion plan.
+4. Revalidate the session/version/input bindings in Quote and Run.
+5. Add private, deprecated-version, unavailable-default-Character and hidden
+   prompt tests before enabling Community creator Templates.
