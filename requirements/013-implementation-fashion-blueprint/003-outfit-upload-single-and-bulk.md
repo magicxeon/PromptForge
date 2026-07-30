@@ -42,21 +42,36 @@ Rules:
 
 ## 3. UX
 
-Default:
+Default begins with one Product Item and does not ask the customer to choose
+Single or Bulk:
 
 ```text
 Upload outfit front
-[Add back] [Add detail] [Add another outfit]
+[Add back] [Continue with one outfit] [Add another outfit]
 ```
 
-Bulk:
+`Add another outfit` changes the experience to Bulk automatically. Product
+count is the source of truth; do not introduce a separate Single/Bulk state that
+can disagree with `productItems.length`.
 
-- each Product Item is a compact row/card
+Single and Bulk:
+
+- each Product Item is a compact tab/card with a readable selected detail panel
 - validation appears per item
 - reorder/remove before quote
 - shared Character, Template and environment remain unchanged
 - incomplete Product Item is excluded only after explicit confirmation or blocks
   quote; never silently dropped
+- status uses explicit `Uploading`, `Ready`, `Missing image` and `Error` text
+- switching Product tabs preserves unsaved field values and upload progress
+- the active invalid Product exposes one primary `Fix outfit` action
+
+The reserved Detail role must not appear until the active Template, Reference
+Processing and provider contracts support it.
+
+For two to five valid Product Items, the final Review step offers an optional
+one-image proof. Product upload itself must not create a quote or start a
+generation job.
 
 ## 4. Reuse and Extension
 

@@ -113,18 +113,21 @@ pipeline.
 
 ## 5. UX Flow
 
-Default collapsed flow:
+Customer-visible flow uses four steps. Direction, quality and pricing remain
+part of the final review instead of becoming separate mandatory screens:
 
 ```text
-1 Template
-2 Character
-3 Outfit
-4 Direction (optional)
-5 Quality, Review & Price
-6 Generate & Results
+1 Choose Template
+2 Choose Model
+3 Add Products
+4 Review, Test & Generate
 ```
 
-The Character step defaults to the Template's allowed model when available:
+The step count describes decisions the customer must make, not every server
+operation. Resolve, reference processing, quote, reservation and queue behavior
+remain explicit system states inside the four-step journey.
+
+The Model step defaults to the Template's allowed model when available:
 
 ```text
 Use this Template model (recommended)
@@ -135,21 +138,83 @@ Use one of my models
 A beginner can accept the recommended model with one action and continue
 directly to Outfit upload.
 
-Progressive controls:
+Product entry starts as a single-item flow. The UI must not ask `Single or
+Bulk?` before the first upload:
+
+```text
+Upload first outfit
+-> Continue with one outfit
+   or
+-> Add another outfit (automatically becomes Bulk, maximum five)
+```
+
+Progressive controls in Step 4:
 
 - `Adjust pose` expands pose choices.
 - `Change environment` expands compatible environments.
 - `Advanced` exposes Engine & Target Output and supported reference controls
   with Comparison disabled.
-- Bulk upload appears after `Add another outfit`.
+- Quality defaults to the recommended Simple tier.
+- Bulk users are offered a billable one-image proof before committing the
+  remaining operations.
 
-The summary remains visible before confirmation:
+A sticky `Your setup` summary remains visible across all four steps:
 
 ```text
 Template + Character + outfit count + outputs + quality + maximum credits
 ```
 
-### 5.1 Canonical End-to-End Process
+It shows only completed selections and immediate actions such as `Edit Template`
+or `Change Model`. Do not duplicate the Stepper with a second `What happens
+next` list.
+
+### 5.1 Screen And Interaction Contract
+
+**Step 1 - Choose Template**
+
+- Lead with a real final-result preview.
+- Show supported products, included output/shot summary, creator attribution
+  and a non-binding credit range.
+- Selecting a Template advances to Model without another confirmation screen.
+
+**Step 2 - Choose Model**
+
+- Lead with `Use this model` for the valid Template recommendation.
+- Keep `Choose another model` and `Use one of my models` secondary.
+- One-click acceptance advances focus to Product upload.
+
+**Step 3 - Add Products**
+
+- Front reference is required; back is optional.
+- Product tabs/cards expose Ready, Missing image, Uploading and Error states.
+- Product type, Outfit scope and fidelity are visible per Product Item.
+- `Add another outfit` progressively enables Bulk without resetting Template,
+  Model or shared direction.
+- Item errors are local and actionable; no item is silently discarded.
+
+**Step 4 - Review, Test & Generate**
+
+- Show Template, Model, Product count, output count, quality, optional direction,
+  processing warnings, quote expiry and complete credit breakdown.
+- Pose/environment controls are collapsed and use Template defaults.
+- Simple quality is primary; Advanced is opt-in and Comparison remains hidden.
+- Single Product may generate directly.
+- Bulk shows `Generate one test image` as the recommended action and
+  `Generate all` as an explicit alternative.
+
+After a successful proof:
+
+```text
+Approve and generate remaining
+Adjust setup
+Try another test
+```
+
+An approved proof counts as its exact Product/shot output and must not be
+generated or charged again. It may continue into the remaining Batch only when
+the immutable setup fingerprint is unchanged.
+
+### 5.2 Canonical End-to-End Process
 
 ```text
 0. Enter Fashion Studio
@@ -170,18 +235,14 @@ Template + Character + outfit count + outputs + quality + maximum credits
    -> register private owner-scoped reference assets
    -> store only asset/reference IDs in the draft
 
-4. Adjust Direction (optional)
+4. Review optional Direction and choose Quality
    -> keep Template pose/environment defaults or choose allowed overrides
    -> resolve Character/outfit/Template/pose ownership precedence
+   -> Simple tier is recommended; Advanced remains opt-in
    -> future Bulk Pose Variation may assign a bounded subtle pose per Product
       Item without changing Character, Outfit, Template scene or visual style
 
-5. Choose Generation Mode
-   -> Simple: Draft, Selling Quality or Premium Campaign
-   -> Advanced: provider/model/quality/resolution supported by catalog
-   -> Comparison remains off for Fashion MVP
-
-6. Resolve Plan and Quote
+5. Resolve Plan and Quote
    -> server revalidates Template, Character, assets and provider capability
    -> run the canonical Reference Processing Pipeline for every Product Item
    -> bind processed reference count and processing-plan fingerprint
@@ -189,17 +250,20 @@ Template + Character + outfit count + outputs + quality + maximum credits
    -> lock one credit estimate per operation
    -> return aggregate maximum price, warnings and expiry
 
-7. Confirm and Reserve
+6. Confirm Proof or Full Run
    -> reject any stale draft/quote
-   -> atomically reserve aggregate maximum with one idempotency key
-   -> create one Fashion run and operation records
+   -> Single or Generate All reserves the accepted operation plan
+   -> Bulk proof creates a separate one-operation quote/run for the first
+      eligible Product/shot operation
+   -> approve proof only when its setup fingerprint still matches
 
-8. Process
+7. Process
    -> submit operations through canonical generation/queue services
    -> capture successful usage and release failed/unused reservation
    -> preserve partial success
+   -> continuation quote excludes an already approved proof operation
 
-9. Review Results
+8. Review Results
    -> group shared result cards by Product Item and shot purpose
    -> download, collect or explicitly share eligible outputs
    -> write actor-scoped history and successful Character usage
@@ -208,6 +272,22 @@ Template + Character + outfit count + outputs + quality + maximum credits
 Every Back/forward/detail journey uses shared navigation context. Switching
 actor invalidates the visible draft, handoff and quote before rendering the new
 actor's state.
+
+### 5.3 UX And System Impact
+
+| Area | Required impact |
+|---|---|
+| Navigation/state | Replace six customer-visible steps with four while preserving internal resolve/quote/run states |
+| Draft | Persist current step, Template, Model, Product Items, optional direction and separate Simple/Advanced settings actor-scoped |
+| Product UX | Infer Single/Bulk from Product Item count; do not persist a competing mode flag |
+| Quote | Support full-plan and one-operation proof quotes with clear expiry and credit components |
+| Run | Record purpose `proof` or `full`, exact operation IDs and immutable setup fingerprint |
+| Continuation | Approving proof quotes only remaining operations and never bills the accepted proof twice |
+| Results | Merge approved proof and continuation outputs into one customer-visible campaign grouping |
+| Invalidations | Any Template, Model, Product/reference, scope, fidelity, direction, quality, route or recipe change invalidates quote and proof continuation eligibility |
+| Components | Reuse Template cards, Character cards, Reference controls, Engine panel, warning UI, credit summary and result media components |
+| Responsive UI | Desktop uses sticky summary; mobile exposes the same summary as a collapsible sheet without hiding the primary action |
+| Accessibility/i18n | Every state and CTA uses localized text, keyboard focus movement and text in addition to color/status icons |
 
 ## 6. Core Plan
 

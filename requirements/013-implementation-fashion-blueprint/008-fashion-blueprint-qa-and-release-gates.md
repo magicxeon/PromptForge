@@ -125,9 +125,32 @@ Use the same Outfit asset in multiple Product Items -> quote/run
 reference billing.
 ```
 
+```text
+TC-FB-013 Progressive Single to Bulk
+Upload one valid Outfit -> no Single/Bulk question appears
+-> Add another outfit -> shared Template/Model remain selected
+-> remove back to one item -> flow returns to direct single Generate.
+```
+
+```text
+TC-FB-014 Proof then continue
+Resolve five Product Items -> quote one server-selected proof operation
+-> generate and approve proof -> continuation quote contains only remaining
+operations -> final results include proof once -> ledger has no duplicate charge.
+```
+
+```text
+TC-FB-015 Proof invalidation
+Generate proof -> change Model, Outfit reference, direction or quality
+-> proof remains in History but is marked inapplicable
+-> full Batch requires a fresh quote and does not silently reuse the proof.
+```
+
 ## 3. UX Gate
 
 - Beginner reaches valid quote with no prompt/provider knowledge.
+- Customer-visible Stepper contains four decisions: Template, Model, Products,
+  and Review/Test/Generate.
 - Primary action is visible at each step.
 - Optional pose/environment controls remain collapsed by default.
 - Character step initially shows the Template model and two alternative paths,
@@ -140,6 +163,12 @@ reference billing.
 - Desktop/mobile, keyboard, focus and Thai/English parity pass.
 - Fashion Reference Processing warnings use the shared warning UI and identify
   the affected Product Item.
+- The first Product never requires an up-front Single/Bulk decision.
+- Bulk proof copy clearly distinguishes the immediate test charge from the
+  maximum remaining Batch charge.
+- An approved proof is visibly reused in final results and is not regenerated.
+- Desktop sticky setup summary and mobile collapsible summary expose equivalent
+  selections, quote state and edit actions.
 
 ## 4. Quality and Policy Gate
 

@@ -664,7 +664,7 @@
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.98,
     "counts": {
-      "views": 1,
+      "views": 2,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -672,13 +672,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 1,
+      "viewCount": 2,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-30T10:27:38.591Z"
+      "updatedAt": "2026-07-30T15:31:14.591Z"
     },
     "id": "post_1785395582352_fej1z0q0",
     "schemaVersion": 1,
@@ -686,7 +686,7 @@
     "ownerUsername": "user_alice",
     "status": "published",
     "createdAt": "2026-07-30T07:13:02.352Z",
-    "updatedAt": "2026-07-30T10:27:38.591Z",
+    "updatedAt": "2026-07-30T15:31:14.591Z",
     "deletedAt": null,
     "metadata": {}
   },

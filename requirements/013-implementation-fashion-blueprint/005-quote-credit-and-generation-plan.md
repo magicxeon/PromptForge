@@ -199,6 +199,61 @@ Review displays:
 - AI generation and Template usage credit components
 - per-operation reference count and processing warnings when actionable
 
+Single Product shows one direct Generate action. Bulk shows:
+
+```text
+Generate one test image -- <proof credits>
+Generate all -- <full-plan maximum credits>
+```
+
+Both actions require their own current valid quote and sufficient credits.
+Neither displayed amount is calculated by the client.
+
+### 6.1 Proof Before Batch Contract
+
+The optional test image is a real, billable generation operation, not a free
+preview:
+
+```text
+FashionProofContext
+- parentPlanHash
+- setupFingerprint
+- productItemKey
+- shotKey
+- operationId
+- quoteId
+- runId
+- status: quoted | processing | completed | approved | superseded
+```
+
+Rules:
+
+1. The server chooses the first eligible primary/cover operation from the
+   resolved plan; the client cannot forge a cheaper operation.
+2. Proof uses the same immutable Template, Character, Product reference,
+   Reference Processing fingerprint, direction, quality and provider route as
+   the proposed Batch.
+3. Proof has its own estimate, reservation, capture/refund and idempotency key.
+4. A successful proof is charged normally and remains in History even if the
+   customer does not continue.
+5. `Approve and generate remaining` creates a new continuation quote containing
+   only operations not already satisfied by the approved proof.
+6. The accepted proof is grouped into final campaign results and is never
+   regenerated or charged a second time.
+7. Any plan-hash input change marks the proof `superseded`; it remains viewable
+   but cannot reduce a later Batch quote.
+8. `Try another test` is a new billable operation/attempt and must not silently
+   replace or refund a successful prior proof.
+
+The Review UI must make the current charge, remaining potential charge and
+already-paid proof explicit:
+
+```text
+Test completed             10 credits paid
+Remaining operations       40 credits maximum
+Due on approval            40 credits maximum
+```
+
 `Generate` is enabled only for a current valid quote and sufficient credits.
 
 ## 7. Acceptance Tests
@@ -217,15 +272,30 @@ Review displays:
   reserved atomically.
 - Plan hash includes Template version, Character version, outfit scope,
   reference identities, direction assignment and output recipe.
+- Proof quote contains exactly one server-selected eligible operation.
+- Approved proof is excluded from continuation reservation and capture.
+- Changed setup prevents proof reuse and requires a new full/continuation quote.
+- Repeated proof approval returns the same continuation plan and cannot enqueue
+  or charge duplicate operations.
 
 ## 8. Implementation Plan
 
 1. Extend normalized plan/quote/run DTOs and Zod schemas with immutable version,
-   operation and processing summary fields.
+   operation and processing summary fields, plus
+   `quotePurpose: full | proof | continuation`.
 2. Resolve Template, Character and references once through
    `FashionGenerationContext` for each Quote operation.
 3. Recompute the same context during Run and compare the locked estimate,
    Template pricing and processing fingerprint.
 4. Atomically reserve every accepted operation before the first enqueue.
-5. Add stale scope/reference/version, concurrent submission, partial settlement
-   and restart-idempotency tests.
+5. Extend the existing `FashionQuoteService` to select one deterministic proof
+   operation and derive a continuation from the same normalized plan.
+6. Extend the existing `FashionRunService` and Run repository record with proof
+   status and continuation lineage. Do not create a second queue, credit path or
+   proof-only repository.
+7. Build the four-step React reducer/route flow so each setup change clears the
+   active quote and marks any completed proof inapplicable to the changed draft.
+8. Reuse the shared result surface for proof review and merge an approved proof
+   with continuation result groups by stable operation ID.
+9. Add stale scope/reference/version, proof idempotency, duplicate-charge,
+   concurrent submission, partial settlement and restart-recovery tests.

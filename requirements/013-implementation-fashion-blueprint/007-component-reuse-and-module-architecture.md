@@ -43,6 +43,11 @@ Fashion may add adapters that convert a Product Item or run operation into a
 shared component contract. Adapters stay small and contain no provider, pricing
 or ownership decisions.
 
+The four-step UX is route orchestration, not four independent business
+pipelines. Template selection, Model handoff, Product state and
+Review/Test/Generate share one actor-scoped Fashion draft and one normalized
+plan builder.
+
 ## 3. Current React Owner
 
 ```text
@@ -70,6 +75,13 @@ These are target ownership names, not instructions to create empty wrappers.
 Do not split state across components without one route-level reducer/store
 contract. Actor-owned draft persistence must use
 `web/src/lib/persistence/`; server state remains in TanStack Query.
+
+The optional proof experience reuses `FashionQuoteSummary`,
+`GenerationResultSurface` and `FashionRunResults`. A small
+`FashionProofReview` component is justified only if approve/adjust/retry state
+cannot remain readable inside the extracted result orchestration. It receives
+normalized values and callbacks; it must not estimate, reserve credits or
+enqueue work.
 
 The route is registered at `/create/fashion` in
 `web/src/app/routeRegistry/routes.ts`. Fashion is a Studio navigation child but
@@ -109,6 +121,11 @@ server/config/fashion-quality-tiers.json
 Do not create `FashionBlueprintTemplateRepository`; Template Core already owns
 definitions and immutable versions. Do not create a Fashion asset repository;
 uploaded references use the shared Asset repository.
+
+Do not create a proof repository, proof queue or proof credit service. Proof and
+continuation are purposes of the existing Fashion Quote and Run contracts, and
+persist through `FashionBlueprintQuoteRepository` and
+`FashionBlueprintRunRepository`.
 
 ## 5. Canonical Execution Direction
 

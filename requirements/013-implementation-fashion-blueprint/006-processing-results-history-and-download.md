@@ -36,6 +36,9 @@ queued | processing | partially_completed | completed | failed | cancelled
 - Poll authoritative status using existing generation/history service.
 - Provide `Back to setup` without cancelling accepted work.
 - Explain credit release/refund with user-facing stable error codes.
+- Distinguish `Test image` from `Batch generation` in status copy.
+- After proof completion, present `Approve and generate remaining`,
+  `Adjust setup` and `Try another test` without obscuring the result.
 
 Reuse:
 
@@ -68,6 +71,14 @@ Each result shows:
 - approve/reject when commercial approval feature is enabled
 - regenerate with a fresh quote when billable
 
+An approved proof occupies its original Product/shot position in the same
+grouping as continuation results. The UI may label it `Approved test`, but it
+must not create a duplicate card when the remaining Batch completes.
+
+If setup changes after proof generation, keep the proof in History and show it
+as not applicable to the current setup. Never remove a paid output merely
+because continuation eligibility was invalidated.
+
 ## 5. Download
 
 MVP:
@@ -94,6 +105,9 @@ generation settings snapshot
 quote/credit references
 referenceProcessingLineage
 templateUseContext
+runPurpose: proof | full | continuation
+proofContext?
+continuationOfProofRunId?
 ```
 
 History remains owner-scoped. Sharing is an explicit action through Community.
