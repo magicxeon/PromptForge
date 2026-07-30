@@ -16,7 +16,9 @@ export function sanitizeReferenceSlotsForPublic(snapshot, viewerContext = {}, ow
   const clone = structuredClone(snapshot);
   const mapping = clone.referenceSlotMapping || {};
 
-  Object.entries(mapping).forEach(([slotId, slot]) => {
+  Object.entries(mapping).forEach(([slotId, rawSlot]) => {
+    const slot = normalizeReferenceSlot(rawSlot);
+    mapping[slotId] = slot;
     const policy = getReferenceSharePolicy(slotId, slot);
     const reuseAllowed = isReferenceReusableByViewer(slot, viewerContext, ownerIdentity);
     const previewAllowed = policy === 'shared_preview_only' || reuseAllowed;
@@ -28,7 +30,11 @@ export function sanitizeReferenceSlotsForPublic(snapshot, viewerContext = {}, ow
     if (!reuseAllowed) {
       delete slot.sourceAssetId;
       delete slot.sourceJobId;
+      delete slot.assetId;
+      delete slot.jobId;
       delete slot.imageUrl;
+      delete slot.value;
+      delete slot.defaultValue;
       delete slot.provider;
       delete slot.submodel;
       delete slot.source;
@@ -55,4 +61,15 @@ export function sanitizeReferenceSlotsForPublic(snapshot, viewerContext = {}, ow
   }
 
   return clone;
+}
+
+function normalizeReferenceSlot(slot) {
+  if (slot && typeof slot === 'object' && !Array.isArray(slot)) return slot;
+  if (typeof slot === 'string' && slot.trim()) {
+    return {
+      value: slot.trim(),
+      imageUrl: slot.trim()
+    };
+  }
+  return {};
 }

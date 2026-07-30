@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { ErrorState, LoadingState } from '../ui/AsyncState';
 import { Surface } from '../ui/Surface';
+import { StatusNotice } from '../ui/StatusNotice';
 import { PromptEditor } from './PromptEditor';
 import { PromptComposerAssist } from './PromptComposerAssist';
 import { ReferenceSlotGrid } from './ReferenceSlotGrid';
@@ -75,12 +76,17 @@ type GenerationExperienceProps = {
   characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
+  templateUseContext?: {
+    templateUseSessionId: string;
+    replacements: Record<string, unknown>;
+  } | null;
   authoringMode?: 'guided' | 'manual';
   characterType?: 'reusable_model' | 'styled_character' | null;
   allowComparison?: boolean;
   showPromptEditor?: boolean;
   onCompleted?: (jobId: string) => void;
   blockedReason?: string | null;
+  blockedNotice?: ReactNode;
   showEngine?: boolean;
   layoutVariant?: 'stacked' | 'studio' | 'playground';
   recentExpanded?: boolean;
@@ -109,12 +115,14 @@ export function GenerationExperience({
   characterReferenceOutfitBehavior = 'preserve',
   faceReferenceContext = null,
   sceneTemplateSnapshot = null,
+  templateUseContext = null,
   authoringMode = 'manual',
   characterType = null,
   allowComparison = true,
   showPromptEditor = true,
   onCompleted,
   blockedReason = null,
+  blockedNotice,
   showEngine = true,
   layoutVariant = 'stacked',
   recentExpanded = true,
@@ -129,6 +137,7 @@ export function GenerationExperience({
   const queryClient = useQueryClient();
   const { actor, mockSwitcherEnabled } = useActor();
   const { t, i18n } = useTranslation('playground');
+  const { t: tUi } = useTranslation('react-ui');
   const promptRef = useRef<HTMLElement | null>(null);
   const resultRef = useRef<HTMLElement | null>(null);
   const initialPromptRef = useRef(initialPrompt);
@@ -231,6 +240,23 @@ export function GenerationExperience({
     comparisonSlots
   ]);
 
+  const resolvedSceneTemplateSnapshot = useMemo(() => sceneTemplateSnapshot
+    ? {
+      ...sceneTemplateSnapshot,
+      providerModelSnapshot: {
+        ...asRecord(sceneTemplateSnapshot.providerModelSnapshot),
+        providerId: engine.provider,
+        modelId: engine.model
+      },
+      generationSettingsSnapshot: {
+        ...asRecord(sceneTemplateSnapshot.generationSettingsSnapshot),
+        aspectRatio: engine.aspectRatio,
+        resolution: engine.resolution,
+        outputCount: 1
+      }
+    }
+    : null, [engine, sceneTemplateSnapshot]);
+
   const draft = useMemo<GenerationRequestDraft>(() => ({
     provider: engine.provider,
     submodel: engine.model,
@@ -244,13 +270,15 @@ export function GenerationExperience({
     references,
     selections,
     customColors,
-    sceneTemplateSnapshot,
+    sceneTemplateSnapshot: resolvedSceneTemplateSnapshot,
+    templateUseSessionId: templateUseContext?.templateUseSessionId || null,
+    templateReplacements: templateUseContext?.replacements || {},
     characterProfileContext,
     characterReferenceOutfitBehavior,
     faceReferenceContext,
     authoringMode,
     characterType
-  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, references, sceneTemplateSnapshot, selections, surface]);
+  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -640,10 +668,24 @@ export function GenerationExperience({
         onGrantMockCredits={() => grantCredits.mutate()}
       />
       {submitError && !isInsufficientCreditError(submitError)
-        ? <p role="alert" className="text-sm text-red-300">{submitError.message}</p>
+        ? (
+          <StatusNotice tone="error" title={tUi('ui.status.error')}>
+            {submitError.message}
+          </StatusNotice>
+        )
         : null}
-      {blockedReason ? <p role="alert" className="text-sm text-amber-300">{blockedReason}</p> : null}
-      {job.isError ? <p role="alert" className="text-sm text-red-300">{job.error.message}</p> : null}
+      {blockedReason
+        ? blockedNotice || (
+          <StatusNotice tone="warning" title={tUi('ui.status.warning')}>
+            {blockedReason}
+          </StatusNotice>
+        )
+        : null}
+      {job.isError ? (
+        <StatusNotice tone="error" title={tUi('ui.status.error')}>
+          {job.error.message}
+        </StatusNotice>
+      ) : null}
     </>
   );
   const queueStatusRegion = (
@@ -660,13 +702,15 @@ export function GenerationExperience({
   );
 
   if (layoutVariant === 'studio') {
-    const queueRegion = (
-      <>
-        {queueStatusRegion}
-        <StudioRecentGenerations limit={12} />
-        {studioQueueExtra}
-      </>
-    );
+    const queueRegion = comparison
+      ? queueStatusRegion
+      : (
+        <>
+          {queueStatusRegion}
+          <StudioRecentGenerations limit={12} />
+          {studioQueueExtra}
+        </>
+      );
     return (
       <StudioGenerationWorkspace
         modeSelector={studioModeSelector}
@@ -738,11 +782,19 @@ function createEstimateKey(draft: GenerationRequestDraft) {
     generationMode: draft.generationMode,
     authoringMode: draft.authoringMode,
     characterType: draft.characterType,
+    templateUseSessionId: draft.templateUseSessionId,
+    templateReplacements: draft.templateReplacements,
     referenceRoles: Object.entries(draft.references || {})
       .filter(([, value]) => Boolean(value))
       .map(([role]) => role)
       .sort()
   };
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
 }
 
 function referenceJobId(value: string) {

@@ -15,7 +15,10 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { readHandoff } from '../../../lib/persistence/handoffStorage';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
-import { listCommunityPosts } from '../../community/api/communityApi';
+import {
+  listCommunityPosts,
+  requestCommunityTemplateHandoff
+} from '../../community/api/communityApi';
 import type { CommunityPost } from '../../community/schemas/communitySchemas';
 import { getProviderCatalog, type GenerationReferenceRole } from '../../generation/api/generationApi';
 import { listCharacters, requestCharacterHandoff } from '../../profiles/api/profileApi';
@@ -45,6 +48,7 @@ export function FashionBlueprintRoute() {
   const initialCharacter = useMemo(loadCharacterHandoff, []);
   const [step, setStep] = useState(1);
   const [template, setTemplate] = useState<CommunityPost | null>(null);
+  const [templateUseSessionId, setTemplateUseSessionId] = useState<string | null>(null);
   const [character, setCharacter] = useState<CharacterSummary | null>(initialCharacter.character);
   const [characterContext, setCharacterContext] = useState<Record<string, unknown> | null>(initialCharacter.characterProfileContext);
   const [items, setItems] = useState<ProductItem[]>([createProductItem(1, initialCharacter.characterReferenceUrl)]);
@@ -96,6 +100,7 @@ export function FashionBlueprintRoute() {
     const first = createProductItem(1);
     setStep(1);
     setTemplate(null);
+    setTemplateUseSessionId(null);
     setCharacter(null);
     setCharacterContext(null);
     setItems([first]);
@@ -110,9 +115,10 @@ export function FashionBlueprintRoute() {
 
   const activeItem = items.find(item => item.key === activeItemKey) || items[0]!;
   const plan = useMemo<FashionPlanInput | null>(() => {
-    if (!template || !characterContext || !items.every(item => item.references.outfit_front)) return null;
+    if (!template || !templateUseSessionId || !characterContext || !items.every(item => item.references.outfit_front)) return null;
     return {
       templateId: template.id,
+      templateUseSessionId,
       characterProfileContext: characterContext,
       productItems: items.map(item => ({
         key: item.key,
@@ -129,7 +135,7 @@ export function FashionBlueprintRoute() {
       poseDirection,
       environmentDirection
     };
-  }, [advanced, characterContext, engine, environmentDirection, items, poseDirection, quality, template]);
+  }, [advanced, characterContext, engine, environmentDirection, items, poseDirection, quality, template, templateUseSessionId]);
   const planFingerprint = useMemo(() => plan ? JSON.stringify(plan) : '', [plan]);
   useEffect(() => {
     setQuote(null);
@@ -172,6 +178,16 @@ export function FashionBlueprintRoute() {
     setStep(Math.max(step, 3));
   }
 
+  async function chooseTemplate(next: CommunityPost) {
+    const handoff = await requestCommunityTemplateHandoff(next.id);
+    if (!handoff.useSession?.id) {
+      throw new Error('This template does not provide a current use session.');
+    }
+    setTemplate(next);
+    setTemplateUseSessionId(handoff.useSession.id);
+    setStep(current => Math.max(current, 2));
+  }
+
   function patchActiveReferences(next: Partial<Record<GenerationReferenceRole, string>>) {
     setItems(current => current.map(item =>
       item.key === activeItem.key
@@ -206,7 +222,7 @@ export function FashionBlueprintRoute() {
           {templates.data?.pages.flatMap(page => page.items).slice(0, 8).map(item => (
             <div key={item.id} className={template?.id === item.id ? 'ring-2 ring-cyan-400' : ''}>
               <MediaCard post={item} />
-              <Button className="mt-2 w-full" size="sm" variant={template?.id === item.id ? 'primary' : 'secondary'} onClick={() => { setTemplate(item); setStep(Math.max(step, 2)); }}>{t('fashion.action.useLook')}</Button>
+              <Button className="mt-2 w-full" size="sm" variant={template?.id === item.id ? 'primary' : 'secondary'} onClick={() => void chooseTemplate(item)}>{t('fashion.action.useLook')}</Button>
             </div>
           ))}
         </div>

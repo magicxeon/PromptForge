@@ -7,6 +7,7 @@ import {
 
 export type FashionPlanInput = {
   templateId: string;
+  templateUseSessionId: string;
   characterProfileContext: Record<string, unknown>;
   productItems: Array<{
     key: string;

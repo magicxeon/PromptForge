@@ -59,4 +59,26 @@ describe('StudioGenerationWorkspace', () => {
     expect(screen.getByText('Mode selector')).toBeVisible();
     expect(screen.getByText('Result')).toBeVisible();
   });
+
+  it('exposes the full-width comparison layout contract to the viewport', () => {
+    const { container } = render(
+      <I18nextProvider i18n={testI18n}>
+        <StudioGenerationWorkspace
+          modeSelector={<div>Mode selector</div>}
+          builder={<div>Builder</div>}
+          result={<div>Comparison result</div>}
+          queue={<div>Comparison queue</div>}
+          engine={<div>Engine</div>}
+          references={<div>References</div>}
+          prompt={<div>Prompt</div>}
+          actions={<button type="button">Generate</button>}
+          comparisonActive
+        />
+      </I18nextProvider>
+    );
+
+    expect(container.querySelector('.studio-viewport-grid')).toHaveClass('is-comparison');
+    expect(screen.getByText('Comparison result')).toBeVisible();
+    expect(screen.getByText('Comparison queue')).toBeVisible();
+  });
 });

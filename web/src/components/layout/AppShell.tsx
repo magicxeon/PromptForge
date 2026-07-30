@@ -7,13 +7,13 @@ import {
   Menu,
   Search,
   Sparkles,
-  UserRound,
   X
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { apiRequest } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { useActor } from '../../lib/auth/ActorProvider';
+import { getOwnCreatorProfileLocator } from '../../lib/auth/creatorProfileLocator';
 import { changeLocale, i18n } from '../../lib/i18n/i18n';
 import { Breadcrumbs } from './Breadcrumbs';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
@@ -21,6 +21,7 @@ import { MomeloBrand } from '../brand/MomeloBrand';
 import { SidebarNavigation } from './SidebarNavigation';
 import { AppFooter } from './AppFooter';
 import { HeaderSelect } from './HeaderSelect';
+import { AccountMenu } from './AccountMenu';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -45,6 +46,11 @@ export function AppShell() {
   const credits = useQuery({
     queryKey: queryKeys.credits(actorId),
     queryFn: () => apiRequest('/api/credits/account', { schema: creditResponseSchema }),
+    enabled: Boolean(actor)
+  });
+  const ownProfile = useQuery({
+    queryKey: queryKeys.ownCreatorProfile(actorId),
+    queryFn: getOwnCreatorProfileLocator,
     enabled: Boolean(actor)
   });
   const createTarget = location.pathname.startsWith('/comparisons')
@@ -86,6 +92,7 @@ export function AppShell() {
         users={mockUsers}
         showSwitcher={mockSwitcherEnabled}
         credits={credits.data?.account.availableCredits}
+        profileHandle={ownProfile.data?.handle}
         onSwitchActor={switchActor}
         menuTriggerRef={mobileTrigger}
         onOpenMenu={() => setMobileOpen(true)}
@@ -146,6 +153,7 @@ function GlobalHeader({
   users,
   showSwitcher,
   credits,
+  profileHandle,
   onSwitchActor,
   menuTriggerRef,
   onOpenMenu
@@ -155,6 +163,7 @@ function GlobalHeader({
   users: ReturnType<typeof useActor>['mockUsers'];
   showSwitcher: boolean;
   credits?: number;
+  profileHandle?: string;
   onSwitchActor: (actorId: string) => Promise<void>;
   menuTriggerRef: React.RefObject<HTMLButtonElement | null>;
   onOpenMenu: () => void;
@@ -232,9 +241,16 @@ function GlobalHeader({
           ]}
         />
         <div className="global-header__account">
-          <span className="global-header__avatar" aria-hidden="true">
-            {actor ? initials : <UserRound />}
-          </span>
+          <AccountMenu
+            displayName={actor?.displayName || '...'}
+            initials={actor ? initials : ''}
+            profilePath={profileHandle
+              ? `/creators/${encodeURIComponent(profileHandle)}`
+              : undefined}
+            menuLabel={t('shell.account.menuLabel')}
+            viewProfileLabel={t('shell.account.viewProfile')}
+            unavailableLabel={t('shell.account.profileUnavailable')}
+          />
           {showSwitcher ? (
             <HeaderSelect
               id="react-actor-select"
@@ -248,7 +264,7 @@ function GlobalHeader({
               }))}
             />
           ) : (
-            <span>{actor?.displayName || '...'}</span>
+            <span className="global-header__account-name">{actor?.displayName || '...'}</span>
           )}
         </div>
       </div>

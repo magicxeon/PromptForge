@@ -4,8 +4,17 @@ export const replaceableVariableSchema = z.object({
   id: z.string(),
   label: z.string().default('Variable'),
   type: z.string().default('text'),
-  sourceFieldName: z.string().optional(),
   required: z.boolean().default(false),
+  replacementPolicy: z.enum(['locked', 'replaceable']).default('replaceable'),
+  sourceFieldName: z.string().default(''),
+  fashionBindingRole: z.enum([
+    'fashion.character',
+    'fashion.outfit_front',
+    'fashion.outfit_back',
+    'fashion.environment',
+    'fashion.pose',
+    'fashion.brand_text'
+  ]).nullable().optional(),
   defaultValue: z.unknown().nullable().optional(),
   options: z.array(z.unknown()).optional()
 }).passthrough();
@@ -33,6 +42,10 @@ export const sharedTemplateSchema = z.object({
   }).default({}),
   ownerUsername: z.string().nullable().optional(),
   promptVisibility: z.string().optional(),
+  templatePricing: z.object({
+    accessCredits: z.number().default(0),
+    currency: z.string().default('credits')
+  }).nullable().optional(),
   sceneTemplateSnapshot: sceneTemplateSnapshotSchema.optional(),
   templateSnapshot: sceneTemplateSnapshotSchema.optional()
 }).passthrough();
@@ -40,13 +53,34 @@ export const sharedTemplateSchema = z.object({
 export const sharedTemplateListSchema = z.array(sharedTemplateSchema);
 
 export const useTemplateResponseSchema = z.union([
-  sceneTemplateSnapshotSchema,
   z.object({
-    snapshot: sceneTemplateSnapshotSchema.optional(),
-    sceneTemplateSnapshot: sceneTemplateSnapshotSchema.optional(),
-    template: sceneTemplateSnapshotSchema.optional()
-  }).passthrough()
+    snapshot: sceneTemplateSnapshotSchema
+  }).passthrough(),
+  z.object({
+    sceneTemplateSnapshot: sceneTemplateSnapshotSchema
+  }).passthrough(),
+  z.object({
+    template: sceneTemplateSnapshotSchema
+  }).passthrough(),
+  sceneTemplateSnapshotSchema
 ]);
+
+export const templateUseContextSchema = z.object({
+  templateId: z.string(),
+  templateVersionId: z.string(),
+  templateUseSessionId: z.string(),
+  sourceCommunityPostId: z.string().nullable().optional(),
+  expiresAt: z.string(),
+  pricing: z.object({
+    accessCredits: z.number().default(0),
+    currency: z.string().default('credits')
+  }).passthrough(),
+  publicInputSchema: z.object({
+    schemaVersion: z.number().default(1),
+    inputs: z.array(replaceableVariableSchema).default([])
+  })
+});
 
 export type SceneTemplateSnapshot = z.infer<typeof sceneTemplateSnapshotSchema>;
 export type SharedTemplate = z.infer<typeof sharedTemplateSchema>;
+export type TemplateUseContext = z.infer<typeof templateUseContextSchema>;

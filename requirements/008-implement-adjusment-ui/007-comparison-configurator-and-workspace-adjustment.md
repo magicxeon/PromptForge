@@ -70,6 +70,21 @@ reference instead of creating route-specific variants.
 - Display the shared prompt in a compact, dark, scrollable read-only field when
   policy permits it.
 
+### 2.2.1 Studio Viewport Layout Contract
+
+- Switching Studio into Comparison mode makes the result surface span the full
+  viewport row.
+- Comparison mode displays only the active Comparison result and its compact
+  queue progress. It hides the working Collection, Recent Generations and Shared
+  Templates to keep attention on the billable comparison task.
+- Closing Comparison mode restores the working Collection, Recent Generations
+  and Shared Templates without reloading the route.
+- `StudioRecentGenerations` owns one history region containing both the working
+  Collection toolbar and Recent Generations grid. The two elements must not
+  become independent parent-grid items.
+- Normal mode retains the existing result/queue split while reusing the same
+  history and Shared Template components.
+
 ### 2.3 Private Owner Actions
 
 - The owner can rename a private Comparison Set inline.

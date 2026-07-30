@@ -11,6 +11,7 @@ import { historyRepository } from '../../repositories/generation/HistoryReposito
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { logGenerationDiagnostic } from './generationDiagnostics.js';
+import { templateCoreService } from '../templates/TemplateCoreService.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -237,6 +238,20 @@ class QueueManager {
         ...referenceAccess,
         authorizedJobIds: job.options.authorizedFaceReferenceJobIds || []
       };
+      const templateReferenceAccess = {
+        ...referenceAccess,
+        authorizedJobIds: job.options.authorizedTemplateReferenceJobIds || []
+      };
+      const resolvedTemplateBaseline = await resolveReferenceForProvider(
+        job.options.templateBaselineReference,
+        job.options.username,
+        templateReferenceAccess
+      );
+      if (job.options.templateBaselineReference && !resolvedTemplateBaseline) {
+        const error = new Error('The published Template baseline image is no longer available.');
+        error.code = 'template_baseline_unavailable';
+        throw error;
+      }
       const resolvedFaceA = await resolveReferenceForProvider(
         job.options.faceReferenceImageA,
         job.options.username,
@@ -273,6 +288,7 @@ class QueueManager {
       const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username, referenceAccess);
 
       const uniqueReferences = dedupeResolvedReferenceImages([
+        ['templateBaseline', resolvedTemplateBaseline],
         ['characterA', resolvedCharacterA],
         ['characterB', resolvedCharacterB],
         ['outfitFront', resolvedOutfitFront],
@@ -284,6 +300,7 @@ class QueueManager {
       ]);
 
       // Mutate options to supply resolved base64 images to provider strategy
+      job.options.resolvedTemplateBaselineReference = uniqueReferences.templateBaseline;
       job.options.resolvedFaceReferenceImageA = uniqueReferences.faceA;
       job.options.resolvedFaceReferenceImageB = uniqueReferences.faceB;
       job.options.resolvedStyleReferenceImageA = uniqueReferences.styleA;
@@ -393,7 +410,8 @@ class QueueManager {
         generationDuration: durationSec,
         comparisonSetId: job.options.comparisonSetId || null,
         comparisonRunId: job.options.comparisonRunId || null,
-        comparisonSlotId: job.options.comparisonSlotId || null
+        comparisonSlotId: job.options.comparisonSlotId || null,
+        templateUseContext: job.options.templateUseContext || null
       };
       try {
         Object.assign(historyEntry, await thumbnailService.createForHistoryItem(historyEntry));
@@ -410,6 +428,21 @@ class QueueManager {
       await characterUsageService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
         console.warn(`[Queue] Character usage linkage failed for ${jobId}:`, error.message);
       });
+      if (job.options.templateUseContext?.templateUseSessionId) {
+        await templateCoreService.recordSuccessfulUse({
+          sessionId: job.options.templateUseContext.templateUseSessionId,
+          jobId,
+          pricingSnapshot: job.options.pricingSnapshot,
+          outputCount: 1,
+          replacementSummary: job.options.templateUseContext.replacementSummary || []
+        }, {
+          userId: job.options.payerUserId,
+          username: job.options.username,
+          role: 'user'
+        }).catch(error => {
+          console.warn(`[Queue] Template usage event failed for ${jobId}:`, error.message);
+        });
+      }
 
       let collectionWarning = null;
       try {

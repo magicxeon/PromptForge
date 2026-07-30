@@ -56,8 +56,8 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values and mappin
       { id: 'style_ref', type: 'reference_image', defaultValue: { source: 'history', jobId: 'job_3', imageUrl: '/outputs/3.png' } }
     ],
     referenceSlotMapping: {
-      face_ref: { required: true, sharePolicy: 'required_user_replacement', sourceJobId: 'job_1', imageUrl: '/outputs/1.png', thumbnailUrl: '/outputs/1_thumb.png' },
-      outfit_ref: { required: false, sharePolicy: 'shared_preview_only', sourceJobId: 'job_2', imageUrl: '/outputs/2.png', thumbnailUrl: '/outputs/2_thumb.png' },
+      face_ref: { required: true, sharePolicy: 'required_user_replacement', sourceJobId: 'job_1', imageUrl: '/outputs/1.png', value: '/outputs/1.png', thumbnailUrl: '/outputs/1_thumb.png' },
+      outfit_ref: { required: false, sharePolicy: 'shared_preview_only', sourceJobId: 'job_2', imageUrl: '/outputs/2.png', value: '/outputs/2.png', thumbnailUrl: '/outputs/2_thumb.png' },
       style_ref: { required: false, sharePolicy: 'shared_as_reusable_reference', sourceJobId: 'job_3', imageUrl: '/outputs/3.png', thumbnailUrl: '/outputs/3_thumb.png' }
     }
   };
@@ -75,6 +75,7 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values and mappin
   assert.equal(faceMap.previewAllowed, false);
   assert.equal(faceMap.sourceJobId, undefined);
   assert.equal(faceMap.imageUrl, undefined);
+  assert.equal(faceMap.value, undefined);
   assert.equal(faceMap.thumbnailUrl, undefined);
 
   // 2. outfit_ref (shared_preview_only) -> defaultValue is nullified, previewValue has imagery
@@ -90,6 +91,7 @@ test('sanitizeReferenceSlotsForPublic strips or cleans default values and mappin
   assert.equal(outfitMap.previewAllowed, true);
   assert.equal(outfitMap.sourceJobId, undefined);
   assert.equal(outfitMap.imageUrl, undefined);
+  assert.equal(outfitMap.value, undefined);
   assert.equal(outfitMap.thumbnailUrl, '/outputs/2_thumb.png'); // Keep thumbnail for preview-only mapping
 
   // 3. style_ref (shared_as_reusable_reference) -> defaultValue is intact
@@ -128,6 +130,28 @@ test('sanitizeReferenceSlotsForPublic preserves snapshot entirely for the owner'
   const charVar = sanitized.replaceableVariables.find(v => v.id === 'character_ref');
   assert.ok(charVar.defaultValue);
   assert.equal(charVar.defaultValue.jobId, 'job_2');
+});
+
+test('sanitizeReferenceSlotsForPublic accepts legacy string reference mappings', () => {
+  const referencePath = '/outputs/references/usr_bob/1785348329371-ef2ee20ebacb.jpg';
+  const snapshot = {
+    referenceSlotMapping: {
+      face_reference: referencePath
+    }
+  };
+
+  const sanitized = sanitizeReferenceSlotsForPublic(
+    snapshot,
+    { userId: 'usr_bob', username: 'user_bob' },
+    null
+  );
+
+  assert.equal(snapshot.referenceSlotMapping.face_reference, referencePath);
+  assert.deepEqual(sanitized.referenceSlotMapping.face_reference, {
+    sharePolicy: 'required_user_replacement',
+    reuseAllowed: false,
+    previewAllowed: false
+  });
 });
 
 // ---

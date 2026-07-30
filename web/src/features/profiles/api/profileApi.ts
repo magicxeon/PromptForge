@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../lib/api/apiClient';
+import { getOwnCreatorProfileLocator } from '../../../lib/auth/creatorProfileLocator';
 import {
   characterDetailSchema,
   characterDirectorySchema,
@@ -6,14 +7,11 @@ import {
   ownerCharacterDetailSchema,
   characterWorksSchema,
   creatorPageSchema,
-  followResponseSchema,
-  ownCreatorProfileSchema
+  followResponseSchema
 } from '../schemas/profileSchemas';
 
 export function getMyCreatorProfile() {
-  return apiRequest('/api/community/creator-profiles/me', {
-    schema: ownCreatorProfileSchema
-  });
+  return getOwnCreatorProfileLocator();
 }
 
 export function getCreatorPage(handle: string, tab: string) {

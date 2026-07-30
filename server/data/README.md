@@ -69,6 +69,10 @@ first mutation. A missing lazy file is equivalent to an empty store.
 | `characterProfiles` | `character-profiles/profiles.json` | array | `repositories/character-profiles/CharacterProfileRepository.js` | Present | `character_profiles` |
 | `characterProfileVersions` | `character-profiles/versions.json` | array | `repositories/character-profiles/CharacterProfileVersionRepository.js` | Present | `character_profile_versions` |
 | `characterUsageEvents` | `character-profiles/usageEvents.json` | array | `repositories/character-profiles/CharacterUsageRepository.js` | Present | `character_usage_events` |
+| `templates` | `templates/templates.json` | array | `repositories/templates/TemplateRepository.js` | Present | `templates` |
+| `templateVersions` | `templates/versions.json` | array | `repositories/templates/TemplateVersionRepository.js` | Present | `template_versions` |
+| `templateUseSessions` | `templates/useSessions.json` | array | `repositories/templates/TemplateUseSessionRepository.js` | Present | `template_use_sessions` |
+| `templateUsageEvents` | `templates/usageEvents.json` | array | `repositories/templates/TemplateUsageEventRepository.js` | Present | `template_usage_events`, `creator_earning_events` |
 
 The complete logical-key mapping is maintained in
 `server/config/paths.js`. Add the directory constant and `DATA_FILES` entry

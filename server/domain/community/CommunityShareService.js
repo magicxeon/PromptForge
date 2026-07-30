@@ -15,6 +15,7 @@ import {
   canPublishAsRemixOnly,
   isReusablePublishedSnapshot
 } from './communityShareSnapshot.js';
+import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 
 const DRAFT_TTL_MS = 15 * 60 * 1000;
 const PROMPT_VISIBILITIES = new Set(['full', 'partial', 'remix_only', 'private']);
@@ -31,6 +32,7 @@ export class CommunityShareService {
     profileService = null,
     moderationService = communityModerationService,
     engagementService = communityEngagementService,
+    templateCoreService = defaultTemplateCoreService,
     now = () => Date.now()
   } = {}) {
     this.generationRepository = generationRepository;
@@ -40,6 +42,7 @@ export class CommunityShareService {
     this.profileService = profileService;
     this.moderationService = moderationService;
     this.engagementService = engagementService;
+    this.templateCoreService = templateCoreService;
     this.postAccessService = postAccessService || new CommunityPostAccessService({
       postRepository,
       classificationService
@@ -97,6 +100,15 @@ export class CommunityShareService {
       sourceType: sanitizedSceneTemplate ? 'scene_template' : 'generated_image',
       sourceGenerationMode: generation.mode || null,
       faceReuseEligible: generation.mode === 'headshot',
+      templateEligible: Boolean(sanitizedSceneTemplate?.replaceableVariables?.length),
+      suggestedTemplateInputSchema: sanitizedSceneTemplate
+        ? {
+          schemaVersion: 1,
+          inputs: Array.isArray(sanitizedSceneTemplate.replaceableVariables)
+            ? sanitizedSceneTemplate.replaceableVariables
+            : []
+        }
+        : null,
       faceReusePolicy: 'view_only',
       title: '',
       description: '',
@@ -176,7 +188,41 @@ export class CommunityShareService {
 
     const publishedSnapshots = applyPromptVisibilityToSnapshots(draftSnapshots, promptVisibility);
     const reusable = isReusablePublishedSnapshot(publishedSnapshots, promptVisibility);
-    const postType = reusable ? 'template' : 'image';
+    const publishAsTemplate = payload.publishAsTemplate === undefined
+      ? reusable
+      : payload.publishAsTemplate === true;
+    if (publishAsTemplate && !reusable) {
+      throw new RepositoryContractError(
+        'community_template_not_reusable',
+        'This generation cannot be published as a reusable template.'
+      );
+    }
+    const canonicalTemplate = publishAsTemplate
+      ? await this.templateCoreService.publishFromGeneration({
+        templateId: payload.templateId || null,
+        kind: payload.templateKind || 'scene_image',
+        title,
+        description: typeof payload.description === 'string' ? payload.description : draft.description,
+        visibility,
+        promptVisibility,
+        executionSnapshot: draft.sceneTemplateSnapshot,
+        publicInputSchema: payload.publicInputSchema,
+        pricing: {
+          accessCredits: payload.templateAccessCredits,
+          creatorShareBps: payload.creatorShareBps
+        },
+        compatibility: payload.compatibility,
+        sourceGenerationId: draft.sourceGenerationId,
+        preview: {
+          imageUrl: draft.imageUrl,
+          thumbnailUrl: draft.thumbnailUrl,
+          imageAssetId: draft.imageAssetId,
+          thumbnailAssetId: draft.thumbnailAssetId,
+          aspectRatio: draft.workflowSnapshot?.generationSettings?.aspectRatio
+        }
+      }, actor)
+      : null;
+    const postType = canonicalTemplate ? 'template' : 'image';
 
     const taxonomy = await this.classificationService.preparePublishTaxonomy(
       draft.taxonomySuggestion,
@@ -195,7 +241,10 @@ export class CommunityShareService {
       sourceGenerationId: draft.sourceGenerationId,
       creatorProfileId: draft.creatorProfileId,
       postType,
-      sourceSceneTemplateSnapshotId: null,
+      sourceSceneTemplateSnapshotId: canonicalTemplate?.version.id || null,
+      templateId: canonicalTemplate?.template.id || null,
+      templateVersionId: canonicalTemplate?.version.id || null,
+      templatePricing: canonicalTemplate?.template.pricing || null,
       sourceComparisonSetId: null,
       imageAssetId: draft.imageAssetId,
       thumbnailAssetId: draft.thumbnailAssetId,
@@ -203,8 +252,9 @@ export class CommunityShareService {
       sourceGenerationMode: draft.sourceGenerationMode,
       faceReusePolicy,
       ...publishedSnapshots,
+      sceneTemplateSnapshot: canonicalTemplate ? publishedSnapshots.sceneTemplateSnapshot : null,
       visibility,
-      reusePolicy: reusable ? 'remix_allowed' : 'view_only',
+      reusePolicy: canonicalTemplate ? 'remix_allowed' : 'view_only',
       ...taxonomy
     }, actor);
 
@@ -224,6 +274,19 @@ export class CommunityShareService {
     const actor = assertActorContext(actorContext);
     const post = await this.postAccessService.getPostForTemplateUse(postId, actor);
 
+    if (post.templateId) {
+      const sessionResult = await this.templateCoreService.createUseSession({
+        templateId: post.templateId,
+        templateVersionId: post.templateVersionId || null,
+        sourceCommunityPostId: post.id
+      }, actor);
+      return {
+        postId: post.id,
+        title: post.title,
+        description: post.description,
+        ...sessionResult
+      };
+    }
     if (!post.sceneTemplateSnapshot || typeof post.sceneTemplateSnapshot !== 'object') {
       throw new RepositoryContractError(
         'community_template_unavailable',

@@ -64,6 +64,15 @@ export class GeminiProvider extends BaseProvider {
         return match ? { mimeType: match[1], data: match[2] } : { mimeType: 'image/png', data: value };
       };
 
+      if (options.resolvedTemplateBaselineReference) {
+        const image = normalizeImage(options.resolvedTemplateBaselineReference);
+        input.push({
+          type: 'image',
+          mime_type: image.mimeType,
+          data: image.data
+        });
+      }
+
       if (options.resolvedCharacterReferenceImageA) {
         const image = normalizeImage(options.resolvedCharacterReferenceImageA);
         input.push({

@@ -95,6 +95,35 @@ describe('GenerationResultSurface', () => {
     expect(screen.getByText('Choose models and generate.')).toBeVisible();
   });
 
+  it('separates result utilities from feature workflow actions', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <I18nextProvider i18n={testI18n}>
+          <GenerationResultSurface
+            job={{
+              status: 'completed',
+              result: {
+                imageUrl: '/outputs/job_face_result.png',
+                mimeType: 'image/png'
+              }
+            }}
+            pending={false}
+            onGoToPrompt={() => {}}
+            renderActions={() => <button type="button">Use this Face</button>}
+          />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    expect(container.querySelector('.generation-result__media-surface')).toBeInTheDocument();
+    expect(container.querySelector('.generation-result__utility-actions')).toContainElement(
+      screen.getByRole('link')
+    );
+    expect(container.querySelector('.generation-result__workflow-actions')).toContainElement(
+      screen.getByRole('button', { name: 'Use this Face' })
+    );
+  });
+
   it('renames a completed comparison directly from the result heading', async () => {
     const comparison = comparisonSetSchema.parse({
       id: 'comparison_rename',

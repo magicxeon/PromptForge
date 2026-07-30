@@ -106,7 +106,59 @@ model in localStorage. On actor change:
 
 1. abort or invalidate pending requests
 2. clear owner-relative controls
-3. reload the current route
+3. when the previous route was the actor's own profile, resolve the new
+   actor's canonical handle and replace the route while preserving the selected
+   profile tab
+4. when the route was another creator's public profile, keep that public route
+   and reload only viewer-relative permissions
+
+### React Runtime Contract
+
+The canonical implementation now belongs to:
+
+```text
+web/src/features/profiles/routes/CreatorProfileRoute.tsx
+web/src/features/profiles/api/profileApi.ts
+web/src/lib/auth/ActorProvider.tsx
+```
+
+`ActorProvider` clears actor-scoped Query state. `CreatorProfileRoute` owns the
+route decision because only that route knows whether the previous page was the
+actor's own profile. It must not infer ownership from the URL or username:
+ownership comes from the loaded profile DTO's `viewer.isOwner`.
+
+During an own-profile actor transition, the route displays a loading state
+until `/api/community/creator-profiles/me` resolves. The canonical handle
+replaces the old handle in browser history so Back does not return to a stale
+owner profile.
+
+### Header Account and Mock Actor Controls
+
+The React header renders two adjacent but independent controls:
+
+1. `AccountMenu` owns profile entry for the active actor. Its avatar trigger
+   resolves `/api/community/creator-profiles/me`, and `View Profile` navigates
+   to `/creators/:activeHandle`.
+2. `HeaderSelect` owns mock actor switching only. It must never double as the
+   account/profile trigger.
+
+The own-profile query key includes durable actor identity. An actor switch
+clears the previous actor's locator before resolving the new handle. While the
+locator is loading or unavailable, only the profile menu item is disabled; the
+mock user switcher remains usable.
+
+Canonical React ownership:
+
+```text
+web/src/components/layout/AccountMenu.tsx
+web/src/components/layout/AppShell.tsx
+web/src/lib/auth/creatorProfileLocator.ts
+web/src/lib/api/queryKeys.ts
+```
+
+At responsive widths the actor select remains an independent visible control.
+It must not use an invisible select overlay across the account avatar, because
+that makes the profile action unreachable.
 
 ## 7. File-Level Implementation Plan
 
@@ -150,6 +202,7 @@ Implementation sequence:
 - owner opens own profile
 - viewer opens another creator
 - mock actor switches while profile is open
+- mock actor switches while viewing another creator and remains on that creator
 - deleted or renamed handle
 - disabled Community feature
 - API request resolves after navigation away
@@ -161,6 +214,8 @@ Implementation sequence:
 
 - route parser maps each child path to one tab
 - account action resolves owner handle
+- account menu and mock actor switcher expose separate interactive controls
+- actor switch refreshes the account menu's canonical profile handle
 - actor change invalidates stale page response
 - unknown route does not expose content
 - tab links work with browser history

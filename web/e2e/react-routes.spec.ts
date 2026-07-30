@@ -134,6 +134,24 @@ test('Studio restores visual options and progressive comparison cards', async ({
   await expect(addModel).toHaveCount(0);
 });
 
+test('Studio comparison hides browsing regions and keeps focus on comparison results', async ({
+  page
+}, testInfo) => {
+  test.skip(testInfo.project.name.includes('mobile'), 'Desktop comparison assertion');
+  await page.goto('/studio/scene');
+  await expect(page.locator('.studio-history-region')).toBeVisible();
+  await expect(page.locator('.studio-shared-templates')).toBeVisible();
+  await page.locator('.engine-comparison-toggle').click();
+  await expect(page.locator('.studio-viewport-grid')).toHaveClass(/is-comparison/);
+  await expect(page.locator('.studio-history-region')).toHaveCount(0);
+  await expect(page.locator('.studio-shared-templates')).toHaveCount(0);
+
+  await page.locator('.engine-comparison-toggle').click();
+  await expect(page.locator('.studio-viewport-grid')).not.toHaveClass(/is-comparison/);
+  await expect(page.locator('.studio-history-region')).toBeVisible();
+  await expect(page.locator('.studio-shared-templates')).toBeVisible();
+});
+
 test('Studio mode control updates route, sidebar target and breadcrumb together', async ({ page }) => {
   await page.goto('/studio');
   const modes = page.locator('.studio-mode-selector button');

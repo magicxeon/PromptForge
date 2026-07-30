@@ -34,6 +34,8 @@ export type GenerationRequestDraft = {
   selections?: Record<string, unknown>;
   customColors?: StudioCustomColors;
   sceneTemplateSnapshot?: Record<string, unknown> | null;
+  templateUseSessionId?: string | null;
+  templateReplacements?: Record<string, unknown>;
   characterProfileContext?: Record<string, unknown> | null;
   characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
@@ -162,6 +164,8 @@ export function generationPayload(
       templateDraft: null
     },
     sceneTemplateSnapshot: draft.sceneTemplateSnapshot || null,
+    templateUseSessionId: draft.templateUseSessionId || null,
+    templateReplacements: draft.templateReplacements || {},
     characterProfileContext: draft.characterProfileContext || null,
     characterReferenceOutfitBehavior:
       draft.characterReferenceOutfitBehavior === 'replaceable'
@@ -195,7 +199,8 @@ export function pricingPayload(draft: GenerationRequestDraft) {
     outputCount: draft.outputCount,
     routingMode: 'advanced',
     qualityTier: 'standard',
-    generationMode: draft.generationMode
+    generationMode: draft.generationMode,
+    templateUseSessionId: draft.templateUseSessionId || null
   };
 }
 

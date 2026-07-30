@@ -124,6 +124,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   delete imageReferences.useReferenceImage;
 
   const activeReferenceValues = [
+    payload.templateBaselineReference,
     imageReferences.faceMatch ? payload.faceReferenceImageA : null,
     imageReferences.faceMatch ? payload.faceReferenceImageB : null,
     imageReferences.styleMatch || imageReferences.poseMatch ? payload.styleReferenceImageA : null,
@@ -187,6 +188,9 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     authorizedFaceReferenceJobIds: faceReferenceAuthorization
       ? normalizeReferenceJobIds([faceReferenceAuthorization.jobId])
       : [],
+    authorizedTemplateReferenceJobIds: normalizeReferenceJobIds(
+      payload.authorizedTemplateReferenceJobIds
+    ),
     referenceCount: new Set(activeReferenceValues).size
   };
   normalizedContext.referenceRoleManifest = createReferenceRoleManifest(normalizedContext);
@@ -210,7 +214,7 @@ export function compilePromptFromGenerationContext(context) {
     && typeof context.sceneBuilder.manualPromptText === 'string'
     ? context.sceneBuilder.manualPromptText.trim()
     : '';
-  const manualReferenceDirective = manualScenePrompt
+  const manualReferenceDirective = manualScenePrompt && !context.templateBaselineReference
     ? compileReferenceRoleDirective(context)
     : '';
   const reusableCharacterSheet = context.mode === 'character-sheet'
@@ -241,6 +245,9 @@ export function compilePromptFromGenerationContext(context) {
           : {})
       }
     ));
+  const templateDirectedPrompt = context.templateBaselineReference
+    ? [compileReferenceRoleDirective(context), basePrompt].filter(Boolean).join(' ')
+    : basePrompt;
   const effectiveCharacterOutfitBehavior = normalizeCharacterReferenceOutfitBehavior(
     context.characterReferenceOutfitBehavior
       || context.characterProfileContext?.outfitBehavior
@@ -264,22 +271,22 @@ export function compilePromptFromGenerationContext(context) {
     ]
     : [];
   return castingExport
-    ? (context.userRole === 'admin' && adminPromptOverride
-      ? `${castingPolicy.promptDirective}, ${basePrompt}`
-      : basePrompt)
+      ? (context.userRole === 'admin' && adminPromptOverride
+      ? `${castingPolicy.promptDirective}, ${templateDirectedPrompt}`
+      : templateDirectedPrompt)
     : context.characterProfileContext?.purpose === 'character_usage'
       ? [
         ...characterReferenceDirective,
         context.characterProfileContext.personalitySummarySnapshot
           ? `Portray the character personality as: ${context.characterProfileContext.personalitySummarySnapshot}.`
           : '',
-        basePrompt
+        templateDirectedPrompt
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
-        ? [...characterReferenceDirective, basePrompt].filter(Boolean).join(' ')
+        ? [...characterReferenceDirective, templateDirectedPrompt].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
-        ? `${castingPolicy.promptDirective}, ${basePrompt}`
-        : basePrompt;
+        ? `${castingPolicy.promptDirective}, ${templateDirectedPrompt}`
+        : templateDirectedPrompt;
 }
 
 export function createQueueOptions(context, {
@@ -296,7 +303,8 @@ export function createQueueOptions(context, {
   routingSnapshot = null,
   payerUserId = null,
   estimateId = null,
-  requestId = null
+  requestId = null,
+  templateUseContext = null
 }) {
   const references = context.imageReferences;
   const {
@@ -323,6 +331,9 @@ export function createQueueOptions(context, {
         : [],
     authorizedFaceReferenceJobIds: normalizeReferenceJobIds(
       context.authorizedFaceReferenceJobIds
+    ),
+    authorizedTemplateReferenceJobIds: normalizeReferenceJobIds(
+      context.authorizedTemplateReferenceJobIds
     ),
     outfitReferenceOverrides: context.outfitReferenceOverrides || normalizeOutfitReferenceOverrides(null),
     storyReferenceHandoff: context.mode === 'character-sheet'
@@ -352,7 +363,11 @@ export function createQueueOptions(context, {
     payerUserId: payerUserId || username || 'usr_demo',
     estimateId,
     requestId,
+    templateUseContext: templateUseContext && typeof templateUseContext === 'object'
+      ? structuredClone(templateUseContext)
+      : null,
     imageResolution: imageResolution || context.imageResolution || modelConfig.defaults?.resolution || null,
+    templateBaselineReference: context.templateBaselineReference || null,
     faceReferenceImageA: references.faceMatch ? context.faceReferenceImageA : null,
     faceReferenceImageB: references.faceMatch ? context.faceReferenceImageB : null,
     faceReferenceJobIds: references.faceMatch ? normalizeReferenceJobIds(context.faceReferenceJobIds) : [],

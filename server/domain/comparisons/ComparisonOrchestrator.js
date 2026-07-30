@@ -2,14 +2,23 @@ import { compileGenerationContext, createQueueOptions } from '../generation/gene
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
 import { creditReservationService } from '../credits/CreditReservationService.js';
+import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 
 export class ComparisonOrchestrator {
-  constructor({ providerRegistry, queueManager, creditManager, creditReservation = creditReservationService, repository = new ComparisonRepository() }) {
+  constructor({
+    providerRegistry,
+    queueManager,
+    creditManager,
+    creditReservation = creditReservationService,
+    repository = new ComparisonRepository(),
+    templateCoreService = defaultTemplateCoreService
+  }) {
     this.providerRegistry = providerRegistry;
     this.queueManager = queueManager;
     this.creditManager = creditManager;
     this.creditReservation = creditReservation;
     this.repository = repository;
+    this.templateCoreService = templateCoreService;
     this.validator = new ComparisonValidator({ providerRegistry });
     this.queueManager.subscribeLifecycle?.(event => this.handleQueueLifecycle(event));
   }
@@ -20,8 +29,14 @@ export class ComparisonOrchestrator {
 
   async estimate(payload, actor) {
     const { username, userId } = actor;
-    const { context } = compileGenerationContext(payload, actor);
+    const { payload: executionPayload } = await this.resolveTemplatePayload(payload, actor);
+    const { context } = compileGenerationContext(executionPayload, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
+    const templatePricing = await this.templateCoreService.resolvePricing(
+      payload.templateUseSessionId,
+      actor,
+      1
+    );
     const pricedSlots = await Promise.all(slots.map(async slot => {
       const estimate = await this.creditReservation.estimate({
         userId,
@@ -33,7 +48,9 @@ export class ComparisonOrchestrator {
         resolution: slot.imageResolution || '1K',
         aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,
-        outputCount: 1
+        outputCount: 1,
+        templateUseSessionId: payload.templateUseSessionId || null,
+        templatePricing
       });
       return { ...slot, estimateId: estimate.estimateId, estimatedCredit: estimate.estimatedCredits, estimateExpiresAt: estimate.expiresAt };
     }));
@@ -42,7 +59,11 @@ export class ComparisonOrchestrator {
 
   async create(payload, actor) {
     const { username, userId } = actor;
-    const { context, compiledPrompt } = compileGenerationContext(payload, actor);
+    const {
+      payload: executionPayload,
+      templateExecution
+    } = await this.resolveTemplatePayload(payload, actor);
+    const { context, compiledPrompt } = compileGenerationContext(executionPayload, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
     const pricedSlots = slots.map(slot => {
@@ -108,10 +129,27 @@ export class ComparisonOrchestrator {
             requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
             aspectRatio: context.aspectRatio,
             quality: null, referenceCount: context.referenceCount, outputCount: 1, routingMode: 'advanced',
-            qualityTier: 'standard', generationMode: context.mode || 'normal', requestId: `${idempotencyKey}:${slot.id}`
+            qualityTier: 'standard', generationMode: context.mode || 'normal',
+            templateUseSessionId: payload.templateUseSessionId || null,
+            requestId: `${idempotencyKey}:${slot.id}`
           },
-          metadata: { jobId, comparisonSetId: setId, comparisonRunId: runId }
+          metadata: {
+            jobId,
+            comparisonSetId: setId,
+            comparisonRunId: runId,
+            relatedTemplateId: templateExecution?.template.id || null,
+            templateVersionId: templateExecution?.version.id || null,
+            templateUseSessionId: templateExecution?.session.id || null,
+            sourceCommunityPostId: templateExecution?.session.sourceCommunityPostId || null
+          }
         });
+        if (templateExecution) {
+          await this.templateCoreService.attachGeneration(
+            templateExecution.session.id,
+            actor,
+            jobId
+          );
+        }
         this.queueManager.enqueue(slot.provider, slot.model, compiledPrompt, createQueueOptions(context, {
           jobId,
           username,
@@ -124,7 +162,18 @@ export class ComparisonOrchestrator {
           pricingSnapshot: reservationResult.reservation.pricingSnapshot,
           payerUserId: userId,
           estimateId: slot.estimateId,
-          requestId: `${idempotencyKey}:${slot.id}`
+          requestId: `${idempotencyKey}:${slot.id}`,
+          templateUseContext: templateExecution
+            ? {
+              templateId: templateExecution.template.id,
+              templateVersionId: templateExecution.version.id,
+              templateTitle: templateExecution.template.title,
+              templateOwnerUsername: templateExecution.template.ownerUsername,
+              templateUseSessionId: templateExecution.session.id,
+              sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
+              replacementSummary: templateExecution.replacementSummary
+            }
+            : null
         }));
         const enqueuedSlot = {
           slotId: slot.id,
@@ -351,6 +400,35 @@ export class ComparisonOrchestrator {
         jobId: slot.jobId,
         providerStreaming: false
       }))
+    };
+  }
+
+  async resolveTemplatePayload(payload, actor) {
+    if (!payload.templateUseSessionId) return { payload, templateExecution: null };
+    const templateExecution = await this.templateCoreService.resolveSession(
+      payload.templateUseSessionId,
+      actor,
+      payload.templateReplacements || {}
+    );
+    return {
+      templateExecution,
+      payload: {
+        ...payload,
+        sceneTemplateSnapshot: templateExecution.executionSnapshot,
+        selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+        sceneBuilder: {
+          ...(payload.sceneBuilder || {}),
+          authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
+          manualPromptText: templateExecution.executionSnapshot.manualPromptSnapshot
+            || templateExecution.executionSnapshot.finalPromptSnapshot
+            || ''
+        },
+        templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
+        authorizedTemplateReferenceJobIds:
+          templateExecution.baselineReference?.sourceGenerationId
+            ? [templateExecution.baselineReference.sourceGenerationId]
+            : []
+      }
     };
   }
 }

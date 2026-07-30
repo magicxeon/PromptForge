@@ -46,6 +46,7 @@ export const communityPostSchema = z.object({
   creator: creatorSchema,
   title: z.string().default(''),
   description: z.string().default(''),
+  visibility: z.enum(['public', 'unlisted', 'members_only', 'private']).default('public'),
   imageUrl: nullableText,
   thumbnailUrl: nullableText,
   officialTags: z.array(z.string()).default([]),
@@ -62,6 +63,12 @@ export const communityPostSchema = z.object({
   }).default({}),
   remixAvailability: z.boolean().default(false),
   templateAvailability: z.boolean().default(false),
+  templateId: nullableText,
+  templateVersionId: nullableText,
+  templatePricing: z.object({
+    accessCredits: z.number().nonnegative().default(0),
+    currency: z.string().default('credits')
+  }).nullable().default(null),
   faceReuseAvailability: z.boolean().default(false),
   comparisonSnapshot: z.object({
     criteria: nullableText,
@@ -170,7 +177,29 @@ export const deleteCommentResponseSchema = z.object({
 
 export const templateHandoffSchema = z.object({
   postId: z.string(),
-  sceneTemplateSnapshot: z.record(z.string(), z.unknown())
+  sceneTemplateSnapshot: z.record(z.string(), z.unknown()),
+  id: z.string().optional(),
+  currentVersionId: z.string().optional(),
+  pricing: z.object({
+    accessCredits: z.number().default(0),
+    currency: z.string().default('credits')
+  }).passthrough().optional(),
+  publicInputSchema: z.object({
+    schemaVersion: z.number().default(1),
+    inputs: z.array(z.object({
+      id: z.string(),
+      label: z.string().default('Input'),
+      type: z.string().default('custom_text'),
+      sourceFieldName: z.string().default(''),
+      required: z.boolean().default(false),
+      replacementPolicy: z.enum(['locked', 'replaceable']).default('replaceable')
+    }).passthrough()).default([])
+  }).optional(),
+  useSession: z.object({
+    id: z.string(),
+    expiresAt: z.string(),
+    sourceCommunityPostId: nullableText
+  }).optional()
 }).passthrough();
 
 export type CommunityPost = z.infer<typeof communityPostSchema>;

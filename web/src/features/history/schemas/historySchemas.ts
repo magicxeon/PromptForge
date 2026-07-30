@@ -17,6 +17,19 @@ export const historyItemSchema = z.object({
   characterSheetConfig: z.object({
     characterType: z.enum(['reusable_model', 'styled_character']).optional()
   }).passthrough().nullable().optional(),
+  templateUseContext: z.object({
+    templateId: z.string(),
+    templateVersionId: z.string(),
+    templateTitle: z.string().optional(),
+    templateOwnerUsername: z.string().optional(),
+    templateUseSessionId: z.string(),
+    sourceCommunityPostId: z.string().nullable().optional(),
+    replacementSummary: z.array(z.object({
+      inputId: z.string().optional(),
+      inputType: z.string().optional(),
+      supplied: z.boolean().optional()
+    }).passthrough()).default([])
+  }).passthrough().nullable().optional(),
   referencedFaceJobIds: z.array(z.string()).default([]),
   referencedStyleJobIds: z.array(z.string()).default([]),
   referencedCharacterJobIds: z.array(z.string()).default([]),

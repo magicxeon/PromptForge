@@ -187,7 +187,7 @@ export function GenerationResultSurface({
             : t('playground.result.comparisonEmptyDescription')}</p>
         </Surface>
       ) : (
-        <Surface className="overflow-hidden bg-black p-0">
+        <Surface className="generation-result__media-surface overflow-hidden bg-black p-0">
           {job?.result?.imageUrl ? (
             <>
               <button
@@ -201,16 +201,33 @@ export function GenerationResultSurface({
                   alt={t('playground.result.imageAlt')}
                 />
               </button>
-              <div className="flex flex-wrap gap-2 border-t border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3">
-                <a href={apiMediaUrl(job.result.imageUrl) || ''} download className="inline-flex min-h-10 items-center gap-2 border border-[var(--mpf-border)] px-4 text-sm font-semibold text-white no-underline"><Download className="size-4" />{t('playground.result.download')}</a>
-                {job.jobId || job.id ? (
-                  <>
-                    <Link to={`/history/${encodeURIComponent(job.jobId || job.id || '')}`} className="inline-flex min-h-10 items-center gap-2 border border-[var(--mpf-border)] px-4 text-sm font-semibold text-white no-underline"><ImageIcon className="size-4" />{t('playground.result.openDetail')}</Link>
-                    <CollectionPickerDialog jobId={job.jobId || job.id || ''} />
-                    <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
-                  </>
-                ) : null}
-                {renderActions?.(job)}
+              <div className="generation-result__action-bar">
+                <div className="generation-result__utility-actions">
+                  <a
+                    href={apiMediaUrl(job.result.imageUrl) || ''}
+                    download
+                    className="generation-result__action"
+                  >
+                    <Download aria-hidden="true" />
+                    {t('playground.result.download')}
+                  </a>
+                  {job.jobId || job.id ? (
+                    <>
+                      <Link
+                        to={`/history/${encodeURIComponent(job.jobId || job.id || '')}`}
+                        className="generation-result__action"
+                      >
+                        <ImageIcon aria-hidden="true" />
+                        {t('playground.result.openDetail')}
+                      </Link>
+                      <CollectionPickerDialog jobId={job.jobId || job.id || ''} />
+                      <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
+                    </>
+                  ) : null}
+                </div>
+                <div className="generation-result__workflow-actions">
+                  {renderActions?.(job)}
+                </div>
               </div>
               <GenerationImageViewer
                 items={[toViewerItem(job, viewerContext)]}

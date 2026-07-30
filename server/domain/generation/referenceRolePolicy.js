@@ -1,4 +1,5 @@
 export const REFERENCE_ROLE_ORDER = Object.freeze([
+  'template_baseline_reference',
   'character_reference_a',
   'character_reference_b',
   'outfit_front_reference',
@@ -55,6 +56,7 @@ export function createReferenceRoleManifest(context = {}) {
     manifest.push({ index: manifest.length + 1, roles: [role] });
   };
 
+  add('template_baseline_reference', context.templateBaselineReference);
   if (references.characterReference) {
     add('character_reference_a', context.characterReferenceImageA);
     add('character_reference_b', context.characterReferenceImageB);
@@ -90,6 +92,7 @@ export function createReferenceRoleManifest(context = {}) {
 }
 
 const ROLE_DIRECTIVES = Object.freeze({
+  template_baseline_reference: 'preserve the published template composition, camera framing, pose, environment, lighting, outfit, garment details, and visual treatment; change only inputs explicitly supplied as template replacements, and do not preserve the original facial identity when a face or character replacement is supplied',
   character_reference_a: 'preserve the same character identity, face, hair, skin, and body proportions while allowing the requested destination pose, outfit, environment, and visual treatment',
   character_reference_b: 'use as an additional view of the same character identity',
   outfit_front_reference: 'copy only the front garment silhouette, colors, pattern, material, construction, and visible clothing details',

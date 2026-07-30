@@ -5,8 +5,16 @@ import { CreatorIdentity } from '../community/CreatorIdentity';
 import { createReturnNavigationState } from '../../lib/navigation/returnNavigation';
 import { MediaStage } from './MediaStage';
 import { useTranslation } from 'react-i18next';
+import { TemplatePricingBadge } from '../templates/TemplatePricingBadge';
+import type { ReactNode } from 'react';
 
-export function MediaCard({ post }: { post: CommunityPost }) {
+export function MediaCard({
+  post,
+  ownerAction
+}: {
+  post: CommunityPost;
+  ownerAction?: ReactNode;
+}) {
   const { t } = useTranslation('community');
   const location = useLocation();
   const summary = post.engagementSummary;
@@ -24,7 +32,9 @@ export function MediaCard({ post }: { post: CommunityPost }) {
             <span className="rounded-[var(--mpf-radius-sm)] border border-cyan-400/30 bg-cyan-400/10 px-2 py-1 text-[11px] font-semibold uppercase text-cyan-200">
               {post.postType}
             </span>
-            <span className="text-xs text-[var(--mpf-text-muted)]">#{post.ranking?.rank || '-'}</span>
+            {post.postType === 'template' && post.templatePricing
+              ? <TemplatePricingBadge accessCredits={post.templatePricing.accessCredits} />
+              : <span className="text-xs text-[var(--mpf-text-muted)]">#{post.ranking?.rank || '-'}</span>}
           </div>
           <h2 className="community-media-card__title m-0 line-clamp-2 text-base text-white">
             {post.title || t('community.creator.untitled')}
@@ -40,6 +50,11 @@ export function MediaCard({ post }: { post: CommunityPost }) {
           </div>
         </div>
       </Link>
+      {ownerAction ? (
+        <div className="border-t border-[var(--mpf-border)] p-3 [&>button]:w-full">
+          {ownerAction}
+        </div>
+      ) : null}
     </article>
   );
 }

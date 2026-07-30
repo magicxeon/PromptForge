@@ -272,8 +272,8 @@
 }
 
 .generation-viewer__actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 1rem;
@@ -282,8 +282,8 @@
 
 .generation-viewer__actions > button,
 .generation-viewer__actions .generation-reference-actions button {
+  width: 100%;
   min-height: 40px;
-  flex: 1 1 96px;
   padding: 0.45rem 0.65rem;
   border-color: rgb(139 92 246 / 30%);
   background: rgb(139 92 246 / 6%);
@@ -294,7 +294,7 @@
 .generation-viewer__actions .generation-reference-actions {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 0.5rem;
 }
 

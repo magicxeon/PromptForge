@@ -133,12 +133,21 @@ export class CommunityPostAccessService {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     assertCanEditCommunityPost(post, actor);
-    return this.postRepository.updatePresentationById(postId, {
+    const updated = await this.postRepository.updatePresentationById(postId, {
       title: presentation.title,
       description: presentation.description,
       customTags: presentation.customTags,
       visibility: presentation.visibility
     }, actor);
+    await this.auditRepository.appendEvent({
+      action: 'community_post_owner_presentation_updated',
+      targetType: 'community_post',
+      targetId: postId,
+      reason: 'Owner updated public presentation metadata.',
+      beforeSnapshot: publicPresentationAuditSnapshot(post),
+      afterSnapshot: publicPresentationAuditSnapshot(updated)
+    }, actor);
+    return buildCommunityPostPublicView(updated);
   }
 
   async updateTaxonomy(postId, taxonomy = {}, actorContext) {
@@ -205,6 +214,17 @@ export class CommunityPostAccessService {
     }, actor);
     return buildCommunityPostPublicView(updated);
   }
+}
+
+function publicPresentationAuditSnapshot(post = {}) {
+  return {
+    title: post.title || '',
+    description: post.description || '',
+    customTags: Array.isArray(post.customTags) ? [...post.customTags] : [],
+    visibility: post.visibility || 'public',
+    templateId: post.templateId || null,
+    templateVersionId: post.templateVersionId || null
+  };
 }
 
 function withGenerationMetadataFallback(post, generation) {

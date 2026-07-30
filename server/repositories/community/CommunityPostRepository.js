@@ -141,6 +141,11 @@ export class CommunityPostRepository {
       creatorProfileId: recordInput.creatorProfileId || null,
       sourceGenerationResultId: recordInput.sourceGenerationResultId || recordInput.sourceGenerationId || null,
       sourceSceneTemplateSnapshotId: recordInput.sourceSceneTemplateSnapshotId || null,
+      templateId: recordInput.templateId || null,
+      templateVersionId: recordInput.templateVersionId || null,
+      templatePricing: recordInput.templatePricing && typeof recordInput.templatePricing === 'object'
+        ? structuredClone(recordInput.templatePricing)
+        : null,
       sourceComparisonSetId: recordInput.sourceComparisonSetId || null,
       sceneTemplateSnapshot: stripEmbeddedBase64(recordInput.sceneTemplateSnapshot || null),
       sharedPromptSnapshot: stripEmbeddedBase64(recordInput.sharedPromptSnapshot || null),

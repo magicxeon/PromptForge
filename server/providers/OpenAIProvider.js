@@ -58,6 +58,7 @@ export class OpenAIProvider extends BaseProvider {
     }
 
     const referenceImages = [
+      options.resolvedTemplateBaselineReference,
       options.resolvedCharacterReferenceImageA,
       options.resolvedCharacterReferenceImageB,
       options.resolvedOutfitReferenceImageFront,
@@ -470,6 +471,7 @@ export class OpenAIProvider extends BaseProvider {
     }
 
     const referenceImages = [
+      options.resolvedTemplateBaselineReference,
       options.resolvedCharacterReferenceImageA,
       options.resolvedCharacterReferenceImageB,
       options.resolvedOutfitReferenceImageFront,

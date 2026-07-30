@@ -4,6 +4,11 @@ This workspace is the canonical React browser application.
 The Express API, domain services, repositories, providers, and runtime data
 remain canonical and are not duplicated here.
 
+Template workflows are split by ownership: `src/features/templates/` owns
+serialization and client contracts, reusable presentation belongs under
+`src/components/templates/`, and Scene Builder, Community, and Fashion compose
+those contracts without creating parallel generation pipelines.
+
 ## Commands
 
 Run commands from the repository root:

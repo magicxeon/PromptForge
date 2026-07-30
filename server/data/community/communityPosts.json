@@ -1,5 +1,1257 @@
 [
   {
+    "title": "Fashion Pose #02",
+    "description": "Sample description",
+    "promptVisibility": "remix_only",
+    "imageUrl": "/outputs/job_1785395463068_gk9s3eee4.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785395463068_gk9s3eee4.webp",
+    "sourceGenerationResultId": "job_1785395463068_gk9s3eee4",
+    "sourceGenerationId": "job_1785395463068_gk9s3eee4",
+    "creatorProfileId": "creator_alice",
+    "postType": "template",
+    "sourceSceneTemplateSnapshotId": "tmplv_1785395582344_l0k5his5",
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templatePricing": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-07-30T07:11:11.020Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-lite-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-lite-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {
+      "schemaVersion": 1,
+      "mode": "normal",
+      "authoringMode": "guided",
+      "structuredSelections": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.creator-reveal",
+          "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+          "label": "Creator Product Reveal",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "label": "Soft Camera Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.creator",
+          "value": "in a tidy contemporary creator studio designed for fashion content",
+          "label": "Creator Studio",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.creator-window",
+          "value": "soft directional window light balanced for natural social-commerce fashion content",
+          "label": "Soft Window Creator Light",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.editorial",
+          "value": "art-directed high-fashion editorial campaign, confident visual narrative, luxury styling",
+          "label": "Editorial Campaign",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "editorial",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Photography Context": {
+          "id": "photo_context.001",
+          "value": "candid lifestyle photograph",
+          "label": "Candid Lifestyle Photograph",
+          "isCustom": false,
+          "group": "Photographic Context",
+          "category": "photo_context",
+          "tags": [
+            "photo_context",
+            "candid",
+            "lifestyle"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "label": "Refined Retail Display",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "generationSettings": {
+        "width": 896,
+        "height": 1200,
+        "generationDuration": "7.9"
+      }
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.creator-reveal",
+          "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+          "label": "Creator Product Reveal",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "label": "Soft Camera Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.creator",
+          "value": "in a tidy contemporary creator studio designed for fashion content",
+          "label": "Creator Studio",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "social"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.creator-window",
+          "value": "soft directional window light balanced for natural social-commerce fashion content",
+          "label": "Soft Window Creator Light",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.editorial",
+          "value": "art-directed high-fashion editorial campaign, confident visual narrative, luxury styling",
+          "label": "Editorial Campaign",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "editorial",
+            "campaign"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Photography Context": {
+          "id": "photo_context.001",
+          "value": "candid lifestyle photograph",
+          "label": "Candid Lifestyle Photograph",
+          "isCustom": false,
+          "group": "Photographic Context",
+          "category": "photo_context",
+          "tags": [
+            "photo_context",
+            "candid",
+            "lifestyle"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.retail",
+          "value": "refined restrained retail display elements",
+          "label": "Refined Retail Display",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "social",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.creator-reveal",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.creator",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.creator-window",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.editorial",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_photography_context",
+          "label": "Fashion Photography Context",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Photography Context",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "photo_context.001",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.retail",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "createdFromGenerationId": "job_1785395463068_gk9s3eee4",
+      "createdAt": 1785395471020
+    },
+    "visibility": "public",
+    "reusePolicy": "remix_allowed",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.98,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "workflow",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.commercial",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.luxury",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.commercial",
+      "content_type.product",
+      "visual_style.luxury"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.commercial",
+      "content_type.product",
+      "visual_style.luxury"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "visual_style.magazine",
+      "content_type.commercial",
+      "content_type.product",
+      "visual_style.luxury"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.98,
+    "counts": {
+      "views": 1,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 1,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-30T08:25:40.370Z"
+    },
+    "id": "post_1785395582352_fej1z0q0",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "status": "published",
+    "createdAt": "2026-07-30T07:13:02.352Z",
+    "updatedAt": "2026-07-30T08:25:40.370Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "title": "เดินหัวเราะอยู่ใน Gallery",
+    "description": "ทดสอบ description เพื่อให้ผู้อื่นสามารถใช้ template ได้",
+    "promptVisibility": "remix_only",
+    "imageUrl": "/outputs/job_1785348041575_jhc7vzgld.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785348041575_jhc7vzgld.webp",
+    "sourceGenerationResultId": "job_1785348041575_jhc7vzgld",
+    "sourceGenerationId": "job_1785348041575_jhc7vzgld",
+    "creatorProfileId": "creator_alice",
+    "postType": "template",
+    "sourceSceneTemplateSnapshotId": "tmplv_1785348243209_93asy31z",
+    "templateId": "tmpl_1785348243205_t3029qlz",
+    "templateVersionId": "tmplv_1785348243209_93asy31z",
+    "templatePricing": {
+      "accessCredits": 0,
+      "cadence": "per_output",
+      "creatorShareBps": 0,
+      "platformShareBps": 10000,
+      "currency": "credits"
+    },
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-07-29T18:00:51.124Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "providerDisplayName": null,
+      "modelId": "gemini-3.1-flash-lite-image",
+      "modelDisplayName": null,
+      "resolvedModelId": "gemini-3.1-flash-lite-image",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {
+      "schemaVersion": 1,
+      "mode": "normal",
+      "authoringMode": "guided",
+      "structuredSelections": {
+        "Expression": {
+          "id": "expression.003",
+          "value": "sharing a genuine candid laugh",
+          "label": "Candid Gentle Laugh",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "laugh",
+            "happy"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.creator-reveal",
+          "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+          "label": "Creator Product Reveal",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.clear",
+          "value": "natural relaxed hands kept clear of all key garment details",
+          "label": "Hands Clear of Garment",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "label": "Soft Camera Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.gallery",
+          "value": "in a minimalist gallery with clean architectural lines",
+          "label": "Minimalist Gallery",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.creator-window",
+          "value": "soft directional window light balanced for natural social-commerce fashion content",
+          "label": "Soft Window Creator Light",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "generationSettings": {
+        "width": 896,
+        "height": 1200,
+        "generationDuration": "9.5"
+      }
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.003",
+          "value": "sharing a genuine candid laugh",
+          "label": "Candid Gentle Laugh",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "laugh",
+            "happy"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.creator-reveal",
+          "value": "engaging creator-style product reveal pose, natural movement, garment kept visible",
+          "label": "Creator Product Reveal",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.clear",
+          "value": "natural relaxed hands kept clear of all key garment details",
+          "label": "Hands Clear of Garment",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "label": "Soft Camera Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.gallery",
+          "value": "in a minimalist gallery with clean architectural lines",
+          "label": "Minimalist Gallery",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.creator-window",
+          "value": "soft directional window light balanced for natural social-commerce fashion content",
+          "label": "Soft Window Creator Light",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.003",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.creator-reveal",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.gallery",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.creator-window",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "createdFromGenerationId": "job_1785348041575_jhc7vzgld",
+      "createdAt": 1785348051124
+    },
+    "visibility": "public",
+    "reusePolicy": "remix_allowed",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.product",
+        "dimensionId": "content_type",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.82,
+        "confidenceLevel": "high",
+        "sources": [
+          "workflow"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.fashion",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.fashion",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.fashion",
+      "content_type.product",
+      "content_type.storytelling"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.93,
+    "counts": {
+      "views": 2,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
+    "engagementSummary": {
+      "viewCount": 2,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-07-30T07:00:10.495Z"
+    },
+    "id": "post_1785348243221_sgq6ovcs",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "status": "published",
+    "createdAt": "2026-07-29T18:04:03.220Z",
+    "updatedAt": "2026-07-30T07:00:10.495Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "Movie Poster Comparison",
     "description": "Simple test comparison",
     "postType": "comparison",

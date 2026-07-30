@@ -10,7 +10,8 @@ import { characterUsageService } from '../../domain/character-profiles/Character
 export function registerGenerationRoutes(app, {
   providerRegistry,
   queueManager,
-  resolveRequestUsername
+  resolveRequestUsername,
+  templateCoreService
 }) {
   app.post('/api/generate', async (req, res) => {
     const { provider, submodel, estimateId, requestId } = req.body;
@@ -22,8 +23,35 @@ export function registerGenerationRoutes(app, {
       const activeProvider = providerConfig.id;
       const activeSubmodel = modelConfig.id;
 
+      const templateExecution = req.body.templateUseSessionId
+        ? await templateCoreService.resolveSession(
+          req.body.templateUseSessionId,
+          req.actorContext,
+          req.body.templateReplacements || {}
+        )
+        : null;
+      const requestPayload = templateExecution
+        ? {
+          ...req.body,
+          sceneTemplateSnapshot: templateExecution.executionSnapshot,
+          selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+          sceneBuilder: {
+            ...(req.body.sceneBuilder || {}),
+            authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
+            manualPromptText: templateExecution.executionSnapshot.manualPromptSnapshot
+              || templateExecution.executionSnapshot.finalPromptSnapshot
+              || ''
+          },
+          templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
+          authorizedTemplateReferenceJobIds:
+            templateExecution.baselineReference?.sourceGenerationId
+              ? [templateExecution.baselineReference.sourceGenerationId]
+              : [],
+          userRole: req.userRole
+        }
+        : { ...req.body, userRole: req.userRole };
       const { context } = compileGenerationContext(
-        { ...req.body, userRole: req.userRole },
+        requestPayload,
         req.actorContext
       );
       await characterCastingExportService.validateGenerationContext(
@@ -73,12 +101,16 @@ export function registerGenerationRoutes(app, {
           qualityTier: req.body.qualityTier || 'standard',
           generationMode: req.body.generationMode
             || (context.generationSurface === 'playground' ? 'playground' : req.body.mode || 'scene'),
+          templateUseSessionId: req.body.templateUseSessionId || null,
           requestId: reqId
         },
         metadata: {
           requestId: reqId,
           jobId,
-          relatedTemplateId: context.sceneTemplateSnapshot?.id || null
+          relatedTemplateId: templateExecution?.template.id || context.sceneTemplateSnapshot?.id || null,
+          templateVersionId: templateExecution?.version.id || null,
+          templateUseSessionId: templateExecution?.session.id || null,
+          sourceCommunityPostId: templateExecution?.session.sourceCommunityPostId || null
         }
       });
 
@@ -87,6 +119,13 @@ export function registerGenerationRoutes(app, {
       console.log(`[API Generate] Enqueueing Job. Provider: ${activeProvider}, Model: ${activeSubmodel}, Payer: ${payerUserId}, Stream: ${stream}, Reservation: ${reservationResult.reservation.reservationId}`);
 
       try {
+        if (templateExecution) {
+          await templateCoreService.attachGeneration(
+            templateExecution.session.id,
+            req.actorContext,
+            jobId
+          );
+        }
         queueManager.enqueue(activeProvider, activeSubmodel, compiledPrompt, createQueueOptions(context, {
           jobId,
           username: payerUsername,
@@ -97,7 +136,18 @@ export function registerGenerationRoutes(app, {
           pricingSnapshot: reservationResult.reservation.pricingSnapshot,
           payerUserId,
           estimateId: reservationResult.estimate?.estimateId || null,
-          requestId: reqId
+          requestId: reqId,
+          templateUseContext: templateExecution
+            ? {
+              templateId: templateExecution.template.id,
+              templateVersionId: templateExecution.version.id,
+              templateTitle: templateExecution.template.title,
+              templateOwnerUsername: templateExecution.template.ownerUsername,
+              templateUseSessionId: templateExecution.session.id,
+              sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
+              replacementSummary: templateExecution.replacementSummary
+            }
+            : null
         }));
       } catch (enqueueErr) {
         // Immediate refund if enqueue fails after reserve

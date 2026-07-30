@@ -68,3 +68,26 @@ test('CreditPricingPolicyService - Rejects models without a published price (TC-
       && error.statusCode === 400
   );
 });
+
+test('CreditPricingPolicyService adds a server-authoritative per-output Template fee', async () => {
+  const service = new CreditPricingPolicyService();
+  const estimate = await service.calculateEstimate({
+    requestedProviderId: 'gemini',
+    requestedModelId: 'gemini-3.1-flash-lite-image',
+    resolution: '1K',
+    outputCount: 2,
+    templateUseSessionId: 'tmpls_1',
+    templatePricing: {
+      templateId: 'tmpl_1',
+      templateVersionId: 'tmplv_1',
+      totalCredits: 14,
+      creatorShareBps: 7500
+    },
+    userId: 'usr_demo'
+  });
+
+  assert.equal(estimate.breakdown.generationCredits, 90);
+  assert.equal(estimate.breakdown.templateUsageCredits, 14);
+  assert.equal(estimate.breakdown.totalCredits, 104);
+  assert.equal(estimate.pricingInputs.templateUseSessionId, 'tmpls_1');
+});

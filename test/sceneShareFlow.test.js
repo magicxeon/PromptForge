@@ -49,12 +49,41 @@ function createService(generations = {}) {
       return { created: true };
     }
   };
+  const templateCoreService = {
+    async publishFromGeneration(input) {
+      return {
+        template: {
+          id: `template_${posts.length + 1}`,
+          pricing: {
+            accessCredits: Number(input.pricing?.accessCredits) || 0,
+            creatorShareBps: 0,
+            platformShareBps: 10000,
+            cadence: 'per_output',
+            currency: 'credits'
+          }
+        },
+        version: { id: `template_version_${posts.length + 1}` }
+      };
+    },
+    async createUseSession({ templateId, templateVersionId, sourceCommunityPostId }) {
+      return {
+        id: templateId,
+        currentVersionId: templateVersionId,
+        useSession: {
+          id: `template_session_${sourceCommunityPostId}`,
+          sourceCommunityPostId
+        },
+        sceneTemplateSnapshot: {}
+      };
+    }
+  };
   return {
     service: new CommunityShareService({
       generationRepository,
       postRepository,
       remixRepository,
-      engagementService
+      engagementService,
+      templateCoreService
     }),
     posts,
     events

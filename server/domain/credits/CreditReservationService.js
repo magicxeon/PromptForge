@@ -58,7 +58,8 @@ export class CreditReservationService {
       ['quality', normalized(inputs.quality), normalized(generationRequest.quality)],
       ['referenceCount', integer(inputs.referenceCount, 0), integer(generationRequest.referenceCount, 0)],
       ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
-      ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)]
+      ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
+      ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)]
     ];
     const mismatches = comparisons
       .filter(([, expected, actual]) => expected !== actual)
@@ -137,7 +138,8 @@ export class CreditReservationService {
         aspectRatio: estimate.pricingInputs?.aspectRatio,
         referenceCount: Number(estimate.pricingInputs?.referenceCount || 0),
         outputCount: Number(estimate.pricingInputs?.outputCount || 1),
-        generationMode: estimate.pricingInputs?.generationMode
+        generationMode: estimate.pricingInputs?.generationMode,
+        templateUseSessionId: estimate.pricingInputs?.templateUseSessionId || null
       };
       const mismatches = Object.entries(actual)
         .filter(([field, value]) => String(value ?? '') !== String(expected[field] ?? ''))
@@ -163,7 +165,8 @@ export class CreditReservationService {
           pricingPolicyVersion: estimate.pricingPolicyVersion,
           estimatedCredits: estimate.estimatedCredits,
           breakdown: estimate.breakdown
-        }
+        },
+        relatedTemplateId: estimate.breakdown?.templateId || null
       });
     }
     return this.accountRepo.reserveCreditPlan({
@@ -171,7 +174,8 @@ export class CreditReservationService {
       quoteId,
       planId,
       idempotencyKey,
-      allocations
+      allocations,
+      relatedTemplateId: allocations.find(item => item.relatedTemplateId)?.relatedTemplateId || null
     });
   }
 

@@ -54,5 +54,44 @@
     "updatedAt": "2026-07-27T05:51:03.242Z",
     "deletedAt": null,
     "metadata": {}
+  },
+  {
+    "userId": "usr_bob",
+    "handle": "user-bob",
+    "displayName": "Bob Remix Tester",
+    "bio": "",
+    "avatarAssetId": null,
+    "presentation": {
+      "headline": null,
+      "creatorRoles": [],
+      "locationText": null,
+      "websiteUrl": null,
+      "languageCodes": [],
+      "contentCategoryCodes": [],
+      "avatarAssetId": null,
+      "coverPostId": null,
+      "featuredPostIds": [],
+      "featuredCharacterProfileIds": [],
+      "featuredTemplatePostIds": [],
+      "sectionOrder": [
+        "featured",
+        "characters",
+        "templates",
+        "comparisons"
+      ]
+    },
+    "badgeCodes": [],
+    "membershipEnabled": false,
+    "recordVersion": 1,
+    "status": "active",
+    "id": "creator_user_bob",
+    "schemaVersion": 1,
+    "ownerUserId": null,
+    "ownerUsername": null,
+    "visibility": "public",
+    "createdAt": "2026-07-29T18:04:13.815Z",
+    "updatedAt": "2026-07-29T18:04:13.815Z",
+    "deletedAt": null,
+    "metadata": {}
   }
 ]

@@ -103,6 +103,7 @@ function toModelArkImageReference(value) {
 
 function collectReferences(options) {
   return [
+    options.resolvedTemplateBaselineReference,
     options.resolvedCharacterReferenceImageA,
     options.resolvedCharacterReferenceImageB,
     options.resolvedOutfitReferenceImageFront,

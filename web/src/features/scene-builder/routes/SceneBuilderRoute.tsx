@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { BookOpen, FileText, SlidersHorizontal } from 'lucide-react';
+import { FileText, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -33,14 +33,22 @@ import {
 import { requestSharedSceneTemplate } from '../api/sceneTemplateApi';
 import { HistoryReferencePicker } from '../components/HistoryReferencePicker';
 import { SharedTemplatePanel } from '../components/SharedTemplatePanel';
-import type { SceneTemplateSnapshot, SharedTemplate } from '../schemas/sceneTemplateSchemas';
+import type {
+  SceneTemplateSnapshot,
+  SharedTemplate,
+  TemplateUseContext
+} from '../schemas/sceneTemplateSchemas';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import {
   readActorScopedDraft,
   writeActorScopedDraft
 } from '../../../lib/persistence/actorScopedStorage';
-import { readHandoff } from '../../../lib/persistence/handoffStorage';
+import {
+  clearHandoff,
+  readHandoff,
+  writeHandoff
+} from '../../../lib/persistence/handoffStorage';
 import { scheduleHashTargetScroll } from '../../../lib/navigation/hashScroll';
 import { readFaceReferenceHandoff } from '../../../lib/persistence/faceReferenceHandoff';
 import {
@@ -49,6 +57,17 @@ import {
   restrictCustomColorsForReferences,
   type StudioCustomColors
 } from '../../studio/attributes/customColorModel';
+import {
+  buildSceneTemplateSnapshot,
+  buildTemplateReplacements
+} from '../../templates/templateSerializer';
+import { TemplateUseBanner } from '../../../components/templates/TemplateUseBanner';
+import {
+  TemplateReadinessPanel
+} from '../../../components/templates/TemplateReadinessPanel';
+import {
+  getMissingTemplateReferenceRequirements
+} from '../templateReferenceRequirements';
 
 type AuthoringMode = 'guided' | 'manual';
 const FEATURE = 'scene-builder';
@@ -82,6 +101,9 @@ export function SceneBuilderRoute() {
     )
   );
   const [snapshot, setSnapshot] = useState<SceneTemplateSnapshot | null>(initialHandoff.snapshot);
+  const [templateUseContext, setTemplateUseContext] = useState<TemplateUseContext | null>(
+    initialHandoff.templateUseContext
+  );
   const [references, setReferences] = useState<Partial<Record<GenerationReferenceRole, string>>>(initialHandoff.references);
   const [characterOutfitBehavior, setCharacterOutfitBehavior] = useState<CharacterOutfitBehavior>(
     initialHandoff.characterOutfitBehavior
@@ -115,14 +137,13 @@ export function SceneBuilderRoute() {
   );
   const effectiveGuidedSelections = useMemo(
     () => filterStudioSelections(
-      snapshot?.structuredSelectionsSnapshot as Record<string, AttributeSelection>
-        || selections,
+      selections,
       'scene',
       'styled_character',
       references,
       characterOutfitBehavior
     ),
-    [characterOutfitBehavior, references, selections, snapshot?.structuredSelectionsSnapshot]
+    [characterOutfitBehavior, references, selections]
   );
   const effectiveCustomColors = useMemo(
     () => restrictCustomColorsForReferences(customColors, {
@@ -152,25 +173,74 @@ export function SceneBuilderRoute() {
     ),
     [effectiveCustomColors, generationGuidedSelections]
   );
+  const authoredSnapshot = useMemo(() => buildSceneTemplateSnapshot({
+    authoringMode: mode,
+    finalPrompt: mode === 'manual' ? manualPrompt : guidedPreview,
+    selections: generationGuidedSelections,
+    customColors: effectiveCustomColors,
+    references
+  }), [
+    effectiveCustomColors,
+    generationGuidedSelections,
+    guidedPreview,
+    manualPrompt,
+    mode,
+    references
+  ]);
+  const effectiveSnapshot = snapshot || authoredSnapshot;
   const useTemplate = useMutation({
     mutationFn: (template: SharedTemplate) => requestSharedSceneTemplate(template.id),
     onSuccess: next => {
-      setSnapshot(next);
-      setMode(next.authoringMode);
-      setSelections(next.structuredSelectionsSnapshot as Record<string, AttributeSelection>);
-      setCustomColors(createStudioCustomColors(readSnapshotCustomColors(next)));
-      setManualPrompt(next.manualPromptSnapshot || next.finalPromptSnapshot || '');
+      setSnapshot(next.snapshot);
+      setTemplateUseContext(next.context);
+      setReferences({});
+      setCharacterOutfitBehavior('preserve');
+      setCharacterProfileContext(null);
+      setFaceReferenceContext(null);
+      setMode(next.snapshot.authoringMode);
+      setSelections(next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>);
+      setCustomColors(createStudioCustomColors(readSnapshotCustomColors(next.snapshot)));
+      setManualPrompt(next.snapshot.manualPromptSnapshot || next.snapshot.finalPromptSnapshot || '');
+      if (next.context) {
+        writeHandoff({
+          actorId: getActiveActorId(),
+          kind: 'scene-template',
+          payload: {
+            sceneTemplateSnapshot: next.snapshot,
+            templateUseContext: next.context
+          }
+        });
+      }
     }
   });
   const activePrompt = mode === 'manual'
     ? manualPrompt
-    : snapshot?.finalPromptSnapshot || guidedPreview;
+    : guidedPreview;
   const activeSelections = mode === 'guided'
     ? generationGuidedSelections
     : {};
-  const requiredRoles = getRequiredReferenceRoles(snapshot);
-  const missing = requiredRoles.filter(role => !references[role]);
-  const availableRoles = getTemplateReferenceRoles(snapshot);
+  const requiredRoles = getRequiredReferenceRoles(effectiveSnapshot, templateUseContext);
+  const missing = getMissingTemplateReferenceRequirements(requiredRoles, references);
+  const availableRoles = getTemplateReferenceRoles(effectiveSnapshot, templateUseContext);
+  const editableTemplateFields = useMemo(
+    () => templateUseContext
+      ? new Set(templateUseContext.publicInputSchema.inputs
+        .filter(input => input.replacementPolicy !== 'locked' && input.type !== 'reference_image')
+        .map(input => input.sourceFieldName))
+      : undefined,
+    [templateUseContext]
+  );
+  const templateReplacements = useMemo(
+    () => templateUseContext
+      ? buildTemplateReplacements({
+        publicInputSchema: templateUseContext.publicInputSchema,
+        selections: generationGuidedSelections,
+        references,
+        manualPrompt
+      })
+      : {},
+    [generationGuidedSelections, manualPrompt, references, templateUseContext]
+  );
 
   useEffect(() => {
     if (!actor?.userId) return;
@@ -183,6 +253,8 @@ export function SceneBuilderRoute() {
     setLockedFields(next.lockedFields);
     setCustomColors(createStudioCustomColors(next.customColors));
     setSnapshot(null);
+    setTemplateUseContext(null);
+    clearHandoff('scene-template');
     setReferences({});
     setCharacterOutfitBehavior('preserve');
     setCharacterProfileContext(null);
@@ -195,13 +267,9 @@ export function SceneBuilderRoute() {
     const next = loadSceneHandoff();
     if (!next.hasHandoff) return;
 
-    setSnapshot(next.snapshot);
-    setReferences(next.references);
-    setCharacterOutfitBehavior(next.characterOutfitBehavior);
-    setCharacterProfileContext(next.characterProfileContext);
-    setFaceReferenceContext(next.faceReferenceContext);
-
-    if (next.snapshot) {
+    if (next.hasTemplateHandoff && next.snapshot) {
+      setSnapshot(next.snapshot);
+      setTemplateUseContext(next.templateUseContext);
       setMode(next.snapshot.authoringMode);
       setSelections(
         next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>
@@ -214,6 +282,26 @@ export function SceneBuilderRoute() {
         || next.snapshot.finalPromptSnapshot
         || ''
       );
+    }
+    if (next.hasCharacterHandoff) {
+      setReferences(current => ({
+        ...current,
+        face_reference: undefined,
+        character_reference: next.references.character_reference
+      }));
+      setCharacterOutfitBehavior(next.characterOutfitBehavior);
+      setCharacterProfileContext(next.characterProfileContext);
+      setFaceReferenceContext(null);
+    }
+    if (next.hasFaceHandoff) {
+      setReferences(current => ({
+        ...current,
+        character_reference: undefined,
+        face_reference: next.references.face_reference
+      }));
+      setCharacterOutfitBehavior('preserve');
+      setCharacterProfileContext(null);
+      setFaceReferenceContext(next.faceReferenceContext);
     }
   }, [location.key]);
 
@@ -262,14 +350,26 @@ export function SceneBuilderRoute() {
           }
           setReferences(next);
         }}
-        sceneTemplateSnapshot={snapshot as unknown as Record<string, unknown> | null}
+        sceneTemplateSnapshot={effectiveSnapshot as unknown as Record<string, unknown>}
+        templateUseContext={templateUseContext
+          ? {
+            templateUseSessionId: templateUseContext.templateUseSessionId,
+            replacements: templateReplacements
+          }
+          : null}
         characterProfileContext={characterProfileContext}
         characterReferenceOutfitBehavior={characterOutfitBehavior}
         faceReferenceContext={faceReferenceContext}
         allowComparison
         showPromptEditor={false}
         layoutVariant="studio"
-        blockedReason={missing.length ? t('ui.scene.requiredReferences', { roles: missing.join(', ') }) : null}
+        blockedReason={missing.length ? t('ui.scene.templateRequiredTitle') : null}
+        blockedNotice={missing.length ? (
+          <TemplateReadinessPanel
+            missing={missing}
+            onResolve={scrollToTemplateReferences}
+          />
+        ) : undefined}
         referenceRoles={availableRoles}
         studioModeSelector={(
           <StudioModeSelector
@@ -290,18 +390,33 @@ export function SceneBuilderRoute() {
               <p>{t('ui.scene.description')}</p>
             </div>
             <div className="studio-scene-authoring">
-              <Button variant={mode === 'guided' ? 'primary' : 'secondary'} icon={<SlidersHorizontal className="size-4" />} onClick={() => setMode('guided')}>{t('ui.scene.guided')}</Button>
+              <Button variant={mode === 'guided' ? 'primary' : 'secondary'} icon={<SlidersHorizontal className="size-4" />} onClick={() => {
+                setMode('guided');
+                setSnapshot(null);
+                setTemplateUseContext(null);
+                clearHandoff('scene-template');
+              }}>{t('ui.scene.guided')}</Button>
               {mode === 'guided' ? (
                 <ConfirmDialog
                   trigger={<Button icon={<FileText className="size-4" />}>{t('ui.scene.manual')}</Button>}
                   title={t('ui.scene.copyTitle')}
                   description={t('ui.scene.copyDescription')}
                   confirmLabel={t('ui.scene.copyAction')}
-                  onConfirm={() => { setManualPrompt(current => current || guidedPreview); setMode('manual'); }}
+                  onConfirm={() => {
+                    setManualPrompt(current => current || guidedPreview);
+                    setMode('manual');
+                    setSnapshot(null);
+                    setTemplateUseContext(null);
+                    clearHandoff('scene-template');
+                  }}
                 />
               ) : <Button variant="primary" icon={<FileText className="size-4" />} onClick={() => setMode('manual')}>{t('ui.scene.manual')}</Button>}
             </div>
-            {snapshot ? <Surface className="studio-template-status"><span><BookOpen className="size-4 text-cyan-300" />{t('ui.scene.templateLoaded', { mode: snapshot.authoringMode })}</span><Button size="sm" variant="ghost" onClick={() => setSnapshot(null)}>{t('ui.action.clearTemplate')}</Button></Surface> : null}
+            {templateUseContext ? <TemplateUseBanner authoringMode={snapshot?.authoringMode || mode} accessCredits={templateUseContext.pricing.accessCredits} onClear={() => {
+              setSnapshot(null);
+              setTemplateUseContext(null);
+              clearHandoff('scene-template');
+            }} /> : null}
             {mode === 'guided' ? <GuidedAttributeForm
               groups={groups}
               mode="scene"
@@ -312,6 +427,7 @@ export function SceneBuilderRoute() {
               references={references}
               characterOutfitBehavior={characterOutfitBehavior}
               lockedFields={lockedFields}
+              editableFields={editableTemplateFields}
               onLockChange={(fieldName, locked) => {
                 setLockedFields(current => locked
                   ? [...new Set([...current, fieldName])]
@@ -319,11 +435,17 @@ export function SceneBuilderRoute() {
               }}
               onCustomColorsChange={colors => {
                 setCustomColors(colors);
-                setSnapshot(null);
+                if (!templateUseContext) setSnapshot(null);
               }}
-              onChange={next => { setSelections(next); setSnapshot(null); }}
+              onChange={next => {
+                setSelections(next);
+                if (!templateUseContext) setSnapshot(null);
+              }}
             /> : (
-              <Surface className="studio-manual-prompt"><label htmlFor="scene-manual-prompt">{t('ui.scene.manualLabel')}</label><textarea id="scene-manual-prompt" value={manualPrompt} onChange={event => { setManualPrompt(event.target.value); setSnapshot(null); }} placeholder={t('ui.scene.manualPlaceholder')} /></Surface>
+              <Surface className="studio-manual-prompt"><label htmlFor="scene-manual-prompt">{t('ui.scene.manualLabel')}</label><textarea id="scene-manual-prompt" value={manualPrompt} onChange={event => {
+                setManualPrompt(event.target.value);
+                if (!templateUseContext) setSnapshot(null);
+              }} placeholder={t('ui.scene.manualPlaceholder')} /></Surface>
             )}
             {availableRoles.length ? <HistoryReferencePicker
               roles={availableRoles}
@@ -349,6 +471,8 @@ export function SceneBuilderRoute() {
               setCustomColors(createStudioCustomColors());
               setManualPrompt('');
               setSnapshot(null);
+              setTemplateUseContext(null);
+              clearHandoff('scene-template');
               setReferences({});
               setCharacterOutfitBehavior('preserve');
               setCharacterProfileContext(null);
@@ -362,6 +486,8 @@ export function SceneBuilderRoute() {
                 characterOutfitBehavior
               ));
               setSnapshot(null);
+              setTemplateUseContext(null);
+              clearHandoff('scene-template');
             }}
             onExport={() => downloadStudioConfig({
               mode: 'scene',
@@ -437,16 +563,42 @@ function readSnapshotCustomColors(
     : null;
 }
 
-function getTemplateReferenceRoles(snapshot: SceneTemplateSnapshot | null): GenerationReferenceRole[] {
+function getTemplateReferenceRoles(
+  snapshot: SceneTemplateSnapshot | null,
+  context: TemplateUseContext | null
+): GenerationReferenceRole[] {
   if (!snapshot) return ['face_reference', 'character_reference', 'style_reference', 'pose_reference', 'outfit_front', 'outfit_back'];
-  return Object.keys(snapshot.referenceSlotMapping).flatMap(normalizeRole);
+  const schemaRoles = context?.publicInputSchema.inputs
+    .filter(input => input.type === 'reference_image' && input.replacementPolicy !== 'locked')
+    .flatMap(input => normalizeRole(input.sourceFieldName)) || [];
+  return [...new Set([
+    ...Object.keys(snapshot.referenceSlotMapping).flatMap(normalizeRole),
+    ...schemaRoles
+  ])];
 }
 
-function getRequiredReferenceRoles(snapshot: SceneTemplateSnapshot | null) {
+function getRequiredReferenceRoles(
+  snapshot: SceneTemplateSnapshot | null,
+  context: TemplateUseContext | null
+) {
   if (!snapshot) return [];
-  return Object.entries(snapshot.referenceSlotMapping).flatMap(([key, policy]) =>
+  const snapshotRoles = Object.entries(snapshot.referenceSlotMapping).flatMap(([key, policy]) =>
     policy.required === true ? normalizeRole(key) : []
   );
+  const schemaRoles = context?.publicInputSchema.inputs
+    .filter(input => input.type === 'reference_image'
+      && input.required
+      && input.replacementPolicy !== 'locked')
+    .flatMap(input => normalizeRole(input.sourceFieldName)) || [];
+  return [...new Set([...snapshotRoles, ...schemaRoles])];
+}
+
+function scrollToTemplateReferences() {
+  const target = document.getElementById('reference-images');
+  target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  window.setTimeout(() => {
+    target?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+  }, 350);
 }
 
 function normalizeRole(value: string): GenerationReferenceRole[] {
@@ -465,7 +617,11 @@ function normalizeRole(value: string): GenerationReferenceRole[] {
 
 function loadSceneHandoff(): {
   hasHandoff: boolean;
+  hasTemplateHandoff: boolean;
+  hasCharacterHandoff: boolean;
+  hasFaceHandoff: boolean;
   snapshot: SceneTemplateSnapshot | null;
+  templateUseContext: TemplateUseContext | null;
   references: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior: CharacterOutfitBehavior;
   characterProfileContext: Record<string, unknown> | null;
@@ -473,7 +629,11 @@ function loadSceneHandoff(): {
 } {
   const empty = {
     hasHandoff: false,
+    hasTemplateHandoff: false,
+    hasCharacterHandoff: false,
+    hasFaceHandoff: false,
     snapshot: null,
+    templateUseContext: null,
     references: {},
     characterOutfitBehavior: 'preserve' as CharacterOutfitBehavior,
     characterProfileContext: null,
@@ -483,8 +643,9 @@ function loadSceneHandoff(): {
     const activeActorId = getActiveActorId();
     const template = readHandoff<{
       sceneTemplateSnapshot?: SceneTemplateSnapshot;
+      templateUseContext?: TemplateUseContext;
       payload?: { snapshot?: SceneTemplateSnapshot; sceneTemplateSnapshot?: SceneTemplateSnapshot };
-    }>({ actorId: activeActorId, kind: 'scene-template', consume: true });
+    }>({ actorId: activeActorId, kind: 'scene-template', consume: false });
     const character = readHandoff<{
       destination?: string;
       characterReferenceUrl?: string;
@@ -498,10 +659,14 @@ function loadSceneHandoff(): {
       : null;
     return {
       hasHandoff: Boolean(template || characterPayload || face),
+      hasTemplateHandoff: Boolean(template),
+      hasCharacterHandoff: Boolean(characterPayload),
+      hasFaceHandoff: Boolean(face),
       snapshot: template?.payload?.sceneTemplateSnapshot
         || template?.payload?.payload?.snapshot
         || template?.payload?.payload?.sceneTemplateSnapshot
         || null,
+      templateUseContext: template?.payload?.templateUseContext || null,
       references: characterPayload?.characterReferenceUrl
         ? { character_reference: characterPayload.characterReferenceUrl }
         : face?.referenceValue.imageUrl

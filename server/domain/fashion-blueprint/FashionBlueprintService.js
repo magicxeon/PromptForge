@@ -11,7 +11,7 @@ export class FashionBlueprintService {
 
   resolvePlan(input = {}, actorContext = null) {
     const items = Array.isArray(input.productItems) ? input.productItems : [];
-    if (!input.templateId || !input.characterProfileContext || items.length < 1 || items.length > 5) {
+    if (!input.templateId || !input.templateUseSessionId || !input.characterProfileContext || items.length < 1 || items.length > 5) {
       throw fashionError('fashion_plan_incomplete', 'Template, reusable Character, and one to five products are required.');
     }
     for (const item of items) {
@@ -57,6 +57,7 @@ export class FashionBlueprintService {
     return {
       schemaVersion: 1,
       templateId: String(input.templateId),
+      templateUseSessionId: String(input.templateUseSessionId),
       characterProfileContext: input.characterProfileContext,
       productItems,
       qualityTier,

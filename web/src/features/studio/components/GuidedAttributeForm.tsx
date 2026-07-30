@@ -25,6 +25,7 @@ export function GuidedAttributeForm({
   references = {},
   characterOutfitBehavior = 'preserve',
   lockedFields = [],
+  editableFields,
   onLockChange,
   onCustomColorsChange,
   onChange
@@ -38,13 +39,21 @@ export function GuidedAttributeForm({
   references?: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior?: CharacterOutfitBehavior;
   lockedFields?: string[];
+  editableFields?: ReadonlySet<string>;
   onLockChange?: (fieldName: string, locked: boolean) => void;
   onCustomColorsChange: (colors: StudioCustomColors) => void;
   onChange: (value: Record<string, AttributeSelection>) => void;
 }) {
   const visible = useMemo(
-    () => visibleStudioGroups(groups, mode, characterType),
-    [characterType, groups, mode]
+    () => visibleStudioGroups(groups, mode, characterType)
+      .map(group => ({
+        ...group,
+        fields: editableFields
+          ? group.fields.filter(field => editableFields.has(field.name))
+          : group.fields
+      }))
+      .filter(group => group.fields.length > 0),
+    [characterType, editableFields, groups, mode]
   );
   const gender = selections.Gender;
   return (

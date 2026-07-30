@@ -24,8 +24,10 @@ export function buildCommunityPostPublicView(post = {}) {
       profileId: post.creatorProfileId || null,
       handle: creatorHandle(post.creatorHandle || post.ownerUsername)
     },
+    ownerUsername: post.ownerUsername || null,
     title: post.title || '',
     description: post.description || '',
+    visibility: post.visibility || 'public',
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
     presentationUrls: (post.thumbnailUrl || post.imageUrl) ? {
@@ -50,6 +52,14 @@ export function buildCommunityPostPublicView(post = {}) {
     templateAvailability: Boolean(snapshot)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
+    templateId: post.templateId || null,
+    templateVersionId: post.templateVersionId || post.sourceSceneTemplateSnapshotId || null,
+    templatePricing: post.templatePricing && typeof post.templatePricing === 'object'
+      ? {
+        accessCredits: Math.max(0, Number(post.templatePricing.accessCredits) || 0),
+        currency: 'credits'
+      }
+      : null,
     faceReuseAvailability: post.status === 'published'
       && post.visibility === 'public'
       && post.sourceGenerationMode === 'headshot'

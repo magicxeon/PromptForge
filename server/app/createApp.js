@@ -54,6 +54,8 @@ import { registerReferenceRoutes } from './routes/referenceRoutes.js';
 import { registerReferenceHandoffRoutes } from './routes/referenceHandoffRoutes.js';
 import { faceReferenceHandoffService } from '../domain/generation/FaceReferenceHandoffService.js';
 import { imagePresentationService } from '../domain/assets/ImagePresentationService.js';
+import { templateCoreService } from '../domain/templates/TemplateCoreService.js';
+import { registerTemplateRoutes } from './routes/templateRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -80,7 +82,8 @@ export function createApp() {
   const comparisonOrchestrator = new ComparisonOrchestrator({
     providerRegistry,
     queueManager,
-    creditManager
+    creditManager,
+    templateCoreService
   });
   const communityComparisonShareService = new CommunityComparisonShareService({
     comparisonOrchestrator
@@ -119,6 +122,7 @@ export function createApp() {
     comparisonOrchestrator,
     historyRepository,
     mockUserRepo,
+    templateCoreService,
     resolveRequestUsername
   };
 
@@ -191,8 +195,10 @@ export function createApp() {
   registerSceneTemplateRoutes(app, {
     communityShareService,
     communityFeaturePolicyService,
-    imagePresentationService
+    imagePresentationService,
+    templateCoreService
   });
+  registerTemplateRoutes(app, { templateCoreService });
 
   // All registered browser routes are owned by the React SPA.
   app.get('*', (req, res, next) => {

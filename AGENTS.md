@@ -79,6 +79,7 @@ web/src/features/profiles/
 web/src/features/prompt-composer/
 web/src/features/scene-builder/
 web/src/features/studio/
+web/src/features/templates/
 ```
 
 Current server domain and repository capabilities should follow matching

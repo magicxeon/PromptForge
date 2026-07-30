@@ -87,6 +87,7 @@ export class GrokImagineProvider extends BaseProvider {
     const model = options.submodel || this.providerConfig.defaultModel || 'grok-imagine-image-quality';
     const modelConfig = options.modelConfig || this.providerConfig.models?.find(entry => entry.id === model) || {};
     const references = [
+      options.resolvedTemplateBaselineReference,
       options.resolvedCharacterReferenceImageA,
       options.resolvedCharacterReferenceImageB,
       options.resolvedOutfitReferenceImageFront,

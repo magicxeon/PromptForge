@@ -35,10 +35,36 @@ export function registerSceneTemplateRoutes(app, {
   app.post('/api/scene-templates/share-drafts/:draftId/publish', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
-      const { title, description, promptVisibility, visibility, officialTags, customTags } = req.body || {};
+      const {
+        title,
+        description,
+        promptVisibility,
+        visibility,
+        officialTags,
+        customTags,
+        publishAsTemplate,
+        templateAccessCredits,
+        creatorShareBps,
+        publicInputSchema,
+        templateKind,
+        compatibility
+      } = req.body || {};
       const post = await communityShareService.publishGeneratedImageShare(
         req.params.draftId,
-        { title, description, promptVisibility, visibility, officialTags, customTags },
+        {
+          title,
+          description,
+          promptVisibility,
+          visibility,
+          officialTags,
+          customTags,
+          publishAsTemplate,
+          templateAccessCredits,
+          creatorShareBps,
+          publicInputSchema,
+          templateKind,
+          compatibility
+        },
         req.actorContext
       );
       res.json(post);

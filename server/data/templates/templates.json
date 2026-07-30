@@ -1,0 +1,68 @@
+[
+  {
+    "kind": "scene_image",
+    "title": "Fashion Pose #02",
+    "description": "Sample description",
+    "currentVersionId": "tmplv_1785395582344_l0k5his5",
+    "preview": {
+      "imageUrl": "/outputs/job_1785395463068_gk9s3eee4.jpg",
+      "thumbnailUrl": "/outputs/thumbnails/job_1785395463068_gk9s3eee4.webp",
+      "imageAssetId": null,
+      "thumbnailAssetId": null,
+      "aspectRatio": "6:8"
+    },
+    "pricing": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "compatibility": {},
+    "sourceGenerationId": "job_1785395463068_gk9s3eee4",
+    "sourceCommunityPostId": null,
+    "id": "tmpl_1785395582339_zsymjfy7",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "published",
+    "createdAt": "2026-07-30T07:13:02.338Z",
+    "updatedAt": "2026-07-30T07:13:02.350Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "kind": "scene_image",
+    "title": "เดินหัวเราะอยู่ใน Gallery",
+    "description": "ทดสอบ description เพื่อให้ผู้อื่นสามารถใช้ template ได้",
+    "currentVersionId": "tmplv_1785348243209_93asy31z",
+    "preview": {
+      "imageUrl": "/outputs/job_1785348041575_jhc7vzgld.jpg",
+      "thumbnailUrl": "/outputs/thumbnails/job_1785348041575_jhc7vzgld.webp",
+      "imageAssetId": null,
+      "thumbnailAssetId": null,
+      "aspectRatio": "6:8"
+    },
+    "pricing": {
+      "accessCredits": 0,
+      "cadence": "per_output",
+      "creatorShareBps": 0,
+      "platformShareBps": 10000,
+      "currency": "credits"
+    },
+    "compatibility": {},
+    "sourceGenerationId": "job_1785348041575_jhc7vzgld",
+    "sourceCommunityPostId": null,
+    "id": "tmpl_1785348243205_t3029qlz",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "published",
+    "createdAt": "2026-07-29T18:04:03.205Z",
+    "updatedAt": "2026-07-29T18:04:03.217Z",
+    "deletedAt": null,
+    "metadata": {}
+  }
+]

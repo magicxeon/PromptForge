@@ -8,6 +8,7 @@ import { fashionBlueprintRunRepository } from '../../repositories/fashion-bluepr
 import { fashionError } from './FashionBlueprintService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { createFashionPlanHash } from './FashionPlanHash.js';
+import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 
 const QUALITY_PROMPTS = {
   draft: 'clean ecommerce draft quality with clear garment placement',
@@ -21,13 +22,15 @@ export class FashionRunService {
     providerRegistry,
     queueManager,
     reservationService = creditReservationService,
-    runRepository = fashionBlueprintRunRepository
+    runRepository = fashionBlueprintRunRepository,
+    templateCoreService = defaultTemplateCoreService
   }) {
     this.quoteService = quoteService;
     this.providerRegistry = providerRegistry;
     this.queueManager = queueManager;
     this.reservationService = reservationService;
     this.runRepository = runRepository;
+    this.templateCoreService = templateCoreService;
     this.inFlightRuns = new Map();
   }
 
@@ -85,7 +88,8 @@ export class FashionRunService {
           aspectRatio: plan.aspectRatio,
           referenceCount: new Set(Object.values(item.references).filter(Boolean)).size,
           outputCount: plan.outputCountPerProduct,
-          generationMode: 'fashion'
+          generationMode: 'fashion',
+          templateUseSessionId: plan.templateUseSessionId
         }
       };
     });
@@ -97,6 +101,28 @@ export class FashionRunService {
       operation.payload.characterProfileContext = validatedCharacterContext;
       operation.payload.characterReferenceImageA =
         validatedCharacterContext.authorizedCharacterReferenceAssetId;
+      const templateExecution = await this.templateCoreService.resolveSession(
+        plan.templateUseSessionId,
+        actorContext,
+        createFashionTemplateReplacements(
+          await this.templateCoreService.loadSession(plan.templateUseSessionId, actorContext),
+          plan,
+          plan.productItems.find(item => item.key === operation.productItemKey),
+          validatedCharacterContext.authorizedCharacterReferenceAssetId
+        )
+      );
+      operation.templateExecution = templateExecution;
+      operation.payload.sceneTemplateSnapshot = templateExecution.executionSnapshot;
+      operation.payload.selections = templateExecution.executionSnapshot.structuredSelectionsSnapshot || {};
+      operation.payload.sceneBuilder = {
+        authoringMode: 'manual',
+        manualPromptText: [
+          templateExecution.executionSnapshot.finalPromptSnapshot
+            || templateExecution.executionSnapshot.manualPromptSnapshot
+            || '',
+          operation.payload.sceneBuilder.manualPromptText
+        ].filter(Boolean).join(' ')
+      };
       const { context } = compileGenerationContext(operation.payload, actorContext);
       operation.context = context;
       operation.generationRequest.referenceCount = context.referenceCount;
@@ -139,6 +165,11 @@ export class FashionRunService {
           continue;
         }
         const prompt = compilePromptFromGenerationContext(operation.context);
+        await this.templateCoreService.attachGeneration(
+          operation.templateExecution.session.id,
+          actorContext,
+          operation.jobId
+        );
         this.queueManager.enqueue(provider.id, model.id, prompt, createQueueOptions(operation.context, {
           jobId: operation.jobId,
           username: actorContext.username,
@@ -149,7 +180,14 @@ export class FashionRunService {
           pricingSnapshot: reservation.pricingSnapshot,
           payerUserId: actorContext.userId,
           estimateId: operation.estimateId,
-          requestId: operation.requestId
+          requestId: operation.requestId,
+          templateUseContext: {
+            templateId: operation.templateExecution.template.id,
+            templateVersionId: operation.templateExecution.version.id,
+            templateUseSessionId: operation.templateExecution.session.id,
+            sourceCommunityPostId: operation.templateExecution.session.sourceCommunityPostId,
+            replacementSummary: operation.templateExecution.replacementSummary
+          }
         }));
         run.operations.push({
           operationId: operation.operationId,
@@ -205,6 +243,41 @@ export class FashionRunService {
       operations
     };
   }
+}
+
+function createFashionTemplateReplacements(resolved, plan, item, characterReference) {
+  const baselineSelections = resolved.version.executionSnapshot?.structuredSelectionsSnapshot || {};
+  const baselineReferences = resolved.version.executionSnapshot?.referenceSlotMapping || {};
+  return Object.fromEntries((resolved.version.publicInputSchema?.inputs || []).flatMap(input => {
+    const field = String(input.sourceFieldName || '').toLocaleLowerCase();
+    const bindingRole = input.fashionBindingRole || null;
+    if (input.type === 'reference_image') {
+      if (bindingRole === 'fashion.character' || field.includes('character')) {
+        return [[input.id, characterReference]];
+      }
+      if (bindingRole === 'fashion.outfit_back' || (field.includes('outfit') && field.includes('back'))) {
+        return item?.references?.outfit_back ? [[input.id, item.references.outfit_back]] : [];
+      }
+      if (bindingRole === 'fashion.outfit_front' || field.includes('outfit')) {
+        return [[input.id, item?.references?.outfit_front]];
+      }
+      const baseline = baselineReferences[input.sourceFieldName]?.value;
+      return baseline ? [[input.id, baseline]] : [];
+    }
+    if (bindingRole === 'fashion.pose' || field.includes('pose')) {
+      return [[input.id, { value: plan.poseDirection, label: plan.poseDirection }]];
+    }
+    if (bindingRole === 'fashion.environment' || field.includes('environment') || field.includes('scene')) {
+      return [[input.id, { value: plan.environmentDirection, label: plan.environmentDirection }]];
+    }
+    if (input.sourceFieldName === 'manualPromptSnapshot') {
+      return [[input.id, resolved.version.executionSnapshot.manualPromptSnapshot
+        || resolved.version.executionSnapshot.finalPromptSnapshot
+        || '']];
+    }
+    const baseline = baselineSelections[input.sourceFieldName];
+    return baseline ? [[input.id, baseline]] : [];
+  }));
 }
 
 function createGenerationPayload(plan, item) {

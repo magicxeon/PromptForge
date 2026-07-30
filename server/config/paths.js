@@ -24,6 +24,7 @@ export const AUDIT_DATA_DIR = path.resolve(DATA_ROOT, 'audit');
 export const SCENE_TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'scene-templates');
 export const CHARACTER_PROFILES_DATA_DIR = path.resolve(DATA_ROOT, 'character-profiles');
 export const FASHION_BLUEPRINT_DATA_DIR = path.resolve(DATA_ROOT, 'fashion-blueprint');
+export const TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'templates');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -50,7 +51,11 @@ export const DATA_FILES = {
   characterProfileVersions: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'versions.json'),
   characterUsageEvents: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'usageEvents.json'),
   fashionBlueprintQuotes: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'quotes.json'),
-  fashionBlueprintRuns: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'runs.json')
+  fashionBlueprintRuns: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'runs.json'),
+  templates: path.resolve(TEMPLATES_DATA_DIR, 'templates.json'),
+  templateVersions: path.resolve(TEMPLATES_DATA_DIR, 'versions.json'),
+  templateUseSessions: path.resolve(TEMPLATES_DATA_DIR, 'useSessions.json'),
+  templateUsageEvents: path.resolve(TEMPLATES_DATA_DIR, 'usageEvents.json')
 };
 
 export function resolveDataFile(name) {

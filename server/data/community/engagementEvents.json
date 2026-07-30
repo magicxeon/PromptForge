@@ -340,5 +340,44 @@
     "occurredAt": "2026-07-29T12:24:17.559Z",
     "requestId": "req_1785327857557_0upqqsd",
     "metadata": {}
+  },
+  {
+    "id": "engevt_0fffbf9b-5f85-4e2e-ac40-1a9a89c09b29",
+    "schemaVersion": 1,
+    "postId": "post_1785348243221_sgq6ovcs",
+    "actorUserId": "usr_bob",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785348243221_sgq6ovcs:usr_bob:2026-07-29T18:04:18.737Z",
+    "occurredAt": "2026-07-29T18:04:18.737Z",
+    "requestId": "req_1785348258731_pxaoxtt",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_83b3ca46-66f4-4174-b08f-ec743c43ba80",
+    "schemaVersion": 1,
+    "postId": "post_1785348243221_sgq6ovcs",
+    "actorUserId": "usr_alice",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785348243221_sgq6ovcs:usr_alice:2026-07-30T07:00:10.452Z",
+    "occurredAt": "2026-07-30T07:00:10.452Z",
+    "requestId": "req_1785394810448_874carh",
+    "metadata": {}
+  },
+  {
+    "id": "engevt_b41807d9-c52b-486e-8248-ae7a55c64ba3",
+    "schemaVersion": 1,
+    "postId": "post_1785395582352_fej1z0q0",
+    "actorUserId": "usr_bob",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1785395582352_fej1z0q0:usr_bob:2026-07-30T07:13:18.270Z",
+    "occurredAt": "2026-07-30T07:13:18.270Z",
+    "requestId": "req_1785395598267_rlhbize",
+    "metadata": {}
   }
 ]

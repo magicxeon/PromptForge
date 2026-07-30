@@ -1,18 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, MapPin, Pencil, UserPlus, UserRoundCheck } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { CharacterCard } from '../../../components/profiles/CharacterCard';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { Surface } from '../../../components/ui/Surface';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
-import { getCreatorPage, setCreatorFollow, updateMyCreatorProfile } from '../api/profileApi';
+import {
+  getCreatorPage,
+  getMyCreatorProfile,
+  setCreatorFollow,
+  updateMyCreatorProfile
+} from '../api/profileApi';
 import { characterSummarySchema, type CreatorPage } from '../schemas/profileSchemas';
 import { communityPostSchema, type CommunityPost } from '../../community/schemas/communitySchemas';
 import { useTranslation } from 'react-i18next';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { SharedTemplateEditDialog } from '../../../components/templates/SharedTemplateEditDialog';
 
 const tabs = ['overview', 'gallery', 'characters', 'templates', 'comparisons', 'collections'] as const;
 
@@ -22,7 +28,13 @@ export function CreatorProfileRoute() {
   const actorId = actor?.userId || 'loading';
   const { handle = '', profileTab = 'overview' } = useParams();
   const tab = tabs.includes(profileTab as typeof tabs[number]) ? profileTab : 'overview';
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const previousActorIdRef = useRef(actorId);
+  const ownerActorIdRef = useRef<string | null>(null);
+  const actorChanged = previousActorIdRef.current !== actorId;
+  const followActorToOwnProfile = actorChanged
+    && ownerActorIdRef.current === previousActorIdRef.current;
   const page = useQuery({
     queryKey: ['creator-page', actorId, handle, tab],
     queryFn: () => getCreatorPage(handle, tab),
@@ -40,6 +52,38 @@ export function CreatorProfileRoute() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['creator-page', actorId, handle] })
   });
 
+  useEffect(() => {
+    const previousActorId = previousActorIdRef.current;
+    if (previousActorId === actorId) return;
+    previousActorIdRef.current = actorId;
+    const shouldFollowOwnProfile = ownerActorIdRef.current === previousActorId;
+    ownerActorIdRef.current = null;
+    if (!shouldFollowOwnProfile || !actor || actorId === 'loading') return;
+
+    let cancelled = false;
+    void getMyCreatorProfile()
+      .then(profile => {
+        if (cancelled) return;
+        const suffix = tab === 'overview' ? '' : `/${tab}`;
+        navigate(`/creators/${encodeURIComponent(profile.handle)}${suffix}`, {
+          replace: true
+        });
+      })
+      .catch(() => {
+        if (!cancelled) navigate('/community', { replace: true });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [actor, actorId, navigate, tab]);
+
+  useEffect(() => {
+    if (page.data?.viewer.isOwner) ownerActorIdRef.current = actorId;
+  }, [actorId, page.data?.viewer.isOwner]);
+
+  if (followActorToOwnProfile) {
+    return <LoadingState label={t('ui.creator.loading')} />;
+  }
   if (page.isLoading) return <LoadingState label={t('ui.creator.loading')} />;
   if (page.isError || !page.data) {
     return <ErrorState title={t('ui.creator.unavailable')} description={page.error?.message} onRetry={() => void page.refetch()} />;
@@ -167,7 +211,11 @@ function ProfileContent({ page }: { page: CreatorPage }) {
   if (page.selectedTab === 'overview' && page.overview) {
     return (
       <div className="mt-5 space-y-7">
-        <PostSection title={t('ui.creator.featured')} items={page.overview.featured.items} />
+        <PostSection
+          title={t('ui.creator.featured')}
+          items={page.overview.featured.items}
+          canManage={page.viewer.canManageContent}
+        />
         {page.overview.characters.items.length ? (
           <section>
             <h2 className="text-xl">{t('ui.creator.popularCharacters')}</h2>
@@ -176,8 +224,16 @@ function ProfileContent({ page }: { page: CreatorPage }) {
             </div>
           </section>
         ) : null}
-        <PostSection title={t('ui.creator.popularTemplates')} items={page.overview.templates.items} />
-        <PostSection title={t('ui.creator.recentComparisons')} items={page.overview.comparisons.items} />
+        <PostSection
+          title={t('ui.creator.popularTemplates')}
+          items={page.overview.templates.items}
+          canManage={page.viewer.canManageContent}
+        />
+        <PostSection
+          title={t('ui.creator.recentComparisons')}
+          items={page.overview.comparisons.items}
+          canManage={page.viewer.canManageContent}
+        />
       </div>
     );
   }
@@ -200,7 +256,15 @@ function ProfileContent({ page }: { page: CreatorPage }) {
   return (
     <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {characters.map(item => <CharacterCard key={item.id} character={item} />)}
-      {posts.map(item => <MediaCard key={item.id} post={item} />)}
+      {posts.map(item => (
+        <MediaCard
+          key={item.id}
+          post={item}
+          ownerAction={page.viewer.canManageContent && item.postType === 'template'
+            ? <SharedTemplateEditDialog post={item} />
+            : undefined}
+        />
+      ))}
       {mediaItems.map(item => (
         <Surface key={String(item.id)} className="overflow-hidden p-0">
           <img src={apiMediaUrl(String(item.thumbnailUrl || item.imageUrl || '')) || ''} alt="" className="aspect-[4/5] w-full object-cover object-top" />
@@ -211,13 +275,29 @@ function ProfileContent({ page }: { page: CreatorPage }) {
   );
 }
 
-function PostSection({ title, items }: { title: string; items: CommunityPost[] }) {
+function PostSection({
+  title,
+  items,
+  canManage = false
+}: {
+  title: string;
+  items: CommunityPost[];
+  canManage?: boolean;
+}) {
   if (!items.length) return null;
   return (
     <section>
       <h2 className="text-xl">{title}</h2>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {items.map(item => <MediaCard key={item.id} post={item} />)}
+        {items.map(item => (
+          <MediaCard
+            key={item.id}
+            post={item}
+            ownerAction={canManage && item.postType === 'template'
+              ? <SharedTemplateEditDialog post={item} />
+              : undefined}
+          />
+        ))}
       </div>
     </section>
   );

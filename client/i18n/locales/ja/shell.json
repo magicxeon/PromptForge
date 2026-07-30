@@ -9,5 +9,8 @@
   "shell.nav.comparisons": "AI比較",
   "shell.nav.comparisonsDesc": "モデルテストの確認",
   "shell.languageLabel": "言語",
-  "shell.activeUserLabel": "アクティブユーザー"
+  "shell.activeUserLabel": "アクティブユーザー",
+  "shell.account.menuLabel": "アカウントメニュー",
+  "shell.account.viewProfile": "プロフィールを見る",
+  "shell.account.profileUnavailable": "プロフィールを利用できません"
 }

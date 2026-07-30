@@ -6,7 +6,7 @@ const VALID_POLICIES = new Set([
 ]);
 
 export function getReferenceSharePolicy(slotId = '', slot = {}) {
-  const candidate = slot.sharePolicy || slot.policy;
+  const candidate = slot?.sharePolicy || slot?.policy;
   if (VALID_POLICIES.has(candidate)) return candidate;
 
   // Identity-bearing inputs are private by default. Other slots also remain private
@@ -35,7 +35,7 @@ export function validateReferenceSlotPolicies(slots = {}, viewerContext = {}, ow
     }
 
     privateSlots[slotId] = slot;
-    if (slot.required || policy === 'required_user_replacement') requiredReplacements.push(slotId);
+    if (slot?.required || policy === 'required_user_replacement') requiredReplacements.push(slotId);
   });
 
   return { publicSlots, privateSlots, requiredReplacements, warnings };

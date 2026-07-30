@@ -142,5 +142,41 @@
     "comparisonVoteNetCount": 0,
     "eligibleEventCount": 0,
     "updatedAt": "2026-07-29T12:38:25.437Z"
+  },
+  {
+    "postId": "post_1785348243221_sgq6ovcs",
+    "utcDate": "2026-07-29",
+    "uniqueViewCount": 1,
+    "likeNetCount": 0,
+    "saveNetCount": 0,
+    "activeCommentCount": 0,
+    "remixSuccessCount": 0,
+    "comparisonVoteNetCount": 0,
+    "eligibleEventCount": 1,
+    "updatedAt": "2026-07-30T07:00:10.495Z"
+  },
+  {
+    "postId": "post_1785348243221_sgq6ovcs",
+    "utcDate": "2026-07-30",
+    "uniqueViewCount": 1,
+    "likeNetCount": 0,
+    "saveNetCount": 0,
+    "activeCommentCount": 0,
+    "remixSuccessCount": 0,
+    "comparisonVoteNetCount": 0,
+    "eligibleEventCount": 0,
+    "updatedAt": "2026-07-30T07:00:10.495Z"
+  },
+  {
+    "postId": "post_1785395582352_fej1z0q0",
+    "utcDate": "2026-07-30",
+    "uniqueViewCount": 1,
+    "likeNetCount": 0,
+    "saveNetCount": 0,
+    "activeCommentCount": 0,
+    "remixSuccessCount": 0,
+    "comparisonVoteNetCount": 0,
+    "eligibleEventCount": 1,
+    "updatedAt": "2026-07-30T08:25:40.370Z"
   }
 ]

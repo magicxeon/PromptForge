@@ -13,6 +13,7 @@ import { deleteHistoryItem, getHistoryItem } from '../api/historyApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
+import { TemplateLineageCard } from '../../../components/templates/TemplateLineageCard';
 
 export function HistoryDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -42,8 +43,9 @@ export function HistoryDetailRoute() {
             <div><dt className="text-[var(--mpf-text-muted)]">{t('ui.history.size')}</dt><dd className="m-0">{item.data.width || '-'} × {item.data.height || '-'}</dd></div>
             <div><dt className="text-[var(--mpf-text-muted)]">{t('ui.history.credits')}</dt><dd className="m-0">{item.data.creditCost || '-'}</dd></div>
           </dl>
-          <div className="mt-5 flex gap-2">
-            <a href={apiMediaUrl(item.data.imageUrl) || ''} download className="inline-flex min-h-10 items-center gap-2 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] px-4 text-sm text-white no-underline"><Download className="size-4" />{t('ui.action.download')}</a>
+          <TemplateLineageCard context={item.data.templateUseContext} />
+          <div className="mt-5 grid grid-cols-1 gap-2 min-[390px]:grid-cols-2 sm:flex sm:flex-wrap [&>button]:w-full min-[390px]:[&>button]:min-w-0 sm:[&>button]:w-auto">
+            <a href={apiMediaUrl(item.data.imageUrl) || ''} download className="inline-flex min-h-10 min-w-0 items-center justify-center gap-2 rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border)] px-3 text-center text-[0.75rem] text-white no-underline sm:w-auto"><Download className="size-4 shrink-0" />{t('ui.action.download')}</a>
             <CollectionPickerDialog jobId={item.data.id} />
             <ShareGeneratedDialog jobId={item.data.id} />
             {item.data.mode === 'headshot' ? (

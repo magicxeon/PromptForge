@@ -120,6 +120,28 @@ Studio current result and Studio recent history must use the same viewer
 component. Community public detail pages remain route-owned and must not be
 replaced by this private viewer.
 
+### 5.1 Studio Current Result Scale and Action Layout
+
+The compact current-result surface inside Studio must remain usable for portrait,
+landscape, and square outputs:
+
+- the media stage preserves the source aspect ratio with `object-fit: contain`;
+- the Studio column must not stretch the media surface to match the adjacent
+  queue/history column;
+- the media stage uses a bounded viewport-relative height so a portrait Face
+  Creator result does not push the Configurator off screen;
+- actions render below the image and never overlay or crop the media;
+- utility actions (`Download`, `Open detail`, Collection, and Share) use a stable
+  four-column desktop grid and a two-column mobile grid;
+- reference and workflow actions use a separate row so `Face reference` and
+  `Use this Face` remain aligned, legible, and visually distinct from file
+  utilities;
+- all action controls preserve the shared compact type scale and stable button
+  dimensions without clipping or orphaned single buttons.
+- the private lightbox action area uses full-width rows for standalone actions;
+  reference actions may share a row only when multiple actions are present, and
+  a single available reference action must expand to the full action width.
+
 ## 6. Working Collection Contract
 
 The shared Collection picker must:

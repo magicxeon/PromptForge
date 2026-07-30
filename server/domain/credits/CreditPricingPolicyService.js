@@ -126,6 +126,8 @@ export class CreditPricingPolicyService {
       quality = null,
       referenceCount = 0,
       outputCount = 1,
+      templateUseSessionId = null,
+      templatePricing = null,
       userId
     } = options;
 
@@ -168,7 +170,9 @@ export class CreditPricingPolicyService {
     const referenceCredits = referencePolicy.mode === 'free'
       ? 0
       : billableReferences * Math.max(0, Number(referencePolicy.unitCredits) || 0);
-    const totalCredits = (baseOutputCredits + referenceCredits) * normalizedOutputCount;
+    const generationCredits = (baseOutputCredits + referenceCredits) * normalizedOutputCount;
+    const templateUsageCredits = Math.max(0, Number(templatePricing?.totalCredits) || 0);
+    const totalCredits = generationCredits + templateUsageCredits;
     const now = new Date();
 
     return {
@@ -189,11 +193,19 @@ export class CreditPricingPolicyService {
         quality: normalizedQuality,
         referenceCount: normalizedReferenceCount,
         outputCount: normalizedOutputCount,
-        generationMode: normalizeOptional(generationMode) || 'scene'
+        generationMode: normalizeOptional(generationMode) || 'scene',
+        templateUseSessionId: normalizeOptional(templateUseSessionId)
       },
       breakdown: {
         baseOutputCredits,
         referenceCredits,
+        generationCredits,
+        templateUsageCredits,
+        templateId: templatePricing?.templateId || null,
+        templateVersionId: templatePricing?.templateVersionId || null,
+        templateCreatorUserId: templatePricing?.creatorUserId || null,
+        templateCreatorUsername: templatePricing?.creatorUsername || null,
+        templateCreatorShareBps: Number(templatePricing?.creatorShareBps) || 0,
         textCredits: 0,
         adjustmentCredits: 0,
         totalCredits

@@ -69,45 +69,47 @@ export function StudioRecentGenerations({ limit = 12 }: { limit?: number }) {
 
   return (
     <>
-      <WorkingCollectionToolbar
-        selectedCollectionId={selectedCollectionId}
-        loadedCount={historyItems.length}
-        hasMore={history.data?.hasMore}
-        onSelectionChange={collectionId => {
-          setActiveId(null);
-          setSelectedCollectionId(collectionId);
-        }}
-      />
-      <section className="studio-recent" aria-labelledby="studio-recent-title">
-        <header className="studio-recent__header">
-          <h2 id="studio-recent-title">{t('ui.studio.recent')}</h2>
-          <Link to="/history">
-            {t('ui.studio.viewAll')} <ArrowRight aria-hidden="true" />
-          </Link>
-        </header>
-        {items.length ? (
-          <div className="studio-recent__grid">
-            {items.map(item => (
-              <button
-                key={item.id}
-                type="button"
-                className="studio-recent__item"
-                title={t('ui.viewer.title')}
-                onClick={() => setActiveId(item.id)}
-              >
-                <img
-                  src={apiMediaUrl(item.thumbnailUrl || item.imageUrl) || undefined}
-                  alt={t('ui.studio.generatedImage')}
-                  loading="lazy"
-                />
-                <span>{item.submodel || item.provider}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="studio-recent__empty">{t('ui.studio.noRecent')}</p>
-        )}
-      </section>
+      <div className="studio-history-region">
+        <WorkingCollectionToolbar
+          selectedCollectionId={selectedCollectionId}
+          loadedCount={historyItems.length}
+          hasMore={history.data?.hasMore}
+          onSelectionChange={collectionId => {
+            setActiveId(null);
+            setSelectedCollectionId(collectionId);
+          }}
+        />
+        <section className="studio-recent" aria-labelledby="studio-recent-title">
+          <header className="studio-recent__header">
+            <h2 id="studio-recent-title">{t('ui.studio.recent')}</h2>
+            <Link to="/history">
+              {t('ui.studio.viewAll')} <ArrowRight aria-hidden="true" />
+            </Link>
+          </header>
+          {items.length ? (
+            <div className="studio-recent__grid">
+              {items.map(item => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="studio-recent__item"
+                  title={t('ui.viewer.title')}
+                  onClick={() => setActiveId(item.id)}
+                >
+                  <img
+                    src={apiMediaUrl(item.thumbnailUrl || item.imageUrl) || undefined}
+                    alt={t('ui.studio.generatedImage')}
+                    loading="lazy"
+                  />
+                  <span>{item.submodel || item.provider}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="studio-recent__empty">{t('ui.studio.noRecent')}</p>
+          )}
+        </section>
+      </div>
       <GenerationImageViewer
         items={viewerItems}
         activeId={activeId}

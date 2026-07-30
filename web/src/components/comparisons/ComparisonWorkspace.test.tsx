@@ -14,20 +14,22 @@ describe('ComparisonWorkspace', () => {
       resources: {
         en: {
           comparisons: {
-            viewer: {
-              controls: 'Comparison controls',
-              sync: 'Sync view',
-              zoomOut: 'Zoom out',
-              zoomIn: 'Zoom in',
-              fit: 'Fit',
-              reset: 'Reset',
-              fullscreen: 'Fullscreen',
-              exitFullscreen: 'Exit fullscreen',
-              previous: 'Previous',
-              next: 'Next',
-              download: 'Download',
-              promptLabel: 'Comparison prompt',
-              winner: 'Winner'
+            comparisons: {
+              viewer: {
+                controls: 'Comparison controls',
+                sync: 'Sync view',
+                zoomOut: 'Zoom out',
+                zoomIn: 'Zoom in',
+                fit: 'Fit',
+                reset: 'Reset',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit fullscreen',
+                previous: 'Previous',
+                next: 'Next',
+                download: 'Download',
+                promptLabel: 'Comparison prompt',
+                winner: 'Winner'
+              }
             }
           }
         }
@@ -96,8 +98,8 @@ describe('ComparisonWorkspace', () => {
       configurable: true,
       get: () => fullscreenElement
     });
-    const requestFullscreen = vi.fn(async function (this: Element) {
-      fullscreenElement = this;
+    const requestFullscreen = vi.fn(async () => {
+      fullscreenElement = document.querySelector('.comparison-workspace');
       document.dispatchEvent(new Event('fullscreenchange'));
     });
     const exitFullscreen = vi.fn(async () => {

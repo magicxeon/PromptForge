@@ -13,6 +13,7 @@ import { MediaCard } from '../../../components/media/MediaCard';
 import { ComparisonWorkspace } from '../../../components/comparisons/ComparisonWorkspace';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { FaceReferenceDestinationDialog } from '../../../components/generation/FaceReferenceDestinationDialog';
+import { SharedTemplateEditDialog } from '../../../components/templates/SharedTemplateEditDialog';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { queryKeys } from '../../../lib/api/queryKeys';
 import { useActor } from '../../../lib/auth/ActorProvider';
@@ -51,7 +52,18 @@ export function CommunityPostRoute() {
         kind: 'scene-template',
         payload: {
           postId: payload.postId,
-          sceneTemplateSnapshot: payload.sceneTemplateSnapshot
+          sceneTemplateSnapshot: payload.sceneTemplateSnapshot,
+          templateUseContext: payload.id && payload.currentVersionId && payload.useSession
+            ? {
+              templateId: payload.id,
+              templateVersionId: payload.currentVersionId,
+              templateUseSessionId: payload.useSession.id,
+              sourceCommunityPostId: payload.useSession.sourceCommunityPostId || payload.postId,
+              expiresAt: payload.useSession.expiresAt,
+              pricing: payload.pricing || { accessCredits: 0, currency: 'credits' },
+              publicInputSchema: payload.publicInputSchema || { schemaVersion: 1, inputs: [] }
+            }
+            : null
         }
       });
       navigate('/studio/scene');
@@ -216,6 +228,9 @@ export function CommunityPostRoute() {
           <Metadata post={item} />
 
           <div className="community-post-information-panel__actions">
+            {item.postType === 'template' && item.viewer?.isOwner ? (
+              <SharedTemplateEditDialog post={item} />
+            ) : null}
             {item.templateAvailability ? (
               <Button
                 variant="primary"

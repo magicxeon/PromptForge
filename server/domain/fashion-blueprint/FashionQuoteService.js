@@ -3,22 +3,25 @@ import { fashionBlueprintQuoteRepository } from '../../repositories/fashion-blue
 import { createFashionPlanHash } from './FashionPlanHash.js';
 import { fashionError } from './FashionBlueprintService.js';
 import { communityPostAccessService } from '../community/CommunityPostAccessService.js';
+import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 
 export class FashionQuoteService {
   constructor({
     blueprintService,
     reservationService = creditReservationService,
     quoteRepository = fashionBlueprintQuoteRepository,
-    postAccessService = communityPostAccessService
+    postAccessService = communityPostAccessService,
+    templateCoreService = defaultTemplateCoreService
   }) {
     this.blueprintService = blueprintService;
     this.reservationService = reservationService;
     this.quoteRepository = quoteRepository;
     this.postAccessService = postAccessService;
+    this.templateCoreService = templateCoreService;
   }
 
   async createQuote(input, actorContext) {
-    await this.validateTemplate(input.templateId, actorContext);
+    await this.validateTemplate(input.templateId, input.templateUseSessionId, actorContext);
     const plan = this.blueprintService.resolvePlan(input, actorContext);
     const operations = [];
     for (const item of plan.productItems) {
@@ -33,7 +36,13 @@ export class FashionQuoteService {
         outputCount: plan.outputCountPerProduct,
         routingMode: plan.routingMode,
         qualityTier: plan.qualityTier,
-        generationMode: 'fashion'
+        generationMode: 'fashion',
+        templateUseSessionId: plan.templateUseSessionId,
+        templatePricing: await this.templateCoreService.resolvePricing(
+          plan.templateUseSessionId,
+          actorContext,
+          plan.outputCountPerProduct
+        )
       });
       operations.push({
         operationId: `op_${item.key}`,
@@ -74,7 +83,7 @@ export class FashionQuoteService {
     if (new Date(quote.expiresAt) < new Date()) {
       throw fashionError('fashion_quote_expired', 'Fashion quote has expired.');
     }
-    await this.validateTemplate(input.templateId, actorContext);
+    await this.validateTemplate(input.templateId, input.templateUseSessionId, actorContext);
     const plan = this.blueprintService.resolvePlan(input, actorContext);
     if (createFashionPlanHash(plan) !== quote.planHash) {
       throw fashionError('fashion_quote_stale', 'Fashion selections changed after the quote was created.');
@@ -82,10 +91,14 @@ export class FashionQuoteService {
     return { quote, plan };
   }
 
-  async validateTemplate(templateId, actorContext) {
+  async validateTemplate(templateId, templateUseSessionId, actorContext) {
     const post = await this.postAccessService.getPostForTemplateUse(templateId, actorContext);
     if (post.postType !== 'template') {
       throw fashionError('fashion_template_invalid', 'The selected post is not a reusable Template.', 409);
+    }
+    const session = await this.templateCoreService.loadSession(templateUseSessionId, actorContext);
+    if (session.template.id !== post.templateId) {
+      throw fashionError('fashion_template_session_mismatch', 'The selected Template session does not match this Community post.', 409);
     }
     return post;
   }
@@ -94,6 +107,7 @@ export class FashionQuoteService {
 function publicPlan(plan) {
   return {
     templateId: plan.templateId,
+    templateUseSessionId: plan.templateUseSessionId,
     qualityTier: plan.qualityTier,
     routingMode: plan.routingMode,
     route: plan.route,

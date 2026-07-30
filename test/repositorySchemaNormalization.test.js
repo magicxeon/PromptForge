@@ -65,6 +65,8 @@ test('community repository writes normalized public records and hides hidden rec
     title: 'Public post',
     ownerUserId: 'usr_demo',
     id: 'post_spoofed',
+    templateId: 'tmpl_1',
+    templateVersionId: 'tmplv_1',
     officialTags: ['content_type.fashion'],
     categoryCodes: ['content_type.fashion'],
     sceneTemplateSnapshot: { reference: 'data:image/png;base64,PRIVATE' }
@@ -93,12 +95,33 @@ test('community repository writes normalized public records and hides hidden rec
   });
   const presentation = await repository.updatePresentationById(published.id, {
     title: 'Updated title',
+    description: 'Updated public description',
+    customTags: ['lookbook', 'campaign'],
+    visibility: 'unlisted',
+    templateVersionId: 'tmplv_spoofed',
     officialTags: ['content_type.commercial'],
     categoryCodes: ['content_type.commercial']
   }, actor);
   assert.equal(presentation.title, 'Updated title');
+  assert.equal(presentation.description, 'Updated public description');
+  assert.deepEqual(presentation.customTags, ['lookbook', 'campaign']);
+  assert.equal(presentation.visibility, 'unlisted');
+  assert.equal(presentation.templateVersionId, 'tmplv_1');
   assert.deepEqual(presentation.officialTags, ['content_type.fashion']);
   assert.deepEqual(presentation.categoryCodes, ['content_type.fashion']);
+  await assert.rejects(
+    repository.updatePresentationById(
+      published.id,
+      { title: 'Unauthorized edit' },
+      { userId: 'usr_bob', username: 'user_bob' }
+    ),
+    error => error.code === 'community_post_forbidden'
+  );
+  await repository.updatePresentationById(
+    published.id,
+    { visibility: 'public' },
+    actor
+  );
   const publicPage = await repository.listPublic({}, { userId: 'usr_demo' });
   assert.deepEqual(publicPage.items.map(item => item.title), ['Updated title']);
 });

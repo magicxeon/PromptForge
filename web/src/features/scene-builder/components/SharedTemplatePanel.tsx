@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { LayoutTemplate } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../../components/ui/Button';
 import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { HorizontalMediaCarousel } from '../../../components/media/HorizontalMediaCarousel';
+import { TemplatePricingBadge } from '../../../components/templates/TemplatePricingBadge';
+import { TemplateUseButton } from '../../../components/templates/TemplateUseButton';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { listSharedSceneTemplates } from '../api/sceneTemplateApi';
 import type { SharedTemplate } from '../schemas/sceneTemplateSchemas';
@@ -28,7 +29,7 @@ export function SharedTemplatePanel({
   if (templates.isLoading) return <LoadingState label={t('ui.scene.templatesLoading')} />;
   if (templates.isError) return <ErrorState title={t('ui.scene.templatesUnavailable')} description={templates.error.message} />;
   return (
-    <section className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4">
+    <section className="studio-shared-templates border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-4">
       <HorizontalMediaCarousel
         heading={<><LayoutTemplate className="size-5 text-cyan-300" /><h2 className="m-0 text-lg">{t('ui.scene.sharedTemplates')}</h2></>}
         ariaLabel={t('ui.scene.sharedTemplates')}
@@ -59,7 +60,16 @@ export function SharedTemplatePanel({
                   />
                 ) : null}
               </div>
-              <div className="p-3"><strong className="line-clamp-1 text-sm">{template.title}</strong><small className="mt-1 block text-[var(--mpf-text-muted)]">@{template.ownerUsername || 'creator'}</small><Button className="mt-3 w-full" size="sm" onClick={() => onSelect(template)}>{t('ui.action.useTemplate')}</Button></div>
+              <div className="p-3">
+                <strong className="line-clamp-1 text-sm">{template.title}</strong>
+                <small className="mt-1 block text-[var(--mpf-text-muted)]">
+                  @{template.ownerUsername || 'creator'}
+                </small>
+                {template.templatePricing
+                  ? <TemplatePricingBadge accessCredits={template.templatePricing.accessCredits} className="mt-2" />
+                  : null}
+                <TemplateUseButton className="mt-3 w-full" onUse={() => onSelect(template)} />
+              </div>
             </article>
           );
         })}

@@ -27,6 +27,7 @@ test('Fashion plan resolves Simple routing and requires every outfit front', () 
   const service = new FashionBlueprintService({ providerRegistry: registry });
   const input = {
     templateId: 'post_1',
+    templateUseSessionId: 'tuse_1',
     characterProfileContext: { characterProfileId: 'char_1' },
     qualityTier: 'draft',
     productItems: [{
@@ -40,6 +41,7 @@ test('Fashion plan resolves Simple routing and requires every outfit front', () 
   const actor = { userId: 'usr_fashion' };
   const plan = service.resolvePlan(input, actor);
   assert.equal(plan.route.modelId, 'gemini-3.1-flash-lite-image');
+  assert.equal(plan.templateUseSessionId, 'tuse_1');
   assert.equal(plan.productItems.length, 1);
   assert.equal(createFashionPlanHash(plan), createFashionPlanHash(service.resolvePlan(input, actor)));
   assert.throws(

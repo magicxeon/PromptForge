@@ -37,6 +37,22 @@ export function getCommunityPost(postId: string) {
   });
 }
 
+export function updateCommunityPostPresentation(
+  postId: string,
+  input: {
+    title: string;
+    description: string;
+    customTags: string[];
+    visibility: 'public' | 'unlisted' | 'private';
+  }
+) {
+  return apiRequest(`/api/scene-templates/shared/${encodeURIComponent(postId)}`, {
+    method: 'PATCH',
+    body: input,
+    schema: communityPostSchema
+  });
+}
+
 export function recordCommunityView(postId: string) {
   return apiRequest(`/api/community/posts/${encodeURIComponent(postId)}/views`, {
     method: 'POST',
