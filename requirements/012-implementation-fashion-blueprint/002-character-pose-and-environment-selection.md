@@ -195,6 +195,77 @@ Initial popular e-commerce poses:
 Templates choose three or four compatible operations. Pose changes must remain
 natural and must not override a shot that explicitly requires front/back detail.
 
+### 3.1 Deferred Bulk Pose Variation Policy
+
+Bulk Outfit runs will later support controlled pose variation between Product
+Items so a seller can generate a visually related campaign without every image
+being identical. This is a Fashion Blueprint orchestration concern, not a new
+Reference Processing rule.
+
+The future plan contract is:
+
+```text
+BatchPoseVariationPolicy
+- mode:
+    locked
+    | subtle
+    | preset_rotation
+    | per_item
+    | auto_adapt
+- poseVariationPackVersionId
+- maximumVariationLevel: low | medium
+- preserveTemplateFraming: true
+- preserveCharacterIdentity: true
+- preserveEnvironment: true
+- allowHandAdaptation: boolean
+- itemAssignments[]
+  - productItemClientKey
+  - shotKey
+  - poseKey
+  - assignmentSource: template | rotation | user | compatibility_adaptation
+```
+
+Mode behavior:
+
+- `locked`: every compatible Product Item uses the Template pose.
+- `subtle`: vary only weight distribution, shoulder angle, gaze and restrained
+  hand placement.
+- `preset_rotation`: deterministically rotate through compatible poses in the
+  Template's versioned Pose Variation Pack.
+- `per_item`: the user selects an allowed pose for each Product Item.
+- `auto_adapt`: preserve the intended pose and adapt only interactions that are
+  physically incompatible with the replacement garment.
+
+Authority and safety rules:
+
+- Character Reference continues to own identity and body proportions.
+- Outfit Reference continues to own garment construction, pattern, material
+  and declared color behavior.
+- Template continues to own scene, lighting, framing and campaign treatment.
+- Pose variation owns only body action, gaze and compatible hand placement.
+- Variation must not introduce a new person, garment, environment, prop or
+  rendering style.
+- Front/back/detail operations override variation when a fixed viewing
+  direction is required.
+- Strict garment integrity may reduce or disable pose variation.
+- The Reference Processing authority plan and processed Outfit derivative are
+  reused; each Product Item must not create a private competing authority
+  matrix.
+
+Quote and reproducibility rules:
+
+- Pose assignments are resolved before quote creation.
+- The quote fingerprint includes policy mode, pack version and item
+  assignments.
+- Reordering/removing Product Items or changing a pose invalidates the quote.
+- Every result records its Product Item, shot, pose assignment and Reference
+  Processing policy version.
+- Random variation is forbidden unless a seed and resolved pose assignment are
+  stored in the immutable generation plan.
+
+This capability remains deferred until the shared Reference Processing Pipeline
+and the initial locked/explicit pose Bulk flow pass Fashion QA.
+
 ## 4. Environment
 
 Simple Mode:
@@ -259,3 +330,5 @@ server/domain/fashion-blueprint/FashionCharacterRecommendationService.js
 - View-only Characters do not appear as selectable picker results.
 - Character cards use readable front/face derivatives, not a tiny four-view
   sheet.
+- Deferred Bulk Pose Variation produces deterministic per-item assignments,
+  preserves role authority and invalidates stale quotes when assignments change.

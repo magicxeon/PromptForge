@@ -125,6 +125,30 @@ If an outfit reference is active:
 - retain only allowed customizations explicitly declared by Template/policy
 - explain that strict integrity can reduce pose freedom
 
+### 5.1 Deferred Per-Item Pose Variation
+
+The same Character, Template and processed reference policy are shared across a
+Bulk run, but a future Fashion direction plan may assign a small compatible
+pose variation to each Product Item.
+
+This must use `BatchPoseVariationPolicy` from
+`002-character-pose-and-environment-selection.md`. It must not infer pose from
+the Outfit wearer or allow an Outfit image to become pose, identity,
+environment or style authority.
+
+For Bulk execution:
+
+- normalize each Outfit through the shared Reference Processing Pipeline;
+- reuse a cached processed derivative for identical owner-scoped source assets;
+- bind one resolved pose assignment to each Product Item and shot;
+- preserve Template framing and campaign continuity;
+- permit hand adaptation when garment geometry makes the original interaction
+  impossible;
+- include resolved assignments in quote and run fingerprints.
+
+The initial MVP remains `locked` or explicitly user-selected. Automatic
+`subtle`, `preset_rotation` and `auto_adapt` assignment is deferred.
+
 ## 6. Files
 
 ```text
@@ -147,3 +171,5 @@ test/fashionReferenceAsset.test.js
 - Provider reference limits are checked for every shot operation.
 - Partial upload failure preserves valid items.
 - Another actor cannot attach the owner's private outfit asset.
+- Future per-item pose variation cannot copy the Outfit wearer's pose or alter
+  Character, garment, Template scene or visual style authority.

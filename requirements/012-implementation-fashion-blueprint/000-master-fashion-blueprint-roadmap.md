@@ -62,6 +62,7 @@ camera in Simple Mode.
 | User Profile `007` | Creator attribution and navigation to Character owners |
 | Navigation/UI adjustment `008` | Studio hierarchy, route context and breadcrumbs |
 | Commercial plan `010` | PostgreSQL, Cloud Storage, durable jobs, payments |
+| Reference Processing Pipeline `011` | Shared reference-role authority, Outfit isolation, preprocessing policy and processing lineage |
 
 Fashion Blueprint builds a validated generation plan. It does not call providers,
 mutate credits, duplicate Scene Template resolution or create its own result
@@ -156,6 +157,8 @@ Template + Character + outfit count + outputs + quality + maximum credits
 4. Adjust Direction (optional)
    -> keep Template pose/environment defaults or choose allowed overrides
    -> resolve Character/outfit/Template/pose ownership precedence
+   -> future Bulk Pose Variation may assign a bounded subtle pose per Product
+      Item without changing Character, Outfit, Template scene or visual style
 
 5. Choose Generation Mode
    -> Simple: Draft, Selling Quality or Premium Campaign
@@ -235,6 +238,9 @@ tests may run earlier without exposing an incomplete customer route.
 - Unlimited bulk runs
 - User-authored raw prompts in Simple Mode
 - Automatic AI provider router in the first implementation
+- Per-item automatic pose variation for Bulk Outfit runs in the first
+  implementation; its deferred contract is defined in
+  `002-character-pose-and-environment-selection.md`
 - Character royalty/payout
 - Video generation
 - Full image editor/retouching
