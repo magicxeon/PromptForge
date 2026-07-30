@@ -4,6 +4,7 @@ import { createFashionPlanHash } from './FashionPlanHash.js';
 import { fashionError } from './FashionBlueprintService.js';
 import { communityPostAccessService } from '../community/CommunityPostAccessService.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
+import { createFashionExecutionContext } from './FashionGenerationContext.js';
 
 export class FashionQuoteService {
   constructor({
@@ -11,13 +12,15 @@ export class FashionQuoteService {
     reservationService = creditReservationService,
     quoteRepository = fashionBlueprintQuoteRepository,
     postAccessService = communityPostAccessService,
-    templateCoreService = defaultTemplateCoreService
+    templateCoreService = defaultTemplateCoreService,
+    providerRegistry
   }) {
     this.blueprintService = blueprintService;
     this.reservationService = reservationService;
     this.quoteRepository = quoteRepository;
     this.postAccessService = postAccessService;
     this.templateCoreService = templateCoreService;
+    this.providerRegistry = providerRegistry;
   }
 
   async createQuote(input, actorContext) {
@@ -25,7 +28,15 @@ export class FashionQuoteService {
     const plan = this.blueprintService.resolvePlan(input, actorContext);
     const operations = [];
     for (const item of plan.productItems) {
-      const referenceCount = new Set(Object.values(item.references).filter(Boolean)).size;
+      const execution = await createFashionExecutionContext({
+        plan,
+        item,
+        actorContext,
+        providerRegistry: this.providerRegistry,
+        templateCoreService: this.templateCoreService
+      });
+      const referenceCount =
+        execution.context.referenceProcessing.providerPlan.referenceCount;
       const estimate = await this.reservationService.estimate({
         userId: actorContext.userId,
         requestedProviderId: plan.route.providerId,
@@ -33,6 +44,8 @@ export class FashionQuoteService {
         resolution: plan.resolution,
         aspectRatio: plan.aspectRatio,
         referenceCount,
+        referenceProcessingPlanFingerprint:
+          execution.context.referenceProcessing.planFingerprint,
         outputCount: plan.outputCountPerProduct,
         routingMode: plan.routingMode,
         qualityTier: plan.qualityTier,
@@ -49,7 +62,9 @@ export class FashionQuoteService {
         productItemKey: item.key,
         estimateId: estimate.estimateId,
         estimatedCredits: estimate.estimatedCredits,
-        estimateExpiresAt: estimate.expiresAt
+        estimateExpiresAt: estimate.expiresAt,
+        referenceProcessingPlanFingerprint:
+          execution.context.referenceProcessing.planFingerprint
       });
     }
     const now = new Date();

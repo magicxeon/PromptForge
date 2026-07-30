@@ -1,8 +1,13 @@
-import { compileGenerationContext, createQueueOptions } from '../generation/generationRequestService.js';
+import {
+  compileGenerationContext,
+  compilePromptFromGenerationContext,
+  createQueueOptions
+} from '../generation/generationRequestService.js';
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
 import { creditReservationService } from '../credits/CreditReservationService.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
+import { prepareGenerationReferences } from '../generation/prepareGenerationReferences.js';
 
 export class ComparisonOrchestrator {
   constructor({
@@ -31,6 +36,7 @@ export class ComparisonOrchestrator {
     const { username, userId } = actor;
     const { payload: executionPayload } = await this.resolveTemplatePayload(payload, actor);
     const { context } = compileGenerationContext(executionPayload, actor);
+    await this.processReferencesForSlots(context, payload.slots, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
     const templatePricing = await this.templateCoreService.resolvePricing(
       payload.templateUseSessionId,
@@ -48,6 +54,8 @@ export class ComparisonOrchestrator {
         resolution: slot.imageResolution || '1K',
         aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,
+        referenceProcessingPlanFingerprint:
+          context.referenceProcessing?.planFingerprint || null,
         outputCount: 1,
         templateUseSessionId: payload.templateUseSessionId || null,
         templatePricing
@@ -63,7 +71,9 @@ export class ComparisonOrchestrator {
       payload: executionPayload,
       templateExecution
     } = await this.resolveTemplatePayload(payload, actor);
-    const { context, compiledPrompt } = compileGenerationContext(executionPayload, actor);
+    const { context } = compileGenerationContext(executionPayload, actor);
+    await this.processReferencesForSlots(context, payload.slots, actor);
+    const compiledPrompt = compilePromptFromGenerationContext(context);
     const slots = this.validator.validateSlots(payload.slots, context);
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
     const pricedSlots = slots.map(slot => {
@@ -128,7 +138,10 @@ export class ComparisonOrchestrator {
           generationRequest: {
             requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
             aspectRatio: context.aspectRatio,
-            quality: null, referenceCount: context.referenceCount, outputCount: 1, routingMode: 'advanced',
+            quality: null, referenceCount: context.referenceCount,
+            referenceProcessingPlanFingerprint:
+              context.referenceProcessing?.planFingerprint || null,
+            outputCount: 1, routingMode: 'advanced',
             qualityTier: 'standard', generationMode: context.mode || 'normal',
             templateUseSessionId: payload.templateUseSessionId || null,
             requestId: `${idempotencyKey}:${slot.id}`
@@ -431,6 +444,29 @@ export class ComparisonOrchestrator {
       }
     };
   }
+
+  async processReferencesForSlots(context, slots, actor) {
+    const selections = (slots || []).map(slot =>
+      this.providerRegistry.resolveSelection(slot.provider, slot.model)
+    );
+    const first = selections[0];
+    if (!first) return null;
+    const maximums = selections.map(selection =>
+      Number(selection.model.capabilities?.maxReferenceImages || 0)
+    );
+    return prepareGenerationReferences(context, {
+      actorContext: actor,
+      providerId: first.provider.id,
+      modelId: first.model.id,
+      modelConfig: {
+        ...first.model,
+        capabilities: {
+          ...first.model.capabilities,
+          maxReferenceImages: Math.min(...maximums)
+        }
+      }
+    });
+  }
 }
 
 function normalizeIdempotencyKey(value) {
@@ -460,6 +496,7 @@ function createConfigurationSnapshot(context) {
     aspectRatio: context.aspectRatio,
     imageResolution: context.imageResolution || null,
     imageReferences: structuredClone(context.imageReferences || {}),
+    referenceProcessingLineage: structuredClone(context.referenceProcessingLineage || null),
     sourceOwnership: structuredClone(context.sourceOwnership || null),
     referenceJobIds: {
       face: [...(context.faceReferenceJobIds || [])],

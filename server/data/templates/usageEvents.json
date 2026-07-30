@@ -2,6 +2,71 @@
   {
     "templateId": "tmpl_1785395582339_zsymjfy7",
     "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785407260008_1bz4c6gy",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_1785407707755_jpkmwj9av",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 57,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 2,
+        "generationCredits": 47,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 57
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785407717907_890rt242",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-30T10:35:17.907Z",
+    "updatedAt": "2026-07-30T10:35:17.907Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
     "templateUseSessionId": "tmpls_1785399755957_zl5cy486",
     "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
     "generatedJobId": "job_1785399829637_e4y5wjxzr",

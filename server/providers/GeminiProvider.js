@@ -1,4 +1,5 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 export class GeminiProvider extends BaseProvider {
   /**
@@ -64,78 +65,8 @@ export class GeminiProvider extends BaseProvider {
         return match ? { mimeType: match[1], data: match[2] } : { mimeType: 'image/png', data: value };
       };
 
-      if (options.resolvedTemplateBaselineReference) {
-        const image = normalizeImage(options.resolvedTemplateBaselineReference);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      if (options.resolvedCharacterReferenceImageA) {
-        const image = normalizeImage(options.resolvedCharacterReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedCharacterReferenceImageB) {
-        const image = normalizeImage(options.resolvedCharacterReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      if (options.resolvedOutfitReferenceImageFront) {
-        const image = normalizeImage(options.resolvedOutfitReferenceImageFront);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedOutfitReferenceImageBack) {
-        const image = normalizeImage(options.resolvedOutfitReferenceImageBack);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      // Face references precede style/pose so every provider follows the
-      // canonical reference-role manifest order.
-      if (options.resolvedFaceReferenceImageA) {
-        const image = normalizeImage(options.resolvedFaceReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedFaceReferenceImageB) {
-        const image = normalizeImage(options.resolvedFaceReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      if (options.resolvedStyleReferenceImageA) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedStyleReferenceImageB) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageB);
+      for (const referenceImage of getResolvedReferenceImages(options)) {
+        const image = normalizeImage(referenceImage);
         input.push({
           type: 'image',
           mime_type: image.mimeType,

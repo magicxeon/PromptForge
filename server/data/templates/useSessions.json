@@ -57,6 +57,80 @@
         }
       ]
     },
+    "expiresAt": "2026-07-30T11:27:40.008Z",
+    "consumedAt": "2026-07-30T10:35:07.784Z",
+    "generatedJobIds": [
+      "job_1785407707755_jpkmwj9av"
+    ],
+    "id": "tmpls_1785407260008_1bz4c6gy",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_bob",
+    "ownerUsername": "user_bob",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-07-30T10:27:40.008Z",
+    "updatedAt": "2026-07-30T10:35:07.784Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "actorUserId": "usr_bob",
+    "actorUsername": "user_bob",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        }
+      ]
+    },
     "expiresAt": "2026-07-30T09:24:53.404Z",
     "consumedAt": null,
     "generatedJobIds": [],

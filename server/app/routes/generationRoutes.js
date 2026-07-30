@@ -5,7 +5,7 @@ import {
 } from '../../domain/generation/generationRequestService.js';
 import { creditReservationService } from '../../domain/credits/CreditReservationService.js';
 import { characterCastingExportService } from '../../domain/character-profiles/CharacterCastingExportService.js';
-import { characterUsageService } from '../../domain/character-profiles/CharacterUsageService.js';
+import { prepareGenerationReferences } from '../../domain/generation/prepareGenerationReferences.js';
 
 export function registerGenerationRoutes(app, {
   providerRegistry,
@@ -58,23 +58,12 @@ export function registerGenerationRoutes(app, {
         context.characterProfileContext,
         req.actorContext
       );
-      context.characterProfileContext = await characterUsageService.validateGenerationContext(
-        context.characterProfileContext,
-        req.actorContext
-      );
-      if (context.characterProfileContext?.purpose === 'character_usage') {
-        context.characterReferenceOutfitBehavior =
-          context.characterProfileContext.outfitBehavior === 'replaceable'
-            ? 'replaceable'
-            : 'preserve';
-        const canonicalAssetId =
-          context.characterProfileContext.authorizedCharacterReferenceAssetId;
-        context.characterReferenceImageA = canonicalAssetId;
-        context.characterReferenceImageB = null;
-        context.characterReferenceJobIds = [canonicalAssetId];
-        context.imageReferences.characterReference = true;
-        context.referenceCount = countReferences(context);
-      }
+      await prepareGenerationReferences(context, {
+        actorContext: req.actorContext,
+        providerId: activeProvider,
+        modelId: activeSubmodel,
+        modelConfig
+      });
       const compiledPrompt = compilePromptFromGenerationContext(context);
 
       providerRegistry.validateRequest(modelConfig, {
@@ -96,6 +85,8 @@ export function registerGenerationRoutes(app, {
           aspectRatio: context.aspectRatio,
           quality: req.body.quality || null,
           referenceCount: context.referenceCount,
+          referenceProcessingPlanFingerprint:
+            context.referenceProcessing?.planFingerprint || null,
           outputCount: context.outputCount,
           routingMode: req.body.routingMode || 'advanced',
           qualityTier: req.body.qualityTier || 'standard',
@@ -203,18 +194,4 @@ export function registerGenerationRoutes(app, {
       queueManager.removeListener(jobId, res);
     });
   });
-}
-
-function countReferences(context) {
-  const enabled = context.imageReferences || {};
-  return new Set([
-    enabled.faceMatch ? context.faceReferenceImageA : null,
-    enabled.faceMatch ? context.faceReferenceImageB : null,
-    enabled.styleMatch || enabled.poseMatch ? context.styleReferenceImageA : null,
-    enabled.styleMatch || enabled.poseMatch ? context.styleReferenceImageB : null,
-    enabled.characterReference ? context.characterReferenceImageA : null,
-    enabled.characterReference ? context.characterReferenceImageB : null,
-    enabled.outfitReference ? context.outfitReferenceImageFront : null,
-    enabled.outfitReference ? context.outfitReferenceImageBack : null
-  ].filter(Boolean)).size;
 }

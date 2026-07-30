@@ -95,6 +95,30 @@ describe('referenceAuthorityPolicy', () => {
     expect(sceneDirectionGroups(groups).flatMap(item => item.fields.map(item => item.name)))
       .toEqual(['Expression', 'Outfit Base', 'Pose Intent']);
   });
+
+  it('uses the server authority projection instead of the client fallback matrix', () => {
+    const projection = {
+      schemaVersion: 1,
+      policyVersion: 'rpp-test',
+      planFingerprint: 'fingerprint',
+      controlledGroups: [{
+        group: 'Lighting',
+        role: 'style_reference',
+        editableFields: [],
+        suppressedFields: ['Lighting Setup']
+      }],
+      suppressedSelections: [],
+      references: [],
+      warnings: []
+    };
+
+    expect(resolveFieldReferenceAuthority(
+      field('Lighting', 'Lighting Setup'),
+      {},
+      'replaceable',
+      projection
+    )).toBe('style');
+  });
 });
 
 function field(group: string, name: string) {

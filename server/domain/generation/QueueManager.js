@@ -38,6 +38,25 @@ function normalizeJobError(error) {
   };
 }
 
+function createOrderedResolvedReferences(planEntries, resolvedBySlot) {
+  if (!Array.isArray(planEntries) || !planEntries.length) return null;
+  const seen = new Set();
+  const ordered = [];
+  for (const entry of planEntries) {
+    const value = (entry?.slots || [])
+      .map(slotId => resolvedBySlot[slotId])
+      .find(Boolean);
+    if (!value) continue;
+    const fingerprint = String(value).includes(';base64,')
+      ? String(value).split(';base64,').at(-1)
+      : String(value);
+    if (seen.has(fingerprint)) continue;
+    seen.add(fingerprint);
+    ordered.push(value);
+  }
+  return ordered;
+}
+
 function parseProviderDimensions(value) {
   const match = typeof value === 'string'
     ? value.match(/^(\d+)x(\d+)$/i)
@@ -309,6 +328,22 @@ class QueueManager {
       job.options.resolvedCharacterReferenceImageB = uniqueReferences.characterB;
       job.options.resolvedOutfitReferenceImageFront = uniqueReferences.outfitFront;
       job.options.resolvedOutfitReferenceImageBack = uniqueReferences.outfitBack;
+      job.options.resolvedReferenceImagesOrdered = createOrderedResolvedReferences(
+        job.options.referenceProcessingPlan?.providerPlan?.orderedReferences,
+        {
+          template_baseline: resolvedTemplateBaseline,
+          character_reference_a: resolvedCharacterA,
+          character_reference_b: resolvedCharacterB,
+          outfit_front: resolvedOutfitFront,
+          outfit_back: resolvedOutfitBack,
+          face_reference_a: resolvedFaceA,
+          face_reference_b: resolvedFaceB,
+          style_reference_a: resolvedStyleA,
+          style_reference_b: resolvedStyleB,
+          pose_reference_a: resolvedStyleA,
+          pose_reference_b: resolvedStyleB
+        }
+      );
 
       logGenerationDiagnostic(job, 'provider_dispatch');
       let result;
@@ -393,6 +428,7 @@ class QueueManager {
         referenceRoleManifest: Array.isArray(job.options.referenceRoleManifest)
           ? job.options.referenceRoleManifest
           : [],
+        referenceProcessingLineage: job.options.referenceProcessingLineage || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
           : null,

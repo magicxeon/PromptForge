@@ -63,6 +63,29 @@ export class AssetRepository {
     return asset ? structuredClone(asset) : null;
   }
 
+  async findDerivativeForOwner({
+    ownerUserId,
+    sourceAssetId,
+    processorId,
+    processorVersion,
+    policyVersion,
+    inputFingerprint
+  }) {
+    if (!ownerUserId || !sourceAssetId || !processorId || !inputFingerprint) return null;
+    const items = await this.readAll();
+    const asset = items.find(item =>
+      item.ownerUserId === ownerUserId
+      && item.status !== 'deleted'
+      && item.assetType === 'generation_reference_derivative'
+      && item.metadata?.sourceAssetId === sourceAssetId
+      && item.metadata?.processorId === processorId
+      && item.metadata?.processorVersion === processorVersion
+      && item.metadata?.policyVersion === policyVersion
+      && item.metadata?.inputFingerprint === inputFingerprint
+    );
+    return asset ? structuredClone(asset) : null;
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const normalizedQuery = normalizeListQuery(query);
     const items = (await this.readAll())

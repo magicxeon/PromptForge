@@ -1,4 +1,5 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 export function isOpenAIAPIStreamingEnabled() {
   const value = process.env.ENABLE_OPENAI_API_STREAMING;
@@ -57,17 +58,7 @@ export class OpenAIProvider extends BaseProvider {
       throw new Error('Prompt must be a non-empty string.');
     }
 
-    const referenceImages = [
-      options.resolvedTemplateBaselineReference,
-      options.resolvedCharacterReferenceImageA,
-      options.resolvedCharacterReferenceImageB,
-      options.resolvedOutfitReferenceImageFront,
-      options.resolvedOutfitReferenceImageBack,
-      options.resolvedFaceReferenceImageA,
-      options.resolvedFaceReferenceImageB,
-      options.resolvedStyleReferenceImageA,
-      options.resolvedStyleReferenceImageB
-    ].filter(Boolean);
+    const referenceImages = getResolvedReferenceImages(options);
 
     const hasReferenceImages = referenceImages.length > 0;
 
@@ -470,17 +461,7 @@ export class OpenAIProvider extends BaseProvider {
       throw new Error('Prompt must be a non-empty string.');
     }
 
-    const referenceImages = [
-      options.resolvedTemplateBaselineReference,
-      options.resolvedCharacterReferenceImageA,
-      options.resolvedCharacterReferenceImageB,
-      options.resolvedOutfitReferenceImageFront,
-      options.resolvedOutfitReferenceImageBack,
-      options.resolvedFaceReferenceImageA,
-      options.resolvedFaceReferenceImageB,
-      options.resolvedStyleReferenceImageA,
-      options.resolvedStyleReferenceImageB
-    ].filter(Boolean);
+    const referenceImages = getResolvedReferenceImages(options);
 
     const hasReferenceImages = referenceImages.length > 0;
 

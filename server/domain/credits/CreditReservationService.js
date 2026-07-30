@@ -59,7 +59,14 @@ export class CreditReservationService {
       ['referenceCount', integer(inputs.referenceCount, 0), integer(generationRequest.referenceCount, 0)],
       ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
       ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
-      ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)]
+      ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
+      ...(normalized(inputs.referenceProcessingPlanFingerprint)
+        ? [[
+          'referenceProcessingPlanFingerprint',
+          normalized(inputs.referenceProcessingPlanFingerprint),
+          normalized(generationRequest.referenceProcessingPlanFingerprint)
+        ]]
+        : [])
     ];
     const mismatches = comparisons
       .filter(([, expected, actual]) => expected !== actual)
@@ -139,7 +146,13 @@ export class CreditReservationService {
         referenceCount: Number(estimate.pricingInputs?.referenceCount || 0),
         outputCount: Number(estimate.pricingInputs?.outputCount || 1),
         generationMode: estimate.pricingInputs?.generationMode,
-        templateUseSessionId: estimate.pricingInputs?.templateUseSessionId || null
+        templateUseSessionId: estimate.pricingInputs?.templateUseSessionId || null,
+        ...(estimate.pricingInputs?.referenceProcessingPlanFingerprint
+          ? {
+            referenceProcessingPlanFingerprint:
+              estimate.pricingInputs.referenceProcessingPlanFingerprint
+          }
+          : {})
       };
       const mismatches = Object.entries(actual)
         .filter(([field, value]) => String(value ?? '') !== String(expected[field] ?? ''))

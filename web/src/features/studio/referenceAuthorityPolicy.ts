@@ -4,8 +4,15 @@ import type {
   AttributeGroup,
   AttributeSelection
 } from './attributes/attributeModel';
+import type { ReferenceAuthorityProjection } from '../generation/schemas/generationSchemas';
 
-export type ReferenceAuthority = 'face' | 'character' | 'outfit';
+export type ReferenceAuthority =
+  | 'face'
+  | 'character'
+  | 'outfit'
+  | 'style'
+  | 'pose'
+  | 'template';
 export type GenerationReferences = Partial<Record<GenerationReferenceRole, string>>;
 export type CharacterOutfitBehavior = 'replaceable' | 'preserve';
 
@@ -22,8 +29,16 @@ const CHARACTER_OWNED_GROUPS = new Set([
 export function resolveFieldReferenceAuthority(
   field: Pick<AttributeField, 'name' | 'group'> & { category?: string },
   references: GenerationReferences,
-  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve'
+  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve',
+  projection?: ReferenceAuthorityProjection | null
 ): ReferenceAuthority | null {
+  const projectedGroup = projection?.controlledGroups.find(item =>
+    item.group === field.group
+  );
+  if (projectedGroup) {
+    if (projectedGroup.editableFields.includes(field.name)) return null;
+    return authorityForRole(projectedGroup.role);
+  }
   if (field.group === 'Face' && field.name === 'Expression') return null;
 
   if (hasOutfitReference(references) && isOutfitField(field)) {
@@ -48,7 +63,8 @@ export function resolveFieldReferenceAuthority(
 export function filterReferenceOwnedSelections(
   selections: Record<string, AttributeSelection>,
   references: GenerationReferences,
-  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve'
+  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve',
+  projection?: ReferenceAuthorityProjection | null
 ): Record<string, AttributeSelection> {
   return Object.fromEntries(
     Object.entries(selections).filter(([fieldName, selection]) =>
@@ -56,7 +72,7 @@ export function filterReferenceOwnedSelections(
         name: fieldName,
         group: selection.group,
         category: selection.category
-      }, references, characterOutfitBehavior)
+      }, references, characterOutfitBehavior, projection)
     )
   ) as Record<string, AttributeSelection>;
 }
@@ -64,17 +80,28 @@ export function filterReferenceOwnedSelections(
 export function referenceControlledFieldNames(
   groups: AttributeGroup[],
   references: GenerationReferences,
-  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve'
+  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve',
+  projection?: ReferenceAuthorityProjection | null
 ) {
   return new Set(groups.flatMap(group =>
     group.fields
       .filter(field => resolveFieldReferenceAuthority(
         field,
         references,
-        characterOutfitBehavior
+        characterOutfitBehavior,
+        projection
       ))
       .map(field => field.name)
   ));
+}
+
+function authorityForRole(role: string): ReferenceAuthority {
+  if (role === 'face_reference') return 'face';
+  if (role === 'character_reference') return 'character';
+  if (role === 'outfit_front' || role === 'outfit_back') return 'outfit';
+  if (role === 'style_reference') return 'style';
+  if (role === 'pose_reference') return 'pose';
+  return 'template';
 }
 
 export function sceneDirectionGroups(groups: AttributeGroup[]): AttributeGroup[] {

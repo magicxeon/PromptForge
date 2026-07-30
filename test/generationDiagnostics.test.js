@@ -47,3 +47,22 @@ test('generation diagnostics expose operational metadata without prompt or refer
   assert.equal(JSON.stringify(diagnostic).includes('PRIVATE'), false);
   assert.equal(JSON.stringify(diagnostic).includes('secret-token'), false);
 });
+
+test('generation diagnostics expose bounded reference policy lineage', () => {
+  const diagnostic = createSafeGenerationDiagnostic({
+    id: 'job_rpp',
+    provider: 'gemini',
+    submodel: 'model',
+    options: {
+      referenceProcessingLineage: {
+        policyVersion: 'rpp-test-v1',
+        planFingerprint: '1234567890abcdef',
+        referenceCount: 3
+      }
+    }
+  }, 'provider_dispatch');
+
+  assert.equal(diagnostic.referenceCount, 3);
+  assert.equal(diagnostic.referencePolicyVersion, 'rpp-test-v1');
+  assert.equal(diagnostic.referencePlanFingerprint, '1234567890ab');
+});

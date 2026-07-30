@@ -1,20 +1,13 @@
 import {
-  compileGenerationContext,
   compilePromptFromGenerationContext,
   createQueueOptions
 } from '../generation/generationRequestService.js';
 import { creditReservationService } from '../credits/CreditReservationService.js';
 import { fashionBlueprintRunRepository } from '../../repositories/fashion-blueprint/FashionBlueprintRunRepository.js';
 import { fashionError } from './FashionBlueprintService.js';
-import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 import { createFashionPlanHash } from './FashionPlanHash.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
-
-const QUALITY_PROMPTS = {
-  draft: 'clean ecommerce draft quality with clear garment placement',
-  selling_quality: 'high-quality ecommerce selling image with accurate fabric, seams, color and fit',
-  premium_campaign: 'premium commercial fashion campaign quality with exceptional garment fidelity and polished lighting'
-};
+import { createFashionExecutionContext } from './FashionGenerationContext.js';
 
 export class FashionRunService {
   constructor({
@@ -72,7 +65,6 @@ export class FashionRunService {
       const item = plan.productItems[index];
       const requestId = `fgen_${planId}_${index}`;
       const jobId = `job_fashion_${requestFingerprint}_${index + 1}`;
-      const payload = createGenerationPayload(plan, item);
       return {
         operationId: quoted.operationId,
         productItemKey: item.key,
@@ -80,7 +72,6 @@ export class FashionRunService {
         requestId,
         jobId,
         estimateId: quoted.estimateId,
-        payload,
         generationRequest: {
           providerId: plan.route.providerId,
           modelId: plan.route.modelId,
@@ -94,39 +85,23 @@ export class FashionRunService {
       };
     });
     for (const operation of operations) {
-      const validatedCharacterContext = await characterUsageService.validateGenerationContext(
-        operation.payload.characterProfileContext,
-        actorContext
+      const item = plan.productItems.find(
+        candidate => candidate.key === operation.productItemKey
       );
-      operation.payload.characterProfileContext = validatedCharacterContext;
-      operation.payload.characterReferenceImageA =
-        validatedCharacterContext.authorizedCharacterReferenceAssetId;
-      const templateExecution = await this.templateCoreService.resolveSession(
-        plan.templateUseSessionId,
+      const execution = await createFashionExecutionContext({
+        plan,
+        item,
         actorContext,
-        createFashionTemplateReplacements(
-          await this.templateCoreService.loadSession(plan.templateUseSessionId, actorContext),
-          plan,
-          plan.productItems.find(item => item.key === operation.productItemKey),
-          validatedCharacterContext.authorizedCharacterReferenceAssetId
-        )
-      );
-      operation.templateExecution = templateExecution;
-      operation.payload.sceneTemplateSnapshot = templateExecution.executionSnapshot;
-      operation.payload.selections = templateExecution.executionSnapshot.structuredSelectionsSnapshot || {};
-      operation.payload.sceneBuilder = {
-        authoringMode: 'manual',
-        manualPromptText: [
-          templateExecution.executionSnapshot.finalPromptSnapshot
-            || templateExecution.executionSnapshot.manualPromptSnapshot
-            || '',
-          operation.payload.sceneBuilder.manualPromptText
-        ].filter(Boolean).join(' ')
-      };
-      const { context } = compileGenerationContext(operation.payload, actorContext);
-      operation.context = context;
-      operation.generationRequest.referenceCount = context.referenceCount;
-      operation.generationRequest.outputCount = context.outputCount;
+        providerRegistry: this.providerRegistry,
+        templateCoreService: this.templateCoreService
+      });
+      operation.templateExecution = execution.templateExecution;
+      operation.payload = execution.payload;
+      operation.context = execution.context;
+      operation.generationRequest.referenceCount = execution.context.referenceCount;
+      operation.generationRequest.referenceProcessingPlanFingerprint =
+        execution.context.referenceProcessing.planFingerprint;
+      operation.generationRequest.outputCount = execution.context.outputCount;
     }
     const reservationResult = await this.reservationService.reservePlan({
       userId: actorContext.userId,
@@ -243,79 +218,4 @@ export class FashionRunService {
       operations
     };
   }
-}
-
-function createFashionTemplateReplacements(resolved, plan, item, characterReference) {
-  const baselineSelections = resolved.version.executionSnapshot?.structuredSelectionsSnapshot || {};
-  const baselineReferences = resolved.version.executionSnapshot?.referenceSlotMapping || {};
-  return Object.fromEntries((resolved.version.publicInputSchema?.inputs || []).flatMap(input => {
-    const field = String(input.sourceFieldName || '').toLocaleLowerCase();
-    const bindingRole = input.fashionBindingRole || null;
-    if (input.type === 'reference_image') {
-      if (bindingRole === 'fashion.character' || field.includes('character')) {
-        return [[input.id, characterReference]];
-      }
-      if (bindingRole === 'fashion.outfit_back' || (field.includes('outfit') && field.includes('back'))) {
-        return item?.references?.outfit_back ? [[input.id, item.references.outfit_back]] : [];
-      }
-      if (bindingRole === 'fashion.outfit_front' || field.includes('outfit')) {
-        return [[input.id, item?.references?.outfit_front]];
-      }
-      const baseline = baselineReferences[input.sourceFieldName]?.value;
-      return baseline ? [[input.id, baseline]] : [];
-    }
-    if (bindingRole === 'fashion.pose' || field.includes('pose')) {
-      return [[input.id, { value: plan.poseDirection, label: plan.poseDirection }]];
-    }
-    if (bindingRole === 'fashion.environment' || field.includes('environment') || field.includes('scene')) {
-      return [[input.id, { value: plan.environmentDirection, label: plan.environmentDirection }]];
-    }
-    if (input.sourceFieldName === 'manualPromptSnapshot') {
-      return [[input.id, resolved.version.executionSnapshot.manualPromptSnapshot
-        || resolved.version.executionSnapshot.finalPromptSnapshot
-        || '']];
-    }
-    const baseline = baselineSelections[input.sourceFieldName];
-    return baseline ? [[input.id, baseline]] : [];
-  }));
-}
-
-function createGenerationPayload(plan, item) {
-  const prompt = [
-    'Create a professional full-body ecommerce fashion photograph.',
-    'Follow the selected template scene, lighting, camera and composition.',
-    'Preserve the authorized Character identity and body proportions.',
-    `Show the ${item.productType} product named "${item.name}" with accurate silhouette, construction, pattern, color, seams and fabric texture.`,
-    `Pose direction: ${plan.poseDirection}.`,
-    `Environment direction: ${plan.environmentDirection}.`,
-    QUALITY_PROMPTS[plan.qualityTier],
-    'Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.'
-  ].join(' ');
-  return {
-    provider: plan.route.providerId,
-    submodel: plan.route.modelId,
-    imageResolution: plan.resolution,
-    aspectRatio: plan.aspectRatio,
-    outputCount: plan.outputCountPerProduct,
-    mode: 'normal',
-    generationMode: 'fashion',
-    generationSurface: 'fashion',
-    template: 'portrait',
-    selections: {},
-    imageReferences: {
-      characterReference: true,
-      outfitReference: true,
-      faceMatch: false,
-      styleMatch: false,
-      poseMatch: false,
-      characterOverrides: false
-    },
-    characterReferenceImageA: item.references.character_reference,
-    outfitReferenceImageFront: item.references.outfit_front,
-    outfitReferenceImageBack: item.references.outfit_back,
-    sceneBuilder: { authoringMode: 'manual', manualPromptText: prompt },
-    characterProfileContext: plan.characterProfileContext,
-    routingMode: plan.routingMode,
-    qualityTier: plan.qualityTier
-  };
 }

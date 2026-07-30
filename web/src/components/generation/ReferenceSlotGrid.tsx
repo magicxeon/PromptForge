@@ -9,6 +9,9 @@ import {
   uploadGenerationReference,
   type GenerationReferenceRole
 } from '../../features/generation/api/generationApi';
+import type { ReferenceAuthorityProjection } from '../../features/generation/schemas/generationSchemas';
+import { ReferenceProcessingPreview } from './ReferenceProcessingPreview';
+import { ReferenceScopeSelector } from './ReferenceScopeSelector';
 
 const definitions: Array<{
   role: GenerationReferenceRole;
@@ -30,7 +33,12 @@ export function ReferenceSlotGrid({
   supported,
   roles,
   compact = false,
+  authorityProjection,
+  processing = false,
+  processingError = null,
+  scopes = {},
   uploadReference,
+  onScopeChange,
   onChange
 }: {
   value: Partial<Record<GenerationReferenceRole, string>>;
@@ -38,7 +46,12 @@ export function ReferenceSlotGrid({
   supported: boolean;
   roles?: GenerationReferenceRole[];
   compact?: boolean;
+  authorityProjection?: ReferenceAuthorityProjection | null;
+  processing?: boolean;
+  processingError?: string | null;
+  scopes?: Partial<Record<GenerationReferenceRole, string>>;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
+  onScopeChange?: (role: GenerationReferenceRole, scope: string) => void;
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
 }) {
   const { t } = useTranslation('playground');
@@ -69,11 +82,18 @@ export function ReferenceSlotGrid({
             value={value[definition.role]}
             disabled={!value[definition.role] && activeCount >= maxReferences}
             compact={compact}
+            scope={scopes[definition.role]}
             uploadReference={uploadReference}
+            onScopeChange={scope => onScopeChange?.(definition.role, scope)}
             onChange={next => onChange({ ...value, [definition.role]: next || undefined })}
           />
         ))}
       </div>
+      <ReferenceProcessingPreview
+        projection={authorityProjection}
+        loading={processing}
+        error={processingError}
+      />
     </section>
   );
 }
@@ -86,7 +106,9 @@ function ReferenceSlot({
   value,
   disabled,
   compact,
+  scope,
   uploadReference,
+  onScopeChange,
   onChange
 }: {
   role: GenerationReferenceRole;
@@ -96,7 +118,9 @@ function ReferenceSlot({
   value?: string;
   disabled: boolean;
   compact: boolean;
+  scope?: string;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
+  onScopeChange: (scope: string) => void;
   onChange: (value: string | null) => void;
 }) {
   const { t } = useTranslation('playground');
@@ -113,6 +137,15 @@ function ReferenceSlot({
   useEffect(() => () => {
     if (value?.startsWith('blob:')) URL.revokeObjectURL(value);
   }, [value]);
+  useEffect(() => {
+    if (
+      value
+      && (role === 'outfit_front' || role === 'outfit_back')
+      && !scope
+    ) {
+      onScopeChange('full_look');
+    }
+  }, [onScopeChange, role, scope, value]);
   async function receive(file?: File) {
     setError('');
     if (!file) return;
@@ -150,6 +183,12 @@ function ReferenceSlot({
         <small className="reference-slot__description mt-1 text-[var(--mpf-text-muted)]">{description}</small>
         {value ? (
           <small className="reference-slot__source">{sourceLabel}</small>
+        ) : null}
+        {value && (role === 'outfit_front' || role === 'outfit_back') ? (
+          <ReferenceScopeSelector
+            value={scope || 'full_look'}
+            onChange={onScopeChange}
+          />
         ) : null}
         <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
           <Button size="sm" disabled={disabled || uploading} icon={<ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>

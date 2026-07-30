@@ -801,13 +801,13 @@
       "schemaVersion": 2,
       "userId": "usr_bob",
       "username": "user_bob",
-      "availableCredits": 596,
+      "availableCredits": 539,
       "reservedCredits": 0,
       "status": "active",
       "lifetimeGrantedCredits": 700,
-      "lifetimeCapturedCredits": 104,
+      "lifetimeCapturedCredits": 161,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-07-30T08:24:00.196Z"
+      "updatedAt": "2026-07-30T10:35:17.646Z"
     }
   ],
   "estimates": [
@@ -38270,6 +38270,129 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-07-30T08:24:53.747Z",
       "expiresAt": "2026-07-30T08:39:53.747Z"
+    },
+    {
+      "estimateId": "est_1785407250388_s1t6cv0",
+      "userId": "usr_bob",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "d8d3b819585c8e42e486f51e5790ac9b76dc2dc7043035f041bcc77baf5b4fb8"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-30T10:27:30.388Z",
+      "expiresAt": "2026-07-30T10:42:30.388Z"
+    },
+    {
+      "estimateId": "est_1785407356424_pd1utph",
+      "userId": "usr_bob",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 3,
+        "outputCount": 1,
+        "generationMode": "scene",
+        "templateUseSessionId": "tmpls_1785407260008_1bz4c6gy",
+        "referenceProcessingPlanFingerprint": "c2bbecc6f24f94e15ab7cfb91267499a6488a52bf157ffd3066bc756316bee40"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 58
+      },
+      "estimatedCredits": 58,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-30T10:29:16.424Z",
+      "expiresAt": "2026-07-30T10:44:16.424Z"
+    },
+    {
+      "estimateId": "est_1785407603634_47rd9af",
+      "userId": "usr_bob",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 2,
+        "outputCount": 1,
+        "generationMode": "scene",
+        "templateUseSessionId": "tmpls_1785407260008_1bz4c6gy",
+        "referenceProcessingPlanFingerprint": "b22998edea14abdae997581f4974d4c73ef406c1c0978bbbdc91919639ea3f16"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 2,
+        "generationCredits": 47,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 57
+      },
+      "estimatedCredits": 57,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-07-30T10:33:23.634Z",
+      "expiresAt": "2026-07-30T10:48:23.634Z"
     }
   ],
   "reservations": [
@@ -39847,6 +39970,43 @@
       "updatedAt": "2026-07-30T08:24:00.196Z",
       "expiresAt": "2026-07-30T08:38:46.714Z",
       "capturedAt": "2026-07-30T08:24:00.196Z",
+      "refundedAt": null,
+      "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1785407707770_54og80z",
+      "estimateId": "est_1785407603634_47rd9af",
+      "userId": "usr_bob",
+      "requestId": "gen_1785407707738_sp60w670",
+      "jobId": "job_1785407707755_jpkmwj9av",
+      "amountCredits": 57,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 57,
+        "breakdown": {
+          "baseOutputCredits": 45,
+          "referenceCredits": 2,
+          "generationCredits": 47,
+          "templateUsageCredits": 10,
+          "templateId": "tmpl_1785395582339_zsymjfy7",
+          "templateVersionId": "tmplv_1785395582344_l0k5his5",
+          "templateCreatorUserId": "usr_alice",
+          "templateCreatorUsername": "user_alice",
+          "templateCreatorShareBps": 7500,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 57
+        }
+      },
+      "relatedTemplateId": "tmpl_1785395582339_zsymjfy7",
+      "createdAt": "2026-07-30T10:35:07.756Z",
+      "updatedAt": "2026-07-30T10:35:17.646Z",
+      "expiresAt": "2026-07-30T10:48:23.634Z",
+      "capturedAt": "2026-07-30T10:35:17.646Z",
       "refundedAt": null,
       "terminalReason": null
     }
@@ -44817,6 +44977,64 @@
       "reasonCode": "generation_captured",
       "actorUserId": "usr_bob",
       "createdAt": "2026-07-30T08:24:00.196Z",
+      "metadata": {
+        "comparisonSetId": null,
+        "comparisonRunId": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785407707770_ut5ckaz",
+      "userId": "usr_bob",
+      "operationType": "reserve",
+      "amountCredits": 57,
+      "availableDelta": -57,
+      "reservedDelta": 57,
+      "availableAfter": 539,
+      "reservedAfter": 57,
+      "reservationId": "rsv_1785407707770_54og80z",
+      "estimateId": "est_1785407603634_47rd9af",
+      "relatedJobId": "job_1785407707755_jpkmwj9av",
+      "relatedTemplateId": "tmpl_1785395582339_zsymjfy7",
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_bob:gen_1785407707738_sp60w670",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_bob",
+      "createdAt": "2026-07-30T10:35:07.756Z",
+      "metadata": {
+        "requestId": "gen_1785407707738_sp60w670",
+        "jobId": "job_1785407707755_jpkmwj9av",
+        "relatedTemplateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785407260008_1bz4c6gy",
+        "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+        "expiresAt": "2026-07-30T10:48:23.634Z",
+        "idempotencyKey": "reserve:usr_bob:gen_1785407707738_sp60w670"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785407717659_en688c6",
+      "userId": "usr_bob",
+      "operationType": "capture",
+      "amountCredits": 57,
+      "availableDelta": 0,
+      "reservedDelta": -57,
+      "availableAfter": 539,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1785407707770_54og80z",
+      "estimateId": "est_1785407603634_47rd9af",
+      "relatedJobId": "job_1785407707755_jpkmwj9av",
+      "relatedTemplateId": "tmpl_1785395582339_zsymjfy7",
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1785407707770_54og80z",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_bob",
+      "createdAt": "2026-07-30T10:35:17.646Z",
       "metadata": {
         "comparisonSetId": null,
         "comparisonRunId": null

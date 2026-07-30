@@ -127,6 +127,7 @@ export class CreditPricingPolicyService {
       referenceCount = 0,
       outputCount = 1,
       templateUseSessionId = null,
+      referenceProcessingPlanFingerprint = null,
       templatePricing = null,
       userId
     } = options;
@@ -194,7 +195,9 @@ export class CreditPricingPolicyService {
         referenceCount: normalizedReferenceCount,
         outputCount: normalizedOutputCount,
         generationMode: normalizeOptional(generationMode) || 'scene',
-        templateUseSessionId: normalizeOptional(templateUseSessionId)
+        templateUseSessionId: normalizeOptional(templateUseSessionId),
+        referenceProcessingPlanFingerprint:
+          normalizeOptional(referenceProcessingPlanFingerprint)
       },
       breakdown: {
         baseOutputCredits,

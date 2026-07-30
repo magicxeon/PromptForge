@@ -104,6 +104,9 @@ const ROLE_DIRECTIVES = Object.freeze({
 });
 
 export function compileReferenceRoleDirective(context = {}) {
+  if (typeof context.referenceProcessing?.compiledDirective === 'string') {
+    return context.referenceProcessing.compiledDirective;
+  }
   const manifest = createReferenceRoleManifest(context);
   if (!manifest.length) return '';
 

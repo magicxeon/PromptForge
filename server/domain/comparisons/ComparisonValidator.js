@@ -100,6 +100,8 @@ export class ComparisonValidator {
       aspectRatio: context.aspectRatio,
       imageResolution: context.imageResolution || null,
       referenceCount: context.referenceCount,
+      referenceProcessingPlanFingerprint:
+        context.referenceProcessing?.planFingerprint || null,
       mode: context.mode,
       selections: context.selections || {},
       customColors: context.customColors || {},

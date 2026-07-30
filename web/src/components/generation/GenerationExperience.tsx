@@ -19,6 +19,7 @@ import {
   estimateComparison,
   estimateGeneration,
   getProviderCatalog,
+  previewReferenceProcessing,
   submitComparison,
   submitGeneration,
   type ComparisonSlotInput,
@@ -38,6 +39,7 @@ import {
 import { useActor } from '../../lib/auth/ActorProvider';
 import { emitTelemetry } from '../../lib/telemetry/telemetry';
 import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
+import type { ReferenceAuthorityProjection } from '../../features/generation/schemas/generationSchemas';
 import { StudioRecentGenerations } from '../../features/studio/components/StudioRecentGenerations';
 import { StudioGenerationWorkspace } from './StudioGenerationWorkspace';
 import { PlaygroundGenerationWorkspace } from './PlaygroundGenerationWorkspace';
@@ -72,6 +74,7 @@ type GenerationExperienceProps = {
   initialComparisonActive?: boolean;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   onReferencesChange?: (references: Partial<Record<GenerationReferenceRole, string>>) => void;
+  onReferenceAuthorityChange?: (projection: ReferenceAuthorityProjection | null) => void;
   characterProfileContext?: Record<string, unknown> | null;
   characterReferenceOutfitBehavior?: 'replaceable' | 'preserve';
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
@@ -111,6 +114,7 @@ export function GenerationExperience({
   initialComparisonActive = false,
   references: controlledReferences,
   onReferencesChange,
+  onReferenceAuthorityChange,
   characterProfileContext = null,
   characterReferenceOutfitBehavior = 'preserve',
   faceReferenceContext = null,
@@ -150,6 +154,9 @@ export function GenerationExperience({
   };
   const [negativePrompt, setNegativePrompt] = useState('');
   const [localReferences, setLocalReferences] = useState(initialReferences);
+  const [referenceScopes, setReferenceScopes] = useState<
+    Partial<Record<GenerationReferenceRole, string>>
+  >({});
   const references = controlledReferences ?? localReferences;
   const setReferences = (next: Partial<Record<GenerationReferenceRole, string>>) => {
     setLocalReferences(next);
@@ -188,6 +195,7 @@ export function GenerationExperience({
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
+    setReferenceScopes({});
     completedJobRef.current = null;
   }, [actor?.userId]);
 
@@ -268,6 +276,7 @@ export function GenerationExperience({
     generationMode,
     generationSurface: surface,
     references,
+    referenceScopes,
     selections,
     customColors,
     sceneTemplateSnapshot: resolvedSceneTemplateSnapshot,
@@ -278,7 +287,7 @@ export function GenerationExperience({
     faceReferenceContext,
     authoringMode,
     characterType
-  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -294,6 +303,22 @@ export function GenerationExperience({
     staleTime: 20_000,
     retry: false
   });
+  const referencePreview = useQuery({
+    queryKey: [
+      'reference-processing-preview',
+      actor?.userId || 'loading',
+      estimateKey
+    ],
+    queryFn: () => previewReferenceProcessing(debouncedDraft as GenerationRequestDraft),
+    enabled: canEstimate && Object.values(debouncedDraft?.references || {}).some(Boolean),
+    staleTime: 20_000,
+    retry: false
+  });
+  useEffect(() => {
+    onReferenceAuthorityChange?.(
+      referencePreview.data?.publicAuthorityProjection || null
+    );
+  }, [onReferenceAuthorityChange, referencePreview.data]);
   const comparisonEstimate = useQuery({
     queryKey: ['comparison-estimate', actor?.userId || 'loading', estimateKey, comparisonSlots],
     queryFn: () => estimateComparison(debouncedDraft as GenerationRequestDraft, comparisonSlots),
@@ -573,6 +598,13 @@ export function GenerationExperience({
       supported={model?.capabilities.imageReferences === true}
       maxReferences={model?.capabilities.maxReferenceImages || 0}
       compact={layoutVariant === 'studio' || layoutVariant === 'playground'}
+      authorityProjection={referencePreview.data?.publicAuthorityProjection}
+      processing={referencePreview.isFetching}
+      processingError={referencePreview.error?.message || null}
+      scopes={referenceScopes}
+      onScopeChange={(role, scope) => {
+        setReferenceScopes(current => ({ ...current, [role]: scope }));
+      }}
       onChange={setReferences}
     />
   );
@@ -784,10 +816,11 @@ function createEstimateKey(draft: GenerationRequestDraft) {
     characterType: draft.characterType,
     templateUseSessionId: draft.templateUseSessionId,
     templateReplacements: draft.templateReplacements,
-    referenceRoles: Object.entries(draft.references || {})
+    references: Object.entries(draft.references || {})
       .filter(([, value]) => Boolean(value))
-      .map(([role]) => role)
-      .sort()
+      .map(([role, value]) => [role, value || ''] as const)
+      .sort(([left], [right]) => left.localeCompare(right)),
+    referenceScopes: draft.referenceScopes || {}
   };
 }
 

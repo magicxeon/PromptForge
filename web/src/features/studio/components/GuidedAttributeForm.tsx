@@ -14,6 +14,7 @@ import type { GenerationReferenceRole } from '../../generation/api/generationApi
 import { resolveFieldReferenceAuthority } from '../referenceAuthorityPolicy';
 import type { CharacterOutfitBehavior } from '../referenceAuthorityPolicy';
 import type { StudioCustomColors } from '../attributes/customColorModel';
+import type { ReferenceAuthorityProjection } from '../../generation/schemas/generationSchemas';
 
 export function GuidedAttributeForm({
   groups,
@@ -24,6 +25,7 @@ export function GuidedAttributeForm({
   customColors,
   references = {},
   characterOutfitBehavior = 'preserve',
+  authorityProjection,
   lockedFields = [],
   editableFields,
   onLockChange,
@@ -38,6 +40,7 @@ export function GuidedAttributeForm({
   customColors: StudioCustomColors;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior?: CharacterOutfitBehavior;
+  authorityProjection?: ReferenceAuthorityProjection | null;
   lockedFields?: string[];
   editableFields?: ReadonlySet<string>;
   onLockChange?: (fieldName: string, locked: boolean) => void;
@@ -69,7 +72,8 @@ export function GuidedAttributeForm({
               const authority = resolveFieldReferenceAuthority(
                 field,
                 references,
-                characterOutfitBehavior
+                characterOutfitBehavior,
+                authorityProjection
               );
               return (
                 <VisualOptionPicker

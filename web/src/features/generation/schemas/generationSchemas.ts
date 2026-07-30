@@ -118,8 +118,56 @@ export const referenceUploadSchema = z.object({
   source: z.literal('upload')
 }).passthrough();
 
+export const referenceAuthorityProjectionSchema = z.object({
+  schemaVersion: z.number(),
+  policyVersion: z.string(),
+  planFingerprint: z.string(),
+  controlledGroups: z.array(z.object({
+    group: z.string(),
+    role: z.string(),
+    editableFields: z.array(z.string()).default([]),
+    suppressedFields: z.array(z.string()).default([])
+  })).default([]),
+  suppressedSelections: z.array(z.object({
+    fieldName: z.string(),
+    group: z.string(),
+    role: z.string(),
+    reasonCode: z.string()
+  })).default([]),
+  references: z.array(z.object({
+    slotId: z.string(),
+    role: z.string(),
+    intent: z.string(),
+    preserveTraits: z.array(z.string()).default([]),
+    suppressTraits: z.array(z.string()).default([]),
+    detectedScope: z.string().nullable().optional(),
+    confidence: z.number().nullable().optional(),
+    status: z.enum(['accepted', 'warning']),
+    warningCodes: z.array(z.string()).default([])
+  })).default([]),
+  warnings: z.array(z.object({
+    code: z.string(),
+    severity: z.string(),
+    role: z.string()
+  })).default([])
+});
+
+export const referenceProcessingPreviewSchema = z.object({
+  status: z.enum(['accepted', 'accepted_with_warning', 'action_required', 'rejected']),
+  policyVersion: z.string(),
+  planFingerprint: z.string(),
+  publicAuthorityProjection: referenceAuthorityProjectionSchema,
+  effectiveSelections: z.record(z.string(), z.unknown()),
+  providerPlan: z.object({
+    referenceCount: z.number(),
+    executionMode: z.enum(['single_stage', 'multi_stage'])
+  })
+});
+
 export type ProviderCatalog = z.infer<typeof providerCatalogSchema>;
 export type ProviderModel = z.infer<typeof providerModelSchema>;
 export type CreditEstimateResponse = z.infer<typeof creditEstimateResponseSchema>;
 export type JobStatus = z.infer<typeof jobStatusSchema>;
 export type ComparisonEstimate = z.infer<typeof comparisonEstimateSchema>;
+export type ReferenceAuthorityProjection = z.infer<typeof referenceAuthorityProjectionSchema>;
+export type ReferenceProcessingPreview = z.infer<typeof referenceProcessingPreviewSchema>;

@@ -1,10 +1,8 @@
 function generationReferenceCount(options = {}) {
+  const processedCount = Number(options.referenceProcessingLineage?.referenceCount);
+  if (Number.isFinite(processedCount)) return processedCount;
   if (Array.isArray(options.referenceRoleManifest)) {
-    return new Set(
-      options.referenceRoleManifest
-        .map(item => item?.sourceId || item?.role)
-        .filter(Boolean)
-    ).size;
+    return options.referenceRoleManifest.length;
   }
   return [
     options.faceReferenceImageA,
@@ -31,6 +29,18 @@ export function createSafeGenerationDiagnostic(job, event, extra = {}) {
     requestedResolution: job.options?.imageResolution || null,
     resolvedProviderSize: extra.resolvedProviderSize || null,
     referenceCount: generationReferenceCount(job.options),
+    ...(job.options?.referenceProcessingLineage?.policyVersion
+      ? {
+        referencePolicyVersion:
+          job.options.referenceProcessingLineage.policyVersion
+      }
+      : {}),
+    ...(job.options?.referenceProcessingLineage?.planFingerprint
+      ? {
+        referencePlanFingerprint:
+          job.options.referenceProcessingLineage.planFingerprint.slice(0, 12)
+      }
+      : {}),
     ...(Number.isFinite(extra.queueLength) ? { queueLength: extra.queueLength } : {}),
     ...(Number.isFinite(extra.returnedWidth) ? { returnedWidth: extra.returnedWidth } : {}),
     ...(Number.isFinite(extra.returnedHeight) ? { returnedHeight: extra.returnedHeight } : {}),

@@ -7,6 +7,7 @@ import {
   generationSubmitSchema,
   jobStatusSchema,
   providerCatalogSchema,
+  referenceProcessingPreviewSchema,
   referenceUploadSchema
 } from '../schemas/generationSchemas';
 import type { ComparisonEstimate } from '../schemas/generationSchemas';
@@ -41,6 +42,7 @@ export type GenerationRequestDraft = {
   faceReferenceContext?: { authorizationToken: string; expiresAt?: string } | null;
   authoringMode?: 'guided' | 'manual';
   characterType?: 'reusable_model' | 'styled_character' | null;
+  referenceScopes?: Partial<Record<GenerationReferenceRole, string>>;
 };
 
 export type ComparisonSlotInput = { id: string; provider: string; model: string };
@@ -64,8 +66,19 @@ export function uploadGenerationReference(dataUrl: string, role: GenerationRefer
 export function estimateGeneration(draft: GenerationRequestDraft) {
   return apiRequest('/api/credits/estimate', {
     method: 'POST',
-    body: pricingPayload(draft),
+    body: {
+      ...pricingPayload(draft),
+      generationRequest: generationPayload(draft)
+    },
     schema: creditEstimateResponseSchema
+  });
+}
+
+export function previewReferenceProcessing(draft: GenerationRequestDraft) {
+  return apiRequest('/api/references/processing-plan', {
+    method: 'POST',
+    body: { generationRequest: generationPayload(draft) },
+    schema: referenceProcessingPreviewSchema
   });
 }
 
@@ -157,6 +170,8 @@ export function generationPayload(
     styleReferenceImageB: refs.style_reference && refs.pose_reference ? refs.pose_reference : null,
     outfitReferenceImageFront: refs.outfit_front || null,
     outfitReferenceImageBack: refs.outfit_back || null,
+    referenceScopes: draft.referenceScopes || {},
+    outfitReferenceScope: draft.referenceScopes?.outfit_front || null,
     sceneBuilder: {
       authoringMode: draft.authoringMode === 'guided' ? 'guided' : 'manual',
       manualPromptText: draft.authoringMode === 'guided' ? '' : manualPrompt,

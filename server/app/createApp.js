@@ -136,7 +136,7 @@ export function createApp() {
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
   registerFashionBlueprintRoutes(app, sharedDependencies);
-  registerReferenceRoutes(app);
+  registerReferenceRoutes(app, sharedDependencies);
   registerReferenceHandoffRoutes(app, { faceReferenceHandoffService });
   registerHistoryRoutes(app, {
     ...sharedDependencies,

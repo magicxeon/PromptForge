@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "rpp-2026-07-v1",
+  "defaultFallbackMode": "safe_deterministic",
+  "defaultReferenceOrder": [
+    "template_baseline",
+    "character_reference",
+    "face_reference",
+    "outfit_front",
+    "outfit_back",
+    "style_reference",
+    "pose_reference",
+    "product_reference",
+    "environment_reference"
+  ],
+  "domainPriorities": {
+    "identity": ["character_reference", "face_reference", "template_baseline", "attributes"],
+    "body": ["character_reference", "template_baseline", "attributes"],
+    "expression": ["attributes", "template_baseline"],
+    "pose": ["pose_reference", "template_baseline", "attributes"],
+    "garment": ["outfit_front", "outfit_back", "character_reference", "template_baseline", "attributes"],
+    "environment": ["environment_reference", "template_baseline", "attributes"],
+    "lighting": ["style_reference", "template_baseline", "attributes"],
+    "composition": ["template_baseline", "pose_reference", "attributes"],
+    "renderingStyle": ["style_reference", "template_baseline", "attributes"]
+  },
+  "roles": {
+    "template_baseline": {
+      "intent": "template_preservation",
+      "allowedSourceKinds": ["template", "history"],
+      "preserveTraits": ["composition", "camera_framing", "pose_intent", "environment", "lighting", "unchanged_content"],
+      "suppressTraits": ["replaced_identity", "replaced_garment", "replaced_fields"],
+      "authorityDomains": ["composition", "pose", "environment", "lighting", "renderingStyle"],
+      "ownedAttributeGroups": [],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "template_baseline.v1"
+    },
+    "face_reference": {
+      "intent": "identity_transfer",
+      "allowedSourceKinds": ["asset", "history", "template", "character"],
+      "preserveTraits": ["facial_identity", "facial_proportions"],
+      "suppressTraits": ["source_body", "source_outfit", "source_pose", "source_environment", "source_style"],
+      "authorityDomains": ["identity"],
+      "ownedAttributeGroups": ["Face"],
+      "editableAttributeFields": ["Expression"],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "face_identity.v1"
+    },
+    "character_reference": {
+      "intent": "character_identity_transfer",
+      "allowedSourceKinds": ["asset", "history", "character"],
+      "preserveTraits": ["identity", "facial_identity", "hair", "skin", "body_proportions"],
+      "suppressTraits": ["source_pose", "source_environment", "source_style"],
+      "authorityDomains": ["identity", "body"],
+      "ownedAttributeGroups": ["Character", "Face", "Hair", "Skin", "Body"],
+      "editableAttributeFields": ["Expression"],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "character_identity.v1"
+    },
+    "outfit_front": {
+      "intent": "garment_transfer",
+      "allowedSourceKinds": ["asset", "history"],
+      "preserveTraits": ["garment_silhouette", "garment_construction", "garment_color", "garment_pattern", "garment_material"],
+      "suppressTraits": ["wearer_identity", "wearer_hair", "wearer_body_identity", "source_pose", "source_environment", "source_lighting_style"],
+      "authorityDomains": ["garment"],
+      "ownedAttributeGroups": ["Clothing", "Accessories"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "scopeOptions": ["full_look", "top_only", "bottom_only", "single_item"],
+      "defaultScope": "full_look",
+      "minimumConfidence": 0.72,
+      "directiveId": "outfit_front.v1"
+    },
+    "outfit_back": {
+      "intent": "garment_back_transfer",
+      "allowedSourceKinds": ["asset", "history"],
+      "preserveTraits": ["back_garment_construction", "back_garment_details", "garment_material", "garment_pattern"],
+      "suppressTraits": ["wearer_identity", "wearer_hair", "wearer_body_identity", "source_pose", "source_environment", "source_style"],
+      "authorityDomains": ["garment"],
+      "ownedAttributeGroups": ["Clothing", "Accessories"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "scopeOptions": ["full_look", "top_only", "bottom_only", "single_item"],
+      "defaultScope": "full_look",
+      "minimumConfidence": 0.72,
+      "directiveId": "outfit_back.v1"
+    },
+    "style_reference": {
+      "intent": "visual_treatment_transfer",
+      "allowedSourceKinds": ["asset", "history", "template"],
+      "preserveTraits": ["palette", "lighting", "contrast", "texture", "camera_treatment", "rendering_treatment", "mood"],
+      "suppressTraits": ["identity", "body", "pose", "garment_design", "scene_content"],
+      "authorityDomains": ["lighting", "renderingStyle"],
+      "ownedAttributeGroups": ["Lighting", "Camera", "Quality"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "style_treatment.v1"
+    },
+    "pose_reference": {
+      "intent": "pose_transfer",
+      "allowedSourceKinds": ["asset", "history", "template"],
+      "preserveTraits": ["body_arrangement", "gesture", "framing_intent", "approximate_composition"],
+      "suppressTraits": ["identity", "clothing", "environment", "rendering_style"],
+      "authorityDomains": ["pose"],
+      "ownedAttributeGroups": ["Pose"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "pose_intent.v1"
+    },
+    "product_reference": {
+      "intent": "product_transfer",
+      "allowedSourceKinds": ["asset", "history"],
+      "preserveTraits": ["product_shape", "product_material", "product_details"],
+      "suppressTraits": ["model_identity", "background", "incidental_props"],
+      "authorityDomains": ["garment"],
+      "ownedAttributeGroups": ["Product"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "product.v1"
+    },
+    "environment_reference": {
+      "intent": "environment_transfer",
+      "allowedSourceKinds": ["asset", "history", "template"],
+      "preserveTraits": ["spatial_layout", "environment_content", "environment_mood"],
+      "suppressTraits": ["people", "clothing", "foreground_identity"],
+      "authorityDomains": ["environment"],
+      "ownedAttributeGroups": ["Environment"],
+      "editableAttributeFields": [],
+      "processors": ["image_probe", "orientation_normalize"],
+      "directiveId": "environment.v1"
+    }
+  },
+  "directives": {
+    "template_baseline.v1": {
+      "base": "Preserve the published template composition, camera framing, pose intent, environment, lighting, and unchanged visual treatment. Yield only the domains explicitly replaced by another authorized reference or template replacement."
+    },
+    "face_identity.v1": {
+      "base": "Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions."
+    },
+    "character_identity.v1": {
+      "base": "Preserve the same character identity, face, hair, skin, and body proportions. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy."
+    },
+    "outfit_front.v1": {
+      "base": "Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style.",
+      "replaceTemplateGarment": "Remove the corresponding original template garment before applying this replacement. Do not blend the original and replacement garments unless layering is explicitly enabled."
+    },
+    "outfit_back.v1": {
+      "base": "Transfer only matching back garment construction and visible back details. Suppress the source wearer identity, pose, environment, and visual style."
+    },
+    "style_treatment.v1": {
+      "base": "Apply only lighting, palette, contrast, texture, camera or rendering treatment, and visual mood. Do not copy identity, body, pose, garment design, or scene content."
+    },
+    "pose_intent.v1": {
+      "base": "Apply only body arrangement, gesture, framing intent, and approximate composition. Do not copy identity, clothing, environment, or rendering style."
+    },
+    "product.v1": {
+      "base": "Preserve only the product shape, material, and visible product details. Do not copy model identity, background, or incidental props."
+    },
+    "environment.v1": {
+      "base": "Apply only the spatial and environmental intent. Do not copy people, clothing, or unrelated foreground identity."
+    }
+  },
+  "providerOverrides": {
+    "gemini/*": {
+      "referenceOrder": ["template_baseline", "character_reference", "face_reference", "outfit_front", "outfit_back", "style_reference", "pose_reference", "product_reference", "environment_reference"],
+      "directiveSuffixIds": []
+    }
+  }
+}

@@ -11,6 +11,7 @@
 | `comparisons/` | Comparison orchestration and validation |
 | `credits/` | Credit balance, deduction, refund and ledger behavior |
 | `generation/` | Queue processing, prompt compilation, reference resolution, image utilities and thumbnails |
+| `reference-processing/` | Config-driven reference role authority, deterministic preprocessing, provider ordering and safe lineage |
 | `assets/` | Shared reference-asset behavior and allowlisted image-presentation profiles |
 | `identity/` | Actor context helpers |
 | `scene-templates/` | Scene Template snapshot, variable, slot and privacy rules |

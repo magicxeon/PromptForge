@@ -15,6 +15,7 @@ import {
   getAttributesBundle,
   type GenerationReferenceRole
 } from '../../generation/api/generationApi';
+import type { ReferenceAuthorityProjection } from '../../generation/schemas/generationSchemas';
 import { getHistoryItem } from '../../history/api/historyApi';
 import {
   compileSelectionPreview,
@@ -86,6 +87,8 @@ export function StudioRoute() {
   const [references, setReferences] =
     useState<Partial<Record<GenerationReferenceRole, string>>>({});
   const [lockedFields, setLockedFields] = useState<string[]>([]);
+  const [referenceAuthority, setReferenceAuthority] =
+    useState<ReferenceAuthorityProjection | null>(null);
   const [customColors, setCustomColors] = useState<StudioCustomColors>(
     createStudioCustomColors()
   );
@@ -219,9 +222,11 @@ export function StudioRoute() {
       selections,
       mode,
       characterType,
-      compatibleReferences
+      compatibleReferences,
+      'preserve',
+      referenceAuthority
     ),
-    [characterType, compatibleReferences, mode, selections]
+    [characterType, compatibleReferences, mode, referenceAuthority, selections]
   );
   const generationSelections = useMemo(
     () => applyCustomColorSelectionAuthority(compatibleSelections, customColors),
@@ -314,6 +319,7 @@ export function StudioRoute() {
           }
           setReferences(next);
         }}
+        onReferenceAuthorityChange={setReferenceAuthority}
         faceReferenceContext={mode === 'character-sheet' ? faceReferenceContext : null}
         referenceRoles={referenceRoles}
         studioModeSelector={(
@@ -370,6 +376,7 @@ export function StudioRoute() {
             selections={selections}
             customColors={customColors}
             references={compatibleReferences}
+            authorityProjection={referenceAuthority}
             lockedFields={lockedFields}
             onLockChange={(fieldName, locked) => {
               setLockedFields(current => locked
@@ -394,7 +401,9 @@ export function StudioRoute() {
                 visibleGroups,
                 new Set(lockedFields),
                 selections,
-                compatibleReferences
+                compatibleReferences,
+                'preserve',
+                referenceAuthority
               ));
             }}
             onExport={() => downloadStudioConfig({

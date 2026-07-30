@@ -317,6 +317,25 @@ export function createQueueOptions(context, {
     sceneBuilder: context.sceneBuilder || null,
     sceneTemplateSnapshot: context.sceneTemplateSnapshot || null,
     referenceRoleManifest: context.referenceRoleManifest || [],
+    referenceProcessingLineage: context.referenceProcessingLineage || null,
+    referenceProcessingPlan: context.referenceProcessing
+      ? {
+        policyVersion: context.referenceProcessing.policyVersion,
+        planFingerprint: context.referenceProcessing.planFingerprint,
+        providerPlan: structuredClone(context.referenceProcessing.providerPlan),
+        processedReferences: context.referenceProcessing.processedReferences.map(reference => ({
+          slotId: reference.slotId,
+          role: reference.role,
+          sourceAssetId: reference.sourceAssetId,
+          derivativeAssetId: reference.derivativeAssetId,
+          processorIds: [...reference.processorIds],
+          processorVersions: { ...reference.processorVersions },
+          detectedScope: reference.detectedScope,
+          confidence: reference.confidence,
+          warningCodes: [...reference.warningCodes]
+        }))
+      }
+      : null,
     aspectRatio: context.aspectRatio,
     imageReferences: references,
     sourceOwnership: context.sourceOwnership || null,

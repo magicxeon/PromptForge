@@ -44,6 +44,7 @@ export class FashionBlueprintService {
       key: String(item.key),
       name: String(item.name || item.key),
       productType: String(item.productType || 'clothing_set'),
+      outfitScope: normalizeOutfitScope(item.outfitScope),
       references: {
         character_reference: String(item.references.character_reference || ''),
         outfit_front: String(item.references.outfit_front),
@@ -95,6 +96,12 @@ export class FashionBlueprintService {
 function normalizeDirection(value, fallback) {
   const normalized = String(value || '').trim().slice(0, 160);
   return normalized || fallback;
+}
+
+function normalizeOutfitScope(value) {
+  return ['full_look', 'top_only', 'bottom_only', 'single_item'].includes(value)
+    ? value
+    : 'full_look';
 }
 
 function isOwnedFashionReference(value, userId) {

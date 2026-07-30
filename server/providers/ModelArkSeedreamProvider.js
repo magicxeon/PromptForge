@@ -1,4 +1,5 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 const DEFAULT_BASE_URL = 'https://ark.ap-southeast.bytepluses.com/api/v3';
 const DEFAULT_TIMEOUT_MS = 180000;
@@ -102,17 +103,7 @@ function toModelArkImageReference(value) {
 }
 
 function collectReferences(options) {
-  return [
-    options.resolvedTemplateBaselineReference,
-    options.resolvedCharacterReferenceImageA,
-    options.resolvedCharacterReferenceImageB,
-    options.resolvedOutfitReferenceImageFront,
-    options.resolvedOutfitReferenceImageBack,
-    options.resolvedFaceReferenceImageA,
-    options.resolvedFaceReferenceImageB,
-    options.resolvedStyleReferenceImageA,
-    options.resolvedStyleReferenceImageB
-  ].filter(Boolean);
+  return getResolvedReferenceImages(options);
 }
 
 function summarizeReference(value) {

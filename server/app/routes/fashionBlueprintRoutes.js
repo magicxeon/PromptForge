@@ -5,7 +5,10 @@ import { FashionRunService } from '../../domain/fashion-blueprint/FashionRunServ
 
 export function registerFashionBlueprintRoutes(app, { providerRegistry, queueManager }) {
   const blueprintService = new FashionBlueprintService({ providerRegistry });
-  const quoteService = new FashionQuoteService({ blueprintService });
+  const quoteService = new FashionQuoteService({
+    blueprintService,
+    providerRegistry
+  });
   const runService = new FashionRunService({ quoteService, providerRegistry, queueManager });
 
   app.post('/api/fashion-blueprints/assets', async (req, res) => {

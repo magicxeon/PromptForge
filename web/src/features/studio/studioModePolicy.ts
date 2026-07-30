@@ -4,6 +4,7 @@ import {
   type AttributeSelection
 } from './attributes/attributeModel';
 import type { GenerationReferenceRole } from '../generation/api/generationApi';
+import type { ReferenceAuthorityProjection } from '../generation/schemas/generationSchemas';
 import {
   filterReferenceOwnedSelections,
   resolveFieldReferenceAuthority,
@@ -41,7 +42,8 @@ export function filterStudioSelections(
   mode: GuidedStudioMode,
   characterType: CharacterOutputType,
   references: GenerationReferences = {},
-  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve'
+  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve',
+  projection?: ReferenceAuthorityProjection | null
 ) {
   const allowedGroups = groupsByMode[mode];
   const modeCompatible = Object.fromEntries(
@@ -56,7 +58,8 @@ export function filterStudioSelections(
   return filterReferenceOwnedSelections(
     modeCompatible,
     references,
-    characterOutfitBehavior
+    characterOutfitBehavior,
+    projection
   );
 }
 
@@ -86,7 +89,8 @@ export function randomizeStudioSelections(
   lockedFields: ReadonlySet<string> = new Set(),
   currentSelections: Record<string, AttributeSelection> = {},
   references: GenerationReferences = {},
-  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve'
+  characterOutfitBehavior: CharacterOutfitBehavior = 'preserve',
+  projection?: ReferenceAuthorityProjection | null
 ) {
   const entries: Array<[string, AttributeSelection]> = [];
   for (const group of groups) {
@@ -94,7 +98,8 @@ export function randomizeStudioSelections(
       if (resolveFieldReferenceAuthority(
         field,
         references,
-        characterOutfitBehavior
+        characterOutfitBehavior,
+        projection
       )) {
         const current = currentSelections[field.name];
         if (current) entries.push([field.name, current]);
