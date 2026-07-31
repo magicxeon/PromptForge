@@ -13,6 +13,12 @@
   "shell.account.menuLabel": "เมนูบัญชี",
   "shell.account.viewProfile": "ดูโปรไฟล์",
   "shell.account.profileUnavailable": "ยังไม่พบโปรไฟล์",
+  "shell.theme.label": "รูปแบบหน้าจอ",
+  "shell.theme.options.auto": "อัตโนมัติตามพื้นที่ทำงาน",
+  "shell.theme.options.default": "Momelo Neon",
+  "shell.theme.options.fashion": "Pearl Editorial",
+  "shell.theme.options.creative": "Electric Studio",
+  "shell.theme.autoResolved": "ขณะนี้ใช้ {theme}",
   "shell.navigation.groups.create": "สร้าง",
   "shell.navigation.groups.explore": "สำรวจ",
   "shell.navigation.groups.library": "คลังของฉัน",
@@ -75,6 +81,6 @@
   "shell.footer.links.privacy": "ความเป็นส่วนตัว",
   "shell.footer.links.terms": "ข้อกำหนด",
   "shell.footer.comingSoon": "กำลังเตรียมพร้อม",
-  "shell.footer.copyright": "© {{year}} Momelo สงวนลิขสิทธิ์",
-  "shell.footer.version": "เวอร์ชัน {{version}}"
+  "shell.footer.copyright": "© {year} Momelo สงวนลิขสิทธิ์",
+  "shell.footer.version": "เวอร์ชัน {version}"
 }

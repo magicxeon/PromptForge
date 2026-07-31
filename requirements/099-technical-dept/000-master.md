@@ -110,6 +110,7 @@ Server placement rules:
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Semantic theme resolution and actor preference | `web/src/lib/theme/`, `web/src/styles/themes.css` |
 | Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |
 | Server-owned feature exposure client | `web/src/lib/permissions/` |
 | Design tokens and global responsive styling | `web/src/styles/` |

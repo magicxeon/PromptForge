@@ -18,9 +18,10 @@ literal mockup content.
 ## 2. Product Character
 
 Momelo is a professional visual creation workspace and community. The interface
-is dark, media-first, compact, and precise. Cyan, violet, and magenta identify
-the brand and important actions; they are accents rather than page-wide
-decoration.
+is media-first, compact, and precise. Momelo Neon uses Cyan, Violet and Magenta;
+Pearl Editorial uses light neutral surfaces; Electric Studio uses deep Wine,
+Crimson and Coral. Accent colors support the work rather than becoming
+page-wide decoration.
 
 Generated work should command attention. Navigation, filters, metadata, and
 system information support the media instead of competing with it.
@@ -37,13 +38,28 @@ system information support the media instead of competing with it.
 ## 4. Color and Surfaces
 
 Canonical tokens live in `web/src/styles/tokens.css`.
+Theme palette overrides live in `web/src/styles/themes.css`, and preference
+behavior is owned by
+`requirements/012-implementation-adjustment-ui-2/`.
 
-- Page background: near-black, never a one-note blue/slate field.
+- Default and Creative backgrounds are near-black, never a one-note blue/slate
+  field. Fashion uses a cool Pearl canvas with high-contrast editorial ink.
 - Raised surfaces: subtly lighter than the page.
-- Borders: low-contrast neutral borders; Cyan only for active/focused state.
-- Brand gradient: Cyan to Violet to Magenta, reserved for primary action or
-  selected emphasis.
+- Borders: low-contrast neutral borders; semantic Primary is reserved for
+  active/focused state.
+- Brand/action gradients are reserved for primary action or selected emphasis.
 - Success, warning, danger, and focus colors use their semantic tokens.
+
+Available resolved themes:
+
+```text
+default  Momelo Neon
+fashion  Pearl Editorial
+creative Electric Studio
+```
+
+Shared components consume `--theme-*` or compatible `--mpf-*` aliases. Do not
+hard-code Cyan, Magenta, white text or black controls in new shared components.
 
 Main page sections may use the shared `.mpf-section-surface` treatment:
 
@@ -65,7 +81,7 @@ Main page sections may use the shared `.mpf-section-surface` treatment:
 
 ## 6. Navigation
 
-- The active route has full contrast and a Cyan accent.
+- The active route has full contrast and a semantic Primary accent.
 - Inactive routes are visibly dimmed but retain readable contrast.
 - Hover and focus raise inactive contrast.
 - Studio owns the nested Face Creator, Character Sheet, and Scene Builder

@@ -170,7 +170,7 @@ function ReferenceSlot({
     }
   }
   return (
-    <article className={`reference-slot${compact ? ' reference-slot--compact' : ''}${value ? ' is-populated' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-black/20 p-3`}>
+    <article className={`reference-slot${compact ? ' reference-slot--compact' : ''}${value ? ' is-populated' : ''} relative min-h-40 border border-dashed border-[var(--mpf-border-strong)] bg-[var(--theme-bg-raised)] p-3`}>
       <div className="relative flex h-full flex-col">
         {value ? (
           <figure className="reference-slot__preview" title={sourceLabel}>

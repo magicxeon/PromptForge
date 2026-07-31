@@ -28,8 +28,8 @@ export function Breadcrumbs() {
           <li key={`${crumb.to || 'current'}:${crumb.label}`} className="flex items-center gap-1">
             {index ? <ChevronRight className="size-3" aria-hidden="true" /> : null}
             {crumb.to
-              ? <Link to={crumb.to} className="px-1 py-2 text-[var(--mpf-text-muted)] no-underline hover:text-cyan-200">{crumb.label}</Link>
-              : <span className="px-1 py-2 text-white" aria-current="page">{crumb.label}</span>}
+              ? <Link to={crumb.to} className="px-1 py-2 text-[var(--mpf-text-muted)] no-underline hover:text-[var(--theme-primary)]">{crumb.label}</Link>
+              : <span className="px-1 py-2 text-[var(--mpf-text)]" aria-current="page">{crumb.label}</span>}
           </li>
         ))}
       </ol>

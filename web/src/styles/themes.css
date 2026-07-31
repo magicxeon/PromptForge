@@ -1,0 +1,73 @@
+:root[data-theme="default"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="fashion"] {
+  color-scheme: light;
+  --theme-canvas: #f4f5f7;
+  --theme-bg: #e9ebef;
+  --theme-bg-raised: #f8f9fb;
+  --theme-surface: #ffffff;
+  --theme-surface-strong: #f0f1f4;
+  --theme-input: #ffffff;
+  --theme-text: #171922;
+  --theme-text-muted: #687080;
+  --theme-text-inverse: #ffffff;
+  --theme-border: #d7dbe2;
+  --theme-border-strong: #b9c0cb;
+  --theme-primary: #176b68;
+  --theme-secondary: #b85675;
+  --theme-accent: #a77a2d;
+  --theme-action: #171922;
+  --theme-on-primary: #ffffff;
+  --theme-on-action: #ffffff;
+  --theme-success: #18794e;
+  --theme-warning: #9a6508;
+  --theme-danger: #b4233c;
+  --theme-info: #246b9b;
+  --theme-focus: #168c89;
+  --theme-header: rgb(255 255 255 / 96%);
+  --theme-sidebar: rgb(255 255 255 / 96%);
+  --theme-footer: rgb(255 255 255 / 88%);
+  --theme-media-backdrop: #171922;
+  --theme-hover: rgb(23 107 104 / 8%);
+  --theme-selected: rgb(23 107 104 / 14%);
+  --theme-overlay: rgb(23 25 34 / 48%);
+  --theme-shadow: rgb(24 30 42 / 16%);
+  --theme-primary-gradient: linear-gradient(110deg, #176b68, #287f78 55%, #b85675);
+}
+
+:root[data-theme="creative"] {
+  color-scheme: dark;
+  --theme-canvas: #090204;
+  --theme-bg: #110407;
+  --theme-bg-raised: #19070c;
+  --theme-surface: #220b12;
+  --theme-surface-strong: #2d1019;
+  --theme-input: #15060a;
+  --theme-text: #fff6f7;
+  --theme-text-muted: #c0a2aa;
+  --theme-text-inverse: #120407;
+  --theme-border: #4a202b;
+  --theme-border-strong: #713142;
+  --theme-primary: #ff5b70;
+  --theme-secondary: #ff2e63;
+  --theme-accent: #c3264a;
+  --theme-action: #ffb13b;
+  --theme-on-primary: #ffffff;
+  --theme-on-action: #1a0a03;
+  --theme-success: #63d69a;
+  --theme-warning: #ffb13b;
+  --theme-danger: #ff4965;
+  --theme-info: #e78599;
+  --theme-focus: #ff7889;
+  --theme-header: rgb(15 3 7 / 96%);
+  --theme-sidebar: rgb(18 4 8 / 96%);
+  --theme-footer: rgb(18 4 8 / 88%);
+  --theme-media-backdrop: #030102;
+  --theme-hover: rgb(255 91 112 / 10%);
+  --theme-selected: rgb(195 38 74 / 20%);
+  --theme-overlay: rgb(8 1 3 / 76%);
+  --theme-shadow: rgb(16 1 5 / 54%);
+  --theme-primary-gradient: linear-gradient(105deg, #a51638, #e12b55 52%, #ff5b70);
+}

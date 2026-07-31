@@ -13,6 +13,12 @@
   "shell.account.menuLabel": "Account menu",
   "shell.account.viewProfile": "View profile",
   "shell.account.profileUnavailable": "Profile unavailable",
+  "shell.theme.label": "Appearance",
+  "shell.theme.options.auto": "Automatic",
+  "shell.theme.options.default": "Momelo Neon",
+  "shell.theme.options.fashion": "Pearl Editorial",
+  "shell.theme.options.creative": "Electric Studio",
+  "shell.theme.autoResolved": "Currently using {theme}",
   "shell.navigation.groups.create": "Create",
   "shell.navigation.groups.explore": "Explore",
   "shell.navigation.groups.library": "My Library",
@@ -75,6 +81,6 @@
   "shell.footer.links.privacy": "Privacy",
   "shell.footer.links.terms": "Terms",
   "shell.footer.comingSoon": "Coming soon",
-  "shell.footer.copyright": "© {{year}} Momelo. All rights reserved.",
-  "shell.footer.version": "Version {{version}}"
+  "shell.footer.copyright": "© {year} Momelo. All rights reserved.",
+  "shell.footer.version": "Version {version}"
 }

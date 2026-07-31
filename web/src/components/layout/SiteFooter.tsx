@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MomeloBrand } from '../brand/MomeloBrand';
+import { FooterThemeSelector } from './FooterThemeSelector';
 
 const footerGroups = [
   {
@@ -43,6 +44,7 @@ export function SiteFooter() {
           <MomeloBrand />
           <p>{t('shell.footer.tagline')}</p>
           <a href="mailto:hello@momelo.app">hello@momelo.app</a>
+          <FooterThemeSelector />
         </div>
         <nav className="site-footer__navigation" aria-label={t('shell.footer.navigationLabel')}>
           {footerGroups.map(group => (

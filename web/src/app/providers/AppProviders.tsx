@@ -4,6 +4,7 @@ import { ActorProvider } from '../../lib/auth/ActorProvider';
 import { LoadingState } from '../../components/ui/AsyncState';
 import { useTranslation } from 'react-i18next';
 import { FeaturePolicyProvider } from '../../lib/permissions/FeaturePolicyProvider';
+import { ThemeProvider } from '../../lib/theme/ThemeProvider';
 
 export function AppProviders({ children }: PropsWithChildren) {
   const { t } = useTranslation('common');
@@ -29,9 +30,11 @@ export function AppProviders({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <FeaturePolicyProvider>
         <ActorProvider>
-          <Suspense fallback={<LoadingState label={t('common.status.loadingApplication')} />}>
-            {children}
-          </Suspense>
+          <ThemeProvider>
+            <Suspense fallback={<LoadingState label={t('common.status.loadingApplication')} />}>
+              {children}
+            </Suspense>
+          </ThemeProvider>
         </ActorProvider>
       </FeaturePolicyProvider>
     </QueryClientProvider>

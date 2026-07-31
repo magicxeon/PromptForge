@@ -201,6 +201,11 @@
   background: rgb(5 8 15 / 78%);
 }
 
+.studio-viewport-grid.is-comparison .studio-active-render {
+  border-color: var(--theme-border);
+  background: var(--theme-bg-raised);
+}
+
 .studio-active-render > div,
 .studio-active-render #generation-results {
   height: 100%;
@@ -209,6 +214,9 @@
 .studio-active-render #generation-results {
   display: flex;
   flex-direction: column;
+  border-radius: var(--mpf-radius-sm);
+  background: var(--theme-bg-raised);
+  color: var(--theme-text);
 }
 
 .studio-active-render #generation-results > .mpf-section-surface {
@@ -2056,4 +2064,332 @@
   .comparison-configurator__grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Semantic projection keeps the shared Studio workflow readable in every theme. */
+.studio-viewport-panel,
+.studio-configurator-panel {
+  border-color: var(--theme-border);
+  background: var(--theme-surface);
+  box-shadow: 0 14px 38px var(--theme-shadow);
+}
+
+.studio-active-render {
+  border-color: color-mix(in srgb, var(--theme-primary) 22%, var(--theme-border));
+  background: var(--theme-bg-raised);
+}
+
+.studio-job-context,
+.studio-recent,
+.studio-queue-column > section,
+.studio-job-context__row,
+.studio-mode-selector,
+.studio-character-type,
+.studio-template-status {
+  border-color: var(--theme-border);
+  background: var(--theme-surface-strong);
+}
+
+.studio-working-collection {
+  border-color: color-mix(in srgb, var(--theme-accent) 24%, var(--theme-border)) !important;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--theme-accent) 8%, transparent),
+      color-mix(in srgb, var(--theme-primary) 4%, transparent)
+    ),
+    var(--theme-surface-strong) !important;
+}
+
+.studio-working-collection__select select,
+.visual-field-control-row select,
+.visual-field-lock,
+.visual-custom-color__picker,
+.visual-custom-form input,
+.studio-prompt-preview textarea,
+.studio-manual-prompt textarea,
+.studio-additional-direction textarea,
+.engine-target-panel__model-grid select,
+.engine-target-panel__output-grid input,
+.comparison-slot-card__fields select {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-input);
+  color: var(--theme-text);
+}
+
+.studio-working-collection__share:not(:disabled) {
+  border-color: transparent;
+  background: var(--theme-primary);
+  color: var(--theme-on-primary);
+}
+
+.studio-working-collection__error {
+  color: var(--theme-danger);
+}
+
+.studio-step-card,
+.studio-step-card--attributes {
+  border-color: var(--theme-border);
+  background: var(--theme-surface);
+  box-shadow:
+    0 12px 30px var(--theme-shadow),
+    inset 0 1px 0 color-mix(in srgb, var(--theme-text) 3%, transparent);
+}
+
+.studio-step-card--generation {
+  border-color: color-mix(in srgb, var(--theme-accent) 28%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-surface) 92%, transparent);
+  box-shadow:
+    0 18px 42px var(--theme-shadow),
+    0 0 22px color-mix(in srgb, var(--theme-accent) 8%, transparent),
+    inset 0 0 16px color-mix(in srgb, var(--theme-accent) 5%, transparent);
+}
+
+.studio-generation-command-region {
+  background: color-mix(in srgb, var(--theme-surface) 97%, transparent);
+}
+
+.studio-configurator-actions > button {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-input);
+  color: var(--theme-text-muted);
+}
+
+.studio-configurator-actions > button:nth-child(2) {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+}
+
+.studio-configurator-actions > button:nth-child(3) {
+  border-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
+.studio-visual-warning {
+  background: color-mix(in srgb, var(--theme-warning) 9%, transparent);
+}
+
+.studio-attribute-group {
+  border-color: var(--theme-border);
+  background: var(--theme-bg-raised);
+}
+
+.studio-attribute-group[open] {
+  border-color: color-mix(in srgb, var(--theme-accent) 62%, var(--theme-border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--theme-accent) 7%, transparent);
+}
+
+.studio-attribute-group__fields fieldset > legend,
+.visual-custom-color__row,
+.engine-target-panel__model-grid > label,
+.engine-target-panel__output-grid > label,
+.engine-target-panel__model-meta,
+.engine-target-panel__aspect > span,
+.comparison-slot-card__fields label,
+.comparison-slot-add {
+  color: var(--theme-text-muted);
+}
+
+.visual-field.is-reference-owned {
+  border-color: color-mix(in srgb, var(--theme-primary) 18%, transparent) !important;
+  background: color-mix(in srgb, var(--theme-primary) 5%, transparent);
+}
+
+.visual-field-control-row select:focus-visible,
+.visual-custom-form input:focus-visible,
+.studio-additional-direction textarea:focus-visible {
+  border-color: var(--theme-focus);
+  outline-color: color-mix(in srgb, var(--theme-focus) 20%, transparent);
+}
+
+.visual-image-option,
+.visual-swatch-option,
+.visual-text-option,
+.visual-custom-color,
+.studio-additional-direction {
+  border-color: var(--theme-border);
+  background: var(--theme-bg-raised);
+  color: var(--theme-text-muted);
+}
+
+.visual-image-option:hover,
+.visual-image-option:focus-visible,
+.visual-swatch-option:hover,
+.visual-swatch-option:focus-visible,
+.visual-text-option:hover,
+.visual-text-option:focus-visible {
+  border-color: color-mix(in srgb, var(--theme-primary) 42%, var(--theme-border));
+  background: var(--theme-hover);
+  color: var(--theme-text);
+}
+
+.visual-image-option.is-selected,
+.visual-swatch-option.is-selected,
+.visual-text-option.is-selected {
+  border-color: var(--theme-primary);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-primary) 15%, transparent),
+    color-mix(in srgb, var(--theme-accent) 9%, transparent)
+  );
+  color: var(--theme-text);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--theme-primary) 24%, transparent),
+    0 0 16px color-mix(in srgb, var(--theme-primary) 13%, transparent);
+}
+
+.visual-image-option__check {
+  background: var(--theme-primary);
+  color: var(--theme-on-primary);
+}
+
+.engine-target-panel__heading,
+.comparison-configurator__total {
+  border-color: var(--theme-border);
+}
+
+.engine-target-panel__controls,
+:is(.studio-step-card--generation, .playground-engine-surface) .reference-slot-grid,
+:is(.studio-step-card--generation, .playground-engine-surface) .reference-slot--compact {
+  border-color: var(--theme-border);
+  background: var(--theme-bg-raised);
+}
+
+.engine-target-panel select option,
+.comparison-slot-card__fields select option,
+.studio-configurator-pipeline select option {
+  background-color: var(--theme-bg-raised);
+  color: var(--theme-text);
+}
+
+.engine-target-panel select option:checked,
+.comparison-slot-card__fields select option:checked,
+.studio-configurator-pipeline select option:checked {
+  background-color: var(--theme-selected);
+  color: var(--theme-text);
+}
+
+.studio-configurator-pipeline select,
+.comparison-slot-card__fields select {
+  color-scheme: inherit;
+}
+
+.engine-target-panel__aspect button {
+  border-color: var(--theme-border);
+  background: var(--theme-input);
+  color: var(--theme-text-muted);
+}
+
+.engine-target-panel__aspect button.is-selected {
+  border-color: var(--theme-accent);
+  background: var(--theme-selected);
+  color: var(--theme-text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-accent) 18%, transparent);
+}
+
+.studio-step-card--generation .comparison-configurator {
+  border-color: var(--theme-action);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--theme-action) 7%, transparent),
+    transparent 65%
+  ), var(--theme-bg-raised);
+}
+
+.engine-comparison-toggle {
+  border-color: color-mix(in srgb, var(--theme-primary) 64%, var(--theme-border));
+  background: var(--theme-bg-raised);
+  color: var(--theme-primary);
+}
+
+.engine-comparison-toggle:hover {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--theme-primary) 16%, transparent);
+}
+
+.engine-comparison-toggle.is-active,
+.btn-compare-models.active {
+  border-color: var(--theme-action);
+  background: color-mix(in srgb, var(--theme-action) 9%, var(--theme-bg-raised));
+  color: var(--theme-action);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--theme-action) 24%, transparent);
+}
+
+.comparison-configurator__total strong {
+  color: var(--theme-action);
+}
+
+.comparison-slot-card {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-surface-strong);
+}
+
+.comparison-slot-add {
+  border-color: var(--theme-border-strong);
+  background: var(--theme-bg-raised);
+}
+
+.studio-generate-button {
+  border-color: var(--theme-action);
+  background: var(--theme-action);
+  color: var(--theme-on-action);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--theme-action) 30%, transparent);
+}
+
+.studio-generate-button:disabled {
+  border-color: color-mix(in srgb, var(--theme-action) 52%, var(--theme-border));
+  background: color-mix(in srgb, var(--theme-action) 56%, var(--theme-surface));
+  color: var(--theme-on-action);
+}
+
+.studio-generate-button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--theme-action) 76%, white);
+  background: color-mix(in srgb, var(--theme-action) 88%, white);
+  box-shadow: 0 0 28px color-mix(in srgb, var(--theme-action) 42%, transparent);
+}
+
+.studio-generate-button.btn-neon-yellow-glow {
+  border-color: var(--theme-action) !important;
+  background: var(--theme-action) !important;
+  color: var(--theme-on-action) !important;
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--theme-action) 72%, transparent),
+    0 0 34px color-mix(in srgb, var(--theme-action) 38%, transparent) !important;
+}
+
+.studio-generate-button.btn-neon-yellow-glow:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--theme-action) 78%, white) !important;
+  background: color-mix(in srgb, var(--theme-action) 88%, white) !important;
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--theme-action) 82%, transparent),
+    0 0 54px color-mix(in srgb, var(--theme-action) 44%, transparent) !important;
+}
+
+.generation-result__action-bar,
+.generation-result__action,
+.generation-result__utility-actions > button,
+.generation-result__workflow-actions > button,
+.generation-result__workflow-actions .generation-reference-actions > button {
+  border-color: var(--theme-border);
+  background: var(--theme-surface-strong);
+  color: var(--theme-text);
+}
+
+.generation-result__action:hover,
+.generation-result__utility-actions > button:hover:not(:disabled),
+.generation-result__workflow-actions > button:hover:not(:disabled),
+.generation-result__workflow-actions .generation-reference-actions > button:hover:not(:disabled) {
+  border-color: var(--theme-primary);
+  background: var(--theme-selected);
+  color: var(--theme-text);
+}
+
+:root[data-theme="fashion"] .studio-screen {
+  color-scheme: light;
+}
+
+:root[data-theme="fashion"] .studio-recent__item,
+:root[data-theme="fashion"] .generation-result__open {
+  background: var(--theme-media-backdrop);
 }

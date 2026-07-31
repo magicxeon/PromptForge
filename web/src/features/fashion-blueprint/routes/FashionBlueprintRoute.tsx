@@ -210,7 +210,7 @@ export function FashionBlueprintRoute() {
   return (
     <main>
       <header className="mb-5 border-b border-[var(--mpf-border)] pb-5">
-        <span className="text-xs font-bold uppercase text-cyan-300">{t('fashion.eyebrow')}</span>
+        <span className="text-xs font-bold uppercase text-[var(--theme-primary)]">{t('fashion.eyebrow')}</span>
         <h1 className="mb-1 mt-2 text-3xl">{t('fashion.title')}</h1>
         <p className="m-0 text-sm text-[var(--mpf-text-muted)]">{t('fashion.description')}</p>
       </header>
@@ -220,7 +220,7 @@ export function FashionBlueprintRoute() {
         <StepHeading number={1} title={t('fashion.step.template')} complete={Boolean(template)} />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {templates.data?.pages.flatMap(page => page.items).slice(0, 8).map(item => (
-            <div key={item.id} className={template?.id === item.id ? 'ring-2 ring-cyan-400' : ''}>
+            <div key={item.id} className={template?.id === item.id ? 'ring-2 ring-[var(--theme-primary)]' : ''}>
               <MediaCard post={item} />
               <Button className="mt-2 w-full" size="sm" variant={template?.id === item.id ? 'primary' : 'secondary'} onClick={() => void chooseTemplate(item)}>{t('fashion.action.useLook')}</Button>
             </div>
@@ -233,7 +233,7 @@ export function FashionBlueprintRoute() {
         <StepHeading number={2} title={t('fashion.step.character')} complete={Boolean(characterContext)} />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {characters.data?.pages.flatMap(page => page.items).slice(0, 8).map(item => (
-            <div key={item.id} className={character?.id === item.id ? 'ring-2 ring-cyan-400' : ''}>
+            <div key={item.id} className={character?.id === item.id ? 'ring-2 ring-[var(--theme-primary)]' : ''}>
               <CharacterCard character={item} />
               <Button className="mt-2 w-full" size="sm" disabled={!item.handoffAvailable} variant={character?.id === item.id ? 'primary' : 'secondary'} onClick={() => void chooseCharacter(item)}>{item.handoffAvailable ? t('fashion.action.useCharacter') : t('fashion.action.viewOnly')}</Button>
             </div>
@@ -257,23 +257,23 @@ export function FashionBlueprintRoute() {
           }}>{t('fashion.action.removeOutfit')}</Button>
         </div>
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.productName')}<input value={activeItem.name} onChange={event => setItems(current => current.map(item => item.key === activeItem.key ? { ...item, name: event.target.value } : item))} className="h-11 border border-[var(--mpf-border)] bg-black/30 px-3 text-white" /></label>
-          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.productType')}<select value={activeItem.productType} onChange={event => setItems(current => current.map(item => item.key === activeItem.key ? { ...item, productType: event.target.value as ProductItem['productType'] } : item))} className="h-11 border border-[var(--mpf-border)] bg-black/30 px-3 text-white"><option value="top">{t('fashion.product.top')}</option><option value="bottom">{t('fashion.product.bottom')}</option><option value="dress">{t('fashion.product.dress')}</option><option value="clothing_set">{t('fashion.product.set')}</option></select></label>
+          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.productName')}<input value={activeItem.name} onChange={event => setItems(current => current.map(item => item.key === activeItem.key ? { ...item, name: event.target.value } : item))} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]" /></label>
+          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.productType')}<select value={activeItem.productType} onChange={event => setItems(current => current.map(item => item.key === activeItem.key ? { ...item, productType: event.target.value as ProductItem['productType'] } : item))} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]"><option value="top">{t('fashion.product.top')}</option><option value="bottom">{t('fashion.product.bottom')}</option><option value="dress">{t('fashion.product.dress')}</option><option value="clothing_set">{t('fashion.product.set')}</option></select></label>
         </div>
         <ReferenceSlotGrid value={activeItem.references} maxReferences={3} supported roles={['outfit_front', 'outfit_back']} uploadReference={uploadOutfitReference} onChange={patchActiveReferences} />
-        {uploading ? <p className="flex items-center gap-2 text-sm text-cyan-200"><LoaderCircle className="size-4 animate-spin" />{t('fashion.uploading')}</p> : null}
+        {uploading ? <p className="flex items-center gap-2 text-sm text-[var(--theme-primary)]"><LoaderCircle className="size-4 animate-spin" />{t('fashion.uploading')}</p> : null}
       </section>
 
       <section className="py-6">
         <StepHeading number={4} title={t('fashion.step.direction')} complete />
         <div className="mb-5 grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.pose')}<select value={poseDirection} onChange={event => setPoseDirection(event.target.value)} className="h-11 border border-[var(--mpf-border)] bg-black/30 px-3 text-white"><option value="template_pose">{t('fashion.direction.templatePose')}</option><option value="relaxed_ecommerce_stance">{t('fashion.direction.relaxed')}</option><option value="natural_walking_pose">{t('fashion.direction.walking')}</option><option value="confident_editorial_pose">{t('fashion.direction.editorial')}</option></select></label>
-          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.environment')}<select value={environmentDirection} onChange={event => setEnvironmentDirection(event.target.value)} className="h-11 border border-[var(--mpf-border)] bg-black/30 px-3 text-white"><option value="template_environment">{t('fashion.direction.templateEnvironment')}</option><option value="clean_white_ecommerce_studio">{t('fashion.direction.whiteStudio')}</option><option value="warm_minimal_lifestyle_interior">{t('fashion.direction.lifestyle')}</option><option value="premium_editorial_studio">{t('fashion.direction.premiumStudio')}</option></select></label>
+          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.pose')}<select value={poseDirection} onChange={event => setPoseDirection(event.target.value)} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]"><option value="template_pose">{t('fashion.direction.templatePose')}</option><option value="relaxed_ecommerce_stance">{t('fashion.direction.relaxed')}</option><option value="natural_walking_pose">{t('fashion.direction.walking')}</option><option value="confident_editorial_pose">{t('fashion.direction.editorial')}</option></select></label>
+          <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.field.environment')}<select value={environmentDirection} onChange={event => setEnvironmentDirection(event.target.value)} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]"><option value="template_environment">{t('fashion.direction.templateEnvironment')}</option><option value="clean_white_ecommerce_studio">{t('fashion.direction.whiteStudio')}</option><option value="warm_minimal_lifestyle_interior">{t('fashion.direction.lifestyle')}</option><option value="premium_editorial_studio">{t('fashion.direction.premiumStudio')}</option></select></label>
         </div>
 
         <StepHeading number={5} title={t('fashion.step.quality')} complete={Boolean(quote)} />
         <div className="mb-5 grid gap-3 md:grid-cols-3">
-          {(['draft', 'selling_quality', 'premium_campaign'] as QualityTier[]).map(tier => <button key={tier} type="button" className={`border p-4 text-left ${quality === tier ? 'border-cyan-400 bg-cyan-400/10' : 'border-[var(--mpf-border)] bg-[var(--mpf-surface)]'}`} onClick={() => { setQuality(tier); setStep(current => Math.max(current, 5)); }}><strong>{t(`fashion.quality.${tier}.title`)}</strong><small className="mt-2 block text-[var(--mpf-text-muted)]">{t(`fashion.quality.${tier}.description`)}</small></button>)}
+          {(['draft', 'selling_quality', 'premium_campaign'] as QualityTier[]).map(tier => <button key={tier} type="button" className={`border p-4 text-left ${quality === tier ? 'border-[var(--theme-primary)] bg-[var(--theme-selected)]' : 'border-[var(--mpf-border)] bg-[var(--mpf-surface)]'}`} onClick={() => { setQuality(tier); setStep(current => Math.max(current, 5)); }}><strong>{t(`fashion.quality.${tier}.title`)}</strong><small className="mt-2 block text-[var(--mpf-text-muted)]">{t(`fashion.quality.${tier}.description`)}</small></button>)}
         </div>
         <Surface className="mb-5 flex flex-wrap items-center justify-between gap-3 p-4"><span><strong>{t(advanced ? 'fashion.routing.advanced' : 'fashion.routing.simple')}</strong><small className="block text-[var(--mpf-text-muted)]">{t(advanced ? 'fashion.routing.advancedHelp' : 'fashion.routing.simpleHelp')}</small></span><Button onClick={() => setAdvanced(value => !value)}>{t(advanced ? 'fashion.action.useSimple' : 'fashion.action.advanced')}</Button></Surface>
         {advanced && catalog.data ? <EngineTargetPanel catalog={catalog.data} value={engine} comparison={false} comparisonSlots={[]} allowComparison={false} onChange={setEngine} onComparisonChange={() => {}} onSlotsChange={() => {}} /> : null}
@@ -284,7 +284,7 @@ export function FashionBlueprintRoute() {
               <strong className="text-lg">{t('fashion.quote.title')}</strong>
               <p className="mb-0 mt-1 text-sm text-[var(--mpf-text-muted)]">{t('fashion.quote.summary', { products: items.length, outputs: items.length })}</p>
             </div>
-            {quote ? <div className="text-right"><strong className="flex items-center gap-2 text-xl text-cyan-200"><Coins className="size-5" />{t('fashion.quote.credits', { credits: quote.maximumCredits })}</strong><small className="text-[var(--mpf-text-muted)]">{quote.routeSnapshot.providerId} / {quote.routeSnapshot.modelId}</small></div> : null}
+            {quote ? <div className="text-right"><strong className="flex items-center gap-2 text-xl text-[var(--theme-primary)]"><Coins className="size-5" />{t('fashion.quote.credits', { credits: quote.maximumCredits })}</strong><small className="text-[var(--mpf-text-muted)]">{quote.routeSnapshot.providerId} / {quote.routeSnapshot.modelId}</small></div> : null}
           </div>
           {quoteMutation.error ? <ErrorState title={t('fashion.error.quote')} description={quoteMutation.error.message} /> : null}
           {runMutation.error ? <ErrorState title={t('fashion.error.run')} description={runMutation.error.message} /> : null}
@@ -304,17 +304,17 @@ export function FashionBlueprintRoute() {
 function FashionRunResults({ run }: { run: FashionRun }) {
   const { t } = useTranslation('fashion-blueprint');
   return (
-    <section className="mt-5 border border-[var(--mpf-border)] bg-black/25 p-4">
-      <div className="mb-4 flex items-center justify-between gap-3"><h2 className="m-0 text-lg">{t('fashion.run.title')}</h2><span className="text-xs uppercase text-cyan-300">{t(`common.status.${run.status}`, { ns: 'common', defaultValue: run.status })}</span></div>
+    <section className="mt-5 border border-[var(--mpf-border)] bg-[var(--theme-bg-raised)] p-4">
+      <div className="mb-4 flex items-center justify-between gap-3"><h2 className="m-0 text-lg">{t('fashion.run.title')}</h2><span className="text-xs uppercase text-[var(--theme-primary)]">{t(`common.status.${run.status}`, { ns: 'common', defaultValue: run.status })}</span></div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {run.operations.map(operation => (
           <article key={operation.operationId} className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3">
             {operation.result?.imageUrl
-              ? <img src={apiMediaUrl(operation.result.imageUrl) || ''} alt="" className="aspect-[3/4] w-full bg-black object-contain" />
-              : <div className="grid aspect-[3/4] place-items-center bg-black/40 text-sm text-[var(--mpf-text-muted)]">{t(`common.status.${operation.status}`, { ns: 'common', defaultValue: operation.status })}</div>}
+              ? <img src={apiMediaUrl(operation.result.imageUrl) || ''} alt="" className="aspect-[3/4] w-full bg-[var(--theme-media-backdrop)] object-contain" />
+              : <div className="grid aspect-[3/4] place-items-center bg-[var(--theme-media-backdrop)] text-sm text-[var(--mpf-text-muted)]">{t(`common.status.${operation.status}`, { ns: 'common', defaultValue: operation.status })}</div>}
             <strong className="mt-3 block text-sm">{operation.productName || operation.productItemKey}</strong>
-            {operation.error ? <small className="mt-1 block text-red-300">{typeof operation.error === 'string' ? operation.error : operation.error.message}</small> : null}
-            {operation.status === 'completed' && operation.result?.imageUrl ? <div className="mt-3 flex flex-wrap gap-2"><a href={apiMediaUrl(operation.result.imageUrl) || ''} download className="inline-flex min-h-9 items-center justify-center gap-2 border border-[var(--mpf-border-strong)] px-3 text-xs font-semibold text-white no-underline"><Download className="size-4" />{t('fashion.action.download')}</a><CollectionPickerDialog jobId={operation.jobId} /><ShareGeneratedDialog jobId={operation.jobId} /></div> : null}
+            {operation.error ? <small className="mt-1 block text-[var(--theme-danger)]">{typeof operation.error === 'string' ? operation.error : operation.error.message}</small> : null}
+            {operation.status === 'completed' && operation.result?.imageUrl ? <div className="mt-3 flex flex-wrap gap-2"><a href={apiMediaUrl(operation.result.imageUrl) || ''} download className="inline-flex min-h-9 items-center justify-center gap-2 border border-[var(--mpf-border-strong)] px-3 text-xs font-semibold text-[var(--mpf-text)] no-underline"><Download className="size-4" />{t('fashion.action.download')}</a><CollectionPickerDialog jobId={operation.jobId} /><ShareGeneratedDialog jobId={operation.jobId} /></div> : null}
           </article>
         ))}
       </div>
@@ -325,11 +325,11 @@ function FashionRunResults({ run }: { run: FashionRun }) {
 function StepRail({ current }: { current: number }) {
   const { t } = useTranslation('fashion-blueprint');
   const labels = [t('fashion.rail.template'), t('fashion.rail.character'), t('fashion.rail.outfit'), t('fashion.rail.direction'), t('fashion.rail.quality')];
-  return <ol className="flex gap-1 overflow-x-auto border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-2">{labels.map((label, index) => <li key={label} className={`flex min-w-32 flex-1 items-center gap-2 px-3 py-2 text-xs ${current >= index + 1 ? 'text-cyan-200' : 'text-[var(--mpf-text-muted)]'}`}><span className={`grid size-6 place-items-center border ${current > index + 1 ? 'border-cyan-400 bg-cyan-400/15' : 'border-[var(--mpf-border)]'}`}>{current > index + 1 ? <Check className="size-3" /> : index + 1}</span>{label}{index < labels.length - 1 ? <ChevronRight className="ml-auto size-3" /> : null}</li>)}</ol>;
+  return <ol className="flex gap-1 overflow-x-auto border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-2">{labels.map((label, index) => <li key={label} className={`flex min-w-32 flex-1 items-center gap-2 px-3 py-2 text-xs ${current >= index + 1 ? 'text-[var(--theme-primary)]' : 'text-[var(--mpf-text-muted)]'}`}><span className={`grid size-6 place-items-center border ${current > index + 1 ? 'border-[var(--theme-primary)] bg-[var(--theme-selected)]' : 'border-[var(--mpf-border)]'}`}>{current > index + 1 ? <Check className="size-3" /> : index + 1}</span>{label}{index < labels.length - 1 ? <ChevronRight className="ml-auto size-3" /> : null}</li>)}</ol>;
 }
 
 function StepHeading({ number, title, complete }: { number: number; title: string; complete: boolean }) {
-  return <div className="mb-4 flex items-center gap-3"><span className={`grid size-8 place-items-center border ${complete ? 'border-emerald-400 text-emerald-300' : 'border-cyan-400 text-cyan-300'}`}>{complete ? <Check className="size-4" /> : number}</span><h2 className="m-0 text-xl">{title}</h2></div>;
+  return <div className="mb-4 flex items-center gap-3"><span className={`grid size-8 place-items-center border ${complete ? 'border-[var(--theme-success)] text-[var(--theme-success)]' : 'border-[var(--theme-primary)] text-[var(--theme-primary)]'}`}>{complete ? <Check className="size-4" /> : number}</span><h2 className="m-0 text-xl">{title}</h2></div>;
 }
 
 function createProductItem(index: number, characterReferenceUrl?: string | null): ProductItem {

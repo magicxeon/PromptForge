@@ -11,10 +11,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'border-transparent bg-gradient-to-r from-cyan-500 to-pink-500 text-white hover:brightness-110',
-        secondary: 'border-[var(--mpf-border-strong)] bg-[var(--mpf-surface)] text-[var(--mpf-text)] hover:border-cyan-400/70',
-        ghost: 'border-transparent bg-transparent text-[var(--mpf-text-muted)] hover:bg-white/5 hover:text-white',
-        danger: 'border-red-400/50 bg-red-500/10 text-red-200 hover:bg-red-500/20'
+        primary: 'border-transparent [background:var(--theme-primary-gradient)] text-[var(--theme-on-primary)] shadow-[0_8px_22px_var(--theme-shadow)] hover:brightness-110',
+        secondary: 'border-[var(--mpf-border-strong)] bg-[var(--mpf-surface)] text-[var(--mpf-text)] hover:border-[var(--theme-primary)]',
+        ghost: 'border-transparent bg-transparent text-[var(--mpf-text-muted)] hover:bg-[var(--theme-hover)] hover:text-[var(--mpf-text)]',
+        danger: 'border-[var(--theme-danger)] bg-transparent text-[var(--theme-danger)] hover:bg-[var(--theme-hover)]'
       },
       size: {
         sm: 'min-h-9 px-3 text-xs',

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./themes.css";
 @import "./shell.css";
 @import "./community-home.css";
 @import "./community-detail.css";
@@ -83,7 +84,7 @@ img {
 
 .mpf-section-surface {
   padding: var(--mpf-section-padding);
-  border: 1px solid rgb(53 64 87 / 58%);
+  border: 1px solid var(--theme-border);
   border-radius: var(--mpf-radius-md);
-  background: rgb(11 15 26 / 76%);
+  background: var(--theme-bg-raised);
 }

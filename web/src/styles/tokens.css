@@ -1,21 +1,59 @@
 :root {
   color-scheme: dark;
-  --mpf-bg: #070911;
-  --mpf-page-canvas: #03050b;
-  --mpf-bg-raised: #0b0f1a;
-  --mpf-surface: #0e1320;
-  --mpf-surface-strong: #121827;
-  --mpf-text: #f6f7fb;
-  --mpf-text-muted: #9f9fba;
-  --mpf-border: #242c3d;
-  --mpf-border-strong: #354057;
-  --mpf-cyan: #11c5ec;
-  --mpf-magenta: #f02d91;
-  --mpf-violet: #8d5cff;
-  --mpf-success: #55e39a;
-  --mpf-warning: #f7bd38;
-  --mpf-danger: #ff6075;
-  --mpf-focus: #5edcff;
+
+  /* Semantic color defaults: Momelo Neon. */
+  --theme-canvas: #03050b;
+  --theme-bg: #070911;
+  --theme-bg-raised: #0b0f1a;
+  --theme-surface: #0e1320;
+  --theme-surface-strong: #121827;
+  --theme-input: #080c16;
+  --theme-text: #f6f7fb;
+  --theme-text-muted: #9fa7bd;
+  --theme-text-inverse: #070911;
+  --theme-border: #242c3d;
+  --theme-border-strong: #354057;
+  --theme-primary: #11c5ec;
+  --theme-secondary: #f02d91;
+  --theme-accent: #8d5cff;
+  --theme-action: #f7bd38;
+  --theme-on-primary: #ffffff;
+  --theme-on-action: #0c0a0f;
+  --theme-success: #55e39a;
+  --theme-warning: #f7bd38;
+  --theme-danger: #ff6075;
+  --theme-info: #3aa8e8;
+  --theme-focus: #5edcff;
+  --theme-header: rgb(5 7 15 / 96%);
+  --theme-sidebar: rgb(7 10 18 / 96%);
+  --theme-footer: rgb(7 10 18 / 82%);
+  --theme-media-backdrop: #000000;
+  --theme-hover: rgb(17 197 236 / 8%);
+  --theme-selected: rgb(17 197 236 / 14%);
+  --theme-overlay: rgb(0 0 0 / 68%);
+  --theme-shadow: rgb(0 0 0 / 32%);
+  --theme-primary-gradient: linear-gradient(100deg, #11c5ec, #8d5cff 52%, #f02d91);
+
+  /* Compatibility aliases used by existing React feature CSS. */
+  --mpf-bg: var(--theme-bg);
+  --mpf-page-canvas: var(--theme-canvas);
+  --mpf-bg-raised: var(--theme-bg-raised);
+  --mpf-surface: var(--theme-surface);
+  --mpf-surface-strong: var(--theme-surface-strong);
+  --mpf-text: var(--theme-text);
+  --mpf-text-muted: var(--theme-text-muted);
+  --mpf-border: var(--theme-border);
+  --mpf-border-strong: var(--theme-border-strong);
+  --mpf-cyan: var(--theme-primary);
+  --mpf-magenta: var(--theme-secondary);
+  --mpf-violet: var(--theme-accent);
+  --mpf-success: var(--theme-success);
+  --mpf-warning: var(--theme-warning);
+  --mpf-danger: var(--theme-danger);
+  --mpf-focus: var(--theme-focus);
+  --mpf-brand-gradient: var(--theme-primary-gradient);
+
+  /* Layout and typography are independent from color themes. */
   --mpf-header-height: 64px;
   --mpf-sidebar-width: 244px;
   --mpf-content-max: 1480px;
@@ -24,15 +62,15 @@
   --mpf-section-gap: 16px;
   --mpf-section-padding: 18px;
   --mpf-compact-control-height: 32px;
-  --mpf-shadow-raised: 0 18px 48px rgb(0 0 0 / 32%);
+  --mpf-shadow-raised: 0 18px 48px var(--theme-shadow);
   --mpf-font-latin: "Poppins";
   --mpf-font-thai: "Noto Sans Thai";
   --mpf-font-ui: var(--mpf-font-latin), var(--mpf-font-thai), system-ui, sans-serif;
   --mpf-sidebar-collapsed-width: 76px;
-  --mpf-brand-gradient: linear-gradient(100deg, var(--mpf-cyan), var(--mpf-violet) 52%, var(--mpf-magenta));
-  --neon-cyan: var(--mpf-cyan);
-  --neon-purple: var(--mpf-violet);
-  --neon-yellow: #facc15;
-  --text-main: var(--mpf-text);
-  --text-muted: var(--mpf-text-muted);
+
+  --neon-cyan: var(--theme-primary);
+  --neon-purple: var(--theme-accent);
+  --neon-yellow: var(--theme-action);
+  --text-main: var(--theme-text);
+  --text-muted: var(--theme-text-muted);
 }

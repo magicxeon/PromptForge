@@ -5,7 +5,7 @@ export function Surface({ className, ...props }: HTMLAttributes<HTMLDivElement>)
   return (
     <div
       className={cn(
-        'rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]',
+        'rounded-[var(--mpf-radius-md)] border border-[var(--theme-border)] bg-[var(--theme-surface)]',
         className
       )}
       {...props}

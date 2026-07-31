@@ -22,6 +22,7 @@ import { SidebarNavigation } from './SidebarNavigation';
 import { AppFooter } from './AppFooter';
 import { HeaderSelect } from './HeaderSelect';
 import { AccountMenu } from './AccountMenu';
+import { useTheme } from '../../lib/theme/ThemeContext';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -37,6 +38,7 @@ export function AppShell() {
   const { t } = useTranslation('shell');
   const { actor, mockUsers, mockSwitcherEnabled, switchActor } = useActor();
   const { isEnabled } = useFeaturePolicy();
+  const { syncRoute } = useTheme();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(readCollapsedPreference);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -59,8 +61,9 @@ export function AppShell() {
 
   useEffect(() => {
     setMobileOpen(false);
+    syncRoute(location.pathname);
     if (isStudioLocation(location.pathname)) setStudioOpen(true);
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, syncRoute]);
 
   useEffect(() => {
     if (!mobileOpen) return;

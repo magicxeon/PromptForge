@@ -95,7 +95,7 @@ export function GenerationResultSurface({
               <input
                 autoFocus
                 aria-label={tUi('ui.comparisons.renameTitle')}
-                className="h-10 min-w-56 rounded-[var(--mpf-radius-sm)] border border-cyan-400/50 bg-black/45 px-3 text-base font-semibold text-white outline-none focus:border-cyan-300"
+                className="h-10 min-w-56 rounded-[var(--mpf-radius-sm)] border border-[var(--theme-border-strong)] bg-[var(--theme-input)] px-3 text-base font-semibold text-[var(--theme-text)] outline-none focus:border-[var(--theme-primary)]"
                 maxLength={120}
                 value={comparisonNameDraft}
                 onChange={event => setComparisonNameDraft(event.target.value)}
@@ -159,7 +159,7 @@ export function GenerationResultSurface({
             <div className="mt-3 flex justify-end">
               <Link
                 to={`/comparisons/${encodeURIComponent(comparison.id)}`}
-                className="inline-flex min-h-10 items-center gap-2 border border-[var(--mpf-border)] px-4 text-sm font-semibold text-white no-underline"
+                className="inline-flex min-h-10 items-center gap-2 border border-[var(--theme-border)] px-4 text-sm font-semibold text-[var(--theme-text)] no-underline"
               >
                 <ImageIcon className="size-4" />
                 {t('playground.result.openComparison')}
@@ -187,7 +187,7 @@ export function GenerationResultSurface({
             : t('playground.result.comparisonEmptyDescription')}</p>
         </Surface>
       ) : (
-        <Surface className="generation-result__media-surface overflow-hidden bg-black p-0">
+        <Surface className="generation-result__media-surface overflow-hidden bg-[var(--theme-bg-raised)] p-0">
           {job?.result?.imageUrl ? (
             <>
               <button
