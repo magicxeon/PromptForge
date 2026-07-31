@@ -1,0 +1,5 @@
+interface:
+  display_name: "Gemini Fashion Image Qualification"
+  short_description: "Qualify Nano Banana for Fashion fidelity"
+  default_prompt: "Use $qualify-gemini-fashion-images to benchmark a Gemini Fashion multi-reference strategy."
+

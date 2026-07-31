@@ -140,6 +140,10 @@ export function publicPlanLineage(result = {}) {
     planFingerprint: result.planFingerprint || null,
     executionMode: result.providerPlan?.executionMode || 'single_stage',
     referenceCount: Number(result.providerPlan?.referenceCount || 0),
+    dispatchRuleIds: [...(result.providerPlan?.dispatchRuleIds || [])],
+    suppressedReferenceRoles: [
+      ...(result.providerPlan?.suppressedReferenceRoles || [])
+    ],
     references: Array.isArray(result.processedReferences)
       ? result.processedReferences.map(reference => ({
         role: reference.role,

@@ -1,7 +1,7 @@
 # Component Reuse and Module Architecture
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** React/server architecture aligned; component extraction remains incremental
+**Status:** Shared boundaries reused and Fashion orchestration components implemented; extraction remains incremental
 
 The canonical client owner is `web/src/features/fashion-blueprint/`. Fashion
 composes Template Core, Character Profile, Reference Processing, Credits,

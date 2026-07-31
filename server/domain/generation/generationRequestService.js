@@ -332,11 +332,14 @@ export function createQueueOptions(context, {
   payerUserId = null,
   estimateId = null,
   requestId = null,
-  templateUseContext = null
+  templateUseContext = null,
+  fashionBlueprintContext = null
 }) {
   const references = context.imageReferences;
   const {
     authorizedCharacterReferenceAssetId,
+    authorizedCharacterFaceReferenceUrl,
+    authorizedCharacterFrontReferenceUrl,
     ...persistedCharacterProfileContext
   } = context.characterProfileContext || {};
   return {
@@ -376,6 +379,13 @@ export function createQueueOptions(context, {
       context.characterProfileContext?.purpose === 'character_usage'
         ? normalizeReferenceJobIds([authorizedCharacterReferenceAssetId])
         : [],
+    authorizedCharacterReferenceUrls:
+      context.characterProfileContext?.purpose === 'character_usage'
+        ? [
+          authorizedCharacterFaceReferenceUrl,
+          authorizedCharacterFrontReferenceUrl
+        ].filter(Boolean)
+        : [],
     authorizedFaceReferenceJobIds: normalizeReferenceJobIds(
       context.authorizedFaceReferenceJobIds
     ),
@@ -413,6 +423,10 @@ export function createQueueOptions(context, {
     templateUseContext: templateUseContext && typeof templateUseContext === 'object'
       ? structuredClone(templateUseContext)
       : null,
+    fashionBlueprintContext:
+      fashionBlueprintContext && typeof fashionBlueprintContext === 'object'
+        ? structuredClone(fashionBlueprintContext)
+        : null,
     imageResolution: imageResolution || context.imageResolution || modelConfig.defaults?.resolution || null,
     templateBaselineReference: context.templateBaselineReference || null,
     faceReferenceImageA: references.faceMatch ? context.faceReferenceImageA : null,

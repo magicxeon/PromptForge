@@ -19,6 +19,8 @@ export async function prepareGenerationReferences(context, {
         : 'preserve';
     const canonicalAssetId =
       context.characterProfileContext.authorizedCharacterReferenceAssetId;
+    // The approved three-view casting asset gives Gemini stronger identity,
+    // skin-tone and body-proportion evidence than an inferred face crop.
     context.characterReferenceImageA = canonicalAssetId;
     context.characterReferenceImageB = null;
     context.characterReferenceJobIds = [canonicalAssetId];

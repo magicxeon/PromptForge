@@ -1,7 +1,33 @@
 # Fashion Blueprint QA and Release Gates
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Prototype domain coverage present; complete Fashion E2E and visual QA pending
+**Status:** Automated coverage expanded; full Fashion E2E and visual QA pending
+
+### Fashion stepper and setup summary gate
+
+- The four-step header uses a connected arrow infographic treatment with clear
+  current and completed states.
+- Adjacent arrows overlap 12px of their 16px chevron joints, leaving a deliberate
+  4px visual separation while label padding keeps text outside the clipped notch.
+- It remains horizontally usable on narrow screens without clipping labels.
+- Desktop allocates a 400px setup summary column and gives the configuration
+  panel the remaining width, with a 360px summary fallback on medium desktop.
+- Setup summary shows Template and Character previews when available.
+- Setup previews fill their media frame, and Template discovery provides
+  client-side search, category filtering, and a four-card wide-desktop grid
+  ready for future server pagination.
+- Back reference remains optional, and the Proof option is absent for a
+  one-product plan.
+- Pearl Editorial must preserve readable text contrast across the stepper,
+  Template cards, controls, and setup summary.
+- A `credit_insufficient` response from Generate opens the shared exhausted
+  credit dialog and does not create a Fashion run or duplicate inline error.
+- The Review screen passes the mandatory expert evidence and shared
+  queue/production UX gates in
+  `010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+- A paid-pilot run passes the end-to-end correlation and idempotent credit
+  recovery drill in
+  `010-platform-correlation-tracing-and-credit-recovery.md`.
 
 ## 1. Automated Coverage
 
@@ -42,8 +68,17 @@ web/src/features/fashion-blueprint/**/*.test.tsx
 ```
 
 The current `test/fashionBlueprint.test.js` covers basic plan routing and atomic
-reservation only. It is not sufficient evidence for Bulk, authorization,
-Template compatibility, processing lineage or result recovery.
+reservation. `test/fashionBlueprintPolicy.test.js` covers versioned routing,
+direction policy, Product Item identity and deterministic operation contracts.
+The React draft test verifies actor separation and Base64 exclusion. These tests
+do not replace the authorization, queue reconciliation, E2E and visual gates
+below.
+
+Run the focused Windows validation with:
+
+```bat
+scripts\validate-fashion-blueprint.bat
+```
 
 ## 2. Manual E2E
 

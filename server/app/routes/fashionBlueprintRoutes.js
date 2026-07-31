@@ -18,9 +18,16 @@ export function registerFashionBlueprintRoutes(app, { providerRegistry, queueMan
       sendError(res, error);
     }
   });
-  app.post('/api/fashion-blueprints/resolve', (req, res) => {
+  app.post('/api/fashion-blueprints/resolve', async (req, res) => {
     try {
-      const plan = blueprintService.resolvePlan(req.body || {}, req.actorContext);
+      const normalized = blueprintService.resolvePlan(
+        req.body || {},
+        req.actorContext
+      );
+      const plan = await blueprintService.authorizePlanAssets(
+        normalized,
+        req.actorContext
+      );
       res.json({
         route: plan.route,
         qualityTier: plan.qualityTier,
@@ -49,6 +56,25 @@ export function registerFashionBlueprintRoutes(app, { providerRegistry, queueMan
   app.get('/api/fashion-blueprints/runs/:id', async (req, res) => {
     try {
       res.json(await runService.getRun(req.params.id, req.actorContext));
+    } catch (error) {
+      sendError(res, error);
+    }
+  });
+  app.get('/api/fashion-blueprints/runs', async (req, res) => {
+    try {
+      res.json({
+        items: await runService.listRuns(
+          req.actorContext,
+          Number(req.query.limit) || 12
+        )
+      });
+    } catch (error) {
+      sendError(res, error);
+    }
+  });
+  app.post('/api/fashion-blueprints/runs/:id/approve-proof', async (req, res) => {
+    try {
+      res.json(await runService.approveProof(req.params.id, req.actorContext));
     } catch (error) {
       sendError(res, error);
     }

@@ -1,7 +1,7 @@
 # Character, Pose and Environment Selection
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Basic React selectors implemented; recommended picker and versioned direction packs pending
+**Status:** Authorized picker and versioned direction packs implemented; recommendation UX remains release polish
 
 The MVP uses authorized Character handoffs plus bounded pose/environment
 selectors. Server run confirmation revalidates Character version, reuse policy,

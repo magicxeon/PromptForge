@@ -1,5 +1,30 @@
 [
   {
+    "assetType": "fashion_reference",
+    "storageProvider": "local",
+    "storageKey": "fashion-references/usr_alice/1785467226790-92c3b0a1838d.jpg",
+    "publicUrl": "/outputs/fashion-references/usr_alice/1785467226790-92c3b0a1838d.jpg",
+    "thumbnailUrl": null,
+    "mimeType": "image/jpeg",
+    "sizeBytes": 42014,
+    "width": 405,
+    "height": 539,
+    "sourceJobId": null,
+    "metadata": {
+      "role": "outfit_front",
+      "sourceMode": "upload"
+    },
+    "id": "ast_1785467226791_ej18aa9e",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-07-31T03:07:06.791Z",
+    "updatedAt": "2026-07-31T03:07:06.791Z",
+    "deletedAt": null
+  },
+  {
     "assetType": "generation_reference",
     "storageProvider": "local",
     "storageKey": "references/usr_bob/1785407356054-b00df38664fd.jpg",

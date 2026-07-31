@@ -1,0 +1,5 @@
+interface:
+  display_name: "OpenAI Fashion Image Qualification"
+  short_description: "Qualify OpenAI models for Fashion fidelity"
+  default_prompt: "Use $qualify-openai-fashion-images to benchmark an OpenAI Fashion multi-reference strategy."
+

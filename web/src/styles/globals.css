@@ -14,6 +14,7 @@
 @import "./template-management.css";
 @import "./references.css";
 @import "./playground.css";
+@import "./fashion-blueprint.css";
 
 * {
   box-sizing: border-box;

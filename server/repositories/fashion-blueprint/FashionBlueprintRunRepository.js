@@ -19,6 +19,32 @@ export class FashionBlueprintRunRepository {
     });
   }
 
+  async update(id, actorUserId, updater) {
+    return mutateJsonFile(this.filePath, FALLBACK, data => {
+      data.schemaVersion = 1;
+      data.runs = Array.isArray(data.runs) ? data.runs : [];
+      const index = data.runs.findIndex(item =>
+        item.id === id && item.actorUserId === actorUserId
+      );
+      if (index < 0) return null;
+      const next = updater(structuredClone(data.runs[index]));
+      data.runs[index] = {
+        ...next,
+        updatedAt: new Date().toISOString()
+      };
+      return structuredClone(data.runs[index]);
+    });
+  }
+
+  async findRecentForActor(actorUserId, limit = 12) {
+    const data = await readJsonFile(this.filePath, FALLBACK);
+    return (data.runs || [])
+      .filter(item => item.actorUserId === actorUserId)
+      .sort((a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0))
+      .slice(0, Math.max(1, Math.min(50, Number(limit) || 12)))
+      .map(structuredClone);
+  }
+
   async findByIdForActor(id, actorUserId) {
     const data = await readJsonFile(this.filePath, FALLBACK);
     const run = (data.runs || []).find(item => item.id === id && item.actorUserId === actorUserId);

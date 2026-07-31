@@ -2,6 +2,801 @@
   {
     "templateId": "tmpl_1785395582339_zsymjfy7",
     "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_e28d744e78bb7c6727_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "modelark",
+      "modelId": "dola-seedream-5-0-pro-260628",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 80,
+      "breakdown": {
+        "baseOutputCredits": 60,
+        "referenceCredits": 10,
+        "generationCredits": 70,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 80
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479916658_yywgad2p",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:38:36.658Z",
+    "updatedAt": "2026-07-31T06:38:36.658Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_6f40c6b78839bf86ba_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "modelark",
+      "modelId": "seedream-4-5-251128",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 70,
+      "breakdown": {
+        "baseOutputCredits": 60,
+        "referenceCredits": 0,
+        "generationCredits": 60,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479787136_sxe07hh2",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:36:27.136Z",
+    "updatedAt": "2026-07-31T06:36:27.136Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_3e25905e4790488de0_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "modelark",
+      "modelId": "seedream-5-0-lite-260128",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 60,
+      "breakdown": {
+        "baseOutputCredits": 50,
+        "referenceCredits": 0,
+        "generationCredits": 50,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 60
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479696600_wxwz61v9",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:34:56.600Z",
+    "updatedAt": "2026-07-31T06:34:56.600Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_c5ac0fa49ee1705993_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "modelark",
+      "modelId": "seedream-4-0-250828",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 55,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 55
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479535738_rw8zyfm8",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:32:15.738Z",
+    "updatedAt": "2026-07-31T06:32:15.738Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_96c36d01d75c5f4f05_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "openai",
+      "modelId": "gpt-image-1.5",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 125,
+      "breakdown": {
+        "baseOutputCredits": 85,
+        "referenceCredits": 30,
+        "generationCredits": 115,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 125
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479383708_lcnqxfbv",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:29:43.708Z",
+    "updatedAt": "2026-07-31T06:29:43.708Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_d355c324cef06827b6_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "openai",
+      "modelId": "gpt-image-1",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 145,
+      "breakdown": {
+        "baseOutputCredits": 105,
+        "referenceCredits": 30,
+        "generationCredits": 135,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 145
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479180233_jhf18jub",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:26:20.233Z",
+    "updatedAt": "2026-07-31T06:26:20.233Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_91e1ccfab7a5b78661_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 70,
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 30,
+        "generationCredits": 60,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785479053743_9ib2aix8",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:24:13.743Z",
+    "updatedAt": "2026-07-31T06:24:13.743Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_77e7b2a7a80531f563_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785478638733_n2xgbf7z",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:17:18.733Z",
+    "updatedAt": "2026-07-31T06:17:18.733Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
+    "templateUseSessionId": "tmpls_1785478048080_qebcovtb",
+    "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
+    "generatedJobId": "job_fashion_36be231d1ad46ce2ff_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_expression",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 58,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 58
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785478073947_lit19yh9",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T06:07:53.947Z",
+    "updatedAt": "2026-07-31T06:07:53.947Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785348243205_t3029qlz",
+    "templateVersionId": "tmplv_1785348243209_93asy31z",
+    "templateUseSessionId": "tmpls_1785469875963_zncjl5pg",
+    "sourceCommunityPostId": "post_1785348243221_sgq6ovcs",
+    "generatedJobId": "job_fashion_c58f66d976bec0174f_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_pose_intent",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 48,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 0,
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 48
+      }
+    },
+    "creatorEarningCredits": 0,
+    "platformRevenueCredits": 0,
+    "id": "tmpluse_1785473293392_6oa3rren",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T04:48:13.392Z",
+    "updatedAt": "2026-07-31T04:48:13.392Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785348243205_t3029qlz",
+    "templateVersionId": "tmplv_1785348243209_93asy31z",
+    "templateUseSessionId": "tmpls_1785469875963_zncjl5pg",
+    "sourceCommunityPostId": "post_1785348243221_sgq6ovcs",
+    "generatedJobId": "job_fashion_f38d30b5ef5089ecfb_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_pose_intent",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 49,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 4,
+        "generationCredits": 49,
+        "templateUsageCredits": 0,
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 49
+      }
+    },
+    "creatorEarningCredits": 0,
+    "platformRevenueCredits": 0,
+    "id": "tmpluse_1785472904752_6vl9nwuf",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T04:41:44.752Z",
+    "updatedAt": "2026-07-31T04:41:44.752Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785348243205_t3029qlz",
+    "templateVersionId": "tmplv_1785348243209_93asy31z",
+    "templateUseSessionId": "tmpls_1785469875963_zncjl5pg",
+    "sourceCommunityPostId": "post_1785348243221_sgq6ovcs",
+    "generatedJobId": "job_fashion_a156eca4895e9a4d5f_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "field_pose_intent",
+        "inputType": "select_option",
+        "supplied": true
+      },
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 48,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 0,
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 48
+      }
+    },
+    "creatorEarningCredits": 0,
+    "platformRevenueCredits": 0,
+    "id": "tmpluse_1785471488197_hh5xl3zl",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-07-31T04:18:08.196Z",
+    "updatedAt": "2026-07-31T04:18:08.196Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785395582339_zsymjfy7",
+    "templateVersionId": "tmplv_1785395582344_l0k5his5",
     "templateUseSessionId": "tmpls_1785407260008_1bz4c6gy",
     "sourceCommunityPostId": "post_1785395582352_fej1z0q0",
     "generatedJobId": "job_1785407707755_jpkmwj9av",

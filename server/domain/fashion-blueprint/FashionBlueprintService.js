@@ -1,12 +1,18 @@
-const QUALITY_ROUTE_PREFERENCES = {
-  draft: ['gemini-3.1-flash-lite-image', 'gpt-image-1-mini'],
-  selling_quality: ['gemini-3.1-flash-image', 'gpt-image-1'],
-  premium_campaign: ['gemini-3-pro-image', 'gpt-image-1.5']
-};
+import { fashionAssetService } from './FashionAssetService.js';
+import { fashionDirectionResolver } from './FashionDirectionResolver.js';
+import { fashionRoutingPolicyService } from './FashionRoutingPolicyService.js';
 
 export class FashionBlueprintService {
-  constructor({ providerRegistry }) {
+  constructor({
+    providerRegistry,
+    assetService = fashionAssetService,
+    directionResolver = fashionDirectionResolver,
+    routingPolicyService = fashionRoutingPolicyService
+  }) {
     this.providerRegistry = providerRegistry;
+    this.assetService = assetService;
+    this.directionResolver = directionResolver;
+    this.routingPolicyService = routingPolicyService;
   }
 
   resolvePlan(input = {}, actorContext = null) {
@@ -17,17 +23,6 @@ export class FashionBlueprintService {
     for (const item of items) {
       if (!item?.key || !item.references?.outfit_front) {
         throw fashionError('fashion_outfit_front_required', 'Every product requires an Outfit Front reference.');
-      }
-      for (const role of ['outfit_front', 'outfit_back']) {
-        const value = item.references?.[role];
-        if (value && !isOwnedFashionReference(value, actorContext?.userId)) {
-          throw fashionError(
-            'fashion_reference_not_owned',
-            'Outfit references must be uploaded by the active user.',
-            403,
-            { role }
-          );
-        }
       }
     }
     const qualityTier = ['draft', 'selling_quality', 'premium_campaign'].includes(input.qualityTier)
@@ -40,36 +35,82 @@ export class FashionBlueprintService {
     const model = route.model;
     const aspectRatio = input.aspectRatio || '6:8';
     const resolution = input.resolution || model.capabilities?.resolutions?.[0] || model.defaults?.resolution || model.defaults?.imageSize || '1K';
-    const productItems = items.map(item => ({
+    const direction = this.directionResolver.resolve(input);
+    const productItems = items.map((item, index) => ({
       key: String(item.key),
+      clientKey: String(item.clientKey || item.key),
       name: String(item.name || item.key),
+      sku: String(item.sku || '').trim().slice(0, 80) || null,
       productType: String(item.productType || 'clothing_set'),
       outfitScope: normalizeOutfitScope(item.outfitScope),
+      colorNotes: String(item.colorNotes || '').trim().slice(0, 160) || null,
+      integrityLevel: normalizeIntegrityLevel(item.integrityLevel),
       references: {
-        character_reference: String(item.references.character_reference || ''),
-        outfit_front: String(item.references.outfit_front),
-        outfit_back: item.references.outfit_back ? String(item.references.outfit_back) : null
-      }
+        character_reference: normalizeReference(item.references.character_reference),
+        outfit_front: normalizeReference(item.references.outfit_front),
+        outfit_back: normalizeReference(item.references.outfit_back)
+      },
+      operations: [{
+        operationId: `op_${String(item.key)}_cover`,
+        shotKey: 'cover',
+        shotIndex: index,
+        outputCount: 1
+      }]
     }));
     for (const item of productItems) {
-      const referenceCount = new Set(Object.values(item.references).filter(Boolean)).size;
+      const referenceCount = new Set(
+        Object.values(item.references).filter(Boolean).map(reference => reference.assetId || reference.imageUrl)
+      ).size;
       this.providerRegistry.validateRequest(model, { aspectRatio, imageResolution: resolution, referenceCount });
     }
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       templateId: String(input.templateId),
       templateUseSessionId: String(input.templateUseSessionId),
       characterProfileContext: input.characterProfileContext,
       productItems,
       qualityTier,
       routingMode,
-      route: { providerId: route.provider.id, modelId: model.id },
+      route: {
+        providerId: route.provider.id,
+        modelId: model.id,
+        routingPolicyVersion: route.policyVersion || null
+      },
       resolution,
       aspectRatio,
-      poseDirection: normalizeDirection(input.poseDirection, 'template_pose'),
-      environmentDirection: normalizeDirection(input.environmentDirection, 'template_environment'),
+      directionPolicyVersion: direction.policyVersion,
+      poseDirection: direction.pose.id,
+      poseDirective: direction.pose.directive,
+      environmentDirection: direction.environment.id,
+      environmentDirective: direction.environment.directive,
       outputCountPerProduct: 1
     };
+  }
+
+  async authorizePlanAssets(plan, actorContext) {
+    const productItems = [];
+    for (const item of plan.productItems) {
+      const references = { character_reference: item.references.character_reference };
+      for (const role of ['outfit_front', 'outfit_back']) {
+        const requested = item.references[role];
+        if (!requested) {
+          references[role] = null;
+          continue;
+        }
+        const resolved = await this.assetService.resolveOwnedReference(requested, actorContext);
+        if (!resolved) {
+          throw fashionError(
+            'fashion_reference_not_owned',
+            'Outfit references must be uploaded by the active user.',
+            403,
+            { role, assetId: requested.assetId || null }
+          );
+        }
+        references[role] = resolved;
+      }
+      productItems.push({ ...item, references });
+    }
+    return { ...plan, productItems };
   }
 
   resolveAdvancedRoute(input) {
@@ -80,22 +121,22 @@ export class FashionBlueprintService {
   }
 
   resolveSimpleRoute(qualityTier) {
-    const catalog = this.providerRegistry.getPublicCatalog();
-    const preferred = QUALITY_ROUTE_PREFERENCES[qualityTier];
-    for (const modelId of preferred) {
-      const provider = catalog.providers.find(entry => entry.models.some(model => model.id === modelId));
-      if (provider) return this.providerRegistry.resolveSelection(provider.id, modelId);
-    }
-    const provider = catalog.providers[0];
-    const model = provider?.models[0];
-    if (!provider || !model) throw fashionError('fashion_route_unavailable', 'No available image provider can run Fashion Blueprint.', 503);
-    return this.providerRegistry.resolveSelection(provider.id, model.id);
+    return this.routingPolicyService.resolveSimpleRoute(
+      qualityTier,
+      this.providerRegistry
+    );
   }
 }
 
-function normalizeDirection(value, fallback) {
-  const normalized = String(value || '').trim().slice(0, 160);
-  return normalized || fallback;
+function normalizeReference(value) {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    return { assetId: null, imageUrl: value };
+  }
+  return {
+    assetId: String(value.assetId || value.referenceId || '').trim() || null,
+    imageUrl: String(value.imageUrl || '').trim() || null
+  };
 }
 
 function normalizeOutfitScope(value) {
@@ -104,10 +145,10 @@ function normalizeOutfitScope(value) {
     : 'full_look';
 }
 
-function isOwnedFashionReference(value, userId) {
-  if (!userId) return false;
-  const prefix = `/outputs/fashion-references/${encodeURIComponent(userId)}/`;
-  return String(value).startsWith(prefix) && !String(value).slice(prefix.length).includes('/');
+function normalizeIntegrityLevel(value) {
+  return ['creative', 'balanced', 'strict'].includes(value)
+    ? value
+    : 'balanced';
 }
 
 export function fashionError(code, message, statusCode = 400, details = {}) {

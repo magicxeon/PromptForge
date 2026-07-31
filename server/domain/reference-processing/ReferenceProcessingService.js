@@ -6,6 +6,7 @@ import {
   stableFingerprint
 } from './referenceProcessingContracts.js';
 import { ReferenceAuthorityPlanner } from './ReferenceAuthorityPlanner.js';
+import { buildStructuredReferenceBrief } from './StructuredReferenceBrief.js';
 
 export class ReferenceProcessingService {
   constructor({
@@ -88,10 +89,16 @@ export class ReferenceProcessingService {
       characterReferenceOutfitBehavior: context.characterReferenceOutfitBehavior,
       outfitReferenceOverrides: context.outfitReferenceOverrides
     });
-    const ordered = orderAndDedupe(
+    const orderedBeforeDispatchRules = orderAndDedupe(
       processedReferences,
       this.policyRegistry.getReferenceOrder(providerId, modelId)
     );
+    const dispatch = applyDispatchRules(
+      orderedBeforeDispatchRules,
+      this.policyRegistry.getProviderDispatchRules(providerId, modelId),
+      context
+    );
+    const ordered = dispatch.references;
     const configuredMaxReferences = modelConfig?.capabilities?.maxReferenceImages;
     const maxReferences = configuredMaxReferences === undefined
       || configuredMaxReferences === null
@@ -105,14 +112,16 @@ export class ReferenceProcessingService {
         { referenceCount: ordered.length, maxReferences }
       );
     }
-    const directiveIds = [...new Set(processedReferences.map(reference =>
-      this.policyRegistry.getRole(reference.role).directiveId
+    const directiveIds = [...new Set(ordered.flatMap(reference =>
+      reference.roles.map(role => this.policyRegistry.getRole(role).directiveId)
     ))];
     directiveIds.push(...this.policyRegistry.getProviderDirectiveSuffixes(providerId, modelId));
     const compiledDirective = compileDirective(
       ordered,
       this.policyRegistry,
-      context
+      context,
+      providerId,
+      modelId
     );
     const planFingerprint = stableFingerprint({
       schemaVersion: REFERENCE_PROCESSING_SCHEMA_VERSION,
@@ -168,6 +177,8 @@ export class ReferenceProcessingService {
         })),
         referenceCount: ordered.length,
         directiveIds,
+        dispatchRuleIds: dispatch.appliedRuleIds,
+        suppressedReferenceRoles: dispatch.suppressedRoles,
         executionMode: 'single_stage'
       },
       compiledDirective
@@ -235,8 +246,52 @@ function orderAndDedupe(references, order) {
   return [...byFingerprint.values()];
 }
 
-function compileDirective(orderedReferences, registry, context) {
+function applyDispatchRules(references, rules, context) {
+  const availableRoles = new Set(references.flatMap(reference => reference.roles));
+  const appliedRuleIds = [];
+  const suppressedRoles = new Set();
+  for (const rule of rules || []) {
+    const surfaces = rule.when?.generationSurfaces || [];
+    const allRoles = rule.when?.allRoles || [];
+    const anyRoles = rule.when?.anyRoles || [];
+    const surfaceMatches = !surfaces.length
+      || surfaces.includes(context.generationSurface);
+    const allMatch = allRoles.every(role => availableRoles.has(role));
+    const anyMatch = !anyRoles.length
+      || anyRoles.some(role => availableRoles.has(role));
+    if (!surfaceMatches || !allMatch || !anyMatch) continue;
+    appliedRuleIds.push(rule.id);
+    rule.suppressRoles.forEach(role => suppressedRoles.add(role));
+  }
+  return {
+    references: references.filter(reference =>
+      !reference.roles.every(role => suppressedRoles.has(role))
+    ),
+    appliedRuleIds,
+    suppressedRoles: [...suppressedRoles]
+  };
+}
+
+function compileDirective(
+  orderedReferences,
+  registry,
+  context,
+  providerId,
+  modelId
+) {
   if (!orderedReferences.length) return '';
+  const structuredBrief = buildStructuredReferenceBrief({
+    orderedReferences,
+    config: registry.getProviderStructuredBrief(providerId, modelId),
+    context
+  });
+  if (structuredBrief) {
+    return [
+      'Follow this structured reference authority contract exactly.',
+      JSON.stringify(structuredBrief, null, 2),
+      'The detailed destination direction follows this JSON contract.'
+    ].join('\n');
+  }
   const entries = orderedReferences.map((reference, index) => {
     const roleText = reference.roles.map(role => {
       const config = registry.getRole(role);

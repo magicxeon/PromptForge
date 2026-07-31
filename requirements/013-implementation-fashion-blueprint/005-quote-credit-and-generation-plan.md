@@ -1,7 +1,23 @@
 # Quote, Credit and Generation Plan
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Atomic prototype implemented; complete public quote contract and recovery validation pending
+**Status:** Public quote, Proof/Continuation, atomic reservation and recovery contracts implemented; validation pending
+
+### Single-product review rule
+
+When the resolved plan contains one Product Item, Review does not offer
+`Test one product first`. A proof would duplicate the full operation, so the UI
+forces `quotePurpose: full`. Proof and Continuation remain available only when
+the plan has at least two Product Items.
+
+### Insufficient-credit interaction
+
+When atomic Fashion reservation returns `credit_insufficient`, the React route
+opens the shared `CreditExhaustedDialog` already used by Studio and Playground.
+The dialog displays the locked quote maximum and current available balance,
+offers the credit account route, and exposes the existing mock grant action only
+for mock actors. The inline run error is suppressed for this code so the user
+does not receive duplicate failure messages.
 
 The implementation creates one locked estimate per product and reserves all
 accepted operation credits atomically through `reservePlan` before enqueue.
@@ -97,6 +113,32 @@ Character and Outfit references through
 recompute that plan. The locked estimate and submitted generation request must
 contain the same `referenceProcessingPlanFingerprint`; a mismatch is
 `credit_estimate_stale` and no job is enqueued.
+
+### 3.1 Character identity dispatch
+
+For Fashion operations that combine a person-bearing Template baseline, a
+selected Character and a person-worn Outfit upload:
+
+1. The approved Character version is the only identity/body authority.
+2. Use its canonical three-view casting image as the Character identity source.
+   Do not use an inferred face crop; manual Gemini trials show the complete
+   Character source preserves face, skin tone and proportions more reliably.
+3. Dispatch in the stable order Template, Character, Outfit Front and optional
+   Outfit Back. Compile a structured JSON authority brief against these exact
+   provider image indexes.
+4. Outfit controls garment only and must suppress its wearer.
+5. Template controls composition, pose intent, environment and lighting only.
+   Its person identity, skin tone, body proportions, hair and clothing are
+   explicitly prohibited by the structured authority brief.
+6. The queue must reject arbitrary derivative paths. Only exact URLs authorized
+   from the validated Character version may be read.
+
+Regression coverage must assert provider order:
+
+```text
+IMAGE_0 template -> IMAGE_1 character three-view
+-> IMAGE_2 outfit front -> optional IMAGE_3 outfit back
+```
 
 ## 4. Credit Lifecycle
 

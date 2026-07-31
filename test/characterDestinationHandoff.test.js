@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CharacterProfileSharingService } from '../server/domain/character-profiles/CharacterProfileSharingService.js';
 import { CharacterUsageService } from '../server/domain/character-profiles/CharacterUsageService.js';
-import { compilePromptFromGenerationContext } from '../server/domain/generation/generationRequestService.js';
+import {
+  compilePromptFromGenerationContext,
+  createQueueOptions
+} from '../server/domain/generation/generationRequestService.js';
 
 test('Scene handoff snapshots personality and excludes casting outfit attributes', async () => {
   const profile = {
@@ -70,7 +73,9 @@ test('server replaces client Character metadata with canonical snapshots before 
         id: 'charver_1',
         characterProfileId: profile.id,
         status: 'approved',
-        canonicalCastingExportAssetId: 'job_casting'
+        canonicalCastingExportAssetId: 'job_casting',
+        castingFacePreviewUrl: '/outputs/character-profiles/charprof_1/charver_1/face.webp',
+        castingFrontPreviewUrl: '/outputs/character-profiles/charprof_1/charver_1/front.webp'
       })
     },
     usageRepository: {}
@@ -86,6 +91,14 @@ test('server replaces client Character metadata with canonical snapshots before 
   assert.equal(context.personalitySummarySnapshot, profile.personalitySummary);
   assert.equal(context.attribution.ownerUserId, profile.ownerUserId);
   assert.equal(context.authorizedCharacterReferenceAssetId, 'job_casting');
+  assert.equal(
+    context.authorizedCharacterFaceReferenceUrl,
+    '/outputs/character-profiles/charprof_1/charver_1/face.webp'
+  );
+  assert.equal(
+    context.authorizedCharacterFrontReferenceUrl,
+    '/outputs/character-profiles/charprof_1/charver_1/front.webp'
+  );
   assert.match(compilePromptFromGenerationContext({
     mode: 'normal',
     selections: {},
@@ -93,6 +106,31 @@ test('server replaces client Character metadata with canonical snapshots before 
     imageReferences: {},
     characterProfileContext: context
   }), /Warm and confident/);
+
+  const queueOptions = createQueueOptions({
+    selections: {},
+    imageReferences: { characterReference: true },
+    characterProfileContext: context,
+    characterReferenceImageA: context.authorizedCharacterFaceReferenceUrl,
+    characterReferenceImageB: context.authorizedCharacterFrontReferenceUrl,
+    characterReferenceJobIds: ['job_casting'],
+    aspectRatio: '6:8'
+  }, {
+    username: 'viewer',
+    stream: false,
+    modelConfig: { defaults: {} },
+    providerConfigVersion: 'test',
+    creditCost: 1,
+    payerUserId: 'usr_viewer'
+  });
+  assert.deepEqual(queueOptions.authorizedCharacterReferenceUrls, [
+    '/outputs/character-profiles/charprof_1/charver_1/face.webp',
+    '/outputs/character-profiles/charprof_1/charver_1/front.webp'
+  ]);
+  assert.equal(
+    queueOptions.characterProfileContext.authorizedCharacterFaceReferenceUrl,
+    undefined
+  );
 });
 
 test('Styled Character preserves its outfit in Scene and is rejected by Fashion', async () => {

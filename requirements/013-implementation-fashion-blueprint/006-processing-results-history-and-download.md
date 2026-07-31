@@ -1,7 +1,7 @@
 # Processing, Results, History and Download
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Basic polling/results implemented; grouped shot UX and recovery validation pending
+**Status:** Actor-owned recovery, grouped operations and result actions implemented; validation pending
 
 Grouped polling shows each product status/result and partial failures. Canonical
 QueueManager history remains authoritative; completed items expose Download,
@@ -43,9 +43,20 @@ queued | processing | partially_completed | completed | failed | cancelled
 Reuse:
 
 - `web/src/components/generation/GenerationResultSurface.tsx`
+- `web/src/components/generation/GenerationQueueStatus.tsx`
 - TanStack Query history/run polling and actor-scoped APIs
 - shared media detail/viewer components
 - existing collection/save/share actions where permitted
+
+The expert-reviewed layout, queue placement, empty/progress states, accepted-run
+scroll behavior and compact recent Fashion results are owned by
+`010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+
+Every run, operation, generation job and related credit record must carry the
+correlation contract defined by
+`010-platform-correlation-tracing-and-credit-recovery.md`. Trace events support
+diagnosis; the Fashion run and Credit ledger remain the business sources of
+truth.
 
 The current `FashionRunResults` prototype is embedded in
 `FashionBlueprintRoute.tsx`. Extract it only when adding Product/shot grouping,

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Seedream Fashion Image Qualification"
+  short_description: "Qualify Seedream models for Fashion fidelity"
+  default_prompt: "Use $qualify-seedream-fashion-images to benchmark a Seedream Fashion multi-reference strategy."
+

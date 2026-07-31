@@ -74,6 +74,71 @@ test('processing service enforces a provider that supports no references', async
   );
 });
 
+test('Fashion compiles an ordered Template, Character and Outfit authority brief', async () => {
+  const service = new ReferenceProcessingService({
+    policyRegistry,
+    processorRegistry: {
+      async process(input) {
+        return {
+          sourceAssetId: null,
+          derivativeAssetId: null,
+          imageUrl: input.value,
+          contentFingerprint: input.slotId,
+          processorIds: [],
+          processorVersions: {},
+          fallback: false
+        };
+      }
+    }
+  });
+  const context = {
+    generationSurface: 'fashion',
+    aspectRatio: '6:8',
+    templateBaselineReference: '/outputs/job_template.png',
+    characterReferenceImageA: '/outputs/character/casting-three-view.png',
+    outfitReferenceImageFront: '/outputs/references/outfit.jpg',
+    characterReferenceOutfitBehavior: 'replaceable',
+    imageReferences: {
+      characterReference: true,
+      outfitReference: true
+    },
+    selections: {}
+  };
+  const result = await service.processContext(context, {
+    actorContext: { userId: 'usr_fashion', username: 'fashion' },
+    providerId: 'gemini',
+    modelId: 'gemini-3.1-flash-lite-image',
+    modelConfig: { capabilities: { maxReferenceImages: 6 } }
+  });
+
+  assert.deepEqual(
+    result.providerPlan.orderedReferences.map(reference => reference.slots[0]),
+    [
+      'template_baseline',
+      'character_reference_a',
+      'outfit_front'
+    ]
+  );
+  assert.deepEqual(result.providerPlan.dispatchRuleIds, []);
+  assert.deepEqual(result.providerPlan.suppressedReferenceRoles, []);
+  assert.match(
+    result.compiledDirective,
+    /"source_image": "IMAGE_0"/
+  );
+  assert.match(
+    result.compiledDirective,
+    /"identity_source": "IMAGE_1 only"/
+  );
+  assert.match(
+    result.compiledDirective,
+    /"garment_source": "IMAGE_2 only"/
+  );
+  assert.match(
+    result.compiledDirective,
+    /"template skin tone"/
+  );
+});
+
 test('processing service rejects a deduplicated plan above provider capacity', async () => {
   const service = new ReferenceProcessingService({
     policyRegistry,

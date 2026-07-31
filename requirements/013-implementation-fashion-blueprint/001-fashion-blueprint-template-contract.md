@@ -1,7 +1,7 @@
 # Fashion Blueprint Template Contract
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Template Core handoff prototype implemented; Fashion contract completion pending
+**Status:** Template compatibility, immutable version lineage and Community handoff implemented; validation pending
 
 The React Template picker consumes sanitized reusable Community Template posts.
 The quote service revalidates template visibility and reuse policy on the
@@ -78,6 +78,11 @@ outfit_back          optional per Product Item
 environment          template default, optionally replaceable
 pose_pack            template default, optionally replaceable
 ```
+
+Compatibility rule: published Template versions that historically marked
+`fashion.outfit_back` or `outfit_back_reference` as required are interpreted as
+optional by Template resolution. This avoids blocking front-only ecommerce
+shots while retaining the back image whenever the user supplies one.
 
 `outfit_detail` is reserved. It becomes active only after Template Core,
 Reference Processing policy, provider capacity validation and Fashion schemas

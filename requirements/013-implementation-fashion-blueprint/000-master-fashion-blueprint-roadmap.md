@@ -1,6 +1,7 @@
 # Fashion Blueprint Master Roadmap
 
-**Status:** React prototype implemented; MVP completion and release validation pending
+**Status:** MVP prototype implemented; qualification, UX/tracing hardening and
+release validation pending
 
 **Canonical implementation:** `web/src/features/fashion-blueprint/`,
 `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`,
@@ -70,6 +71,25 @@ Fashion Blueprint builds a validated generation plan. It does not call providers
 mutate credits, duplicate Scene Template resolution or create its own result
 pipeline.
 
+## 3.1 Implemented MVP Contract
+
+- Customer flow is four decisions: Template, Character, Products, and
+  Review/Test/Generate.
+- Draft state is actor-scoped and stores durable asset pointers instead of
+  embedded image bytes.
+- Product Items carry stable client keys, optional SKU/color notes, product
+  type, outfit scope, fidelity level, and front/back asset references.
+- Simple quality routing and direction packs are versioned JSON policy under
+  `server/config/`; Advanced mode reuses the shared Engine component with
+  Comparison disabled.
+- Quotes carry immutable Template lineage, setup and per-operation
+  fingerprints, operation-level credit breakdown, purpose and expiry.
+- Full, one-operation Proof, approval, and Continuation contracts reuse the
+  same quote/run repositories. Continuation excludes the approved proof
+  operation.
+- Runs retain Template/version/community lineage, route/pricing snapshots,
+  Product Item/shot identity, partial-success state and actor-owned recovery.
+
 ### Current application entry contract
 
 - Customer-facing name: `Fashion Studio`.
@@ -110,6 +130,9 @@ pipeline.
 | `006-processing-results-history-and-download.md` | Queue, progress, review and output |
 | `007-component-reuse-and-module-architecture.md` | File ownership and reuse boundaries |
 | `008-fashion-blueprint-qa-and-release-gates.md` | E2E, safety and rollout |
+| `009-fashion-model-qualification-and-routing-optimization.md` | Fashion fidelity benchmark, certified Simple routing, provider prompt strategies and pricing reconciliation |
+| `010-fashion-blueprint-ux-review-and-production-results-experience.md` | Expert UX review, Review grouping, shared queue/progress, production results and recent Fashion work |
+| `010-platform-correlation-tracing-and-credit-recovery.md` | Cross-platform workflow correlation, provider tracing and safe support credit recovery |
 
 ## 5. UX Flow
 
@@ -319,18 +342,26 @@ reference count and quote consistency before accepting the plan.
 ```text
 1. Align `001` with Template Core immutable versions and Fashion compatibility.
 2. Finish `003` Product Item/outfit-scope UI on the shared Reference controls.
-3. Move `004` Simple routing tiers into server configuration.
-4. Extend `002` direction packs and resolve optional per-item pose assignments.
-5. Extend `005` quote DTO with operation breakdown, expiry and processing
+3. Complete `009` qualification benchmark and approve the first Fashion-safe
+   Simple routing matrix.
+4. Move `004` Simple routing tiers into server configuration and require an
+   approved qualification record.
+5. Extend `002` direction packs and resolve optional per-item pose assignments.
+6. Extend `005` quote DTO with operation breakdown, expiry and processing
    fingerprints already enforced by the server.
-6. Finish `006` shot grouping, recovery and result actions using shared media
+7. Finish `006` shot grouping, recovery and result actions using shared media
    components.
-7. Complete `008` automated/manual QA, then enable public entry flags in the
-   rollout order.
+8. Complete `010` expert-reviewed Review/production UX using shared queue and
+   result components.
+9. Implement the Fashion vertical slice of `010-platform-correlation-tracing-and-credit-recovery.md`
+   and prove
+   credit recovery before paid pilot operations.
+10. Complete `008` automated/manual QA, then enable public entry flags in the
+    rollout order.
 ```
 
 The route may remain visible for internal prototype validation. Public entry
-flags must remain closed until step 7 passes.
+flags must remain closed until step 10 passes.
 
 ## 7. Non-Goals
 

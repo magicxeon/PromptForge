@@ -85,6 +85,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Canonical Template definitions, immutable versions, use sessions and usage events | `server/domain/templates/`, `server/repositories/templates/`, `server/data/templates/` |
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
+| Cross-workflow correlation context, sanitized trace events and support trace lookup | `server/middleware/`, `server/domain/observability/`, `server/repositories/observability/`, `server/data/observability/` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
 | Request actor/security middleware | `server/middleware/` |
@@ -110,6 +111,7 @@ Server placement rules:
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Request/correlation propagation and safe support references | `web/src/lib/api/`, `web/src/lib/telemetry/` |
 | Semantic theme resolution and actor preference | `web/src/lib/theme/`, `web/src/styles/themes.css` |
 | Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |
 | Server-owned feature exposure client | `web/src/lib/permissions/` |

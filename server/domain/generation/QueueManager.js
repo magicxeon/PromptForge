@@ -285,6 +285,7 @@ class QueueManager {
       const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username, referenceAccess);
       const characterReferenceAccess = {
         authorizedJobIds: job.options.authorizedCharacterReferenceJobIds || [],
+        authorizedImageUrls: job.options.authorizedCharacterReferenceUrls || [],
         ownerUserId: job.options.payerUserId || null
       };
       const resolvedCharacterA = await resolveReferenceForProvider(

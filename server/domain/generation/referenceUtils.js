@@ -140,6 +140,7 @@ export function normalizeReferenceValue(value) {
 
 export async function resolveReferenceForProvider(value, username, {
   authorizedJobIds = [],
+  authorizedImageUrls = [],
   ownerUserId = null,
   assetRepository = assetRepo,
   outputsDirectory = OUTPUTS_DIR
@@ -180,7 +181,32 @@ export async function resolveReferenceForProvider(value, username, {
     }
   }
 
-  // 3. Resolve actor-owned registered uploads. Public-looking local URLs are
+  // 3. Resolve an exact server-authorized derivative URL. This is used for
+  // private Character face/front derivatives selected by the Character domain.
+  const cleanImageUrl = typeof norm.imageUrl === 'string'
+    ? norm.imageUrl.replace(/[?#].*$/, '')
+    : null;
+  const authorizedUrlSet = new Set(
+    (Array.isArray(authorizedImageUrls) ? authorizedImageUrls : [])
+      .filter(url => typeof url === 'string')
+      .map(url => url.replace(/[?#].*$/, ''))
+  );
+  if (cleanImageUrl?.startsWith('/outputs/') && authorizedUrlSet.has(cleanImageUrl)) {
+    const relativePath = cleanImageUrl.slice('/outputs/'.length).replaceAll('/', path.sep);
+    const filePath = path.resolve(outputsDirectory, relativePath);
+    const relative = path.relative(outputsDirectory, filePath);
+    if (!relative.startsWith('..') && !path.isAbsolute(relative)) {
+      try {
+        const fileBuffer = await fs.readFile(filePath);
+        return `data:${mimeTypeFromFilename(filePath)};base64,${fileBuffer.toString('base64')}`;
+      } catch (err) {
+        console.error(`[Reference Resolution] Failed to read authorized derivative ${filePath}:`, err.message);
+        return null;
+      }
+    }
+  }
+
+  // 4. Resolve actor-owned registered uploads. Public-looking local URLs are
   // never sufficient by themselves; the asset record must belong to the payer.
   if (norm.imageUrl?.startsWith('/outputs/') && ownerUserId) {
     const asset = await assetRepository.findByPublicUrlForOwner(norm.imageUrl, ownerUserId);
@@ -199,7 +225,7 @@ export async function resolveReferenceForProvider(value, username, {
     }
   }
 
-  // 4. Fallback to raw legacy path resolution (e.g. startup/test fixtures)
+  // 5. Fallback to raw legacy path resolution (e.g. startup/test fixtures)
   if (typeof value === 'string' && value.startsWith('/outputs/')) {
     const filename = path.basename(value);
     const isFixture = filename.startsWith('fixture_') || filename.startsWith('test_');

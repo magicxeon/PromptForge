@@ -67,6 +67,8 @@ export class CharacterUsageService {
     return {
       ...context,
       authorizedCharacterReferenceAssetId: canonicalAssetId,
+      authorizedCharacterFaceReferenceUrl: version.castingFacePreviewUrl || null,
+      authorizedCharacterFrontReferenceUrl: version.castingFrontPreviewUrl || null,
       characterType,
       outfitBehavior: capabilities.outfitBehavior,
       displayNameSnapshot: profile.displayName,

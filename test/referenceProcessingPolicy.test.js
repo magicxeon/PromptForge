@@ -13,6 +13,10 @@ test('reference processing policy loads every canonical role', () => {
     registry.getReferenceOrder('gemini', 'any-model').slice(0, 3),
     ['template_baseline', 'character_reference', 'face_reference']
   );
+  assert.equal(
+    registry.getProviderStructuredBrief('gemini', 'any-model').id,
+    'fashion_template_character_outfit_v1'
+  );
 });
 
 test('reference processing policy rejects unknown processors and directives', () => {

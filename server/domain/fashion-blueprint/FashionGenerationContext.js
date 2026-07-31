@@ -4,12 +4,6 @@ import {
 import { prepareGenerationReferences } from '../generation/prepareGenerationReferences.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
 
-const QUALITY_PROMPTS = Object.freeze({
-  draft: 'clean ecommerce draft quality with clear garment placement',
-  selling_quality: 'high-quality ecommerce selling image with accurate fabric, seams, color and fit',
-  premium_campaign: 'premium commercial fashion campaign quality with exceptional garment fidelity and polished lighting'
-});
-
 export async function createFashionExecutionContext({
   plan,
   item,
@@ -94,7 +88,11 @@ function createFashionTemplateReplacements(
       const field = String(input.sourceFieldName || '').toLocaleLowerCase();
       const bindingRole = input.fashionBindingRole || null;
       if (input.type === 'reference_image') {
-        if (bindingRole === 'fashion.character' || field.includes('character')) {
+        if (
+          bindingRole === 'fashion.character'
+          || field.includes('character')
+          || field.includes('face')
+        ) {
           return [[input.id, characterReference]];
         }
         if (
@@ -102,14 +100,14 @@ function createFashionTemplateReplacements(
           || (field.includes('outfit') && field.includes('back'))
         ) {
           return item?.references?.outfit_back
-            ? [[input.id, item.references.outfit_back]]
+            ? [[input.id, referenceUrl(item.references.outfit_back)]]
             : [];
         }
         if (
           bindingRole === 'fashion.outfit_front'
           || field.includes('outfit')
         ) {
-          return [[input.id, item?.references?.outfit_front]];
+          return [[input.id, referenceUrl(item?.references?.outfit_front)]];
         }
         const baseline = baselineReferences[input.sourceFieldName]?.value;
         return baseline ? [[input.id, baseline]] : [];
@@ -167,9 +165,9 @@ function createGenerationPayload(plan, item) {
       poseMatch: false,
       characterOverrides: false
     },
-    characterReferenceImageA: item.references.character_reference,
-    outfitReferenceImageFront: item.references.outfit_front,
-    outfitReferenceImageBack: item.references.outfit_back,
+    characterReferenceImageA: referenceUrl(item.references.character_reference),
+    outfitReferenceImageFront: referenceUrl(item.references.outfit_front),
+    outfitReferenceImageBack: referenceUrl(item.references.outfit_back),
     outfitReferenceScope: item.outfitScope || 'full_look',
     sceneBuilder: {
       authoringMode: 'manual',
@@ -187,9 +185,18 @@ function createFashionPrompt(plan, item) {
     'Follow the selected template scene, lighting, camera and composition.',
     'Preserve the authorized Character identity and body proportions.',
     `Show the ${item.productType} product named "${item.name}" with accurate silhouette, construction, pattern, color, seams and fabric texture.`,
-    `Pose direction: ${plan.poseDirection}.`,
-    `Environment direction: ${plan.environmentDirection}.`,
-    QUALITY_PROMPTS[plan.qualityTier],
+    `Pose direction: ${plan.poseDirective || plan.poseDirection}.`,
+    `Environment direction: ${plan.environmentDirective || plan.environmentDirection}.`,
+    plan.qualityPromptDirective,
+    item.colorNotes ? `Product color notes: ${item.colorNotes}.` : '',
+    `Product integrity mode: ${item.integrityLevel}.`,
     'Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.'
-  ].join(' ');
+  ].filter(Boolean).join(' ');
+}
+
+function referenceUrl(reference) {
+  if (!reference) return null;
+  return typeof reference === 'string'
+    ? reference
+    : reference.imageUrl || reference.publicUrl || reference.assetId || null;
 }

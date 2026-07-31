@@ -200,7 +200,7 @@ The policy is source-controlled configuration, not runtime user data.
 ```json
 {
   "schemaVersion": 1,
-  "policyVersion": "rpp-2026-07-v1",
+  "policyVersion": "rpp-2026-07-v4",
   "defaultFallbackMode": "safe_deterministic",
   "roles": {
     "outfit_front": {
@@ -296,7 +296,85 @@ The policy is source-controlled configuration, not runtime user data.
         "style_reference",
         "pose_reference"
       ],
-      "directiveSuffixIds": []
+      "directiveSuffixIds": [],
+      "dispatchRules": [],
+      "structuredBrief": {
+        "id": "fashion_template_character_outfit_v1",
+        "generationSurfaces": ["fashion"],
+        "requiredRoles": [
+          "template_baseline",
+          "character_reference",
+          "outfit_front"
+        ],
+        "task": "Generate one photorealistic vertical commercial fashion photograph.",
+        "templateDirection": {
+          "authority": [
+            "pose",
+            "movement",
+            "camera",
+            "framing",
+            "environment",
+            "lighting"
+          ],
+          "preserve": ["destination pose and scene direction"],
+          "ignore": [
+            "template person identity",
+            "template skin tone",
+            "template body proportions",
+            "template clothing"
+          ]
+        },
+        "characterIdentity": {
+          "authority": [
+            "identity",
+            "face",
+            "hair",
+            "skin",
+            "body shape",
+            "body proportions"
+          ],
+          "preserve": [
+            "recognizable facial identity",
+            "hairstyle",
+            "skin tone",
+            "complete body proportions"
+          ],
+          "ignore": [
+            "source background",
+            "source pose",
+            "source clothing",
+            "casting sheet layout"
+          ]
+        },
+        "outfitTransfer": {
+          "authority": ["garment"],
+          "preserve": [
+            "garment silhouette",
+            "construction",
+            "color",
+            "pattern",
+            "material"
+          ],
+          "ignore": [
+            "outfit source identity",
+            "outfit source skin tone",
+            "source pose",
+            "source environment"
+          ]
+        },
+        "output": {
+          "subjectCount": 1,
+          "singleFullFramePhoto": true,
+          "fullBodyVisible": true,
+          "prohibit": [
+            "identity blending",
+            "template skin tone",
+            "multiple views",
+            "casting sheet",
+            "white casting clothes"
+          ]
+        }
+      }
     }
   }
 }
@@ -315,6 +393,28 @@ The policy is source-controlled configuration, not runtime user data.
 - Directive text is server prompt policy and is not stored in i18n catalogs.
 - Jobs store policy and directive IDs, not an unbounded duplicate of the whole
   configuration.
+- Provider reference order is an execution-strength control, not a replacement
+  for domain authority. Explicit Character/Face identity derivatives must be
+  dispatched before person-bearing Outfit and Template images. Outfit follows
+  identity, while the Template baseline follows explicit replacements and
+  remains authoritative only for composition, pose, environment and lighting.
+- An approved Reusable Character supplies its canonical, server-authorized
+  three-view casting image for Fashion identity. Manual provider trials showed
+  that the complete front/side/back Character evidence preserves identity,
+  hairstyle, skin tone and body proportions more reliably than an inferred
+  face crop or front-only derivative. The JSON authority contract must instruct
+  the provider to ignore the casting layout, source pose, white background and
+  casting clothes so they are not reproduced in the final single image.
+  Derivative URLs are accepted
+  only when returned by the server-owned Character version; client-provided
+  `/outputs/character-profiles/...` paths are not trusted.
+- Gemini Fashion sends references in an explicit, stable sequence:
+  `IMAGE_0 = Template`, `IMAGE_1 = canonical three-view Character`,
+  `IMAGE_2 = Outfit Front`, and optional `IMAGE_3 = Outfit Back`.
+  A config-driven structured JSON brief maps each image to its exclusive
+  authority. Template controls composition/pose/scene, Character controls
+  identity/face/hair/skin/body, and Outfit controls garment only. The provider
+  receives this JSON contract before the resolved destination prompt.
 
 ## 6. Processing Stages
 
@@ -412,6 +512,7 @@ server/domain/reference-processing/
   ReferencePolicyRegistry.js
   ReferenceAuthorityPlanner.js
   ReferenceProcessorRegistry.js
+  StructuredReferenceBrief.js
   referenceProcessingContracts.js
   processors/
 
@@ -633,6 +734,7 @@ Implemented canonical owners:
 server/config/reference-processing-policy.json
 server/config/reference-processing-policy.schema.json
 server/domain/reference-processing/
+server/domain/reference-processing/StructuredReferenceBrief.js
 server/domain/generation/prepareGenerationReferences.js
 server/providers/resolvedReferenceImages.js
 web/src/components/generation/ReferenceProcessingPreview.tsx

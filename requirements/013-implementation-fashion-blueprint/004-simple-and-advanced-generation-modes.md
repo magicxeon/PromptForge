@@ -1,7 +1,7 @@
 # Simple and Advanced Generation Modes
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Simple/Advanced prototype implemented; configured routing policy pending
+**Status:** Configured Simple routing and shared Advanced Engine implemented; validation pending
 
 Simple tiers resolve provider/model on the server. Advanced mode reuses the
 shared React Engine control and the public provider capability catalog.

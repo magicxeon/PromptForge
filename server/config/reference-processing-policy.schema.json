@@ -100,7 +100,115 @@
             "type": "array",
             "uniqueItems": true,
             "items": { "type": "string" }
+          },
+          "dispatchRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "when", "suppressRoles"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "when": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["generationSurfaces", "allRoles"],
+                  "properties": {
+                    "generationSurfaces": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "allRoles": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "anyRoles": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                },
+                "suppressRoles": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          },
+          "structuredBrief": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "generationSurfaces",
+              "requiredRoles",
+              "task",
+              "templateDirection",
+              "characterIdentity",
+              "outfitTransfer",
+              "output"
+            ],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "generationSurfaces": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string" }
+              },
+              "requiredRoles": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "type": "string" }
+              },
+              "task": { "type": "string", "minLength": 1 },
+              "templateDirection": { "$ref": "#/$defs/briefSection" },
+              "characterIdentity": { "$ref": "#/$defs/briefSection" },
+              "outfitTransfer": { "$ref": "#/$defs/briefSection" },
+              "output": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "subjectCount",
+                  "singleFullFramePhoto",
+                  "fullBodyVisible",
+                  "prohibit"
+                ],
+                "properties": {
+                  "subjectCount": { "type": "integer", "minimum": 1 },
+                  "singleFullFramePhoto": { "type": "boolean" },
+                  "fullBodyVisible": { "type": "boolean" },
+                  "prohibit": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
           }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "briefSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "preserve", "ignore"],
+      "properties": {
+        "authority": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "instruction": { "type": "string" },
+        "preserve": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ignore": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       }
     }

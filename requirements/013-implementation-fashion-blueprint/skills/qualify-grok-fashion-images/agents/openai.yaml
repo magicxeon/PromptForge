@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grok Fashion Image Qualification"
+  short_description: "Qualify Grok Imagine for Fashion fidelity"
+  default_prompt: "Use $qualify-grok-fashion-images to benchmark a Grok Fashion three-reference strategy."
+

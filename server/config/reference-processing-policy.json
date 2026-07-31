@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "rpp-2026-07-v1",
+  "policyVersion": "rpp-2026-07-v4",
   "defaultFallbackMode": "safe_deterministic",
   "defaultReferenceOrder": [
-    "template_baseline",
     "character_reference",
     "face_reference",
     "outfit_front",
     "outfit_back",
+    "template_baseline",
     "style_reference",
     "pose_reference",
     "product_reference",
@@ -139,7 +139,7 @@
       "base": "Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions."
     },
     "character_identity.v1": {
-      "base": "Preserve the same character identity, face, hair, skin, and body proportions. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy."
+      "base": "Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy."
     },
     "outfit_front.v1": {
       "base": "Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style.",
@@ -164,7 +164,37 @@
   "providerOverrides": {
     "gemini/*": {
       "referenceOrder": ["template_baseline", "character_reference", "face_reference", "outfit_front", "outfit_back", "style_reference", "pose_reference", "product_reference", "environment_reference"],
-      "directiveSuffixIds": []
+      "directiveSuffixIds": [],
+      "dispatchRules": [],
+      "structuredBrief": {
+        "id": "fashion_template_character_outfit_v1",
+        "generationSurfaces": ["fashion"],
+        "requiredRoles": ["template_baseline", "character_reference", "outfit_front"],
+        "task": "Generate one photorealistic vertical commercial fashion photograph.",
+        "templateDirection": {
+          "authority": ["pose", "movement", "camera", "framing", "environment", "lighting"],
+          "preserve": ["destination pose and movement", "camera and framing", "environment", "lighting"],
+          "ignore": ["template person identity", "template face", "template hair", "template skin tone", "template body proportions", "template clothing"]
+        },
+        "characterIdentity": {
+          "authority": ["identity", "face", "hair", "skin", "body shape", "body proportions"],
+          "instruction": "Replace the template person completely with this exact character. Prioritize the character skin tone and never blend identity traits from another reference.",
+          "preserve": ["recognizable facial identity", "facial proportions", "hairstyle", "skin tone", "complete body proportions"],
+          "ignore": ["source background", "source pose", "source clothing", "casting sheet layout"]
+        },
+        "outfitTransfer": {
+          "authority": ["garment"],
+          "instruction": "Dress the selected character in this specific outfit.",
+          "preserve": ["garment silhouette", "construction", "color", "pattern", "material", "seams", "visible garment details"],
+          "ignore": ["outfit source identity", "outfit source face", "outfit source hair", "outfit source skin tone", "outfit source body proportions", "source pose", "source environment", "source lighting"]
+        },
+        "output": {
+          "subjectCount": 1,
+          "singleFullFramePhoto": true,
+          "fullBodyVisible": true,
+          "prohibit": ["identity blending", "template person identity", "template skin tone", "template body proportions", "template hairstyle", "outfit source identity", "outfit source skin tone", "outfit source body proportions", "multiple people", "multiple views", "casting sheet", "contact sheet", "split screen", "white reference background", "white casting clothes", "text", "labels", "watermarks"]
+        }
+      }
     }
   }
 }

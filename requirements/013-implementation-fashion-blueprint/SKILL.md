@@ -11,6 +11,12 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
 2. `requirements/099-technical-dept/000-master.md`
 3. `000-master-fashion-blueprint-roadmap.md`
 4. The numbered requirement owning the task
+   - Model qualification or prompt-strategy work must read `009` and the
+     matching provider skill under `skills/`.
+   - UX/Review/production work must also read
+     `010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+   - Correlation, provider diagnostics or credit recovery work must also read
+     `010-platform-correlation-tracing-and-credit-recovery.md`.
 5. Character Profile `006`
 6. Template Core `010` and Reference Processing Pipeline `011`
 7. Navigation/UI `008`, Community and commercial `013` requirements
@@ -31,6 +37,8 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
 10. Preserve actor scope, private references, Template lineage and Character
     attribution.
 11. Add i18n keys and desktop/mobile state checks.
+12. For billable execution, preserve one correlation ID across quote, run,
+    operation, queue job and credit records without replacing their domain IDs.
 
 ## UX Rule
 
@@ -69,6 +77,9 @@ picker only when the user asks for another model or one of their own.
   version, output recipe or Simple route.
 - Do not enable reserved `outfit_detail` until Template, Reference Processing,
   provider and DTO contracts all support it.
+- Do not create a Fashion-only queue, trace store or credit recovery path.
+- Do not put prompts, image payloads, secrets or private reference URLs in
+  trace/audit metadata.
 
 ## File Ownership
 

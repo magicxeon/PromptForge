@@ -1,4 +1,617 @@
 {
   "schemaVersion": 1,
-  "runs": []
+  "runs": [
+    {
+      "schemaVersion": 2,
+      "id": "frun_a156eca4895e9a4d5f",
+      "planId": "fpl_a156eca4895e9a4d5f",
+      "quoteId": "fqt_1785471471600_54b4n3g",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785471471600_54b4n3g:full",
+      "requestHash": "935e8df2951ee8c563703d5ba60fa956fcb883a2c15ee7a890b301a7532648d5",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 48,
+        "maximumCredits": 48,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 48
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_a156eca4895e9a4d5f_1",
+          "reservationId": "rsv_1785471476040_0_wnf29z",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:17:56.050Z",
+      "updatedAt": "2026-07-31T04:17:56.050Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_f38d30b5ef5089ecfb",
+      "planId": "fpl_f38d30b5ef5089ecfb",
+      "quoteId": "fqt_1785472883122_p3vzkxj",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785472883122_p3vzkxj:full",
+      "requestHash": "c42786e9a24794d16d79994260e1370a04e17b22a7ba8e77d2ee430b76079061",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 49,
+        "maximumCredits": 49,
+        "breakdown": {
+          "generationCredits": 49,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 49
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_f38d30b5ef5089ecfb_1",
+          "reservationId": "rsv_1785472887066_0_5g1t9y",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:41:27.074Z",
+      "updatedAt": "2026-07-31T04:41:27.074Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_c58f66d976bec0174f",
+      "planId": "fpl_c58f66d976bec0174f",
+      "quoteId": "fqt_1785473271416_70w3wck",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785473271416_70w3wck:full",
+      "requestHash": "21ad5217f42a43c375dde82e504ef91fb437225e5b59682e61989e0f605d8e5e",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 48,
+        "maximumCredits": 48,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 48
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_c58f66d976bec0174f_1",
+          "reservationId": "rsv_1785473281360_0_4582r5",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:48:01.369Z",
+      "updatedAt": "2026-07-31T04:48:01.369Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_36be231d1ad46ce2ff",
+      "planId": "fpl_36be231d1ad46ce2ff",
+      "quoteId": "fqt_1785478054486_c17b4bj",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478054486_c17b4bj:full",
+      "requestHash": "53b1a926c43859105c1ccc5d60d96974b90fbb558c5db7b7d83b94e3e03bcbc7",
+      "quotePurpose": "full",
+      "setupFingerprint": "15022b521c074046572e0081102d68df8424923eb5566cc0535aa3ca412e7214",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478048080_qebcovtb"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 58,
+        "maximumCredits": 58,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 58
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_36be231d1ad46ce2ff_1",
+          "reservationId": "rsv_1785478060778_0_mwyywb",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:07:40.786Z",
+      "updatedAt": "2026-07-31T06:07:40.786Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_77e7b2a7a80531f563",
+      "planId": "fpl_77e7b2a7a80531f563",
+      "quoteId": "fqt_1785478608726_ycdlnm2",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478608726_ycdlnm2:full",
+      "requestHash": "9034ef855013bf7bfd95ee0dbb52a750883fd4e83de166b9e1f1d2b2f59870f1",
+      "quotePurpose": "full",
+      "setupFingerprint": "ebf8f4d9fca502713bbc9366fd5a6f9ae6e7702b585e46f73dcd9666384b4fab",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_77e7b2a7a80531f563_1",
+          "reservationId": "rsv_1785478615694_0_07l1ap",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:16:55.701Z",
+      "updatedAt": "2026-07-31T06:16:55.701Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_91e1ccfab7a5b78661",
+      "planId": "fpl_91e1ccfab7a5b78661",
+      "quoteId": "fqt_1785478998722_d255z5u",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478998722_d255z5u:full",
+      "requestHash": "e4a06ad87d5867a5dd0d8257226d6684cd11cc4991f550658497634e3cddae00",
+      "quotePurpose": "full",
+      "setupFingerprint": "da8acc305ddb73f06921eabf31c0449ff09e73c3d713c4b8d465e419188c0ff5",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1-mini",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 70,
+        "maximumCredits": 70,
+        "breakdown": {
+          "generationCredits": 60,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 70
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_91e1ccfab7a5b78661_1",
+          "reservationId": "rsv_1785479002177_0_key5yk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:23:22.185Z",
+      "updatedAt": "2026-07-31T06:23:22.185Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_d355c324cef06827b6",
+      "planId": "fpl_d355c324cef06827b6",
+      "quoteId": "fqt_1785479105324_cmdq4ii",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479105324_cmdq4ii:full",
+      "requestHash": "b5d7941276396258e746a31496272f613e3e9fecd614a4bc85835c4c5a609f11",
+      "quotePurpose": "full",
+      "setupFingerprint": "10c6bfb9c6c46726df4744c005389d8fb2a984538fcfca8ff2c4be7bf0c44101",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 145,
+        "maximumCredits": 145,
+        "breakdown": {
+          "generationCredits": 135,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 145
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_d355c324cef06827b6_1",
+          "reservationId": "rsv_1785479110117_0_su4vxv",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:25:10.126Z",
+      "updatedAt": "2026-07-31T06:25:10.126Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_96c36d01d75c5f4f05",
+      "planId": "fpl_96c36d01d75c5f4f05",
+      "quoteId": "fqt_1785479317417_z1mr336",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479317417_z1mr336:full",
+      "requestHash": "018666335b816f24e6265e4c60a7e277e52f48f8b0128b6878018890b05c005a",
+      "quotePurpose": "full",
+      "setupFingerprint": "438839f12c6336e7863651a3791002ee4f7f1b17d8afe3dda2fedfb4a9dc73dc",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 125,
+        "maximumCredits": 125,
+        "breakdown": {
+          "generationCredits": 115,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 125
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_96c36d01d75c5f4f05_1",
+          "reservationId": "rsv_1785479321300_0_wml3bf",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:28:41.309Z",
+      "updatedAt": "2026-07-31T06:28:41.309Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_c5ac0fa49ee1705993",
+      "planId": "fpl_c5ac0fa49ee1705993",
+      "quoteId": "fqt_1785479504189_vs8d15g",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479504189_vs8d15g:full",
+      "requestHash": "9a46af716f1e5d32073de413ce3f6c494a572bc8207d46a5b2ff1fbb4922a43a",
+      "quotePurpose": "full",
+      "setupFingerprint": "85b6797d2f72ef1086306bada0b35e2f171aee6d9b0f81c62ae7e52fe43a419e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_c5ac0fa49ee1705993_1",
+          "reservationId": "rsv_1785479505497_0_zr3pr1",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:31:45.507Z",
+      "updatedAt": "2026-07-31T06:31:45.507Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_3e25905e4790488de0",
+      "planId": "fpl_3e25905e4790488de0",
+      "quoteId": "fqt_1785479604643_yncyg0x",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479604643_yncyg0x:full",
+      "requestHash": "2d20971695404e679dea9203e540f3987597d63809bad4e11f8a46f688b0ac12",
+      "quotePurpose": "full",
+      "setupFingerprint": "66c7b3a2129a5d8aff0a05687450c4983c95f9724c9b53868061e2d7e6679093",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-5-0-lite-260128",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 60,
+        "maximumCredits": 60,
+        "breakdown": {
+          "generationCredits": 50,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 60
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_3e25905e4790488de0_1",
+          "reservationId": "rsv_1785479648497_0_rxejk6",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:34:08.504Z",
+      "updatedAt": "2026-07-31T06:34:08.504Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_6f40c6b78839bf86ba",
+      "planId": "fpl_6f40c6b78839bf86ba",
+      "quoteId": "fqt_1785479760140_3wpzo2c",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479760140_3wpzo2c:full",
+      "requestHash": "77b7516b3c9535e8526ee2df62f1303c5a837951ddfdf3ef1f8cd11ec6842e75",
+      "quotePurpose": "full",
+      "setupFingerprint": "34e3ef0a934e2d13093534df0466974d1463e1c6d415a4951a9f19a9afdd9b42",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-5-251128",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 70,
+        "maximumCredits": 70,
+        "breakdown": {
+          "generationCredits": 60,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 70
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_6f40c6b78839bf86ba_1",
+          "reservationId": "rsv_1785479763382_0_9vaqpk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:36:03.391Z",
+      "updatedAt": "2026-07-31T06:36:03.391Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_e28d744e78bb7c6727",
+      "planId": "fpl_e28d744e78bb7c6727",
+      "quoteId": "fqt_1785479836798_rn83h5i",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479836798_rn83h5i:full",
+      "requestHash": "654592434ca8d4bae3afbcd4345cdae1d5efc96cbc21f9896bccf3106f05ab41",
+      "quotePurpose": "full",
+      "setupFingerprint": "2708450996f0377b739fbf1e766f98012909f8cbfce5e546eaf9cd591b37d435",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "dola-seedream-5-0-pro-260628",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "maximumCredits": 80,
+        "breakdown": {
+          "generationCredits": 70,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 80
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_e28d744e78bb7c6727_1",
+          "reservationId": "rsv_1785479871351_0_4mhcum",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:37:51.357Z",
+      "updatedAt": "2026-07-31T06:37:51.357Z"
+    }
+  ]
 }

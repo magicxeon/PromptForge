@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "fashion-directions-2026-07-31",
+  "pose": {
+    "template_pose": {
+      "label": "Use template pose",
+      "directive": "Preserve the template pose and framing."
+    },
+    "relaxed_ecommerce_stance": {
+      "label": "Relaxed ecommerce",
+      "directive": "Use a relaxed upright ecommerce stance with natural shoulders, balanced weight, and hands clear of important garment details."
+    },
+    "natural_walking_pose": {
+      "label": "Natural walking",
+      "directive": "Use a subtle natural walking pose with controlled movement, a clear garment silhouette, and no cropped limbs."
+    },
+    "confident_editorial_pose": {
+      "label": "Confident editorial",
+      "directive": "Use a confident but commercially readable editorial pose that preserves garment construction and fit."
+    }
+  },
+  "environment": {
+    "template_environment": {
+      "label": "Use template environment",
+      "directive": "Preserve the template environment, lighting direction, and camera composition."
+    },
+    "clean_white_ecommerce_studio": {
+      "label": "White ecommerce studio",
+      "directive": "Place the subject in a clean white ecommerce studio with soft even lighting, restrained shadows, and no distracting props."
+    },
+    "warm_minimal_lifestyle_interior": {
+      "label": "Warm lifestyle interior",
+      "directive": "Use a warm minimal lifestyle interior with realistic depth, soft window light, and quiet furnishings that do not obscure the garment."
+    },
+    "premium_editorial_studio": {
+      "label": "Premium editorial studio",
+      "directive": "Use a premium editorial studio with shaped commercial lighting, controlled contrast, and a polished campaign atmosphere."
+    }
+  }
+}

@@ -31,7 +31,7 @@ export function CreditExhaustedDialog({
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[91] w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--mpf-radius-md)] border border-amber-300/35 bg-[var(--mpf-surface-strong)] p-5 shadow-[0_0_42px_rgb(251_191_36_/_0.16)]">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 items-start gap-3">
-              <span className="grid size-11 shrink-0 place-items-center rounded-full border border-amber-300/35 bg-amber-300/10 text-amber-200">
+              <span className="grid size-11 shrink-0 place-items-center rounded-full border border-[var(--theme-warning)] bg-amber-300/10 text-[var(--theme-warning)]">
                 <Coins className="size-5" aria-hidden="true" />
               </span>
               <div>
@@ -54,13 +54,13 @@ export function CreditExhaustedDialog({
           <dl className="my-5 grid grid-cols-2 gap-3 border-y border-[var(--mpf-border)] py-4 text-sm">
             <div>
               <dt className="text-[var(--mpf-text-muted)]">{t('dialog.exhausted.available')}</dt>
-              <dd className="m-0 mt-1 text-lg font-semibold text-white">
+              <dd className="m-0 mt-1 text-lg font-semibold text-[var(--theme-text)]">
                 {availableCredits ?? 0}
               </dd>
             </div>
             <div>
               <dt className="text-[var(--mpf-text-muted)]">{t('dialog.exhausted.required')}</dt>
-              <dd className="m-0 mt-1 text-lg font-semibold text-amber-200">
+              <dd className="m-0 mt-1 text-lg font-semibold text-[var(--theme-warning)]">
                 {requiredCredits ?? 0}
               </dd>
             </div>
@@ -69,7 +69,7 @@ export function CreditExhaustedDialog({
           <div className="flex flex-wrap justify-end gap-2">
             <Link
               to="/credits"
-              className="inline-flex min-h-10 items-center justify-center rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border-strong)] px-4 text-[0.75rem] font-semibold text-white no-underline"
+              className="inline-flex min-h-10 items-center justify-center rounded-[var(--mpf-radius-sm)] border border-[var(--mpf-border-strong)] px-4 text-[0.75rem] font-semibold text-[var(--theme-text)] no-underline"
               onClick={() => onOpenChange(false)}
             >
               {t('dialog.exhausted.viewCredits')}

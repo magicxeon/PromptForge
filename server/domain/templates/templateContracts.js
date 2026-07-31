@@ -64,7 +64,7 @@ export function normalizeTemplateInputSchema(value, snapshot = {}) {
       label: String(input.label || input.labelKey || humanizeField(sourceFieldName)),
       type: normalizeInputType(input.type),
       sourceFieldName,
-      required: input.required === true,
+      required: input.required === true && !isOptionalOutfitBackInput(input),
       replacementPolicy: input.replacementPolicy === 'locked' ? 'locked' : 'replaceable',
       fashionBindingRole: normalizeFashionBindingRole(input.fashionBindingRole),
       allowedOptionIds: Array.isArray(input.allowedOptionIds)
@@ -138,13 +138,18 @@ export function validateTemplateReplacements(replacements, publicInputSchema) {
     .some(input => !isEmptyReplacement(normalized[input.id]));
   const missing = [...allowed.values()]
     .filter(input => input.required
+      && !isOptionalOutfitBackInput(input)
       && isEmptyReplacement(normalized[input.id])
       && !(isIdentityReferenceInput(input) && identitySatisfied))
     .map(input => input.id);
   if (missing.length) {
+    const labels = missing.map(id => {
+      const input = allowed.get(id);
+      return String(input?.label || humanizeField(input?.sourceFieldName || id));
+    });
     throw new RepositoryContractError(
       'template_replacement_required',
-      `Required template inputs are missing: ${missing.join(', ')}.`
+      `Add the following required items before continuing: ${labels.join(', ')}.`
     );
   }
   for (const [id, input] of allowed.entries()) {
@@ -170,6 +175,13 @@ function isIdentityReferenceInput(input) {
   if (input?.type !== 'reference_image') return false;
   const field = String(input.sourceFieldName || input.id || '').toLowerCase();
   return field === 'face_reference' || field === 'character_reference';
+}
+
+function isOptionalOutfitBackInput(input) {
+  const field = String(input?.sourceFieldName || input?.id || '').toLowerCase();
+  return input?.fashionBindingRole === 'fashion.outfit_back'
+    || field === 'outfit_back'
+    || field === 'outfit_back_reference';
 }
 
 export function applyTemplateReplacements(snapshot, replacements, publicInputSchema) {

@@ -190,6 +190,34 @@ test('Template Core accepts either face or character for a shared identity requi
   });
 });
 
+test('Template Core treats an outfit back image as optional for Fashion use', () => {
+  const schema = {
+    inputs: [{
+      id: 'outfit_front_reference',
+      label: 'Outfit front image',
+      type: 'reference_image',
+      sourceFieldName: 'outfit_front_reference',
+      fashionBindingRole: 'fashion.outfit_front',
+      required: true,
+      replacementPolicy: 'replaceable'
+    }, {
+      id: 'outfit_back_reference',
+      label: 'Outfit back image',
+      type: 'reference_image',
+      sourceFieldName: 'outfit_back_reference',
+      fashionBindingRole: 'fashion.outfit_back',
+      required: true,
+      replacementPolicy: 'replaceable'
+    }]
+  };
+
+  assert.deepEqual(validateTemplateReplacements({
+    outfit_front_reference: '/outputs/outfit-front.png'
+  }, schema), {
+    outfit_front_reference: '/outputs/outfit-front.png'
+  });
+});
+
 function createSnapshot() {
   return {
     sceneTemplateVersion: 1,

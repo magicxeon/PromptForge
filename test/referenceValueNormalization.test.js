@@ -107,7 +107,32 @@ test('resolveReferenceForProvider checks owner verification and blocks raw bypas
     const resolvedRaw = await resolveReferenceForProvider('/outputs/some_private_photo.png', 'user_bob', options);
     assert.equal(resolvedRaw, null);
 
-    // 6. Accessing dev fixture (starting with test_ or fixture_) -> should succeed
+    // 6. Exact server-authorized nested Character derivatives may be resolved.
+    const derivativeDir = path.join(outputsDir, 'character-profiles', 'char_1', 'ver_1');
+    await fs.promises.mkdir(derivativeDir, { recursive: true });
+    const derivativePath = path.join(derivativeDir, 'face.webp');
+    await fs.promises.writeFile(derivativePath, 'dummy face data');
+    const derivativeUrl = '/outputs/character-profiles/char_1/ver_1/face.webp';
+    const resolvedDerivative = await resolveReferenceForProvider(
+      derivativeUrl,
+      'user_bob',
+      {
+        ...options,
+        authorizedImageUrls: [derivativeUrl]
+      }
+    );
+    assert.match(resolvedDerivative, /^data:image\/webp;base64,/);
+    const blockedDerivative = await resolveReferenceForProvider(
+      '/outputs/character-profiles/char_1/ver_1/front.webp',
+      'user_bob',
+      {
+        ...options,
+        authorizedImageUrls: [derivativeUrl]
+      }
+    );
+    assert.equal(blockedDerivative, null);
+
+    // 7. Accessing dev fixture (starting with test_ or fixture_) -> should succeed
     const fixtureFilePath = path.join(outputsDir, 'test_fixture_style.png');
     await fs.promises.writeFile(fixtureFilePath, 'dummy style data');
     try {

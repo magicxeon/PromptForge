@@ -59,6 +59,26 @@ export class ReferencePolicyRegistry {
     return [...(override?.directiveSuffixIds || [])];
   }
 
+  getProviderDispatchRules(providerId, modelId) {
+    const exact = `${providerId}/${modelId}`;
+    const providerWildcard = `${providerId}/*`;
+    const override = this.policy.providerOverrides[exact]
+      || this.policy.providerOverrides[providerWildcard]
+      || null;
+    return structuredClone(override?.dispatchRules || []);
+  }
+
+  getProviderStructuredBrief(providerId, modelId) {
+    const exact = `${providerId}/${modelId}`;
+    const providerWildcard = `${providerId}/*`;
+    const override = this.policy.providerOverrides[exact]
+      || this.policy.providerOverrides[providerWildcard]
+      || null;
+    return override?.structuredBrief
+      ? structuredClone(override.structuredBrief)
+      : null;
+  }
+
   getPublicRoleCatalog() {
     return Object.fromEntries(Object.entries(this.policy.roles).map(([role, config]) => [
       role,
@@ -152,6 +172,59 @@ function validatePolicy(policy, knownProcessorIds) {
     for (const directiveId of override.directiveSuffixIds || []) {
       if (!policy.directives[directiveId]) {
         invalid(`Provider override ${key} uses unknown directive ${directiveId}.`);
+      }
+    }
+    for (const rule of override.dispatchRules || []) {
+      if (!String(rule.id || '').trim()) {
+        invalid(`Provider override ${key} has a dispatch rule without an id.`);
+      }
+      if (!Array.isArray(rule.when?.generationSurfaces)
+        || !Array.isArray(rule.when?.allRoles)
+        || !Array.isArray(rule.suppressRoles)
+        || !rule.suppressRoles.length) {
+        invalid(`Provider override ${key} has an invalid dispatch rule ${rule.id}.`);
+      }
+      for (const role of [
+        ...(rule.when.allRoles || []),
+        ...(rule.when.anyRoles || []),
+        ...rule.suppressRoles
+      ]) {
+        if (!policy.roles[role]) {
+          invalid(`Provider override ${key} dispatch rule ${rule.id} uses unknown role ${role}.`);
+        }
+      }
+    }
+    if (override.structuredBrief) {
+      const brief = override.structuredBrief;
+      if (!String(brief.id || '').trim()
+        || !String(brief.task || '').trim()
+        || !Array.isArray(brief.generationSurfaces)
+        || !brief.generationSurfaces.length
+        || !Array.isArray(brief.requiredRoles)
+        || !brief.requiredRoles.length) {
+        invalid(`Provider override ${key} has an invalid structured brief.`);
+      }
+      for (const role of brief.requiredRoles) {
+        if (!policy.roles[role]) {
+          invalid(`Provider override ${key} structured brief uses unknown role ${role}.`);
+        }
+      }
+      for (const [sectionName, section] of Object.entries({
+        templateDirection: brief.templateDirection,
+        characterIdentity: brief.characterIdentity,
+        outfitTransfer: brief.outfitTransfer
+      })) {
+        if (!section
+          || !Array.isArray(section.authority)
+          || !Array.isArray(section.preserve)
+          || !Array.isArray(section.ignore)) {
+          invalid(`Provider override ${key} structured brief ${sectionName} is invalid.`);
+        }
+      }
+      if (!brief.output
+        || !Number.isInteger(brief.output.subjectCount)
+        || !Array.isArray(brief.output.prohibit)) {
+        invalid(`Provider override ${key} structured brief output is invalid.`);
       }
     }
   }

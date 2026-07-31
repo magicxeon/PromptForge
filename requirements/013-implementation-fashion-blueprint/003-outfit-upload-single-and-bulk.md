@@ -1,7 +1,15 @@
 # Outfit Upload: Single and Bulk
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Front/back upload prototype implemented; Product Item contract completion pending
+**Status:** One-to-five Product Item, front/back asset and fidelity contracts implemented; validation pending
+
+### UI clarification
+
+- `outfit_front` is the only required Product Item image in MVP.
+- `outfit_back` remains optional because a seller may only have a front product
+  shot. Missing back reference must not block Review, Quote, Proof or Full run.
+- UI copy must present the back image as a fidelity improvement, not as a
+  completion requirement.
 
 One to five products are supported. Each PNG/JPEG/WebP reference is uploaded
 individually to an actor-owned asset boundary before quote/run submission;

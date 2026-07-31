@@ -62,7 +62,17 @@ export class FashionRunService {
     }).slice(0, 18);
     const planId = `fpl_${requestFingerprint}`;
     const operations = quote.operations.map((quoted, index) => {
-      const item = plan.productItems[index];
+      const item = plan.productItems.find(
+        candidate => candidate.key === quoted.productItemKey
+      );
+      if (!item) {
+        throw fashionError(
+          'fashion_quote_operation_invalid',
+          'A quoted Fashion operation no longer matches the plan.',
+          409,
+          { operationId: quoted.operationId }
+        );
+      }
       const requestId = `fgen_${planId}_${index}`;
       const jobId = `job_fashion_${requestFingerprint}_${index + 1}`;
       return {
@@ -77,7 +87,11 @@ export class FashionRunService {
           modelId: plan.route.modelId,
           resolution: plan.resolution,
           aspectRatio: plan.aspectRatio,
-          referenceCount: new Set(Object.values(item.references).filter(Boolean)).size,
+          referenceCount: new Set(
+            Object.values(item.references)
+              .filter(Boolean)
+              .map(reference => reference.assetId || reference.imageUrl)
+          ).size,
           outputCount: plan.outputCountPerProduct,
           generationMode: 'fashion',
           templateUseSessionId: plan.templateUseSessionId
@@ -111,13 +125,33 @@ export class FashionRunService {
       idempotencyKey
     });
     const run = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       id: `frun_${requestFingerprint}`,
       planId,
       quoteId,
       actorUserId: actorContext.userId,
       idempotencyKey,
       requestHash,
+      quotePurpose: quote.quotePurpose || 'full',
+      setupFingerprint: quote.setupFingerprint,
+      proofStatus: quote.quotePurpose === 'proof' ? 'pending' : null,
+      proofOperationIds: quote.quotePurpose === 'proof'
+        ? quote.operations.map(operation => operation.operationId)
+        : [],
+      approvedProofRunId: quote.approvedProofRunId || null,
+      templateLineage: {
+        communityPostId: quote.sourceCommunityPostId,
+        templateId: quote.canonicalTemplateId,
+        templateVersionId: quote.templateVersionId,
+        templateUseSessionId: plan.templateUseSessionId
+      },
+      routeSnapshot: quote.routeSnapshot,
+      pricingSnapshot: {
+        pricingPolicyVersion: quote.pricingPolicyVersion,
+        estimatedCredits: quote.estimatedCredits,
+        maximumCredits: quote.maximumCredits,
+        breakdown: quote.breakdown
+      },
       status: 'queued',
       operations: [],
       createdAt: new Date().toISOString(),
@@ -133,6 +167,9 @@ export class FashionRunService {
             operationId: operation.operationId,
             productItemKey: operation.productItemKey,
             productName: operation.productName,
+            shotKey: quote.operations.find(
+              item => item.operationId === operation.operationId
+            )?.shotKey || 'cover',
             jobId: operation.jobId,
             reservationId: reservation.reservationId,
             status: existingStatus.status
@@ -162,12 +199,37 @@ export class FashionRunService {
             templateUseSessionId: operation.templateExecution.session.id,
             sourceCommunityPostId: operation.templateExecution.session.sourceCommunityPostId,
             replacementSummary: operation.templateExecution.replacementSummary
+          },
+          fashionBlueprintContext: {
+            runId: run.id,
+            planId: run.planId,
+            quoteId: run.quoteId,
+            quotePurpose: run.quotePurpose,
+            setupFingerprint: run.setupFingerprint,
+            operationId: operation.operationId,
+            productItemKey: operation.productItemKey,
+            productName: operation.productName,
+            shotKey: quote.operations.find(
+              item => item.operationId === operation.operationId
+            )?.shotKey || 'cover',
+            outfitScope: plan.productItems.find(
+              item => item.key === operation.productItemKey
+            )?.outfitScope || 'full_look',
+            referenceAssetIds: Object.values(
+              plan.productItems.find(
+                item => item.key === operation.productItemKey
+              )?.references || {}
+            ).flatMap(reference => reference?.assetId ? [reference.assetId] : []),
+            templateLineage: run.templateLineage
           }
         }));
         run.operations.push({
           operationId: operation.operationId,
           productItemKey: operation.productItemKey,
           productName: operation.productName,
+          shotKey: quote.operations.find(
+            item => item.operationId === operation.operationId
+          )?.shotKey || 'cover',
           jobId: operation.jobId,
           reservationId: reservation.reservationId,
           status: 'queued'
@@ -200,8 +262,51 @@ export class FashionRunService {
     return this.hydrateRun(run, actorContext);
   }
 
+  async listRuns(actorContext, limit = 12) {
+    const runs = await this.runRepository.findRecentForActor(
+      actorContext.userId,
+      limit
+    );
+    return Promise.all(runs.map(run => this.hydrateRun(run, actorContext)));
+  }
+
+  async approveProof(id, actorContext) {
+    const run = await this.runRepository.findByIdForActor(
+      id,
+      actorContext.userId
+    );
+    if (!run) {
+      throw fashionError('fashion_run_not_found', 'Fashion run was not found.', 404);
+    }
+    if (run.quotePurpose !== 'proof') {
+      throw fashionError(
+        'fashion_run_not_proof',
+        'Only a Fashion proof run can be approved.',
+        409
+      );
+    }
+    const hydrated = await this.hydrateRun(run, actorContext);
+    if (hydrated.status !== 'completed') {
+      throw fashionError(
+        'fashion_proof_incomplete',
+        'The Fashion proof must complete successfully before approval.',
+        409
+      );
+    }
+    const updated = await this.runRepository.update(
+      id,
+      actorContext.userId,
+      current => ({
+        ...current,
+        proofStatus: 'approved',
+        proofApprovedAt: new Date().toISOString()
+      })
+    );
+    return this.hydrateRun(updated, actorContext);
+  }
+
   async hydrateRun(run, actorContext) {
-    const operations = await Promise.all(run.operations.map(async operation => {
+    const activeOperations = await Promise.all(run.operations.map(async operation => {
       const status = await this.queueManager.getJobStatusForUser(operation.jobId, actorContext.username);
       return {
         ...operation,
@@ -210,11 +315,39 @@ export class FashionRunService {
         error: status?.error || operation.error || null
       };
     }));
+    let proofOperations = [];
+    if (run.approvedProofRunId) {
+      const proof = await this.runRepository.findByIdForActor(
+        run.approvedProofRunId,
+        actorContext.userId
+      );
+      if (proof?.proofStatus === 'approved') {
+        proofOperations = await Promise.all(proof.operations.map(async operation => {
+          const status = await this.queueManager.getJobStatusForUser(
+            operation.jobId,
+            actorContext.username
+          );
+          return {
+            ...operation,
+            status: status?.status || operation.status,
+            result: status?.result || null,
+            error: status?.error || operation.error || null,
+            reusedFromProof: true
+          };
+        }));
+      }
+    }
+    const operations = [...proofOperations, ...activeOperations];
     const terminal = operations.every(operation => ['completed', 'failed', 'cancelled'].includes(operation.status));
     const anySuccess = operations.some(operation => operation.status === 'completed');
+    const anyFailure = operations.some(operation =>
+      ['failed', 'cancelled'].includes(operation.status)
+    );
     return {
       ...run,
-      status: terminal ? (anySuccess ? 'completed' : 'failed') : 'processing',
+      status: terminal
+        ? (anySuccess && anyFailure ? 'partially_completed' : anySuccess ? 'completed' : 'failed')
+        : 'processing',
       operations
     };
   }
