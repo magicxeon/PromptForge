@@ -150,7 +150,7 @@
     "playground.reference.warning.generic": "ระบบยอมรับรูปนี้โดยใช้วิธีสำรองที่ปลอดภัย",
     "playground.reference.warning.reference_preprocessing_fallback": "ระบบจะใช้รูปต้นฉบับที่ได้รับอนุญาต เนื่องจากไม่จำเป็นหรือไม่สามารถสร้างรูปที่ปรับมาตรฐานใหม่ได้",
   "playground.reference.authorityTitle": "กำลังใช้การควบคุมจากรูปอ้างอิง",
-  "playground.reference.authorityDescription": "รูปอ้างอิงควบคุม: {{groups}} ระบบปิดตัวเลือกที่ขัดแย้งให้แล้ว",
+  "playground.reference.authorityDescription": "รูปอ้างอิงควบคุม: {groups} ระบบปิดตัวเลือกที่ขัดแย้งให้แล้ว",
   "playground.reference.scopeLabel": "ขอบเขตของชุด",
   "playground.reference.scope.full_look": "ทั้งชุด",
   "playground.reference.scope.top_only": "เฉพาะท่อนบน",

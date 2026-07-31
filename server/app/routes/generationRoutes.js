@@ -162,7 +162,12 @@ export function registerGenerationRoutes(app, {
         }
       });
     } catch (error) {
-      console.error('Generation enqueuing error:', error);
+      console.error('[Generation] Enqueue failed:', JSON.stringify({
+        code: error.code || 'generation_enqueue_failed',
+        statusCode: error.statusCode || 500,
+        message: error.message,
+        details: error.details || null
+      }));
       if (error.toJSON) {
         res.status(error.statusCode || 400).json(error.toJSON());
       } else {

@@ -93,5 +93,44 @@
     "updatedAt": "2026-07-29T18:04:13.815Z",
     "deletedAt": null,
     "metadata": {}
+  },
+  {
+    "userId": "usr_admin",
+    "handle": "admin-demo",
+    "displayName": "Admin Demo",
+    "bio": "",
+    "avatarAssetId": null,
+    "presentation": {
+      "headline": null,
+      "creatorRoles": [],
+      "locationText": null,
+      "websiteUrl": null,
+      "languageCodes": [],
+      "contentCategoryCodes": [],
+      "avatarAssetId": null,
+      "coverPostId": null,
+      "featuredPostIds": [],
+      "featuredCharacterProfileIds": [],
+      "featuredTemplatePostIds": [],
+      "sectionOrder": [
+        "featured",
+        "characters",
+        "templates",
+        "comparisons"
+      ]
+    },
+    "badgeCodes": [],
+    "membershipEnabled": false,
+    "recordVersion": 1,
+    "status": "active",
+    "id": "creator_admin_demo",
+    "schemaVersion": 1,
+    "ownerUserId": null,
+    "ownerUsername": null,
+    "visibility": "public",
+    "createdAt": "2026-07-31T14:25:36.637Z",
+    "updatedAt": "2026-07-31T14:25:36.637Z",
+    "deletedAt": null,
+    "metadata": {}
   }
 ]

@@ -14,9 +14,9 @@ description: Implement or review ModelPromptForge Fashion Blueprint for simple e
    - Model qualification or prompt-strategy work must read `009` and the
      matching provider skill under `skills/`.
    - UX/Review/production work must also read
-     `010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+     `011-fashion-blueprint-ux-review-and-production-results-experience.md`.
    - Correlation, provider diagnostics or credit recovery work must also read
-     `010-platform-correlation-tracing-and-credit-recovery.md`.
+     `012-platform-correlation-tracing-and-credit-recovery.md`.
 5. Character Profile `006`
 6. Template Core `010` and Reference Processing Pipeline `011`
 7. Navigation/UI `008`, Community and commercial `013` requirements

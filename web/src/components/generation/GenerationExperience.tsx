@@ -17,11 +17,11 @@ import { createDefaultComparisonSlots } from './engineTargetPanelHelpers';
 import { GenerationResultSurface } from './GenerationResultSurface';
 import {
   estimateComparison,
+  estimateAndSubmitGeneration,
   estimateGeneration,
   getProviderCatalog,
   previewReferenceProcessing,
   submitComparison,
-  submitGeneration,
   type ComparisonSlotInput,
   type GenerationReferenceRole,
   type GenerationRequestDraft
@@ -61,6 +61,7 @@ import {
 import { CreditExhaustedDialog } from '../../features/credits/components/CreditExhaustedDialog';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { ApiError } from '../../lib/api/apiError';
+import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -142,6 +143,7 @@ export function GenerationExperience({
 }: GenerationExperienceProps) {
   const queryClient = useQueryClient();
   const { actor, mockSwitcherEnabled } = useActor();
+  const { isEnabled } = useFeaturePolicy();
   const { t, i18n } = useTranslation('playground');
   const { t: tUi } = useTranslation('react-ui');
   const promptRef = useRef<HTMLElement | null>(null);
@@ -331,10 +333,9 @@ export function GenerationExperience({
   });
 
   const submitSingle = useMutation({
-    mutationFn: async () => {
-      const estimate = singleEstimate.data || await estimateGeneration(draft);
-      return submitGeneration(draft, estimate.estimate.estimateId);
-    },
+    // Lock pricing from the exact draft being submitted. The displayed query
+    // may still represent the previous debounced selection for a few frames.
+    mutationFn: () => estimateAndSubmitGeneration(draft),
     onMutate: () => {
       setJobId(null);
       setComparisonSetId(null);
@@ -537,7 +538,9 @@ export function GenerationExperience({
         showEmpty={layoutVariant === 'studio' || layoutVariant === 'playground'}
         showGoToPrompt={layoutVariant !== 'studio'}
         comparisonActive={comparison}
-        canRevealPrompt={actor?.role === 'admin'}
+        canRevealPrompt={actor?.role === 'admin'
+          || (surface === 'studio'
+            && isEnabled('development.debugPromptOverrideEnabled'))}
         onRenameComparison={comparisonSetId
           && ['completed', 'partially_completed'].includes(derivedComparisonStatus || '')
           ? name => renameComparison.mutateAsync(name)
@@ -564,8 +567,10 @@ export function GenerationExperience({
       />
     </div>
   );
-  const hasVisiblePromptRegion = showPromptEditor
-    || (layoutVariant === 'studio' && actor?.role === 'admin');
+  const canRevealStudioPrompt = layoutVariant === 'studio'
+    && (actor?.role === 'admin'
+      || isEnabled('development.debugPromptOverrideEnabled'));
+  const hasVisiblePromptRegion = showPromptEditor || canRevealStudioPrompt;
   const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
       {showPromptEditor ? (
@@ -576,7 +581,7 @@ export function GenerationExperience({
           onNegativeChange={setNegativePrompt}
           variant={layoutVariant === 'playground' ? 'playground' : 'default'}
         />
-      ) : layoutVariant === 'studio' && actor?.role === 'admin' ? (
+      ) : canRevealStudioPrompt ? (
         <Surface className="studio-prompt-preview">
           <label>
             <span>{t('playground.prompt.label')}</span>

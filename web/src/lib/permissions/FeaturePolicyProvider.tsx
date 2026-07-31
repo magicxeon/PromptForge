@@ -18,7 +18,8 @@ const featurePolicySchema = z.object({
     privateBeta: z.boolean().default(false)
   }),
   development: z.object({
-    mockActorSwitcherEnabled: z.boolean().default(false)
+    mockActorSwitcherEnabled: z.boolean().default(false),
+    debugPromptOverrideEnabled: z.boolean().default(false)
   }),
   routing: z.object({
     automaticSimpleModeEnabled: z.boolean().default(false)

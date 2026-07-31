@@ -215,7 +215,38 @@ describe('Studio attribute model', () => {
     expect(preview).not.toContain('headshot portrait');
     expect(preview).not.toContain('solid pure white background');
   });
+
+  it('includes editable Scene hair, skin, and body directions in the preview', () => {
+    const sceneSelections = Object.fromEntries([
+      ['Cut / Style', previewSelection('sleek bob haircut', 'Hair', 'hair')],
+      ['Tone', previewSelection('warm deep skin tone', 'Skin', 'skin')],
+      ['Model Build', previewSelection('athletic natural build', 'Body', 'body')]
+    ]);
+
+    const preview = compileSelectionPreview(
+      sceneSelections,
+      'scene',
+      'styled_character'
+    );
+
+    expect(preview).toContain('sleek bob haircut');
+    expect(preview).toContain('warm deep skin tone');
+    expect(preview).toContain('athletic natural build');
+  });
 });
+
+function previewSelection(value: string, group: string, category: string) {
+  return {
+    id: `${category}.fixture`,
+    value,
+    label: value,
+    isCustom: false,
+    group,
+    category,
+    tags: [],
+    gptPositiveWords: []
+  };
+}
 
 function hairOption(id: string, subcategory: string, label: string) {
   return {

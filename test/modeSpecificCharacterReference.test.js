@@ -3,7 +3,7 @@ import test from 'node:test';
 import { compilePromptOnServer } from '../server/domain/generation/promptCompiler.js';
 
 const characterSheetInstruction =
-  'Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';
+  'Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';
 
 test('Story mode adds the role-specific character sheet instruction', () => {
   const prompt = compilePromptOnServer(

@@ -11,17 +11,38 @@ import {
 } from './studioModePolicy';
 
 const groups = [
+  group('Character'),
   group('Face'),
+  group('Hair'),
+  group('Skin'),
   group('Body'),
   group('Clothing'),
+  group('Pose'),
   group('Environment'),
+  group('Lighting'),
+  group('Camera'),
+  group('Quality'),
   group('NSFW')
 ];
 
 describe('studioModePolicy', () => {
   it('keeps every compatible category visible without stage filtering', () => {
     expect(visibleStudioGroups(groups, 'character-sheet', 'styled_character')
-      .map(item => item.group)).toEqual(['Face', 'Body', 'Clothing']);
+      .map(item => item.group)).toEqual([
+        'Character',
+        'Face',
+        'Hair',
+        'Skin',
+        'Body',
+        'Clothing',
+        'Camera',
+        'Quality'
+      ]);
+  });
+
+  it('does not expose Character Sheet controls overridden by its fixed casting contract', () => {
+    expect(visibleStudioGroups(groups, 'character-sheet', 'styled_character')
+      .map(item => item.group)).not.toEqual(expect.arrayContaining(['Pose', 'Lighting']));
   });
 
   it('strips clothing from reusable Character Sheet state and payload input', () => {
@@ -48,6 +69,49 @@ describe('studioModePolicy', () => {
       'headshot',
       'styled_character'
     ))).toEqual(['Face']);
+  });
+
+  it('retains editable appearance and body attributes for a Scene without a Character Reference', () => {
+    const selections = {
+      Hair: selection('Hair'),
+      Tone: selection('Skin'),
+      Build: selection('Body'),
+      Outfit: selection('Clothing')
+    };
+
+    expect(Object.keys(filterStudioSelections(
+      selections,
+      'scene',
+      'styled_character'
+    ))).toEqual(['Hair', 'Tone', 'Build', 'Outfit']);
+  });
+
+  it('lets a Character Reference own appearance/body while respecting outfit behavior', () => {
+    const selections = {
+      Character: selection('Character'),
+      Hair: selection('Hair'),
+      Tone: selection('Skin'),
+      Build: selection('Body'),
+      Outfit: selection('Clothing'),
+      Expression: selection('Face')
+    };
+    selections.Expression.category = 'expression';
+
+    expect(Object.keys(filterStudioSelections(
+      selections,
+      'scene',
+      'reusable_model',
+      { character_reference: '/outputs/character.png' },
+      'replaceable'
+    ))).toEqual(['Outfit', 'Expression']);
+
+    expect(Object.keys(filterStudioSelections(
+      selections,
+      'scene',
+      'styled_character',
+      { character_reference: '/outputs/character.png' },
+      'preserve'
+    ))).toEqual(['Expression']);
   });
 
   it('preserves locked fields while randomizing unlocked fields', () => {

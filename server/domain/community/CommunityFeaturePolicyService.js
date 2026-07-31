@@ -56,7 +56,10 @@ export class CommunityFeaturePolicyService {
       community: structuredClone(flags.community),
       development: {
         mockActorSwitcherEnabled: isDevelopmentEnvironment()
-          && flags.development.mockActorSwitcherEnabled === true
+          && flags.development.mockActorSwitcherEnabled === true,
+        debugPromptOverrideEnabled: readBooleanEnvironmentFlag(
+          'OVERRIDE_DEBUG_PROMPT'
+        )
       },
       routing: {
         automaticSimpleModeEnabled: flags.routing.automaticSimpleModeEnabled === true
@@ -145,6 +148,10 @@ function readPath(value, featurePath) {
 
 function isDevelopmentEnvironment() {
   return process.env.NODE_ENV !== 'production';
+}
+
+function readBooleanEnvironmentFlag(name) {
+  return String(process.env[name] || '').trim().toLowerCase() === 'true';
 }
 
 export const communityFeaturePolicyService = new CommunityFeaturePolicyService();

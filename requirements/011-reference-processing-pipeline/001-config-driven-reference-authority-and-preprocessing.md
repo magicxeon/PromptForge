@@ -755,3 +755,9 @@ multi-stage processing remain deferred by Sections 7 and 16; no UI claims that
 those processors ran. Outfit scope is selected explicitly and stored in the
 request so later semantic adapters can replace the implementation without
 changing the public contract.
+
+The React generation command now obtains its locked estimate from the same
+draft snapshot submitted to `/api/generate`. This closes the debounce race in
+which a newly suppressed selection or changed reference plan could be submitted
+with the previous query's estimate and trigger `credit_estimate_stale` even
+though the displayed account balance was sufficient.

@@ -92,6 +92,11 @@ export function submitGeneration(draft: GenerationRequestDraft, estimateId: stri
   });
 }
 
+export async function estimateAndSubmitGeneration(draft: GenerationRequestDraft) {
+  const estimate = await estimateGeneration(draft);
+  return submitGeneration(draft, estimate.estimate.estimateId);
+}
+
 export function getJobStatus(jobId: string, signal?: AbortSignal) {
   return apiRequest(`/api/jobs/${encodeURIComponent(jobId)}`, {
     schema: jobStatusSchema,

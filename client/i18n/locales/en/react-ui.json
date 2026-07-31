@@ -277,7 +277,7 @@
   "ui.studio.export": "Export Config",
   "ui.studio.reset": "Reset Form",
   "ui.studio.renderPrompt": "Render Active Prompt",
-  "ui.studio.step": "Step {{number}}",
+  "ui.studio.step": "Step {number}",
   "ui.studio.stepLabel": "Step",
   "ui.studio.surprise": "Surprise Me",
   "ui.studio.viewportDescription": "Current render, background queue and recent history",

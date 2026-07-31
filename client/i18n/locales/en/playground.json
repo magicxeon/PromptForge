@@ -150,7 +150,7 @@
     "playground.reference.warning.generic": "This reference was accepted with a safe fallback.",
     "playground.reference.warning.reference_preprocessing_fallback": "The authorized original image will be used because a normalized derivative was not required or available.",
   "playground.reference.authorityTitle": "Reference controls active",
-  "playground.reference.authorityDescription": "These references control: {{groups}}. Conflicting options are disabled.",
+  "playground.reference.authorityDescription": "These references control: {groups}. Conflicting options are disabled.",
   "playground.reference.scopeLabel": "Garment scope",
   "playground.reference.scope.full_look": "Full look",
   "playground.reference.scope.top_only": "Top only",

@@ -277,7 +277,7 @@
   "ui.studio.export": "ส่งออก Config",
   "ui.studio.reset": "รีเซ็ตฟอร์ม",
   "ui.studio.renderPrompt": "สร้างภาพจาก Prompt",
-  "ui.studio.step": "ขั้นตอนที่ {{number}}",
+  "ui.studio.step": "ขั้นตอนที่ {number}",
   "ui.studio.stepLabel": "ขั้นตอน",
   "ui.studio.surprise": "สุ่มตัวเลือก",
   "ui.studio.viewportDescription": "ภาพปัจจุบัน คิวเบื้องหลัง และประวัติล่าสุด",

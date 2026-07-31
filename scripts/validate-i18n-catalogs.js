@@ -20,6 +20,10 @@ function hasHtmlTags(str) {
   return /<[a-z][\s\S]*>/i.test(str);
 }
 
+function hasUnsupportedDoubleBraceInterpolation(str) {
+  return typeof str === 'string' && /\{\{[a-zA-Z0-9_]+\}\}/.test(str);
+}
+
 export async function validateI18nCatalogs({ manifestPath = MANIFEST_PATH } = {}) {
   const errors = [];
   const warnings = [];
@@ -115,6 +119,10 @@ export async function validateI18nCatalogs({ manifestPath = MANIFEST_PATH } = {}
 
         if (hasHtmlTags(value)) {
           errors.push(`Locale "${locale}" namespace "${ns}" key "${key}" contains HTML tags: "${value}"`);
+        }
+
+        if (hasUnsupportedDoubleBraceInterpolation(value)) {
+          errors.push(`Locale "${locale}" namespace "${ns}" key "${key}" must use {variable} interpolation syntax`);
         }
 
         // Variable interpolation check

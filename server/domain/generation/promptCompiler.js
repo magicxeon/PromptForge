@@ -43,7 +43,7 @@ const FIELD_TO_CATEGORY_MAP = {
   "Gender": "character", "Age": "character", "Ethnicity": "character", "Beauty": "character", "Fashion Direction": "fashion_direction",
   "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Smile": "lips", "Expression": "expression",
   "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
-  "Tone": "skin", "Texture": "skin", "Makeup": "skin", "Freckles": "skin",
+  "Tone": "skin", "Skin Texture": "skin", "Makeup": "skin", "Freckles": "skin",
   "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body", "Sheet Layout": "body",
   "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Outfit Base": "clothing", "Outfit Preset": "clothing", "Primary Color": "clothing", "Secondary Color": "clothing", "Pattern": "clothing", "Material": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
   "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose", "Pose Intent": "pose", "Fashion Hand Position": "pose", "Fashion Gaze": "pose",
@@ -420,7 +420,14 @@ export function compilePromptOnServer(
     // Check if overridden by Image Reference Options
     if (groupName.toLowerCase() === "face") {
       if (imageReferences && imageReferences.faceMatch) {
-        return "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.";
+        const expressionSelection = activeSelections["Expression"];
+        const expression = isSceneExpressionSelection("Expression", expressionSelection)
+          ? getPromptValueWithColor(expressionSelection, "Expression")
+          : "";
+        return [
+          "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.",
+          expression
+        ].filter(Boolean).join(", ");
       }
     }
     if (groupName.toLowerCase() === "clothing") {
@@ -592,10 +599,10 @@ export function compilePromptOnServer(
       ? (imageReferences?.characterOverrides
         ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
         : (imageReferences?.outfitReference
-          ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+          ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
           : options.characterReferenceOutfitBehavior === "replaceable"
-            ? "Preserve the character identity, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction"
-            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
+            ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction"
+            : "Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
       : "";
     const styleReferenceText = imageReferences?.styleMatch
       ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"

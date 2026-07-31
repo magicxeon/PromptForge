@@ -465,6 +465,13 @@ count. A Playground request must preserve `generationMode: playground` through
 the generation route; it must not be reclassified from the legacy Studio `mode`
 field during reservation.
 
+The debounced estimate query is display state, not submission authority. At the
+billable command boundary, the shared generation client must request a fresh
+locked estimate from the exact immutable draft snapshot that it then submits.
+It must not pair cached estimate data from a previous selection/reference state
+with the current generation payload. Server parity validation remains the final
+admission gate and returns field-level mismatch details for diagnostics.
+
 For this phase:
 
 - `advanced` resolves to the provider/model selected by the user;

@@ -3,7 +3,7 @@ import test from 'node:test';
 import { compilePromptOnServer } from '../server/domain/generation/promptCompiler.js';
 
 const characterSheetInstruction =
-  'Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';
+  'Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene';
 
 test('High Regression: outfitReferenceOverrides is passed into clothing prompt parts in character-sheet mode', () => {
   const selections = {
@@ -32,7 +32,10 @@ test('High Regression: outfitReferenceOverrides is passed into clothing prompt p
 
   assert.match(prompt, /character model sheet/);
   // Verify that outfitReferenceOverrides color is compiled into final prompt
-  assert.match(prompt, /changing the primary garment color to #ff0000/i);
+  assert.match(
+    prompt,
+    /changing the (?:primary garment color|dominant garment tone) to #ff0000/i
+  );
 });
 
 test('Story Character Reference preserves Expression while suppressing identity, hair, and clothing', () => {
@@ -40,6 +43,8 @@ test('Story Character Reference preserves Expression while suppressing identity,
     Gender: { value: 'female model', group: 'Character', category: 'character' },
     Expression: { value: 'subtle warm friendly smile', group: 'Face', category: 'expression' },
     Hair: { value: 'long wavy hair', group: 'Hair', category: 'hair' },
+    Tone: { value: 'warm olive skin marker', group: 'Skin', category: 'skin' },
+    'Model Build': { value: 'athletic body marker', group: 'Body', category: 'body' },
     Clothing: { value: 'silk dress', group: 'Clothing', category: 'clothing' },
     Pose: { value: 'relaxed standing pose', group: 'Pose', category: 'pose' }
   };
@@ -53,7 +58,10 @@ test('Story Character Reference preserves Expression while suppressing identity,
   );
 
   // Identity/Hair/Clothing must be suppressed by reference ownership
-  assert.doesNotMatch(prompt, /female model|long wavy hair|silk dress/);
+  assert.doesNotMatch(
+    prompt,
+    /female model|long wavy hair|warm olive skin marker|athletic body marker|silk dress/
+  );
 
   // Expression and Pose must be compiled as scene direction
   assert.match(prompt, /subtle warm friendly smile|subtle friendly expression/);
@@ -61,6 +69,7 @@ test('Story Character Reference preserves Expression while suppressing identity,
 
   // Character Reference preservation instruction must be present
   assert.match(prompt, new RegExp(characterSheetInstruction));
+  assert.match(prompt, /skin tone/i);
   const preservationIndex = prompt.indexOf(characterSheetInstruction);
   const expressionIndex = [
     prompt.indexOf('subtle warm friendly smile'),
@@ -76,6 +85,8 @@ test('Reusable Character Reference preserves identity while allowing replacement
   const prompt = compilePromptOnServer(
     {
       Gender: { value: 'female model', group: 'Character', category: 'character' },
+      Tone: { value: 'deep skin marker', group: 'Skin', category: 'skin' },
+      'Model Build': { value: 'slender build marker', group: 'Body', category: 'body' },
       Clothing: { value: 'navy tailored business suit', group: 'Clothing', category: 'clothing' },
       Pose: { value: 'relaxed standing pose', group: 'Pose', category: 'pose' }
     },
@@ -89,7 +100,8 @@ test('Reusable Character Reference preserves identity while allowing replacement
     { characterReferenceOutfitBehavior: 'replaceable' }
   );
 
-  assert.doesNotMatch(prompt, /female model/);
+  assert.doesNotMatch(prompt, /female model|deep skin marker|slender build marker/);
+  assert.match(prompt, /skin tone/i);
   assert.match(prompt, /navy tailored business suit/);
   assert.match(prompt, /relaxed standing pose/);
 });

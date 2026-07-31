@@ -27,6 +27,11 @@ missing even when generation itself succeeds.
 4. Compiled prompt text is visible only to an admin in the guided Studio
    surface. It remains available internally to the canonical generation
    pipeline for every authorized user.
+   During local debugging, `OVERRIDE_DEBUG_PROMPT=true` exposes the same
+   read-only Studio prompt panel and Studio result prompt metadata to every
+   actor role through the server-provided runtime feature policy. The default,
+   unset, empty, or any value other than case-insensitive `true` keeps the
+   admin-only rule. This override must not expose prompts on Community pages.
 5. Clicking a generated or recent Studio image opens a reusable full-screen
    viewer with navigation, metadata, download, permission-aware actions, and a
    working Collection picker.

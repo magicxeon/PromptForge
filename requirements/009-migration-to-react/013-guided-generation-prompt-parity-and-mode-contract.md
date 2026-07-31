@@ -79,6 +79,12 @@ white background with:
 - neutral upright stance;
 - even studio lighting and minimal perspective distortion.
 
+The editable structured groups are `Character`, `Face`, `Hair`, `Skin`,
+`Body`, `Camera`, and `Quality`. `Clothing` is additionally editable for a
+Styled Character and is removed for a Reusable Model. The fixed sheet contract
+owns `Pose` and `Lighting`; those groups must not be shown as editable controls
+or retained in the request because their selected values would be ineffective.
+
 The approved Vanilla/Casting layout remains
 `character-casting-three-view-v2`: **front view, exact side profile and back
 view**, arranged side by side.
@@ -125,6 +131,11 @@ Guided Scene preview and Manual-copy source must use Scene selections:
 
 ```text
 Character
+Face (Expression is the Scene-facing field)
+Hair
+Skin
+Body
+Clothing
 Fashion Direction
 Scene Story
 Photographic Context
@@ -134,6 +145,13 @@ Lighting
 Camera
 Quality
 ```
+
+When no Character Reference owns identity, selected Hair, Skin, and Body values
+must remain in the request and final server prompt. When a Character Reference
+is active, reference-authority policy removes Character, Face except Expression,
+Hair, Skin, and Body text because those properties come from the authorized
+reference. A Reusable Model keeps Clothing editable; a Styled Character also
+reference-locks Clothing.
 
 It must not prepend `headshot portrait`, fixed front-facing framing, or a solid
 white background.
@@ -321,8 +339,18 @@ Output: directed scene without Character-reference framing leakage
   white background while excluding selected Clothing.
 - Styled Character prompt contains selected outfit and pure white background
   without casting-uniform text.
+- Reusable and Styled Character prompts retain selected Skin and Body direction
+  whenever those domains are not owned by an uploaded reference.
+- Character Sheet does not expose ineffective Pose or Lighting controls because
+  its canonical three-view contract fixes both.
 - Scene prompt contains Environment and excludes Headshot/white-background
   directives.
+- Scene without a Character Reference retains Hair, Skin, and Body in preview,
+  payload, and final prompt; Character Reference mode removes those owned text
+  values while retaining Expression and the correct Clothing policy.
+- Face Reference compilation retains editable Expression while suppressing all
+  other Face-shape text, and Character Reference directives explicitly preserve
+  skin tone together with identity, hair, and body proportions.
 - Studio reference policy strips ineffective Character/Style/Pose/Outfit roles
   according to mode.
 - Additional Direction is included in estimate and generation requests as a

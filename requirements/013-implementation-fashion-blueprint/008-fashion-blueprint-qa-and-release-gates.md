@@ -24,10 +24,10 @@
   credit dialog and does not create a Fashion run or duplicate inline error.
 - The Review screen passes the mandatory expert evidence and shared
   queue/production UX gates in
-  `010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+  `011-fashion-blueprint-ux-review-and-production-results-experience.md`.
 - A paid-pilot run passes the end-to-end correlation and idempotent credit
   recovery drill in
-  `010-platform-correlation-tracing-and-credit-recovery.md`.
+  `012-platform-correlation-tracing-and-credit-recovery.md`.
 
 ## 1. Automated Coverage
 

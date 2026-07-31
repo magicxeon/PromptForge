@@ -32,6 +32,10 @@ test('React Reusable Character Sheet uses casting layout and white uniform', () 
     characterType: 'reusable_model',
     selections: {
       Gender: selection('female', 'Character', 'character'),
+      Tone: selection('warm olive skin tone', 'Skin', 'skin'),
+      'Skin Texture': selection('natural detailed skin texture', 'Skin', 'skin'),
+      'Model Build': selection('athletic natural build', 'Body', 'body'),
+      'Body Silhouette': selection('balanced hourglass body silhouette', 'Body', 'body'),
       Clothing: selection('wearing a red evening dress', 'Clothing', 'clothing')
     }
   }, actor);
@@ -44,6 +48,10 @@ test('React Reusable Character Sheet uses casting layout and white uniform', () 
   );
   assert.match(compiledPrompt, /head aligned with the torso/i);
   assert.match(compiledPrompt, /fitted white short-sleeve top/i);
+  assert.match(compiledPrompt, /warm olive skin tone/i);
+  assert.match(compiledPrompt, /natural detailed skin texture/i);
+  assert.match(compiledPrompt, /athletic natural build/i);
+  assert.match(compiledPrompt, /balanced hourglass body silhouette/i);
   assert.match(compiledPrompt, /solid pure white background/i);
   assert.doesNotMatch(compiledPrompt, /red evening dress/i);
 });
@@ -55,6 +63,8 @@ test('React Styled Character Sheet preserves selected clothing on white', () => 
     characterType: 'styled_character',
     selections: {
       Gender: selection('female', 'Character', 'character'),
+      Tone: selection('deep neutral skin tone', 'Skin', 'skin'),
+      'Model Build': selection('soft natural build', 'Body', 'body'),
       'Outfit Base': {
         ...selection('wearing a tailored navy suit', 'Clothing', 'clothing'),
         id: 'outfit.base.tailored',
@@ -69,6 +79,8 @@ test('React Styled Character Sheet preserves selected clothing on white', () => 
   );
   assert.match(compiledPrompt, /head aligned with the torso/i);
   assert.match(compiledPrompt, /wearing a tailored navy suit/i);
+  assert.match(compiledPrompt, /deep neutral skin tone/i);
+  assert.match(compiledPrompt, /soft natural build/i);
   assert.match(compiledPrompt, /solid pure white background/i);
   assert.doesNotMatch(compiledPrompt, /casting uniform/i);
 });
@@ -78,6 +90,9 @@ test('React Scene generationMode remains scene-directed and is not forced to whi
     mode: 'headshot',
     generationMode: 'scene',
     selections: {
+      'Cut / Style': selection('sleek chin-length bob haircut', 'Hair', 'hair'),
+      Tone: selection('warm brown skin tone', 'Skin', 'skin'),
+      'Model Build': selection('tall athletic natural build', 'Body', 'body'),
       Environment: selection('inside a warm Bangkok cafe', 'Environment', 'environment')
     },
     sceneBuilder: { authoringMode: 'guided' }
@@ -86,8 +101,27 @@ test('React Scene generationMode remains scene-directed and is not forced to whi
 
   assert.equal(context.mode, 'normal');
   assert.match(compiledPrompt, /warm Bangkok cafe/i);
+  assert.match(compiledPrompt, /sleek chin-length bob haircut/i);
+  assert.match(compiledPrompt, /warm brown skin tone/i);
+  assert.match(compiledPrompt, /tall athletic natural build/i);
   assert.doesNotMatch(compiledPrompt, /straight front-facing portrait/i);
   assert.doesNotMatch(compiledPrompt, /solid pure white background/i);
+});
+
+test('Face Reference preserves identity while retaining editable Expression', () => {
+  const { compiledPrompt } = compileGenerationContext({
+    generationMode: 'scene',
+    selections: {
+      'Face Shape': selection('diamond face marker', 'Face', 'face'),
+      Expression: selection('bright joyful expression marker', 'Face', 'expression')
+    },
+    faceReferenceImageA: '/outputs/references/face.jpg',
+    imageReferences: { faceMatch: true }
+  }, actor);
+
+  assert.match(compiledPrompt, /Preserve the identity of the uploaded person/i);
+  assert.match(compiledPrompt, /bright joyful expression marker/i);
+  assert.doesNotMatch(compiledPrompt, /diamond face marker/i);
 });
 
 test('Guided Studio compiles Additional Direction without weakening mode framing', () => {

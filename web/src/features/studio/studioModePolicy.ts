@@ -18,8 +18,8 @@ export type CharacterOutputType = 'reusable_model' | 'styled_character';
 
 const groupsByMode: Record<GuidedStudioMode, ReadonlySet<string>> = {
   headshot: new Set(['Character', 'Face', 'Hair', 'Skin', 'Lighting', 'Camera', 'Quality']),
-  'character-sheet': new Set(['Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Pose', 'Lighting', 'Camera', 'Quality']),
-  scene: new Set(['Character', 'Face', 'Clothing', 'Fashion Direction', 'Scene Story', 'Photographic Context', 'Pose', 'Environment', 'Lighting', 'Camera', 'Quality'])
+  'character-sheet': new Set(['Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Camera', 'Quality']),
+  scene: new Set(['Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Fashion Direction', 'Scene Story', 'Photographic Context', 'Pose', 'Environment', 'Lighting', 'Camera', 'Quality'])
 };
 
 export function visibleStudioGroups(

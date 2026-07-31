@@ -54,6 +54,8 @@ FashionBlueprintTemplateVersion
 - replaceableVariables[]
 - supportedQualityTiers[]
 - advancedProviderRecommendations[]
+- poseProxyPolicyVersion?
+- activePoseProxyIds[]
 - createdAt
 - publishedAt?
 ```
@@ -91,6 +93,12 @@ silently send it as another role.
 
 The Template may map to a sanitized Scene Template snapshot, but Fashion-specific
 product and shot metadata remains in the Fashion Blueprint contract.
+
+Fashion-compatible Template versions may also resolve private identity-neutral
+Pose Proxy artifacts defined by
+`009-fashion-model-qualification-and-routing-optimization.md`.
+These artifacts preserve pose and scene authority without exposing the preview
+person as identity input. They are execution lineage, not public Template media.
 
 ## 4. Final Preview Policy
 

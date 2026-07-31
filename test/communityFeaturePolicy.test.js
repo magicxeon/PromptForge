@@ -96,3 +96,26 @@ test('production masks internal Community features until private beta', { concur
     else process.env.NODE_ENV = previous;
   }
 });
+
+test('public runtime policy exposes the explicit debug prompt override', { concurrency: false }, async () => {
+  const previous = process.env.OVERRIDE_DEBUG_PROMPT;
+  const policy = new CommunityFeaturePolicyService({
+    configLoader: async () => flags()
+  });
+  try {
+    process.env.OVERRIDE_DEBUG_PROMPT = 'true';
+    assert.equal(
+      (await policy.getPublicFlags()).development.debugPromptOverrideEnabled,
+      true
+    );
+
+    process.env.OVERRIDE_DEBUG_PROMPT = 'false';
+    assert.equal(
+      (await policy.getPublicFlags()).development.debugPromptOverrideEnabled,
+      false
+    );
+  } finally {
+    if (previous === undefined) delete process.env.OVERRIDE_DEBUG_PROMPT;
+    else process.env.OVERRIDE_DEBUG_PROMPT = previous;
+  }
+});

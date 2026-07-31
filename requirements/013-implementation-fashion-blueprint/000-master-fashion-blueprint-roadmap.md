@@ -130,9 +130,11 @@ pipeline.
 | `006-processing-results-history-and-download.md` | Queue, progress, review and output |
 | `007-component-reuse-and-module-architecture.md` | File ownership and reuse boundaries |
 | `008-fashion-blueprint-qa-and-release-gates.md` | E2E, safety and rollout |
-| `009-fashion-model-qualification-and-routing-optimization.md` | Fashion fidelity benchmark, certified Simple routing, provider prompt strategies and pricing reconciliation |
-| `010-fashion-blueprint-ux-review-and-production-results-experience.md` | Expert UX review, Review grouping, shared queue/progress, production results and recent Fashion work |
-| `010-platform-correlation-tracing-and-credit-recovery.md` | Cross-platform workflow correlation, provider tracing and safe support credit recovery |
+| `009-fashion-model-qualification-and-routing-optimization.md` | Fashion fidelity benchmark, MVP Gemini Pose Proxy/Dummy cache, certified routing, provider prompt strategies and pricing |
+| `010-professional-scene-builder-guided-experience.md` | Simplified Scene controls, professional direction recipes, accordion progression and natural dynamic output |
+| `011-fashion-blueprint-ux-review-and-production-results-experience.md` | Expert UX review, Review grouping, shared queue/progress, production results and recent Fashion work |
+| `012-platform-correlation-tracing-and-credit-recovery.md` | Cross-platform workflow correlation, provider tracing and safe support credit recovery |
+| `013-template-pose-proxy-and-dummy-cache.md` | Deferred Python CV, Stable Diffusion/local Docker alternative to the provider-based Pose Proxy processor |
 
 ## 5. UX Flow
 
@@ -346,22 +348,24 @@ reference count and quote consistency before accepting the plan.
    Simple routing matrix.
 4. Move `004` Simple routing tiers into server configuration and require an
    approved qualification record.
-5. Extend `002` direction packs and resolve optional per-item pose assignments.
-6. Extend `005` quote DTO with operation breakdown, expiry and processing
+5. Implement the qualified Gemini Lite Pose Proxy and Template cache in `009`;
+   retain `013` only as a deferred local-processing alternative.
+6. Extend `002` direction packs and resolve optional per-item pose assignments.
+7. Extend `005` quote DTO with operation breakdown, expiry and processing
    fingerprints already enforced by the server.
-7. Finish `006` shot grouping, recovery and result actions using shared media
+8. Finish `006` shot grouping, recovery and result actions using shared media
    components.
-8. Complete `010` expert-reviewed Review/production UX using shared queue and
+9. Complete `011` expert-reviewed Review/production UX using shared queue and
    result components.
-9. Implement the Fashion vertical slice of `010-platform-correlation-tracing-and-credit-recovery.md`
+10. Implement the Fashion vertical slice of `012-platform-correlation-tracing-and-credit-recovery.md`
    and prove
    credit recovery before paid pilot operations.
-10. Complete `008` automated/manual QA, then enable public entry flags in the
+11. Complete `008` automated/manual QA, then enable public entry flags in the
     rollout order.
 ```
 
 The route may remain visible for internal prototype validation. Public entry
-flags must remain closed until step 10 passes.
+flags must remain closed until step 11 passes.
 
 ## 7. Non-Goals
 

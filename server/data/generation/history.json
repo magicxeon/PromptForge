@@ -1,5 +1,3746 @@
 [
   {
+    "id": "job_1785511505583_djr6dyzhl",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction, subtle friendly smile, “A white fitted shirt with white slim-fit trousers, styled in a modest way., rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible, in outdoor  the tropical garden resort, Thailand, quiet-luxury set design with restrained premium materials, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, soft defined shadows (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785511505583_djr6dyzhl.jpg",
+    "timestamp": 1785511520166,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "custom.fashion-venue",
+        "value": "in outdoor  the tropical garden resort, Thailand",
+        "label": "in outdoor  the tropical garden resort, Thailand",
+        "isCustom": true,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "label": "Soft Contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.luxury",
+        "value": "quiet-luxury set design with restrained premium materials",
+        "label": "Quiet Luxury",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "campaign",
+          "luxury"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.soft",
+        "value": "soft defined shadows",
+        "label": "Soft Defined Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "custom.outfit-base",
+        "value": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+        "label": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+        "isCustom": true,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "custom.pose-intent",
+        "value": "rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible",
+        "label": "rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible",
+        "isCustom": true,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "subtle friendly smile, in outdoor  the tropical garden resort, Thailand, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, quiet-luxury set design with restrained premium materials, soft defined shadows, “A white fitted shirt with white slim-fit trousers, styled in a modest way., rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "custom.fashion-venue",
+          "value": "in outdoor  the tropical garden resort, Thailand",
+          "label": "in outdoor  the tropical garden resort, Thailand",
+          "isCustom": true,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.luxury",
+          "value": "quiet-luxury set design with restrained premium materials",
+          "label": "Quiet Luxury",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "campaign",
+            "luxury"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.soft",
+          "value": "soft defined shadows",
+          "label": "Soft Defined Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "custom.outfit-base",
+          "value": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+          "label": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+          "isCustom": true,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "custom.pose-intent",
+          "value": "rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible",
+          "label": "rear three-quarter pose, body facing away from the camera, turning the head naturally over one shoulder toward the camera, face clearly visible, rear garment construction clearly visible",
+          "isCustom": true,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.fashion-venue",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.luxury",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_shadow_character",
+          "label": "Shadow Character",
+          "type": "select_option",
+          "sourceFieldName": "Shadow Character",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.shadow.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.outfit-base",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.pose-intent",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785511505583_djr6dyzhl",
+      "createdAt": 1785511520166
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "34fa5ab83c2d500fa988ed082bc7868a176f931887b2774aede0b9c5cc97d2f5",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 91,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "14.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785511505583_djr6dyzhl.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 117902,
+    "originalBytes": 688973
+  },
+  {
+    "id": "job_1785511433824_zj6bdsjjw",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction, subtle friendly smile, “A white fitted shirt with white slim-fit trousers, styled in a modest way., in outdoor  the tropical garden resort, Thailand, quiet-luxury set design with restrained premium materials, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, soft defined shadows (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785511433824_zj6bdsjjw.jpg",
+    "timestamp": 1785511447654,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "custom.fashion-venue",
+        "value": "in outdoor  the tropical garden resort, Thailand",
+        "label": "in outdoor  the tropical garden resort, Thailand",
+        "isCustom": true,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "label": "Soft Contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.luxury",
+        "value": "quiet-luxury set design with restrained premium materials",
+        "label": "Quiet Luxury",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "campaign",
+          "luxury"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.soft",
+        "value": "soft defined shadows",
+        "label": "Soft Defined Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "custom.outfit-base",
+        "value": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+        "label": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+        "isCustom": true,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "subtle friendly smile, in outdoor  the tropical garden resort, Thailand, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, quiet-luxury set design with restrained premium materials, soft defined shadows, “A white fitted shirt with white slim-fit trousers, styled in a modest way., photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "custom.fashion-venue",
+          "value": "in outdoor  the tropical garden resort, Thailand",
+          "label": "in outdoor  the tropical garden resort, Thailand",
+          "isCustom": true,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.luxury",
+          "value": "quiet-luxury set design with restrained premium materials",
+          "label": "Quiet Luxury",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "campaign",
+            "luxury"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.soft",
+          "value": "soft defined shadows",
+          "label": "Soft Defined Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "custom.outfit-base",
+          "value": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+          "label": "“A white fitted shirt with white slim-fit trousers, styled in a modest way.",
+          "isCustom": true,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.fashion-venue",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.luxury",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_shadow_character",
+          "label": "Shadow Character",
+          "type": "select_option",
+          "sourceFieldName": "Shadow Character",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.shadow.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.outfit-base",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785511433824_zj6bdsjjw",
+      "createdAt": 1785511447655
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "b803be7fcec8ca2990cc09fe3d3ecd19ff9bf3ff6b3ed0661042089af99121f7",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 91,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "13.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785511433824_zj6bdsjjw.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 121424,
+    "originalBytes": 690715
+  },
+  {
+    "id": "job_1785510467595_3cefzpspu",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction, subtle friendly smile, wearing a simple fitted T-shirt and straight-leg jeans, controlled back-view fashion pose showing rear garment construction, in outdoor  the tropical garden resort, Thailand, quiet-luxury set design with restrained premium materials, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, soft defined shadows (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785510467595_3cefzpspu.jpg",
+    "timestamp": 1785510481886,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "custom.fashion-venue",
+        "value": "in outdoor  the tropical garden resort, Thailand",
+        "label": "in outdoor  the tropical garden resort, Thailand",
+        "isCustom": true,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "label": "Soft Contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.luxury",
+        "value": "quiet-luxury set design with restrained premium materials",
+        "label": "Quiet Luxury",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "campaign",
+          "luxury"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.tshirt_jeans",
+        "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+        "label": "T-shirt and Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "casual"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.soft",
+        "value": "soft defined shadows",
+        "label": "Soft Defined Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "subtle friendly smile, controlled back-view fashion pose showing rear garment construction, in outdoor  the tropical garden resort, Thailand, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, quiet-luxury set design with restrained premium materials, wearing a simple fitted T-shirt and straight-leg jeans, soft defined shadows, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.back",
+          "value": "controlled back-view fashion pose showing rear garment construction",
+          "label": "Back Garment View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "custom.fashion-venue",
+          "value": "in outdoor  the tropical garden resort, Thailand",
+          "label": "in outdoor  the tropical garden resort, Thailand",
+          "isCustom": true,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.luxury",
+          "value": "quiet-luxury set design with restrained premium materials",
+          "label": "Quiet Luxury",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "campaign",
+            "luxury"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "outfit.base.tshirt_jeans",
+          "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+          "label": "T-shirt and Jeans",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "casual"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.soft",
+          "value": "soft defined shadows",
+          "label": "Soft Defined Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.back",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.fashion-venue",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.luxury",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.tshirt_jeans",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_shadow_character",
+          "label": "Shadow Character",
+          "type": "select_option",
+          "sourceFieldName": "Shadow Character",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.shadow.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785510467595_3cefzpspu",
+      "createdAt": 1785510481886
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "feceda2c51151705dbe548cd9b6d57a0dfb026c97efcc25d6e5c403134325b8f",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 91,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "14.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785510467595_3cefzpspu.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 176254,
+    "originalBytes": 776477
+  },
+  {
+    "id": "job_1785510401724_b43q16vyv",
+    "username": "user_alice",
+    "prompt": "subtle friendly smile, wearing a simple fitted T-shirt and straight-leg jeans, controlled back-view fashion pose showing rear garment construction, in outdoor  the tropical garden resort, Thailand, quiet-luxury set design with restrained premium materials, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, soft defined shadows (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785510401724_b43q16vyv.jpg",
+    "timestamp": 1785510415684,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "custom.fashion-venue",
+        "value": "in outdoor  the tropical garden resort, Thailand",
+        "label": "in outdoor  the tropical garden resort, Thailand",
+        "isCustom": true,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "label": "Soft Contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.luxury",
+        "value": "quiet-luxury set design with restrained premium materials",
+        "label": "Quiet Luxury",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "campaign",
+          "luxury"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.tshirt_jeans",
+        "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+        "label": "T-shirt and Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "casual"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.soft",
+        "value": "soft defined shadows",
+        "label": "Soft Defined Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "subtle friendly smile, controlled back-view fashion pose showing rear garment construction, in outdoor  the tropical garden resort, Thailand, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, soft lighting contrast, quiet-luxury set design with restrained premium materials, wearing a simple fitted T-shirt and straight-leg jeans, soft defined shadows, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.back",
+          "value": "controlled back-view fashion pose showing rear garment construction",
+          "label": "Back Garment View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "custom.fashion-venue",
+          "value": "in outdoor  the tropical garden resort, Thailand",
+          "label": "in outdoor  the tropical garden resort, Thailand",
+          "isCustom": true,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.luxury",
+          "value": "quiet-luxury set design with restrained premium materials",
+          "label": "Quiet Luxury",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "campaign",
+            "luxury"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "outfit.base.tshirt_jeans",
+          "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+          "label": "T-shirt and Jeans",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "casual"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.soft",
+          "value": "soft defined shadows",
+          "label": "Soft Defined Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.back",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.fashion-venue",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.luxury",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.tshirt_jeans",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_shadow_character",
+          "label": "Shadow Character",
+          "type": "select_option",
+          "sourceFieldName": "Shadow Character",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.shadow.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785510401724_b43q16vyv",
+      "createdAt": 1785510415684
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "29af53001f890506daba32155ab04859015da15a9ec6c644aa08590513adc281",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 90,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "13.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785510401724_b43q16vyv.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 191206,
+    "originalBytes": 877826
+  },
+  {
+    "id": "job_1785509655096_zfwjfzm7a",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction, subtle friendly smile, wearing a simple fitted T-shirt and straight-leg jeans, controlled back-view fashion pose showing rear garment construction, quiet-luxury set design with restrained premium materials, soft directional window light balanced for natural social-commerce fashion content, soft lighting contrast, soft defined shadows (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785509655096_zfwjfzm7a.jpg",
+    "timestamp": 1785509664487,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.creator-window",
+        "value": "soft directional window light balanced for natural social-commerce fashion content",
+        "label": "Soft Window Creator Light",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Contrast": {
+        "id": "lighting.contrast.soft",
+        "value": "soft lighting contrast",
+        "label": "Soft Contrast",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Set Design": {
+        "id": "environment.set.luxury",
+        "value": "quiet-luxury set design with restrained premium materials",
+        "label": "Quiet Luxury",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "campaign",
+          "luxury"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.tshirt_jeans",
+        "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+        "label": "T-shirt and Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "casual"
+        ],
+        "gptPositiveWords": []
+      },
+      "Shadow Character": {
+        "id": "lighting.shadow.soft",
+        "value": "soft defined shadows",
+        "label": "Soft Defined Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "subtle friendly smile, controlled back-view fashion pose showing rear garment construction, soft directional window light balanced for natural social-commerce fashion content, soft lighting contrast, quiet-luxury set design with restrained premium materials, wearing a simple fitted T-shirt and straight-leg jeans, soft defined shadows, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.back",
+          "value": "controlled back-view fashion pose showing rear garment construction",
+          "label": "Back Garment View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.creator-window",
+          "value": "soft directional window light balanced for natural social-commerce fashion content",
+          "label": "Soft Window Creator Light",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Contrast": {
+          "id": "lighting.contrast.soft",
+          "value": "soft lighting contrast",
+          "label": "Soft Contrast",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Set Design": {
+          "id": "environment.set.luxury",
+          "value": "quiet-luxury set design with restrained premium materials",
+          "label": "Quiet Luxury",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "campaign",
+            "luxury"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "outfit.base.tshirt_jeans",
+          "value": "wearing a simple fitted T-shirt and straight-leg jeans",
+          "label": "T-shirt and Jeans",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "casual"
+          ],
+          "gptPositiveWords": []
+        },
+        "Shadow Character": {
+          "id": "lighting.shadow.soft",
+          "value": "soft defined shadows",
+          "label": "Soft Defined Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.back",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.creator-window",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_contrast",
+          "label": "Contrast",
+          "type": "select_option",
+          "sourceFieldName": "Contrast",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.contrast.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_set_design",
+          "label": "Set Design",
+          "type": "select_option",
+          "sourceFieldName": "Set Design",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.set.luxury",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.tshirt_jeans",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_shadow_character",
+          "label": "Shadow Character",
+          "type": "select_option",
+          "sourceFieldName": "Shadow Character",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.shadow.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785509655096_zfwjfzm7a",
+      "createdAt": 1785509664487
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "02f51be51af1f934fae7bee1c2f681993618e1958aa12a946493698a6e2c8948",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "9.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785509655096_zfwjfzm7a.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 48914,
+    "originalBytes": 536853
+  },
+  {
+    "id": "job_1785509421068_sqffe3wym",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated equal views of the same character arranged side by side in one horizontal row on a single portrait canvas. Use this fixed left-to-right order: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera. In the side profile, the face, nose, chest, hips, knees, and toes must all point toward the viewer right; keep the head aligned with the torso and never turn the head toward the camera or opposite the body. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a solid pure white background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Produce an unlabeled image only: no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, watermark, props, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, 21-year-old young adult, thai ethnicity, cute doll-like Asian features, tall fashion proportions, balanced natural build, hourglass body silhouette, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., subtle friendly smile, long dark brown hair, silky smooth texture, on a solid pure white background, unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785509421068_sqffe3wym.jpg",
+    "timestamp": 1785509435851,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai ethnicity",
+        "label": "Thai",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Height Impression": {
+        "id": "body.height.tall-fashion",
+        "value": "tall fashion proportions",
+        "label": "Tall Fashion Proportion",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion"
+        ],
+        "gptPositiveWords": []
+      },
+      "Model Build": {
+        "id": "body.build.balanced",
+        "value": "balanced natural build",
+        "label": "Balanced",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Body Silhouette": {
+        "id": "body.silhouette.hourglass",
+        "value": "hourglass body silhouette",
+        "label": "Hourglass Silhouette",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.023",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Color": "hair_014"
+      },
+      "bodySelectionIds": {
+        "Height Impression": "body.height.tall-fashion",
+        "Model Build": "body.build.balanced",
+        "Body Silhouette": "body.silhouette.hourglass"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-three-view-v2"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-three-view-v2",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "bf147ade3bf5af788e8984217469f0a1f5f6cb9fb6eb72c1c7417109cd89ea68",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "face_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": false,
+      "outfitBehavior": "replaceable",
+      "sourceJobId": "job_1785509421068_sqffe3wym"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 91,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "14.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785509421068_sqffe3wym.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 61272,
+    "originalBytes": 570972
+  },
+  {
+    "id": "job_1785507885588_lclf90ofy",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated equal views of the same character arranged side by side in one horizontal row on a single portrait canvas. Use this fixed left-to-right order: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera. In the side profile, the face, nose, chest, hips, knees, and toes must all point toward the viewer right; keep the head aligned with the torso and never turn the head toward the camera or opposite the body. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a solid pure white background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Produce an unlabeled image only: no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, watermark, props, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, 21-year-old young adult, thai ethnicity, cute doll-like Asian features, balanced natural height impression, slender natural build, hourglass body silhouette, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, silky smooth texture, on a solid pure white background, unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785507885588_lclf90ofy.jpg",
+    "timestamp": 1785507895300,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai ethnicity",
+        "label": "Thai",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Height Impression": {
+        "id": "body.height.average",
+        "value": "balanced natural height impression",
+        "label": "Balanced Height",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Model Build": {
+        "id": "body.build.slender",
+        "value": "slender natural build",
+        "label": "Slender",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Body Silhouette": {
+        "id": "body.silhouette.hourglass",
+        "value": "hourglass body silhouette",
+        "label": "Hourglass Silhouette",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.023",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Color": "hair_014"
+      },
+      "bodySelectionIds": {
+        "Height Impression": "body.height.average",
+        "Model Build": "body.build.slender",
+        "Body Silhouette": "body.silhouette.hourglass"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-three-view-v2"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-three-view-v2",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "d2f69499409a0d297af8193f296f579872f271d954cbb853d0b4c9357f199153",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "face_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": false,
+      "outfitBehavior": "replaceable",
+      "sourceJobId": "job_1785507885588_lclf90ofy"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "9.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785507885588_lclf90ofy.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 43436,
+    "originalBytes": 397090
+  },
+  {
+    "id": "job_1785507834953_3sxiux5s2",
+    "username": "user_alice",
+    "prompt": "Create a professional full-body character casting sheet showing exactly three clearly separated equal views of the same character arranged side by side in one horizontal row on a single portrait canvas. Use this fixed left-to-right order: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera. In the side profile, the face, nose, chest, hips, knees, and toes must all point toward the viewer right; keep the head aligned with the torso and never turn the head toward the camera or opposite the body. Show one complete head-to-feet figure in each view at the same scale, with generous clear margins above the hair and below the feet; never crop the head, hair, arms, hands, legs, or feet. Keep the same recognizable face, hair, skin, body proportions, and distinguishing identity in all three views. Use a neutral upright standing pose, relaxed arms, level eye-height camera, minimal perspective distortion, even studio lighting, and a solid pure white background. Dress the character in an opaque, modest, unbranded, fitted white short-sleeve top and fitted white mid-thigh shorts that clearly reveal the body silhouette. The casting uniform is never underwear, lingerie, swimwear, transparent fabric, cleavage-emphasizing clothing, or sexualized styling. Produce an unlabeled image only: no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, watermark, props, dramatic gestures, extra people, duplicate views, inset panels, or cropped limbs., female, 21-year-old young adult, thai ethnicity, cute doll-like Asian features, balanced natural height impression, slender natural build, curvy natural body silhouette, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, silky smooth texture, on a solid pure white background, unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785507834953_3sxiux5s2.jpg",
+    "timestamp": 1785507843704,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai ethnicity",
+        "label": "Thai",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Height Impression": {
+        "id": "body.height.average",
+        "value": "balanced natural height impression",
+        "label": "Balanced Height",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Model Build": {
+        "id": "body.build.slender",
+        "value": "slender natural build",
+        "label": "Slender",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Body Silhouette": {
+        "id": "body.silhouette.curvy",
+        "value": "curvy natural body silhouette",
+        "label": "Curvy Silhouette",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "reusable_model",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.023",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Color": "hair_014"
+      },
+      "bodySelectionIds": {
+        "Height Impression": "body.height.average",
+        "Model Build": "body.build.slender",
+        "Body Silhouette": "body.silhouette.curvy"
+      },
+      "outfitSource": {
+        "type": "baseline",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {},
+      "layout": {
+        "type": "character-casting-three-view-v2"
+      },
+      "castingCandidate": true,
+      "castingLayoutVersion": "character-casting-three-view-v2",
+      "uniformPolicyVersion": "casting-uniform-white-v1",
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "579630fc8556a97835a3a14f5ea799b7b3a3c7ae9a2d9b9b184848ce6154e6ec",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "face_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": false,
+      "outfitBehavior": "replaceable",
+      "sourceJobId": "job_1785507834953_3sxiux5s2"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785507834953_3sxiux5s2.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 47204,
+    "originalBytes": 514838
+  },
+  {
+    "id": "job_1785507699549_y7mrc9jsn",
+    "username": "user_alice",
+    "prompt": "professional full-body character model sheet showing exactly three clearly separated equal views of the same character in one horizontal row, ordered left to right: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera, in the side profile the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body, complete head-to-feet figure in every view at the same scale with generous clear margins above the hair and below the feet, unlabeled image only with no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, female, 21-year-old young adult, thai ethnicity, cute doll-like Asian features, balanced natural height impression, balanced natural build, curvy natural body silhouette, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching., long dark brown hair, silky smooth texture, wearing a short structured jacket, plain inner top, and straight trousers, dominant garment tone #142e66, coordinating accent garment tone #0a0e1a, harmonize the selected garment tones naturally as one cohesive outfit color palette, subtle satin sheen, on a solid pure white background, unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785507699549_y7mrc9jsn.jpg",
+    "timestamp": 1785507709651,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "character-sheet",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.007",
+        "value": "thai ethnicity",
+        "label": "Thai",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "thai"
+        ],
+        "gptPositiveWords": []
+      },
+      "Beauty": {
+        "id": "character.023",
+        "value": "cute doll-like Asian features",
+        "label": "Cute doll-like Asian",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "beauty"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_01",
+        "value": "silky smooth hair",
+        "label": "Silky Smooth Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Outfit Base": {
+        "id": "outfit.base.female.cropped_jacket_trousers",
+        "value": "wearing a short structured jacket, plain inner top, and straight trousers",
+        "label": "Cropped Jacket and Straight Trousers",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-female",
+          "smart-casual",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material": {
+        "id": "outfit.material.satin",
+        "value": "subtle satin sheen",
+        "label": "Satin",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "material",
+          "satin"
+        ],
+        "gptPositiveWords": []
+      },
+      "Material / Surface": {
+        "id": "clothing.material.cotton",
+        "value": "clean cotton fabric texture",
+        "label": "Clean Cotton",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Height Impression": {
+        "id": "body.height.average",
+        "value": "balanced natural height impression",
+        "label": "Balanced Height",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Model Build": {
+        "id": "body.build.balanced",
+        "value": "balanced natural build",
+        "label": "Balanced",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Body Silhouette": {
+        "id": "body.silhouette.curvy",
+        "value": "curvy natural body silhouette",
+        "label": "Curvy Silhouette",
+        "isCustom": false,
+        "group": "Body",
+        "category": "body",
+        "tags": [
+          "body",
+          "fashion",
+          "inclusive"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.back",
+        "value": "controlled back-view fashion pose showing rear garment construction",
+        "label": "Back Garment View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": {
+      "version": 1,
+      "mode": "character-sheet",
+      "characterType": "styled_character",
+      "sourceHeadshotIds": [],
+      "identitySelectionIds": {
+        "Gender": "character.001",
+        "Age": "character.004_e20",
+        "Ethnicity": "character.007",
+        "Beauty": "character.023",
+        "Expression": "expression.004",
+        "Length": "hair_003",
+        "Texture": "hair.text_01",
+        "Color": "hair_014"
+      },
+      "bodySelectionIds": {
+        "Height Impression": "body.height.average",
+        "Model Build": "body.build.balanced",
+        "Body Silhouette": "body.silhouette.curvy"
+      },
+      "outfitSource": {
+        "type": "preset",
+        "frontReferenceIds": [],
+        "backReferenceIds": []
+      },
+      "outfitReferenceOverrides": {
+        "enabled": false,
+        "primaryColor": false,
+        "secondaryColor": false,
+        "pattern": false,
+        "material": false
+      },
+      "outfitSelectionIds": {
+        "Outfit Base": "outfit.base.female.cropped_jacket_trousers",
+        "Material": "outfit.material.satin",
+        "Material / Surface": "clothing.material.cotton"
+      },
+      "layout": {
+        "type": "body.sheet_layout.front_side_back"
+      },
+      "castingCandidate": false,
+      "castingLayoutVersion": null,
+      "uniformPolicyVersion": null,
+      "aspectRatio": "6:8",
+      "outputCount": 1,
+      "sourceOwnership": null
+    },
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "57b6356730250537d76d6f91ccbfc03f47366fbace583548cf853aa3eedb7df5",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "face_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": {
+      "referenceType": "character-sheet",
+      "identityLocked": true,
+      "outfitLocked": true,
+      "outfitBehavior": "preserve",
+      "sourceJobId": "job_1785507699549_y7mrc9jsn"
+    },
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785507699549_y7mrc9jsn.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 42184,
+    "originalBytes": 394432
+  },
+  {
     "id": "job_fashion_e28d744e78bb7c6727_1",
     "username": "user_alice",
     "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: สนุกสนาน ร่าเริง กินเก่ง. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: outfit_front: Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style. Remove the corresponding original template garment before applying this replacement. Do not blend the original and replacement garments unless layering is explicitly enabled. Reference image 3: template_baseline: Preserve the published template composition, camera framing, pose intent, environment, lighting, and unchanged visual treatment. Yield only the domains explicitly replaced by another authorized reference or template replacement. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. engaging creator-style product reveal pose, natural movement, garment kept visible, soft confident connection with the camera, in a tidy contemporary creator studio designed for fashion content, soft directional window light balanced for natural social-commerce fashion content, soft lighting contrast, art-directed high-fashion editorial campaign, confident visual narrative, luxury styling, candid lifestyle photograph, refined restrained retail display elements, photorealistic scene photography, natural composition, clear realistic details Create a professional full-body ecommerce fashion photograph. Follow the selected template scene, lighting, camera and composition. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"เสื้อผ่า\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.",

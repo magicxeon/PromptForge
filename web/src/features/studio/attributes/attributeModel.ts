@@ -148,6 +148,10 @@ export function compileSelectionPreview(
     return [
       ...valuesForGroups(new Set([
         'Character',
+        'Face',
+        'Hair',
+        'Skin',
+        'Body',
         'Clothing',
         'Fashion Direction',
         'Scene Story',

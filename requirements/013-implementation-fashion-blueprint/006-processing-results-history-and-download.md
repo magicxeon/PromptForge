@@ -50,11 +50,11 @@ Reuse:
 
 The expert-reviewed layout, queue placement, empty/progress states, accepted-run
 scroll behavior and compact recent Fashion results are owned by
-`010-fashion-blueprint-ux-review-and-production-results-experience.md`.
+`011-fashion-blueprint-ux-review-and-production-results-experience.md`.
 
 Every run, operation, generation job and related credit record must carry the
 correlation contract defined by
-`010-platform-correlation-tracing-and-credit-recovery.md`. Trace events support
+`012-platform-correlation-tracing-and-credit-recovery.md`. Trace events support
 diagnosis; the Fashion run and Credit ledger remain the business sources of
 truth.
 

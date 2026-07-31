@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { generationPayload, pricingPayload, type GenerationRequestDraft } from './generationApi';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  estimateAndSubmitGeneration,
+  generationPayload,
+  pricingPayload,
+  type GenerationRequestDraft
+} from './generationApi';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 function draft(overrides: Partial<GenerationRequestDraft> = {}): GenerationRequestDraft {
   return {
@@ -62,6 +71,63 @@ describe('React generation contract', () => {
     expect(estimate.outputCount).toBe(payload.outputCount);
     expect(estimate.referenceCount).toBe(1);
     expect(payload.estimateId).toBe('est_1');
+  });
+
+  it('locks a fresh estimate from the same draft snapshot submitted for generation', async () => {
+    const requests: Array<{ url: string; body: Record<string, unknown> }> = [];
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      requests.push({
+        url,
+        body: JSON.parse(String(init?.body || '{}')) as Record<string, unknown>
+      });
+      const payload = url.endsWith('/api/credits/estimate')
+        ? {
+          estimate: {
+            estimateId: 'est_fresh',
+            estimatedCredits: 46,
+            expiresAt: '2099-01-01T00:00:00.000Z'
+          },
+          account: { availableCredits: 98, canAfford: true }
+        }
+        : {
+          jobId: 'job_fresh',
+          status: 'queued',
+          providerStreaming: false
+        };
+      return new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }));
+
+    const latestDraft = draft({
+      generationMode: 'scene',
+      selections: {
+        'Pose Intent': {
+          id: 'pose.fashion.back-garment-view',
+          value: 'back garment view',
+          group: 'Pose'
+        }
+      },
+      references: { character_reference: '/outputs/character-three-view.jpg' }
+    });
+
+    const response = await estimateAndSubmitGeneration(latestDraft);
+
+    expect(response.jobId).toBe('job_fresh');
+    expect(requests).toHaveLength(2);
+    const estimateBody = requests[0]?.body;
+    const submitBody = requests[1]?.body;
+    expect(estimateBody?.generationRequest).toMatchObject({
+      selections: latestDraft.selections,
+      characterReferenceImageA: '/outputs/character-three-view.jpg'
+    });
+    expect(submitBody).toMatchObject({
+      estimateId: 'est_fresh',
+      selections: latestDraft.selections,
+      characterReferenceImageA: '/outputs/character-three-view.jpg'
+    });
   });
 
   it('preserves headshot and character-sheet generation modes', () => {

@@ -120,6 +120,8 @@ Automated:
   and preserves Expression, Pose and Environment.
 - Styled Character Reference removes identity/body/clothing selections and
   preserves Expression, Pose and Environment.
+- A Scene without a Character Reference retains editable Hair, Skin, and Body
+  selections; mode filtering alone must not remove these groups.
 - Outfit Reference removes Clothing and Accessories selections.
 - Randomization does not change reference-owned fields.
 - Removing references restores the stored selection to the effective set.
