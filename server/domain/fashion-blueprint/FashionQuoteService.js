@@ -14,6 +14,7 @@ export class FashionQuoteService {
     quoteRepository = fashionBlueprintQuoteRepository,
     postAccessService = communityPostAccessService,
     templateCoreService = defaultTemplateCoreService,
+    templatePoseProxyService = null,
     providerRegistry,
     runRepository = fashionBlueprintRunRepository
   }) {
@@ -22,6 +23,7 @@ export class FashionQuoteService {
     this.quoteRepository = quoteRepository;
     this.postAccessService = postAccessService;
     this.templateCoreService = templateCoreService;
+    this.templatePoseProxyService = templatePoseProxyService;
     this.providerRegistry = providerRegistry;
     this.runRepository = runRepository;
   }
@@ -42,6 +44,7 @@ export class FashionQuoteService {
     plan.templateVersionId = templateContext.session.version.id;
     plan.sourceCommunityPostId = templateContext.post.id;
     plan.canonicalTemplateId = templateContext.session.template.id;
+    plan = await this.bindPoseProxy(plan, templateContext);
     const setupFingerprint = createFashionPlanHash({
       ...plan,
       productItems: plan.productItems.map(item => ({
@@ -190,6 +193,7 @@ export class FashionQuoteService {
     plan.templateVersionId = templateContext.session.version.id;
     plan.sourceCommunityPostId = templateContext.post.id;
     plan.canonicalTemplateId = templateContext.session.template.id;
+    plan = await this.bindPoseProxy(plan, templateContext);
     if (createFashionPlanHash(plan) !== quote.planHash) {
       throw fashionError('fashion_quote_stale', 'Fashion selections changed after the quote was created.');
     }
@@ -276,6 +280,29 @@ export class FashionQuoteService {
       );
     }
     return run;
+  }
+
+  async bindPoseProxy(plan, templateContext) {
+    if (plan.routingMode !== 'simple') return plan;
+    if (!this.templatePoseProxyService) {
+      throw fashionError('fashion_pose_proxy_service_unavailable', 'Fashion pose preparation is unavailable.', 503);
+    }
+    const proxy = await this.templatePoseProxyService.requireActive(
+      templateContext.session.version.id
+    );
+    return {
+      ...plan,
+      templatePoseProxy: {
+        id: proxy.id,
+        templateVersionId: proxy.templateVersionId,
+        poseVariantId: proxy.poseVariantId,
+        imageUrl: proxy.proxyImageUrl,
+        sourceGenerationId: proxy.operationId,
+        processorPolicyVersion: proxy.processorPolicyVersion,
+        processorStrategyVersion: proxy.processorStrategyVersion,
+        outputRepresentation: proxy.outputRepresentation || 'matte_mannequin'
+      }
+    };
   }
 }
 

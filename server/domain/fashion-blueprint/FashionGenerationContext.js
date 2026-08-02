@@ -40,11 +40,15 @@ export async function createFashionExecutionContext({
     characterProfileContext: validatedCharacterContext,
     characterReferenceImageA: characterReference,
     sceneTemplateSnapshot: templateExecution.executionSnapshot,
-    templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
+    templateBaselineReference: plan.templatePoseProxy?.imageUrl
+      || templateExecution.baselineReference?.imageUrl
+      || null,
     authorizedTemplateReferenceJobIds:
-      templateExecution.baselineReference?.sourceGenerationId
-        ? [templateExecution.baselineReference.sourceGenerationId]
-        : [],
+      plan.templatePoseProxy?.sourceGenerationId
+        ? [plan.templatePoseProxy.sourceGenerationId]
+        : templateExecution.baselineReference?.sourceGenerationId
+          ? [templateExecution.baselineReference.sourceGenerationId]
+          : [],
     selections:
       templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
     sceneBuilder: {
@@ -182,7 +186,9 @@ function createGenerationPayload(plan, item) {
 function createFashionPrompt(plan, item) {
   return [
     'Create a professional full-body ecommerce fashion photograph.',
-    'Follow the selected template scene, lighting, camera and composition.',
+    plan.templatePoseProxy
+      ? 'The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority.'
+      : 'Follow the selected template scene, lighting, camera and composition.',
     'Preserve the authorized Character identity and body proportions.',
     `Show the ${item.productType} product named "${item.name}" with accurate silhouette, construction, pattern, color, seams and fabric texture.`,
     `Pose direction: ${plan.poseDirective || plan.poseDirection}.`,
@@ -190,7 +196,10 @@ function createFashionPrompt(plan, item) {
     plan.qualityPromptDirective,
     item.colorNotes ? `Product color notes: ${item.colorNotes}.` : '',
     `Product integrity mode: ${item.integrityLevel}.`,
-    'Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.'
+    'Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.',
+    plan.templatePoseProxy
+      ? 'Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template.'
+      : ''
   ].filter(Boolean).join(' ');
 }
 

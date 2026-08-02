@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "template-pose-proxy-2026-08-01-v2",
+  "processorType": "generative_provider",
+  "providerId": "gemini",
+  "modelId": "gemini-3.1-flash-lite-image",
+  "processorStrategyVersion": "GNB2-S6-PROXY",
+  "operationPurpose": "template_pose_proxy_prepare",
+  "resolution": "1K",
+  "aspectRatio": "6:8",
+  "outputCount": 1,
+  "referenceCount": 1,
+  "automaticFallbacks": [],
+  "prompt": "Create exactly one photorealistic vertical pose-template image from IMAGE_0. Preserve exactly the original environment, architecture, camera position, camera angle, full-body framing, crop, perspective, lighting direction, shadows and the person's complete pose geometry. Replace the visible person completely with one anonymous featureless matte-gray fashion mannequin. The mannequin must preserve the exact head orientation, neck rotation relative to the shoulders, facial plane direction, gaze axis, chin elevation, head tilt, shoulder rotation, torso angle, arm positions, elbow bends, forearm angles, wrist angles, hand positions, finger/contact placement, hip rotation, leg positions, knee bends, foot placement, walking action and weight distribution from IMAGE_0. The mannequin must have no recognizable face, skin, hair, ethnicity, age, identity, clothing texture, logo or personal appearance. Do not retain or reconstruct the original person's identity. Do not change the scene, pose, camera, framing or lighting. Output one person-shaped mannequin in one continuous full-frame 6:8 vertical image. Do not create multiple views, a contact sheet, split screen, text, labels or watermark.",
+  "promptProfiles": [
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-5-0-lite-260128",
+      "processorStrategyVersion": "SEEDREAM5L-WIREFRAME-PROXY-V1",
+      "outputRepresentation": "technical_pose_wireframe",
+      "prompt": "Create exactly one vertical technical pose-reference image from IMAGE_0. Keep the original environment, camera position, camera angle, framing, crop, perspective and lighting unchanged. Replace the source person completely with one anonymous neutral-gray three-dimensional fashion wireframe mannequin. The wireframe must show a single coherent human figure, not a skeleton diagram, and must preserve the source pose as measurable geometry. Match the pelvis and rib-cage orientation first, then shoulders and limbs. Match the neck rotation relative to the shoulder line. Match head yaw, head pitch, head roll, chin elevation and tilt independently. The front plane of the wireframe face and its short nose-direction axis must point in exactly the same direction as the source face; the gaze axis must follow the source gaze and must not default toward the camera. Preserve exact arm, elbow, wrist, hand, finger/contact, hip, knee, ankle and foot positions, walking phase, balance and weight distribution. Add subtle non-text direction guides only as wireframe geometry: a face-plane contour, nose-direction line, shoulder axis, sternum axis, pelvis axis and joint connections. Do not add labels, letters, numbers or arrows. The mannequin has no identity, recognizable face, skin, hair, ethnicity, age, clothing, accessories, logos or personal appearance. Do not copy the source person's body shape or silhouette beyond the joint layout required to express the pose. Output one continuous full-frame 6:8 image with one wireframe mannequin only. Do not create multiple views, a contact sheet, split screen, text, labels or watermark."
+    }
+  ]
+}

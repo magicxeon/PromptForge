@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+  "simpleEligibleStatuses": ["qualified"],
+  "models": [
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "status": "qualified",
+      "operations": ["fashion_prepared_look", "fashion_final_composition"],
+      "promptStrategyVersion": "GNB2-S6",
+      "benchmarkEvidence": "manual-2026-07-31"
+    },
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "status": "operation_only",
+      "operations": ["template_pose_proxy_prepare"],
+      "promptStrategyVersion": "GNB2-S6-PROXY",
+      "benchmarkEvidence": "manual-2026-08-01"
+    },
+    { "providerId": "openai", "modelId": "gpt-image-1.5", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
+    { "providerId": "openai", "modelId": "gpt-image-1", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
+    { "providerId": "openai", "modelId": "gpt-image-1-mini", "status": "failed", "operations": [], "promptStrategyVersion": null },
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-5-0-lite-260128",
+      "status": "operation_only",
+      "operations": ["template_pose_proxy_prepare"],
+      "promptStrategyVersion": "SEEDREAM5L-WIREFRAME-PROXY-V1",
+      "benchmarkEvidence": "manual-wireframe-2026-08-01"
+    }
+  ]
+}

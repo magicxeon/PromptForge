@@ -9,6 +9,7 @@ import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { Surface } from '../../../components/ui/Surface';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
+import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { writeHandoff } from '../../../lib/persistence/handoffStorage';
 import {
@@ -23,26 +24,35 @@ import {
 import { useActor } from '../../../lib/auth/ActorProvider';
 
 export function CharacterProfileRoute() {
+  return <CharacterProfilePage access="public" />;
+}
+
+export function CharacterOwnerProfileRoute() {
+  return <CharacterProfilePage access="owner" />;
+}
+
+function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const { characterId = '' } = useParams();
   const { actor } = useActor();
   const actorId = actor?.userId || 'loading';
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation('character-profiles');
-  const detail = useQuery({
-    queryKey: ['character', actorId, characterId],
-    queryFn: () => getCharacter(characterId),
-    enabled: Boolean(characterId && actor)
-  });
-  const works = useQuery({
-    queryKey: ['character-works', actorId, characterId],
-    queryFn: () => getCharacterWorks(characterId),
-    enabled: Boolean(characterId && actor)
-  });
   const ownerDetail = useQuery({
     queryKey: ['owned-character', actorId, characterId],
     queryFn: () => getOwnedCharacter(characterId),
-    enabled: detail.data?.isOwner === true
+    enabled: Boolean(characterId && actor && access === 'owner')
+  });
+  const detail = useQuery({
+    queryKey: ['character', actorId, characterId],
+    queryFn: () => getCharacter(characterId),
+    enabled: Boolean(characterId && actor && access === 'public')
+  });
+  const character = access === 'owner' ? ownerDetail.data : detail.data;
+  const works = useQuery({
+    queryKey: ['character-works', actorId, characterId],
+    queryFn: () => getCharacterWorks(characterId),
+    enabled: Boolean(characterId && actor && character && access === 'public')
   });
   const updateMetadata = useMutation({
     mutationFn: (input: { displayName: string; personalitySummary: string }) => updateCharacterMetadata(characterId, input),
@@ -82,21 +92,34 @@ export function CharacterProfileRoute() {
     }
   });
 
-  if (detail.isLoading) return <LoadingState label={t('character-profiles.states.loading')} />;
-  if (detail.isError || !detail.data) {
-    return <ErrorState title={t('character-profiles.states.unavailable')} description={detail.error?.message} onRetry={() => void detail.refetch()} />;
+  const loading = access === 'owner' ? ownerDetail.isLoading : detail.isLoading;
+  if (loading) return <LoadingState label={t('character-profiles.states.loading')} />;
+  if (!character) {
+    const error = access === 'owner' ? ownerDetail.error : detail.error;
+    return <ErrorState title={t('character-profiles.states.unavailable')} description={error?.message} onRetry={() => {
+      if (access === 'owner') void ownerDetail.refetch();
+      else void detail.refetch();
+    }} />;
   }
-  const character = detail.data;
   return (
     <main>
-      <ContextBackLink fallbackTo="/community/characters">
-        {t('character-profiles.community.back')}
+      <ContextBackLink fallbackTo={access === 'owner' ? '/creator/characters' : '/community/characters'}>
+        {access === 'owner'
+          ? t('character-profiles.community.myCharacters')
+          : t('character-profiles.community.back')}
       </ContextBackLink>
       <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]">
         <Surface className="overflow-hidden bg-black p-0">
           <div className="grid min-h-[560px] place-items-center">
-            {character.displayImageUrl ? (
-              <img src={apiMediaUrl(character.displayImageUrl) || ''} alt="" className="max-h-[78vh] w-full object-contain" />
+            {character.displayImageUrl && access === 'owner' ? (
+              <AuthenticatedMediaImage
+                src={character.displayImageUrl}
+                alt={t('character-profiles.media.alt')}
+                className="max-h-[78vh] w-full object-contain"
+                fallback={<LockKeyhole className="size-10 text-[var(--mpf-text-muted)]" />}
+              />
+            ) : character.displayImageUrl ? (
+              <img src={apiMediaUrl(character.displayImageUrl) || ''} alt={t('character-profiles.media.alt')} className="max-h-[78vh] w-full object-contain" />
             ) : <LockKeyhole className="size-10 text-[var(--mpf-text-muted)]" />}
           </div>
         </Surface>
@@ -129,7 +152,7 @@ export function CharacterProfileRoute() {
             </div>
           ) : null}
           {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
-          {character.isOwner ? (
+          {access === 'owner' && character.isOwner ? (
             <OwnerCharacterControls
               character={ownerDetail.data || character}
               pending={updateMetadata.isPending || updateSharing.isPending || approve.isPending}

@@ -20,6 +20,7 @@ import { getHistoryItem } from '../../history/api/historyApi';
 import {
   compileSelectionPreview,
   normalizeAttributeGroups,
+  reconcileSelectionsWithCatalog,
   type AttributeSelection
 } from '../attributes/attributeModel';
 import { GuidedAttributeForm } from '../components/GuidedAttributeForm';
@@ -215,6 +216,10 @@ export function StudioRoute() {
     () => bundle.data ? normalizeAttributeGroups(bundle.data) : [],
     [bundle.data]
   );
+  useEffect(() => {
+    if (!groups.length) return;
+    setSelections(current => reconcileSelectionsWithCatalog(current, groups));
+  }, [groups, selections]);
   const visibleGroups = useMemo(
     () => visibleStudioGroups(groups, mode, characterType),
     [characterType, groups, mode]
@@ -390,6 +395,7 @@ export function StudioRoute() {
             manifests={visualManifests.data}
             selections={selections}
             customColors={customColors}
+            customInputLimits={bundle.data?.inputPolicy?.customAttribute}
             references={compatibleReferences}
             authorityProjection={referenceAuthority}
             lockedFields={lockedFields}

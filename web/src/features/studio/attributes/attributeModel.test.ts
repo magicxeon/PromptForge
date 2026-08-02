@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   compileSelectionPreview,
+  countCharacters,
+  countCustomSelectionCharacters,
   createSelection,
-  normalizeAttributeGroups
+  normalizeAttributeGroups,
+  reconcileSelectionsWithCatalog
 } from './attributeModel';
 import {
   applyCustomColorSelectionAuthority,
@@ -10,6 +13,20 @@ import {
 } from './customColorModel';
 
 describe('Studio attribute model', () => {
+  it('counts Unicode custom directions without truncating their value', () => {
+    const pose = '\u0e17\u0e48\u0e32\u0e17\u0e32\u0e07'.repeat(140);
+    const selection = {
+      ...previewSelection(pose, 'Pose', 'pose'),
+      id: 'custom.pose-intent',
+      isCustom: true
+    };
+
+    expect(countCharacters(pose)).toBe(Array.from(pose).length);
+    expect(countCustomSelectionCharacters({ 'Pose Intent': selection }))
+      .toBe(Array.from(pose).length);
+    expect(selection.value).toBe(pose);
+  });
+
   const bundle = {
     schema: [{
       group: 'Face',
@@ -101,9 +118,53 @@ describe('Studio attribute model', () => {
     expect(preview).toContain('front view, exact side profile facing toward the viewer right, and back view');
     expect(preview).toContain('head aligned with the torso');
     expect(preview).toContain('unlabeled image only');
-    expect(preview).toContain('opaque modest fitted white casting uniform');
+    expect(preview).toContain('opaque matte neutral medium-gray four-way-stretch jersey casting uniform');
+    expect(preview).toContain('clear tonal separation between the gray uniform');
+    expect(preview).toContain('technical contour grid');
+    expect(preview).toContain('without compression, padding, reshaping, concealment, or flattening');
     expect(preview).toContain('on a solid pure white background');
     expect(preview).toContain('oval face');
+  });
+
+  it('keeps a slender curvaceous build distinct from a straight slender build', () => {
+    const preview = compileSelectionPreview({
+      'Model Build': previewSelection(
+        'slender curvaceous adult fashion-model build with a narrow lean frame while retaining distinctly fuller natural upper-torso volume and proportionate rounded hips; do not interpret slender as a straight, flat, or low-curve body shape',
+        'Body',
+        'body'
+      )
+    }, 'character-sheet', 'reusable_model');
+
+    expect(preview).toContain('slender curvaceous adult fashion-model build');
+    expect(preview).toContain('do not interpret slender as a straight, flat, or low-curve body shape');
+  });
+
+  it('rehydrates persisted option prompt values from the current catalog', () => {
+    const groups = normalizeAttributeGroups({
+      ...bundle,
+      schema: [{
+        group: 'Body',
+        fields: [{ name: 'Body Silhouette', control: 'select' }]
+      }],
+      library: [{
+        id: 'body.silhouette.full-bust-runway-hourglass',
+        category: 'body',
+        subcategory: 'Body Silhouette',
+        label: { en: 'Full-Bust Runway Hourglass' },
+        prompt: { default: 'current anatomical proportion direction' },
+        tags: ['body'],
+        enabled: true
+      }]
+    });
+    const reconciled = reconcileSelectionsWithCatalog({
+      'Body Silhouette': {
+        ...previewSelection('stale prompt value', 'Body', 'body'),
+        id: 'body.silhouette.full-bust-runway-hourglass'
+      }
+    }, groups);
+
+    expect(reconciled['Body Silhouette']?.value)
+      .toBe('current anatomical proportion direction');
   });
 
   it('uses custom hair colors and a harmonized two-tone garment palette', () => {

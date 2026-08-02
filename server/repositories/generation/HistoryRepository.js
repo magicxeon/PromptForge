@@ -60,11 +60,25 @@ export class HistoryRepository {
     return entry?.imageUrl ? path.basename(entry.imageUrl) : null;
   }
 
-  async listPage({ cursor = null, limit = 24, collectionId = 'all', allowedJobIds = null, username = null } = {}) {
+  async listPage({
+    cursor = null,
+    limit = 24,
+    collectionId = 'all',
+    allowedJobIds = null,
+    username = null,
+    includeInternalArtifacts = false
+  } = {}) {
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 24));
-    const scope = JSON.stringify({ collectionId: collectionId || 'all', username: username || 'all' });
+    const scope = JSON.stringify({
+      collectionId: collectionId || 'all',
+      username: username || 'all',
+      includeInternalArtifacts
+    });
     const decodedCursor = cursor ? this.decodeCursor(cursor, scope) : null;
     let items = await this.readAll();
+    if (!includeInternalArtifacts) {
+      items = items.filter(isCustomerVisibleHistoryItem);
+    }
     if (username) {
       items = items.filter(item => {
         if (!item.username) return username === 'user_demo';
@@ -113,6 +127,13 @@ export class HistoryRepository {
       throw new HistoryCursorError('History cursor is invalid for the current view.');
     }
   }
+}
+
+export function isCustomerVisibleHistoryItem(item) {
+  if (item?.artifactVisibility === 'template_owner_only') return false;
+  if (item?.operationPurpose === 'template_pose_proxy_prepare') return false;
+  // Compatibility for pose proxies created before artifact visibility was persisted.
+  return !String(item?.id || '').startsWith('job_pose_proxy_');
 }
 
 function compareHistoryItems(a, b) {

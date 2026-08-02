@@ -53,3 +53,31 @@ test('history collection pagination filters before applying its limit', async t 
   assert.deepEqual(page.items.map(item => item.id), ['job_01', 'job_04']);
   assert.equal(page.hasMore, true);
 });
+
+test('customer history excludes internal template pose proxies while repository audit can include them', async t => {
+  const { directory, repository } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  await repository.prepend({
+    id: 'job_pose_proxy_legacy',
+    timestamp: 300,
+    imageUrl: '/outputs/job_pose_proxy_legacy.jpg'
+  });
+  await repository.prepend({
+    id: 'job_internal_explicit',
+    timestamp: 301,
+    artifactVisibility: 'template_owner_only',
+    operationPurpose: 'template_pose_proxy_prepare',
+    imageUrl: '/outputs/job_internal_explicit.jpg'
+  });
+
+  const customerPage = await repository.listPage({ limit: 20 });
+  assert.equal(customerPage.items.some(item => item.id === 'job_pose_proxy_legacy'), false);
+  assert.equal(customerPage.items.some(item => item.id === 'job_internal_explicit'), false);
+
+  const auditPage = await repository.listPage({
+    limit: 20,
+    includeInternalArtifacts: true
+  });
+  assert.equal(auditPage.items.some(item => item.id === 'job_pose_proxy_legacy'), true);
+  assert.equal(auditPage.items.some(item => item.id === 'job_internal_explicit'), true);
+});

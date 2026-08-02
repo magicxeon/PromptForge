@@ -217,5 +217,6 @@
   "community.detail.collectionUnavailable": "Saving public Community media to Collections is not available yet.",
   "community.detail.collectionComingSoon": "Coming soon",
   "community.detail.moreFromCreator": "More from {name}",
-  "community.comments.empty": "No comments yet. Be the first to share your thoughts."
+  "community.comments.empty": "No comments yet. Be the first to share your thoughts.",
+  "community.status.retired": "Retired"
 }

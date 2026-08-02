@@ -1,5 +1,380 @@
 [
   {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "templateUseSessionId": "tmpls_1785678709228_3e29kh10",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "generatedJobId": "job_fashion_a93517bdfdec1719f4_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785680582517_3j8j2sff",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-02T14:23:02.517Z",
+    "updatedAt": "2026-08-02T14:23:02.517Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "templateUseSessionId": "tmpls_1785602208779_03i27k48",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "generatedJobId": "job_fashion_412e6ade7127ce8fbd_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785602373119_w2zi4yhz",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-01T16:39:33.119Z",
+    "updatedAt": "2026-08-01T16:39:33.119Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "templateUseSessionId": "tmpls_1785602208779_03i27k48",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "generatedJobId": "job_fashion_978f499523d89fa1b1_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785602254113_cdbhab6m",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-01T16:37:34.113Z",
+    "updatedAt": "2026-08-01T16:37:34.113Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785560685639_oj2zg1qp",
+    "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+    "templateUseSessionId": "tmpls_1785562955901_fpnn72b9",
+    "sourceCommunityPostId": "post_1785560685673_lnf77agu",
+    "generatedJobId": "job_fashion_60b948277c2c021880_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785560685639_oj2zg1qp",
+        "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785563201879_dxp5uz25",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-01T05:46:41.879Z",
+    "updatedAt": "2026-08-01T05:46:41.879Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785560685639_oj2zg1qp",
+    "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+    "templateUseSessionId": "tmpls_1785560811978_h756r257",
+    "sourceCommunityPostId": "post_1785560685673_lnf77agu",
+    "generatedJobId": "job_1785561311319_5dyiicq8y",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 103,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 3,
+        "generationCredits": 93,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785560685639_oj2zg1qp",
+        "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 103
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785561332642_c5ew2z07",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-01T05:15:32.642Z",
+    "updatedAt": "2026-08-01T05:15:32.642Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785560685639_oj2zg1qp",
+    "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+    "templateUseSessionId": "tmpls_1785560811978_h756r257",
+    "sourceCommunityPostId": "post_1785560685673_lnf77agu",
+    "generatedJobId": "job_1785560996049_m3tnhjlqp",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "face_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      },
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 58,
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785560685639_oj2zg1qp",
+        "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 58
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785561008016_jlar7tp6",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-01T05:10:08.015Z",
+    "updatedAt": "2026-08-01T05:10:08.015Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "templateId": "tmpl_1785395582339_zsymjfy7",
     "templateVersionId": "tmplv_1785395582344_l0k5his5",
     "templateUseSessionId": "tmpls_1785478589371_o0vy69v0",

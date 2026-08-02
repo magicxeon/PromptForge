@@ -23,6 +23,16 @@ function isSceneExpressionSelection(fieldName, selection) {
     && selection?.category === "expression";
 }
 
+function requestsFullBodyScene(...segments) {
+  return /\b(?:full[- ]body|head[- ]to[- ]toe|head[- ]to[- ]feet|complete (?:full )?body)\b/i
+    .test(segments.filter(Boolean).join(" "));
+}
+
+function specifiesFootwear(clothingPrompt) {
+  return /\b(?:footwear|shoes?|sneakers?|boots?|heels?|loafers?|sandals?|pumps?|flats?|mules?|oxfords?|slippers?|barefoot|bare feet|unshod)\b/i
+    .test(clothingPrompt || "");
+}
+
 const CATEGORY_PRIORITIES = {
   "environment": 100,
   "lighting": 90,
@@ -601,11 +611,18 @@ export function compilePromptOnServer(
         : (imageReferences?.outfitReference
           ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
           : options.characterReferenceOutfitBehavior === "replaceable"
-            ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing its fitted white casting outfit with the selected clothing direction"
+            ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing any casting uniform visible in that reference with the selected clothing direction"
             : "Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
       : "";
     const styleReferenceText = imageReferences?.styleMatch
       ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
+      : "";
+    const fullBodyScene = requestsFullBodyScene(pose, camera);
+    const fullBodyFramingDirective = fullBodyScene
+      ? "For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides"
+      : "";
+    const footwearDirective = fullBodyScene && !specifiesFootwear(clothing)
+      ? "If footwear is not otherwise specified by the clothing direction or visibly supplied by an outfit reference, select simple coherent footwear appropriate to the outfit, environment, and action; keep both shoes fully visible and do not add unrelated accessories"
       : "";
     const scenePrompt = templateStr
       .replace("{subject}", fullSubject)
@@ -617,7 +634,14 @@ export function compilePromptOnServer(
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
       .replace("{quality}", quality);
-    prompt = [characterReferenceText, styleReferenceText, scenePrompt, additionalDirection]
+    prompt = [
+      characterReferenceText,
+      styleReferenceText,
+      scenePrompt,
+      fullBodyFramingDirective,
+      footwearDirective,
+      additionalDirection
+    ]
       .filter(s => s !== "")
       .join(", ");
   }

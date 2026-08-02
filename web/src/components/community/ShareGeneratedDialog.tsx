@@ -1,14 +1,18 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { useMutation } from '@tanstack/react-query';
 import { Share2, X } from 'lucide-react';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   createGeneratedShareDraft,
   publishGeneratedShare
 } from '../../features/community/api/shareApi';
+import { getCommunityPost } from '../../features/community/api/communityApi';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
+import { SharedTemplateEditDialog } from '../templates/SharedTemplateEditDialog';
+import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
+import { showToast } from '../ui/toastStore';
 
 export function ShareGeneratedDialog({
   jobId,
@@ -19,6 +23,11 @@ export function ShareGeneratedDialog({
 }) {
   const { t } = useTranslation('react-ui');
   const [open, setOpen] = useState(false);
+  const [publishedTemplate, setPublishedTemplate] = useState<CommunityPost | null>(null);
+  const [templateManagementOpen, setTemplateManagementOpen] = useState(false);
+  const [publishAsTemplate, setPublishAsTemplate] = useState(false);
+  const [selectedTemplateInputs, setSelectedTemplateInputs] = useState<Set<string>>(new Set());
+  const [requiredTemplateInputs, setRequiredTemplateInputs] = useState<Set<string>>(new Set());
   const draft = useMutation({ mutationFn: () => createGeneratedShareDraft(jobId) });
   const publish = useMutation({
     mutationFn: (input: {
@@ -35,10 +44,50 @@ export function ShareGeneratedDialog({
       } | null;
     }) => {
       if (!draft.data) throw new Error('Create a share draft first.');
-      return publishGeneratedShare(draft.data.id, input);
+      return publishGeneratedShare(draft.data.id, input).then(async published => ({
+        published,
+        templatePost: input.publishAsTemplate && published.postType === 'template'
+          ? await getCommunityPost(published.id)
+          : null
+      }));
     },
-    onSuccess: () => setOpen(false)
+    onSuccess: (result) => {
+      setOpen(false);
+      if (result.templatePost) {
+        setPublishedTemplate(result.templatePost);
+        setTemplateManagementOpen(true);
+        showToast({
+          tone: 'success',
+          title: t('ui.toast.templatePublished'),
+          description: t('ui.toast.templatePublishedDescription')
+        });
+      } else {
+        showToast({ tone: 'success', title: t('ui.toast.postPublished') });
+      }
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.toast.publishFailed'),
+      description: error.message
+    })
   });
+
+  useEffect(() => {
+    const inputs = draft.data?.suggestedTemplateInputSchema?.inputs || [];
+    if (!draft.data?.templateEligible) {
+      setPublishAsTemplate(false);
+      setSelectedTemplateInputs(new Set());
+      setRequiredTemplateInputs(new Set());
+      return;
+    }
+    setPublishAsTemplate(true);
+    setSelectedTemplateInputs(new Set(inputs
+      .filter(isRecommendedTemplateInput)
+      .map(input => String(input.id || ''))));
+    setRequiredTemplateInputs(new Set(inputs
+      .filter(input => isRecommendedTemplateInput(input) && isRecommendedRequiredInput(input))
+      .map(input => String(input.id || ''))));
+  }, [draft.data]);
 
   function change(next: boolean) {
     setOpen(next);
@@ -48,11 +97,7 @@ export function ShareGeneratedDialog({
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const selectedTemplateInputs = new Set(form.getAll('templateInput').map(String));
-    const requiredTemplateInputs = new Set(
-      form.getAll('requiredTemplateInput').map(String)
-    );
-    const publicInputSchema = draft.data?.suggestedTemplateInputSchema
+    const publicInputSchema = publishAsTemplate && draft.data?.suggestedTemplateInputSchema
       ? {
         schemaVersion: 1,
         inputs: draft.data.suggestedTemplateInputSchema.inputs
@@ -72,7 +117,7 @@ export function ShareGeneratedDialog({
       faceReusePolicy: form.get('faceReusePolicy') === 'public_reusable'
         ? 'public_reusable'
         : 'view_only',
-      publishAsTemplate: form.get('publishAsTemplate') === 'on',
+      publishAsTemplate,
       templateAccessCredits: Math.max(
         0,
         Number(form.get('templateAccessCredits')) || 0
@@ -82,6 +127,7 @@ export function ShareGeneratedDialog({
   }
 
   return (
+    <>
     <Dialog.Root open={open} onOpenChange={change}>
       <Dialog.Trigger asChild>
         {trigger || (
@@ -157,19 +203,32 @@ export function ShareGeneratedDialog({
                 {draft.data.templateEligible ? (
                   <Surface className="share-generated-dialog__template-panel">
                     <label className="share-generated-dialog__template-toggle">
-                      <input type="checkbox" name="publishAsTemplate" defaultChecked />
+                      <input
+                        type="checkbox"
+                        name="publishAsTemplate"
+                        checked={publishAsTemplate}
+                        onChange={event => {
+                          const checked = event.target.checked;
+                          setPublishAsTemplate(checked);
+                          if (!checked) {
+                            setSelectedTemplateInputs(new Set());
+                            setRequiredTemplateInputs(new Set());
+                          }
+                        }}
+                      />
                       <span>
                         <strong>{t('ui.share.publishTemplate')}</strong>
                         <small>{t('ui.share.publishTemplateHelp')}</small>
                       </span>
                     </label>
 
-                    <fieldset className="share-generated-dialog__template-inputs">
+                    {publishAsTemplate ? (
+                      <>
+                      <fieldset className="share-generated-dialog__template-inputs">
                       <legend>{t('ui.share.templateInputs')}</legend>
                       <div className="share-generated-dialog__template-input-list">
                         {draft.data.suggestedTemplateInputSchema?.inputs.map(input => {
                           const inputId = String(input.id || '');
-                          const defaultChecked = isRecommendedTemplateInput(input);
                           return (
                             <div
                               key={inputId}
@@ -180,7 +239,14 @@ export function ShareGeneratedDialog({
                                   type="checkbox"
                                   name="templateInput"
                                   value={inputId}
-                                  defaultChecked={defaultChecked}
+                                  checked={selectedTemplateInputs.has(inputId)}
+                                  onChange={event => {
+                                    const checked = event.target.checked;
+                                    setSelectedTemplateInputs(current => updateSet(current, inputId, checked));
+                                    if (!checked) {
+                                      setRequiredTemplateInputs(current => updateSet(current, inputId, false));
+                                    }
+                                  }}
                                 />
                                 <span>
                                   {String(input.label || input.sourceFieldName || input.id)}
@@ -191,9 +257,10 @@ export function ShareGeneratedDialog({
                                   type="checkbox"
                                   name="requiredTemplateInput"
                                   value={inputId}
-                                  defaultChecked={
-                                    defaultChecked && isRecommendedRequiredInput(input)
-                                  }
+                                  checked={requiredTemplateInputs.has(inputId)}
+                                  disabled={!selectedTemplateInputs.has(inputId)}
+                                  onChange={event => setRequiredTemplateInputs(current =>
+                                    updateSet(current, inputId, event.target.checked))}
                                 />
                                 <span>{t('ui.share.required')}</span>
                               </label>
@@ -201,18 +268,20 @@ export function ShareGeneratedDialog({
                           );
                         })}
                       </div>
-                    </fieldset>
+                      </fieldset>
 
-                    <label className="share-generated-dialog__field">
-                      <span>{t('ui.share.templateCredits')}</span>
-                      <input
-                        type="number"
-                        name="templateAccessCredits"
-                        min="0"
-                        step="1"
-                        defaultValue="0"
-                      />
-                    </label>
+                      <label className="share-generated-dialog__field">
+                        <span>{t('ui.share.templateCredits')}</span>
+                        <input
+                          type="number"
+                          name="templateAccessCredits"
+                          min="0"
+                          step="1"
+                          defaultValue="0"
+                        />
+                      </label>
+                      </>
+                    ) : null}
                   </Surface>
                 ) : null}
 
@@ -251,6 +320,16 @@ export function ShareGeneratedDialog({
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+    {publishedTemplate ? (
+      <SharedTemplateEditDialog
+        post={publishedTemplate}
+        open={templateManagementOpen}
+        onOpenChange={setTemplateManagementOpen}
+        autoEstimateReadiness
+        hideTrigger
+      />
+    ) : null}
+    </>
   );
 }
 
@@ -262,4 +341,11 @@ function isRecommendedTemplateInput(input: Record<string, unknown>) {
 function isRecommendedRequiredInput(input: Record<string, unknown>) {
   const field = String(input.sourceFieldName || input.id || '').toLowerCase();
   return /(face|character|outfit|clothing)/.test(field);
+}
+
+function updateSet(current: Set<string>, value: string, enabled: boolean) {
+  const next = new Set(current);
+  if (enabled) next.add(value);
+  else next.delete(value);
+  return next;
 }

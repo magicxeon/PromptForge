@@ -19,7 +19,8 @@ function sendSceneTemplateError(
 export function registerSceneTemplateRoutes(app, {
   communityShareService,
   communityFeaturePolicyService,
-  imagePresentationService = defaultImagePresentationService
+  imagePresentationService = defaultImagePresentationService,
+  templatePoseProxyService = null
 }) {
   app.post('/api/scene-templates/share-drafts', async (req, res) => {
     try {
@@ -188,7 +189,17 @@ export function registerSceneTemplateRoutes(app, {
   app.post('/api/scene-templates/shared/:postId/use-template', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.enabled');
-      return res.json(await communityShareService.getTemplateForViewer(req.params.postId, req.actorContext));
+      const handoff = await communityShareService.getTemplateForViewer(
+        req.params.postId,
+        req.actorContext
+      );
+      const poseProxyReadiness = templatePoseProxyService && handoff.id
+        ? await templatePoseProxyService.getReadiness(
+          handoff.id,
+          handoff.currentVersionId || null
+        )
+        : null;
+      return res.json({ ...handoff, poseProxyReadiness });
     } catch (err) {
       return sendSceneTemplateError(res, err, 'scene_template_use_failed', 500);
     }

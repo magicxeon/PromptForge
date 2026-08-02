@@ -53,6 +53,13 @@ export function updateCommunityPostPresentation(
   });
 }
 
+export function retireCommunityPost(postId: string) {
+  return apiRequest(`/api/community/posts/${encodeURIComponent(postId)}`, {
+    method: 'DELETE',
+    schema: communityPostSchema
+  });
+}
+
 export function recordCommunityView(postId: string) {
   return apiRequest(`/api/community/posts/${encodeURIComponent(postId)}/views`, {
     method: 'POST',

@@ -3,13 +3,15 @@ import { useMutation } from '@tanstack/react-query';
 import { FileUser, X } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { createReturnNavigationState } from '../../lib/navigation/returnNavigation';
 import { createCharacterProfile } from '../../features/profiles/api/profileApi';
 import { Button } from '../ui/Button';
 
 export function CreateCharacterProfileDialog({ jobId }: { jobId: string }) {
   const { t } = useTranslation('react-ui');
   const navigate = useNavigate();
+  const location = useLocation();
   const create = useMutation({
     mutationFn: (input: {
       displayName: string;
@@ -21,7 +23,10 @@ export function CreateCharacterProfileDialog({ jobId }: { jobId: string }) {
       ...input,
       idempotencyKey: `react_character_profile_${jobId}`
     }),
-    onSuccess: profile => navigate(`/community/characters/${encodeURIComponent(profile.id)}`)
+    onSuccess: profile => navigate(
+      `/creator/characters/${encodeURIComponent(profile.id)}`,
+      { state: createReturnNavigationState(location) }
+    )
   });
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -41,8 +46,8 @@ export function CreateCharacterProfileDialog({ jobId }: { jobId: string }) {
         <Button variant="primary" icon={<FileUser className="size-4" />}>{t('ui.action.createProfile')}</Button>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[90] bg-black/75 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-[91] max-h-[88vh] w-[min(92vw,640px)] -translate-x-1/2 -translate-y-1/2 overflow-auto border border-[var(--mpf-border-strong)] bg-[var(--mpf-bg-raised)] p-5 shadow-[var(--mpf-shadow-raised)]">
+        <Dialog.Overlay className="app-nested-dialog__overlay fixed inset-0 bg-black/75 backdrop-blur-sm" />
+        <Dialog.Content className="app-nested-dialog__content fixed left-1/2 top-1/2 max-h-[88vh] w-[min(92vw,640px)] -translate-x-1/2 -translate-y-1/2 overflow-auto border border-[var(--mpf-border-strong)] bg-[var(--mpf-bg-raised)] p-5 shadow-[var(--mpf-shadow-raised)]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="m-0 text-xl">{t('ui.action.createProfile')}</Dialog.Title>

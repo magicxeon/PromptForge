@@ -53,5 +53,16 @@ export const fashionAssetSchema = z.object({
   thumbnailUrl: z.string().nullable().optional()
 });
 
+export const fashionReadyTemplateIndexSchema = z.object({
+  items: z.array(z.object({
+    id: z.string(),
+    currentVersionId: z.string(),
+    poseProxyReadiness: z.object({
+      status: z.string(),
+      fashionCompatible: z.boolean()
+    })
+  }).passthrough())
+});
+
 export type FashionQuote = z.infer<typeof fashionQuoteSchema>['quote'];
 export type FashionRun = z.infer<typeof fashionRunSchema>;

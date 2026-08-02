@@ -103,6 +103,7 @@ Community character store.
 | `005-fashion-and-scene-character-handoff.md` | Reusable selection contract | 001–004 |
 | `006-character-profile-qa-and-release-gates.md` | End-to-end release gates | All above |
 | `007-character-community-and-profile-improvements.md` | Community Character row, owner entry, sharing UX and public media correctness | 003, 004, Community |
+| `008-character-approval-and-generation-library-flow.md` | Shared Recent Generations, owner approval routes and authenticated draft media | 001, 003, 007, React History |
 
 ## 5. Architecture
 

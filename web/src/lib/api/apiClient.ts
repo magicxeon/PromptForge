@@ -69,6 +69,17 @@ export function apiMediaUrl(path: string | null | undefined) {
   return `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
+export async function apiMediaBlob(path: string, signal?: AbortSignal) {
+  const url = apiMediaUrl(path);
+  if (!url) throw new Error('Media URL is unavailable.');
+  const response = await fetch(url, {
+    headers: { 'x-mpf-user-id': getActiveActorId() },
+    signal
+  });
+  if (!response.ok) throw await createApiError(response);
+  return response.blob();
+}
+
 async function createApiError(response: Response) {
   let payload: unknown = null;
   try {

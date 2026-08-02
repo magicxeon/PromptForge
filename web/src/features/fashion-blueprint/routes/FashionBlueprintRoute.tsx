@@ -7,6 +7,8 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  CheckCircle2,
+  CircleX,
   Coins,
   Download,
   LoaderCircle,
@@ -20,6 +22,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { CollectionPickerDialog } from '../../../components/collections/CollectionPickerDialog';
+import momeloMark from '../../../assets/brand/momelo-mark.svg';
 import { ShareGeneratedDialog } from '../../../components/community/ShareGeneratedDialog';
 import {
   EngineTargetPanel,
@@ -34,6 +37,7 @@ import {
   LoadingState
 } from '../../../components/ui/AsyncState';
 import { Button } from '../../../components/ui/Button';
+import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { Surface } from '../../../components/ui/Surface';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { ApiError } from '../../../lib/api/apiError';
@@ -63,6 +67,7 @@ import {
   createFashionQuote,
   createFashionRun,
   getFashionRun,
+  listFashionReadyTemplateIds,
   uploadFashionReference,
   type FashionPlanInput,
   type FashionReferenceAsset
@@ -74,6 +79,7 @@ import {
   type FashionDraft,
   type FashionProductDraft
 } from '../state/fashionDraft';
+import { filterFashionReadyCommunityTemplates } from '../state/fashionTemplateDiscovery';
 
 type QualityTier = 'draft' | 'selling_quality' | 'premium_campaign';
 type QuotePurpose = 'full' | 'proof' | 'continuation';
@@ -91,6 +97,7 @@ export function FashionBlueprintRoute() {
   const [step, setStep] = useState(1);
   const [template, setTemplate] = useState<CommunityPost | null>(null);
   const [templateUseSessionId, setTemplateUseSessionId] = useState<string | null>(null);
+  const [templateSelectionError, setTemplateSelectionError] = useState<string | null>(null);
   const [character, setCharacter] = useState<CharacterSummary | null>(null);
   const [characterContext, setCharacterContext] = useState<Record<string, unknown> | null>(null);
   const [products, setProducts] = useState<ProductItem[]>([firstProduct]);
@@ -140,6 +147,13 @@ export function FashionBlueprintRoute() {
     initialPageParam: null as string | null,
     getNextPageParam: page => page.nextCursor || undefined
   });
+  const fashionReadyTemplates = useQuery({
+    queryKey: ['fashion-ready-template-index', actorId],
+    queryFn: listFashionReadyTemplateIds,
+    enabled: Boolean(actor),
+    staleTime: 0,
+    refetchOnMount: 'always'
+  });
   const catalog = useQuery({
     queryKey: ['provider-catalog'],
     queryFn: getProviderCatalog,
@@ -152,10 +166,12 @@ export function FashionBlueprintRoute() {
     staleTime: 15_000
   });
 
-  const templateItems = useMemo(
-    () => templates.data?.pages.flatMap(page => page.items) || [],
-    [templates.data]
-  );
+  const templateItems = useMemo(() => {
+    return filterFashionReadyCommunityTemplates(
+      templates.data?.pages.flatMap(page => page.items) || [],
+      fashionReadyTemplates.data || []
+    );
+  }, [fashionReadyTemplates.data, templates.data]);
   const characterItems = useMemo(
     () => characters.data?.pages.flatMap(page => page.items) || [],
     [characters.data]
@@ -221,6 +237,26 @@ export function FashionBlueprintRoute() {
       ) || null);
     }
   }, [template, templateItems]);
+  useEffect(() => {
+    if (
+      !template
+      || fashionReadyTemplates.isLoading
+      || fashionReadyTemplates.isError
+      || Boolean(
+        template.templateId
+        && fashionReadyTemplates.data?.includes(template.templateId)
+      )
+    ) {
+      return;
+    }
+    restoredTemplateId.current = null;
+    setTemplate(null);
+    setTemplateUseSessionId(null);
+    setQuote(null);
+    setRun(null);
+    setStep(1);
+    setTemplateSelectionError(t('fashion.error.templatePoseNotReady'));
+  }, [fashionReadyTemplates.data, fashionReadyTemplates.isError, fashionReadyTemplates.isLoading, template, t]);
   useEffect(() => {
     const requestedTemplateId = searchParams.get('templateId');
     if (
@@ -401,14 +437,22 @@ export function FashionBlueprintRoute() {
   });
 
   async function chooseTemplate(next: CommunityPost) {
-    const handoff = await requestCommunityTemplateHandoff(next.id);
-    if (!handoff.useSession?.id) {
-      throw new Error(t('fashion.error.templateSession'));
+    setTemplateSelectionError(null);
+    try {
+      const handoff = await requestCommunityTemplateHandoff(next.id);
+      if (!handoff.useSession?.id) {
+        throw new Error(t('fashion.error.templateSession'));
+      }
+      if (!handoff.poseProxyReadiness?.fashionCompatible) {
+        throw new Error(t('fashion.error.templatePoseNotReady'));
+      }
+      restoredTemplateId.current = next.id;
+      setTemplate(next);
+      setTemplateUseSessionId(handoff.useSession.id);
+      setStep(2);
+    } catch (error) {
+      setTemplateSelectionError(error instanceof Error ? error.message : t('fashion.error.templateSession'));
     }
-    restoredTemplateId.current = next.id;
-    setTemplate(next);
-    setTemplateUseSessionId(handoff.useSession.id);
-    setStep(2);
   }
 
   async function chooseCharacter(next: CharacterSummary) {
@@ -505,7 +549,12 @@ export function FashionBlueprintRoute() {
             <FashionTemplateStep
               items={templateItems}
               selected={template}
-              pending={templates.isLoading}
+              pending={templates.isLoading || fashionReadyTemplates.isLoading}
+              error={templateSelectionError || (
+                fashionReadyTemplates.isError
+                  ? fashionReadyTemplates.error.message
+                  : null
+              )}
               onSelect={chooseTemplate}
             />
           ) : null}
@@ -610,11 +659,13 @@ function FashionTemplateStep({
   items,
   selected,
   pending,
+  error,
   onSelect
 }: {
   items: CommunityPost[];
   selected: CommunityPost | null;
   pending: boolean;
+  error: string | null;
   onSelect: (item: CommunityPost) => Promise<void>;
 }) {
   const { t } = useTranslation('fashion-blueprint');
@@ -677,6 +728,11 @@ function FashionTemplateStep({
         </label>
       </div>
       {pending ? <LoadingState label={t('fashion.loading.templates')} /> : null}
+      {error ? (
+        <StatusNotice tone="warning" title={t('fashion.error.templateNotReadyTitle')}>
+          {error}
+        </StatusNotice>
+      ) : null}
       <div className="fashion-blueprint-template-grid grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {filteredItems.slice(0, 12).map(item => (
           <div
@@ -1234,17 +1290,47 @@ function FashionSetupSummary({
 
 function FashionRunResults({ run }: { run: FashionRun }) {
   const { t } = useTranslation('fashion-blueprint');
+  const completedCount = run.operations.filter(operation => operation.status === 'completed').length;
+  const failedCount = run.operations.filter(operation => operation.status === 'failed').length;
+  const active = !['completed', 'partially_completed', 'failed'].includes(run.status);
   return (
-    <section className="mt-5 border border-[var(--mpf-border)] bg-[var(--theme-bg-raised)] p-4">
+    <section
+      className="fashion-production mt-5 border border-[var(--mpf-border)] bg-[var(--theme-bg-raised)] p-4"
+      aria-live="polite"
+      aria-busy={active}
+    >
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="m-0 text-lg">{t('fashion.run.title')}</h2>
-        <span className="text-xs uppercase text-[var(--theme-primary)]">
-          {t(`common.status.${run.status}`, {
-            ns: 'common',
-            defaultValue: run.status
-          })}
-        </span>
+        <div className="fashion-production__status">
+          {active ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
+          <span>
+            {t(`common.status.${run.status}`, {
+              ns: 'common',
+              defaultValue: run.status
+            })}
+          </span>
+          <small>{t('fashion.run.progress', {
+            completed: completedCount,
+            total: run.operations.length,
+            failed: failedCount
+          })}</small>
+        </div>
       </div>
+      {run.operations.length === 0 ? (
+        <div className="fashion-production__empty">
+          {active ? (
+            <LoaderCircle className="size-10 animate-spin" aria-hidden="true" />
+          ) : (
+            <img src={momeloMark} alt="" aria-hidden="true" />
+          )}
+          <strong>{active
+            ? t('fashion.run.preparingTitle')
+            : t('fashion.run.emptyTitle')}</strong>
+          <p>{active
+            ? t('fashion.run.preparingDescription')
+            : t('fashion.run.emptyDescription')}</p>
+        </div>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {run.operations.map(operation => (
           <article
@@ -1258,11 +1344,16 @@ function FashionRunResults({ run }: { run: FashionRun }) {
                 className="aspect-[3/4] w-full bg-[var(--theme-media-backdrop)] object-contain"
               />
             ) : (
-              <div className="grid aspect-[3/4] place-items-center bg-[var(--theme-media-backdrop)] text-sm text-[var(--mpf-text-muted)]">
-                {t(`common.status.${operation.status}`, {
+              <div className="fashion-production__operation-state aspect-[3/4] bg-[var(--theme-media-backdrop)] text-sm text-[var(--mpf-text-muted)]">
+                {operation.status === 'failed'
+                  ? <CircleX className="size-8 text-[var(--theme-danger)]" aria-hidden="true" />
+                  : operation.status === 'completed'
+                    ? <CheckCircle2 className="size-8 text-[var(--theme-success)]" aria-hidden="true" />
+                    : <LoaderCircle className="size-8 animate-spin text-[var(--theme-primary)]" aria-hidden="true" />}
+                <span>{t(`common.status.${operation.status}`, {
                   ns: 'common',
                   defaultValue: operation.status
-                })}
+                })}</span>
               </div>
             )}
             <strong className="mt-3 block text-sm">

@@ -13,6 +13,43 @@ export function registerGenerationRoutes(app, {
   resolveRequestUsername,
   templateCoreService
 }) {
+  app.post('/api/generation/prompt-preview', async (req, res) => {
+    try {
+      if (!isPromptPreviewEnabled(req)) {
+        return res.status(404).json({
+          error: { code: 'not_found', message: 'Route not found.' }
+        });
+      }
+
+      const requestPayload = await resolveGenerationRequestPayload(
+        req.body || {},
+        req,
+        templateCoreService
+      );
+      const { provider: providerConfig, model: modelConfig } =
+        providerRegistry.resolveSelection(req.body.provider, req.body.submodel);
+      const { context } = compileGenerationContext(
+        requestPayload,
+        req.actorContext
+      );
+      await prepareGenerationReferences(context, {
+        actorContext: req.actorContext,
+        providerId: providerConfig.id,
+        modelId: modelConfig.id,
+        modelConfig
+      });
+      const compiledPrompt = compilePromptFromGenerationContext(context);
+      return res.json({ compiledPrompt });
+    } catch (error) {
+      return res.status(error.statusCode || 400).json({
+        error: {
+          code: error.code || 'prompt_preview_failed',
+          message: error.message || 'Prompt preview could not be compiled.'
+        }
+      });
+    }
+  });
+
   app.post('/api/generate', async (req, res) => {
     const { provider, submodel, estimateId, requestId } = req.body;
 
@@ -30,28 +67,11 @@ export function registerGenerationRoutes(app, {
           req.body.templateReplacements || {}
         )
         : null;
-      const requestPayload = templateExecution
-        ? {
-          ...req.body,
-          sceneTemplateSnapshot: templateExecution.executionSnapshot,
-          selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
-          additionalDirection:
-            templateExecution.executionSnapshot.additionalDirectionSnapshot || '',
-          sceneBuilder: {
-            ...(req.body.sceneBuilder || {}),
-            authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
-            manualPromptText: templateExecution.executionSnapshot.manualPromptSnapshot
-              || templateExecution.executionSnapshot.finalPromptSnapshot
-              || ''
-          },
-          templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
-          authorizedTemplateReferenceJobIds:
-            templateExecution.baselineReference?.sourceGenerationId
-              ? [templateExecution.baselineReference.sourceGenerationId]
-              : [],
-          userRole: req.userRole
-        }
-        : { ...req.body, userRole: req.userRole };
+      const requestPayload = createGenerationRequestPayload(
+        req.body,
+        req.userRole,
+        templateExecution
+      );
       const { context } = compileGenerationContext(
         requestPayload,
         req.actorContext
@@ -204,4 +224,46 @@ export function registerGenerationRoutes(app, {
       queueManager.removeListener(jobId, res);
     });
   });
+}
+
+async function resolveGenerationRequestPayload(body, req, templateCoreService) {
+  const templateExecution = body.templateUseSessionId
+    ? await templateCoreService.resolveSession(
+      body.templateUseSessionId,
+      req.actorContext,
+      body.templateReplacements || {}
+    )
+    : null;
+  return createGenerationRequestPayload(body, req.userRole, templateExecution);
+}
+
+function createGenerationRequestPayload(body, userRole, templateExecution) {
+  if (!templateExecution) return { ...body, userRole };
+  return {
+    ...body,
+    sceneTemplateSnapshot: templateExecution.executionSnapshot,
+    selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+    additionalDirection:
+      templateExecution.executionSnapshot.additionalDirectionSnapshot || '',
+    sceneBuilder: {
+      ...(body.sceneBuilder || {}),
+      authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
+      manualPromptText: templateExecution.executionSnapshot.manualPromptSnapshot
+        || templateExecution.executionSnapshot.finalPromptSnapshot
+        || ''
+    },
+    templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
+    authorizedTemplateReferenceJobIds:
+      templateExecution.baselineReference?.sourceGenerationId
+        ? [templateExecution.baselineReference.sourceGenerationId]
+        : [],
+    userRole
+  };
+}
+
+function isPromptPreviewEnabled(req) {
+  if (req.actorContext?.role === 'admin' || req.userRole === 'admin') return true;
+  return ['1', 'true', 'yes', 'on'].includes(
+    String(process.env.OVERRIDE_DEBUG_PROMPT || '').trim().toLowerCase()
+  );
 }

@@ -74,7 +74,10 @@ export class FashionBlueprintService {
       route: {
         providerId: route.provider.id,
         modelId: model.id,
-        routingPolicyVersion: route.policyVersion || null
+        routingPolicyVersion: route.policyVersion || null,
+        qualificationVersion: route.qualificationVersion || null,
+        qualificationStatus: route.qualificationStatus || (routingMode === 'advanced' ? 'experimental' : null),
+        promptStrategyVersion: route.promptStrategyVersion || null
       },
       resolution,
       aspectRatio,

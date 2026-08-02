@@ -198,5 +198,5 @@ test('Styled Character preserves its outfit in Scene and is rejected by Fashion'
     }
   });
   assert.match(prompt, /Preserve the original outfit identity/i);
-  assert.doesNotMatch(prompt, /white casting uniform.+must not be copied/i);
+  assert.doesNotMatch(prompt, /any casting uniform visible.+must not be copied/i);
 });

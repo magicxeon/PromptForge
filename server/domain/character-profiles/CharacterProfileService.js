@@ -10,8 +10,10 @@ import { characterProfileSharingService } from './CharacterProfileSharingService
 import { characterUsageService } from './CharacterUsageService.js';
 import {
   CHARACTER_TYPE,
+  getCharacterTypeCapabilities,
   normalizeCharacterType,
-  normalizeIntendedUsesForCharacterType
+  normalizeIntendedUsesForCharacterType,
+  resolveCanonicalCharacterAsset
 } from './characterTypePolicy.js';
 import { getCharacterCastingPolicy } from './characterCastingPolicy.js';
 
@@ -97,18 +99,29 @@ export class CharacterProfileService {
       ...page,
       items: await Promise.all(page.items.map(async profile => {
         const version = await this.versionRepository.findById(profile.activeVersionId);
+        const canonicalAssetId = version && version.characterProfileId === profile.id
+          ? resolveCanonicalCharacterAsset(version, profile.characterType)
+            || version.canonicalCharacterSheetAssetId
+            || version.sourceGenerationResultIds?.[0]
+            || null
+          : null;
+        const ownerThumbnailUrl = canonicalAssetId
+          ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/thumbnail`
+          : null;
         return {
           ...profile,
           isOwner: true,
+          ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
           reuseStatus: profile.status === 'approved' ? 'available' : 'unavailable',
           handoffAvailable: profile.status === 'approved' && version?.status === 'approved',
           characterType: normalizeCharacterType(profile.characterType),
           destinationCapabilities: normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.STYLED_CHARACTER
             ? ['scene_builder']
             : ['fashion_blueprint', 'scene_builder'],
-          thumbnailUrl: profile.status === 'approved' && version
-            ? `/api/community/character-profiles/${encodeURIComponent(profile.id)}/thumbnail`
-            : null,
+          imageUrl: ownerThumbnailUrl,
+          thumbnailUrl: ownerThumbnailUrl,
+          displayImageUrl: ownerThumbnailUrl,
+          displayImageSource: ownerThumbnailUrl ? 'owner_canonical_sheet' : undefined,
           stats: await this.usageService.getStats(profile.id)
         };
       }))
@@ -122,16 +135,33 @@ export class CharacterProfileService {
       throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
     }
     const characterType = normalizeCharacterType(profile.characterType);
+    const capabilities = getCharacterTypeCapabilities(characterType);
+    const version = await this.versionRepository.findById(profile.activeVersionId);
+    const canonicalAssetId = version && version.characterProfileId === profile.id
+      ? resolveCanonicalCharacterAsset(version, characterType)
+        || version.canonicalCharacterSheetAssetId
+        || version.sourceGenerationResultIds?.[0]
+        || null
+      : null;
+    const ownerImageUrl = canonicalAssetId
+      ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/image`
+      : null;
     return {
       ...profile,
+      ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
       versions: await this.versionRepository.listByProfileId(profile.id),
       stats: await this.usageService.getStats(profile.id),
       isOwner: true,
       characterType,
-      destinationCapabilities: characterType === CHARACTER_TYPE.STYLED_CHARACTER
-        ? ['scene_builder']
-        : ['fashion_blueprint', 'scene_builder'],
-      handoffAvailable: profile.status === 'approved'
+      destinationCapabilities: [...capabilities.destinations],
+      outfitBehavior: capabilities.outfitBehavior,
+      reuseStatus: profile.status === 'approved' ? 'available' : 'unavailable',
+      handoffAvailable: profile.status === 'approved' && version?.status === 'approved',
+      characterProfileVersionId: version?.id || '',
+      imageUrl: ownerImageUrl,
+      thumbnailUrl: ownerImageUrl,
+      displayImageUrl: ownerImageUrl,
+      displayImageSource: ownerImageUrl ? 'owner_canonical_sheet' : undefined
     };
   }
 

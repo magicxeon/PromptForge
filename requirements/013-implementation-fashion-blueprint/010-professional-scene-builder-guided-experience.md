@@ -161,7 +161,27 @@ Professional does not mean adding more adjectives. A qualified scene must:
 - avoid conflicting actions, duplicate gestures and impossible contact points;
 - remain reproducible enough to publish as a Template preview.
 
-### 5.1 Dynamic Variation Boundaries
+### 5.1 Full-body framing and footwear completion
+
+When an explicit Pose or Camera selection requests a full-body Scene, the
+canonical compiler must add a provider-neutral framing guard that:
+
+- keeps the complete subject visible from the top of the hair through both
+  feet;
+- prohibits cropping the head, hair, hands, arms, legs, ankles, footwear or
+  any other body part;
+- reserves visible safety margin above the hair, below the feet and on both
+  sides of the silhouette;
+- does not weaken the selected pose, camera perspective or Environment.
+
+Footwear is part of a complete full-body fashion result. When neither the
+selected Clothing direction nor an Outfit reference specifies footwear, the
+compiler must direct the provider to select simple coherent footwear suitable
+for the outfit, Environment and action. It must not add unrelated accessories.
+An explicit footwear selection, visibly supplied Outfit footwear, or an
+explicit barefoot direction has higher authority and suppresses this fallback.
+
+### 5.2 Dynamic Variation Boundaries
 
 The system may add bounded professional variation without taking away the
 user's main control:
@@ -234,6 +254,22 @@ Behavior:
 7. Empty blur does not create a selection.
 8. Validation errors use the shared warning/error surface and focus the field.
 
+Length policy:
+
+- each Custom Attribute accepts at most `1,000` Unicode characters;
+- all active Custom Attributes together accept at most `2,000` Unicode
+  characters per generation request;
+- Additional Direction retains its separate `300`-character limit and is not
+  included in the Custom Attribute budget;
+- the UI must show both per-field and combined usage;
+- input must never be truncated silently; over-limit text remains visible for
+  correction, the `Use` action is disabled and an accessible error explains
+  which limit was exceeded;
+- the server trims surrounding whitespace and enforces both limits again before
+  prompt compilation, estimate use or queue submission;
+- stable server errors are `custom_attribute_too_long` and
+  `custom_attribute_total_too_long`.
+
 Only one source value per field reaches the canonical request. The client must
 not submit both a dropdown prompt and a Custom prompt and ask the compiler to
 guess precedence.
@@ -248,6 +284,8 @@ For Scene Builder:
   lost.
 - Retain the prominent Generate action and locked credit estimate.
 - Retain Admin/debug prompt display under the existing runtime policy.
+- The Admin/debug prompt surface includes a familiar Copy icon action that
+  copies the current canonical compiled prompt from the read-only text area.
 
 This requirement does not remove Surprise or Export from another surface
 unless that surface's owning requirement also removes it.
@@ -318,9 +356,11 @@ Do not display internal hidden recipe fields as missing required selections.
 3. Implement smooth scroll/focus with reduced-motion support.
 4. Add selected summaries and completion states to collapsed headers.
 5. Implement explicit catalog/custom source state in the shared field control.
-6. Remove Scene-only Surprise and Export actions through component parameters,
+6. Load the public Custom Attribute limits from the Attribute Bundle and apply
+   them in the shared field control used by Studio and Scene Builder.
+7. Remove Scene-only Surprise and Export actions through component parameters,
    not duplicated markup.
-7. Keep the same components reusable by Face Creator and Character Sheet with
+8. Keep the same components reusable by Face Creator and Character Sheet with
    their own mode parameters.
 
 ### Phase C - Professional catalog review
@@ -340,7 +380,10 @@ Do not display internal hidden recipe fields as missing required selections.
 2. Verify hidden groups do not disappear from historical snapshots.
 3. Verify references continue to disable identity/clothing conflicts.
 4. Verify Custom/catalog source exclusivity in request and prompt.
-5. Run fixed visual review fixtures for professional quality, natural pose,
+5. Verify full-body Scene prompts protect all body parts, reserve safe margins
+   and add footwear fallback only when footwear is otherwise unspecified.
+6. Verify the Admin/debug Copy action copies the canonical compiled prompt.
+7. Run fixed visual review fixtures for professional quality, natural pose,
    garment visibility and dynamic composition.
 
 ## 12. Expected File Ownership
@@ -348,7 +391,9 @@ Do not display internal hidden recipe fields as missing required selections.
 ```text
 server/config/scene-direction-recipes.json
 server/config/scene-direction-recipes.schema.json
+server/config/generationInputPolicy.js
 server/domain/generation/SceneDirectionRecipeService.js
+server/domain/generation/customAttributeInputPolicy.js
 server/domain/generation/promptCompiler.js
 web/src/features/studio/studioModePolicy.ts
 web/src/features/studio/attributes/attributeModel.ts

@@ -441,6 +441,7 @@ export function SceneBuilderRoute() {
               manifests={visualManifests.data}
               selections={selections}
               customColors={customColors}
+              customInputLimits={bundle.data?.inputPolicy?.customAttribute}
               references={references}
               characterOutfitBehavior={characterOutfitBehavior}
               lockedFields={lockedFields}

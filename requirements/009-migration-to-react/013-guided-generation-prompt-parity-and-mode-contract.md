@@ -99,11 +99,23 @@ versioned layout ID, migration rules and visual QA.
 
 - Clothing selections and Outfit references are absent from UI state and
   request payload.
-- The server locks an opaque, modest, fitted white short-sleeve top and fitted
-  white mid-thigh shorts.
+- The server locks an opaque matte neutral medium-gray four-way-stretch jersey short-sleeve
+  top with a modest high crew neckline and matching mid-thigh shorts. Its close
+  contoured fit follows selected anatomy without compression, padding,
+  reshaping, concealment or flattening. The medium-gray uniform must maintain
+  clear tonal separation from skin and the pure white background.
+- The gray uniform carries a subtle unlabeled technical contour grid. Thin
+  horizontal and vertical lines follow the fabric curvature to make body shape
+  readable from front, exact side and back views without exposing skin or
+  turning the casting sheet into sexualized imagery.
 - The uniform must never be underwear, lingerie, swimwear, transparent or
   sexualized.
 - Output remains eligible for Character Profile/Fashion handoff.
+- Body controls may describe explicit adult fashion-model proportions,
+  including a slender full-bust hourglass silhouette. These values describe
+  anatomy only and must remain independent from Clothing. Selecting such a
+  silhouette never changes the locked modest gray contour-grid casting uniform into
+  lingerie, underwear, swimwear or transparent clothing.
 
 ### 5.3 Styled Character
 
@@ -193,6 +205,20 @@ Template behavior:
 - it is removed from the public Template projection even when Prompt Visibility
   is `full`;
 - a Template consumer cannot view, replace, clear, or override it;
+
+## 6.2 Debug Prompt Preview Contract
+
+When `OVERRIDE_DEBUG_PROMPT=true`, the prompt preview in Studio must show the
+canonical final prompt compiled by the server from the current request draft.
+It must not show only the client selection summary or only Additional Direction.
+The preview uses the same generation mode, Character type, structured
+selections, references, custom colors, Template execution snapshot and locked
+mode rules as `/api/generate`.
+
+The preview endpoint is available only to an Admin or while the explicit local
+debug environment flag is enabled. It does not reserve Credits, enqueue a job,
+call a provider or persist prompt data. When the flag is disabled, normal users
+must not be able to retrieve private compiled prompts through this endpoint.
 - Template generation resolves the value from the server-owned immutable
   Template Version, never from a consumer request;
 - changing it requires the owner to publish a new Template Version.
@@ -284,7 +310,7 @@ Output: front-facing white-background facial reference
 ```text
 Input: identity/body selections + optional Face reference
 Process: prune Clothing -> lock casting policy -> Character Sheet compiler
-Output: three-view full-body white-uniform casting reference
+Output: three-view full-body neutral gray contour-grid casting reference
 ```
 
 ### Styled Character
@@ -335,8 +361,8 @@ Output: directed scene without Character-reference framing leakage
 - Headshot request serializes `mode: "headshot"`.
 - Headshot compiled prompt contains front-facing and pure-white directives and
   excludes Environment.
-- Reusable Character prompt contains three views, fitted white uniform and pure
-  white background while excluding selected Clothing.
+- Reusable Character prompt contains three views, the locked gray contour-grid
+  uniform and pure white background while excluding selected Clothing.
 - Styled Character prompt contains selected outfit and pure white background
   without casting-uniform text.
 - Reusable and Styled Character prompts retain selected Skin and Body direction
@@ -364,8 +390,8 @@ Output: directed scene without Character-reference framing leakage
 
 1. Generate Face Creation and verify front-facing head-and-shoulders output on
    white.
-2. Generate Reusable Model and verify three complete views with white casting
-   clothing.
+2. Generate Reusable Model and verify three complete views with the locked
+   neutral gray contour-grid casting uniform.
 3. Generate Styled Character with an outfit and verify the outfit appears
    consistently across all views on white.
 4. Generate Guided Scene and verify selected pose/environment appear without

@@ -1,4 +1,7 @@
-import { HistoryCursorError } from '../../repositories/generation/HistoryRepository.js';
+import {
+  HistoryCursorError,
+  isCustomerVisibleHistoryItem
+} from '../../repositories/generation/HistoryRepository.js';
 
 export function registerHistoryRoutes(app, {
   historyRepository,
@@ -38,7 +41,9 @@ export function registerHistoryRoutes(app, {
   app.get('/api/history/:id', async (req, res) => {
     const username = resolveRequestUsername(req, { allowBody: false });
     const item = await historyRepository.getById(req.params.id);
-    if (!item) return res.status(404).json({ error: 'History entry not found' });
+    if (!item || !isCustomerVisibleHistoryItem(item)) {
+      return res.status(404).json({ error: 'History entry not found' });
+    }
     if ((item.username || 'user_demo') !== username) {
       return res.status(404).json({ error: 'History entry not found' });
     }
@@ -48,7 +53,11 @@ export function registerHistoryRoutes(app, {
   app.get('/api/history/:id/presentations/:profileId', async (req, res) => {
     try {
       const item = await historyRepository.getById(req.params.id);
-      if (!item || !isHistoryOwnedByActor(item, req.actorContext)) {
+      if (
+        !item
+        || !isCustomerVisibleHistoryItem(item)
+        || !isHistoryOwnedByActor(item, req.actorContext)
+      ) {
         return res.status(404).json({
           error: {
             code: 'history_entry_not_found',

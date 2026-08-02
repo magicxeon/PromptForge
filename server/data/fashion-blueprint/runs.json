@@ -612,6 +612,346 @@
       ],
       "createdAt": "2026-07-31T06:37:51.357Z",
       "updatedAt": "2026-07-31T06:37:51.357Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_60b948277c2c021880",
+      "planId": "fpl_60b948277c2c021880",
+      "quoteId": "fqt_1785563180827_zawqlx7",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785563180827_zawqlx7:full",
+      "requestHash": "2ef3520bd6b410342ffd6c2975e9fc9ff83d14ddbce1056a9af0c7807f8f62ff",
+      "quotePurpose": "full",
+      "setupFingerprint": "b5c5800a9de331ef224970de20136b70a80949c8da22ff2ba358bca398153329",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785560685673_lnf77agu",
+        "templateId": "tmpl_1785560685639_oj2zg1qp",
+        "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+        "templateUseSessionId": "tmpls_1785562955901_fpnn72b9"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_60b948277c2c021880_1",
+          "reservationId": "rsv_1785563182668_0_a385zb",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T05:46:22.677Z",
+      "updatedAt": "2026-08-01T05:46:22.677Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_978f499523d89fa1b1",
+      "planId": "fpl_978f499523d89fa1b1",
+      "quoteId": "fqt_1785602232543_13z7ndq",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785602232543_13z7ndq:full",
+      "requestHash": "579fccf899663a3ae9867dfb8fda8454a0000350bac49ae0f59939d72a0e9650",
+      "quotePurpose": "full",
+      "setupFingerprint": "956937f66e1c67046e4b664cca22a7ffff667401ce144d6f2d879f86531d0b6e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785602208779_03i27k48"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_978f499523d89fa1b1_1",
+          "reservationId": "rsv_1785602237025_0_0faob0",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T16:37:17.035Z",
+      "updatedAt": "2026-08-01T16:37:17.035Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_412e6ade7127ce8fbd",
+      "planId": "fpl_412e6ade7127ce8fbd",
+      "quoteId": "fqt_1785602349566_897fp2f",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785602349566_897fp2f:full",
+      "requestHash": "8adf23e8de87847639bd42478098aeb854ee08f0369ddc783537ccf79f2f042a",
+      "quotePurpose": "full",
+      "setupFingerprint": "956937f66e1c67046e4b664cca22a7ffff667401ce144d6f2d879f86531d0b6e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785602208779_03i27k48"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_412e6ade7127ce8fbd_1",
+          "reservationId": "rsv_1785602350529_0_1sqs7s",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T16:39:10.538Z",
+      "updatedAt": "2026-08-01T16:39:10.538Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_1101bed05b8cb1316b",
+      "planId": "fpl_1101bed05b8cb1316b",
+      "quoteId": "fqt_1785679072297_yvfy4ni",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785679072297_yvfy4ni:full",
+      "requestHash": "c49d6671332773cf52cf2463091e8bd02e6f5debe26d2b3e40a42fa62f1d5957",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_1101bed05b8cb1316b_1",
+          "reservationId": "rsv_1785679079173_0_qlestk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T13:57:59.182Z",
+      "updatedAt": "2026-08-02T13:57:59.182Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_5f1d7e1817e4d6684a",
+      "planId": "fpl_5f1d7e1817e4d6684a",
+      "quoteId": "fqt_1785679104200_2v2z4kg",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785679104200_2v2z4kg:full",
+      "requestHash": "1032693d7518c4ed57a466ae460d76e034a61cdb0e9b101f9947c2f574f61fa8",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "failed",
+      "error": {
+        "code": "orphaned_after_restart",
+        "message": "Fashion run was interrupted before a result was persisted. The related credit reservation was refunded."
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_5f1d7e1817e4d6684a_1",
+          "reservationId": "rsv_1785679106103_0_t7lwrp",
+          "status": "failed",
+          "error": {
+            "code": "orphaned_after_restart",
+            "message": "Generation job was interrupted and could not be recovered after server restart."
+          },
+          "failedAt": "2026-08-02T14:16:36.997Z"
+        }
+      ],
+      "createdAt": "2026-08-02T13:58:26.113Z",
+      "updatedAt": "2026-08-02T14:16:36.997Z",
+      "failedAt": "2026-08-02T14:16:36.997Z",
+      "supportResolution": {
+        "reasonCode": "orphaned_after_restart",
+        "financialAction": "refund_already_completed",
+        "reservationId": "rsv_1785679106103_0_t7lwrp",
+        "resolvedAt": "2026-08-02T14:16:36.997Z"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_a93517bdfdec1719f4",
+      "planId": "fpl_a93517bdfdec1719f4",
+      "quoteId": "fqt_1785680544490_vahvtee",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785680544490_vahvtee:full",
+      "requestHash": "059c9a90cb2cb85dcc91e358614478baa655ce0bb5c8ca727b661faa20be7b4b",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_a93517bdfdec1719f4_1",
+          "reservationId": "rsv_1785680554832_0_qdxl1k",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:22:34.845Z",
+      "updatedAt": "2026-08-02T14:22:34.845Z"
     }
   ]
 }

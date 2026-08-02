@@ -63,3 +63,19 @@ test('Fashion Direction defaults resolve to active pack entries', () => {
     });
   });
 });
+
+test('body controls separate height, build, and silhouette authority', () => {
+  const byId = new Map(entries.map(entry => [entry.id, entry]));
+  assert.match(
+    byId.get('body.height.runway')?.prompt.default || '',
+    /leg.*realistic anatomical proportions/i
+  );
+  assert.match(
+    byId.get('body.build.slender-curvaceous')?.prompt.default || '',
+    /do not interpret slender as a straight, flat, or low-curve body shape/i
+  );
+  assert.match(
+    byId.get('body.silhouette.full-bust-runway-hourglass')?.prompt.default || '',
+    /front and exact side profile/i
+  );
+});

@@ -50,6 +50,9 @@ function resolveCrumbs(pathname: string, search: string, t: (key: string) => str
   if (pathname.startsWith('/community/characters')) {
     return [home, routeCrumb('characters')];
   }
+  if (pathname.startsWith('/creator/characters')) {
+    return [home, { label: t('shell.navigation.items.myCharacters') }];
+  }
   if (pathname.startsWith('/community/') || pathname.startsWith('/creators/')) {
     return [home];
   }
@@ -81,7 +84,7 @@ function resolveCrumbs(pathname: string, search: string, t: (key: string) => str
   if (pathname.startsWith('/comparisons') || pathname.startsWith('/compare')) {
     return [home, routeCrumb('comparisons')];
   }
-  if (pathname.startsWith('/history') || pathname.startsWith('/library')) {
+  if (pathname.startsWith('/history') || pathname.startsWith('/recent-generations') || pathname.startsWith('/library')) {
     return [home, routeCrumb('history')];
   }
   if (pathname.startsWith('/collections')) {

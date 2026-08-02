@@ -1,6 +1,7 @@
 import { apiRequest } from '../../../lib/api/apiClient';
 import {
   fashionAssetSchema,
+  fashionReadyTemplateIndexSchema,
   fashionQuoteSchema,
   fashionRunListSchema,
   fashionRunSchema
@@ -43,6 +44,15 @@ export function uploadFashionReference(dataUrl: string, role: string) {
     body: { dataUrl, role },
     schema: fashionAssetSchema
   });
+}
+
+export async function listFashionReadyTemplateIds() {
+  const response = await apiRequest('/api/templates?kind=scene_image&limit=50', {
+    schema: fashionReadyTemplateIndexSchema
+  });
+  return response.items
+    .filter(item => item.poseProxyReadiness.fashionCompatible)
+    .map(item => item.id);
 }
 
 export function createFashionQuote(

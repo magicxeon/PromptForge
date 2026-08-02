@@ -1,14 +1,13 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "fashion-routing-2026-07-31",
+  "policyVersion": "fashion-routing-2026-08-01-v2",
   "defaultTier": "selling_quality",
   "tiers": {
     "draft": {
       "label": "Draft",
       "description": "Fast proof image for checking the selected model, outfit, and composition.",
       "preferredModels": [
-        "gemini-3.1-flash-lite-image",
-        "gpt-image-1-mini"
+        "gemini-3.1-flash-image"
       ],
       "promptDirective": "clean ecommerce proof quality with clear garment placement"
     },
@@ -16,8 +15,7 @@
       "label": "Selling Quality",
       "description": "Balanced fidelity and polish for ecommerce catalog images.",
       "preferredModels": [
-        "gemini-3.1-flash-image",
-        "gpt-image-1"
+        "gemini-3.1-flash-image"
       ],
       "promptDirective": "high-quality ecommerce selling image with accurate fabric, seams, color and fit"
     },
@@ -25,8 +23,7 @@
       "label": "Premium Campaign",
       "description": "Highest visual polish for campaign and hero creative.",
       "preferredModels": [
-        "gemini-3-pro-image",
-        "gpt-image-1.5"
+        "gemini-3.1-flash-image"
       ],
       "promptDirective": "premium commercial fashion campaign quality with exceptional garment fidelity and polished lighting"
     }

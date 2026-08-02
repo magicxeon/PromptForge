@@ -11,8 +11,8 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/community" replace /> },
       { path: 'home', element: <Navigate to="/community" replace /> },
-      { path: 'library', element: <Navigate to="/history" replace /> },
-      { path: 'library/images', element: <Navigate to="/history" replace /> },
+      { path: 'library', element: <Navigate to="/recent-generations" replace /> },
+      { path: 'library/images', element: <Navigate to="/recent-generations" replace /> },
       { path: 'compare', element: <Navigate to="/comparisons" replace /> },
       { path: 'create/simple', element: <Navigate to="/studio" replace /> },
       { path: 'create/characters', element: <Navigate to="/studio?mode=character-sheet" replace /> },
@@ -39,6 +39,20 @@ export const router = createBrowserRouter([
         }
       },
       {
+        path: 'creator/characters',
+        lazy: async () => {
+          const module = await import('../features/profiles/routes/CharacterOwnerDirectoryRoute');
+          return { Component: module.CharacterOwnerDirectoryRoute };
+        }
+      },
+      {
+        path: 'creator/characters/:characterId',
+        lazy: async () => {
+          const module = await import('../features/profiles/routes/CharacterProfileRoute');
+          return { Component: module.CharacterOwnerProfileRoute };
+        }
+      },
+      {
         path: 'community/:postId',
         lazy: async () => {
           const module = await import('../features/community/routes/CommunityPostRoute');
@@ -54,6 +68,10 @@ export const router = createBrowserRouter([
       },
       {
         path: 'history',
+        element: <Navigate to="/recent-generations" replace />
+      },
+      {
+        path: 'recent-generations',
         lazy: async () => {
           const module = await import('../features/history/routes/HistoryRoute');
           return { Component: module.HistoryRoute };
@@ -61,6 +79,13 @@ export const router = createBrowserRouter([
       },
       {
         path: 'history/:jobId',
+        lazy: async () => {
+          const module = await import('../features/history/routes/HistoryDetailRoute');
+          return { Component: module.HistoryDetailRoute };
+        }
+      },
+      {
+        path: 'recent-generations/:jobId',
         lazy: async () => {
           const module = await import('../features/history/routes/HistoryDetailRoute');
           return { Component: module.HistoryDetailRoute };

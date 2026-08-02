@@ -185,6 +185,52 @@ mandatory workflow steps or a second generation pipeline.
 
 ## 5. Component And State Design
 
+Fashion generation uses the same visual processing language as Studio and
+Playground: the monochrome Momelo mark for an idle result, a rotating
+`LoaderCircle` for active work, a compact operation queue with completed/total
+progress, and an explicit failed state with a support/correlation reference when
+available. The Generate action and result surface both expose progress so a user
+never has to infer whether a batch is running. Polling remains server-owned and
+refresh-safe through the persisted Fashion run id.
+
+### 5.4 Reusable Template publication lifecycle
+
+`Publish as a reusable Template` is a controlled disclosure inside Share to
+Community:
+
+- unchecked collapses every Template-only control;
+- unchecking it clears all selected replaceable inputs and every `Required`
+  flag;
+- unchecking one replaceable input also clears and disables its matching
+  `Required` flag;
+- re-enabling Template publication does not silently restore cleared required
+  inputs; the creator makes the selection explicitly;
+- image-only publication never creates a Template version or preparation job.
+
+After reusable Template publication succeeds, the same user journey continues
+directly to Edit Shared Template. The client automatically requests the locked
+pose-proxy preparation estimate and displays the confirmed credit amount. Credit
+is spent only after the creator confirms that amount. Preparation then uses the
+canonical reservation and Queue pipeline, with duplicate submission disabled,
+active progress, retryable failure and a support correlation reference.
+
+Published Templates use soft lifecycle management. A creator may `Retire
+Template`; this changes the Community post to `owner_unpublished`, makes it
+private and removes it from Community and Fashion discovery. Immutable versions,
+usage history and credit audit remain intact. The owner still sees the retired
+item in their own Profile with a muted card and `Retired` status. Hard delete is
+reserved for an unpublished draft that has no version, usage or ledger history.
+
+### 5.5 Shared toast notifications
+
+Save, publish, preparation-start, preparation-failure and retire outcomes use
+one application-level toast provider rather than route-local banners alone.
+Toasts appear at the lower right on desktop and below the global header on
+mobile, use the active Theme, remain keyboard accessible and expose a close
+button. Success and informational notices auto-dismiss; actionable errors remain
+long enough to read. Inline errors remain present for form correction, so a
+toast never becomes the only error record.
+
 ### 5.1 Fashion-owned orchestration
 
 The following behavior belongs under:

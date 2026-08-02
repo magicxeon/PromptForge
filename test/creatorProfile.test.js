@@ -182,3 +182,25 @@ test('public portfolio reads canonical posts and excludes private or hidden reco
   assert.deepEqual(portfolio.items.map(post => post.title), ['Public portrait']);
   assert.equal(portfolio.items[0].ownerUserId, undefined);
 });
+
+test('retired templates stay in the owner portfolio and remain hidden from viewers', async t => {
+  const fixture = await createFixture();
+  t.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
+  const profile = await fixture.service.getOwnProfile(alice);
+  const template = await fixture.postRepository.create({
+    postType: 'template',
+    title: 'Retired editorial look',
+    creatorProfileId: profile.id,
+    visibility: 'public',
+    status: 'published'
+  }, alice);
+
+  await fixture.postRepository.unpublishByOwner(template.id, alice);
+
+  const ownerPortfolio = await fixture.service.listPublicPortfolio(profile.handle, {}, alice);
+  const viewerPortfolio = await fixture.service.listPublicPortfolio(profile.handle, {}, bob);
+  assert.equal(ownerPortfolio.items.some(post => (
+    post.id === template.id && post.status === 'owner_unpublished'
+  )), true);
+  assert.equal(viewerPortfolio.items.some(post => post.id === template.id), false);
+});

@@ -48,7 +48,8 @@ export class AdminBackofficeService {
     const page = await this.historyRepo.listPage({
       cursor: query.cursor || null,
       limit: query.limit || 24,
-      collectionId: 'all'
+      collectionId: 'all',
+      includeInternalArtifacts: true
     });
     return {
       ...page,

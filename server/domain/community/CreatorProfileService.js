@@ -75,14 +75,17 @@ export class CreatorProfileService {
     if (!profile) {
       throw new RepositoryContractError('creator_profile_not_found', 'Creator profile not found.', 404);
     }
-    const page = await this.postRepository.listPublic({
-      limit: query.limit,
-      cursor: query.cursor,
-      sort: query.sort,
-      filters: {
-        ownerUserId: profile.userId
-      }
-    }, viewer);
+    const ownerView = viewer?.userId === profile.userId;
+    const page = ownerView
+      ? await this.postRepository.findByOwner(profile.userId, query)
+      : await this.postRepository.listPublic({
+        limit: query.limit,
+        cursor: query.cursor,
+        sort: query.sort,
+        filters: {
+          ownerUserId: profile.userId
+        }
+      }, viewer);
     return {
       ...page,
       items: page.items.map(buildCommunityPostPublicView)

@@ -1,7 +1,7 @@
 # Fashion Model Qualification And Routing Optimization
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`
-**Status:** MVP Pose Proxy route selected; implementation planned; final Fashion route qualification continues
+**Status:** MVP qualification gate and Pose Proxy cache implemented; broader benchmark qualification continues
 **Benchmark date:** 2026-08-01
 **Future local-processing option:** `013-template-pose-proxy-and-dummy-cache.md`
 
@@ -104,7 +104,7 @@ versioned benchmark fixture before becoming a release policy.
 | xAI | Grok Imagine | Produced a usable identity-neutral Dummy in manual testing; the application Fashion run was separately blocked by locked-estimate mismatch | Pose Proxy fallback candidate only after API repeatability and quote parity are verified |
 | BytePlus ModelArk | Seedream 4.0 | Partially usable but weak Template/identity match | Advanced/experimental |
 | BytePlus ModelArk | Seedream 4.5 | Retained Template face while partially using Character body | Not eligible for Simple Fashion |
-| BytePlus ModelArk | Seedream 5.0 Lite | Failed identity-neutral Dummy preparation and also followed the Template person too strongly in direct Fashion tests | Not eligible for MVP Pose Proxy or Simple Fashion |
+| BytePlus ModelArk | Seedream 5.0 Lite | Failed the earlier photorealistic-mannequin strategy and followed the Template person too strongly in direct Fashion tests; a later technical-wireframe experiment produced a usable identity-neutral pose artifact | Eligible only for reviewed wireframe Pose Proxy preparation under `SEEDREAM5L-WIREFRAME-PROXY-V1`; not eligible for final Simple Fashion output |
 | BytePlus ModelArk | Seedream 5.0 Pro | Character closer, but reproduced the three-view Character layout | Prompt-strategy experiment only; not yet Simple-certified |
 
 No model in this table is permanently approved or rejected across all
@@ -383,6 +383,56 @@ Generate and approve the visible Scene preview
 Normal users see `Preparing reusable pose`, not provider prompts or the terms
 MMPose, SAM, ControlNet or processor internals.
 
+### 3.5 Creator publication and Fashion-readiness status
+
+The owner Template-management surface must present two independent lifecycle
+rows before its Fashion-readiness actions:
+
+```text
+Sharing status
+  public | unlisted | members_only | private
+
+Fashion readiness
+  not_prepared | pending | processing | review_required | active | failed |
+  superseded
+```
+
+Each row shows a concise human-readable state and one short explanation. A
+published Community listing must never be described as Fashion-ready merely
+because it has been shared. A private listing is described as not shared even
+when its immutable Template version exists.
+
+Readiness interaction follows the existing estimate/reservation pipeline:
+
+- `Calculate preparation cost` and the confirmed `{credits}` preparation CTA
+  use a prominent Theme-aware yellow treatment;
+- estimating shows an inline spinner and disables duplicate submission;
+- `pending`, `processing`, and an in-flight prepare request show the same
+  rotating `LoaderCircle` progress convention used by image generation;
+- the owner endpoint continues polling while preparation is active;
+- `review_required` presents the private review image and approval action;
+- `active` is the only state labeled Fashion-ready;
+- `failed` or request errors use the shared error surface, preserve a sanitized
+  message and expose the correlation ID when available;
+- retries continue through the locked estimate and idempotent preparation
+  contracts; the UI must not create a second credit path.
+
+### 3.6 Internal pose-proxy artifact visibility
+
+Pose-proxy and Dummy generations are internal Template preparation artifacts,
+not customer creations. New history records must persist
+`artifactVisibility = template_owner_only` and
+`operationPurpose = template_pose_proxy_prepare`. Customer history projections,
+Recent Generations, My Images, collection pickers and reference pickers must
+exclude these records. Legacy `job_pose_proxy_*` records receive the same
+projection rule without requiring an eager data migration.
+
+The Queue must not add an internal pose proxy to the actor's default collection.
+The original output remains visible to the owning creator through Edit Shared
+Template during review and after activation, and remains available to audit,
+credit recovery and support through canonical repositories. Public readiness
+projections never expose the artifact URL.
+
 Automatic or manual QA checks:
 
 - exactly one primary mannequin;
@@ -394,8 +444,10 @@ Automatic or manual QA checks:
 - output is one continuous image, not a contact sheet or multi-view result.
 
 OpenAI/ChatGPT and Grok manual successes remain fallback evidence only.
-Seedream 5.0 Lite is explicitly excluded from automatic Dummy fallback until a
-different provider-specific strategy passes the same fixture.
+Seedream 5.0 Lite is accepted only for the provider-specific technical-wireframe
+strategy. Its output requires owner visual review before activation. It is not
+an automatic fallback, because changing provider must require a new locked
+estimate and an explicit operation decision.
 
 ## 4. Proposed Simple Routing Baseline
 
@@ -749,8 +801,46 @@ Do not add provider/model qualification or pricing tables to React.
   credit.
 - Public Template APIs expose proxy readiness without exposing the private
   Dummy, raw prompt or provider request.
-- Seedream 5.0 Lite is not an automatic Dummy fallback under the current
-  qualification evidence.
+- Seedream 5.0 Lite is operation-only for reviewed wireframe Pose Proxy
+  preparation and is not an automatic fallback or final Simple Fashion route.
+
+## 12. MVP Implementation Record (2026-08-01)
+
+Implemented in this increment:
+
+- server-owned Fashion qualification configuration and schema;
+- Simple routing certification gate with Draft/Proof using the same qualified
+  final model as Selling Quality;
+- Nano Banana Lite limited to `template_pose_proxy_prepare`;
+- versioned Pose Proxy policy containing the accepted `GNB2-S6` sanitization
+  prompt and no automatic fallback;
+- actor-owned, idempotent JSON repository with deterministic cache keys;
+- locked estimate, reservation, queue, capture/refund-compatible preparation;
+- private review artifact, explicit creator review and active readiness state;
+- sanitized public readiness projection without proxy image or raw prompt;
+- Fashion quote fingerprint binding for qualification, prompt strategy and
+  active Template Pose Proxy;
+- Simple Fashion execution using the active identity-neutral proxy instead of
+  the original person-containing Template preview;
+- owner management UI for estimate, preparation, polling, visual review and
+  approval.
+
+The MVP final customer operation currently composes the active Pose Proxy,
+Character and Outfit through the canonical Fashion generation operation. The
+fully chained prepared-look Stage 1 plus final Stage 2B orchestration remains a
+separate promotion gate: do not describe that two-operation customer pipeline
+as production-complete until its queue lineage, quote allocation and partial
+failure recovery are implemented and benchmarked. This explicit boundary keeps
+the accepted evidence from being overstated.
+
+Canonical runtime data:
+
+```text
+server/data/template-pose-proxy/poseProxies.json
+```
+
+Public APIs expose only readiness. The owner-only readiness route may expose
+the generated review image while status is `review_required`.
 
 ## Appendix A - Gemini Nano Banana 2 Prompt Evidence
 
@@ -993,3 +1083,332 @@ The accepted manual result for this prompt/process scored `5/5` in Character,
 skin/body, Outfit and exact Template pose/hand placement, with no Template
 identity leakage. Preserve the prompt and reference order verbatim for the
 repeatability benchmark; do not tune it between attempts.
+
+## Appendix B - MVP Pose Proxy Runtime Storage And Inspection
+
+### B.1 Where the Dummy image is stored
+
+The customer-facing term is `Reusable Pose`; the domain record is
+`TemplatePoseProxy`; the generated image itself is the identity-neutral Dummy
+or mannequin.
+
+The current JSON MVP uses the canonical generation queue. A successfully
+generated Dummy is therefore stored with the normal generated-output naming
+rule:
+
+```text
+Physical original image:
+  client/outputs/job_pose_proxy_<18-character-token>.<extension>
+
+Browser/runtime URL:
+  /outputs/job_pose_proxy_<18-character-token>.<extension>
+
+Generated preview thumbnail:
+  client/outputs/thumbnails/job_pose_proxy_<18-character-token>.webp
+
+Pose Proxy lifecycle and lineage record:
+  server/data/template-pose-proxy/poseProxies.json
+
+Generation recovery/history record:
+  server/data/generation/history.json
+
+Credit estimate, reservation, capture or refund:
+  server/data/credits/database.json
+
+Source Template and immutable version:
+  server/data/templates/templates.json
+  server/data/templates/versions.json
+```
+
+`<extension>` is selected from the provider response MIME type and is normally
+`jpg`, `png` or `webp`. Code must not assume one fixed extension. The exact
+path is taken from `TemplatePoseProxy.proxyImageUrl` after generation finishes.
+
+Example relationship:
+
+```text
+TemplatePoseProxy.id
+  = tpp_a1b2c3d4e5f6071829
+
+TemplatePoseProxy.operationId
+  = job_pose_proxy_a1b2c3d4e5f6071829
+
+TemplatePoseProxy.proxyImageUrl
+  = /outputs/job_pose_proxy_a1b2c3d4e5f6071829.jpg
+
+Physical file
+  = client/outputs/job_pose_proxy_a1b2c3d4e5f6071829.jpg
+
+Thumbnail
+  = client/outputs/thumbnails/job_pose_proxy_a1b2c3d4e5f6071829.webp
+```
+
+The 18-character token is derived from the deterministic cache key plus the
+preparation idempotency key. The cache key itself binds:
+
+```text
+Template version ID
++ pose variant ID
++ source preview fingerprint
++ processor type
++ provider and model IDs
++ processor strategy version
++ output resolution and aspect ratio
+```
+
+Changing any bound value creates a new artifact lineage. An active artifact is
+never overwritten in place.
+
+### B.2 Generation process flow
+
+```text
+1. Creator publishes a normal reusable Template
+   -> visible human preview remains the public marketing image
+
+2. Creator opens Edit Template -> Prepare reusable pose
+   -> POST /api/templates/:templateId/pose-proxy/estimate
+
+3. Server resolves the owner-owned immutable Template version
+   -> reads preview.imageUrl
+   -> calculates sourceFingerprint and deterministic cacheKey
+
+4. Cache lookup
+   -> active/processing/review_required hit: return existing record
+   -> estimated setup credits = 0
+   -> no reservation and no provider job
+
+5. Cache miss
+   -> CreditPricingPolicyService calculates a locked estimate
+   -> Gemini Lite + 1 Template reference + 1 output
+   -> current mock policy result is 46 credits
+
+6. Creator confirms preparation
+   -> POST /api/templates/:templateId/pose-proxy/prepare
+   -> server atomically creates one TemplatePoseProxy record
+   -> duplicate concurrent requests converge on that record
+
+7. Credit reservation
+   -> requestId  = req_pose_proxy_<token>
+   -> jobId      = job_pose_proxy_<token>
+   -> correlationId = corr_pose_proxy_<token>
+   -> operationPurpose = template_pose_proxy_prepare
+
+8. GenerativePoseProxyProcessor builds the queue request
+   -> provider = gemini
+   -> model = gemini-3.1-flash-lite-image
+   -> strategy = GNB2-S6-PROXY
+   -> ordered source = original Template preview only
+   -> prompt comes from template-pose-proxy-policy.json
+
+9. Canonical QueueManager dispatches the provider request
+   -> successful output is written to client/outputs/
+   -> thumbnail is written to client/outputs/thumbnails/
+   -> credit reservation is captured
+   -> generation recovery record is written to history.json
+   -> provider/enqueue failure refunds the reservation
+
+10. Owner UI polls the owner readiness endpoint
+    -> GET /api/templates/:templateId/pose-proxy
+    -> synchronize() reads the queue/history result
+    -> proxyImageUrl is copied into poseProxies.json
+    -> status changes processing -> review_required
+
+11. Creator visually checks the Dummy
+    -> it must preserve pose, hands, framing, scene and lighting
+    -> it must not preserve face, skin, hair, identity or clothing detail
+
+12. Creator approves the result
+    -> POST /api/templates/:templateId/pose-proxy/:proxyId/review
+    -> qaDecision = manual_pass
+    -> status = active
+    -> activatedAt is recorded
+
+13. Fashion Simple quote resolves the exact active proxy
+    -> binds proxy ID, Template version, policy and strategy into plan hash
+    -> uses proxyImageUrl as Template composition authority
+    -> original person-containing public preview is not sent as the final
+       Simple Fashion composition reference
+```
+
+The record status progresses through:
+
+```text
+not_prepared (projection only)
+-> pending
+-> processing
+-> review_required
+-> active
+
+Failure/replacement paths:
+processing -> failed
+failed -> superseded -> new immutable retry record
+active old Template version -> remains immutable but is not selected for a new version
+```
+
+### B.3 How to verify a generated file on Windows
+
+From the repository root in PowerShell:
+
+```powershell
+$records = Get-Content .\server\data\template-pose-proxy\poseProxies.json -Raw |
+  ConvertFrom-Json
+
+$proxy = $records |
+  Sort-Object { [datetime]$_.updatedAt } -Descending |
+  Select-Object -First 1
+
+$proxy | Select-Object `
+  id, templateId, templateVersionId, status, qaDecision, `
+  operationId, correlationId, proxyImageUrl
+
+$relativeOutput = $proxy.proxyImageUrl.TrimStart('/') -replace '/', '\'
+$physicalPath = Join-Path .\client $relativeOutput
+
+Test-Path $physicalPath
+Get-Item $physicalPath | Select-Object FullName, Length, LastWriteTime
+```
+
+Expected result after provider completion:
+
+```text
+Test-Path = True
+status = review_required or active
+proxyImageUrl starts with /outputs/job_pose_proxy_
+physical file length is greater than zero
+```
+
+Verify the matching generation recovery record:
+
+```powershell
+$history = Get-Content .\server\data\generation\history.json -Raw |
+  ConvertFrom-Json
+
+$history |
+  Where-Object id -eq $proxy.operationId |
+  Select-Object id, username, provider, submodel, imageUrl, `
+    creditCost, generationDuration, width, height
+```
+
+Verify the thumbnail when required:
+
+```powershell
+$thumbnail = ".\client\outputs\thumbnails\$($proxy.operationId).webp"
+Test-Path $thumbnail
+Get-Item $thumbnail | Select-Object FullName, Length, LastWriteTime
+```
+
+### B.4 Privacy boundary and Commercial migration note
+
+In the current local JSON MVP, `private execution artifact` means:
+
+- public Template contracts expose readiness but not `proxyImageUrl`, raw
+  processor prompt or provider request;
+- only the owner readiness endpoint returns the review image while review is
+  required;
+- Fashion domain resolves the private record server-side.
+
+However, the physical image currently uses the shared `/outputs` static file
+boundary because QueueManager owns all generated-file persistence. A person
+who already knows the exact local URL may request that file directly. This is
+not the final Commercial security boundary.
+
+Before production storage migration, move Pose Proxy originals to a private
+object-storage namespace, for example:
+
+```text
+gs://<private-bucket>/template-pose-proxies/
+  <templateId>/<templateVersionId>/<poseVariantId>/<proxyId>.<extension>
+```
+
+Access must then use server-authorized reads or short-lived signed URLs. Keep
+the domain fields and cache key stable so the storage adapter can change
+without changing Fashion quote, Template version or lineage contracts.
+
+## Appendix C - Seedream Wireframe Pose Proxy Strategy
+
+### C.1 Decision and scope
+
+Manual testing on 2026-08-01 established that Seedream 5.0 Lite can produce a
+usable Dummy when the requested representation is a technical pose wireframe,
+even though its earlier photorealistic mannequin strategy failed. Therefore:
+
+- `seedream-5-0-lite-260128` is `operation_only` for
+  `template_pose_proxy_prepare`;
+- it remains disallowed for final Simple Fashion composition;
+- Nano Banana Lite remains the default MVP Pose Proxy processor;
+- Seedream is a configured alternative, not an automatic fallback;
+- switching processor requires an explicit policy/configuration decision and a
+  fresh locked estimate;
+- every generated wireframe requires owner review before it becomes `active`.
+
+The runtime policy owns provider-specific prompts in
+`server/config/template-pose-proxy-policy.json`. The policy service selects the
+matching prompt profile by the exact `providerId + modelId`. A profile changes
+`processorStrategyVersion`, which participates in the deterministic cache key;
+old matte-mannequin artifacts can therefore never satisfy a new wireframe
+request accidentally.
+
+### C.2 Wireframe authority contract
+
+The Seedream wireframe is an internal identity-neutral pose authority. It must
+encode all of the following independently:
+
+- pelvis and rib-cage orientation;
+- shoulder axis and torso rotation;
+- neck rotation relative to the shoulder line;
+- head yaw: left/right rotation;
+- head pitch: looking up/down;
+- head roll: lateral tilt;
+- chin elevation and face-plane direction;
+- gaze axis without forcing the eyes toward the camera;
+- arm, elbow, forearm, wrist, hand and finger/contact placement;
+- hip, knee, ankle and foot positions;
+- walking phase, balance and weight distribution;
+- camera, crop, framing, perspective, environment and lighting.
+
+The wireframe may contain geometry guides such as a face-plane contour,
+nose-direction line, shoulder axis, sternum axis, pelvis axis and joint
+connections. It must not contain text, arrows, labels, recognizable facial
+features, skin, hair, body identity, clothes, accessories or logos.
+
+### C.3 Final Fashion consumption rule
+
+The final Fashion compositor must treat a matte mannequin and a technical
+wireframe as the same abstract `pose proxy` role. It may copy pose geometry,
+head/face direction, camera, scene and lighting only. It must replace the proxy
+completely and must not reproduce wireframe lines or mannequin surfaces.
+Character identity and anatomy continue to come only from the authorized
+Character reference; garment authority continues to come only from Outfit
+references.
+
+### C.4 Manual QA checklist
+
+A Seedream wireframe can be approved only when all checks pass:
+
+1. Exactly one coherent full-body figure appears in one continuous image.
+2. Torso, pelvis, limbs, hands, contact points and weight distribution match.
+3. Neck rotation matches the source independently from torso rotation.
+4. Head yaw, pitch and roll match the source.
+5. Face plane, nose direction and gaze direction do not default to the camera.
+6. Camera, crop, framing, environment and lighting remain compatible.
+7. No source identity, face, skin, hair, clothing or accessory remains.
+8. No labels, text, multi-view layout, contact sheet or watermark appears.
+
+If body pose passes but neck/head/face direction fails, reject with QA reason
+codes such as `neck_rotation_mismatch`, `head_orientation_mismatch`,
+`face_plane_mismatch` or `gaze_axis_mismatch`. Do not activate a partially
+correct proxy, because that error will propagate into every Template use.
+
+### C.5 Fashion discovery invariant
+
+Fashion Blueprint Template discovery must contain only canonical Templates
+whose current immutable version has an active Pose Proxy and reports
+`fashionCompatible: true`. A Community Template post is presentation metadata,
+not proof of Fashion readiness. The client must join its Community cards against
+the canonical `/api/templates` readiness index by `templateId` before rendering
+selection controls.
+
+Templates in `not_prepared`, `pending`, `processing`, `review_required`,
+`failed` or `superseded` state must not appear as selectable Fashion looks.
+This rule also applies to restored drafts and `templateId` deep links. The
+server quote boundary continues to call `requireActive` as defense in depth.

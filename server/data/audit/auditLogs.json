@@ -1,1 +1,166 @@
-[]
+[
+  {
+    "action": "community_post_owner_presentation_updated",
+    "targetType": "community_post",
+    "targetId": "post_1785560685673_lnf77agu",
+    "reason": "Owner updated public presentation metadata.",
+    "beforeSnapshot": {
+      "title": "Sample pose 002",
+      "description": "ลองใช้ดูก่อนว่าใช้ได้ไหม โพสยังไม่สวยเลย",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785560685639_oj2zg1qp",
+      "templateVersionId": "tmplv_1785560685666_24jvlfhw"
+    },
+    "afterSnapshot": {
+      "title": "Sample pose 002",
+      "description": "ลองใช้ดูก่อนว่าใช้ได้ไหม โพสยังไม่สวยเลย",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785560685639_oj2zg1qp",
+      "templateVersionId": "tmplv_1785560685666_24jvlfhw"
+    },
+    "id": "audit_1785562225135_u3v7di40",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-01T05:30:25.134Z",
+    "updatedAt": "2026-08-01T05:30:25.134Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
+  },
+  {
+    "action": "community_post_owner_presentation_updated",
+    "targetType": "community_post",
+    "targetId": "post_1785602001186_pbu5qf1a",
+    "reason": "Owner updated public presentation metadata.",
+    "beforeSnapshot": {
+      "title": "Formal Traditional Dress",
+      "description": "Sample Formal Traditional Dress",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756"
+    },
+    "afterSnapshot": {
+      "title": "Formal Traditional Dress",
+      "description": "Sample Formal Traditional Dress",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756"
+    },
+    "id": "audit_1785602111852_oy4h4kk2",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-01T16:35:11.852Z",
+    "updatedAt": "2026-08-01T16:35:11.852Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
+  },
+  {
+    "action": "community_post_owner_presentation_updated",
+    "targetType": "community_post",
+    "targetId": "post_1785605251174_lbkfk59z",
+    "reason": "Owner updated public presentation metadata.",
+    "beforeSnapshot": {
+      "title": "Testing 003",
+      "description": "003",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785605251157_gvucdef5",
+      "templateVersionId": "tmplv_1785605251161_hbpt0rmk"
+    },
+    "afterSnapshot": {
+      "title": "Testing 003",
+      "description": "003",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785605251157_gvucdef5",
+      "templateVersionId": "tmplv_1785605251161_hbpt0rmk"
+    },
+    "id": "audit_1785605535311_zspquhvb",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-01T17:32:15.311Z",
+    "updatedAt": "2026-08-01T17:32:15.311Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
+  },
+  {
+    "action": "community_post_owner_unpublished",
+    "targetType": "community_post",
+    "targetId": "post_1785604647533_525pm5qf",
+    "reason": "Owner unpublished the post.",
+    "beforeSnapshot": {
+      "status": "published",
+      "visibility": "public"
+    },
+    "afterSnapshot": {
+      "status": "owner_unpublished",
+      "visibility": "private"
+    },
+    "id": "audit_1785667022191_ryjd1d97",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-02T10:37:02.191Z",
+    "updatedAt": "2026-08-02T10:37:02.191Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
+  },
+  {
+    "action": "community_post_owner_unpublished",
+    "targetType": "community_post",
+    "targetId": "post_1785605065457_843wkzrz",
+    "reason": "Owner unpublished the post.",
+    "beforeSnapshot": {
+      "status": "published",
+      "visibility": "public"
+    },
+    "afterSnapshot": {
+      "status": "owner_unpublished",
+      "visibility": "private"
+    },
+    "id": "audit_1785667030860_aigg2zmb",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-02T10:37:10.859Z",
+    "updatedAt": "2026-08-02T10:37:10.859Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
+  }
+]

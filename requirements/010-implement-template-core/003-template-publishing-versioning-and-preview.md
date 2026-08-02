@@ -27,6 +27,12 @@ owned generated image and an optional reusable Template. Its layout must:
 
 ## Publish Rules
 
+- Publishing a reusable Template hands the creator directly into the existing
+  Edit Shared Template surface. The transition must not nest dialogs or require
+  the creator to rediscover the Template in Community.
+- Image-only shares continue to close after publication. Only reusable Template
+  publication opens Template management and Fashion-readiness controls.
+
 - Source generation belongs to the creator and is completed.
 - Preview uses the original full image and Sharp presentation profiles for
   cards; never store a low-quality thumbnail as canonical media.

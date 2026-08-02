@@ -58,6 +58,10 @@ export const generationSubmitSchema = z.object({
   }).optional()
 }).passthrough();
 
+export const compiledPromptPreviewSchema = z.object({
+  compiledPrompt: z.string()
+});
+
 export const jobStatusSchema = z.object({
   id: z.string().optional(),
   jobId: z.string().optional(),
@@ -104,7 +108,14 @@ export const attributesBundleSchema = z.object({
   templates: z.unknown(),
   order: z.array(z.string()).default([]),
   library: z.array(z.record(z.string(), z.unknown())).default([]),
-  presets: z.unknown()
+  presets: z.unknown(),
+  inputPolicy: z.object({
+    schemaVersion: z.number(),
+    customAttribute: z.object({
+      maxCharactersPerField: z.number().int().positive(),
+      maxCharactersTotal: z.number().int().positive()
+    })
+  }).optional()
 }).passthrough();
 
 export const referenceUploadSchema = z.object({

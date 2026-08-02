@@ -27,6 +27,7 @@ export function buildCommunityPostPublicView(post = {}) {
     ownerUsername: post.ownerUsername || null,
     title: post.title || '',
     description: post.description || '',
+    status: post.status || 'published',
     visibility: post.visibility || 'public',
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,

@@ -54,6 +54,98 @@
   padding: 18px 20px;
 }
 
+.template-management-dialog__pose-proxy-preview {
+  width: min(100%, 320px);
+  max-height: 280px;
+  display: block;
+  object-fit: contain;
+  margin: 0.75rem 0;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--mpf-radius-md);
+  background: #05060b;
+}
+
+.template-management-dialog__lifecycle {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--mpf-radius-md);
+  background: color-mix(in srgb, var(--theme-surface-strong) 86%, transparent);
+}
+
+.template-management-dialog__lifecycle-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--theme-border);
+  border-radius: var(--mpf-radius-sm);
+  background: var(--theme-surface);
+}
+
+.template-management-dialog__lifecycle-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--theme-primary);
+  background: color-mix(in srgb, var(--theme-primary) 12%, transparent);
+}
+
+.template-management-dialog__lifecycle-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.template-management-dialog__lifecycle-row > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.template-management-dialog__lifecycle-row span,
+.template-management-dialog__lifecycle-row small {
+  color: var(--theme-text-muted);
+  font-size: 0.68rem;
+}
+
+.template-management-dialog__lifecycle-row strong {
+  color: var(--theme-text);
+  font-size: 0.75rem;
+}
+
+.template-management-dialog__lifecycle-row.is-working .template-management-dialog__lifecycle-icon,
+.template-management-dialog__lifecycle-row.is-review .template-management-dialog__lifecycle-icon {
+  color: var(--theme-warning);
+  background: color-mix(in srgb, var(--theme-warning) 13%, transparent);
+}
+
+.template-management-dialog__lifecycle-row.is-ready .template-management-dialog__lifecycle-icon {
+  color: var(--theme-success);
+  background: color-mix(in srgb, var(--theme-success) 13%, transparent);
+}
+
+.template-management-dialog__lifecycle-row.is-error .template-management-dialog__lifecycle-icon {
+  color: var(--theme-danger);
+  background: color-mix(in srgb, var(--theme-danger) 13%, transparent);
+}
+
+.template-management-dialog__readiness-action {
+  width: fit-content;
+  border-color: var(--theme-warning) !important;
+  background: color-mix(in srgb, var(--theme-warning) 92%, white 8%) !important;
+  color: #111014 !important;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--theme-warning) 34%, transparent);
+}
+
+.template-management-dialog__readiness-action:hover:not(:disabled) {
+  filter: brightness(1.06);
+  box-shadow: 0 0 23px color-mix(in srgb, var(--theme-warning) 50%, transparent);
+}
+
 .template-management-dialog__field {
   display: grid;
   gap: 6px;
@@ -98,11 +190,16 @@
 
 .template-management-dialog__footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 8px;
   padding: 14px 20px;
   border-top: 1px solid var(--mpf-border);
   background: rgb(5 8 16 / 95%);
+}
+
+.template-management-dialog__footer-actions {
+  display: flex;
+  gap: 8px;
 }
 
 @media (max-width: 560px) {

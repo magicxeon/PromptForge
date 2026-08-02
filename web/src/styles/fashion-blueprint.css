@@ -152,6 +152,62 @@
   gap: 0.6rem;
 }
 
+.fashion-production,
+.fashion-production article,
+.fashion-production__empty {
+  border-radius: var(--mpf-radius-md);
+}
+
+.fashion-production__status {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-items: end;
+  gap: 2px 7px;
+  color: var(--theme-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.fashion-production__status small {
+  grid-column: 1 / -1;
+  color: var(--mpf-text-muted);
+  font-size: 0.68rem;
+  text-transform: none;
+}
+
+.fashion-production__empty {
+  min-height: 280px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-media-backdrop);
+  text-align: center;
+}
+
+.fashion-production__empty img {
+  width: 48px;
+  height: 48px;
+  opacity: 0.58;
+  filter: grayscale(1);
+}
+
+.fashion-production__empty p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--mpf-text-muted);
+}
+
+.fashion-production__operation-state {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+}
+
 @media (max-width: 767px) {
   .fashion-blueprint-stepper__item {
     min-width: 138px;

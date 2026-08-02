@@ -1,0 +1,90 @@
+.app-toast-viewport {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 120;
+  width: min(390px, calc(100vw - 32px));
+  display: grid;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.app-toast {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 30px;
+  align-items: start;
+  gap: 10px;
+  padding: 13px 12px;
+  border: 1px solid var(--theme-border);
+  border-left: 4px solid var(--theme-primary);
+  border-radius: var(--mpf-radius-md);
+  background: color-mix(in srgb, var(--theme-surface-strong) 94%, transparent);
+  color: var(--theme-text);
+  box-shadow: var(--mpf-shadow-raised);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  animation: app-toast-enter 180ms ease-out;
+}
+
+.app-toast.is-success { border-left-color: var(--theme-success); }
+.app-toast.is-warning { border-left-color: var(--theme-warning); }
+.app-toast.is-error { border-left-color: var(--theme-danger); }
+
+.app-toast__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--theme-primary);
+}
+
+.app-toast.is-success .app-toast__icon { color: var(--theme-success); }
+.app-toast.is-warning .app-toast__icon { color: var(--theme-warning); }
+.app-toast.is-error .app-toast__icon { color: var(--theme-danger); }
+
+.app-toast strong {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.app-toast p {
+  margin: 3px 0 0;
+  color: var(--theme-text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.app-toast__close {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--mpf-radius-sm);
+  background: transparent;
+  color: var(--theme-text-muted);
+  cursor: pointer;
+}
+
+.app-toast__close:hover {
+  background: color-mix(in srgb, var(--theme-text) 8%, transparent);
+  color: var(--theme-text);
+}
+
+.app-toast__close svg { width: 16px; height: 16px; }
+
+@keyframes app-toast-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .app-toast-viewport {
+    top: 72px;
+    right: 16px;
+    bottom: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-toast { animation: none; }
+}

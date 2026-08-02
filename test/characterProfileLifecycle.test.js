@@ -109,7 +109,7 @@ test('canonical Reusable Model source enters review without a second generation'
       castingCandidate: true,
       layout: { type: 'character-casting-three-view-v2' },
       castingLayoutVersion: 'character-casting-three-view-v2',
-      uniformPolicyVersion: 'casting-uniform-white-v1',
+      uniformPolicyVersion: 'casting-uniform-gray-grid-v4',
       aspectRatio: '6:8',
       outputCount: 1
     }
@@ -137,7 +137,12 @@ test('canonical Reusable Model source enters review without a second generation'
   assert.equal(created.versions[0].castingExportGenerationResultId, sourceResult.id);
   assert.equal(created.versions[0].canonicalCastingExportAssetId, sourceResult.id);
   assert.equal(created.versions[0].castingExportLayoutVersion, 'character-casting-three-view-v2');
-  assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-white-v1');
+  assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-gray-grid-v4');
+  assert.equal(
+    created.displayImageUrl,
+    `/api/character-profiles/${encodeURIComponent(created.id)}/media/image`
+  );
+  assert.equal(created.handoffAvailable, false);
 });
 
 test('Styled Character lifecycle stays outfit-bound and Scene-only', async t => {

@@ -17,7 +17,14 @@ const shareDraftSchema = z.object({
   faceReusePolicy: z.enum(['view_only', 'public_reusable']).default('view_only')
 }).passthrough();
 
-const publishedPostSchema = z.object({ id: z.string() }).passthrough();
+// The publish command returns the repository record. Customer-facing creator
+// projection is loaded separately from the canonical Community post endpoint.
+const publishedPostSchema = z.object({
+  id: z.string(),
+  postType: z.enum(['image', 'template', 'comparison', 'collection']),
+  templateId: z.string().nullable().optional(),
+  templateVersionId: z.string().nullable().optional()
+}).passthrough();
 
 export function createGeneratedShareDraft(jobId: string) {
   return apiRequest('/api/community/share-drafts', {

@@ -148,6 +148,22 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  for (const mediaKind of ['image', 'thumbnail', 'face']) {
+    app.get(`/api/character-profiles/:id/media/${mediaKind}`, async (req, res) => {
+      try {
+        const filePath = await sharingService.getMediaFile(
+          req.params.id,
+          req.actorContext,
+          mediaKind
+        );
+        res.set('Cache-Control', 'private, no-store');
+        return res.sendFile(filePath);
+      } catch (error) {
+        return sendError(res, error);
+      }
+    });
+  }
+
   app.get('/api/community/characters', async (req, res) => {
     try {
       await assertCommunityEnabled();

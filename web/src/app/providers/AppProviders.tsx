@@ -5,6 +5,7 @@ import { LoadingState } from '../../components/ui/AsyncState';
 import { useTranslation } from 'react-i18next';
 import { FeaturePolicyProvider } from '../../lib/permissions/FeaturePolicyProvider';
 import { ThemeProvider } from '../../lib/theme/ThemeProvider';
+import { ToastViewport } from '../../components/ui/ToastViewport';
 
 export function AppProviders({ children }: PropsWithChildren) {
   const { t } = useTranslation('common');
@@ -33,6 +34,7 @@ export function AppProviders({ children }: PropsWithChildren) {
           <ThemeProvider>
             <Suspense fallback={<LoadingState label={t('common.status.loadingApplication')} />}>
               {children}
+              <ToastViewport />
             </Suspense>
           </ThemeProvider>
         </ActorProvider>

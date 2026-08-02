@@ -3,6 +3,11 @@ import { VisualOptionPicker } from '../../../components/visual-options/VisualOpt
 import type {
   AttributeGroup,
   AttributeSelection,
+  CustomAttributeInputLimits
+} from '../attributes/attributeModel';
+import {
+  countCustomSelectionCharacters,
+  DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS
 } from '../attributes/attributeModel';
 import type { VisualManifest } from '../schemas/visualManifestSchemas';
 import { resolveVisualPresentation } from '../visual-options/visualOptionRegistry';
@@ -28,6 +33,7 @@ export function GuidedAttributeForm({
   authorityProjection,
   lockedFields = [],
   editableFields,
+  customInputLimits = DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
   onLockChange,
   onCustomColorsChange,
   onChange
@@ -43,6 +49,7 @@ export function GuidedAttributeForm({
   authorityProjection?: ReferenceAuthorityProjection | null;
   lockedFields?: string[];
   editableFields?: ReadonlySet<string>;
+  customInputLimits?: CustomAttributeInputLimits;
   onLockChange?: (fieldName: string, locked: boolean) => void;
   onCustomColorsChange: (colors: StudioCustomColors) => void;
   onChange: (value: Record<string, AttributeSelection>) => void;
@@ -59,6 +66,7 @@ export function GuidedAttributeForm({
     [characterType, editableFields, groups, mode]
   );
   const gender = selections.Gender;
+  const customCharacterCount = countCustomSelectionCharacters(selections);
   return (
     <div className="studio-attribute-groups">
       {visible.map((group, groupIndex) => (
@@ -91,6 +99,8 @@ export function GuidedAttributeForm({
                     : undefined}
                   locked={lockedFields.includes(field.name)}
                   customColors={customColors}
+                  customCharacterCount={customCharacterCount}
+                  customInputLimits={customInputLimits}
                   onLockChange={locked => onLockChange?.(field.name, locked)}
                   onCustomColorsChange={onCustomColorsChange}
                   onChange={selection => {

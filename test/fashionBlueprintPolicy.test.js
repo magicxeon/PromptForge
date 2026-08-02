@@ -88,5 +88,7 @@ test('Fashion plan carries stable product and operation contracts', () => {
   assert.equal(plan.productItems[0].clientKey, 'client_product_1');
   assert.equal(plan.productItems[0].references.outfit_front.assetId, 'ast_front');
   assert.equal(plan.productItems[0].operations[0].shotKey, 'cover');
-  assert.equal(plan.route.routingPolicyVersion, 'fashion-routing-2026-07-31');
+  assert.equal(plan.route.routingPolicyVersion, 'fashion-routing-2026-08-01-v2');
+  assert.equal(plan.route.qualificationStatus, 'qualified');
+  assert.equal(plan.route.promptStrategyVersion, 'GNB2-S6');
 });

@@ -1,27 +1,112 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Pencil, X } from 'lucide-react';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Calculator,
+  CheckCircle2,
+  CircleX,
+  Clock3,
+  LoaderCircle,
+  Pencil,
+  Share2,
+  Trash2,
+  X
+} from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  retireCommunityPost,
   updateCommunityPostPresentation
 } from '../../features/community/api/communityApi';
+import {
+  estimateTemplatePoseProxy,
+  getTemplatePoseProxy,
+  prepareTemplatePoseProxy,
+  reviewTemplatePoseProxy,
+  type TemplatePoseProxyEstimate
+} from '../../features/templates/templatePoseProxyApi';
 import type {
   CommunityPost
 } from '../../features/community/schemas/communitySchemas';
 import { Button } from '../ui/Button';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { StatusNotice } from '../ui/StatusNotice';
+import { showToast } from '../ui/toastStore';
 
 export function SharedTemplateEditDialog({
   post,
-  trigger
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+  autoEstimateReadiness = false,
+  hideTrigger = false
 }: {
   post: CommunityPost;
   trigger?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  autoEstimateReadiness?: boolean;
+  hideTrigger?: boolean;
 }) {
   const { t } = useTranslation('react-ui');
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = (next: boolean) => {
+    if (controlledOpen === undefined) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+  const [poseProxyEstimate, setPoseProxyEstimate] = useState<TemplatePoseProxyEstimate | null>(null);
+  const autoEstimateKey = useRef<string | null>(null);
+  const templateId = post.templateId || null;
+  const poseProxy = useQuery({
+    queryKey: ['template-pose-proxy', templateId],
+    queryFn: () => getTemplatePoseProxy(templateId!),
+    enabled: open && Boolean(templateId),
+    refetchInterval: query => ['pending', 'processing'].includes(query.state.data?.status || '') ? 2500 : false
+  });
+  const estimateProxy = useMutation({
+    mutationFn: () => estimateTemplatePoseProxy(templateId!, post.templateVersionId),
+    onSuccess: result => {
+      setPoseProxyEstimate(result);
+      if (result.proxy) queryClient.setQueryData(['template-pose-proxy', templateId], result.proxy);
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.toast.templatePreparationFailed'),
+      description: error.message
+    })
+  });
+  const prepareProxy = useMutation({
+    mutationFn: () => prepareTemplatePoseProxy(
+      templateId!,
+      post.templateVersionId,
+      poseProxyEstimate!.estimateId!
+    ),
+    onSuccess: async () => {
+      setPoseProxyEstimate(null);
+      showToast({
+        tone: 'info',
+        title: t('ui.toast.templatePreparationStarted'),
+        description: t('ui.toast.templatePreparationStartedDescription')
+      });
+      await queryClient.invalidateQueries({ queryKey: ['template-pose-proxy', templateId] });
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.toast.templatePreparationFailed'),
+      description: error.message
+    })
+  });
+  const reviewProxy = useMutation({
+    mutationFn: (decision: 'approve' | 'reject') => reviewTemplatePoseProxy(
+      templateId!,
+      poseProxy.data!.proxyId!,
+      decision
+    ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['template-pose-proxy', templateId] });
+    }
+  });
   const update = useMutation({
     mutationFn: (input: {
       title: string;
@@ -31,13 +116,87 @@ export function SharedTemplateEditDialog({
     }) => updateCommunityPostPresentation(post.id, input),
     onSuccess: async () => {
       setOpen(false);
+      showToast({ tone: 'success', title: t('ui.toast.templateSaved') });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['community-post', post.id] }),
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
         queryClient.invalidateQueries({ queryKey: ['creator-page'] })
       ]);
-    }
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.toast.templateSaveFailed'),
+      description: error.message
+    })
   });
+  const retire = useMutation({
+    mutationFn: () => retireCommunityPost(post.id),
+    onSuccess: async () => {
+      setOpen(false);
+      showToast({
+        tone: 'success',
+        title: t('ui.toast.templateRetired'),
+        description: t('ui.toast.templateRetiredDescription')
+      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['community-post', post.id] }),
+        queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
+        queryClient.invalidateQueries({ queryKey: ['fashion-templates'] }),
+        queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
+      ]);
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.toast.templateRetireFailed'),
+      description: error.message
+    })
+  });
+  const readinessError = poseProxy.error
+    || estimateProxy.error
+    || prepareProxy.error
+    || reviewProxy.error;
+  const displayedReadinessStatus = readinessError
+    ? 'failed'
+    : prepareProxy.isPending
+      ? 'processing'
+      : poseProxy.data?.status || 'not_prepared';
+  const readinessWorking = poseProxy.isLoading
+    || prepareProxy.isPending
+    || ['pending', 'processing'].includes(displayedReadinessStatus);
+  const sharingStatus = post.status === 'owner_unpublished'
+    ? 'retired'
+    : normalizeSharingStatus(post.visibility);
+  const requestPoseProxyEstimate = estimateProxy.mutate;
+
+  useEffect(() => {
+    const key = `${templateId || ''}:${post.templateVersionId || ''}`;
+    if (
+      !autoEstimateReadiness
+      || !open
+      || !templateId
+      || poseProxy.isLoading
+      || !poseProxy.data
+      || !['not_prepared', 'failed', 'superseded'].includes(poseProxy.data.status)
+      || poseProxyEstimate
+      || estimateProxy.isPending
+      || autoEstimateKey.current === key
+    ) {
+      return;
+    }
+    autoEstimateKey.current = key;
+    requestPoseProxyEstimate();
+  }, [
+    autoEstimateReadiness,
+    estimateProxy.isPending,
+    open,
+    poseProxy.data,
+    poseProxy.isLoading,
+    poseProxyEstimate,
+    post.templateVersionId,
+    requestPoseProxyEstimate,
+    templateId
+  ]);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,13 +211,15 @@ export function SharedTemplateEditDialog({
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        {trigger || (
-          <Button size="sm" icon={<Pencil className="size-4" aria-hidden="true" />}>
-            {t('ui.templateManagement.edit')}
-          </Button>
-        )}
-      </Dialog.Trigger>
+      {!hideTrigger ? (
+        <Dialog.Trigger asChild>
+          {trigger || (
+            <Button size="sm" icon={<Pencil className="size-4" aria-hidden="true" />}>
+              {t('ui.templateManagement.edit')}
+            </Button>
+          )}
+        </Dialog.Trigger>
+      ) : null}
       <Dialog.Portal>
         <Dialog.Overlay className="template-management-dialog__overlay" />
         <Dialog.Content className="template-management-dialog">
@@ -89,6 +250,118 @@ export function SharedTemplateEditDialog({
                   version: post.templateVersionId || '-'
                 })}
               </StatusNotice>
+
+              {templateId ? (
+                <section
+                  className="template-management-dialog__lifecycle"
+                  aria-live={readinessWorking ? 'polite' : undefined}
+                  aria-busy={readinessWorking}
+                >
+                  <div className="template-management-dialog__lifecycle-row is-sharing">
+                    <span className="template-management-dialog__lifecycle-icon" aria-hidden="true">
+                      <Share2 />
+                    </span>
+                    <div>
+                      <span>{t('ui.templateManagement.sharingStatusLabel')}</span>
+                      <strong>{t(`ui.templateManagement.sharingStatus.${sharingStatus}`)}</strong>
+                      <small>{t(`ui.templateManagement.sharingStatusDescription.${sharingStatus}`)}</small>
+                    </div>
+                  </div>
+
+                  <div className={`template-management-dialog__lifecycle-row is-${readinessTone(displayedReadinessStatus)}`}>
+                    <span className="template-management-dialog__lifecycle-icon" aria-hidden="true">
+                      {readinessWorking
+                        ? <LoaderCircle className="animate-spin" />
+                        : displayedReadinessStatus === 'active'
+                          ? <CheckCircle2 />
+                          : displayedReadinessStatus === 'failed'
+                            ? <CircleX />
+                            : <Clock3 />}
+                    </span>
+                    <div>
+                      <span>{t('ui.templateManagement.fashionReadinessTitle')}</span>
+                      <strong>
+                        {poseProxy.isLoading
+                          ? t('ui.templateManagement.checkingPoseProxy')
+                          : t(`ui.templateManagement.poseProxyState.${displayedReadinessStatus}`)}
+                      </strong>
+                      <small>
+                        {poseProxy.isLoading
+                          ? t('ui.templateManagement.checkingPoseProxyDescription')
+                          : t(`ui.templateManagement.poseProxyStatus.${displayedReadinessStatus}`)}
+                      </small>
+                    </div>
+                  </div>
+
+                  {poseProxy.data?.reviewImageUrl ? (
+                    <img
+                      src={poseProxy.data.reviewImageUrl}
+                      alt={t('ui.templateManagement.poseProxyReviewAlt')}
+                      className="template-management-dialog__pose-proxy-preview"
+                    />
+                  ) : null}
+                  {poseProxy.data?.status === 'review_required' && poseProxy.data.proxyId ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={reviewProxy.isPending}
+                      onClick={() => reviewProxy.mutate('approve')}
+                    >
+                      {t('ui.templateManagement.approvePoseProxy')}
+                    </Button>
+                  ) : !['active', 'processing', 'pending'].includes(poseProxy.data?.status || '') ? (
+                    poseProxyEstimate?.estimateId ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="template-management-dialog__readiness-action"
+                        disabled={prepareProxy.isPending}
+                        icon={prepareProxy.isPending
+                          ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                          : undefined}
+                        onClick={() => prepareProxy.mutate()}
+                      >
+                        {prepareProxy.isPending
+                          ? t('ui.templateManagement.preparingPoseProxy')
+                          : t('ui.templateManagement.confirmPoseProxy', {
+                            credits: poseProxyEstimate.estimatedCredits
+                          })}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="template-management-dialog__readiness-action"
+                        disabled={estimateProxy.isPending}
+                        icon={estimateProxy.isPending
+                          ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                          : <Calculator className="size-4" aria-hidden="true" />}
+                        onClick={() => estimateProxy.mutate()}
+                      >
+                        {estimateProxy.isPending
+                          ? t('ui.templateManagement.calculatingPoseProxy')
+                          : t('ui.templateManagement.preparePoseProxy')}
+                      </Button>
+                    )
+                  ) : null}
+                  {readinessError ? (
+                    <StatusNotice
+                      tone="error"
+                      title={t('ui.templateManagement.readinessFailed')}
+                    >
+                      <p>{readinessError.message}</p>
+                      {poseProxy.data?.correlationId ? (
+                        <small>{t('ui.templateManagement.supportReference', {
+                          id: poseProxy.data.correlationId
+                        })}</small>
+                      ) : null}
+                    </StatusNotice>
+                  ) : null}
+                </section>
+              ) : null}
 
               <label className="template-management-dialog__field">
                 <span>{t('ui.templateManagement.templateTitle')}</span>
@@ -140,23 +413,53 @@ export function SharedTemplateEditDialog({
                   {update.error.message}
                 </StatusNotice>
               ) : null}
+              {retire.isError ? (
+                <StatusNotice
+                  tone="error"
+                  title={t('ui.templateManagement.retireFailed')}
+                >
+                  {retire.error.message}
+                </StatusNotice>
+              ) : null}
             </div>
 
             <footer className="template-management-dialog__footer">
-              <Dialog.Close asChild>
-                <Button type="button" variant="ghost">
-                  {t('ui.action.cancel')}
+              <ConfirmDialog
+                title={t('ui.templateManagement.retireTitle')}
+                description={t('ui.templateManagement.retireDescription')}
+                confirmLabel={t('ui.templateManagement.retireConfirm')}
+                destructive
+                pending={retire.isPending}
+                onConfirm={() => retire.mutate()}
+                trigger={(
+                  <Button
+                    type="button"
+                    variant="danger"
+                    disabled={retire.isPending || post.status === 'owner_unpublished'}
+                    icon={<Trash2 className="size-4" aria-hidden="true" />}
+                  >
+                    {post.status === 'owner_unpublished'
+                      ? t('ui.templateManagement.retired')
+                      : t('ui.templateManagement.retire')}
+                  </Button>
+                )}
+              />
+              <div className="template-management-dialog__footer-actions">
+                <Dialog.Close asChild>
+                  <Button type="button" variant="ghost">
+                    {t('ui.action.cancel')}
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={update.isPending || retire.isPending}
+                >
+                  {update.isPending
+                    ? t('ui.templateManagement.saving')
+                    : t('ui.templateManagement.save')}
                 </Button>
-              </Dialog.Close>
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={update.isPending}
-              >
-                {update.isPending
-                  ? t('ui.templateManagement.saving')
-                  : t('ui.templateManagement.save')}
-              </Button>
+              </div>
             </footer>
           </form>
         </Dialog.Content>
@@ -185,4 +488,23 @@ function inferVisibility(post: CommunityPost): 'public' | 'unlisted' | 'private'
   return visibility === 'unlisted' || visibility === 'private'
     ? visibility
     : 'public';
+}
+
+function normalizeSharingStatus(
+  visibility: CommunityPost['visibility']
+): 'public' | 'unlisted' | 'members_only' | 'private' | 'retired' {
+  if (visibility === 'unlisted' || visibility === 'members_only' || visibility === 'private') {
+    return visibility;
+  }
+  return 'public';
+}
+
+function readinessTone(
+  status: string
+): 'idle' | 'working' | 'review' | 'ready' | 'error' {
+  if (status === 'pending' || status === 'processing') return 'working';
+  if (status === 'review_required') return 'review';
+  if (status === 'active') return 'ready';
+  if (status === 'failed') return 'error';
+  return 'idle';
 }

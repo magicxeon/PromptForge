@@ -25,6 +25,7 @@ export const SCENE_TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'scene-templates
 export const CHARACTER_PROFILES_DATA_DIR = path.resolve(DATA_ROOT, 'character-profiles');
 export const FASHION_BLUEPRINT_DATA_DIR = path.resolve(DATA_ROOT, 'fashion-blueprint');
 export const TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'templates');
+export const TEMPLATE_POSE_PROXY_DATA_DIR = path.resolve(DATA_ROOT, 'template-pose-proxy');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -55,7 +56,8 @@ export const DATA_FILES = {
   templates: path.resolve(TEMPLATES_DATA_DIR, 'templates.json'),
   templateVersions: path.resolve(TEMPLATES_DATA_DIR, 'versions.json'),
   templateUseSessions: path.resolve(TEMPLATES_DATA_DIR, 'useSessions.json'),
-  templateUsageEvents: path.resolve(TEMPLATES_DATA_DIR, 'usageEvents.json')
+  templateUsageEvents: path.resolve(TEMPLATES_DATA_DIR, 'usageEvents.json'),
+  templatePoseProxies: path.resolve(TEMPLATE_POSE_PROXY_DATA_DIR, 'poseProxies.json')
 };
 
 export function resolveDataFile(name) {

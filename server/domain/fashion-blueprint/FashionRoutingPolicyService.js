@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { fashionModelQualificationService } from './FashionModelQualificationService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_POLICY_PATH = path.resolve(
@@ -9,8 +10,12 @@ const DEFAULT_POLICY_PATH = path.resolve(
 );
 
 export class FashionRoutingPolicyService {
-  constructor({ policyPath = DEFAULT_POLICY_PATH } = {}) {
+  constructor({
+    policyPath = DEFAULT_POLICY_PATH,
+    qualificationService = fashionModelQualificationService
+  } = {}) {
     this.policyPath = policyPath;
+    this.qualificationService = qualificationService;
     this.cachedPolicy = null;
   }
 
@@ -41,11 +46,18 @@ export class FashionRoutingPolicyService {
       );
       if (provider) {
         const selection = providerRegistry.resolveSelection(provider.id, modelId);
+        const qualification = this.qualificationService.requireSimpleEligible(
+          provider.id,
+          modelId
+        );
         return {
           ...selection,
           qualityTier: tierId,
           policyVersion: policy.policyVersion,
-          promptDirective: tier.promptDirective
+          promptDirective: tier.promptDirective,
+          qualificationVersion: qualification.qualificationVersion,
+          qualificationStatus: qualification.status,
+          promptStrategyVersion: qualification.promptStrategyVersion
         };
       }
     }

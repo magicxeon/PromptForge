@@ -40,6 +40,16 @@ export type AttributeSelection = {
   gptPositiveWords: string[];
 };
 
+export type CustomAttributeInputLimits = {
+  maxCharactersPerField: number;
+  maxCharactersTotal: number;
+};
+
+export const DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS: CustomAttributeInputLimits = {
+  maxCharactersPerField: 1000,
+  maxCharactersTotal: 2000
+};
+
 type Bundle = z.infer<typeof attributesBundleSchema>;
 
 const legacySubcategoryByCategory: Record<string, string> = {
@@ -121,6 +131,53 @@ export function createCustomSelection(field: AttributeField, value: string): Att
   };
 }
 
+export function countCharacters(value: string) {
+  return Array.from(value).length;
+}
+
+export function countCustomSelectionCharacters(
+  selections: Record<string, AttributeSelection>
+) {
+  return Object.values(selections).reduce(
+    (total, selection) => total + (selection.isCustom
+      ? countCharacters(selection.value.trim())
+      : 0),
+    0
+  );
+}
+
+export function reconcileSelectionsWithCatalog(
+  selections: Record<string, AttributeSelection>,
+  groups: AttributeGroup[]
+) {
+  const optionsById = new Map(groups.flatMap(group =>
+    group.fields.flatMap(field => field.options.map(option => [option.id, option] as const))
+  ));
+  let changed = false;
+  const reconciled = Object.fromEntries(Object.entries(selections).map(([fieldName, selection]) => {
+    if (selection.isCustom || selection.id.startsWith('custom.')) {
+      return [fieldName, selection];
+    }
+    const option = optionsById.get(selection.id);
+    if (!option) return [fieldName, selection];
+    const current = createSelection(option);
+    if (
+      selection.value === current.value
+      && selection.label === current.label
+      && selection.group === current.group
+      && selection.category === current.category
+      && arraysEqual(selection.tags, current.tags)
+    ) {
+      return [fieldName, selection];
+    }
+    changed = true;
+    return [fieldName, current];
+  }));
+  return changed
+    ? reconciled as Record<string, AttributeSelection>
+    : selections;
+}
+
 export function compileSelectionPreview(
   selections: Record<string, AttributeSelection>,
   mode: 'headshot' | 'character-sheet' | 'scene',
@@ -191,7 +248,10 @@ export function compileSelectionPreview(
   const cameraAndQuality = valuesForGroups(new Set(['Camera', 'Quality']));
   const clothing = characterType === 'reusable_model'
     ? [
-      'wearing an opaque modest fitted white casting uniform with a fitted white short-sleeve top and fitted white mid-thigh shorts',
+      'wearing an opaque matte neutral medium-gray four-way-stretch jersey casting uniform with a seam-minimal short-sleeve top, a modest high crew neckline, and matching mid-thigh shorts',
+      'a subtle technical contour grid of thin evenly spaced light-gray horizontal and vertical lines follows the gray fabric surface and curves naturally over the exact body contours, with no numbers, letters, labels, symbols, logos, or measurement text',
+      'maintain clear tonal separation between the gray uniform, the character skin, and the pure white background',
+      'the close contoured fit follows the exact natural anatomy without compression, padding, reshaping, concealment, or flattening of the upper torso, waist, hips, or seat',
       'never underwear, lingerie, swimwear, transparent fabric, or sexualized styling'
     ]
     : valuesForGroups(new Set(['Clothing']));
@@ -220,6 +280,10 @@ export function compileSelectionPreview(
 
 export function localized(value: string | Record<string, string>) {
   return typeof value === 'string' ? value : value.en || value.th || Object.values(value)[0] || '';
+}
+
+function arraysEqual(left: string[], right: string[]) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
 }
 
 function normalizeOption(item: Record<string, unknown>): AttributeOption[] {

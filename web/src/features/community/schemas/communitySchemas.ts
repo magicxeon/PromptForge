@@ -46,6 +46,14 @@ export const communityPostSchema = z.object({
   creator: creatorSchema,
   title: z.string().default(''),
   description: z.string().default(''),
+  status: z.enum([
+    'active',
+    'published',
+    'reported',
+    'hidden',
+    'removed',
+    'owner_unpublished'
+  ]).optional(),
   visibility: z.enum(['public', 'unlisted', 'members_only', 'private']).default('public'),
   imageUrl: nullableText,
   thumbnailUrl: nullableText,
@@ -199,7 +207,11 @@ export const templateHandoffSchema = z.object({
     id: z.string(),
     expiresAt: z.string(),
     sourceCommunityPostId: nullableText
-  }).optional()
+  }).optional(),
+  poseProxyReadiness: z.object({
+    status: z.string(),
+    fashionCompatible: z.boolean()
+  }).passthrough().nullable().optional()
 }).passthrough();
 
 export type CommunityPost = z.infer<typeof communityPostSchema>;

@@ -46,6 +46,14 @@ export function getOwnedCharacter(characterId: string) {
   });
 }
 
+export function listOwnedCharacters(cursor?: string | null) {
+  const query = new URLSearchParams({ limit: '24' });
+  if (cursor) query.set('cursor', cursor);
+  return apiRequest(`/api/character-profiles?${query}`, {
+    schema: characterDirectorySchema
+  });
+}
+
 export function createCharacterProfile(input: {
   sourceGenerationResultId: string;
   displayName: string;

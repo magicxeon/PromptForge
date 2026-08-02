@@ -43,7 +43,7 @@ export class CharacterProfileVersionRepository {
       castingFacePreviewUrl: null,
       castingExportGenerationResultId: null,
       castingExportLayoutVersion: 'character-casting-three-view-v2',
-      castingUniformPolicyVersion: 'casting-uniform-white-v1',
+      castingUniformPolicyVersion: 'casting-uniform-gray-grid-v4',
       providerModelSnapshot: null,
       promptSnapshotHash: null,
       consentDeclarationVersion: null,

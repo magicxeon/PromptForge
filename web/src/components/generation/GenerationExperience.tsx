@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowUp, Coins, Sparkles } from 'lucide-react';
+import { ArrowUp, Coins, Copy, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
@@ -20,6 +20,7 @@ import {
   estimateAndSubmitGeneration,
   estimateGeneration,
   getProviderCatalog,
+  previewCompiledPrompt,
   previewReferenceProcessing,
   submitComparison,
   type ComparisonSlotInput,
@@ -319,6 +320,20 @@ export function GenerationExperience({
     staleTime: 20_000,
     retry: false
   });
+  const debugPromptEnabled = surface === 'studio'
+    && (actor?.role === 'admin'
+      || isEnabled('development.debugPromptOverrideEnabled'));
+  const compiledPromptPreview = useQuery({
+    queryKey: [
+      'compiled-prompt-preview',
+      actor?.userId || 'loading',
+      estimateKey
+    ],
+    queryFn: () => previewCompiledPrompt(debouncedDraft as GenerationRequestDraft),
+    enabled: Boolean(canEstimate && debugPromptEnabled && debouncedDraft),
+    staleTime: 20_000,
+    retry: false
+  });
   useEffect(() => {
     onReferenceAuthorityChange?.(
       referencePreview.data?.publicAuthorityProjection || null
@@ -571,6 +586,7 @@ export function GenerationExperience({
     && (actor?.role === 'admin'
       || isEnabled('development.debugPromptOverrideEnabled'));
   const hasVisiblePromptRegion = showPromptEditor || canRevealStudioPrompt;
+  const debugPromptText = compiledPromptPreview.data?.compiledPrompt || prompt;
   const promptRegion = hasVisiblePromptRegion ? (
     <div ref={node => { promptRef.current = node; }}>
       {showPromptEditor ? (
@@ -583,10 +599,24 @@ export function GenerationExperience({
         />
       ) : canRevealStudioPrompt ? (
         <Surface className="studio-prompt-preview">
-          <label>
-            <span>{t('playground.prompt.label')}</span>
-            <textarea readOnly value={prompt} />
-          </label>
+          <div className="studio-prompt-preview__heading">
+            <label htmlFor="studio-debug-compiled-prompt">
+              {t('playground.prompt.label')}
+            </label>
+            <Button
+              variant="ghost"
+              size="icon"
+              title={t('playground.prompt.copy')}
+              aria-label={t('playground.prompt.copy')}
+              icon={<Copy className="size-4" aria-hidden="true" />}
+              onClick={() => void navigator.clipboard.writeText(debugPromptText)}
+            />
+          </div>
+          <textarea
+            id="studio-debug-compiled-prompt"
+            readOnly
+            value={debugPromptText}
+          />
           <details>
             <summary>{t('playground.negative.label')}</summary>
             <textarea

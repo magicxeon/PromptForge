@@ -40,7 +40,7 @@ export const navigationRoutes: readonly NavigationRoute[] = [
   { id: 'fashion', path: '/create/fashion', labelKey: 'shell.navigation.items.fashionStudio', navigation: 'primary' },
   { id: 'playground', path: '/playground', labelKey: 'shell.navigation.items.playground', navigation: 'primary' },
   { id: 'comparisons', path: '/comparisons', labelKey: 'shell.navigation.items.comparisons', navigation: 'primary' },
-  { id: 'history', path: '/history', labelKey: 'shell.navigation.items.myImages', navigation: 'primary' },
+  { id: 'history', path: '/recent-generations', labelKey: 'shell.navigation.items.myImages', navigation: 'primary' },
   { id: 'collections', path: '/collections', labelKey: 'shell.navigation.items.collections', navigation: 'primary' },
   {
     id: 'admin',
@@ -132,9 +132,15 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
     items: [
       {
         id: 'history',
-        path: '/history',
+        path: '/recent-generations',
         labelKey: 'shell.navigation.items.myImages',
         icon: 'history'
+      },
+      {
+        id: 'my-characters',
+        path: '/creator/characters',
+        labelKey: 'shell.navigation.items.myCharacters',
+        icon: 'characters'
       },
       {
         id: 'collections',
@@ -186,7 +192,8 @@ export function isSidebarNavigationTargetActive(id: string, currentLocation: str
   if (id === 'fashion') return pathname.startsWith('/create/fashion');
   if (id === 'playground') return pathname.startsWith('/playground');
   if (id === 'comparisons') return pathname.startsWith('/comparisons');
-  if (id === 'history') return pathname.startsWith('/history');
+  if (id === 'history') return pathname.startsWith('/history') || pathname.startsWith('/recent-generations');
+  if (id === 'my-characters') return pathname.startsWith('/creator/characters');
   if (id === 'collections') return pathname.startsWith('/collections');
   if (id === 'admin') return pathname.startsWith('/admin');
   return false;

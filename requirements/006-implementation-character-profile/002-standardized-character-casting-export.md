@@ -35,19 +35,41 @@ Presentation:
 
 Uniform policy:
 
-- opaque white fitted short-sleeve top and fitted mid-thigh shorts
+- opaque matte neutral medium-gray four-way-stretch jersey short-sleeve top with a modest
+  high crew neckline and matching mid-thigh shorts
+- close contoured fit follows the selected natural anatomy without compression,
+  padding, reshaping, concealment or flattening of the upper torso, waist, hips
+  or seat
+- a subtle technical contour grid uses thin light-gray horizontal and vertical
+  lines that curve over the fabric and make the selected anatomy readable from
+  all three views; it contains no labels, numbers or measurement text
 - modest coverage; never underwear, lingerie, swimwear or transparent fabric
 - no cleavage emphasis or sexualized styling
 - neutral footwear or bare-foot treatment chosen consistently
 - no branded details
 
-Policy ID: `casting-uniform-white-v1`  
+Policy ID: `casting-uniform-gray-grid-v4`
 Layout ID: `character-casting-three-view-v2`
 
-Legacy `character-casting-four-view-v1` records remain readable and usable when
-already approved, but new direct casting candidates must use the current
-three-view policy. Do not rewrite historical generation or approved profile
-records during this policy change.
+Body control semantics:
+
+- `Height Impression` controls perceived adult height and leg-to-torso length.
+- `Model Build` controls frame width, lean/soft/athletic mass and must preserve
+  the independently selected silhouette.
+- `Body Silhouette` controls the relative upper-torso, waist and hip shape and
+  must remain consistent across front, exact-side and back views.
+- `Slender Curvaceous Fashion Build` is available when a narrow lean
+  fashion-model frame must retain clearly readable natural curves rather than
+  being normalized into a straight silhouette.
+- For a slender runway hourglass casting result, use `Elongated Runway Line`,
+  `Slender Curvaceous Fashion Build` and `Full-Bust Runway Hourglass` together.
+
+Legacy `casting-uniform-white-v1`, `casting-uniform-white-v2`,
+`casting-uniform-gray-v3` and
+`character-casting-four-view-v1` records
+remain readable and usable when already approved, but new direct casting
+candidates must use the current uniform and three-view policies. Do not rewrite
+historical generation or approved profile records during this policy change.
 
 Selection derivatives:
 
@@ -64,7 +86,7 @@ For a new `reusable_model`, the normal Character Sheet generation request is the
 casting request. Client and server must both enforce:
 
 - layout `character-casting-three-view-v2`
-- uniform `casting-uniform-white-v1`
+- uniform `casting-uniform-gray-grid-v4`
 - aspect ratio `6:8`
 - output count `1`
 - no Clothing selection, custom color or Outfit Reference in prompt/state/payload

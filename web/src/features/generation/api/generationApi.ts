@@ -3,6 +3,7 @@ import {
   attributesBundleSchema,
   comparisonEstimateSchema,
   comparisonSubmitSchema,
+  compiledPromptPreviewSchema,
   creditEstimateResponseSchema,
   generationSubmitSchema,
   jobStatusSchema,
@@ -80,6 +81,14 @@ export function previewReferenceProcessing(draft: GenerationRequestDraft) {
     method: 'POST',
     body: { generationRequest: generationPayload(draft) },
     schema: referenceProcessingPreviewSchema
+  });
+}
+
+export function previewCompiledPrompt(draft: GenerationRequestDraft) {
+  return apiRequest('/api/generation/prompt-preview', {
+    method: 'POST',
+    body: generationPayload(draft),
+    schema: compiledPromptPreviewSchema
   });
 }
 

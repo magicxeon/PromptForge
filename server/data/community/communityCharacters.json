@@ -1,5 +1,46 @@
 [
   {
+    "displayName": "น้องเปิ้ล",
+    "description": "เปิ้ลน่ารัก",
+    "characterType": "reusable_model",
+    "creatorProfileId": null,
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1785668499409_21viddhhw",
+    "previewImageAssetId": "job_1785668499409_21viddhhw",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1785668757771_4sv6c0pg",
+    "characterProfileVersionId": "charver_1785668757784_fv9uu7gi",
+    "personalitySummary": "สวยแหละ นิสัยดี ชอบทำงาน สนุก",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1785668499409_21viddhhw",
+    "canonicalCharacterSheetAssetId": "job_1785668499409_21viddhhw",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1785668499409_21viddhhw"
+    ],
+    "officialTags": [],
+    "reusePolicy": "view_only",
+    "id": "char_1785678685961_2b01pyb0",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-02T13:51:25.961Z",
+    "updatedAt": "2026-08-02T13:54:24.249Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "น้องเจน",
     "description": "ทดสอบน้องเจน เหมาะสำหรับทำภาพ แฟชัน เครื่องสำอาง",
     "characterType": "reusable_model",

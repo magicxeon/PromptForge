@@ -23,4 +23,15 @@ describe('Momelo sidebar navigation registry', () => {
     expect(isSidebarNavigationTargetActive('character-sheet', '/studio?mode=character-sheet')).toBe(true);
     expect(isSidebarNavigationTargetActive('scene-builder', '/studio/scene')).toBe(true);
   });
+
+  it('keeps owner Characters and Recent Generations in the library group', () => {
+    const library = sidebarNavigationGroups.find(group => group.id === 'library');
+    expect(library?.items.map(item => [item.id, item.path])).toEqual([
+      ['history', '/recent-generations'],
+      ['my-characters', '/creator/characters'],
+      ['collections', '/collections']
+    ]);
+    expect(isSidebarNavigationTargetActive('history', '/recent-generations')).toBe(true);
+    expect(isSidebarNavigationTargetActive('my-characters', '/creator/characters/char_1')).toBe(true);
+  });
 });

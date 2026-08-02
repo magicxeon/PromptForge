@@ -27,8 +27,8 @@ export function ConfirmDialog({
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>{trigger}</AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[80] bg-[var(--theme-overlay)] backdrop-blur-sm" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[81] w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 border border-[var(--mpf-border)] bg-[var(--mpf-surface-strong)] p-5 shadow-[var(--mpf-shadow-raised)]">
+        <AlertDialog.Overlay className="app-confirm-dialog__overlay fixed inset-0 bg-[var(--theme-overlay)] backdrop-blur-sm" />
+        <AlertDialog.Content className="app-confirm-dialog__content fixed left-1/2 top-1/2 w-[min(92vw,480px)] -translate-x-1/2 -translate-y-1/2 border border-[var(--mpf-border)] bg-[var(--mpf-surface-strong)] p-5 shadow-[var(--mpf-shadow-raised)]">
           <AlertDialog.Title className="m-0 text-xl">{title}</AlertDialog.Title>
           <AlertDialog.Description className="mb-5 mt-3 text-sm leading-6 text-[var(--mpf-text-muted)]">
             {description}

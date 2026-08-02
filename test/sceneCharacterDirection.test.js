@@ -106,6 +106,56 @@ test('Reusable Character Reference preserves identity while allowing replacement
   assert.match(prompt, /relaxed standing pose/);
 });
 
+test('Full-body Scene protects the complete silhouette and supplies compatible footwear when omitted', () => {
+  const prompt = compilePromptOnServer(
+    {
+      'Outfit Base': {
+        value: 'wearing a lightweight unstructured blazer, plain inner top, and straight trousers',
+        group: 'Clothing',
+        category: 'clothing'
+      },
+      'Pose Intent': {
+        value: 'professional full-body fashion walking pose captured mid-step',
+        group: 'Pose',
+        category: 'pose'
+      }
+    },
+    '6:8',
+    {},
+    'normal',
+    'portrait'
+  );
+
+  assert.match(prompt, /complete subject visible from the top of the hair through both feet/i);
+  assert.match(prompt, /without cropping the head, hair, hands, arms, legs, ankles, footwear/i);
+  assert.match(prompt, /clear safety margin.+above the hair.+below the feet.+both sides/i);
+  assert.match(prompt, /select simple coherent footwear appropriate to the outfit, environment, and action/i);
+});
+
+test('Full-body Scene does not add footwear fallback when footwear is explicit', () => {
+  const prompt = compilePromptOnServer(
+    {
+      'Outfit Base': {
+        value: 'wearing a tailored trouser suit with simple dress shoes',
+        group: 'Clothing',
+        category: 'clothing'
+      },
+      Framing: {
+        value: 'full-body framing showing the subject completely from head to toe',
+        group: 'Camera',
+        category: 'camera_framing'
+      }
+    },
+    '6:8',
+    {},
+    'normal',
+    'portrait'
+  );
+
+  assert.match(prompt, /simple dress shoes/i);
+  assert.doesNotMatch(prompt, /select simple coherent footwear/i);
+});
+
 test('Explicit Outfit Reference owns clothing even for a reusable Character Reference', () => {
   const prompt = compilePromptOnServer(
     {

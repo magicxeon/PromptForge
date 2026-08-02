@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import zlib from 'zlib';
 import path from 'path';
 import { PROJECT_ROOT } from '../../config/paths.js';
+import { getPublicGenerationInputPolicy } from '../../config/generationInputPolicy.js';
 
 const ATTRIBUTE_FILES = [
   '001-character.json',
@@ -71,7 +72,8 @@ export function createAttributesBundleLoader() {
         templates,
         order,
         library,
-        presets
+        presets,
+        inputPolicy: getPublicGenerationInputPolicy()
       };
 
       if (enabledCache) {

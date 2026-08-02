@@ -3,11 +3,16 @@ import { FashionBlueprintService } from '../../domain/fashion-blueprint/FashionB
 import { FashionQuoteService } from '../../domain/fashion-blueprint/FashionQuoteService.js';
 import { FashionRunService } from '../../domain/fashion-blueprint/FashionRunService.js';
 
-export function registerFashionBlueprintRoutes(app, { providerRegistry, queueManager }) {
+export function registerFashionBlueprintRoutes(app, {
+  providerRegistry,
+  queueManager,
+  templatePoseProxyService
+}) {
   const blueprintService = new FashionBlueprintService({ providerRegistry });
   const quoteService = new FashionQuoteService({
     blueprintService,
-    providerRegistry
+    providerRegistry,
+    templatePoseProxyService
   });
   const runService = new FashionRunService({ quoteService, providerRegistry, queueManager });
 

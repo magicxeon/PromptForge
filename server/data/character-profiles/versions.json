@@ -1,5 +1,306 @@
 [
   {
+    "characterProfileId": "charprof_1785668757771_4sv6c0pg",
+    "versionNumber": 1,
+    "sourceMode": "character-sheet",
+    "characterType": "reusable_model",
+    "structuredCharacterSnapshot": {
+      "selections": {
+        "Gender": {
+          "id": "character.001",
+          "value": "female",
+          "label": "Female",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Age": {
+          "id": "character.004_e20",
+          "value": "21-year-old young adult",
+          "label": "Early Twenties (20-23)",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Ethnicity": {
+          "id": "character.007",
+          "value": "thai ethnicity",
+          "label": "Thai",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "thai"
+          ],
+          "gptPositiveWords": []
+        },
+        "Beauty": {
+          "id": "character.beauty_editorial",
+          "value": "sleek high-fashion editorial face",
+          "label": "Sleek high-fashion editorial face",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "beauty"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Length": {
+          "id": "hair_003",
+          "value": "long hair",
+          "label": "Long Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "length"
+          ],
+          "gptPositiveWords": []
+        },
+        "Texture": {
+          "id": "hair.text_01",
+          "value": "silky smooth hair",
+          "label": "Silky Smooth Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "texture"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color": {
+          "id": "hair_014",
+          "value": "dark brown hair",
+          "label": "Dark Brown",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "color"
+          ],
+          "gptPositiveWords": []
+        },
+        "Height Impression": {
+          "id": "body.height.runway",
+          "value": "elongated adult runway-style body line with long elegant legs and realistic anatomical proportions without distortion",
+          "label": "Elongated Runway Line",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "runway"
+          ],
+          "gptPositiveWords": []
+        },
+        "Model Build": {
+          "id": "body.build.slender-curvaceous",
+          "value": "slender curvaceous adult fashion-model build with a narrow lean frame, slim shoulders, arms, waist, and legs, while retaining distinctly fuller natural upper-torso volume and proportionate rounded hips; do not interpret slender as a straight, flat, or low-curve body shape",
+          "label": "Slender Curvaceous Fashion Build",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "runway",
+            "curvaceous"
+          ],
+          "gptPositiveWords": []
+        },
+        "Body Silhouette": {
+          "id": "body.silhouette.full-bust-runway-hourglass",
+          "value": "adult high-fashion model anatomy with distinctly fuller natural bust volume, clear natural forward upper-torso projection visible consistently in both front and exact side profile, pronounced but anatomically plausible bust-to-waist contrast, a narrow clearly defined waist, balanced rounded hips, slender shoulders and limbs, and long elegant legs; preserve these same selected bust, waist, hip, and limb proportions across every view without normalizing them toward average body proportions",
+          "label": "Full-Bust Runway Hourglass",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "runway",
+            "hourglass"
+          ],
+          "gptPositiveWords": []
+        },
+        "Tone": {
+          "id": "skin.tone_02",
+          "value": "porcelain skin",
+          "label": "Porcelain skin",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "tone",
+            "porcelain"
+          ],
+          "gptPositiveWords": []
+        },
+        "Makeup": {
+          "id": "skin.makeup_02",
+          "value": "soft peach makeup style",
+          "label": "Soft K-Beauty Makeup",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "makeup",
+            "k-beauty",
+            "asian"
+          ],
+          "gptPositiveWords": []
+        },
+        "Freckles": {
+          "id": "skin.freckles_01",
+          "value": "even skin with no freckles",
+          "label": "No Freckles",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "freckles",
+            "none"
+          ],
+          "gptPositiveWords": []
+        },
+        "Cut / Style": {
+          "id": "hair_022",
+          "value": "layered hush cut hairstyle",
+          "label": "Layered Hush Cut",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "style"
+          ],
+          "gptPositiveWords": []
+        },
+        "Parting / Fringe": {
+          "id": "hair_038",
+          "value": "side-parted hair, no bangs",
+          "label": "Side Parting",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "bangs",
+            "parting"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "characterSheetConfig": {
+        "version": 1,
+        "mode": "character-sheet",
+        "characterType": "reusable_model",
+        "sourceHeadshotIds": [],
+        "identitySelectionIds": {
+          "Gender": "character.001",
+          "Age": "character.004_e20",
+          "Ethnicity": "character.007",
+          "Beauty": "character.beauty_editorial",
+          "Expression": "expression.004",
+          "Length": "hair_003",
+          "Texture": "hair.text_01",
+          "Color": "hair_014",
+          "Tone": "skin.tone_02",
+          "Makeup": "skin.makeup_02",
+          "Freckles": "skin.freckles_01",
+          "Cut / Style": "hair_022",
+          "Parting / Fringe": "hair_038"
+        },
+        "bodySelectionIds": {
+          "Height Impression": "body.height.runway",
+          "Model Build": "body.build.slender-curvaceous",
+          "Body Silhouette": "body.silhouette.full-bust-runway-hourglass"
+        },
+        "outfitSource": {
+          "type": "baseline",
+          "frontReferenceIds": [],
+          "backReferenceIds": []
+        },
+        "outfitReferenceOverrides": {
+          "enabled": false,
+          "primaryColor": false,
+          "secondaryColor": false,
+          "pattern": false,
+          "material": false
+        },
+        "outfitSelectionIds": {},
+        "layout": {
+          "type": "character-casting-three-view-v2"
+        },
+        "castingCandidate": true,
+        "castingLayoutVersion": "character-casting-three-view-v2",
+        "uniformPolicyVersion": "casting-uniform-gray-grid-v4",
+        "aspectRatio": "6:8",
+        "outputCount": 1,
+        "sourceOwnership": null
+      },
+      "sourceOwnership": null
+    },
+    "sourceGenerationResultIds": [
+      "job_1785668499409_21viddhhw"
+    ],
+    "canonicalHeadshotAssetId": null,
+    "canonicalCharacterSheetAssetId": "job_1785668499409_21viddhhw",
+    "canonicalCastingExportAssetId": "job_1785668499409_21viddhhw",
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1785668757771_4sv6c0pg/charver_1785668757784_fv9uu7gi/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1785668757771_4sv6c0pg/charver_1785668757784_fv9uu7gi/face.webp",
+    "castingExportGenerationResultId": "job_1785668499409_21viddhhw",
+    "castingExportLayoutVersion": "character-casting-three-view-v2",
+    "castingUniformPolicyVersion": "casting-uniform-gray-grid-v4",
+    "providerModelSnapshot": {
+      "providerId": "openai",
+      "modelId": "gpt-image-1-mini",
+      "resolution": null,
+      "providerConfigVersion": 1
+    },
+    "promptSnapshotHash": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-02T13:51:25.942Z",
+    "id": "charver_1785668757784_fv9uu7gi",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-08-02T11:05:57.784Z",
+    "updatedAt": "2026-08-02T13:51:25.942Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "characterProfileId": "charprof_1785135501348_4te0f9xf",
     "versionNumber": 1,
     "sourceMode": "character-sheet",

@@ -1,6 +1,35 @@
 [
   {
     "ownerUsernameSnapshot": "user_alice",
+    "displayName": "น้องเปิ้ล",
+    "slug": "character-3",
+    "shortDescription": "เปิ้ลน่ารัก",
+    "personalitySummary": "สวยแหละ นิสัยดี ชอบทำงาน สนุก",
+    "characterType": "reusable_model",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "reusePolicy": "view_only",
+    "activeVersionId": "charver_1785668757784_fv9uu7gi",
+    "creatorProfileId": "creator_alice",
+    "idempotencyKey": "react_character_profile_job_1785668499409_21viddhhw",
+    "recordVersion": 7,
+    "id": "charprof_1785668757771_4sv6c0pg",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "approved",
+    "createdAt": "2026-08-02T11:05:57.768Z",
+    "updatedAt": "2026-08-02T13:54:24.244Z",
+    "deletedAt": null,
+    "metadata": {},
+    "rightsDeclarationVersion": null,
+    "rightsDeclarationAcceptedAt": null
+  },
+  {
+    "ownerUsernameSnapshot": "user_alice",
     "displayName": "น้องเจน",
     "slug": "character-2",
     "shortDescription": "ทดสอบน้องเจน เหมาะสำหรับทำภาพ แฟชัน เครื่องสำอาง",

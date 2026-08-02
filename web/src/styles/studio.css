@@ -441,6 +441,82 @@
   white-space: nowrap;
 }
 
+.generation-library--full .generation-library__page-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--mpf-border);
+}
+
+.generation-library--full .generation-library__page-header span {
+  color: var(--mpf-cyan);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.generation-library--full .generation-library__page-header h1 {
+  margin: 7px 0 0;
+  font-size: 1.75rem;
+}
+
+.generation-library--full .studio-recent {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--mpf-border);
+  border-radius: var(--mpf-radius-md);
+  background: var(--theme-bg-raised);
+}
+
+.generation-library--full .studio-recent__grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.generation-library--full .studio-recent__item {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--mpf-radius-sm);
+}
+
+.generation-library--full .studio-recent__item img {
+  object-fit: contain;
+  background: #05060a;
+}
+
+.generation-library__load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.authenticated-media-image__loading {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgb(255 255 255 / 16%);
+  border-top-color: var(--mpf-cyan);
+  border-radius: 50%;
+  animation: authenticated-media-spin 0.8s linear infinite;
+}
+
+@keyframes authenticated-media-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 900px) {
+  .generation-library--full .studio-recent__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .generation-library--full .studio-recent__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .studio-configurator-pipeline {
   display: grid;
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
@@ -1139,29 +1215,52 @@
 
 .visual-custom-form {
   display: flex;
-  align-items: center;
+  align-items: end;
   gap: 7px;
   margin-top: 8px;
 }
 
-.visual-custom-form input {
+.visual-custom-form__input {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.visual-custom-form textarea {
   width: 100%;
   min-width: 0;
-  height: 32px;
-  flex: 1;
-  padding: 0 9px;
+  min-height: 58px;
+  max-height: 132px;
+  resize: vertical;
+  padding: 8px 9px;
   border: 1px solid var(--mpf-border-strong);
   border-radius: 10px;
   background: #080b13;
   color: var(--mpf-text);
   font: inherit;
   font-size: 10px;
+  line-height: 1.45;
 }
 
-.visual-custom-form input:focus-visible {
+.visual-custom-form textarea:focus-visible {
   border-color: var(--mpf-cyan);
   outline: 2px solid rgb(17 197 236 / 18%);
   outline-offset: 1px;
+}
+
+.visual-custom-form textarea[aria-invalid="true"] {
+  border-color: var(--mpf-danger, #ef4444);
+}
+
+.visual-custom-form__input small {
+  color: var(--mpf-text-muted);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
+.visual-custom-form__input small.is-error {
+  color: var(--mpf-danger, #ef4444);
 }
 
 .visual-custom-form > button {
@@ -1413,11 +1512,23 @@
   resize: vertical;
 }
 
+.studio-prompt-preview__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--mpf-text-muted);
+  font-size: 11px;
+}
+
+.studio-prompt-preview__heading button {
+  flex: 0 0 auto;
+}
+
 .studio-manual-prompt textarea {
   min-height: 260px;
 }
 
-.studio-prompt-preview label > span,
 .studio-prompt-preview summary,
 .studio-manual-prompt label {
   color: var(--mpf-text-muted);
@@ -2105,7 +2216,7 @@
 .visual-field-control-row select,
 .visual-field-lock,
 .visual-custom-color__picker,
-.visual-custom-form input,
+.visual-custom-form textarea,
 .studio-prompt-preview textarea,
 .studio-manual-prompt textarea,
 .studio-additional-direction textarea,
@@ -2196,7 +2307,7 @@
 }
 
 .visual-field-control-row select:focus-visible,
-.visual-custom-form input:focus-visible,
+.visual-custom-form textarea:focus-visible,
 .studio-additional-direction textarea:focus-visible {
   border-color: var(--theme-focus);
   outline-color: color-mix(in srgb, var(--theme-focus) 20%, transparent);

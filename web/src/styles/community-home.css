@@ -285,6 +285,16 @@
   box-shadow: 0 10px 30px var(--theme-shadow);
 }
 
+.community-media-card.is-retired {
+  filter: grayscale(0.86);
+  opacity: 0.62;
+}
+
+.community-media-card.is-retired:hover {
+  transform: none;
+  border-color: var(--theme-border);
+}
+
 .community-media-card__stage {
   min-height: 0;
   aspect-ratio: 4 / 3;

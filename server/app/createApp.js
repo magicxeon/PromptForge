@@ -56,6 +56,7 @@ import { faceReferenceHandoffService } from '../domain/generation/FaceReferenceH
 import { imagePresentationService } from '../domain/assets/ImagePresentationService.js';
 import { templateCoreService } from '../domain/templates/TemplateCoreService.js';
 import { registerTemplateRoutes } from './routes/templateRoutes.js';
+import { TemplatePoseProxyService } from '../domain/template-pose-proxy/TemplatePoseProxyService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -79,6 +80,10 @@ export function resolveRequestUsername(req, {
 export function createApp() {
   const app = express();
   const providerRegistry = getProviderRegistry();
+  const templatePoseProxyService = new TemplatePoseProxyService({
+    providerRegistry,
+    queueManager
+  });
   const comparisonOrchestrator = new ComparisonOrchestrator({
     providerRegistry,
     queueManager,
@@ -123,6 +128,7 @@ export function createApp() {
     historyRepository,
     mockUserRepo,
     templateCoreService,
+    templatePoseProxyService,
     resolveRequestUsername
   };
 
@@ -196,9 +202,10 @@ export function createApp() {
     communityShareService,
     communityFeaturePolicyService,
     imagePresentationService,
-    templateCoreService
+    templateCoreService,
+    templatePoseProxyService
   });
-  registerTemplateRoutes(app, { templateCoreService });
+  registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService });
 
   // All registered browser routes are owned by the React SPA.
   app.get('*', (req, res, next) => {

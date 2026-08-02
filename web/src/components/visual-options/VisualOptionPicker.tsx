@@ -4,11 +4,14 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import type {
   AttributeField,
-  AttributeSelection
+  AttributeSelection,
+  CustomAttributeInputLimits
 } from '../../features/studio/attributes/attributeModel';
 import {
+  countCharacters,
   createCustomSelection,
   createSelection,
+  DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
   localized
 } from '../../features/studio/attributes/attributeModel';
 import type { VisualFieldPresentation } from '../../features/studio/visual-options/visualOptionRegistry';
@@ -29,6 +32,8 @@ export function VisualOptionPicker({
   disabledReason,
   locked = false,
   customColors,
+  customCharacterCount = 0,
+  customInputLimits = DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
   onLockChange,
   onCustomColorsChange,
   onChange
@@ -40,6 +45,8 @@ export function VisualOptionPicker({
   disabledReason?: string;
   locked?: boolean;
   customColors?: StudioCustomColors;
+  customCharacterCount?: number;
+  customInputLimits?: CustomAttributeInputLimits;
   onLockChange?: (locked: boolean) => void;
   onCustomColorsChange?: (colors: StudioCustomColors) => void;
   onChange: (value: AttributeSelection | null) => void;
@@ -68,10 +75,23 @@ export function VisualOptionPicker({
     && field.name === 'Color'
     && isCustomHairColorActive(customColors)
   );
+  const customCharacterLength = countCharacters(custom.trim());
+  const selectedCustomLength = value?.isCustom
+    ? countCharacters(value.value.trim())
+    : 0;
+  const projectedCustomTotal = Math.max(0, customCharacterCount - selectedCustomLength)
+    + customCharacterLength;
+  const customFieldTooLong = customCharacterLength
+    > customInputLimits.maxCharactersPerField;
+  const customTotalTooLong = projectedCustomTotal
+    > customInputLimits.maxCharactersTotal;
+  const customInputInvalid = customFieldTooLong || customTotalTooLong;
 
   function submitCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (custom.trim()) onChange(createCustomSelection(field, custom));
+    if (custom.trim() && !customInputInvalid) {
+      onChange(createCustomSelection(field, custom.trim()));
+    }
   }
   return (
     <fieldset
@@ -139,13 +159,41 @@ export function VisualOptionPicker({
       ) : null}
       {showCustom && !hasCustomColorControl ? (
         <form className="visual-custom-form" onSubmit={submitCustom}>
-          <input
-            value={custom}
-            onChange={event => setCustom(event.target.value)}
-            maxLength={240}
-            placeholder={t('ui.visual.customPlaceholder', { field: field.name })}
-          />
-          <Button type="submit" size="sm">{t('ui.visual.use')}</Button>
+          <div className="visual-custom-form__input">
+            <textarea
+              value={custom}
+              onChange={event => setCustom(event.target.value)}
+              placeholder={t('ui.visual.customPlaceholder', { field: field.name })}
+              aria-invalid={customInputInvalid}
+              aria-describedby={`${authorityId}-custom-status`}
+              rows={3}
+            />
+            <small
+              id={`${authorityId}-custom-status`}
+              className={customInputInvalid ? 'is-error' : undefined}
+              role={customInputInvalid ? 'alert' : undefined}
+            >
+              {customFieldTooLong
+                ? t('ui.visual.customFieldTooLong', {
+                  count: customCharacterLength,
+                  limit: customInputLimits.maxCharactersPerField
+                })
+                : customTotalTooLong
+                  ? t('ui.visual.customTotalTooLong', {
+                    count: projectedCustomTotal,
+                    limit: customInputLimits.maxCharactersTotal
+                  })
+                  : t('ui.visual.customCharacterCount', {
+                    count: customCharacterLength,
+                    limit: customInputLimits.maxCharactersPerField,
+                    total: projectedCustomTotal,
+                    totalLimit: customInputLimits.maxCharactersTotal
+                  })}
+            </small>
+          </div>
+          <Button type="submit" size="sm" disabled={!custom.trim() || customInputInvalid}>
+            {t('ui.visual.use')}
+          </Button>
         </form>
       ) : null}
     </fieldset>

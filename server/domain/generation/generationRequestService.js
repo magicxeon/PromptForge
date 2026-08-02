@@ -16,6 +16,7 @@ import {
   validatePlaygroundReferenceRoles
 } from './referenceRolePolicy.js';
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
+import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 export const ADDITIONAL_DIRECTION_MAX_LENGTH = 300;
@@ -154,11 +155,12 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
     payload.characterReferenceOutfitBehavior
       || payload.characterProfileContext?.outfitBehavior
   );
+  const normalizedSelections = normalizeCustomAttributeSelections(payload.selections);
   const selections = reusableCharacterSheet
-    ? Object.fromEntries(Object.entries(payload.selections || {}).filter(([, selection]) =>
+    ? Object.fromEntries(Object.entries(normalizedSelections).filter(([, selection]) =>
       selection?.group !== 'Clothing'
     ))
-    : (payload.selections || {});
+    : normalizedSelections;
   let sceneTemplateSnapshot = payload.sceneTemplateSnapshot
     ? stripEmbeddedReferenceDataFromSnapshot(payload.sceneTemplateSnapshot)
     : null;
@@ -292,7 +294,7 @@ export function compilePromptFromGenerationContext(context) {
         ? 'Preserve the original outfit identity and garment details from the outfit-bound character reference.'
         : context.imageReferences?.outfitReference === true
           ? 'Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions.'
-          : 'The fitted white casting uniform in that reusable character reference is not the target outfit and must not be copied.',
+          : 'Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied.',
       preserveCharacterOutfit
         ? 'Follow the destination expression, pose, styling, and environment directions without replacing the original outfit.'
         : 'Follow the destination expression, pose, clothing, styling, and environment directions.'

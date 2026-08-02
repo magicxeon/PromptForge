@@ -450,6 +450,11 @@ class QueueManager {
         comparisonSlotId: job.options.comparisonSlotId || null,
         templateUseContext: job.options.templateUseContext || null
       };
+      const operationPurpose = job.options.routingSnapshot?.operationPurpose || null;
+      historyEntry.operationPurpose = operationPurpose;
+      historyEntry.artifactVisibility = operationPurpose === 'template_pose_proxy_prepare'
+        ? 'template_owner_only'
+        : 'customer';
       try {
         Object.assign(historyEntry, await thumbnailService.createForHistoryItem(historyEntry));
       } catch (thumbnailError) {
@@ -482,11 +487,13 @@ class QueueManager {
       }
 
       let collectionWarning = null;
-      try {
-        await collectionManager.addToDefault(jobId, job.options.username || 'user_demo');
-      } catch (collectionError) {
-        collectionWarning = 'The image was saved, but it could not be added to the default collection.';
-        console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
+      if (historyEntry.artifactVisibility === 'customer') {
+        try {
+          await collectionManager.addToDefault(jobId, job.options.username || 'user_demo');
+        } catch (collectionError) {
+          collectionWarning = 'The image was saved, but it could not be added to the default collection.';
+          console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
+        }
       }
 
       // Emit completed event with duration metadata
