@@ -383,6 +383,272 @@ Generate and approve the visible Scene preview
 Normal users see `Preparing reusable pose`, not provider prompts or the terms
 MMPose, SAM, ControlNet or processor internals.
 
+### 3.4 Qualification forensic record - 2026-08-02
+
+The first application-driven candidate sweep did not use one equivalent
+execution pipeline and therefore cannot promote or permanently reject a final
+Fashion model. The observed visual results remain useful diagnostic evidence,
+but every affected candidate must be rerun after the pipeline controls below
+are active.
+
+Root cause:
+
+- Simple routing bound the approved `TemplatePoseProxy`, while Advanced routing
+  bypassed it and sent the original person-containing Template;
+- all final Fashion candidates were still executed as `single_stage` with
+  Character, Outfit and Template/Proxy references in one provider request;
+- the accepted manual `GNB2-S6` evidence instead used prepared-look Stage 1,
+  cached Pose Proxy Stage 2A and final composition Stage 2B;
+- the application therefore claimed a qualified Gemini strategy without yet
+  reproducing its full two-customer-operation execution contract;
+- `gpt-image-2` additionally received unsupported `input_fidelity`, so its
+  provider failure was an adapter capability bug rather than model-quality
+  evidence.
+
+Candidate observations collected before correction:
+
+| Candidate | Job | Technical finding | Qualification use |
+|---|---|---|---|
+| Gemini Flash baseline | `job_fashion_a93517bdfdec1719f4_1` | Active Pose Proxy + Character + Outfit, but `single_stage`; identity failed manual review | Invalid as `GNB2-S6` proof; pipeline diagnostic only |
+| Gemini Pro | `job_fashion_25bd77c3137542dd8b_1` | Original person-containing Template was sent because Advanced mode skipped proxy | Invalid comparison |
+| GPT-Image 1.5 | `job_fashion_0f5ab1d050c17b9a90_1` | Original person-containing Template was sent because Advanced mode skipped proxy | Invalid comparison |
+| GPT-Image 2 | `job_fashion_5f8ac6b3f4c2ae454a_1` | Rejected unsupported `input_fidelity`; 110-credit reservation refunded | Adapter defect; no visual score |
+| Seedream 4.0 | `job_fashion_0e731c3e18699d638e_1` | 55 credits, 34.1 seconds, 864x1152, three references ordered Character/Outfit/Template, `single_stage`, and no Pose Proxy lineage | Invalid comparison; retain `experimental` |
+| Seedream 5.0 Lite | `job_fashion_8ed8208c29f87d8597_1` | Original person-containing Template was sent; model remains operation-only for reviewed wireframe proxy preparation | Invalid final-compositor comparison |
+
+The Seedream 4.0 total is correct under the current mock policy:
+
+```text
+45 generation credits + 10 Template access credits = 55 credits
+```
+
+The durable run record for `frun_0e731c3e18699d638e` remained `queued` after
+the generation history showed completion. Fashion run hydration must persist
+terminal operation/result state back to the run repository so support and
+restart recovery do not depend on an in-memory queue.
+
+Correction gate:
+
+1. Every Fashion route, including Advanced qualification runs, must bind the
+   exact approved Pose Proxy and include its ID, source operation, policy,
+   strategy and representation in run lineage.
+2. Provider adapters must emit only capabilities supported by the exact model;
+   `gpt-image-2` must not receive `input_fidelity`.
+3. Fashion history must retain sanitized Fashion run and proxy lineage for
+   support lookup without logging image bytes.
+4. A fair candidate sweep uses one Template version, Pose Proxy, Character,
+   Outfit, dimensions and output count, and records one fresh Job ID per model.
+5. Final Simple qualification remains blocked until the application implements
+   and prices prepared-look Stage 1 followed by final Stage 2B. A single-stage
+   Proxy + Character + Outfit request is not equivalent evidence.
+
+#### 3.4.1 Corrected-pipeline candidate sweep
+
+The 2026-08-02 rerun bound the same approved Pose Proxy to Advanced routes.
+The reviewer supplied the following manual results. Model identity is taken
+from persisted Fashion run data, not the UI label or handwritten note.
+
+| Actual model and Job | Identity / body / Outfit | Pose / scene / polish | Critical observations | Disposition |
+|---|---|---|---|---|
+| `gemini-3.1-flash-lite-image` / `job_fashion_e458673a36d0d38f06_1` | `5 / 5 / 5` | `5 / 5 / 5` | No Template leakage, accessory drift or visible Proxy; one image passed | Strong single-scenario result, but this was Lite rather than `gemini-3.1-flash-image`; retain operation-only policy until repeated and until the two-stage customer pipeline is evaluated |
+| `gemini-3-pro-image` / `job_fashion_2be074bbe1d33d5125_1` | `0 / 0 / 0` | `2 / 4.5 / 0` | Wrong person/skin/Outfit, switched hand, necklace and footwear drift | Failed this prompt strategy; provider-specific strategy required before retest |
+| `gpt-image-1.5` / `job_fashion_a7567066c521b3d64b_1` | `5 / 5 / 5` | `5 / 4.5 / 5` | No Template leakage or Proxy; small body slimming, sunlight drift and an attractive but unauthorized necklace | Selling-quality candidate; repeat with explicit accessory suppression |
+| `gpt-image-2` / `job_fashion_aa602f8ffcd24507ef_1` | `5 / 5 / 2` | `5 / 5 / 0` | Outfit color/detail failed and necklace appeared; one-image acceptance failed | Failed current prompt strategy; retain Experimental only |
+| `seedream-4-0-250828` / `job_fashion_51d36eb32f4cd4bf3d_1` | Not scored | Not scored | Provider rejected the Proxy input with `InputImageSensitiveContentDetected` | Input representation failure, not visual model evidence |
+| `seedream-5-0-lite-260128` / same attempted source set | Not scored | Not scored | Provider rejected the same Proxy input with `InputImageSensitiveContentDetected` | Input representation failure; no final-compositor score |
+
+The first row was initially reported as `gemini-3.1-flash-image`, but both the
+durable run and history identify `gemini-3.1-flash-lite-image`. Do not use that
+score to certify the non-Lite route.
+
+The rejected Pose Proxy was a smooth anatomically contoured matte mannequin.
+Although identity-neutral, it can be interpreted by provider moderation as an
+unclothed body. The replacement strategy is
+`GNB2-S6-CLOTHED-GRID-PROXY-V2`:
+
+- opaque neutral-gray high crew-neck short-sleeve fitting top;
+- separate opaque mid-thigh fitting shorts with visible hems;
+- subtle non-text contour grid across the garment surface;
+- no nude anatomy, nipples, genital contours, cleavage, transparency,
+  underwear, lingerie or swimwear;
+- the fitting uniform remains safety-visible geometry only and has no garment
+  authority in final Fashion generation.
+
+Changing the policy and strategy versions invalidates the old active Proxy.
+The Template creator must calculate, prepare, review and approve the new Proxy
+before another Fashion quote can use that Template.
+
+The Grok `fashion_quote_stale` failure was unrelated to model quality. The
+locked estimate stored resolution as `1K`, while the exact provider model
+reported `1k`; Fashion aggregate reservation compared those values
+case-sensitively. Resolution parity must be normalized before comparison while
+all other fingerprinted fields remain exact.
+
+#### 3.4.2 Clothed-grid Proxy sweep
+
+After activating `GNB2-S6-CLOTHED-GRID-PROXY-V2`, the following Jobs used the
+same new Proxy `tpp_6d6030c940fa8813d8` and can be compared as one corrected
+single-stage sweep:
+
+| Actual model and Job | Identity / body / Outfit | Pose / scene / polish | Reviewer result | Disposition |
+|---|---|---|---|---|
+| `gemini-3.1-flash-image` / `job_fashion_2d34cce9b7e070369d_1` | `5 / 5 / 5` | `5 / 5 / 5` | No leakage, accessories or visible Proxy; one image passed | Qualified current single-stage baseline; retain Simple route while two-stage promotion remains separate |
+| `seedream-4-0-250828` / `job_fashion_03e6f588c72bad56fb_1` | `2 / 3 / 2` | `1 / 1 / 0` | Face direction, Outfit, pose and scene drifted; one-image acceptance failed | Failed final Fashion composition for MVP |
+| `seedream-5-0-lite-260128` / `job_fashion_bda6a6fe891f28e65b_1` | `4 / 5 / 4.5` | `5 / 5 / 0` | Strong structure but one shoe disappeared and the other merged visually with the foot | Keep operation-only for Pose Proxy preparation; not a final Simple route |
+| `dola-seedream-5-0-pro-260628` / `job_fashion_26ae67179bbdae7fe6_1` | `5 / 5 / 5` | `5 / 5 / 4` | Identity looked slightly mannequin-like and footwear was omitted | Advanced experiment only; retest with explicit complete-footwear contract |
+| `grok-imagine-image-quality` / `job_fashion_d4b42c50ae5c067d04_1` | `5 / 5 / 3` | `5 / 5 / 2` | Fast result but garment shape/color failed | Failed final Fashion composition for MVP |
+| `grok-imagine-image` / `job_fashion_d41cb7ff2ae7cbc329_1` | `5 / 5 / 3` | `3 / 3 / 2` | Garment waistband, camera angle and scene position drifted | Failed final Fashion composition for MVP |
+
+The Seedream 5.0 Lite score originally referenced
+`job_fashion_51d36eb32f4cd4bf3d_1`, but that ID belongs to the earlier failed
+Seedream 4.0 moderation attempt and has no history output. The persisted Lite
+result is `job_fashion_bda6a6fe891f28e65b_1`; qualification evidence must use
+that canonical ID.
+
+The existing Gemini Pro result
+`job_fashion_2be074bbe1d33d5125_1` is not part of this corrected sweep. It used
+the obsolete `GNB2-S6-PROXY`, while the passing Flash result used
+`GNB2-S6-CLOTHED-GRID-PROXY-V2`. Both received the same 5,877-character prompt
+and the same Template/Character/Outfit role order. No special Gemini Pro API
+parameter is currently missing; rerun Pro with a fresh quote and the new Proxy
+before introducing a provider-specific prompt strategy.
+
+#### 3.4.3 Semantic reference envelope and Gemini Pro pilot
+
+The provider-neutral reference-processing contract owns semantic roles and
+authority, but each provider adapter owns how those semantics are serialized.
+Do not force every provider API to accept one identical wire payload.
+
+Canonical role order for the current Fashion operation is:
+
+```text
+POSE_PROXY -> pose, movement, camera, framing, environment and lighting
+CHARACTER_IDENTITY -> face, hair, skin, body shape and body proportions
+OUTFIT_PRODUCT -> garment construction, silhouette, color, material and detail
+```
+
+Every adapter must preserve this contract and its immutable processing-plan
+order. An adapter that supports interleaved multimodal input may bind a concise
+role marker directly to each image. An adapter that accepts only a separate
+image array must retain the same array order and compile the role mapping into
+its provider-specific prompt. Models that cannot reliably honor all authorities
+must use a staged operation rather than silently weakening the contract.
+
+The first rollout is limited to `gemini-3-pro-image` under strategy
+`GEMINI-PRO-ROLE-INTERLEAVED-V1`:
+
+```text
+GLOBAL INSTRUCTION
+<compiled Fashion prompt>
+
+IMAGE_0 - POSE PROXY
+<Pose Proxy image>
+
+IMAGE_1 - CHARACTER IDENTITY
+<Character image>
+
+IMAGE_2 - OUTFIT PRODUCT
+<Outfit image>
+
+FINAL EXECUTION
+Use every labeled image only for its assigned authority and return the requested
+final image.
+```
+
+Markers are derived from `referenceRoleManifest`; they are never inferred from
+file names or client labels. Unknown roles use a neutral reference marker and
+must not receive invented authority.
+
+The official Gemini image-generation guide documents interleaved text/image
+input, automatic Thinking for Gemini 3 Pro Image and a final `output_image`
+convenience result representing the last generated image block:
+
+`https://ai.google.dev/gemini-api/docs/image-generation`
+
+The REST adapter iterates raw interaction steps. Gemini Pro may expose interim
+thought images before its completed output, so the adapter must retain the last
+valid image block across all `model_output` steps. Selecting the first image is
+not equivalent to the documented final output behavior. This last-image rule is
+piloted only for Gemini Pro until regression evidence supports broader rollout.
+
+Pilot acceptance gate:
+
+1. Assert exact interleaved role/image order from the immutable provider plan.
+2. Assert that multiple model-output images return the last valid image.
+3. Keep Flash and Lite serialization behavior unchanged.
+4. Repeat the fixed Fashion benchmark at least three times before promoting
+   Gemini Pro from Experimental.
+5. Record Job IDs, strategy version, Proxy lineage and manual quality scores.
+
+#### 3.4.4 Gemini Pro authority-first correction
+
+The first application run using `GEMINI-PRO-ROLE-INTERLEAVED-V1` still allowed
+the Template person and Template garment direction to dominate. Review against
+Google's image-generation documentation and the external reference workflow
+guide below identified three request-shape defects:
+
+- the long execution prompt appeared before the role-bound images;
+- the Pose Proxy appeared before the Character identity image;
+- the immutable Template `finalPromptSnapshot` still contributed its original
+  garment direction even when an Outfit Product reference replaced it.
+
+References:
+
+- `https://ai.google.dev/gemini-api/docs/image-generation`
+- `https://www.aifreeapi.com/en/posts/nano-banana-pro-reference-images`
+
+The corrected Gemini Pro-only strategy is
+`GEMINI-PRO-AUTHORITY-FIRST-V2`:
+
+```text
+REFERENCE AUTHORITY CONTRACT
+
+IMAGE_0 - CHARACTER IDENTITY
+<approved Character image>
+
+IMAGE_1 - OUTFIT PRODUCT
+<Outfit Front image>
+
+IMAGE_2 - OUTFIT PRODUCT BACK VIEW        # when supplied
+<Outfit Back image>
+
+IMAGE_3 - POSE PROXY                      # IMAGE_2 when no Outfit Back exists
+<private Pose Proxy image>
+
+FINAL EXECUTION INSTRUCTION
+<compiled Fashion prompt with IMAGE_n references remapped to this order>
+```
+
+Rules:
+
+1. Provider-neutral reference processing retains its canonical immutable order,
+   lineage and fingerprint. The Gemini Pro adapter creates a provider-local
+   authority view and does not mutate the shared plan.
+2. Face identity, when explicitly available as a separate approved reference,
+   precedes the Character full-body reference. The MVP must not derive an
+   automatic face crop from the three-view sheet.
+3. Character identity precedes garment authority; Outfit Front and Back precede
+   the structural Pose Proxy. Supporting style references come last.
+4. Every `IMAGE_n` token in the structured authority brief must be remapped to
+   the provider-local order before dispatch. Reordering binary images without
+   remapping the contract is invalid.
+5. The full execution instruction appears after all labeled images. The opening
+   text is only a concise authority contract.
+6. When a Fashion-ready Template has a Pose Proxy, its creator-time
+   `finalPromptSnapshot` and `manualPromptSnapshot` must not be copied into the
+   final Fashion prompt. Pose, scene, camera and lighting come from the Proxy and
+   resolved Fashion direction; garment authority comes only from Outfit
+   references. This prevents an original Template blazer, trousers or other
+   clothing direction from competing with the selected product.
+7. A legacy Template without a Pose Proxy retains its prompt snapshot as a
+   compatibility fallback and cannot be promoted as Fashion-ready by this rule.
+8. Flash, Lite, OpenAI, xAI and ModelArk serialization remain unchanged until
+   their own benchmark evidence justifies adopting this ordering.
+
+Regression evidence must assert the actual request sequence, binary image
+ordering, `IMAGE_n` remapping, last-image response selection and removal of the
+Template garment prompt when a Pose Proxy is active.
+
 ### 3.5 Creator publication and Fashion-readiness status
 
 The owner Template-management surface must present two independent lifecycle
@@ -824,6 +1090,12 @@ Implemented in this increment:
   the original person-containing Template preview;
 - owner management UI for estimate, preparation, polling, visual review and
   approval.
+- Pose Proxy binding parity for Simple and Advanced Fashion routes;
+- durable Pose Proxy lineage on plans, runs and generated history;
+- exact-model OpenAI input-fidelity gating so GPT-Image 2 does not receive an
+  unsupported edit parameter;
+- durable Fashion run status/result synchronization from queue/history during
+  hydration.
 
 The MVP final customer operation currently composes the active Pose Proxy,
 Character and Outfit through the canonical Fashion generation operation. The

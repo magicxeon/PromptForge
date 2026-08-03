@@ -196,10 +196,12 @@ export class TemplatePoseProxyService {
     const template = await this.templateRepository.findById(templateId);
     if (!template) throw proxyError('template_not_found', 'Template not found.', 404);
     const versionId = templateVersionId || template.currentVersionId;
-    const record = await this.repository.findActiveForVersion(versionId)
-      || (await this.repository.readAll()).find(item =>
-        item.templateVersionId === versionId && item.status !== 'superseded'
-      );
+    const policy = this.policyService.getPolicy();
+    const records = await this.repository.readAll();
+    const record = records
+      .filter(item => item.templateVersionId === versionId)
+      .filter(item => item.status !== 'superseded' && recordMatchesPolicy(item, policy))
+      .sort((left, right) => Date.parse(right.updatedAt || 0) - Date.parse(left.updatedAt || 0))[0];
     return record
       ? this.toPublicReadiness(await this.synchronize(record))
       : this.toPublicReadiness(null, versionId);
@@ -211,9 +213,11 @@ export class TemplatePoseProxyService {
       throw proxyError('template_not_found', 'Template not found.', 404);
     }
     const versionId = templateVersionId || template.currentVersionId;
+    const policy = this.policyService.getPolicy();
     const records = await this.repository.readAll();
     const record = records
       .filter(item => item.templateVersionId === versionId && item.status !== 'superseded')
+      .filter(item => recordMatchesPolicy(item, policy))
       .sort((left, right) => Date.parse(right.updatedAt || 0) - Date.parse(left.updatedAt || 0))[0];
     const synchronized = record ? await this.synchronize(record) : null;
     return {
@@ -225,7 +229,12 @@ export class TemplatePoseProxyService {
   }
 
   async requireActive(templateVersionId, poseVariantId = 'default') {
-    const record = await this.repository.findActiveForVersion(templateVersionId, poseVariantId);
+    const policy = this.policyService.getPolicy();
+    const record = (await this.repository.readAll())
+      .filter(item => item.templateVersionId === templateVersionId)
+      .filter(item => item.poseVariantId === poseVariantId && item.status === 'active')
+      .filter(item => recordMatchesPolicy(item, policy))
+      .sort((left, right) => Date.parse(right.activatedAt || 0) - Date.parse(left.activatedAt || 0))[0];
     if (!record) {
       throw proxyError(
         'fashion_template_pose_proxy_required',
@@ -338,6 +347,15 @@ function createCacheKey(source, poseVariantId, policy) {
     policy.resolution,
     policy.aspectRatio
   ])).digest('hex');
+}
+
+function recordMatchesPolicy(record, policy) {
+  return record?.providerId === policy.providerId
+    && record?.modelId === policy.modelId
+    && record?.processorPolicyVersion === policy.policyVersion
+    && record?.processorStrategyVersion === policy.processorStrategyVersion
+    && (record?.outputRepresentation || 'matte_mannequin')
+      === policy.outputRepresentation;
 }
 
 function proxyError(code, message, statusCode = 400, details = {}) {

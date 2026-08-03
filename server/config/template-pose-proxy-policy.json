@@ -1,17 +1,18 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "template-pose-proxy-2026-08-01-v2",
+  "policyVersion": "template-pose-proxy-2026-08-02-v3",
   "processorType": "generative_provider",
   "providerId": "gemini",
   "modelId": "gemini-3.1-flash-lite-image",
-  "processorStrategyVersion": "GNB2-S6-PROXY",
+  "processorStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+  "outputRepresentation": "clothed_grid_mannequin",
   "operationPurpose": "template_pose_proxy_prepare",
   "resolution": "1K",
   "aspectRatio": "6:8",
   "outputCount": 1,
   "referenceCount": 1,
   "automaticFallbacks": [],
-  "prompt": "Create exactly one photorealistic vertical pose-template image from IMAGE_0. Preserve exactly the original environment, architecture, camera position, camera angle, full-body framing, crop, perspective, lighting direction, shadows and the person's complete pose geometry. Replace the visible person completely with one anonymous featureless matte-gray fashion mannequin. The mannequin must preserve the exact head orientation, neck rotation relative to the shoulders, facial plane direction, gaze axis, chin elevation, head tilt, shoulder rotation, torso angle, arm positions, elbow bends, forearm angles, wrist angles, hand positions, finger/contact placement, hip rotation, leg positions, knee bends, foot placement, walking action and weight distribution from IMAGE_0. The mannequin must have no recognizable face, skin, hair, ethnicity, age, identity, clothing texture, logo or personal appearance. Do not retain or reconstruct the original person's identity. Do not change the scene, pose, camera, framing or lighting. Output one person-shaped mannequin in one continuous full-frame 6:8 vertical image. Do not create multiple views, a contact sheet, split screen, text, labels or watermark.",
+  "prompt": "Create exactly one photorealistic vertical pose-template image from IMAGE_0. Preserve exactly the original environment, architecture, camera position, camera angle, full-body framing, crop, perspective, lighting direction, shadows and the person's complete pose geometry. Replace the visible person completely with one anonymous featureless neutral-gray fashion fitting mannequin wearing an unmistakably opaque modest technical fitting uniform: a high crew-neck short-sleeve top and separate mid-thigh shorts. The uniform must have visible garment boundaries at the neckline, sleeves, waist and shorts hems, plus a subtle light-gray contour grid of evenly spaced horizontal and vertical lines that follows the fabric surface. Keep the anatomy abstract beneath the uniform; do not show nude anatomy, nipples, genital contours, cleavage, transparent fabric, underwear, lingerie or swimwear. The clothed mannequin must preserve the exact head orientation, neck rotation relative to the shoulders, facial plane direction, gaze axis, chin elevation, head tilt, shoulder rotation, torso angle, arm positions, elbow bends, forearm angles, wrist angles, hand positions, finger/contact placement, hip rotation, leg positions, knee bends, foot placement, walking action and weight distribution from IMAGE_0. The mannequin must have no recognizable face, skin, hair, ethnicity, age, identity, brand, logo or personal appearance. The fitting uniform is only a safety-visible technical surface and has no garment authority for later Fashion generation. Do not retain or reconstruct the original person's identity. Do not change the scene, pose, camera, framing or lighting. Output one clothed mannequin in one continuous full-frame 6:8 vertical image. Do not create multiple views, a contact sheet, split screen, text, labels or watermark.",
   "promptProfiles": [
     {
       "providerId": "modelark",

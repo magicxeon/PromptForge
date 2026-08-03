@@ -53,12 +53,11 @@ export async function createFashionExecutionContext({
       templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
     sceneBuilder: {
       authoringMode: 'manual',
-      manualPromptText: [
-        templateExecution.executionSnapshot.finalPromptSnapshot
-          || templateExecution.executionSnapshot.manualPromptSnapshot
-          || '',
-        createFashionPrompt(plan, item)
-      ].filter(Boolean).join(' ')
+      manualPromptText: createFashionExecutionPrompt(
+        plan,
+        item,
+        templateExecution.executionSnapshot
+      )
     }
   };
   const { context } = compileGenerationContext(payload, actorContext);
@@ -75,6 +74,15 @@ export async function createFashionExecutionContext({
     model,
     templateExecution
   };
+}
+
+export function createFashionExecutionPrompt(plan, item, executionSnapshot = {}) {
+  const templatePrompt = plan.templatePoseProxy
+    ? ''
+    : executionSnapshot.finalPromptSnapshot
+      || executionSnapshot.manualPromptSnapshot
+      || '';
+  return [templatePrompt, createFashionPrompt(plan, item)].filter(Boolean).join(' ');
 }
 
 function createFashionTemplateReplacements(
@@ -183,7 +191,7 @@ function createGenerationPayload(plan, item) {
   };
 }
 
-function createFashionPrompt(plan, item) {
+export function createFashionPrompt(plan, item) {
   return [
     'Create a professional full-body ecommerce fashion photograph.',
     plan.templatePoseProxy

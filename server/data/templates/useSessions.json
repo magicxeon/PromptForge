@@ -47,6 +47,595 @@
         }
       ]
     },
+    "expiresAt": "2026-08-03T04:32:03.848Z",
+    "consumedAt": "2026-08-03T03:32:27.623Z",
+    "generatedJobIds": [
+      "job_fashion_86a967eeab1b5d3c91_1"
+    ],
+    "id": "tmpls_1785727923848_v53jgobd",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-03T03:32:03.848Z",
+    "updatedAt": "2026-08-03T03:32:27.623Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-03T01:11:11.165Z",
+    "consumedAt": "2026-08-03T00:11:35.978Z",
+    "generatedJobIds": [
+      "job_fashion_4a577519461f57eb47_1"
+    ],
+    "id": "tmpls_1785715871165_vjuqjc6a",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-03T00:11:11.165Z",
+    "updatedAt": "2026-08-03T00:11:35.978Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T17:15:13.123Z",
+    "consumedAt": "2026-08-02T16:15:30.545Z",
+    "generatedJobIds": [
+      "job_fashion_f894d66515e1cfe6e3_1",
+      "job_fashion_2d34cce9b7e070369d_1",
+      "job_fashion_03e6f588c72bad56fb_1",
+      "job_fashion_bda6a6fe891f28e65b_1",
+      "job_fashion_26ae67179bbdae7fe6_1",
+      "job_fashion_d4b42c50ae5c067d04_1",
+      "job_fashion_d41cb7ff2ae7cbc329_1",
+      "job_fashion_bb53bbc10d90aebbbc_1",
+      "job_fashion_77fcc4bfed595030e4_1"
+    ],
+    "id": "tmpls_1785687313123_fvuk7065",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T16:15:13.123Z",
+    "updatedAt": "2026-08-02T17:12:15.877Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T16:55:52.475Z",
+    "consumedAt": "2026-08-02T15:57:29.391Z",
+    "generatedJobIds": [
+      "job_fashion_51d36eb32f4cd4bf3d_1",
+      "job_fashion_ae121bdd578474472d_1"
+    ],
+    "id": "tmpls_1785686152475_uiytx0mr",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T15:55:52.475Z",
+    "updatedAt": "2026-08-02T15:58:57.399Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T16:20:58.727Z",
+    "consumedAt": "2026-08-02T15:24:38.659Z",
+    "generatedJobIds": [
+      "job_fashion_e458673a36d0d38f06_1",
+      "job_fashion_2be074bbe1d33d5125_1",
+      "job_fashion_a7567066c521b3d64b_1",
+      "job_fashion_aa602f8ffcd24507ef_1"
+    ],
+    "id": "tmpls_1785684058727_waan598g",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T15:20:58.727Z",
+    "updatedAt": "2026-08-02T15:45:14.354Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785600115088_xzgqbnle",
+    "templateVersionId": "tmplv_1785600115093_8j9poy4d",
+    "sourceCommunityPostId": "post_1785600115112_b764l0u2",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T16:20:20.864Z",
+    "consumedAt": null,
+    "generatedJobIds": [],
+    "id": "tmpls_1785684020864_youqa6b4",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T15:20:20.864Z",
+    "updatedAt": "2026-08-02T15:20:20.864Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T15:42:17.303Z",
+    "consumedAt": "2026-08-02T14:42:44.408Z",
+    "generatedJobIds": [
+      "job_fashion_5f8ac6b3f4c2ae454a_1",
+      "job_fashion_0e731c3e18699d638e_1",
+      "job_fashion_8ed8208c29f87d8597_1"
+    ],
+    "id": "tmpls_1785681737303_rhj19cnm",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T14:42:17.303Z",
+    "updatedAt": "2026-08-02T14:46:04.711Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T15:35:25.513Z",
+    "consumedAt": "2026-08-02T14:36:26.159Z",
+    "generatedJobIds": [
+      "job_fashion_25bd77c3137542dd8b_1",
+      "job_fashion_0f5ab1d050c17b9a90_1"
+    ],
+    "id": "tmpls_1785681325514_ps8mh84s",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T14:35:25.513Z",
+    "updatedAt": "2026-08-02T14:39:38.202Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-02T15:29:05.535Z",
+    "consumedAt": "2026-08-02T14:30:59.984Z",
+    "generatedJobIds": [
+      "job_fashion_d3ceec1a55337272ab_1"
+    ],
+    "id": "tmpls_1785680945545_8y83qlhn",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-02T14:29:05.535Z",
+    "updatedAt": "2026-08-02T14:30:59.984Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
     "expiresAt": "2026-08-02T14:51:49.228Z",
     "consumedAt": "2026-08-02T13:57:59.193Z",
     "generatedJobIds": [

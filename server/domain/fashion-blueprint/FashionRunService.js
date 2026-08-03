@@ -143,7 +143,16 @@ export class FashionRunService {
         communityPostId: quote.sourceCommunityPostId,
         templateId: quote.canonicalTemplateId,
         templateVersionId: quote.templateVersionId,
-        templateUseSessionId: plan.templateUseSessionId
+        templateUseSessionId: plan.templateUseSessionId,
+        poseProxyId: plan.templatePoseProxy?.id || null,
+        poseProxySourceGenerationId:
+          plan.templatePoseProxy?.sourceGenerationId || null,
+        poseProxyPolicyVersion:
+          plan.templatePoseProxy?.processorPolicyVersion || null,
+        poseProxyStrategyVersion:
+          plan.templatePoseProxy?.processorStrategyVersion || null,
+        poseProxyRepresentation:
+          plan.templatePoseProxy?.outputRepresentation || null
       },
       routeSnapshot: quote.routeSnapshot,
       pricingSnapshot: {
@@ -343,11 +352,35 @@ export class FashionRunService {
     const anyFailure = operations.some(operation =>
       ['failed', 'cancelled'].includes(operation.status)
     );
+    const status = terminal
+      ? (anySuccess && anyFailure ? 'partially_completed' : anySuccess ? 'completed' : 'failed')
+      : 'processing';
+    const operationsChanged = activeOperations.some((operation, index) => {
+      const persisted = run.operations[index] || {};
+      return persisted.status !== operation.status
+        || persisted.result?.imageUrl !== operation.result?.imageUrl
+        || persisted.error?.code !== operation.error?.code;
+    });
+    if (run.status !== status || operationsChanged) {
+      await this.runRepository.update(run.id, actorContext.userId, current => ({
+        ...current,
+        status,
+        completedAt: terminal
+          ? (current.completedAt || new Date().toISOString())
+          : null,
+        operations: activeOperations.map(operation => ({
+          ...operation,
+          result: operation.result || null,
+          error: operation.error || null
+        }))
+      }));
+    }
     return {
       ...run,
-      status: terminal
-        ? (anySuccess && anyFailure ? 'partially_completed' : anySuccess ? 'completed' : 'failed')
-        : 'processing',
+      status,
+      completedAt: terminal
+        ? (run.completedAt || new Date().toISOString())
+        : null,
       operations
     };
   }

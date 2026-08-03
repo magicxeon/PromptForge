@@ -226,5 +226,42 @@
     "activatedAt": null,
     "supersededAt": null,
     "reservationId": "rsv_1785605437247_b4awqus"
+  },
+  {
+    "id": "tpp_6d6030c940fa8813d8",
+    "schemaVersion": 1,
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "poseVariantId": "default",
+    "status": "active",
+    "processorType": "generative_provider",
+    "providerId": "gemini",
+    "modelId": "gemini-3.1-flash-lite-image",
+    "processorPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+    "processorStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+    "outputRepresentation": "clothed_grid_mannequin",
+    "sourcePreviewAssetId": null,
+    "proxyAssetId": null,
+    "proxyImageUrl": "/outputs/job_pose_proxy_6d6030c940fa8813d8.jpg",
+    "sourceFingerprint": "7ee5aaca02a846e6c68645aa5c7f3f1d6bccf7377d6ded90208ffe9259a83a8a",
+    "cacheKey": "cb704181446afb8c2a801dcc1046eae8db9b604ffab37144fe3d0bbb7b462f85",
+    "confidenceSummary": {
+      "automaticChecks": "pending_manual_visual_review"
+    },
+    "qaDecision": "manual_pass",
+    "qaReasonCodes": [],
+    "operationId": "job_pose_proxy_6d6030c940fa8813d8",
+    "requestId": "req_pose_proxy_6d6030c940fa8813d8",
+    "correlationId": "corr_pose_proxy_6d6030c940fa8813d8",
+    "estimateId": "est_1785687270524_gccg3kn",
+    "idempotencyKey": "pose-proxy:tmplv_1785602001173_26ect756:est_1785687270524_gccg3kn",
+    "createdByUserId": "usr_alice",
+    "reviewedByUserId": "usr_alice",
+    "createdAt": "2026-08-02T16:14:32.194Z",
+    "updatedAt": "2026-08-02T16:15:02.293Z",
+    "reviewedAt": "2026-08-02T16:15:02.292Z",
+    "activatedAt": "2026-08-02T16:15:02.292Z",
+    "supersededAt": null,
+    "reservationId": "rsv_1785687272207_j2so6dm"
   }
 ]

@@ -154,8 +154,16 @@ export class CreditReservationService {
           }
           : {})
       };
+      const normalizeComparable = (field, value) => {
+        if (value === undefined || value === null) return '';
+        const normalized = String(value).trim();
+        return field === 'resolution' ? normalized.toUpperCase() : normalized;
+      };
       const mismatches = Object.entries(actual)
-        .filter(([field, value]) => String(value ?? '') !== String(expected[field] ?? ''))
+        .filter(([field, value]) =>
+          normalizeComparable(field, value)
+            !== normalizeComparable(field, expected[field])
+        )
         .map(([field, value]) => ({ field, expected: value, actual: expected[field] }));
       if (mismatches.length) {
         throw createCreditError(

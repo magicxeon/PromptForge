@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { FashionBlueprintService } from '../server/domain/fashion-blueprint/FashionBlueprintService.js';
 import { createFashionPlanHash } from '../server/domain/fashion-blueprint/FashionPlanHash.js';
 import { CreditAccountRepository } from '../server/repositories/credits/CreditAccountRepository.js';
+import { CreditReservationService } from '../server/domain/credits/CreditReservationService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEST_DB = path.join(__dirname, `fashion-credit-${Date.now()}.json`);
@@ -14,7 +15,7 @@ test('Fashion plan resolves Simple routing and requires every outfit front', () 
   const provider = {
     id: 'gemini',
     models: [{
-      id: 'gemini-3.1-flash-lite-image',
+      id: 'gemini-3.1-flash-image',
       capabilities: { aspectRatios: ['6:8'], imageReferences: true, maxReferenceImages: 6 },
       defaults: { imageSize: '1K' }
     }]
@@ -40,7 +41,7 @@ test('Fashion plan resolves Simple routing and requires every outfit front', () 
   };
   const actor = { userId: 'usr_fashion' };
   const plan = service.resolvePlan(input, actor);
-  assert.equal(plan.route.modelId, 'gemini-3.1-flash-lite-image');
+  assert.equal(plan.route.modelId, 'gemini-3.1-flash-image');
   assert.equal(plan.templateUseSessionId, 'tuse_1');
   assert.equal(plan.productItems.length, 1);
   assert.equal(createFashionPlanHash(plan), createFashionPlanHash(service.resolvePlan(input, actor)));
@@ -88,4 +89,64 @@ test('Fashion aggregate credit reservation is atomic and idempotent', async () =
   assert.equal(afterFailure.availableCredits, 50);
   assert.equal(afterFailure.reservedCredits, 50);
   await fs.unlink(TEST_DB).catch(() => {});
+});
+
+test('Fashion plan reservation compares resolution case-insensitively', async () => {
+  let allocation = null;
+  const service = new CreditReservationService({
+    pricingPolicyService: {},
+    accountRepo: {
+      async getEstimateById() {
+        return {
+          estimateId: 'est_grok',
+          userId: 'usr_fashion',
+          expiresAt: new Date(Date.now() + 60_000).toISOString(),
+          estimatedCredits: 55,
+          pricingPolicyVersion: 'test-v1',
+          routing: {
+            requestedProviderId: 'xai',
+            requestedModelId: 'grok-imagine-image'
+          },
+          pricingInputs: {
+            resolution: '1K',
+            aspectRatio: '6:8',
+            referenceCount: 3,
+            outputCount: 1,
+            generationMode: 'fashion',
+            templateUseSessionId: 'session_1',
+            referenceProcessingPlanFingerprint: 'fingerprint_1'
+          },
+          breakdown: {}
+        };
+      },
+      async reserveCreditPlan(input) {
+        allocation = input.allocations[0];
+        return { reservations: [{ reservationId: 'rsv_1' }] };
+      }
+    }
+  });
+  await service.reservePlan({
+    userId: 'usr_fashion',
+    quoteId: 'quote_grok',
+    planId: 'plan_grok',
+    idempotencyKey: 'fashion:grok',
+    operations: [{
+      operationId: 'op_1',
+      estimateId: 'est_grok',
+      requestId: 'req_1',
+      jobId: 'job_1',
+      generationRequest: {
+        providerId: 'xai',
+        modelId: 'grok-imagine-image',
+        resolution: '1k',
+        aspectRatio: '6:8',
+        referenceCount: 3,
+        outputCount: 1,
+        generationMode: 'fashion',
+        templateUseSessionId: 'session_1',
+        referenceProcessingPlanFingerprint: 'fingerprint_1'
+      }
+    }]
+  });
+  assert.equal(allocation.amountCredits, 55);
 });

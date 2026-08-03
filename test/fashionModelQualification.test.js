@@ -26,6 +26,10 @@ test('Nano Banana Lite remains eligible only for Pose Proxy preparation', () => 
   );
   assert.equal(record.operationEligible, true);
   assert.equal(record.status, 'operation_only');
+  assert.equal(
+    record.promptStrategyVersion,
+    'GNB2-S6-CLOTHED-GRID-PROXY-V2'
+  );
 });
 
 test('Seedream 5.0 Lite is operation-only for wireframe Pose Proxy preparation', () => {

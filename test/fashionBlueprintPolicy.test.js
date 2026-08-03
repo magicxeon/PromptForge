@@ -3,6 +3,8 @@ import test from 'node:test';
 import { FashionBlueprintService } from '../server/domain/fashion-blueprint/FashionBlueprintService.js';
 import { fashionDirectionResolver } from '../server/domain/fashion-blueprint/FashionDirectionResolver.js';
 import { fashionRoutingPolicyService } from '../server/domain/fashion-blueprint/FashionRoutingPolicyService.js';
+import { FashionQuoteService } from '../server/domain/fashion-blueprint/FashionQuoteService.js';
+import { FashionRunService } from '../server/domain/fashion-blueprint/FashionRunService.js';
 
 function createRegistry() {
   const providers = [{
@@ -91,4 +93,70 @@ test('Fashion plan carries stable product and operation contracts', () => {
   assert.equal(plan.route.routingPolicyVersion, 'fashion-routing-2026-08-01-v2');
   assert.equal(plan.route.qualificationStatus, 'qualified');
   assert.equal(plan.route.promptStrategyVersion, 'GNB2-S6');
+});
+
+test('Fashion Advanced routes bind the same approved Pose Proxy as Simple routes', async () => {
+  const service = new FashionQuoteService({
+    blueprintService: {},
+    providerRegistry: {},
+    templatePoseProxyService: {
+      async requireActive(templateVersionId) {
+        assert.equal(templateVersionId, 'tmplv_1');
+        return {
+          id: 'proxy_1',
+          templateVersionId,
+          poseVariantId: 'default',
+          proxyImageUrl: '/outputs/job_pose_proxy_1.jpg',
+          operationId: 'job_pose_proxy_1',
+          processorPolicyVersion: 'proxy-policy-v1',
+          processorStrategyVersion: 'proxy-strategy-v1',
+          outputRepresentation: 'matte_mannequin'
+        };
+      }
+    }
+  });
+  const plan = await service.bindPoseProxy(
+    { routingMode: 'advanced' },
+    { session: { version: { id: 'tmplv_1' } } }
+  );
+  assert.equal(plan.templatePoseProxy.id, 'proxy_1');
+  assert.equal(plan.templatePoseProxy.sourceGenerationId, 'job_pose_proxy_1');
+});
+
+test('Fashion run hydration persists terminal queue state for restart recovery', async () => {
+  let persisted = null;
+  const service = new FashionRunService({
+    quoteService: {},
+    providerRegistry: {},
+    queueManager: {
+      async getJobStatusForUser() {
+        return {
+          status: 'completed',
+          result: { imageUrl: '/outputs/job_fashion_1.jpg' },
+          error: null
+        };
+      }
+    },
+    runRepository: {
+      async update(id, actorUserId, updater) {
+        persisted = updater({
+          id,
+          actorUserId,
+          status: 'queued',
+          operations: [{ operationId: 'op_1', jobId: 'job_fashion_1', status: 'queued' }]
+        });
+        return persisted;
+      }
+    }
+  });
+  const hydrated = await service.hydrateRun({
+    id: 'run_1',
+    actorUserId: 'usr_1',
+    status: 'queued',
+    approvedProofRunId: null,
+    operations: [{ operationId: 'op_1', jobId: 'job_fashion_1', status: 'queued' }]
+  }, { userId: 'usr_1', username: 'user_1' });
+  assert.equal(hydrated.status, 'completed');
+  assert.equal(persisted.status, 'completed');
+  assert.equal(persisted.operations[0].result.imageUrl, '/outputs/job_fashion_1.jpg');
 });

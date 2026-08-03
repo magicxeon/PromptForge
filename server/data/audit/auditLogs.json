@@ -162,5 +162,41 @@
     "actorRole": "creator",
     "requestId": null,
     "ipHash": null
+  },
+  {
+    "action": "community_post_owner_presentation_updated",
+    "targetType": "community_post",
+    "targetId": "post_1785602001186_pbu5qf1a",
+    "reason": "Owner updated public presentation metadata.",
+    "beforeSnapshot": {
+      "title": "Formal Traditional Dress",
+      "description": "Sample Formal Traditional Dress",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756"
+    },
+    "afterSnapshot": {
+      "title": "Formal Traditional Dress",
+      "description": "Sample Formal Traditional Dress",
+      "customTags": [],
+      "visibility": "public",
+      "templateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756"
+    },
+    "id": "audit_1785687305312_caqyvi6l",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-02T16:15:05.312Z",
+    "updatedAt": "2026-08-02T16:15:05.312Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_alice",
+    "actorRole": "creator",
+    "requestId": null,
+    "ipHash": null
   }
 ]

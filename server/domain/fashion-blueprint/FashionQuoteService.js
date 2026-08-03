@@ -283,7 +283,6 @@ export class FashionQuoteService {
   }
 
   async bindPoseProxy(plan, templateContext) {
-    if (plan.routingMode !== 'simple') return plan;
     if (!this.templatePoseProxyService) {
       throw fashionError('fashion_pose_proxy_service_unavailable', 'Fashion pose preparation is unavailable.', 503);
     }
@@ -319,6 +318,16 @@ function publicPlan(plan, operationCount) {
     qualityTier: plan.qualityTier,
     routingMode: plan.routingMode,
     route: plan.route,
+    templatePoseProxy: plan.templatePoseProxy
+      ? {
+        id: plan.templatePoseProxy.id,
+        templateVersionId: plan.templatePoseProxy.templateVersionId,
+        poseVariantId: plan.templatePoseProxy.poseVariantId,
+        processorPolicyVersion: plan.templatePoseProxy.processorPolicyVersion,
+        processorStrategyVersion: plan.templatePoseProxy.processorStrategyVersion,
+        outputRepresentation: plan.templatePoseProxy.outputRepresentation
+      }
+      : null,
     resolution: plan.resolution,
     aspectRatio: plan.aspectRatio,
     productCount: plan.productItems.length,
