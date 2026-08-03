@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { CharacterSummary } from '../../features/profiles/schemas/profileSchemas';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { createReturnNavigationState } from '../../lib/navigation/returnNavigation';
+import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function CharacterCard({ character }: { character: CharacterSummary }) {
   const { t } = useTranslation('character-profiles');
@@ -12,7 +13,7 @@ export function CharacterCard({ character }: { character: CharacterSummary }) {
   return (
     <article className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]">
       <Link
-        to={`/community/characters/${encodeURIComponent(character.id)}`}
+        to={routeBuilders.character(character.id)}
         state={createReturnNavigationState(location)}
         className="block text-inherit no-underline"
       >

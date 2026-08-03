@@ -23,13 +23,13 @@ export function HistoryDetailRoute() {
   const item = useQuery({ queryKey: ['history-item', actor?.userId || 'loading', jobId], queryFn: () => getHistoryItem(jobId), enabled: Boolean(jobId && actor) });
   const remove = useMutation({
     mutationFn: () => deleteHistoryItem(jobId),
-    onSuccess: () => navigate('/recent-generations', { replace: true })
+    onSuccess: () => navigate('/library/recent', { replace: true })
   });
   if (item.isLoading) return <LoadingState label={t('ui.history.loading')} />;
   if (item.isError || !item.data) return <ErrorState title={t('ui.history.unavailable')} description={item.error?.message} onRetry={() => void item.refetch()} />;
   return (
     <main>
-      <ContextBackLink fallbackTo="/recent-generations">{t('ui.history.back')}</ContextBackLink>
+      <ContextBackLink fallbackTo="/library/recent">{t('ui.history.back')}</ContextBackLink>
       <div className="mt-3 grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
         <Surface className="grid min-h-[65vh] place-items-center overflow-hidden bg-black p-0">
           <img src={apiMediaUrl(item.data.imageUrl) || ''} alt="" className="max-h-[80vh] w-full object-contain" />

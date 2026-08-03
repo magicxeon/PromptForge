@@ -1,6 +1,6 @@
 # UI-017 Explore Gallery And Public Discovery Consolidation
 
-**Status:** Pending UI-015 and UI-016  
+**Status:** Implemented; automated route gate passed, manual UX review pending  
 **Depends on:** canonical routes and context navigation
 
 ## 1. Purpose
@@ -50,3 +50,23 @@ Explore destination for MVP.
 - Every public card has a complete detail route and creator Profile link.
 - Reuse actions create actor-owned handoffs and preserve source lineage.
 
+## 6. Implementation Checkpoint
+
+- `/` mounts the mixed Gallery directly; `/community` and `/home` are aliases.
+- `/explore/templates` and `/explore/comparisons` reuse the Community feed with
+  route-owned type filters; changing content type moves to the corresponding
+  canonical URL.
+- `/explore/characters` reuses the public Character directory.
+- Public cards open `/posts/:postId` or `/characters/:characterId` with safe
+  return context.
+- Public post creator identity links to `/profiles/:profileId` when available.
+- Existing API cursors, category filters, trending periods and sanitized public
+  snapshots are unchanged.
+
+**Manual verify:** set category and period filters, open a card, return, and
+confirm the URL filter state survives. Verify Template, Comparison, Image and
+Character cards all reach complete detail screens.
+
+**Automated checkpoint (2026-08-03):** root Gallery and the public Comparison,
+Template and Character discovery routes passed direct-load checks on desktop
+and mobile Chromium.

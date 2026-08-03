@@ -24,7 +24,7 @@ export function CreateCharacterProfileDialog({ jobId }: { jobId: string }) {
       idempotencyKey: `react_character_profile_${jobId}`
     }),
     onSuccess: profile => navigate(
-      `/creator/characters/${encodeURIComponent(profile.id)}`,
+      `/me/characters/${encodeURIComponent(profile.id)}`,
       { state: createReturnNavigationState(location) }
     )
   });

@@ -1,6 +1,7 @@
 import { Layers3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export type TemplateLineageContext = {
   templateId: string;
@@ -52,7 +53,7 @@ export function TemplateLineageCard({
           {context.sourceCommunityPostId ? (
             <Link
               className="mt-3 inline-flex min-h-9 items-center text-[0.75rem] font-semibold text-cyan-300"
-              to={`/community/${encodeURIComponent(context.sourceCommunityPostId)}`}
+              to={routeBuilders.post(context.sourceCommunityPostId)}
             >
               {t('ui.history.viewSourceTemplate')}
             </Link>

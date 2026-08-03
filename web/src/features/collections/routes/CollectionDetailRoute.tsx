@@ -14,6 +14,7 @@ import {
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
 import { PublishCommunityResourceDialog } from '../../../components/community/PublishCommunityResourceDialog';
+import { routePaths } from '../../../app/routeRegistry/routes';
 
 export function CollectionDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -37,7 +38,7 @@ export function CollectionDetailRoute() {
   if (collection.isError || !collection.data) return <ErrorState title={t('ui.collections.unavailableOne')} description={collection.error?.message} onRetry={() => void collection.refetch()} />;
   return (
     <main>
-      <Link to="/collections" className="mb-4 inline-flex items-center gap-2 text-sm text-cyan-300 no-underline"><ArrowLeft className="size-4" />{t('ui.collections.title')}</Link>
+      <Link to={routePaths.libraryCollections} className="mb-4 inline-flex items-center gap-2 text-sm text-cyan-300 no-underline"><ArrowLeft className="size-4" />{t('ui.collections.title')}</Link>
       <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[var(--mpf-border)] pb-5">
         <div>
           <h1 className="m-0 text-3xl">{collection.data.name}</h1>

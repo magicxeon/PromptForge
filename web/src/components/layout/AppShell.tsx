@@ -23,6 +23,7 @@ import { AppFooter } from './AppFooter';
 import { HeaderSelect } from './HeaderSelect';
 import { AccountMenu } from './AccountMenu';
 import { useTheme } from '../../lib/theme/ThemeContext';
+import { routePaths } from '../../app/routeRegistry/routes';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -55,9 +56,9 @@ export function AppShell() {
     queryFn: getOwnCreatorProfileLocator,
     enabled: Boolean(actor)
   });
-  const createTarget = location.pathname.startsWith('/comparisons')
-    ? '/playground?compare=1'
-    : '/studio';
+  const createTarget = location.pathname.startsWith('/comparisons') || location.pathname === routePaths.exploreComparisons
+    ? `${routePaths.createPlayground}?compare=1`
+    : routePaths.createPlayground;
 
   useEffect(() => {
     setMobileOpen(false);
@@ -140,7 +141,7 @@ export function AppShell() {
         </aside>
         <div className="app-shell__page-column">
           <div className="app-shell__content">
-            {location.pathname !== '/community' ? <Breadcrumbs /> : null}
+            {location.pathname !== routePaths.explore ? <Breadcrumbs /> : null}
             <Outlet />
           </div>
           <AppFooter />
@@ -186,7 +187,7 @@ function GlobalHeader({
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const search = String(form.get('search') || '').trim();
-    navigate(search ? `/community?search=${encodeURIComponent(search)}` : '/community');
+    navigate(search ? `/?search=${encodeURIComponent(search)}` : routePaths.explore);
   }
 
   return (
@@ -201,7 +202,7 @@ function GlobalHeader({
         >
           <Menu aria-hidden="true" />
         </button>
-        <Link to="/community" className="global-header__brand" aria-label={t('shell.navigation.homeLabel')}>
+        <Link to={routePaths.explore} className="global-header__brand" aria-label={t('shell.navigation.homeLabel')}>
           <MomeloBrand />
         </Link>
         <form className="global-header__search" onSubmit={submitSearch}>
@@ -247,12 +248,15 @@ function GlobalHeader({
           <AccountMenu
             displayName={actor?.displayName || '...'}
             initials={actor ? initials : ''}
-            profilePath={profileHandle
-              ? `/creators/${encodeURIComponent(profileHandle)}`
-              : undefined}
+            profilePath={profileHandle ? '/me' : undefined}
+            creditsPath={routePaths.accountCredits}
+            adminPath={actor?.role === 'admin' || actor?.role === 'support' ? routePaths.admin : undefined}
             menuLabel={t('shell.account.menuLabel')}
             viewProfileLabel={t('shell.account.viewProfile')}
             unavailableLabel={t('shell.account.profileUnavailable')}
+            creditsLabel={t('shell.account.credits')}
+            settingsLabel={t('shell.account.settings')}
+            adminLabel={t('shell.navigation.items.admin')}
           />
           {showSwitcher ? (
             <HeaderSelect
@@ -284,5 +288,5 @@ function resolveSupportedLocale(locale?: string): 'th' | 'en' {
 }
 
 function isStudioLocation(pathname: string) {
-  return pathname === '/studio' || pathname === '/studio/scene' || pathname === '/create/scenes';
+  return pathname.startsWith('/create/studio/');
 }

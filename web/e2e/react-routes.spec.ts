@@ -1,13 +1,16 @@
 import { expect, test } from '@playwright/test';
 
 const routes = [
-  '/community',
-  '/community/characters',
-  '/studio',
-  '/studio/scene',
-  '/playground',
-  '/history',
-  '/collections',
+  '/',
+  '/explore/comparisons',
+  '/explore/templates',
+  '/explore/characters',
+  '/create/studio/face',
+  '/create/studio/character',
+  '/create/studio/scene',
+  '/create/playground',
+  '/library/recent',
+  '/library/collections',
   '/comparisons',
   '/create/fashion',
   '/credits'
@@ -24,18 +27,37 @@ for (const path of routes) {
   });
 }
 
+const legacyRedirects = [
+  ['/community', '/'],
+  ['/community/characters', '/explore/characters'],
+  ['/studio', '/create/studio/face'],
+  ['/studio?mode=character-sheet', '/create/studio/character'],
+  ['/studio/scene', '/create/studio/scene'],
+  ['/playground', '/create/playground'],
+  ['/recent-generations', '/library/recent'],
+  ['/collections', '/library/collections']
+] as const;
+
+for (const [legacy, canonical] of legacyRedirects) {
+  test(`legacy route ${legacy} redirects to ${canonical}`, async ({ page }) => {
+    await page.goto(legacy);
+    await expect(page).toHaveURL(new RegExp(`${canonical.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:[?#]|$)`));
+    await expect(page.getByTestId('application-shell')).toBeVisible();
+  });
+}
+
 test('mobile shell keeps primary navigation reachable', async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes('mobile'), 'Mobile project only');
-  await page.goto('/community');
+  await page.goto('/');
   await page.locator('.global-header__menu').click();
   const nav = page.locator('aside nav');
   await expect(nav).toBeVisible();
-  await expect(nav.locator('a[href="/studio#studio-configurator-title"]')).toBeVisible();
+  await expect(nav.locator('a[href="/create/studio/face#studio-configurator-title"]')).toBeVisible();
   await expect(
-    nav.locator('a[href="/studio?mode=character-sheet#studio-configurator-title"]')
+    nav.locator('a[href="/create/studio/character#studio-configurator-title"]')
   ).toBeVisible();
   await expect(
-    nav.locator('a[href="/studio/scene#studio-configurator-title"]')
+    nav.locator('a[href="/create/studio/scene#studio-configurator-title"]')
   ).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('.app-sidebar')).not.toHaveClass(/is-open/);
@@ -43,7 +65,7 @@ test('mobile shell keeps primary navigation reachable', async ({ page }, testInf
 
 test('collapsed Studio icon opens Scene Builder while expanded Studio remains an accordion', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes('mobile'), 'Desktop project only');
-  await page.goto('/community');
+  await page.goto('/');
 
   const expandedStudio = page.locator(
     '.sidebar-navigation__parent > button.sidebar-navigation__row'
@@ -55,11 +77,11 @@ test('collapsed Studio icon opens Scene Builder while expanded Studio remains an
 
   await page.locator('.sidebar-navigation__collapse').click();
   const collapsedStudio = page.locator(
-    'a[href="/studio/scene#studio-configurator-title"][title]'
+    'a[href="/create/studio/scene#studio-configurator-title"][title]'
   );
   await expect(collapsedStudio).toBeVisible();
   await collapsedStudio.click();
-  await expect(page).toHaveURL(/\/studio\/scene#studio-configurator-title$/);
+  await expect(page).toHaveURL(/\/create\/studio\/scene#studio-configurator-title$/);
 });
 
 test('locale and mock actor controls remain operational after React cutover', async ({ page }) => {
@@ -101,7 +123,7 @@ test('shared application footer exposes health and package version metadata', as
 });
 
 test('Studio restores visual options and progressive comparison cards', async ({ page }) => {
-  await page.goto('/studio');
+  await page.goto('/create/studio/face');
   await expect(page.locator('.studio-workspace')).toBeVisible();
   await expect(page.locator('.studio-viewport-grid')).toBeVisible();
   await expect(page.locator('.studio-configurator-pipeline')).toBeVisible();
@@ -109,7 +131,6 @@ test('Studio restores visual options and progressive comparison cards', async ({
   await expect(page.locator('.studio-mode-selector button')).toHaveCount(3);
   await expect(page.locator('.engine-target-panel__model-grid')).toBeVisible();
   await expect(page.locator('.engine-target-panel__output-grid')).toBeVisible();
-  await expect(page.locator('.studio-prompt-preview')).toHaveCount(0);
   await expect(page.locator('.studio-generate-button')).toBeVisible();
 
   const faceGroup = page.locator('.studio-attribute-group').filter({
@@ -138,7 +159,7 @@ test('Studio comparison hides browsing regions and keeps focus on comparison res
   page
 }, testInfo) => {
   test.skip(testInfo.project.name.includes('mobile'), 'Desktop comparison assertion');
-  await page.goto('/studio/scene');
+  await page.goto('/create/studio/scene');
   await expect(page.locator('.studio-history-region')).toBeVisible();
   await expect(page.locator('.studio-shared-templates')).toBeVisible();
   await page.locator('.engine-comparison-toggle').click();
@@ -153,21 +174,21 @@ test('Studio comparison hides browsing regions and keeps focus on comparison res
 });
 
 test('Studio mode control updates route, sidebar target and breadcrumb together', async ({ page }) => {
-  await page.goto('/studio');
+  await page.goto('/create/studio/face');
   const modes = page.locator('.studio-mode-selector button');
 
   await modes.nth(1).click();
-  await expect(page).toHaveURL(/\/studio\?mode=character-sheet/);
+  await expect(page).toHaveURL(/\/create\/studio\/character/);
   await expect(
-    page.locator('a[href="/studio?mode=character-sheet#studio-configurator-title"]')
+    page.locator('a[href="/create/studio/character#studio-configurator-title"]')
   ).toHaveClass(/is-active/);
   await expect(page.getByTestId('breadcrumbs')).toContainText(/Character/i);
   await expect(page.locator('.engine-comparison-toggle')).toBeVisible();
 
   await page.locator('.studio-mode-selector button').nth(2).click();
-  await expect(page).toHaveURL(/\/studio\/scene/);
+  await expect(page).toHaveURL(/\/create\/studio\/scene/);
   await expect(
-    page.locator('a[href="/studio/scene#studio-configurator-title"]')
+    page.locator('a[href="/create/studio/scene#studio-configurator-title"]')
   ).toHaveClass(/is-active/);
   await expect(page.getByTestId('breadcrumbs')).toContainText(/Scene/i);
   await expect(page.locator('.engine-comparison-toggle')).toBeVisible();

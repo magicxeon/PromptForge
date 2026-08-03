@@ -7,9 +7,9 @@ const footerGroups = [
   {
     id: 'product',
     links: [
-      { id: 'community', to: '/community' },
-      { id: 'studio', to: '/studio' },
-      { id: 'playground', to: '/playground' }
+      { id: 'community', to: '/' },
+      { id: 'studio', to: '/create/studio/face' },
+      { id: 'playground', to: '/create/playground' }
     ]
   },
   {

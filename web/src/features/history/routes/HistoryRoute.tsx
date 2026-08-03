@@ -1,5 +1,9 @@
 import { GenerationLibrary } from '../components/GenerationLibrary';
 
 export function HistoryRoute() {
-  return <GenerationLibrary variant="full" />;
+  return (
+    <main className="generation-library-page">
+      <GenerationLibrary variant="full" />
+    </main>
+  );
 }

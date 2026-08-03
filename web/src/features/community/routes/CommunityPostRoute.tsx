@@ -30,6 +30,7 @@ import {
 } from '../api/communityApi';
 import type { CommunityPost } from '../schemas/communitySchemas';
 import type { ComparisonRun } from '../../comparisons/schemas/comparisonSchemas';
+import { routePaths } from '../../../app/routeRegistry/routes';
 
 export function CommunityPostRoute() {
   const { t } = useTranslation('community');
@@ -66,7 +67,7 @@ export function CommunityPostRoute() {
             : null
         }
       });
-      navigate('/studio/scene');
+      navigate(routePaths.createStudioScene);
     }
   });
   const engagement = useQuery({
@@ -114,7 +115,7 @@ export function CommunityPostRoute() {
 
   return (
     <main className="community-post-page">
-      <ContextBackLink fallbackTo="/community" className="mb-3">
+      <ContextBackLink fallbackTo={routePaths.explore} className="mb-3">
         {t('community.detail.back')}
       </ContextBackLink>
 
@@ -184,7 +185,7 @@ export function CommunityPostRoute() {
         </div>
 
         <aside className="community-post-information-panel">
-          <CreatorIdentity creator={item.creator} createdAt={item.createdAt} />
+          <CreatorIdentity creator={item.creator} createdAt={item.createdAt} linked />
           <div className="community-post-information-panel__identity">
             <div className="community-post-information-panel__tags">
               <span>{formatPublicLabel(item.officialTags[0] || item.postType)}</span>
@@ -373,7 +374,7 @@ function MoreFromCreator({
     <section className="community-more-from-creator">
       <div className="community-more-from-creator__heading">
         <h2>{t('community.detail.moreFromCreator', { name: creatorName })}</h2>
-        <Link to={`/community?search=${encodeURIComponent(search)}`}>
+        <Link to={`/?search=${encodeURIComponent(search)}`}>
           {t('community.creator.viewAll')}
         </Link>
       </div>

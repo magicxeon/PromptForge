@@ -30,9 +30,10 @@ export class CreatorProfilePageService {
     this.galleryService = galleryService;
   }
 
-  async getPage(handle, query = {}, actorContext) {
+  async getPage(profileLocator, query = {}, actorContext) {
     const actor = assertActorContext(actorContext);
-    const profileRecord = await this.profileRepository.findByHandle(handle);
+    const profileRecord = await this.profileRepository.findById?.(profileLocator)
+      || await this.profileRepository.findByHandle(profileLocator);
     if (!profileRecord) {
       throw new RepositoryContractError(
         'creator_profile_not_found',

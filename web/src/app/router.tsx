@@ -1,174 +1,70 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
+import type { ComponentType } from 'react';
 import { AppShell } from '../components/layout/AppShell';
+import { LegacyRouteRedirect, LegacyStudioRedirect } from '../components/layout/LegacyRouteRedirect';
 import { RouteErrorPage } from '../components/layout/RouteErrorPage';
 import { NotFoundRoute } from '../components/layout/NotFoundRoute';
+import { routePaths } from './routeRegistry/routes';
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppShell />,
-    errorElement: <RouteErrorPage />,
-    children: [
-      { index: true, element: <Navigate to="/community" replace /> },
-      { path: 'home', element: <Navigate to="/community" replace /> },
-      { path: 'library', element: <Navigate to="/recent-generations" replace /> },
-      { path: 'library/images', element: <Navigate to="/recent-generations" replace /> },
-      { path: 'compare', element: <Navigate to="/comparisons" replace /> },
-      { path: 'create/simple', element: <Navigate to="/studio" replace /> },
-      { path: 'create/characters', element: <Navigate to="/studio?mode=character-sheet" replace /> },
-      { path: 'create/playground', element: <Navigate to="/playground" replace /> },
-      {
-        path: 'community',
-        lazy: async () => {
-          const module = await import('../features/community/routes/CommunityHomeRoute');
-          return { Component: module.CommunityHomeRoute };
-        }
-      },
-      {
-        path: 'community/characters',
-        lazy: async () => {
-          const module = await import('../features/profiles/routes/CharacterDirectoryRoute');
-          return { Component: module.CharacterDirectoryRoute };
-        }
-      },
-      {
-        path: 'community/characters/:characterId',
-        lazy: async () => {
-          const module = await import('../features/profiles/routes/CharacterProfileRoute');
-          return { Component: module.CharacterProfileRoute };
-        }
-      },
-      {
-        path: 'creator/characters',
-        lazy: async () => {
-          const module = await import('../features/profiles/routes/CharacterOwnerDirectoryRoute');
-          return { Component: module.CharacterOwnerDirectoryRoute };
-        }
-      },
-      {
-        path: 'creator/characters/:characterId',
-        lazy: async () => {
-          const module = await import('../features/profiles/routes/CharacterProfileRoute');
-          return { Component: module.CharacterOwnerProfileRoute };
-        }
-      },
-      {
-        path: 'community/:postId',
-        lazy: async () => {
-          const module = await import('../features/community/routes/CommunityPostRoute');
-          return { Component: module.CommunityPostRoute };
-        }
-      },
-      {
-        path: 'creators/:handle/:profileTab?',
-        lazy: async () => {
-          const module = await import('../features/profiles/routes/CreatorProfileRoute');
-          return { Component: module.CreatorProfileRoute };
-        }
-      },
-      {
-        path: 'history',
-        element: <Navigate to="/recent-generations" replace />
-      },
-      {
-        path: 'recent-generations',
-        lazy: async () => {
-          const module = await import('../features/history/routes/HistoryRoute');
-          return { Component: module.HistoryRoute };
-        }
-      },
-      {
-        path: 'history/:jobId',
-        lazy: async () => {
-          const module = await import('../features/history/routes/HistoryDetailRoute');
-          return { Component: module.HistoryDetailRoute };
-        }
-      },
-      {
-        path: 'recent-generations/:jobId',
-        lazy: async () => {
-          const module = await import('../features/history/routes/HistoryDetailRoute');
-          return { Component: module.HistoryDetailRoute };
-        }
-      },
-      {
-        path: 'collections',
-        lazy: async () => {
-          const module = await import('../features/collections/routes/CollectionsRoute');
-          return { Component: module.CollectionsRoute };
-        }
-      },
-      {
-        path: 'collections/:collectionId',
-        lazy: async () => {
-          const module = await import('../features/collections/routes/CollectionDetailRoute');
-          return { Component: module.CollectionDetailRoute };
-        }
-      },
-      {
-        path: 'comparisons',
-        lazy: async () => {
-          const module = await import('../features/comparisons/routes/ComparisonsRoute');
-          return { Component: module.ComparisonsRoute };
-        }
-      },
-      {
-        path: 'comparisons/:setId',
-        lazy: async () => {
-          const module = await import('../features/comparisons/routes/ComparisonDetailRoute');
-          return { Component: module.ComparisonDetailRoute };
-        }
-      },
-      {
-        path: 'admin',
-        lazy: async () => {
-          const module = await import('../features/admin/routes/AdminRoute');
-          return { Component: module.AdminRoute };
-        }
-      },
-      {
-        path: 'playground',
-        lazy: async () => {
-          const module = await import('../features/playground/routes/PlaygroundRoute');
-          return { Component: module.PlaygroundRoute };
-        }
-      },
-      {
-        path: 'studio',
-        lazy: async () => {
-          const module = await import('../features/studio/routes/StudioRoute');
-          return { Component: module.StudioRoute };
-        }
-      },
-      {
-        path: 'studio/scene',
-        lazy: async () => {
-          const module = await import('../features/scene-builder/routes/SceneBuilderRoute');
-          return { Component: module.SceneBuilderRoute };
-        }
-      },
-      {
-        path: 'create/scenes',
-        lazy: async () => {
-          const module = await import('../features/scene-builder/routes/SceneBuilderRoute');
-          return { Component: module.SceneBuilderRoute };
-        }
-      },
-      {
-        path: 'create/fashion',
-        lazy: async () => {
-          const module = await import('../features/fashion-blueprint/routes/FashionBlueprintRoute');
-          return { Component: module.FashionBlueprintRoute };
-        }
-      },
-      {
-        path: 'credits',
-        lazy: async () => {
-          const module = await import('../features/credits/routes/CreditsRoute');
-          return { Component: module.CreditsRoute };
-        }
-      },
-      { path: '*', element: <NotFoundRoute /> }
-    ]
-  }
-]);
+const lazyRoute = (load: () => Promise<Record<string, unknown>>, exportName: string) => async () => {
+  const module = await load();
+  return { Component: module[exportName] as ComponentType };
+};
+
+export const router = createBrowserRouter([{
+  path: '/',
+  element: <AppShell />,
+  errorElement: <RouteErrorPage />,
+  children: [
+    { index: true, lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
+    { path: 'explore/comparisons', lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
+    { path: 'explore/templates', lazy: lazyRoute(() => import('../features/community/routes/CommunityHomeRoute'), 'CommunityHomeRoute') },
+    { path: 'explore/characters', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterDirectoryRoute'), 'CharacterDirectoryRoute') },
+    { path: 'posts/:postId', lazy: lazyRoute(() => import('../features/community/routes/CommunityPostRoute'), 'CommunityPostRoute') },
+    { path: 'characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterProfileRoute') },
+    { path: 'profiles/:handle/:profileTab?', lazy: lazyRoute(() => import('../features/profiles/routes/CreatorProfileRoute'), 'CreatorProfileRoute') },
+    { path: 'me/:profileTab?', lazy: lazyRoute(() => import('../features/profiles/routes/MyProfileRoute'), 'MyProfileRoute') },
+    { path: 'me/characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterOwnerProfileRoute') },
+
+    { path: 'create/playground', lazy: lazyRoute(() => import('../features/playground/routes/PlaygroundRoute'), 'PlaygroundRoute') },
+    { path: 'create/studio/face', lazy: lazyRoute(() => import('../features/studio/routes/StudioRoute'), 'StudioRoute') },
+    { path: 'create/studio/character', lazy: lazyRoute(() => import('../features/studio/routes/StudioRoute'), 'StudioRoute') },
+    { path: 'create/studio/scene', lazy: lazyRoute(() => import('../features/scene-builder/routes/SceneBuilderRoute'), 'SceneBuilderRoute') },
+    { path: 'create/fashion', lazy: lazyRoute(() => import('../features/fashion-blueprint/routes/FashionBlueprintRoute'), 'FashionBlueprintRoute') },
+
+    { path: 'library/recent', lazy: lazyRoute(() => import('../features/history/routes/HistoryRoute'), 'HistoryRoute') },
+    { path: 'library/recent/:jobId', lazy: lazyRoute(() => import('../features/history/routes/HistoryDetailRoute'), 'HistoryDetailRoute') },
+    { path: 'library/collections', lazy: lazyRoute(() => import('../features/collections/routes/CollectionsRoute'), 'CollectionsRoute') },
+    { path: 'library/collections/:collectionId', lazy: lazyRoute(() => import('../features/collections/routes/CollectionDetailRoute'), 'CollectionDetailRoute') },
+
+    { path: 'comparisons', lazy: lazyRoute(() => import('../features/comparisons/routes/ComparisonsRoute'), 'ComparisonsRoute') },
+    { path: 'comparisons/:setId', lazy: lazyRoute(() => import('../features/comparisons/routes/ComparisonDetailRoute'), 'ComparisonDetailRoute') },
+    { path: 'credits', lazy: lazyRoute(() => import('../features/credits/routes/CreditsRoute'), 'CreditsRoute') },
+    { path: 'admin', lazy: lazyRoute(() => import('../features/admin/routes/AdminRoute'), 'AdminRoute') },
+
+    { path: 'home', element: <LegacyRouteRedirect to={routePaths.explore} /> },
+    { path: 'community', element: <LegacyRouteRedirect to={routePaths.explore} /> },
+    { path: 'community/characters', element: <LegacyRouteRedirect to={routePaths.exploreCharacters} /> },
+    { path: 'community/characters/:characterId', element: <LegacyRouteRedirect to="/characters/:characterId" /> },
+    { path: 'community/:postId', element: <LegacyRouteRedirect to="/posts/:postId" /> },
+    { path: 'creators/:handle/:profileTab?', element: <LegacyRouteRedirect to="/profiles/:handle/:profileTab?" /> },
+    { path: 'creator/characters', element: <LegacyRouteRedirect to="/me/characters" /> },
+    { path: 'creator/characters/:characterId', element: <LegacyRouteRedirect to="/me/characters/:characterId" /> },
+    { path: 'library', element: <LegacyRouteRedirect to={routePaths.libraryRecent} /> },
+    { path: 'library/images', element: <LegacyRouteRedirect to={routePaths.libraryRecent} /> },
+    { path: 'history', element: <LegacyRouteRedirect to={routePaths.libraryRecent} /> },
+    { path: 'history/:jobId', element: <LegacyRouteRedirect to="/library/recent/:jobId" /> },
+    { path: 'recent-generations', element: <LegacyRouteRedirect to={routePaths.libraryRecent} /> },
+    { path: 'recent-generations/:jobId', element: <LegacyRouteRedirect to="/library/recent/:jobId" /> },
+    { path: 'collections', element: <LegacyRouteRedirect to={routePaths.libraryCollections} /> },
+    { path: 'collections/:collectionId', element: <LegacyRouteRedirect to="/library/collections/:collectionId" /> },
+    { path: 'compare', element: <LegacyRouteRedirect to={routePaths.exploreComparisons} /> },
+    { path: 'playground', element: <LegacyRouteRedirect to={routePaths.createPlayground} /> },
+    { path: 'studio', element: <LegacyStudioRedirect /> },
+    { path: 'studio/scene', element: <LegacyRouteRedirect to={routePaths.createStudioScene} /> },
+    { path: 'create/simple', element: <LegacyRouteRedirect to={routePaths.createStudioFace} /> },
+    { path: 'create/characters', element: <LegacyRouteRedirect to={routePaths.createStudioCharacter} /> },
+    { path: 'create/scenes', element: <LegacyRouteRedirect to={routePaths.createStudioScene} /> },
+    { path: '*', element: <NotFoundRoute /> }
+  ]
+}]);

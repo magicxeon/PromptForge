@@ -1,16 +1,20 @@
 import { UserRound } from 'lucide-react';
 import type { CommunityPost } from '../../features/community/schemas/communitySchemas';
+import { Link } from 'react-router-dom';
+import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function CreatorIdentity({
   creator,
   createdAt,
-  compact = false
+  compact = false,
+  linked = false
 }: {
   creator: CommunityPost['creator'];
   createdAt?: string | null;
   compact?: boolean;
+  linked?: boolean;
 }) {
-  return (
+  const content = (
     <div className="flex min-w-0 items-center gap-3">
       <span className="grid size-9 shrink-0 place-items-center rounded-full border border-cyan-400/30 bg-cyan-400/10 text-cyan-200">
         <UserRound className="size-4" aria-hidden="true" />
@@ -26,4 +30,10 @@ export function CreatorIdentity({
       </span>
     </div>
   );
+  const locator = creator.profileId || creator.handle;
+  return linked && locator ? (
+    <Link to={routeBuilders.profile(locator)} className="text-inherit no-underline">
+      {content}
+    </Link>
+  ) : content;
 }

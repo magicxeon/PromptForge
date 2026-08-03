@@ -35,7 +35,7 @@ export function CharacterReferenceSceneAction({
       }
     });
     onHandoffComplete?.();
-    navigate('/studio/scene#reference-images');
+    navigate('/create/studio/scene#reference-images');
   }
 
   return (

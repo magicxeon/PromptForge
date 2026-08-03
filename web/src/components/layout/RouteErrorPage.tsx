@@ -23,7 +23,7 @@ export function RouteErrorPage() {
         title={t('common.error.routeTitle')}
         description={`${description} ${t('common.error.reference', { id: correlationId })}`}
         retryLabel={t('common.action.goCommunity')}
-        onRetry={() => window.location.assign('/community')}
+        onRetry={() => window.location.assign('/')}
       />
     </main>
   );

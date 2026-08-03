@@ -14,6 +14,7 @@ import {
   setDefaultCollection
 } from '../api/collectionApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { routeBuilders } from '../../../app/routeRegistry/routes';
 
 export function CollectionsRoute() {
   const { t } = useTranslation('react-ui');
@@ -80,7 +81,7 @@ export function CollectionsRoute() {
           return (
             <Surface key={collection.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
-                <Link to={`/collections/${collection.id}`} className="min-w-0 flex-1 text-inherit no-underline">
+                <Link to={routeBuilders.collection(collection.id)} className="min-w-0 flex-1 text-inherit no-underline">
                   <Folder className="mb-4 size-8 text-cyan-300" />
                   <h2 className="m-0 truncate text-lg">{collection.name}</h2>
                   <p className="line-clamp-2 min-h-10 text-sm text-[var(--mpf-text-muted)]">{collection.description || t('ui.collections.private')}</p>

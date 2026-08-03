@@ -19,15 +19,18 @@ import { communityPostSchema, type CommunityPost } from '../../community/schemas
 import { useTranslation } from 'react-i18next';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { SharedTemplateEditDialog } from '../../../components/templates/SharedTemplateEditDialog';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 
-const tabs = ['overview', 'gallery', 'characters', 'templates', 'comparisons', 'collections'] as const;
+const tabs = ['overview', 'works', 'characters', 'templates', 'comparisons', 'collections'] as const;
 
 export function CreatorProfileRoute() {
   const { t } = useTranslation('react-ui');
   const { actor } = useActor();
   const actorId = actor?.userId || 'loading';
   const { handle = '', profileTab = 'overview' } = useParams();
-  const tab = tabs.includes(profileTab as typeof tabs[number]) ? profileTab : 'overview';
+  const normalizedProfileTab = profileTab === 'gallery' ? 'works' : profileTab;
+  const tab = tabs.includes(normalizedProfileTab as typeof tabs[number]) ? normalizedProfileTab : 'overview';
+  const apiTab = tab === 'works' ? 'gallery' : tab;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const previousActorIdRef = useRef(actorId);
@@ -36,8 +39,8 @@ export function CreatorProfileRoute() {
   const followActorToOwnProfile = actorChanged
     && ownerActorIdRef.current === previousActorIdRef.current;
   const page = useQuery({
-    queryKey: ['creator-page', actorId, handle, tab],
-    queryFn: () => getCreatorPage(handle, tab),
+    queryKey: ['creator-page', actorId, handle, apiTab],
+    queryFn: () => getCreatorPage(handle, apiTab),
     enabled: Boolean(handle && actor)
   });
   const follow = useMutation({
@@ -64,13 +67,12 @@ export function CreatorProfileRoute() {
     void getMyCreatorProfile()
       .then(profile => {
         if (cancelled) return;
-        const suffix = tab === 'overview' ? '' : `/${tab}`;
-        navigate(`/creators/${encodeURIComponent(profile.handle)}${suffix}`, {
+        navigate(routeBuilders.profile(profile.id, tab), {
           replace: true
         });
       })
       .catch(() => {
-        if (!cancelled) navigate('/community', { replace: true });
+        if (!cancelled) navigate(routePaths.explore, { replace: true });
       });
     return () => {
       cancelled = true;
@@ -100,16 +102,19 @@ export function CreatorProfileRoute() {
         updatePending={updateProfile.isPending}
       />
       <nav className="mt-3 flex gap-1 overflow-x-auto border-b border-[var(--mpf-border)]" aria-label={t('ui.creator.navigation')}>
-        {data.capabilities.availableTabs.map(item => (
+        {data.capabilities.availableTabs.map(item => {
+          const routeTab = item === 'gallery' ? 'works' : item;
+          return (
           <NavLink
             key={item}
             end={item === 'overview'}
-            to={item === 'overview' ? `/creators/${handle}` : `/creators/${handle}/${item}`}
+            to={routeBuilders.profile(page.data?.profile.id || handle, routeTab)}
             className={({ isActive }) => `shrink-0 border-b-2 px-4 py-3 text-sm no-underline ${isActive ? 'border-cyan-400 text-white' : 'border-transparent text-[var(--mpf-text-muted)]'}`}
           >
-            {item}
+            {routeTab}
           </NavLink>
-        ))}
+          );
+        })}
       </nav>
       <ProfileContent page={data} />
     </main>

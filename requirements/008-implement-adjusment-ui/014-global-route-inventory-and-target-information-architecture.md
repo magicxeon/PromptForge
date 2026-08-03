@@ -1,6 +1,6 @@
 # UI-014 Global Route Inventory And Target Information Architecture
 
-**Status:** Approved for route audit and design documentation  
+**Status:** Implemented; validation checkpoint recorded below  
 **Depends on:** `001-reference-momelo-navigation-redesign-spec.md`  
 **Required reading:** `../Knowledge/ui-design-system-and-visual-language.md`
 
@@ -248,3 +248,80 @@ Private drafts/history -> My Library, never leaked into Profile
   explicit redirects.
 - No source file is modified as part of the inventory-only step.
 
+## 9. Baseline Route Inventory (Captured Before UI-015)
+
+| Previous path | Owner | Scope | Previous parent/back | Canonical path |
+|---|---|---|---|---|
+| `/` | Router redirect | public | `/community` | `/` |
+| `/home` | Router redirect | public | `/community` | `/` |
+| `/community` | `CommunityHomeRoute` | public | root | `/` |
+| `/community/:postId` | `CommunityPostRoute` | public | Community | `/posts/:postId` |
+| `/community/characters` | `CharacterDirectoryRoute` | public | Community | `/explore/characters` |
+| `/community/characters/:characterId` | `CharacterProfileRoute` | public | Character directory | `/characters/:characterId` |
+| `/creators/:handle/:profileTab?` | `CreatorProfileRoute` | public/owner | Community | `/profiles/:profileId/:profileTab?` |
+| `/creator/characters` | `CharacterOwnerDirectoryRoute` | owner | Library | `/me/characters` |
+| `/creator/characters/:characterId` | `CharacterOwnerProfileRoute` | owner | My Characters | `/me/characters/:characterId` |
+| `/studio` | `StudioRoute` | owner | Create | `/create/studio/face` |
+| `/studio?mode=character-sheet` | `StudioRoute` | owner | Create | `/create/studio/character` |
+| `/studio/scene` | `SceneBuilderRoute` | owner | Create | `/create/studio/scene` |
+| `/create/simple` | redirect | owner | Create | `/create/studio/face` |
+| `/create/characters` | redirect | owner | Create | `/create/studio/character` |
+| `/create/scenes` | `SceneBuilderRoute` alias | owner | Create | `/create/studio/scene` |
+| `/playground` | `PlaygroundRoute` | owner | Create | `/create/playground` |
+| `/create/playground` | redirect | owner | Create | `/create/playground` |
+| `/create/fashion` | `FashionBlueprintRoute` | owner | Create | unchanged |
+| `/recent-generations` | `HistoryRoute` | owner | Library | `/library/recent` |
+| `/recent-generations/:jobId` | `HistoryDetailRoute` | owner | Recent | `/library/recent/:jobId` |
+| `/history` | redirect | owner | Library | `/library/recent` |
+| `/history/:jobId` | `HistoryDetailRoute` alias | owner | Recent | `/library/recent/:jobId` |
+| `/library` | redirect | owner | Library | `/library/recent` |
+| `/library/images` | redirect | owner | Library | `/library/recent` |
+| `/collections` | `CollectionsRoute` | owner | Library | `/library/collections` |
+| `/collections/:collectionId` | `CollectionDetailRoute` | owner | Collections | `/library/collections/:collectionId` |
+| `/comparisons` | `ComparisonsRoute` | owner | implicit Create/Library | unchanged private index |
+| `/comparisons/:setId` | `ComparisonDetailRoute` | owner/share action | Comparisons | unchanged private workspace |
+| `/compare` | redirect | owner | Comparisons | `/explore/comparisons` |
+| `/credits` | `CreditsRoute` | owner | Account | unchanged |
+| `/admin` | `AdminRoute` | admin/support | Operations | unchanged |
+| `*` | `NotFoundRoute` | all | Explore fallback | unchanged |
+
+Template and published Comparison details are Community post snapshots, so
+their canonical public detail is `/posts/:postId`. Private Comparison sets keep
+`/comparisons/:setId`; this prevents a public vote route from exposing an
+actor-owned draft set.
+
+## 10. Baseline Flow Diagram
+
+```mermaid
+flowchart LR
+  C[Community / Home] --> P[Community Post]
+  C --> CH[Community Characters]
+  P --> CP[Creator Profile]
+  S[Studio] --> H[Recent Generations]
+  PL[Playground] --> H
+  F[Fashion Studio] --> H
+  H --> HD[Generation Detail]
+  HD --> COL[Collections]
+  S --> CMP[Private Comparisons]
+  PL --> CMP
+```
+
+## 11. Audit Findings And Checkpoint
+
+- Root, Home and Community duplicated the same discovery ownership.
+- Compare AI appeared under Create although public comparison discovery and
+  private comparison authoring are different intents.
+- My Characters duplicated owner management already available from Profile.
+- Profile paths used mutable handles while repository records already expose an
+  immutable profile ID.
+- Feature modules assembled Community, History, Collection and Studio URLs
+  independently from the sidebar registry.
+- Back behavior already had an actor-safe return-state primitive, but fallback
+  parents still used previous route families.
+
+**Checkpoint UI-014:** inventory complete; target ownership confirmed for
+UI-015 through UI-019.
+
+**Manual verify:** compare this inventory with `web/src/app/router.tsx` after
+every route addition. Any new mounted route must declare owner, scope, canonical
+parent and compatibility policy here or in the succeeding migration matrix.

@@ -1,6 +1,6 @@
 # UI-018 My Library And Profile Ownership Experience
 
-**Status:** Pending UI-015 through UI-017  
+**Status:** Implemented; automated route gate passed, manual actor review pending  
 **Depends on:** canonical resource and context routes
 
 ## 1. Purpose
@@ -72,3 +72,24 @@ with the Profile trigger.
   immediately.
 - Profile resource details return to the originating Profile tab.
 
+## 6. Implementation Checkpoint
+
+- `/library/recent` and `/library/collections` are the only primary My Library
+  destinations.
+- Compact and full Recent continue using shared `GenerationLibrary` adapters,
+  viewers and action capability rules.
+- `/me` resolves the active actor and redirects to immutable Profile ID.
+- The existing Profile route remains shared for visitor and owner; its canonical
+  `works` URL maps to the existing Gallery server projection.
+- My Characters moved out of the primary sidebar and remains reachable through
+  `/me/characters` and the Profile Characters tab.
+- Actor switching keeps the account trigger separate and re-resolves `/me`.
+
+**Manual verify:** switch Alice/Bob while on `/me`, Recent and Collections;
+confirm identity, data and owner actions change without a refresh. Confirm
+private Recent outputs do not appear in another actor's Profile.
+
+**Automated checkpoint (2026-08-03):** Recent and Collections passed canonical
+and legacy direct-load checks on desktop/mobile. The gate identified and fixed
+the missing semantic `<main>` owner on the full Recent route while preserving
+the compact Studio component contract.

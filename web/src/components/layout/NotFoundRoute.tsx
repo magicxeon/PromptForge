@@ -10,7 +10,7 @@ export function NotFoundRoute() {
       <p className="mt-3 max-w-lg text-[var(--mpf-text-muted)]">
         {t('ui.notFound.description', { ns: 'react-ui' })}
       </p>
-      <Button className="mt-6" variant="primary" onClick={() => window.location.assign('/community')}>
+      <Button className="mt-6" variant="primary" onClick={() => window.location.assign('/')}>
         {t('common.action.back', 'Back')}
       </Button>
     </main>

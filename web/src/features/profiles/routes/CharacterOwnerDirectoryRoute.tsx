@@ -54,7 +54,7 @@ export function CharacterOwnerDirectoryRoute() {
           return (
             <Link
               key={character.id}
-              to={`/creator/characters/${encodeURIComponent(character.id)}`}
+              to={`/me/characters/${encodeURIComponent(character.id)}`}
               state={createReturnNavigationState(location)}
               className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] text-inherit no-underline transition hover:border-cyan-400/55"
             >

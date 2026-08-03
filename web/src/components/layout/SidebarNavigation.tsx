@@ -28,7 +28,8 @@ import { cn } from '../../lib/utils/cn';
 import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
 
 const iconRegistry = {
-  home: Home,
+  gallery: Home,
+  templates: LayoutDashboard,
   studio: Sparkles,
   face: ScanFace,
   character: ContactRound,
@@ -139,7 +140,7 @@ function SidebarItem({
       return (
         <div className={cn('sidebar-navigation__parent', active && 'is-active')}>
           <Link
-            to={collapsedDestination?.path || '/studio/scene'}
+            to={collapsedDestination?.path || '/create/studio/scene'}
             className={cn('sidebar-navigation__row', active && 'is-active')}
             aria-current={active ? 'page' : undefined}
             title={t(item.labelKey)}
@@ -194,7 +195,7 @@ function SidebarItem({
 
   return (
     <Link
-      to={item.path || '/community'}
+      to={item.path || '/'}
       className={cn(
         'sidebar-navigation__row',
         child && 'is-child',
@@ -211,7 +212,7 @@ function SidebarItem({
     >
       <Icon aria-hidden="true" />
       {!collapsed ? <span>{t(item.labelKey)}</span> : null}
-      {item.id === 'home' && !collapsed ? <ChevronLeft className="sidebar-navigation__home-accent" aria-hidden="true" /> : null}
+      {item.id === 'gallery' && !collapsed ? <ChevronLeft className="sidebar-navigation__home-accent" aria-hidden="true" /> : null}
     </Link>
   );
 }

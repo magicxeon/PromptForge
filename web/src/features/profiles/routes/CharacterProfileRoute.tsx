@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/Button';
 import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { Surface } from '../../../components/ui/Surface';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
+import { routePaths } from '../../../app/routeRegistry/routes';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
@@ -103,7 +104,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   }
   return (
     <main>
-      <ContextBackLink fallbackTo={access === 'owner' ? '/creator/characters' : '/community/characters'}>
+      <ContextBackLink fallbackTo={access === 'owner' ? '/me/characters' : routePaths.exploreCharacters}>
         {access === 'owner'
           ? t('character-profiles.community.myCharacters')
           : t('character-profiles.community.back')}

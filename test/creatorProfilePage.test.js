@@ -47,6 +47,7 @@ const posts = [
 function createService() {
   return new CreatorProfilePageService({
     profileRepository: {
+      findById: async id => id === profile.id ? structuredClone(profile) : null,
       findByHandle: async handle => handle === profile.handle ? structuredClone(profile) : null
     },
     postRepository: {
@@ -109,6 +110,12 @@ test('creator profile public page excludes owner management and selects a deep-l
   assert.deepEqual(model.tabData.page.items.map(item => item.id), ['post_template']);
   assert.equal(model.viewer.canManageContent, false);
   assert.equal(model.management, null);
+});
+
+test('creator profile page resolves the immutable profile id used by canonical routes', async () => {
+  const model = await createService().getPage(profile.id, { tab: 'overview' }, viewer);
+  assert.equal(model.profile.id, profile.id);
+  assert.equal(model.profile.handle, profile.handle);
 });
 
 function publicPost(id, postType) {

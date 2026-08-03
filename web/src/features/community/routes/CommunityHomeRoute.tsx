@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { Button } from '../../../components/ui/Button';
@@ -8,6 +8,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/Asy
 import { listCommunityPosts, type CommunityFilters } from '../api/communityApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { CommunityHero } from '../components/CommunityHero';
+import { routePaths } from '../../../app/routeRegistry/routes';
 
 const postTypes = ['all', 'image', 'template', 'comparison', 'collection'] as const;
 const periods = ['latest', 'week', 'month', 'year'] as const;
@@ -15,12 +16,19 @@ const periods = ['latest', 'week', 'month', 'year'] as const;
 export function CommunityHomeRoute() {
   const { t } = useTranslation(['community', 'shell']);
   const { actor } = useActor();
+  const location = useLocation();
+  const navigate = useNavigate();
   const actorId = actor?.userId || 'loading';
   const [params, setParams] = useSearchParams();
   const filters = useMemo<CommunityFilters>(() => {
     const periodValue = params.get('period');
     const sortValue = params.get('sort');
-    const typeValue = params.get('type');
+    const routeType = location.pathname === routePaths.exploreTemplates
+      ? 'template'
+      : location.pathname === routePaths.exploreComparisons
+        ? 'comparison'
+        : null;
+    const typeValue = routeType || params.get('type');
     return {
       sort: sortValue === 'trending' || periodValue ? 'trending' : 'latest',
       period: periodValue === 'month' || periodValue === 'year' ? periodValue : 'week',
@@ -30,7 +38,7 @@ export function CommunityHomeRoute() {
       officialTag: String(params.get('category') || '').trim(),
       search: String(params.get('search') || '').trim()
     };
-  }, [params]);
+  }, [location.pathname, params]);
   const query = useInfiniteQuery({
     queryKey: ['community-posts', actorId, filters],
     queryFn: ({ pageParam }) => listCommunityPosts(filters, pageParam),
@@ -44,8 +52,15 @@ export function CommunityHomeRoute() {
   function updateFilter(name: 'type' | 'period' | 'category', value: string) {
     const next = new URLSearchParams(params);
     if (name === 'type') {
-      if (value === 'all') next.delete('type');
-      else next.set('type', value);
+      next.delete('type');
+      const target = value === 'template'
+        ? routePaths.exploreTemplates
+        : value === 'comparison'
+          ? routePaths.exploreComparisons
+          : routePaths.explore;
+      if (value !== 'all' && value !== 'template' && value !== 'comparison') next.set('type', value);
+      navigate(`${target}${next.size ? `?${next}` : ''}`, { replace: true });
+      return;
     } else if (name === 'category') {
       if (!value) next.delete('category');
       else next.set('category', value);

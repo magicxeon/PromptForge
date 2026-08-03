@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { MediaStage } from '../../../components/media/MediaStage';
 import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
 import type { CommunityPost } from '../schemas/communitySchemas';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 
 export function CommunityHero({ posts }: { posts: CommunityPost[] }) {
   const { t } = useTranslation('community');
@@ -21,15 +22,15 @@ export function CommunityHero({ posts }: { posts: CommunityPost[] }) {
         <h1 id="community-hero-title">{t('community.home.title')}</h1>
         <p>{t('community.home.description')}</p>
         <div className="community-hero__actions">
-          <Link className="community-hero__primary" to="/studio">
+          <Link className="community-hero__primary" to={routePaths.createStudioFace}>
             <Sparkles aria-hidden="true" />
             {t('community.home.create')}
           </Link>
-          <Link className="community-hero__secondary" to="/community?type=template">
+          <Link className="community-hero__secondary" to={routePaths.exploreTemplates}>
             <Grid3X3 aria-hidden="true" />
             {t('community.home.exploreTemplates')}
           </Link>
-          <Link className="community-hero__secondary" to="/playground">
+          <Link className="community-hero__secondary" to={routePaths.createPlayground}>
             <FlaskConical aria-hidden="true" />
             {t('community.home.openPlayground')}
           </Link>
@@ -54,7 +55,7 @@ export function CommunityHero({ posts }: { posts: CommunityPost[] }) {
           {visualPosts.map(post => (
             <Link
               key={post.id}
-              to={`/community/${encodeURIComponent(post.id)}`}
+              to={routeBuilders.post(post.id)}
               state={createReturnNavigationState(location)}
               aria-label={post.title || post.postType}
             >

@@ -7,6 +7,7 @@ import { MediaStage } from './MediaStage';
 import { useTranslation } from 'react-i18next';
 import { TemplatePricingBadge } from '../templates/TemplatePricingBadge';
 import type { ReactNode } from 'react';
+import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function MediaCard({
   post,
@@ -22,7 +23,7 @@ export function MediaCard({
   return (
     <article className={`community-media-card group overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] transition hover:-translate-y-0.5 hover:border-cyan-400/45${retired ? ' is-retired' : ''}`}>
       <Link
-        to={`/community/${encodeURIComponent(post.id)}`}
+        to={routeBuilders.post(post.id)}
         state={createReturnNavigationState(location)}
         className="block text-inherit no-underline"
         aria-label={post.title || post.postType}

@@ -19,6 +19,7 @@ import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { deleteHistoryItem, listHistory } from '../api/historyApi';
 import type { HistoryItem } from '../schemas/historySchemas';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 
 type GenerationLibraryProps = {
   variant: 'compact' | 'full';
@@ -81,7 +82,7 @@ export function GenerationLibrary({ variant, limit = 12 }: GenerationLibraryProp
           <header className="studio-recent__header">
             <h2 id={`generation-library-${variant}-title`}>{t('ui.studio.recent')}</h2>
             {variant === 'compact' ? (
-              <Link to="/recent-generations">
+              <Link to={routePaths.libraryRecent}>
                 {t('ui.studio.viewAll')} <ArrowRight aria-hidden="true" />
               </Link>
             ) : null}
@@ -209,7 +210,7 @@ function toViewerItems(items: HistoryItem[], loadedItems: HistoryItem[]): Genera
         imageUrl: reference.parent!.imageUrl,
         thumbnailUrl: reference.parent!.thumbnailUrl,
         role: reference.role,
-        href: `/recent-generations/${encodeURIComponent(reference.parent!.id)}`
+        href: routeBuilders.recentDetail(reference.parent!.id)
       }))
   }));
 }

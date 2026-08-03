@@ -82,7 +82,7 @@ export function StudioRoute() {
   const navigate = useNavigate();
   const location = useLocation();
   const [params, setParams] = useSearchParams();
-  const mode: StudioCreationMode = params.get('mode') === 'character-sheet'
+  const mode: StudioCreationMode = location.pathname.endsWith('/character') || params.get('mode') === 'character-sheet'
     ? 'character-sheet'
     : 'headshot';
   const [characterType, setCharacterType] =
@@ -347,10 +347,15 @@ export function StudioRoute() {
             mode={mode}
             onChange={next => {
               if (next === 'scene') {
-                navigate('/studio/scene');
+                navigate('/create/studio/scene');
                 return;
               }
-              setParams(next === 'headshot' ? {} : { mode: next });
+              const nextParams = new URLSearchParams(params);
+              nextParams.delete('mode');
+              const destination = next === 'character-sheet'
+                ? '/create/studio/character'
+                : '/create/studio/face';
+              navigate(`${destination}${nextParams.size ? `?${nextParams}` : ''}`);
             }}
           />
         )}

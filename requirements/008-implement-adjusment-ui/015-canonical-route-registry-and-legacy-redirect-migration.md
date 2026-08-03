@@ -1,6 +1,6 @@
 # UI-015 Canonical Route Registry And Legacy Redirect Migration
 
-**Status:** Pending UI-014 route inventory  
+**Status:** Implemented; automated route gate passed, manual review pending  
 **Depends on:** `014-global-route-inventory-and-target-information-architecture.md`
 
 ## 1. Purpose
@@ -53,3 +53,40 @@ links have migrated or an explicit compatibility redirect exists.
 - Actor switching cannot retain a private route/query cache from another actor.
 - Route-level code splitting and existing lazy boundaries remain functional.
 
+## 6. Implemented Redirect Matrix
+
+| Legacy family | Canonical family | Mapping |
+|---|---|---|
+| `/home`, `/community` | `/` | query and hash preserved |
+| `/community/:postId` | `/posts/:postId` | post ID preserved |
+| `/community/characters` | `/explore/characters` | filters preserved |
+| `/community/characters/:id` | `/characters/:id` | Character ID preserved |
+| `/creators/:handle/:tab?` | `/profiles/:locator/:tab?` | handle remains a supported alias |
+| `/creator/characters/:id?` | `/me/characters/:id?` | active actor resolves owner Profile |
+| `/studio` | `/create/studio/face` or `/create/studio/character` | legacy `mode` converted to path |
+| `/studio/scene`, `/create/scenes` | `/create/studio/scene` | handoff query/hash preserved |
+| `/playground` | `/create/playground` | query/hash preserved |
+| `/history`, `/recent-generations` | `/library/recent` | detail Job ID preserved |
+| `/collections` | `/library/collections` | Collection ID preserved |
+| `/compare` | `/explore/comparisons` | public discovery intent |
+
+`LegacyRouteRedirect` replaces history and safely substitutes mounted route
+parameters. `LegacyStudioRedirect` additionally translates the old Studio mode
+query without losing reference handoff parameters.
+
+## 7. Implementation Checkpoint
+
+- Canonical constants and parameter builders live in
+  `web/src/app/routeRegistry/routes.ts`.
+- Canonical lazy routes and aliases live in `web/src/app/router.tsx`.
+- Profile page lookup accepts immutable profile ID or legacy handle; `/me`
+  redirects using the immutable ID.
+- Public cards, Character cards, Generation lineage and Collections consume
+  canonical builders.
+
+**Manual verify:** paste every legacy URL above into a new browser tab, confirm
+one replace redirect, then refresh the canonical destination. Repeat Studio
+redirects with `referenceJobId`, query values and `#reference-images`.
+
+**Automated checkpoint (2026-08-03):** canonical deep links and the redirect
+matrix passed on desktop and mobile Chromium as part of UI-019.

@@ -40,7 +40,7 @@ describe('SidebarNavigation Studio behavior', () => {
     renderNavigation({ collapsed: true });
 
     expect(screen.getByTitle('Studio'))
-      .toHaveAttribute('href', '/studio/scene#studio-configurator-title');
+      .toHaveAttribute('href', '/create/studio/scene#studio-configurator-title');
   });
 });
 
@@ -53,7 +53,7 @@ function renderNavigation({
 }) {
   return render(
     <I18nextProvider i18n={testI18n}>
-      <MemoryRouter initialEntries={['/community']}>
+      <MemoryRouter initialEntries={['/']}>
         <SidebarNavigation
           role="user"
           collapsed={collapsed}

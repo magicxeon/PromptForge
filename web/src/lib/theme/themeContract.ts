@@ -13,7 +13,12 @@ export function resolveRouteTheme(pathname: string): ResolvedTheme {
   if (pathname === '/create/fashion' || pathname.startsWith('/create/fashion/')) {
     return 'fashion';
   }
-  if (pathname === '/playground' || pathname.startsWith('/playground/')) {
+  if (
+    pathname === '/create/playground'
+    || pathname.startsWith('/create/playground/')
+    || pathname === '/playground'
+    || pathname.startsWith('/playground/')
+  ) {
     return 'creative';
   }
   return 'default';
@@ -25,4 +30,3 @@ export function resolveTheme(
 ): ResolvedTheme {
   return preference === 'auto' ? routeTheme : preference;
 }
-

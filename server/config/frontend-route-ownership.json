@@ -4,31 +4,31 @@
   "routes": [
     {
       "id": "community-home",
-      "patterns": ["/", "/home", "/community"],
+      "patterns": ["/", "/home", "/community", "/explore/comparisons", "/explore/templates"],
       "runtime": "react",
       "enabled": true
     },
     {
       "id": "community-characters",
-      "patterns": ["/community/characters", "/community/characters/:characterId"],
+      "patterns": ["/explore/characters", "/characters/:characterId", "/community/characters", "/community/characters/:characterId"],
       "runtime": "react",
       "enabled": true
     },
     {
       "id": "community-post",
-      "patterns": ["/community/:postId"],
+      "patterns": ["/posts/:postId", "/community/:postId"],
       "runtime": "react",
       "enabled": true
     },
     {
       "id": "creator-profile",
-      "patterns": ["/creators/:handle", "/creators/:handle/:profileTab"],
+      "patterns": ["/profiles/:profileId", "/profiles/:profileId/:profileTab", "/me", "/me/:profileTab", "/me/characters/:characterId", "/creators/:handle", "/creators/:handle/:profileTab", "/creator/characters", "/creator/characters/:characterId"],
       "runtime": "react",
       "enabled": true
     },
     {
       "id": "create",
-      "patterns": ["/create/:workflow", "/studio", "/studio/:workflow"],
+      "patterns": ["/create/:workflow", "/create/studio/:workflow", "/studio", "/studio/:workflow"],
       "runtime": "react",
       "enabled": true
     },
@@ -40,7 +40,7 @@
     },
     {
       "id": "history",
-      "patterns": ["/history", "/history/:jobId", "/library", "/library/images"],
+      "patterns": ["/library/recent", "/library/recent/:jobId", "/history", "/history/:jobId", "/recent-generations", "/recent-generations/:jobId", "/library", "/library/images"],
       "runtime": "react",
       "enabled": true
     },
@@ -58,7 +58,7 @@
     },
     {
       "id": "collections",
-      "patterns": ["/collections", "/collections/:collectionId"],
+      "patterns": ["/library/collections", "/library/collections/:collectionId", "/collections", "/collections/:collectionId"],
       "runtime": "react",
       "enabled": true
     },

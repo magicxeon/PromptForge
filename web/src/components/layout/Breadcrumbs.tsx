@@ -1,28 +1,18 @@
 import { ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  findNavigationRoute,
-  type NavigationRouteId
-} from '../../app/routeRegistry/routes';
+import { routePaths } from '../../app/routeRegistry/routes';
 
-type Crumb = {
-  label: string;
-  to?: string;
-};
+type Crumb = { label: string; to?: string };
 
 export function Breadcrumbs() {
   const location = useLocation();
   const { t } = useTranslation('shell');
-  const crumbs = resolveCrumbs(location.pathname, location.search, key => String(t(key)));
+  const crumbs = resolveCrumbs(location.pathname, key => String(t(key)));
   if (!crumbs.length) return null;
 
   return (
-    <nav
-      aria-label={t('shell.navigation.breadcrumbs')}
-      className="mb-3 overflow-x-auto"
-      data-testid="breadcrumbs"
-    >
+    <nav aria-label={t('shell.navigation.breadcrumbs')} className="mb-3 overflow-x-auto" data-testid="breadcrumbs">
       <ol className="m-0 flex min-w-max list-none items-center gap-1 p-0 text-xs text-[var(--mpf-text-muted)]">
         {crumbs.map((crumb, index) => (
           <li key={`${crumb.to || 'current'}:${crumb.label}`} className="flex items-center gap-1">
@@ -37,61 +27,28 @@ export function Breadcrumbs() {
   );
 }
 
-function resolveCrumbs(pathname: string, search: string, t: (key: string) => string): Crumb[] {
-  if (pathname === '/' || pathname === '/home' || pathname === '/community') return [];
-  const routeCrumb = (id: NavigationRouteId, link = false): Crumb => {
-    const route = findNavigationRoute(id);
-    return {
-      label: t(route?.labelKey || `shell.navigation.items.${id}`),
-      to: link ? route?.path : undefined
-    };
-  };
-  const home = routeCrumb('home', true);
-  if (pathname.startsWith('/community/characters')) {
-    return [home, routeCrumb('characters')];
-  }
-  if (pathname.startsWith('/creator/characters')) {
-    return [home, { label: t('shell.navigation.items.myCharacters') }];
-  }
-  if (pathname.startsWith('/community/') || pathname.startsWith('/creators/')) {
-    return [home];
-  }
-  if (pathname.startsWith('/studio/scene') || pathname.startsWith('/create/scenes')) {
-    return [
-      home,
-      routeCrumb('studio', true),
-      { label: t('shell.navigation.items.sceneBuilder') }
-    ];
-  }
-  if (pathname.startsWith('/studio') || pathname.startsWith('/create/simple') || pathname.startsWith('/create/characters')) {
-    const characterSheet = new URLSearchParams(search).get('mode') === 'character-sheet';
-    return [
-      home,
-      routeCrumb('studio', true),
-      {
-        label: t(characterSheet
-          ? 'shell.navigation.items.characterSheet'
-          : 'shell.navigation.items.faceCreator')
-      }
-    ];
-  }
-  if (pathname.startsWith('/create/fashion')) {
-    return [home, routeCrumb('fashion')];
-  }
-  if (pathname.startsWith('/playground') || pathname.startsWith('/create/playground')) {
-    return [home, routeCrumb('playground')];
-  }
-  if (pathname.startsWith('/comparisons') || pathname.startsWith('/compare')) {
-    return [home, routeCrumb('comparisons')];
-  }
-  if (pathname.startsWith('/history') || pathname.startsWith('/recent-generations') || pathname.startsWith('/library')) {
-    return [home, routeCrumb('history')];
-  }
-  if (pathname.startsWith('/collections')) {
-    return [home, routeCrumb('collections')];
-  }
-  if (pathname.startsWith('/admin')) {
-    return [home, routeCrumb('admin')];
-  }
-  return [home];
+function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
+  if (pathname === routePaths.explore) return [];
+  const explore = { label: t('shell.navigation.groups.explore'), to: routePaths.explore };
+  const create = { label: t('shell.navigation.groups.create') };
+  const library = { label: t('shell.navigation.groups.library') };
+
+  if (pathname === routePaths.exploreComparisons) return [explore, { label: t('shell.navigation.items.publicComparisons') }];
+  if (pathname === routePaths.exploreTemplates) return [explore, { label: t('shell.navigation.items.templates') }];
+  if (pathname.startsWith(routePaths.exploreCharacters) || pathname.startsWith('/characters/')) return [explore, { label: t('shell.navigation.items.characters') }];
+  if (pathname.startsWith('/posts/')) return [explore, { label: t('shell.navigation.items.post') }];
+  if (pathname.startsWith('/profiles/') || pathname.startsWith('/me')) return [{ label: t('shell.navigation.items.profile') }];
+
+  if (pathname === routePaths.createPlayground) return [create, { label: t('shell.navigation.items.playground') }];
+  if (pathname === routePaths.createStudioFace) return [create, { label: t('shell.navigation.items.studio'), to: routePaths.createStudioFace }, { label: t('shell.navigation.items.faceCreator') }];
+  if (pathname === routePaths.createStudioCharacter) return [create, { label: t('shell.navigation.items.studio'), to: routePaths.createStudioFace }, { label: t('shell.navigation.items.characterSheet') }];
+  if (pathname === routePaths.createStudioScene) return [create, { label: t('shell.navigation.items.studio'), to: routePaths.createStudioFace }, { label: t('shell.navigation.items.sceneBuilder') }];
+  if (pathname.startsWith(routePaths.createFashion)) return [create, { label: t('shell.navigation.items.fashionStudio') }];
+
+  if (pathname.startsWith(routePaths.libraryRecent)) return [library, { label: t('shell.navigation.items.recent') }];
+  if (pathname.startsWith(routePaths.libraryCollections)) return [library, { label: t('shell.navigation.items.collections') }];
+  if (pathname.startsWith('/comparisons')) return [library, { label: t('shell.navigation.items.comparisons') }];
+  if (pathname.startsWith(routePaths.accountCredits)) return [{ label: t('shell.account.credits') }];
+  if (pathname.startsWith(routePaths.admin)) return [{ label: t('shell.navigation.items.admin') }];
+  return [explore];
 }

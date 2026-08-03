@@ -24,19 +24,19 @@ const destinationDefinitions = [
   {
     id: 'character_sheet',
     icon: UserRound,
-    path: '/studio?mode=character-sheet#reference-images',
+    path: '/create/studio/character#reference-images',
     recommended: true
   },
   {
     id: 'scene_builder',
     icon: Clapperboard,
-    path: '/studio/scene#reference-images',
+    path: '/create/studio/scene#reference-images',
     recommended: false
   },
   {
     id: 'playground',
     icon: FlaskConical,
-    path: '/playground#reference-images',
+    path: '/create/playground#reference-images',
     recommended: false
   }
 ] as const;

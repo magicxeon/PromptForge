@@ -1,6 +1,6 @@
 # UI-016 Navigation, Breadcrumb And Context Return Contract
 
-**Status:** Pending UI-015 canonical route registry  
+**Status:** Implemented; automated route gate passed, manual UX review pending  
 **Depends on:** `015-canonical-route-registry-and-legacy-redirect-migration.md`
 
 ## 1. Purpose
@@ -62,3 +62,22 @@ ephemeral safe context.
 - Browser Back/Forward does not corrupt accordion, filter or actor state.
 - Context navigation is reusable and not reimplemented by each detail route.
 
+## 6. Implementation Checkpoint
+
+- Header, logo, search, Create CTA, sidebar and footer now use canonical route
+  families.
+- Sidebar is grouped as Explore, Create, My Library and role-gated Operations.
+- Expanded Studio remains an accordion; collapsed Studio opens Scene Builder.
+- Breadcrumbs express Explore/Create/My Library ownership and never present a
+  raw resource ID as the only label.
+- `createReturnNavigationState` and `ContextBackLink` remain the shared,
+  actor-safe return contract for cards and detail routes.
+- Account menu exposes My Profile, Credits, disabled Settings placeholder and
+  role-gated Admin without mixing the mock actor switcher into Profile actions.
+
+**Manual verify:** open one post from Gallery and one from Profile, use the
+context Back control, then browser Back/Forward. Repeat after switching actors;
+the previous actor's return state must fall back to the canonical parent.
+
+**Automated checkpoint (2026-08-03):** sidebar parity, collapsed Studio routing,
+canonical route loading and compatibility redirects passed on desktop/mobile.

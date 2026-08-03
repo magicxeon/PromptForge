@@ -42,7 +42,7 @@ describe('MediaCard', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Fashion portrait' }))
-      .toHaveAttribute('href', '/community/post_1');
+      .toHaveAttribute('href', '/posts/post_1');
     expect(screen.getByText('Mint Studio')).toBeInTheDocument();
   });
 });

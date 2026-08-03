@@ -133,7 +133,7 @@ export function SceneBuilderRoute() {
     enabled: Boolean(actor)
   });
   const creatorProfileBase = ownCreatorProfile.data
-    ? `/creators/${encodeURIComponent(ownCreatorProfile.data.handle)}`
+    ? `/profiles/${encodeURIComponent(ownCreatorProfile.data.handle)}`
     : null;
   const groups = useMemo(() => bundle.data ? normalizeAttributeGroups(bundle.data) : [], [bundle.data]);
   const sceneGroups = useMemo(
@@ -392,10 +392,10 @@ export function SceneBuilderRoute() {
             mode="scene"
             onChange={next => {
               navigate(next === 'scene'
-                ? '/studio/scene'
+                ? '/create/studio/scene'
                 : next === 'character-sheet'
-                  ? '/studio?mode=character-sheet'
-                  : '/studio');
+                  ? '/create/studio/character'
+                  : '/create/studio/face');
             }}
           />
         )}
