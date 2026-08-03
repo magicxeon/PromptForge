@@ -74,6 +74,7 @@ export class CreatorProfilePageService {
         handle: publicProfile.handle,
         displayName: publicProfile.displayName,
         bio: publicProfile.bio,
+        profileTheme: presentation.profileTheme || 'default',
         headline: presentation.headline || null,
         avatarUrl: null,
         coverImageUrl: coverPost?.imageUrl || coverPost?.thumbnailUrl || null,

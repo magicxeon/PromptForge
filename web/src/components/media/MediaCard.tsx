@@ -11,10 +11,12 @@ import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function MediaCard({
   post,
-  ownerAction
+  ownerAction,
+  previewFit = 'contain'
 }: {
   post: CommunityPost;
   ownerAction?: ReactNode;
+  previewFit?: 'contain' | 'cover';
 }) {
   const { t } = useTranslation('community');
   const location = useLocation();
@@ -28,7 +30,7 @@ export function MediaCard({
         className="block text-inherit no-underline"
         aria-label={post.title || post.postType}
       >
-        <MediaStage post={post} fit="contain" className="community-media-card__stage" />
+        <MediaStage post={post} fit={previewFit} className="community-media-card__stage" />
         <div className="community-media-card__body p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <span className="rounded-[var(--mpf-radius-sm)] border border-cyan-400/30 bg-cyan-400/10 px-2 py-1 text-[11px] font-semibold uppercase text-cyan-200">

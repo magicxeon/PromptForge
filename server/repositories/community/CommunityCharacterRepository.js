@@ -98,19 +98,24 @@ export class CommunityCharacterRepository {
 
   async listPublic(query = {}) {
     const normalizedQuery = normalizeListQuery(query);
+    const requestedCreatorProfileId = normalizedQuery.filters.creatorProfileId || null;
+    const requestedOwnerUserId = normalizedQuery.filters.ownerUserId || null;
     const items = (await this.readAll())
       .filter(item =>
         item.visibility === VISIBILITY.PUBLIC
         && item.status === 'active'
-        && (!normalizedQuery.filters.creatorProfileId
-          || item.creatorProfileId === normalizedQuery.filters.creatorProfileId)
+        && (!requestedOwnerUserId || item.ownerUserId === requestedOwnerUserId)
+        && (!requestedCreatorProfileId
+          || item.creatorProfileId === requestedCreatorProfileId
+          || (!item.creatorProfileId && requestedOwnerUserId === item.ownerUserId))
       );
     const page = paginateRepositoryRecords(
       items,
       normalizedQuery,
       JSON.stringify({
         visibility: VISIBILITY.PUBLIC,
-        creatorProfileId: normalizedQuery.filters.creatorProfileId || null,
+        creatorProfileId: requestedCreatorProfileId,
+        ownerUserId: requestedOwnerUserId,
         sort: normalizedQuery.sort
       }),
       this.cursorSecret
@@ -206,6 +211,7 @@ export class CommunityCharacterRepository {
       const now = new Date().toISOString();
       items[index] = {
         ...items[index],
+        creatorProfileId: recordInput.creatorProfileId || existing.creatorProfileId || null,
         displayName: String(recordInput.displayName || existing.displayName).trim().slice(0, 80),
         description: String(recordInput.description ?? existing.description ?? '').trim().slice(0, 280),
         personalitySummary: String(recordInput.personalitySummary ?? existing.personalitySummary ?? '').trim().slice(0, 500),

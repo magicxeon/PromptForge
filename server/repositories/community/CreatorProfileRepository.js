@@ -8,6 +8,7 @@ import { applyRecordDefaults } from '../schemaVersioning.js';
 
 const PROFILE_FALLBACK = [];
 const HANDLE_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PROFILE_THEMES = new Set(['default', 'fashion', 'creative']);
 
 export class CreatorProfileRepository {
   constructor({ profilesFile = resolveDataFile('creatorProfiles') } = {}) {
@@ -188,6 +189,7 @@ function normalizePresentation(value = {}, fallback = {}) {
   const source = value && typeof value === 'object' ? value : {};
   const previous = fallback && typeof fallback === 'object' ? fallback : {};
   return {
+    profileTheme: normalizeProfileTheme(pickValue(source, previous, 'profileTheme')),
     headline: normalizeOptionalText(pickValue(source, previous, 'headline'), 120),
     creatorRoles: normalizeCodes(pickValue(source, previous, 'creatorRoles'), 4),
     locationText: normalizeOptionalText(pickValue(source, previous, 'locationText'), 100),
@@ -212,6 +214,11 @@ function normalizePresentation(value = {}, fallback = {}) {
     ),
     sectionOrder: normalizeSectionOrder(pickValue(source, previous, 'sectionOrder'))
   };
+}
+
+function normalizeProfileTheme(value) {
+  const normalized = String(value || '').trim().toLocaleLowerCase('en-US');
+  return PROFILE_THEMES.has(normalized) ? normalized : 'default';
 }
 
 function pickValue(source, fallback, key) {

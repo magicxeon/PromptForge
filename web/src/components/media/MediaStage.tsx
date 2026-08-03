@@ -71,13 +71,25 @@ export function MediaStage({
     );
   }
 
+  const fallbackUrl = apiMediaUrl(images[0]) || '';
+  const attentionUrl = fit === 'cover'
+    ? apiMediaUrl(post.presentationUrls.templateCard) || fallbackUrl
+    : fallbackUrl;
   return (
     <div className={cn('grid aspect-[4/3] place-items-center overflow-hidden bg-black', className)}>
       <img
-        src={apiMediaUrl(images[0]) || ''}
+        src={attentionUrl}
         alt=""
         loading={eager ? 'eager' : 'lazy'}
         className={cn('h-full w-full', fit === 'cover' ? 'object-cover object-top' : 'object-contain')}
+        data-fallback-src={fallbackUrl}
+        onError={event => {
+          const fallback = event.currentTarget.dataset.fallbackSrc;
+          if (fallback && event.currentTarget.dataset.fallbackApplied !== 'true') {
+            event.currentTarget.dataset.fallbackApplied = 'true';
+            event.currentTarget.src = fallback;
+          }
+        }}
       />
     </div>
   );

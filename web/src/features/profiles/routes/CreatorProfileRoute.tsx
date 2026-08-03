@@ -1,13 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, MapPin, Pencil, UserPlus, UserRoundCheck } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { CharacterCard } from '../../../components/profiles/CharacterCard';
-import { Button } from '../../../components/ui/Button';
+import { CreatorProfileHero } from '../../../components/profiles/CreatorProfileHero';
+import { ProfileOverviewSection } from '../../../components/profiles/ProfileOverviewSection';
+import {
+  CreatorHighlights,
+  ProfileCollectionMosaic,
+  ProfileComparisonCard,
+  ProfileFeaturedWork
+} from '../../../components/profiles/ProfileShowcaseCards';
+import { SharedTemplateEditDialog } from '../../../components/templates/SharedTemplateEditDialog';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
+import { Button } from '../../../components/ui/Button';
 import { Surface } from '../../../components/ui/Surface';
+import { showToast } from '../../../components/ui/toastStore';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
+import { useActor } from '../../../lib/auth/ActorProvider';
 import {
   getCreatorPage,
   getMyCreatorProfile,
@@ -15,13 +27,11 @@ import {
   updateMyCreatorProfile
 } from '../api/profileApi';
 import { characterSummarySchema, type CreatorPage } from '../schemas/profileSchemas';
-import { communityPostSchema, type CommunityPost } from '../../community/schemas/communitySchemas';
-import { useTranslation } from 'react-i18next';
-import { useActor } from '../../../lib/auth/ActorProvider';
-import { SharedTemplateEditDialog } from '../../../components/templates/SharedTemplateEditDialog';
-import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
+import { communityPostSchema } from '../../community/schemas/communitySchemas';
 
 const tabs = ['overview', 'works', 'characters', 'templates', 'comparisons', 'collections'] as const;
+type ProfileTab = typeof tabs[number];
+type ProfileTheme = CreatorPage['profile']['profileTheme'];
 
 export function CreatorProfileRoute() {
   const { t } = useTranslation('react-ui');
@@ -29,10 +39,13 @@ export function CreatorProfileRoute() {
   const actorId = actor?.userId || 'loading';
   const { handle = '', profileTab = 'overview' } = useParams();
   const normalizedProfileTab = profileTab === 'gallery' ? 'works' : profileTab;
-  const tab = tabs.includes(normalizedProfileTab as typeof tabs[number]) ? normalizedProfileTab : 'overview';
+  const tab = tabs.includes(normalizedProfileTab as ProfileTab)
+    ? normalizedProfileTab as ProfileTab
+    : 'overview';
   const apiTab = tab === 'works' ? 'gallery' : tab;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(false);
   const previousActorIdRef = useRef(actorId);
   const ownerActorIdRef = useRef<string | null>(null);
   const actorChanged = previousActorIdRef.current !== actorId;
@@ -48,12 +61,27 @@ export function CreatorProfileRoute() {
       if (!page.data) throw new Error(t('ui.creator.unavailable'));
       return setCreatorFollow(page.data.profile.id, active);
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['creator-page', actorId, handle] })
+    onSuccess: () => void queryClient.invalidateQueries({
+      queryKey: ['creator-page', actorId, handle]
+    })
   });
   const updateProfile = useMutation({
     mutationFn: updateMyCreatorProfile,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['creator-page', actorId, handle] })
+    onSuccess: async () => {
+      setEditing(false);
+      showToast({ tone: 'success', title: t('ui.creator.saved') });
+      await queryClient.invalidateQueries({ queryKey: ['creator-page', actorId, handle] });
+    },
+    onError: error => showToast({
+      tone: 'error',
+      title: t('ui.creator.saveFailed'),
+      description: error.message
+    })
   });
+
+  useEffect(() => {
+    setEditing(false);
+  }, [handle]);
 
   useEffect(() => {
     const previousActorId = previousActorIdRef.current;
@@ -67,9 +95,7 @@ export function CreatorProfileRoute() {
     void getMyCreatorProfile()
       .then(profile => {
         if (cancelled) return;
-        navigate(routeBuilders.profile(profile.id, tab), {
-          replace: true
-        });
+        navigate(routeBuilders.profile(profile.id, tab), { replace: true });
       })
       .catch(() => {
         if (!cancelled) navigate(routePaths.explore, { replace: true });
@@ -83,167 +109,256 @@ export function CreatorProfileRoute() {
     if (page.data?.viewer.isOwner) ownerActorIdRef.current = actorId;
   }, [actorId, page.data?.viewer.isOwner]);
 
-  if (followActorToOwnProfile) {
-    return <LoadingState label={t('ui.creator.loading')} />;
-  }
+  if (followActorToOwnProfile) return <LoadingState label={t('ui.creator.loading')} />;
   if (page.isLoading) return <LoadingState label={t('ui.creator.loading')} />;
   if (page.isError || !page.data) {
-    return <ErrorState title={t('ui.creator.unavailable')} description={page.error?.message} onRetry={() => void page.refetch()} />;
+    return (
+      <ErrorState
+        title={t('ui.creator.unavailable')}
+        description={page.error?.message}
+        onRetry={() => void page.refetch()}
+      />
+    );
   }
 
   const data = page.data;
+  const profileBase = routeBuilders.profile(data.profile.id);
+
+  async function shareProfile() {
+    const shareData = {
+      title: data.profile.displayName,
+      text: data.profile.headline || data.profile.bio,
+      url: window.location.href
+    };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else await navigator.clipboard.writeText(shareData.url);
+      showToast({ tone: 'success', title: t('ui.creator.shareSuccess') });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      showToast({ tone: 'error', title: t('ui.creator.shareFailed') });
+    }
+  }
+
   return (
-    <main>
-      <ProfileHero
-        page={data}
-        onFollow={() => follow.mutate(!data.viewer.isFollowing)}
-        pending={follow.isPending}
-        onUpdate={input => updateProfile.mutate(input)}
-        updatePending={updateProfile.isPending}
-      />
-      <nav className="mt-3 flex gap-1 overflow-x-auto border-b border-[var(--mpf-border)]" aria-label={t('ui.creator.navigation')}>
-        {data.capabilities.availableTabs.map(item => {
-          const routeTab = item === 'gallery' ? 'works' : item;
-          return (
-          <NavLink
-            key={item}
-            end={item === 'overview'}
-            to={routeBuilders.profile(page.data?.profile.id || handle, routeTab)}
-            className={({ isActive }) => `shrink-0 border-b-2 px-4 py-3 text-sm no-underline ${isActive ? 'border-cyan-400 text-white' : 'border-transparent text-[var(--mpf-text-muted)]'}`}
-          >
-            {routeTab}
-          </NavLink>
-          );
-        })}
-      </nav>
-      <ProfileContent page={data} />
+    <main
+      className="creator-profile"
+      data-profile-palette={data.profile.profileTheme}
+    >
+      <div className="creator-profile__blend" aria-hidden="true" />
+      <div className="creator-profile__canvas" data-profile-theme={data.profile.profileTheme}>
+        <CreatorProfileHero
+          page={data}
+          followLabel={t('ui.creator.follow')}
+          followingLabel={t('ui.creator.following')}
+          editLabel={t('ui.creator.edit')}
+          shareLabel={t('ui.creator.share')}
+          followerLabel={t('ui.creator.metricFollowers')}
+          worksLabel={t('ui.creator.metricWorks')}
+          charactersLabel={t('ui.creator.metricCharacters')}
+          templatesLabel={t('ui.creator.metricTemplates')}
+          followPending={follow.isPending}
+          onFollow={() => follow.mutate(!data.viewer.isFollowing)}
+          onEdit={() => setEditing(value => !value)}
+          onShare={() => void shareProfile()}
+        />
+
+        {editing && data.management ? (
+          <ProfileEditPanel
+            page={data}
+            pending={updateProfile.isPending}
+            onCancel={() => setEditing(false)}
+            onSave={input => updateProfile.mutate(input)}
+          />
+        ) : null}
+
+        <nav className="creator-profile-tabs" aria-label={t('ui.creator.navigation')}>
+          {data.capabilities.availableTabs.map(item => {
+            const routeTab = item === 'gallery' ? 'works' : item as ProfileTab;
+            return (
+              <NavLink
+                key={item}
+                end={item === 'overview'}
+                to={routeBuilders.profile(data.profile.id, routeTab)}
+              >
+                {t(`ui.creator.tabs.${routeTab}`)}
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        <ProfileContent page={data} profileBase={profileBase} />
+      </div>
     </main>
   );
 }
 
-function ProfileHero({
+function ProfileEditPanel({
   page,
-  onFollow,
-  pending
-  ,
-  onUpdate,
-  updatePending
+  pending,
+  onCancel,
+  onSave
 }: {
   page: CreatorPage;
-  onFollow: () => void;
   pending: boolean;
-  onUpdate: (input: { displayName: string; headline: string; bio: string; locationText: string; websiteUrl: string }) => void;
-  updatePending: boolean;
+  onCancel: () => void;
+  onSave: (input: Parameters<typeof updateMyCreatorProfile>[0]) => void;
 }) {
   const { t } = useTranslation('react-ui');
   const profile = page.profile;
-  const [editing, setEditing] = useState(false);
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!page.management) return;
     const form = new FormData(event.currentTarget);
-    onUpdate({
+    onSave({
       displayName: String(form.get('displayName') || '').trim(),
-      headline: String(form.get('headline') || '').trim(),
       bio: String(form.get('bio') || '').trim(),
-      locationText: String(form.get('locationText') || '').trim(),
-      websiteUrl: String(form.get('websiteUrl') || '').trim()
+      recordVersion: page.management.recordVersion,
+      presentation: {
+        profileTheme: String(form.get('profileTheme') || 'default') as ProfileTheme,
+        headline: String(form.get('headline') || '').trim(),
+        locationText: String(form.get('locationText') || '').trim(),
+        websiteUrl: String(form.get('websiteUrl') || '').trim()
+      }
     });
-    setEditing(false);
   }
+
   return (
-    <Surface className="relative overflow-hidden p-5 sm:p-7">
-      {profile.coverImageUrl ? (
-        <img src={apiMediaUrl(profile.coverImageUrl) || ''} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
-      ) : null}
-      <div className="relative grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
-        <div className="grid size-28 place-items-center overflow-hidden rounded-full border-2 border-cyan-400 bg-black shadow-[0_0_22px_rgb(240_45_145_/_0.35)]">
-          {profile.avatarUrl
-            ? <img src={apiMediaUrl(profile.avatarUrl) || ''} alt="" className="h-full w-full object-cover" />
-            : <span className="text-3xl font-bold">{profile.displayName.slice(0, 1)}</span>}
+    <Surface className="creator-profile-editor">
+      <form onSubmit={submit}>
+        <label>
+          <span>{t('ui.creator.displayName')}</span>
+          <input name="displayName" required defaultValue={profile.displayName} />
+        </label>
+        <label>
+          <span>{t('ui.creator.headline')}</span>
+          <input name="headline" defaultValue={profile.headline || ''} />
+        </label>
+        <label className="creator-profile-editor__wide">
+          <span>{t('ui.creator.bio')}</span>
+          <textarea name="bio" defaultValue={profile.bio} />
+        </label>
+        <label>
+          <span>{t('ui.creator.location')}</span>
+          <input name="locationText" defaultValue={profile.locationText || ''} />
+        </label>
+        <label>
+          <span>{t('ui.creator.website')}</span>
+          <input name="websiteUrl" type="url" defaultValue={profile.websiteUrl || ''} />
+        </label>
+        <label>
+          <span>{t('ui.creator.profileTheme')}</span>
+          <select name="profileTheme" defaultValue={profile.profileTheme}>
+            <option value="default">{t('ui.creator.themes.default')}</option>
+            <option value="fashion">{t('ui.creator.themes.fashion')}</option>
+            <option value="creative">{t('ui.creator.themes.creative')}</option>
+          </select>
+        </label>
+        <div className="creator-profile-editor__actions">
+          <Button type="button" variant="ghost" onClick={onCancel}>{t('ui.action.cancel')}</Button>
+          <Button type="submit" variant="primary" disabled={pending}>{t('ui.action.saveProfile')}</Button>
         </div>
-        <div>
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <h1 className="m-0 text-3xl">{profile.displayName}</h1>
-            {profile.badgeCodes.map(badge => <span key={badge} className="text-xs text-cyan-300">{badge}</span>)}
-          </div>
-          <p className="m-0 text-sm text-cyan-300">@{profile.handle}</p>
-          <p className="max-w-3xl text-sm leading-6 text-[var(--mpf-text-muted)]">{profile.headline || profile.bio}</p>
-          <div className="flex flex-wrap gap-4 text-xs text-[var(--mpf-text-muted)]">
-            {profile.locationText ? <span className="flex items-center gap-1"><MapPin className="size-3" />{profile.locationText}</span> : null}
-            {profile.websiteUrl ? <a className="flex items-center gap-1 text-cyan-300" href={profile.websiteUrl}><ExternalLink className="size-3" />{profile.websiteUrl}</a> : null}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-6 text-sm">
-            <strong>{t('ui.creator.followers', { count: page.counts.followers || 0 })}</strong>
-            <strong>{t('ui.creator.posts', { count: page.counts.publicPosts || 0 })}</strong>
-            <strong>{t('ui.creator.characters', { count: page.counts.publicCharacters || 0 })}</strong>
-          </div>
-        </div>
-        <div>
-          {page.viewer.canEditProfile ? (
-            <Button icon={<Pencil className="size-4" />} disabled={updatePending} onClick={() => setEditing(value => !value)}>
-              {t('ui.creator.edit')}
-            </Button>
-          ) : page.viewer.canFollow ? (
-            <Button
-              variant="primary"
-              icon={page.viewer.isFollowing ? <UserRoundCheck className="size-4" /> : <UserPlus className="size-4" />}
-              disabled={pending}
-              onClick={onFollow}
-            >
-              {page.viewer.isFollowing ? t('ui.creator.following') : t('ui.creator.follow')}
-            </Button>
-          ) : (
-            null
-          )}
-        </div>
-      </div>
-      {editing ? (
-        <form className="relative mt-6 grid gap-3 border-t border-[var(--mpf-border)] pt-5 md:grid-cols-2" onSubmit={submit}>
-          <input name="displayName" required defaultValue={profile.displayName} placeholder={t('ui.creator.displayName')} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3" />
-          <input name="headline" defaultValue={profile.headline || ''} placeholder={t('ui.creator.headline')} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3" />
-          <textarea name="bio" defaultValue={profile.bio} placeholder={t('ui.creator.bio')} className="h-28 resize-y border border-[var(--mpf-border)] bg-black/35 p-3 md:col-span-2" />
-          <input name="locationText" defaultValue={profile.locationText || ''} placeholder={t('ui.creator.location')} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3" />
-          <input name="websiteUrl" type="url" defaultValue={profile.websiteUrl || ''} placeholder={t('ui.creator.website')} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3" />
-          <div className="flex justify-end gap-2 md:col-span-2"><Button type="button" variant="ghost" onClick={() => setEditing(false)}>{t('ui.action.cancel')}</Button><Button type="submit" variant="primary" disabled={updatePending}>{t('ui.action.saveProfile')}</Button></div>
-        </form>
-      ) : null}
+      </form>
     </Surface>
   );
 }
 
-function ProfileContent({ page }: { page: CreatorPage }) {
+function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase: string }) {
   const { t } = useTranslation('react-ui');
   if (page.selectedTab === 'overview' && page.overview) {
+    const featured = page.overview.featured.items[0] || null;
+    const comparison = page.overview.comparisons.items[0] || null;
+    const collection = page.overview.latestCollection;
     return (
-      <div className="mt-5 space-y-7">
-        <PostSection
-          title={t('ui.creator.featured')}
-          items={page.overview.featured.items}
-          canManage={page.viewer.canManageContent}
-        />
+      <div className="creator-profile-overview">
+        <div className="creator-profile-overview__lead">
+          {featured ? (
+            <ProfileOverviewSection
+              title={t('ui.creator.featured')}
+              viewAllHref={`${profileBase}/works`}
+              viewAllLabel={t('ui.creator.viewAll')}
+            >
+              <ProfileFeaturedWork post={featured} viewLabel={t('ui.creator.viewWork')} />
+            </ProfileOverviewSection>
+          ) : null}
+          <ProfileOverviewSection
+            title={t('ui.creator.highlights')}
+            viewAllLabel={t('ui.creator.viewAll')}
+          >
+            <CreatorHighlights
+              page={page}
+              labels={{
+                likes: t('ui.creator.highlightLikes'),
+                uses: t('ui.creator.highlightUses'),
+                votes: t('ui.creator.highlightVotes'),
+                followers: t('ui.creator.highlightFollowers')
+              }}
+            />
+          </ProfileOverviewSection>
+        </div>
+
         {page.overview.characters.items.length ? (
-          <section>
-            <h2 className="text-xl">{t('ui.creator.popularCharacters')}</h2>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {page.overview.characters.items.map(item => <CharacterCard key={item.id} character={item} />)}
+          <ProfileOverviewSection
+            title={t('ui.creator.popularCharacters')}
+            viewAllHref={`${profileBase}/characters`}
+            viewAllLabel={t('ui.creator.viewAll')}
+          >
+            <div className="creator-profile-card-grid creator-profile-card-grid--characters">
+              {page.overview.characters.items.slice(0, 4).map(item => (
+                <CharacterCard key={item.id} character={item} />
+              ))}
             </div>
-          </section>
+          </ProfileOverviewSection>
         ) : null}
-        <PostSection
-          title={t('ui.creator.popularTemplates')}
-          items={page.overview.templates.items}
-          canManage={page.viewer.canManageContent}
-        />
-        <PostSection
-          title={t('ui.creator.recentComparisons')}
-          items={page.overview.comparisons.items}
-          canManage={page.viewer.canManageContent}
-        />
+
+        {page.overview.templates.items.length ? (
+          <ProfileOverviewSection
+            title={t('ui.creator.popularTemplates')}
+            viewAllHref={`${profileBase}/templates`}
+            viewAllLabel={t('ui.creator.viewAll')}
+          >
+            <div className="creator-profile-card-grid creator-profile-card-grid--templates">
+              {page.overview.templates.items.slice(0, 2).map(item => (
+                <MediaCard
+                  key={item.id}
+                  post={item}
+                  previewFit="cover"
+                  ownerAction={page.viewer.canManageContent
+                    ? <SharedTemplateEditDialog post={item} />
+                    : undefined}
+                />
+              ))}
+            </div>
+          </ProfileOverviewSection>
+        ) : null}
+
+        <div className="creator-profile-overview__lower">
+          {comparison ? (
+            <ProfileOverviewSection
+              title={t('ui.creator.recentComparisons')}
+              viewAllHref={`${profileBase}/comparisons`}
+              viewAllLabel={t('ui.creator.viewAll')}
+            >
+              <ProfileComparisonCard post={comparison} viewLabel={t('ui.creator.viewComparison')} />
+            </ProfileOverviewSection>
+          ) : null}
+          {collection ? (
+            <ProfileOverviewSection
+              title={t('ui.creator.curatedCollections')}
+              viewAllHref={`${profileBase}/collections`}
+              viewAllLabel={t('ui.creator.viewAll')}
+            >
+              <ProfileCollectionMosaic post={collection} itemLabel={t('ui.creator.collectionItems')} />
+            </ProfileOverviewSection>
+          ) : null}
+        </div>
       </div>
     );
   }
+
   const items = page.tabData.page?.items || [];
-  if (!items.length) return <div className="mt-5"><EmptyState title={t('ui.creator.empty')} /></div>;
+  if (!items.length) return <div className="creator-profile-tab-empty"><EmptyState title={t('ui.creator.empty')} /></div>;
   const characters = items.flatMap(item => {
     const result = characterSummarySchema.safeParse(item);
     return result.success ? [result.data] : [];
@@ -259,51 +374,24 @@ function ProfileContent({ page }: { page: CreatorPage }) {
     return parsed.success || post.success ? [] : [item];
   });
   return (
-    <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="creator-profile-tab-grid">
       {characters.map(item => <CharacterCard key={item.id} character={item} />)}
       {posts.map(item => (
         <MediaCard
           key={item.id}
           post={item}
+          previewFit={item.postType === 'template' ? 'cover' : 'contain'}
           ownerAction={page.viewer.canManageContent && item.postType === 'template'
             ? <SharedTemplateEditDialog post={item} />
             : undefined}
         />
       ))}
       {mediaItems.map(item => (
-        <Surface key={String(item.id)} className="overflow-hidden p-0">
-          <img src={apiMediaUrl(String(item.thumbnailUrl || item.imageUrl || '')) || ''} alt="" className="aspect-[4/5] w-full object-cover object-top" />
-          <div className="p-3"><strong className="text-sm">{String(item.title || t('ui.creator.galleryImage'))}</strong></div>
+        <Surface key={String(item.id)} className="creator-profile-media-item">
+          <img src={apiMediaUrl(String(item.thumbnailUrl || item.imageUrl || '')) || ''} alt="" />
+          <div><strong>{String(item.title || t('ui.creator.galleryImage'))}</strong></div>
         </Surface>
       ))}
     </div>
-  );
-}
-
-function PostSection({
-  title,
-  items,
-  canManage = false
-}: {
-  title: string;
-  items: CommunityPost[];
-  canManage?: boolean;
-}) {
-  if (!items.length) return null;
-  return (
-    <section>
-      <h2 className="text-xl">{title}</h2>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {items.map(item => (
-          <MediaCard
-            key={item.id}
-            post={item}
-            ownerAction={canManage && item.postType === 'template'
-              ? <SharedTemplateEditDialog post={item} />
-              : undefined}
-          />
-        ))}
-      </div>
-    </section>
   );
 }

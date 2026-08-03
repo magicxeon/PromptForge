@@ -30,30 +30,47 @@
     },
     "badgeCodes": [],
     "membershipEnabled": false,
-    "recordVersion": 3,
+    "recordVersion": 5,
     "visibility": "public",
     "status": "active",
     "createdAt": "2026-07-26T05:58:31.878Z",
-    "updatedAt": "2026-07-27T10:02:12.234Z"
+    "updatedAt": "2026-08-03T09:30:37.698Z"
   },
   {
+    "id": "creator_alice",
+    "schemaVersion": 1,
     "userId": "usr_alice",
     "handle": "user-alice",
     "displayName": "Alice Creator",
     "bio": "",
     "avatarAssetId": null,
+    "presentation": {
+      "profileTheme": "fashion",
+      "headline": null,
+      "creatorRoles": [],
+      "locationText": null,
+      "websiteUrl": null,
+      "languageCodes": [],
+      "contentCategoryCodes": [],
+      "avatarAssetId": null,
+      "coverPostId": null,
+      "featuredPostIds": [],
+      "featuredCharacterProfileIds": [],
+      "featuredTemplatePostIds": [],
+      "sectionOrder": [
+        "featured",
+        "characters",
+        "templates",
+        "comparisons"
+      ]
+    },
     "badgeCodes": [],
     "membershipEnabled": false,
-    "status": "active",
-    "id": "creator_alice",
-    "schemaVersion": 1,
-    "ownerUserId": null,
-    "ownerUsername": null,
+    "recordVersion": 11,
     "visibility": "public",
+    "status": "active",
     "createdAt": "2026-07-27T05:51:03.242Z",
-    "updatedAt": "2026-07-27T05:51:03.242Z",
-    "deletedAt": null,
-    "metadata": {}
+    "updatedAt": "2026-08-03T09:51:51.858Z"
   },
   {
     "userId": "usr_bob",

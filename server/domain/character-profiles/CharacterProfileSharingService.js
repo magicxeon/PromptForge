@@ -86,6 +86,7 @@ export class CharacterProfileSharingService {
     if (!version) return null;
     const publicProjection = profile.visibility === 'public' && profile.status === 'approved';
     return this.communityCharacterRepository.upsertProfileProjection({
+      creatorProfileId: profile.creatorProfileId || null,
       characterProfileId: profile.id,
       characterProfileVersionId: version.id,
       displayName: profile.displayName,

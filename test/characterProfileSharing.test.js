@@ -71,6 +71,61 @@ test('public Styled Character projection is selectable in Scene without a Castin
   assert.equal(page.items[0].canonicalCastingExportAssetId, null);
 });
 
+test('Creator profile character listing includes legacy projections owned by the profile user', async t => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-legacy-character-owner-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const repository = new CommunityCharacterRepository({
+    characterFile: path.join(dir, 'characters.json')
+  });
+  await repository.upsertProfileProjection({
+    characterProfileId: 'charprof_legacy',
+    displayName: 'Legacy Alice Character',
+    visibility: 'public',
+    status: 'active'
+  }, { userId: 'usr_alice', username: 'alice' });
+
+  const page = await repository.listPublic({
+    filters: {
+      creatorProfileId: 'creator_alice',
+      ownerUserId: 'usr_alice'
+    }
+  });
+  assert.equal(page.items.length, 1);
+
+  const otherOwnerPage = await repository.listPublic({
+    filters: {
+      creatorProfileId: 'creator_bob',
+      ownerUserId: 'usr_bob'
+    }
+  });
+  assert.equal(otherOwnerPage.items.length, 0);
+});
+
+test('profile projection sync backfills its Creator profile relation', async t => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-character-profile-link-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const repository = new CommunityCharacterRepository({
+    characterFile: path.join(dir, 'characters.json')
+  });
+  const actor = { userId: 'usr_alice', username: 'alice' };
+  await repository.upsertProfileProjection({
+    characterProfileId: 'charprof_linked',
+    displayName: 'Alice Character',
+    visibility: 'public',
+    status: 'active'
+  }, actor);
+  await repository.upsertProfileProjection({
+    characterProfileId: 'charprof_linked',
+    creatorProfileId: 'creator_alice',
+    displayName: 'Alice Character',
+    visibility: 'public',
+    status: 'active'
+  }, actor);
+
+  const record = await repository.findByCharacterProfileId('charprof_linked');
+  assert.equal(record.creatorProfileId, 'creator_alice');
+});
+
 test('public Character summary prefers its newest public work and retains canonical fallback', async () => {
   const profile = {
     id: 'charprof_featured',

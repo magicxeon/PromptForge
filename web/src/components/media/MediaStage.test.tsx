@@ -31,6 +31,25 @@ describe('MediaStage media source', () => {
     );
   });
 
+  it('uses the server attention presentation for cover previews', () => {
+    const focusedPost = communityPostSchema.parse({
+      ...post,
+      presentationUrls: {
+        templateCard: '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus'
+      }
+    });
+    const { container } = render(<MediaStage post={focusedPost} fit="cover" />);
+
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus'
+    );
+    expect(container.querySelector('img')).toHaveAttribute(
+      'data-fallback-src',
+      '/api/scene-templates/shared/post_media_source/thumbnail'
+    );
+  });
+
   it('uses the shared count-aware attention presentation for comparisons', () => {
     const comparison = communityPostSchema.parse({
       id: 'post_comparison',

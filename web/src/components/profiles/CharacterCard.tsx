@@ -10,6 +10,10 @@ export function CharacterCard({ character }: { character: CharacterSummary }) {
   const { t } = useTranslation('character-profiles');
   const location = useLocation();
   const available = character.handoffAvailable;
+  const previewUrl = character.thumbnailUrl
+    || character.displayImageUrl
+    || character.imageUrl
+    || null;
   return (
     <article className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]">
       <Link
@@ -18,10 +22,10 @@ export function CharacterCard({ character }: { character: CharacterSummary }) {
         className="block text-inherit no-underline"
       >
         <div className="aspect-[3/4] overflow-hidden bg-black">
-          {character.displayImageUrl ? (
+          {previewUrl ? (
             <img
-              src={apiMediaUrl(character.displayImageUrl) || ''}
-              alt=""
+              src={apiMediaUrl(previewUrl) || ''}
+              alt={character.displayName}
               loading="lazy"
               className="h-full w-full object-cover object-top"
             />

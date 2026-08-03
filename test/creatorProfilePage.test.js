@@ -23,6 +23,7 @@ const profile = {
   status: 'active',
   recordVersion: 3,
   presentation: {
+    profileTheme: 'creative',
     headline: 'Commercial fashion and character design',
     creatorRoles: ['fashion_creator'],
     locationText: 'Bangkok',
@@ -96,6 +97,7 @@ test('creator profile page returns a bounded overview and owner management conte
   const model = await createService().getPage('owner', { tab: 'overview' }, owner);
   assert.equal(model.selectedTab, 'overview');
   assert.equal(model.profile.coverImageUrl, '/api/scene-templates/shared/post_image/image');
+  assert.equal(model.profile.profileTheme, 'creative');
   assert.equal(model.counts.publicCharacters, 1);
   assert.equal(model.counts.templates, 1);
   assert.equal(model.overview.featured.items[0].id, 'post_image');

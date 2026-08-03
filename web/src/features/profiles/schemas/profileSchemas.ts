@@ -69,6 +69,7 @@ const profileSchema = z.object({
   handle: z.string(),
   displayName: z.string(),
   bio: z.string().default(''),
+  profileTheme: z.enum(['default', 'fashion', 'creative']).default('default'),
   headline: z.string().nullable().optional(),
   avatarUrl: z.string().nullable().optional(),
   coverImageUrl: z.string().nullable().optional(),
@@ -122,7 +123,12 @@ export const creatorPageSchema = z.object({
     comparisons: z.object({ items: z.array(communityPostSchema) }),
     latestCollection: communityPostSchema.nullable()
   }).nullable(),
-  management: z.unknown().nullable()
+  management: z.object({
+    recordVersion: z.number(),
+    presentation: z.object({
+      profileTheme: z.enum(['default', 'fashion', 'creative']).default('default')
+    }).passthrough()
+  }).passthrough().nullable()
 });
 
 export const followResponseSchema = z.object({

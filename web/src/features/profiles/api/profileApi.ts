@@ -97,11 +97,15 @@ export function approveCharacterProfile(characterId: string) {
 }
 
 export function updateMyCreatorProfile(input: {
-  displayName?: string;
-  headline?: string;
-  bio?: string;
-  locationText?: string;
-  websiteUrl?: string;
+  displayName: string;
+  bio: string;
+  recordVersion: number;
+  presentation: {
+    profileTheme: 'default' | 'fashion' | 'creative';
+    headline: string;
+    locationText: string;
+    websiteUrl: string;
+  };
 }) {
   return apiRequest('/api/community/creator-profiles/me', {
     method: 'PATCH',

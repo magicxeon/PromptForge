@@ -57,6 +57,9 @@ export const communityPostSchema = z.object({
   visibility: z.enum(['public', 'unlisted', 'members_only', 'private']).default('public'),
   imageUrl: nullableText,
   thumbnailUrl: nullableText,
+  presentationUrls: z.object({
+    templateCard: nullableText
+  }).default({}),
   officialTags: z.array(z.string()).default([]),
   customTags: z.array(z.string()).default([]),
   promptVisibility: z.string().default('hidden'),

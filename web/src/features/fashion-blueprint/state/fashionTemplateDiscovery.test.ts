@@ -10,6 +10,7 @@ function post(id: string, templateId: string | null): CommunityPost {
     title: id,
     description: '',
     visibility: 'public',
+    presentationUrls: {},
     officialTags: [],
     customTags: [],
     promptVisibility: 'hidden',

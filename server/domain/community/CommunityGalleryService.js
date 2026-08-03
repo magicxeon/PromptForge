@@ -116,7 +116,10 @@ export class CommunityGalleryService {
     const profile = await this.requireProfile(handle);
     const page = await this.characterRepository.listPublic({
       ...query,
-      filters: { creatorProfileId: profile.id }
+      filters: {
+        creatorProfileId: profile.id,
+        ownerUserId: profile.userId
+      }
     });
     const visibleItems = await this.filterVisibleSourcePosts(
       this.characterRepository,

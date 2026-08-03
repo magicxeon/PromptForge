@@ -1,7 +1,11 @@
 import { Palette } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../lib/theme/ThemeContext';
+import { syncCreatorProfileTheme } from '../../lib/theme/profileThemeSync';
 import {
+  resolveRouteTheme,
+  resolveTheme,
   themePreferences,
   type ThemePreference
 } from '../../lib/theme/themeContract';
@@ -9,6 +13,18 @@ import {
 export function FooterThemeSelector() {
   const { t } = useTranslation('shell');
   const { preference, resolvedTheme, setPreference } = useTheme();
+  const queryClient = useQueryClient();
+
+  const selectTheme = (theme: ThemePreference) => {
+    setPreference(theme);
+    const publicProfileTheme = resolveTheme(
+      theme,
+      resolveRouteTheme(window.location.pathname)
+    );
+    void syncCreatorProfileTheme(publicProfileTheme)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['creator-page'] }))
+      .catch(() => undefined);
+  };
 
   return (
     <section className="site-footer__theme" aria-labelledby="footer-theme-label">
@@ -36,7 +52,7 @@ export function FooterThemeSelector() {
             theme={theme}
             checked={preference === theme}
             label={t(`shell.theme.options.${theme}`)}
-            onSelect={setPreference}
+            onSelect={selectTheme}
           />
         ))}
       </div>

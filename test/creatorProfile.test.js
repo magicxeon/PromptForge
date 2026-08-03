@@ -81,6 +81,7 @@ test('creator presentation is normalized, versioned, and owner-only metadata is 
   const updated = await fixture.service.updateOwnProfile({
     recordVersion: profile.recordVersion,
     presentation: {
+      profileTheme: 'creative',
       headline: 'Fashion and character creator',
       creatorRoles: ['Fashion_Creator', 'Character-Designer'],
       locationText: 'Bangkok, Thailand',
@@ -92,6 +93,7 @@ test('creator presentation is normalized, versioned, and owner-only metadata is 
   }, alice);
 
   assert.equal(updated.recordVersion, profile.recordVersion + 1);
+  assert.equal(updated.presentation.profileTheme, 'creative');
   assert.equal(updated.presentation.headline, 'Fashion and character creator');
   assert.deepEqual(updated.presentation.languageCodes, ['th', 'en']);
   assert.deepEqual(updated.presentation.featuredPostIds, []);
@@ -107,6 +109,7 @@ test('creator presentation is normalized, versioned, and owner-only metadata is 
   const publicProfile = await fixture.service.getPublicProfileByHandle(updated.handle, bob);
   assert.equal(publicProfile.recordVersion, undefined);
   assert.equal(publicProfile.presentation.headline, 'Fashion and character creator');
+  assert.equal(publicProfile.presentation.profileTheme, 'creative');
 
   const cleared = await fixture.service.updateOwnProfile({
     recordVersion: updated.recordVersion,
@@ -115,9 +118,15 @@ test('creator presentation is normalized, versioned, and owner-only metadata is 
   assert.equal(cleared.presentation.websiteUrl, null);
   assert.equal(cleared.presentation.headline, 'Fashion and character creator');
 
+  const normalizedTheme = await fixture.service.updateOwnProfile({
+    recordVersion: cleared.recordVersion,
+    presentation: { profileTheme: 'unsupported-theme' }
+  }, alice);
+  assert.equal(normalizedTheme.presentation.profileTheme, 'default');
+
   await assert.rejects(
     () => fixture.service.updateOwnProfile({
-      recordVersion: cleared.recordVersion,
+      recordVersion: normalizedTheme.recordVersion,
       presentation: { coverPostId: 'post_owned_by_someone_else' }
     }, alice),
     error => error.code === 'creator_presentation_item_forbidden'

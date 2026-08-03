@@ -568,15 +568,22 @@
     ],
     "taxonomyReviewStatus": "auto_confirmed",
     "taxonomyConfidence": 0.93,
-    "counts": {},
+    "counts": {
+      "views": 2,
+      "likes": 0,
+      "saves": 0,
+      "comments": 0,
+      "remixes": 0,
+      "votes": 0
+    },
     "engagementSummary": {
-      "viewCount": 0,
+      "viewCount": 2,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-08-01T17:27:31.174Z"
+      "updatedAt": "2026-08-03T09:02:16.499Z"
     },
     "id": "post_1785605251174_lbkfk59z",
     "schemaVersion": 1,
@@ -584,7 +591,7 @@
     "ownerUsername": "user_alice",
     "status": "published",
     "createdAt": "2026-08-01T17:27:31.174Z",
-    "updatedAt": "2026-08-01T17:32:15.307Z",
+    "updatedAt": "2026-08-03T09:02:16.499Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -4994,7 +5001,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 1,
+      "views": 2,
       "likes": 0,
       "saves": 0,
       "comments": 0,
@@ -5002,13 +5009,13 @@
       "votes": 0
     },
     "engagementSummary": {
-      "viewCount": 1,
+      "viewCount": 2,
       "likeCount": 0,
       "saveCount": 0,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-07-29T12:38:25.437Z"
+      "updatedAt": "2026-08-03T06:55:17.979Z"
     },
     "id": "post_1785327054205_scyb6exr",
     "schemaVersion": 1,
@@ -5016,7 +5023,7 @@
     "ownerUsername": "user_alice",
     "status": "published",
     "createdAt": "2026-07-29T12:10:54.204Z",
-    "updatedAt": "2026-07-29T12:38:25.437Z",
+    "updatedAt": "2026-08-03T06:55:17.979Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -5408,7 +5415,7 @@
     "sceneTemplateSnapshot": null,
     "providerModelSnapshot": null,
     "counts": {
-      "views": 5,
+      "views": 6,
       "likes": 2,
       "saves": 1,
       "comments": 0,
@@ -5416,13 +5423,13 @@
       "votes": 1
     },
     "engagementSummary": {
-      "viewCount": 5,
+      "viewCount": 6,
       "likeCount": 2,
       "saveCount": 1,
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 1,
-      "updatedAt": "2026-07-29T03:26:04.863Z"
+      "updatedAt": "2026-08-03T08:44:16.188Z"
     },
     "id": "post_1785056931508_vjbdsexw",
     "schemaVersion": 1,
@@ -5430,7 +5437,7 @@
     "ownerUsername": "user_demo",
     "status": "published",
     "createdAt": "2026-07-26T09:08:51.508Z",
-    "updatedAt": "2026-07-29T03:26:04.863Z",
+    "updatedAt": "2026-08-03T08:44:16.188Z",
     "deletedAt": null,
     "metadata": {}
   },
