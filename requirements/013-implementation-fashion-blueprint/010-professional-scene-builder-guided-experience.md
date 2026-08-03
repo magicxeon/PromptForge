@@ -1,9 +1,9 @@
 # Professional Guided Scene Builder Experience
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `../011-reference-processing-pipeline`  
+**Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `009-fashion-model-qualification-and-routing-optimization.md`, `../011-reference-processing-pipeline`, `../008-implement-adjusment-ui/014-global-route-inventory-and-target-information-architecture.md`, `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`  
 **Required skill:** `skills/design-professional-scene-prompts/SKILL.md`  
-**Status:** Requirement ready; implementation pending
+**Status:** Partially implemented; recipe/accordion and credit-presentation completion pending
 
 ## 1. Business Requirement
 
@@ -290,6 +290,66 @@ For Scene Builder:
 This requirement does not remove Surprise or Export from another surface
 unless that surface's owning requirement also removes it.
 
+### 8.1 Credit presentation contract
+
+Scene Builder and the Template-preparation handoff must present credits as a
+customer decision, not as raw provider accounting.
+
+For the Thai beginner-facing experience:
+
+- keep the primary number visually compact and easy to compare;
+- label it as an estimated maximum before generation;
+- show the available balance next to the action when it helps the decision;
+- keep provider cost, reference multipliers and internal ledger units out of
+  the primary Simple UI;
+- provide an expandable breakdown for generation, Template access and one-time
+  Fashion-ready preparation when those operations apply;
+- show a valid Pose Proxy cache hit as no additional preparation charge;
+- use the shared insufficient-credit dialog rather than a small inline error;
+- never advertise a cheaper tier by routing to an unqualified model.
+
+The exact denomination and conversion are versioned server-owned pricing
+policy. React must not divide, round or remap credit values independently. If
+commercial pricing introduces a smaller customer-facing display unit, the
+quote/API must return both the authoritative ledger amount and fields such as:
+
+```text
+displayCredits
+displayCreditUnitVersion
+displayCreditLabel
+```
+
+The accepted quote binds the display-unit version with the underlying immutable
+ledger amount. Historical transactions retain the unit version used when the
+customer confirmed them. Phase2-07 owns ledger integrity and Phase2-08 owns
+packages, money and final denomination economics.
+
+Draft/Proof means one qualified proof output. Selling Quality uses the fixed
+qualified MVP route. Premium must not appear to promise a superior model while
+it resolves to the same unproven route; hide it or describe a materially
+different service scope until Phase2-19 approves it.
+
+### 8.2 Scene-to-Template Fashion readiness
+
+A generated Scene may be published as ordinary Community work without becoming
+a Fashion-ready Template. Fashion readiness is a separate owner-controlled
+state:
+
+```text
+Scene output
+-> reusable Template version
+-> calculate one-time preparation estimate
+-> prepare private identity-neutral Pose Proxy
+-> creator review and approval
+-> Fashion-ready
+```
+
+Only a Template version with an active compatible Pose Proxy may be selected in
+Fashion Blueprint. Preparing, failed, rejected, retired and stale versions may
+remain visible to their owner with clear status, but must not appear as usable
+Fashion choices. The preparation operation and final customer generation use
+separate quotes and must not be merged into one unexplained credit amount.
+
 ## 9. State and Compatibility Contract
 
 Proposed draft state additions:
@@ -386,6 +446,19 @@ Do not display internal hidden recipe fields as missing required selections.
 7. Run fixed visual review fixtures for professional quality, natural pose,
    garment visibility and dynamic composition.
 
+### Phase E - Readiness and credit presentation
+
+1. Reuse the shared quote, insufficient-credit dialog and estimate status
+   components; do not create a Scene-owned credit pipeline.
+2. Add server-returned display-credit metadata only through the central pricing
+   contract and bind its version to accepted quotes.
+3. Keep generation, Template access and Pose Proxy preparation visible as
+   separate breakdown rows while presenting one confirmed maximum.
+4. Connect reusable Scene publication to owner-visible Pose Proxy readiness
+   without making ordinary Community publication depend on Fashion readiness.
+5. Filter the Fashion Template picker to active compatible ready versions.
+6. Hide Premium until its route or service scope passes Phase2-19 promotion.
+
 ## 12. Expected File Ownership
 
 ```text
@@ -425,7 +498,12 @@ Automated coverage:
 - historical snapshots containing those groups still compile;
 - recipe defaults never override explicit or reference-owned values;
 - incompatible combinations return stable reason codes;
-- server prompt contains one coherent context/story/pose direction.
+- server prompt contains one coherent context/story/pose direction;
+- displayed credits come from the accepted server quote and retain the display
+  unit version;
+- a cached compatible Pose Proxy adds no preparation charge;
+- a non-ready Template cannot be selected for Fashion generation;
+- Simple UI cannot expose an experimental provider through a quality label.
 
 Manual visual review:
 
@@ -453,3 +531,10 @@ Manual visual review:
 - The server remains authoritative for prompt compilation and reference
   ownership.
 - Existing History and Template snapshots remain reproducible.
+- Credit presentation is compact and understandable without changing or hiding
+  the authoritative maximum amount.
+- React does not calculate a display denomination or duplicate provider pricing.
+- Scene publication and Fashion-ready preparation are distinct, understandable
+  states.
+- Premium is hidden or honestly differentiated until Phase2-19 promotion
+  succeeds.

@@ -3,7 +3,7 @@
 **Status:** Proposed - Awaiting Review  
 **Target:** Fashion Selling MVP for Thai small merchants  
 **Architecture:** Modular monolith first, replaceable solution modules  
-**Updated:** 2026-08-02
+**Updated:** 2026-08-03
 
 ## 1. Product Decisions
 
@@ -27,8 +27,9 @@
 - Product concept may use a demo identity, but all service contracts must include actor, ownership and billing boundaries from the beginning.
 - One-time credit packs are the first paid model. Subscription is optional after
   paid-MVP validation and must not delay launch.
-- Simple and Advanced routing contracts are required, but automatic Simple-mode
-  provider routing is deferred until benchmark and margin data are sufficient.
+- Simple and Advanced routing contracts are required. The first Simple route is
+  fixed and qualification-gated; automatic cross-provider optimization remains
+  deferred until repeated benchmark and margin data are sufficient.
 
 ### 1.1 Authoritative References
 
@@ -106,6 +107,7 @@ frontend or blocking independent backend migration.
 | Phase2-15 | Approval, Regeneration and Refund Policy | Phase2-10, Phase2-13 |
 | Phase2-16 | Marketplace Export Presets | Phase2-15 |
 | Phase2-18 | Production Support and Manual Recovery | Phase2-04, Phase2-07, Phase2-10, Phase2-15, platform correlation tracing |
+| Phase2-19 | Fashion Routing Qualification and Promotion | Fashion Blueprint Req 009 baseline, Phase2-07, Phase2-08, Phase2-10, Phase2-13 |
 | Phase2-17 | Fashion MVP Integration, GCP Security and Launch | All required MVP phases |
 | Phase2-09 | Subscription, Renewal and Entitlements | Deferred until one-time paid MVP is stable |
 
@@ -142,6 +144,8 @@ the Product Owner changes the revenue model.
 ### Gate D: Public MVP
 
 - Security, backup, restore, monitoring and financial reconciliation passed.
+- Every enabled Simple Fashion tier resolves to a currently qualified fixed
+  route; unqualified Premium and dynamic routing remain hidden.
 - Terms, privacy, retention, AI disclosure and refund policy published.
 - Operational support process exists.
 - Authorized Support can diagnose and safely close orphaned workflows without
@@ -201,7 +205,7 @@ registry, route and entitlement contracts.
 | WP-05 Credit ledger and idempotency | Phase2-07, Phase2-08 |
 | WP-06 Cloud Storage assets | Phase2-06 |
 | WP-07 Cloud Tasks worker | Phase2-10 |
-| WP-08 Observability and cost | Phase2-07, Phase2-10, Phase2-18, Phase2-17 |
+| WP-08 Observability and cost | Phase2-07, Phase2-10, Phase2-18, Phase2-19, Phase2-17 |
 | WP-09 CI/CD and IaC | Phase2-17 |
 | WP-10 Load, failure and recovery test | Phase2-18, Phase2-17 |
 
@@ -230,3 +234,4 @@ registry, route and entitlement contracts.
 | Phase2-16 | Proposed | Export quality |
 | Phase2-17 | Proposed | Launch approval |
 | Phase2-18 | Proposed - required before paid beta | Production support/recovery |
+| Phase2-19 | Proposed follow-up | Repeated qualification/Premium promotion |

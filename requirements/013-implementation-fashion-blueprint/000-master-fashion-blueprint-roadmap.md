@@ -64,7 +64,7 @@ camera in Simple Mode.
 | `requirements/Concept/infrastructure-gcloud.md` | Adapter boundary for storage, jobs and secrets |
 | User Profile `007` | Creator attribution and navigation to Character owners |
 | Navigation/UI adjustment `008` | Studio hierarchy, route context and breadcrumbs |
-| Commercial plan `013` | PostgreSQL, Cloud Storage, durable jobs, payments |
+| Commercial plan `014` | PostgreSQL, Cloud Storage, durable jobs, payments and routing promotion |
 | Reference Processing Pipeline `011` | Shared reference-role authority, Outfit isolation, preprocessing policy and processing lineage |
 
 Fashion Blueprint builds a validated generation plan. It does not call providers,
@@ -113,7 +113,7 @@ pipeline.
 | Outfit | One to five front references; back optional; actor-owned asset URLs | Explicit `outfitScope`, clearer per-item validation, optional detail role only after policy support |
 | Reference processing | Shared authority plan, deterministic normalization, provider ordering and lineage | Show shared processing preview/warnings in Fashion and run cross-surface E2E |
 | Direction | One pose and environment direction per run | Versioned curated packs and optional bounded per-item pose assignment |
-| Routing | Simple tier selection and shared Advanced engine component | Move Simple route preferences from code into server configuration |
+| Routing | Server-configured qualified Simple route and shared Advanced engine component | Repeat the qualified baseline, hide unqualified Premium and move broader promotion to Commercial Phase2-19 |
 | Quote | Per-item estimates and aggregate maximum | Display expiry, per-operation breakdown, Template fee and processing warnings |
 | Run | Atomic plan reservation, canonical queue and partial status | Cancellation/retry policy, richer grouped results and complete restart recovery test |
 | Outputs | One output per Product Item | Template-owned shot recipe and deterministic Product/shot grouping |
@@ -130,8 +130,8 @@ pipeline.
 | `006-processing-results-history-and-download.md` | Queue, progress, review and output |
 | `007-component-reuse-and-module-architecture.md` | File ownership and reuse boundaries |
 | `008-fashion-blueprint-qa-and-release-gates.md` | E2E, safety and rollout |
-| `009-fashion-model-qualification-and-routing-optimization.md` | Fashion fidelity benchmark, MVP Gemini Pose Proxy/Dummy cache, certified routing, provider prompt strategies and pricing |
-| `010-professional-scene-builder-guided-experience.md` | Simplified Scene controls, professional direction recipes, accordion progression and natural dynamic output |
+| `009-fashion-model-qualification-and-routing-optimization.md` | Completed MVP fidelity gate, Gemini Pose Proxy cache, fixed qualified routing and provider strategy baseline |
+| `010-professional-scene-builder-guided-experience.md` | Simplified Scene controls, professional recipes, accordion progression, credit presentation and Scene-to-Fashion-ready handoff |
 | `011-fashion-blueprint-ux-review-and-production-results-experience.md` | Expert UX review, Review grouping, shared queue/progress, production results and recent Fashion work |
 | `012-platform-correlation-tracing-and-credit-recovery.md` | Cross-platform workflow correlation, provider tracing and safe support credit recovery |
 | `013-template-pose-proxy-and-dummy-cache.md` | Deferred Python CV, Stable Diffusion/local Docker alternative to the provider-based Pose Proxy processor |
@@ -222,7 +222,9 @@ next` list.
 - Show Template, Model, Product count, output count, quality, optional direction,
   processing warnings, quote expiry and complete credit breakdown.
 - Pose/environment controls are collapsed and use Template defaults.
-- Simple quality is primary; Advanced is opt-in and Comparison remains hidden.
+- Simple quality is primary and lists only tiers exposed by the server policy;
+  unqualified Premium remains hidden. Advanced is opt-in and Comparison remains
+  hidden.
 - Single Product may generate directly.
 - Bulk shows `Generate one test image` as the recommended action and
   `Generate all` as an explicit alternative.

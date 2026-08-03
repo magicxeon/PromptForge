@@ -721,7 +721,8 @@ Phase responsibilities:
   into named, versioned and optionally public reusable Characters.
 - `007-implement-user-profile` owns the reusable public/owner Creator Profile.
 - `008-implement-adjusment-ui` owns the approved Momelo navigation and key
-  detail/generation layout references.
+  detail/generation layout references. UI-014 through UI-019 own the canonical
+  Explore/Create/My Library/Profile route consolidation and its E2E gate.
 - `009-migration-to-react` replaces the complete legacy browser client through
   route-by-route cutover into React, TypeScript and Vite.
 - `010-implementation-fashion-blueprint` owns the short

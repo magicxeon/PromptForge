@@ -2070,3 +2070,23 @@ than the default `10px` form/button language.
 3. Active standalone items use the same strong treatment as an active child.
 4. Sidebar, main content, and viewport edge preserve the desktop panel gap and
    screen padding at supported widths.
+
+## Information Architecture Follow-Up
+
+This document remains authoritative for the approved shell visual language,
+Global Header, Sidebar layout and responsive navigation behavior. The later
+route inventory and information-architecture sequence supersedes its older menu
+labels and canonical path proposals where they differ:
+
+```text
+014-global-route-inventory-and-target-information-architecture.md
+015-canonical-route-registry-and-legacy-redirect-migration.md
+016-navigation-breadcrumb-and-context-return-contract.md
+017-explore-gallery-and-public-discovery-consolidation.md
+018-my-library-and-profile-ownership-experience.md
+019-cross-feature-route-flow-and-e2e-validation.md
+```
+
+The follow-up sequence starts at `014` because UI-001 through UI-013 already
+have file identities and cross-references. They must not be renumbered merely
+to reorder unfinished work.

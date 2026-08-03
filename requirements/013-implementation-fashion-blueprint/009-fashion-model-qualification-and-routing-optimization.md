@@ -1,9 +1,10 @@
 # Fashion Model Qualification And Routing Optimization
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`
-**Status:** MVP qualification gate and Pose Proxy cache implemented; broader benchmark qualification continues
-**Benchmark date:** 2026-08-01
+**Status:** MVP baseline implemented; commercial qualification follow-up moved to Phase2-19
+**Benchmark period:** 2026-08-01 through 2026-08-03
 **Future local-processing option:** `013-template-pose-proxy-and-dummy-cache.md`
+**Commercial follow-up:** `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`
 
 ## Provider Qualification Skills
 
@@ -40,9 +41,11 @@ capable of preserving these three roles in one generation. Simple Mode must
 therefore route only to models that have passed a Fashion-specific fidelity
 gate. Lowest provider cost alone is not an acceptable routing rule.
 
-This requirement records the first manual benchmark and defines the work needed
-before changing production routing. It does **not** implement provider routing
-or prompt changes.
+This requirement began as the first manual benchmark and promotion plan. Its
+MVP implementation record now owns the fixed qualification gate, Pose Proxy
+cache and accepted single-stage baseline. Broader commercial promotion is
+separated into Phase2-19 so later experiments do not silently redefine this
+accepted contract.
 
 ## 2. Business Requirement
 
@@ -438,9 +441,12 @@ Correction gate:
    support lookup without logging image bytes.
 4. A fair candidate sweep uses one Template version, Pose Proxy, Character,
    Outfit, dimensions and output count, and records one fresh Job ID per model.
-5. Final Simple qualification remains blocked until the application implements
-   and prices prepared-look Stage 1 followed by final Stage 2B. A single-stage
-   Proxy + Character + Outfit request is not equivalent evidence.
+5. This was the original correction gate for the prepared-look experiment. The
+   later clothed-grid benchmark accepted a fixed single-stage
+   Proxy + Character + Outfit route as the MVP baseline. Stage 1 plus Stage 2B
+   is now a separate commercial promotion gate and is not a blocker for the
+   fixed MVP route; its remaining orchestration, pricing and repeat benchmark
+   work is owned by Phase2-19.
 
 #### 3.4.1 Corrected-pipeline candidate sweep
 
@@ -1104,6 +1110,12 @@ separate promotion gate: do not describe that two-operation customer pipeline
 as production-complete until its queue lineage, quote allocation and partial
 failure recovery are implemented and benchmarked. This explicit boundary keeps
 the accepted evidence from being overstated.
+
+Commercial closure work is intentionally carried by Phase2-19 rather than
+keeping this MVP requirement open. That follow-up owns the two remaining Gemini
+Flash fixtures, the first honest Premium policy, candidate-model promotion and
+any future two-stage route. The current qualified single-stage route may remain
+available while those broader qualification activities continue.
 
 Canonical runtime data:
 
