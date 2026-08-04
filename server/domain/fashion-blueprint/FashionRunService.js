@@ -8,6 +8,7 @@ import { fashionError } from './FashionBlueprintService.js';
 import { createFashionPlanHash } from './FashionPlanHash.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 import { createFashionExecutionContext } from './FashionGenerationContext.js';
+import { resolveFashionExecutionPrompt } from './GeminiProFashionPrompt.js';
 
 export class FashionRunService {
   constructor({
@@ -185,7 +186,13 @@ export class FashionRunService {
           });
           continue;
         }
-        const prompt = compilePromptFromGenerationContext(operation.context);
+        const compiledPrompt = compilePromptFromGenerationContext(operation.context);
+        const promptProjection = resolveFashionExecutionPrompt({
+          plan,
+          context: operation.context,
+          fallbackPrompt: compiledPrompt
+        });
+        const prompt = promptProjection.prompt;
         await this.templateCoreService.attachGeneration(
           operation.templateExecution.session.id,
           actorContext,
@@ -202,6 +209,10 @@ export class FashionRunService {
           payerUserId: actorContext.userId,
           estimateId: operation.estimateId,
           requestId: operation.requestId,
+          routingSnapshot: {
+            ...run.routeSnapshot,
+            promptStrategyVersion: promptProjection.promptStrategyVersion
+          },
           templateUseContext: {
             templateId: operation.templateExecution.template.id,
             templateVersionId: operation.templateExecution.version.id,
@@ -229,6 +240,7 @@ export class FashionRunService {
                 item => item.key === operation.productItemKey
               )?.references || {}
             ).flatMap(reference => reference?.assetId ? [reference.assetId] : []),
+            promptStrategyVersion: promptProjection.promptStrategyVersion,
             templateLineage: run.templateLineage
           }
         }));

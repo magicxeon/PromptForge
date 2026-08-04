@@ -29,6 +29,12 @@ export function createSafeGenerationDiagnostic(job, event, extra = {}) {
     requestedResolution: job.options?.imageResolution || null,
     resolvedProviderSize: extra.resolvedProviderSize || null,
     referenceCount: generationReferenceCount(job.options),
+    ...(job.options?.routingSnapshot?.promptStrategyVersion
+      ? {
+        promptStrategyVersion:
+          job.options.routingSnapshot.promptStrategyVersion
+      }
+      : {}),
     ...(job.options?.referenceProcessingLineage?.policyVersion
       ? {
         referencePolicyVersion:

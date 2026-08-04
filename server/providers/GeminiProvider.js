@@ -141,7 +141,7 @@ export class GeminiProvider extends BaseProvider {
       // Nano Banana 2 Lite only supports 1K resolution
       let imageSize = '1K';
       if (submodel !== 'gemini-3.1-flash-lite-image') {
-        imageSize = options.imageSize || '1K'; // can be '1K', '2K', '4K', '0.5K'
+        imageSize = options.imageResolution || options.imageSize || '1K'; // can be '1K', '2K', '4K', '0.5K'
       }
 
       let input = [{ type: 'text', text: prompt }];

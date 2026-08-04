@@ -47,6 +47,70 @@
         }
       ]
     },
+    "expiresAt": "2026-08-04T06:32:48.710Z",
+    "consumedAt": "2026-08-04T05:33:09.725Z",
+    "generatedJobIds": [
+      "job_fashion_ee4687af8cac1af742_1"
+    ],
+    "id": "tmpls_1785821568711_kew0wfts",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-04T05:32:48.710Z",
+    "updatedAt": "2026-08-04T05:33:09.725Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "pricingSnapshot": {
+      "accessCredits": 10,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
     "expiresAt": "2026-08-03T04:32:03.848Z",
     "consumedAt": "2026-08-03T03:32:27.623Z",
     "generatedJobIds": [

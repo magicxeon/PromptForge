@@ -120,7 +120,11 @@ export class FashionBlueprintService {
     if (!input.requestedProviderId || !input.requestedModelId) {
       throw fashionError('fashion_route_required', 'Provider and model are required in Advanced mode.');
     }
-    return this.providerRegistry.resolveSelection(input.requestedProviderId, input.requestedModelId);
+    return this.routingPolicyService.resolveAdvancedRoute(
+      input.requestedProviderId,
+      input.requestedModelId,
+      this.providerRegistry
+    );
   }
 
   resolveSimpleRoute(qualityTier) {

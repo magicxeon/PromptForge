@@ -22,6 +22,7 @@ test('Gemini Pro prioritizes identity, declares references before execution, and
     const result = await provider.generateImage(
       'Template IMAGE_0, character IMAGE_1, and outfit IMAGE_2.', {
       submodel: 'gemini-3-pro-image',
+      imageResolution: '2K',
       resolvedReferenceImagesOrdered: ['proxy-bytes', 'character-bytes', 'outfit-bytes'],
       referenceRoleManifest: [
         { index: 1, roles: ['template_baseline'] },
@@ -46,6 +47,7 @@ test('Gemini Pro prioritizes identity, declares references before execution, and
       requestBody.input[7].text,
       /Template IMAGE_2, character IMAGE_0, and outfit IMAGE_1\./
     );
+    assert.equal(requestBody.response_format.image_size, '2K');
   } finally {
     globalThis.fetch = originalFetch;
   }

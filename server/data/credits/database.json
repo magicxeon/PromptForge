@@ -789,13 +789,13 @@
       "schemaVersion": 2,
       "userId": "usr_alice",
       "username": "user_alice",
-      "availableCredits": 60,
+      "availableCredits": 67,
       "reservedCredits": 0,
       "status": "active",
-      "lifetimeGrantedCredits": 7280,
-      "lifetimeCapturedCredits": 7220,
+      "lifetimeGrantedCredits": 7480,
+      "lifetimeCapturedCredits": 7413,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-08-03T03:32:54.815Z"
+      "updatedAt": "2026-08-04T05:33:32.600Z"
     },
     {
       "schemaVersion": 2,
@@ -58934,6 +58934,88 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-08-03T06:42:35.039Z",
       "expiresAt": "2026-08-03T06:57:35.039Z"
+    },
+    {
+      "estimateId": "est_1785821580522_684yskr",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "draft",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 3,
+        "outputCount": 1,
+        "generationMode": "fashion",
+        "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+        "referenceProcessingPlanFingerprint": "29a24e93d527184bbff7d9004948b3a0d132573d743d116bdf2f55710c5cd8a6"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 3,
+        "generationCredits": 48,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 58
+      },
+      "estimatedCredits": 58,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-04T05:33:00.522Z",
+      "expiresAt": "2026-08-04T05:48:00.522Z"
+    },
+    {
+      "estimateId": "est_1785821583405_lw0rcmc",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "draft",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3-pro-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3-pro-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 3,
+        "outputCount": 1,
+        "generationMode": "fashion",
+        "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+        "referenceProcessingPlanFingerprint": "c56d5f02281fc9a77e77c068c54181a90132be2adea1cd09cf907bcdb870c580"
+      },
+      "breakdown": {
+        "baseOutputCredits": 180,
+        "referenceCredits": 3,
+        "generationCredits": 183,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 193
+      },
+      "estimatedCredits": 193,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-04T05:33:03.405Z",
+      "expiresAt": "2026-08-04T05:48:03.405Z"
     }
   ],
   "reservations": [
@@ -63602,6 +63684,48 @@
       "metadata": {
         "planId": "fpl_86a967eeab1b5d3c91",
         "quoteId": "fqt_1785727940259_p8emqvm",
+        "operationId": "op_fashion_item_1785467126140_1_cover"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1785821589687_0_34lax1",
+      "estimateId": "est_1785821583405_lw0rcmc",
+      "userId": "usr_alice",
+      "requestId": "fgen_fpl_ee4687af8cac1af742_0",
+      "jobId": "job_fashion_ee4687af8cac1af742_1",
+      "amountCredits": 193,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "breakdown": {
+          "baseOutputCredits": 180,
+          "referenceCredits": 3,
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "templateId": "tmpl_1785602001168_s960q769",
+          "templateVersionId": "tmplv_1785602001173_26ect756",
+          "templateCreatorUserId": "usr_alice",
+          "templateCreatorUsername": "user_alice",
+          "templateCreatorShareBps": 7500,
+          "textCredits": 0,
+          "adjustmentCredits": 0,
+          "totalCredits": 193
+        }
+      },
+      "relatedTemplateId": "tmpl_1785602001168_s960q769",
+      "createdAt": "2026-08-04T05:33:09.671Z",
+      "updatedAt": "2026-08-04T05:33:32.600Z",
+      "expiresAt": "2026-08-04T05:48:03.405Z",
+      "capturedAt": "2026-08-04T05:33:32.600Z",
+      "refundedAt": null,
+      "terminalReason": null,
+      "metadata": {
+        "planId": "fpl_ee4687af8cac1af742",
+        "quoteId": "fqt_1785821583442_w4uf1f6",
         "operationId": "op_fashion_item_1785467126140_1_cover"
       }
     }
@@ -73804,6 +73928,93 @@
       "reasonCode": "generation_captured",
       "actorUserId": "usr_alice",
       "createdAt": "2026-08-03T03:32:54.815Z",
+      "metadata": {
+        "comparisonSetId": null,
+        "comparisonRunId": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785821587153_zvk5lsj",
+      "userId": "usr_alice",
+      "operationType": "grant",
+      "amountCredits": 100,
+      "availableDelta": 100,
+      "reservedDelta": 0,
+      "availableAfter": 160,
+      "reservedAfter": 0,
+      "relatedJobId": null,
+      "idempotencyKey": "mock_grant_1785821587126_xjvmv1",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_alice",
+      "createdAt": "2026-08-04T05:33:07.131Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785821588500_u6b58wq",
+      "userId": "usr_alice",
+      "operationType": "grant",
+      "amountCredits": 100,
+      "availableDelta": 100,
+      "reservedDelta": 0,
+      "availableAfter": 260,
+      "reservedAfter": 0,
+      "relatedJobId": null,
+      "idempotencyKey": "mock_grant_1785821588481_21p7hc",
+      "reasonCode": "mock_grant",
+      "actorUserId": "usr_alice",
+      "createdAt": "2026-08-04T05:33:08.485Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785821589687_0_g4zisy",
+      "userId": "usr_alice",
+      "operationType": "reserve",
+      "amountCredits": 193,
+      "availableDelta": -193,
+      "reservedDelta": 193,
+      "availableAfter": 67,
+      "reservedAfter": 193,
+      "reservationId": "rsv_1785821589687_0_34lax1",
+      "estimateId": "est_1785821583405_lw0rcmc",
+      "relatedJobId": "job_fashion_ee4687af8cac1af742_1",
+      "relatedTemplateId": "tmpl_1785602001168_s960q769",
+      "providerId": "gemini",
+      "modelId": "gemini-3-pro-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve-plan:fashion:fqt_1785821583442_w4uf1f6:full:op_fashion_item_1785467126140_1_cover",
+      "reasonCode": "fashion_plan_reserved",
+      "actorUserId": "usr_alice",
+      "createdAt": "2026-08-04T05:33:09.671Z",
+      "metadata": {
+        "planId": "fpl_ee4687af8cac1af742",
+        "quoteId": "fqt_1785821583442_w4uf1f6",
+        "operationId": "op_fashion_item_1785467126140_1_cover"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1785821612613_hpt8ira",
+      "userId": "usr_alice",
+      "operationType": "capture",
+      "amountCredits": 193,
+      "availableDelta": 0,
+      "reservedDelta": -193,
+      "availableAfter": 67,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1785821589687_0_34lax1",
+      "estimateId": "est_1785821583405_lw0rcmc",
+      "relatedJobId": "job_fashion_ee4687af8cac1af742_1",
+      "relatedTemplateId": "tmpl_1785602001168_s960q769",
+      "providerId": "gemini",
+      "modelId": "gemini-3-pro-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1785821589687_0_34lax1",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_alice",
+      "createdAt": "2026-08-04T05:33:32.600Z",
       "metadata": {
         "comparisonSetId": null,
         "comparisonRunId": null

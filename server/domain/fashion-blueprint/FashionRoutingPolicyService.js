@@ -67,6 +67,20 @@ export class FashionRoutingPolicyService {
       503
     );
   }
+
+  resolveAdvancedRoute(providerId, modelId, providerRegistry) {
+    const selection = providerRegistry.resolveSelection(providerId, modelId);
+    const qualification = this.qualificationService.resolve(
+      providerId,
+      modelId
+    );
+    return {
+      ...selection,
+      qualificationVersion: qualification?.qualificationVersion || null,
+      qualificationStatus: qualification?.status || 'experimental',
+      promptStrategyVersion: qualification?.promptStrategyVersion || null
+    };
+  }
 }
 
 export const fashionRoutingPolicyService = new FashionRoutingPolicyService();

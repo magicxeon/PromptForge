@@ -3911,6 +3911,128 @@
       },
       "createdAt": "2026-08-03T03:32:20.259Z",
       "expiresAt": "2026-08-03T03:47:20.230Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "fqt_1785821580560_3z5eq5z",
+      "actorUserId": "usr_alice",
+      "planHash": "6af0bea94a87b0f9fc32b4fe53aec66f112939e7bc6fb114f56284d763b1c83d",
+      "setupFingerprint": "49db201025d36f91963a1f0fd281843e6bfb502b317ab9566dd55ef94671d2c6",
+      "quotePurpose": "full",
+      "approvedProofRunId": null,
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "templateId": "post_1785602001186_pbu5qf1a",
+      "canonicalTemplateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756",
+      "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "operation_only",
+        "promptStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2"
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "shotKey": "cover",
+          "estimateId": "est_1785821580522_684yskr",
+          "estimatedCredits": 58,
+          "pricingBreakdown": {
+            "baseOutputCredits": 45,
+            "referenceCredits": 3,
+            "generationCredits": 48,
+            "templateUsageCredits": 10,
+            "templateId": "tmpl_1785602001168_s960q769",
+            "templateVersionId": "tmplv_1785602001173_26ect756",
+            "templateCreatorUserId": "usr_alice",
+            "templateCreatorUsername": "user_alice",
+            "templateCreatorShareBps": 7500,
+            "textCredits": 0,
+            "adjustmentCredits": 0,
+            "totalCredits": 58
+          },
+          "estimateExpiresAt": "2026-08-04T05:48:00.522Z",
+          "operationFingerprint": "5c3b0e55310f4a0c2b933f9b7b8348a977fa9466aa549bd7e2e4d650d7aa2c5c",
+          "referenceProcessingPlanFingerprint": "29a24e93d527184bbff7d9004948b3a0d132573d743d116bdf2f55710c5cd8a6"
+        }
+      ],
+      "operationCount": 1,
+      "outputCount": 1,
+      "estimatedCredits": 58,
+      "maximumCredits": 58,
+      "breakdown": {
+        "generationCredits": 48,
+        "templateUsageCredits": 10,
+        "operationCredits": {
+          "op_fashion_item_1785467126140_1_cover": 58
+        }
+      },
+      "createdAt": "2026-08-04T05:33:00.560Z",
+      "expiresAt": "2026-08-04T05:48:00.522Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "fqt_1785821583442_w4uf1f6",
+      "actorUserId": "usr_alice",
+      "planHash": "feafda9291f8d9f448d20f5959e6974694521b85b2db7a7456da31722fecce50",
+      "setupFingerprint": "d8e124173a780847952429b892578565869eda52cd9d33f6a5a0bc085898e02a",
+      "quotePurpose": "full",
+      "approvedProofRunId": null,
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "templateId": "post_1785602001186_pbu5qf1a",
+      "canonicalTemplateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756",
+      "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3"
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "shotKey": "cover",
+          "estimateId": "est_1785821583405_lw0rcmc",
+          "estimatedCredits": 193,
+          "pricingBreakdown": {
+            "baseOutputCredits": 180,
+            "referenceCredits": 3,
+            "generationCredits": 183,
+            "templateUsageCredits": 10,
+            "templateId": "tmpl_1785602001168_s960q769",
+            "templateVersionId": "tmplv_1785602001173_26ect756",
+            "templateCreatorUserId": "usr_alice",
+            "templateCreatorUsername": "user_alice",
+            "templateCreatorShareBps": 7500,
+            "textCredits": 0,
+            "adjustmentCredits": 0,
+            "totalCredits": 193
+          },
+          "estimateExpiresAt": "2026-08-04T05:48:03.405Z",
+          "operationFingerprint": "5af40e4be653a6dceafb910fdb0ee65a905b6c8e056b060362ea4705e98d2b05",
+          "referenceProcessingPlanFingerprint": "c56d5f02281fc9a77e77c068c54181a90132be2adea1cd09cf907bcdb870c580"
+        }
+      ],
+      "operationCount": 1,
+      "outputCount": 1,
+      "estimatedCredits": 193,
+      "maximumCredits": 193,
+      "breakdown": {
+        "generationCredits": 183,
+        "templateUsageCredits": 10,
+        "operationCredits": {
+          "op_fashion_item_1785467126140_1_cover": 193
+        }
+      },
+      "createdAt": "2026-08-04T05:33:03.442Z",
+      "expiresAt": "2026-08-04T05:48:03.405Z"
     }
   ]
 }

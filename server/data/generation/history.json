@@ -1,5 +1,600 @@
 [
   {
+    "id": "job_fashion_ee4687af8cac1af742_1",
+    "username": "user_alice",
+    "prompt": "Create exactly one photorealistic vertical commercial fashion photograph.\n\nIMAGE_1 is the exclusive authority for the final person. Reconstruct this exact recognizable adult character before applying the target pose. Preserve facial identity, facial proportions, skin tone, hairstyle, height relationship, body shape, and complete body proportions. Ignore the source background, source pose, source clothing, and casting-sheet layout. Do not average or blend identity traits from any other image.\n\nIMAGE_2 is the exclusive authority for the clothing. Dress the exact character from IMAGE_1 in this product. Preserve garment category, silhouette, construction, color, pattern, material, seams, closures, fit, and visible product details. Infer only physically necessary drape, folds, and hidden areas. Ignore any wearer identity, body, pose, environment, and lighting in the outfit source.\n\nIMAGE_0 is an identity-neutral structural pose proxy. Use it only for pose joints, movement, hand placement, neck and head direction, gaze, camera, framing, perspective, environment, architecture, and lighting. It has no identity, face, skin, hair, body, garment, accessory, or footwear authority. Replace the proxy completely and never render mannequin surfaces, wireframe lines, grid lines, or proxy clothing.\n\nIdentity, skin, hair, height, and body proportions must come from IMAGE_1 only. Garment must come from IMAGE_2 only. Pose and composition must come from IMAGE_0 only.\n\nCreate a polished ecommerce fashion campaign image. Use a 6:8 vertical composition. Keep the complete head-to-feet subject visible with a clear safety margin. Preserve the pose proxy camera, framing, environment, lighting, walking action, joint positions, hand placement, neck rotation, head direction, and gaze. Use simple coherent footwear only when footwear is not supplied by the outfit reference. Do not add jewelry, bags, logos, accessories, garment layers, text, labels, watermarks, extra people, multiple views, a casting sheet, a contact sheet, or a split screen.\n\nOutput one person in one continuous full-frame photograph. Do not blend identities or reproduce a person from the original Template.",
+    "imageUrl": "/outputs/job_fashion_ee4687af8cac1af742_1.jpg",
+    "timestamp": 1785821612629,
+    "provider": "gemini",
+    "submodel": "gemini-3-pro-image",
+    "mode": "normal",
+    "selections": {
+      "Pose Intent": {
+        "id": "custom.pose-intent",
+        "value": "A professional full-body fashion walking pose captured mid-step. The model's left foot steps forward while the right foot remains behind with natural weight transfer. Keep the pelvis facing mostly forward and rotate the torso approximately 15 degrees toward the viewer's left. Turn the neck and head approximately 30 degrees toward the viewer's right, creating a clear three-quarter facial view. Keep the chin level and direct the eyes naturally in the same direction as the face, not toward the camera. Place the model's left hand gently at the side of the waist without covering the garment, while the right arm swings naturally beside the body with a relaxed elbow and clearly visible hand. Maintain relaxed shoulders, elegant posture, natural joint alignment, separated legs, visible hands, and complete head-to-feet framing.",
+        "label": "A professional full-body fashion walking pose captured mid-step. The model's left foot steps forward while the right foot remains behind with natural weight transfer. Keep the pelvis facing mostly forward and rotate the torso approximately 15 degrees toward the viewer's left. Turn the neck and head approximately 30 degrees toward the viewer's right, creating a clear three-quarter facial view. Keep the chin level and direct the eyes naturally in the same direction as the face, not toward the camera. Place the model's left hand gently at the side of the waist without covering the garment, while the right arm swings naturally beside the body with a relaxed elbow and clearly visible hand. Maintain relaxed shoulders, elegant posture, natural joint alignment, separated legs, visible hands, and complete head-to-feet framing.",
+        "isCustom": true,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.open-shade",
+        "value": "clean outdoor open-shade lighting with soft directional modeling and accurate garment color",
+        "label": "Outdoor Open Shade",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "outdoor",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern mirrorless camera",
+        "label": "Modern Mirrorless Camera",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "sharp prime lens",
+        "label": "Sharp Prime Lens",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+        "label": "Optical Imperfections",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "custom.fashion-venue",
+        "value": "In the modern beautiful luxury hotel in the Bangkok with minimal traditional Thai decorations,",
+        "label": "In the modern beautiful luxury hotel in the Bangkok with minimal traditional Thai decorations,",
+        "isCustom": true,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"ชุดเดรส พาสเทล\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product color notes: สีขมพู. Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "finalPromptSnapshot": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers, A professional full-body fashion walking pose captured mid-step. The model's left foot steps forward while the right foot remains behind with natural weight transfer. Keep the pelvis facing mostly forward and rotate the torso approximately 15 degrees toward the viewer's left. Turn the neck and head approximately 30 degrees toward the viewer's right, creating a clear three-quarter facial view. Keep the chin level and direct the eyes naturally in the same direction as the face, not toward the camera. Place the model's left hand gently at the side of the waist without covering the garment, while the right arm swings naturally beside the body with a relaxed elbow and clearly visible hand. Maintain relaxed shoulders, elegant posture, natural joint alignment, separated legs, visible hands, and complete head-to-feet framing., clean outdoor open-shade lighting with soft directional modeling and accurate garment color, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, In the modern beautiful luxury hotel in the Bangkok with minimal traditional Thai decorations, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Outfit Base": {
+          "id": "outfit.base.unisex.smart_casual_blazer",
+          "value": "wearing a lightweight unstructured blazer, plain inner top, and straight trousers",
+          "label": "Smart Casual Blazer Set",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "outfit-base-unisex",
+            "smart-casual",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "custom.pose-intent",
+          "value": "A professional full-body fashion walking pose captured mid-step. The model's left foot steps forward while the right foot remains behind with natural weight transfer. Keep the pelvis facing mostly forward and rotate the torso approximately 15 degrees toward the viewer's left. Turn the neck and head approximately 30 degrees toward the viewer's right, creating a clear three-quarter facial view. Keep the chin level and direct the eyes naturally in the same direction as the face, not toward the camera. Place the model's left hand gently at the side of the waist without covering the garment, while the right arm swings naturally beside the body with a relaxed elbow and clearly visible hand. Maintain relaxed shoulders, elegant posture, natural joint alignment, separated legs, visible hands, and complete head-to-feet framing.",
+          "label": "A professional full-body fashion walking pose captured mid-step. The model's left foot steps forward while the right foot remains behind with natural weight transfer. Keep the pelvis facing mostly forward and rotate the torso approximately 15 degrees toward the viewer's left. Turn the neck and head approximately 30 degrees toward the viewer's right, creating a clear three-quarter facial view. Keep the chin level and direct the eyes naturally in the same direction as the face, not toward the camera. Place the model's left hand gently at the side of the waist without covering the garment, while the right arm swings naturally beside the body with a relaxed elbow and clearly visible hand. Maintain relaxed shoulders, elegant posture, natural joint alignment, separated legs, visible hands, and complete head-to-feet framing.",
+          "isCustom": true,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.open-shade",
+          "value": "clean outdoor open-shade lighting with soft directional modeling and accurate garment color",
+          "label": "Outdoor Open Shade",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "outdoor",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Brand": {
+          "id": "camera.brand_01",
+          "value": "shot on a modern mirrorless camera",
+          "label": "Modern Mirrorless Camera",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "brand",
+            "mirrorless"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lens": {
+          "id": "camera.lens_01",
+          "value": "sharp prime lens",
+          "label": "Sharp Prime Lens",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "lens",
+            "prime"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_02",
+          "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+          "label": "Optical Imperfections",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "lens"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "custom.fashion-venue",
+          "value": "In the modern beautiful luxury hotel in the Bangkok with minimal traditional Thai decorations,",
+          "label": "In the modern beautiful luxury hotel in the Bangkok with minimal traditional Thai decorations,",
+          "isCustom": true,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.unisex.smart_casual_blazer",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.pose-intent",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.open-shade",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_brand",
+          "label": "Brand",
+          "type": "select_option",
+          "sourceFieldName": "Brand",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.brand_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lens",
+          "label": "Lens",
+          "type": "select_option",
+          "sourceFieldName": "Lens",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.lens_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "custom.fashion-venue",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_fashion_ee4687af8cac1af742_1",
+      "createdAt": 1785821612629
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1785668757771_4sv6c0pg",
+      "characterProfileVersionId": "charver_1785668757784_fv9uu7gi",
+      "useCase": "fashion",
+      "sourceType": "fashion_blueprint",
+      "sourceId": "charprof_1785668757771_4sv6c0pg",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "displayNameSnapshot": "น้องเปิ้ล",
+      "personalitySummarySnapshot": "สวยแหละ นิสัยดี ชอบทำงาน สนุก",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1785668757771_4sv6c0pg",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "น้องเปิ้ล"
+      }
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "template_baseline"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "c56d5f02281fc9a77e77c068c54181a90132be2adea1cd09cf907bcdb870c580",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "template_baseline",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3-pro-image",
+    "providerConfigVersion": 1,
+    "creditCost": 193,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1785668499409_21viddhhw"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "22.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": {
+      "templateId": "tmpl_1785602001168_s960q769",
+      "templateVersionId": "tmplv_1785602001173_26ect756",
+      "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+      "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+      "replacementSummary": [
+        {
+          "inputId": "character_reference",
+          "inputType": "reference_image",
+          "supplied": true
+        },
+        {
+          "inputId": "outfit_front_reference",
+          "inputType": "reference_image",
+          "supplied": true
+        },
+        {
+          "inputId": "outfit_back_reference",
+          "inputType": "reference_image",
+          "supplied": false
+        }
+      ]
+    },
+    "fashionBlueprintContext": {
+      "runId": "frun_ee4687af8cac1af742",
+      "planId": "fpl_ee4687af8cac1af742",
+      "quoteId": "fqt_1785821583442_w4uf1f6",
+      "quotePurpose": "full",
+      "setupFingerprint": "d8e124173a780847952429b892578565869eda52cd9d33f6a5a0bc085898e02a",
+      "operationId": "op_fashion_item_1785467126140_1_cover",
+      "productItemKey": "fashion_item_1785467126140_1",
+      "productName": "ชุดเดรส พาสเทล",
+      "shotKey": "cover",
+      "outfitScope": "full_look",
+      "referenceAssetIds": [
+        "ast_1785684241434_wosd8ghm"
+      ],
+      "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3",
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      }
+    },
+    "routingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3-pro-image",
+      "routingPolicyVersion": null,
+      "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+      "qualificationStatus": "experimental",
+      "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3"
+    },
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_fashion_ee4687af8cac1af742_1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 91114,
+    "originalBytes": 687687
+  },
+  {
     "id": "job_fashion_86a967eeab1b5d3c91_1",
     "username": "user_alice",
     "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: สวยแหละ นิสัยดี ชอบทำงาน สนุก. Follow this structured reference authority contract exactly.\n{\n  \"contract_id\": \"fashion_template_character_outfit_v1\",\n  \"task\": \"Generate one photorealistic vertical commercial fashion photograph.\",\n  \"template_direction\": {\n    \"source_image\": \"IMAGE_0\",\n    \"authority\": [\n      \"pose\",\n      \"movement\",\n      \"camera\",\n      \"framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"preserve\": [\n      \"destination pose and movement\",\n      \"camera and framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"ignore\": [\n      \"template person identity\",\n      \"template face\",\n      \"template hair\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template clothing\"\n    ]\n  },\n  \"character_identity\": {\n    \"source_image\": \"IMAGE_1\",\n    \"instruction\": \"Replace the template person completely with this exact character. Prioritize the character skin tone and never blend identity traits from another reference.\",\n    \"authority\": [\n      \"identity\",\n      \"face\",\n      \"hair\",\n      \"skin\",\n      \"body shape\",\n      \"body proportions\"\n    ],\n    \"preserve\": [\n      \"recognizable facial identity\",\n      \"facial proportions\",\n      \"hairstyle\",\n      \"skin tone\",\n      \"complete body proportions\"\n    ],\n    \"ignore\": [\n      \"source background\",\n      \"source pose\",\n      \"source clothing\",\n      \"casting sheet layout\"\n    ]\n  },\n  \"outfit_transfer\": {\n    \"source_image\": \"IMAGE_2\",\n    \"instruction\": \"Dress the selected character in this specific outfit.\",\n    \"authority\": [\n      \"garment\"\n    ],\n    \"preserve\": [\n      \"garment silhouette\",\n      \"construction\",\n      \"color\",\n      \"pattern\",\n      \"material\",\n      \"seams\",\n      \"visible garment details\"\n    ],\n    \"ignore\": [\n      \"outfit source identity\",\n      \"outfit source face\",\n      \"outfit source hair\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"source pose\",\n      \"source environment\",\n      \"source lighting\"\n    ]\n  },\n  \"output\": {\n    \"aspect_ratio\": \"6:8\",\n    \"subject_count\": 1,\n    \"single_full_frame_photo\": true,\n    \"full_body_visible\": true,\n    \"identity_source\": \"IMAGE_1 only\",\n    \"composition_source\": \"IMAGE_0 only\",\n    \"garment_source\": \"IMAGE_2 only\",\n    \"prohibit\": [\n      \"identity blending\",\n      \"template person identity\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template hairstyle\",\n      \"outfit source identity\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"multiple people\",\n      \"multiple views\",\n      \"casting sheet\",\n      \"contact sheet\",\n      \"split screen\",\n      \"white reference background\",\n      \"white casting clothes\",\n      \"text\",\n      \"labels\",\n      \"watermarks\"\n    ]\n  }\n}\nThe detailed destination direction follows this JSON contract. Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"ชุดเดรส พาสเทล\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product color notes: สีขมพู. Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template.",

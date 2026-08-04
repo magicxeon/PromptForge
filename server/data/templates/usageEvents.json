@@ -2,6 +2,66 @@
   {
     "templateId": "tmpl_1785602001168_s960q769",
     "templateVersionId": "tmplv_1785602001173_26ect756",
+    "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+    "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
+    "generatedJobId": "job_fashion_ee4687af8cac1af742_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "character_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3-pro-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 193,
+      "breakdown": {
+        "baseOutputCredits": 180,
+        "referenceCredits": 3,
+        "generationCredits": 183,
+        "templateUsageCredits": 10,
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 193
+      }
+    },
+    "creatorEarningCredits": 7.5,
+    "platformRevenueCredits": 2.5,
+    "id": "tmpluse_1785821612893_cocf1msn",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-04T05:33:32.893Z",
+    "updatedAt": "2026-08-04T05:33:32.893Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1785602001168_s960q769",
+    "templateVersionId": "tmplv_1785602001173_26ect756",
     "templateUseSessionId": "tmpls_1785727923848_v53jgobd",
     "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",
     "generatedJobId": "job_fashion_86a967eeab1b5d3c91_1",

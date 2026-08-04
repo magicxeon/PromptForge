@@ -2522,6 +2522,77 @@
       "createdAt": "2026-08-03T03:32:27.602Z",
       "updatedAt": "2026-08-03T03:32:55.370Z",
       "completedAt": "2026-08-03T03:32:55.370Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_ee4687af8cac1af742",
+      "planId": "fpl_ee4687af8cac1af742",
+      "quoteId": "fqt_1785821583442_w4uf1f6",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785821583442_w4uf1f6:full",
+      "requestHash": "1f3b57a057088b821667adaa00398591a4dd58bd90a5b22cd1ceff6a0ed331f0",
+      "quotePurpose": "full",
+      "setupFingerprint": "d8e124173a780847952429b892578565869eda52cd9d33f6a5a0bc085898e02a",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_ee4687af8cac1af742_1",
+          "reservationId": "rsv_1785821589687_0_34lax1",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_ee4687af8cac1af742_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "22.9",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-04T05:33:09.702Z",
+      "updatedAt": "2026-08-04T05:33:35.385Z",
+      "completedAt": "2026-08-04T05:33:35.385Z"
     }
   ]
 }

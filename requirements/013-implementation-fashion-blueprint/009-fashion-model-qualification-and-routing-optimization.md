@@ -655,6 +655,56 @@ Regression evidence must assert the actual request sequence, binary image
 ordering, `IMAGE_n` remapping, last-image response selection and removal of the
 Template garment prompt when a Pose Proxy is active.
 
+#### 3.4.5 Gemini Pro concise authority projection
+
+The 2026-08-04 manual Postman benchmark passed Character identity, Outfit,
+Template scene and composition when the same three production assets were sent
+with a concise final instruction. The application request used the same binary
+references and provider-local order but its final prompt was approximately
+twice as long because the generic compiler also contributed structured JSON,
+Character personality, product notes and repeated authority directives.
+
+Fashion generation therefore uses
+`GEMINI-PRO-CONCISE-AUTHORITY-V3` only when all of these conditions hold:
+
+- provider is `gemini`;
+- model is `gemini-3-pro-image`;
+- an approved Pose Proxy is active;
+- the immutable manifest contains Character, Outfit Front and Template
+  Baseline roles.
+
+The Fashion domain projects the canonical context into one concise instruction
+before enqueue. It declares Character as the exclusive person authority,
+Outfit as the exclusive garment authority and Pose Proxy as the exclusive
+pose/composition authority. It retains complete-body framing, coherent fallback
+footwear and accessory prohibitions from the passing manual request. It does
+not include Template-person identity, Character personality, product marketing
+copy, structured authority JSON or repeated generic prompt fragments.
+
+The provider adapter remains responsible only for interleaving role labels and
+images, provider-local ordering, `IMAGE_n` remapping and response parsing. Flash,
+Lite, OpenAI, xAI and ModelArk continue receiving the canonical compiled prompt.
+If any required manifest role is absent, Gemini Pro also falls back to that
+canonical prompt rather than inventing an authority mapping.
+
+Every dispatched job records the effective `promptStrategyVersion` in its
+routing snapshot, Fashion lineage, safe generation diagnostic and history
+entry. Advanced routing resolves qualification metadata from the same model
+qualification catalog as Simple routing. Gemini image resolution is propagated
+from canonical `imageResolution` to the provider `image_size` field.
+
+Manual verification checkpoint:
+
+1. Create one Advanced Fashion run with `gemini-3-pro-image` and the fixed
+   Character, Outfit and Fashion-ready Template benchmark.
+2. Confirm the enqueue/provider-dispatch diagnostic reports
+   `GEMINI-PRO-CONCISE-AUTHORITY-V3` and the selected resolution.
+3. Score identity, body, outfit, pose, scene, commercial polish and leakage
+   using the qualification rubric in this requirement.
+4. Keep Gemini Pro Experimental until three repeat runs pass the promotion
+   gate; this single Postman success proves request shape, not production
+   reliability.
+
 ### 3.5 Creator publication and Fashion-readiness status
 
 The owner Template-management surface must present two independent lifecycle

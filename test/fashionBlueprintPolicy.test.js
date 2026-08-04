@@ -29,6 +29,16 @@ function createRegistry() {
           maxReferenceImages: 6
         },
         defaults: { resolution: '1K' }
+      },
+      {
+        id: 'gemini-3-pro-image',
+        capabilities: {
+          aspectRatios: ['6:8'],
+          resolutions: ['1K', '2K'],
+          imageReferences: true,
+          maxReferenceImages: 6
+        },
+        defaults: { resolution: '1K' }
       }
     ]
   }];
@@ -121,6 +131,35 @@ test('Fashion Advanced routes bind the same approved Pose Proxy as Simple routes
   );
   assert.equal(plan.templatePoseProxy.id, 'proxy_1');
   assert.equal(plan.templatePoseProxy.sourceGenerationId, 'job_pose_proxy_1');
+});
+
+test('Fashion Advanced routes retain model qualification and prompt strategy metadata', () => {
+  const service = new FashionBlueprintService({
+    providerRegistry: createRegistry()
+  });
+  const plan = service.resolvePlan({
+    templateId: 'post_1',
+    templateUseSessionId: 'tuse_1',
+    characterProfileContext: {
+      characterProfileId: 'char_1',
+      characterProfileVersionId: 'charv_1'
+    },
+    routingMode: 'advanced',
+    requestedProviderId: 'gemini',
+    requestedModelId: 'gemini-3-pro-image',
+    productItems: [{
+      key: 'product_1',
+      references: {
+        outfit_front: { imageUrl: '/outputs/outfit.jpg' }
+      }
+    }]
+  }, { userId: 'usr_demo' });
+
+  assert.equal(plan.route.qualificationStatus, 'experimental');
+  assert.equal(
+    plan.route.promptStrategyVersion,
+    'GEMINI-PRO-CONCISE-AUTHORITY-V3'
+  );
 });
 
 test('Fashion run hydration persists terminal queue state for restart recovery', async () => {
