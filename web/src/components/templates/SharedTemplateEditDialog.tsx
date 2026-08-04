@@ -31,6 +31,9 @@ import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { StatusNotice } from '../ui/StatusNotice';
 import { showToast } from '../ui/toastStore';
+import { queryKeys } from '../../lib/api/queryKeys';
+import { pollingPolicy } from '../../lib/api/pollingPolicy';
+import { useActor } from '../../lib/auth/ActorProvider';
 
 export function SharedTemplateEditDialog({
   post,
@@ -48,6 +51,8 @@ export function SharedTemplateEditDialog({
   hideTrigger?: boolean;
 }) {
   const { t } = useTranslation('react-ui');
+  const { actor } = useActor();
+  const actorId = actor?.userId || 'loading';
   const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -59,16 +64,21 @@ export function SharedTemplateEditDialog({
   const autoEstimateKey = useRef<string | null>(null);
   const templateId = post.templateId || null;
   const poseProxy = useQuery({
-    queryKey: ['template-pose-proxy', templateId],
+    queryKey: queryKeys.templatePoseProxy(actorId, templateId),
     queryFn: () => getTemplatePoseProxy(templateId!),
     enabled: open && Boolean(templateId),
-    refetchInterval: query => ['pending', 'processing'].includes(query.state.data?.status || '') ? 2500 : false
+    refetchInterval: query => pollingPolicy.templatePreparation(query.state.data?.status)
   });
   const estimateProxy = useMutation({
     mutationFn: () => estimateTemplatePoseProxy(templateId!, post.templateVersionId),
     onSuccess: result => {
       setPoseProxyEstimate(result);
-      if (result.proxy) queryClient.setQueryData(['template-pose-proxy', templateId], result.proxy);
+      if (result.proxy) {
+        queryClient.setQueryData(
+          queryKeys.templatePoseProxy(actorId, templateId),
+          result.proxy
+        );
+      }
     },
     onError: error => showToast({
       tone: 'error',
@@ -89,7 +99,9 @@ export function SharedTemplateEditDialog({
         title: t('ui.toast.templatePreparationStarted'),
         description: t('ui.toast.templatePreparationStartedDescription')
       });
-      await queryClient.invalidateQueries({ queryKey: ['template-pose-proxy', templateId] });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.templatePoseProxy(actorId, templateId)
+      });
     },
     onError: error => showToast({
       tone: 'error',
@@ -104,7 +116,9 @@ export function SharedTemplateEditDialog({
       decision
     ),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['template-pose-proxy', templateId] });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.templatePoseProxy(actorId, templateId)
+      });
     }
   });
   const update = useMutation({

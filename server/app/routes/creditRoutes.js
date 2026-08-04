@@ -1,22 +1,17 @@
-import { creditReservationService } from '../../domain/credits/CreditReservationService.js';
-import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
-import { creditLedgerRepo } from '../../repositories/credits/CreditLedgerRepository.js';
 import { normalizeGenerationContext } from '../../domain/generation/generationRequestService.js';
 import { prepareGenerationReferences } from '../../domain/generation/prepareGenerationReferences.js';
 
 export function registerCreditRoutes(app, {
   resolveRequestUsername,
   templateCoreService,
-  providerRegistry
+  providerRegistry,
+  creditApplicationService
 }) {
   // GET /api/credits/account
   app.get('/api/credits/account', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req, { allowBody: false });
-      let account = await creditAccountRepo.getAccountByUserId(userId);
-      if (!account) {
-        account = { userId, availableCredits: 0, reservedCredits: 0, status: 'active' };
-      }
+      const account = await creditApplicationService.getAccount(userId);
       res.json({ account });
     } catch (err) {
       res.status(err.statusCode || 500).json({ error: { code: err.code || 'internal_error', message: err.message } });
@@ -27,10 +22,10 @@ export function registerCreditRoutes(app, {
   app.get('/api/credits', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req, { allowBody: false });
-      let account = await creditAccountRepo.getAccountByUserId(userId);
+      const account = await creditApplicationService.getAccount(userId);
       res.json({
-        credits: account ? account.availableCredits : 0,
-        reservedCredits: account ? account.reservedCredits : 0,
+        credits: account.availableCredits,
+        reservedCredits: account.reservedCredits,
         role: req.actorContext?.role || 'user'
       });
     } catch (err) {
@@ -53,7 +48,7 @@ export function registerCreditRoutes(app, {
         templateCoreService,
         providerRegistry
       });
-      const estimate = await creditReservationService.estimate({
+      const estimate = await creditApplicationService.estimate({
         ...req.body,
         referenceCount: processing
           ? processing.referenceCount
@@ -64,8 +59,8 @@ export function registerCreditRoutes(app, {
         templatePricing,
         userId
       });
-      const account = await creditAccountRepo.getAccountByUserId(userId);
-      const available = account ? account.availableCredits : 0;
+      const account = await creditApplicationService.getAccount(userId);
+      const available = account.availableCredits;
 
       res.json({
         estimate,
@@ -87,7 +82,7 @@ export function registerCreditRoutes(app, {
   app.get('/api/credits/ledger', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req);
-      const page = await creditLedgerRepo.findByUserId(userId, req.query);
+      const page = await creditApplicationService.listLedger(userId, req.query);
       res.json(page);
     } catch (err) {
       res.status(err.statusCode || 500).json({ error: { code: err.code || 'ledger_error', message: err.message } });
@@ -101,11 +96,10 @@ export function registerCreditRoutes(app, {
       const amountCredits = Number(req.body?.amountCredits || 10);
       const idempotencyKey = req.headers['idempotency-key'] || req.body?.idempotencyKey;
 
-      const result = await creditAccountRepo.grantCredits({
+      const result = await creditApplicationService.grantMockCredits({
         userId,
         amountCredits,
         idempotencyKey,
-        reason: 'mock_grant',
         actorContext: req.actorContext
       });
       res.json({ account: result.account });
@@ -118,10 +112,8 @@ export function registerCreditRoutes(app, {
   app.post('/api/credits/recharge', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req);
-      const result = await creditAccountRepo.grantCredits({
+      const result = await creditApplicationService.rechargeLegacy({
         userId,
-        amountCredits: 10,
-        reason: 'recharge',
         actorContext: req.actorContext
       });
       res.json({ credits: result.account.availableCredits, role: req.actorContext?.role || 'user' });

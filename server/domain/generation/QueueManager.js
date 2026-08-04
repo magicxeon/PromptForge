@@ -5,7 +5,7 @@ import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import { collectionManager } from '../collections/CollectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferenceForProvider } from './referenceUtils.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
-import { creditReservationService } from '../credits/CreditReservationService.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { thumbnailService } from './thumbnailService.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
 import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
@@ -134,6 +134,16 @@ class QueueManager {
       result: null,
       error: null,
       created: Date.now(),
+      timings: {
+        enqueuedAt: Date.now(),
+        queueStartedAt: null,
+        referenceStartedAt: null,
+        referenceCompletedAt: null,
+        providerStartedAt: null,
+        providerCompletedAt: null,
+        outputPersistedAt: null,
+        terminalAt: null
+      },
       listeners: []
     };
 
@@ -242,6 +252,7 @@ class QueueManager {
 
     this.activeCount++;
     job.status = 'processing';
+    job.timings.queueStartedAt = Date.now();
     this.emitLifecycle(job, 'processing');
     console.log(`[Queue] Processing job ${jobId}. Active jobs: ${this.activeCount}`);
     
@@ -250,6 +261,7 @@ class QueueManager {
     try {
       const providerInstance = ProviderFactory.getProvider(job.provider);
       const startTime = Date.now();
+      job.timings.referenceStartedAt = startTime;
 
       // Resolve local /outputs/ files to base64 for API transmission
       const referenceAccess = { ownerUserId: job.options.payerUserId || null };
@@ -346,7 +358,11 @@ class QueueManager {
         }
       );
 
-      logGenerationDiagnostic(job, 'provider_dispatch');
+      job.timings.referenceCompletedAt = Date.now();
+      job.timings.providerStartedAt = Date.now();
+      logGenerationDiagnostic(job, 'provider_dispatch', {
+        ...createTimingDurations(job)
+      });
       let result;
       if (job.options.stream) {
         result = await providerInstance.generateImageStream(job.prompt, job.options, (eventObj) => {
@@ -365,6 +381,7 @@ class QueueManager {
       } else {
         result = await providerInstance.generateImage(job.prompt, job.options);
       }
+      job.timings.providerCompletedAt = Date.now();
 
       // Calculate generation duration
       const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -378,7 +395,7 @@ class QueueManager {
       job.outputFilePath = filePath;
 
       // Capture credit reservation on successful completion
-      await creditReservationService.captureForJob({
+      await creditApplicationService.captureForJob({
         userId: job.options.payerUserId,
         reservationId: job.options.reservationId,
         jobId,
@@ -465,6 +482,8 @@ class QueueManager {
       }
       job.result.width = historyEntry.width || providerDimensions.width;
       job.result.height = historyEntry.height || providerDimensions.height;
+      job.timings.outputPersistedAt = Date.now();
+      historyEntry.performanceTimings = createTimingDurations(job);
       await this.saveToHistory(historyEntry);
       await characterCastingExportService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
         console.warn(`[Queue] Character casting linkage failed for ${jobId}:`, error.message);
@@ -519,7 +538,8 @@ class QueueManager {
           || null,
         returnedWidth: historyEntry.width || providerDimensions.width,
         returnedHeight: historyEntry.height || providerDimensions.height,
-        durationSeconds: durationSec
+        durationSeconds: durationSec,
+        ...createTimingDurations(job)
       });
 
     } catch (err) {
@@ -534,7 +554,7 @@ class QueueManager {
       // Refund reservation on failure (technical failure, moderation block, provider error)
       if (job.options.reservationId && !job.creditRefunded) {
         try {
-          await creditReservationService.refundForJob({
+          await creditApplicationService.refundForJob({
             userId: job.options.payerUserId || job.options.username || 'usr_demo',
             reservationId: job.options.reservationId,
             jobId,
@@ -556,9 +576,11 @@ class QueueManager {
       });
       this.emitLifecycle(job, 'failed', { error: job.error });
       logGenerationDiagnostic(job, 'failed', {
-        errorCode: job.error.code || null
+        errorCode: job.error.code || null,
+        ...createTimingDurations(job)
       });
     } finally {
+      job.timings.terminalAt = Date.now();
       // Close all SSE connections
       job.listeners.forEach(({ res, keepAliveTimer }) => {
         clearInterval(keepAliveTimer);
@@ -635,12 +657,12 @@ class QueueManager {
         error: job.error,
         creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         creditCharged: job.creditCharged === true,
-        creditRefunded: job.creditRefunded === true
+        creditRefunded: job.creditRefunded === true,
+        timings: createTimingDurations(job)
       };
     }
 
-    const history = await this.getHistory();
-    const completed = history.find(entry => entry.id === jobId);
+    const completed = await historyRepository.getById(jobId);
     if (!completed) return null;
 
     return {
@@ -655,7 +677,8 @@ class QueueManager {
         height: completed.height || null
       },
       error: null,
-      recoveredFromHistory: true
+      recoveredFromHistory: true,
+      timings: completed.performanceTimings || null
     };
   }
 
@@ -677,13 +700,32 @@ class QueueManager {
   }
 
   async getHistoryEntryForUser(jobId, username) {
-    const history = await this.getHistory();
-    const entry = history.find(item => item.id === jobId);
+    const entry = await historyRepository.getById(jobId);
     if (!entry) return null;
     if (!username) return entry;
     if (!entry.username) return username === 'user_demo' ? entry : null;
     return entry.username === username ? entry : null;
   }
+}
+
+function createTimingDurations(job) {
+  const timings = job?.timings || {};
+  const duration = (start, end) => Number.isFinite(start) && Number.isFinite(end)
+    ? Math.max(0, end - start)
+    : null;
+  return {
+    queueWaitMs: duration(timings.enqueuedAt, timings.queueStartedAt),
+    referenceProcessingMs: duration(
+      timings.referenceStartedAt,
+      timings.referenceCompletedAt
+    ),
+    providerMs: duration(timings.providerStartedAt, timings.providerCompletedAt),
+    outputPersistenceMs: duration(
+      timings.providerCompletedAt,
+      timings.outputPersistedAt
+    ),
+    totalMs: duration(timings.enqueuedAt, timings.terminalAt || Date.now())
+  };
 }
 
 export const queueManager = new QueueManager();

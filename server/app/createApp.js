@@ -7,7 +7,7 @@ import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
 import { creditManager } from '../domain/credits/CreditManager.js';
-import { creditReservationService } from '../domain/credits/CreditReservationService.js';
+import { creditApplicationService } from '../domain/credits/CreditApplicationService.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
 import { communityShareService } from '../domain/community/CommunityShareService.js';
@@ -57,6 +57,8 @@ import { imagePresentationService } from '../domain/assets/ImagePresentationServ
 import { templateCoreService } from '../domain/templates/TemplateCoreService.js';
 import { registerTemplateRoutes } from './routes/templateRoutes.js';
 import { TemplatePoseProxyService } from '../domain/template-pose-proxy/TemplatePoseProxyService.js';
+import { GenerationApplicationService } from '../domain/generation/GenerationApplicationService.js';
+import { requestPerformanceMiddleware } from '../middleware/requestPerformanceMiddleware.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -80,14 +82,22 @@ export function resolveRequestUsername(req, {
 export function createApp() {
   const app = express();
   const providerRegistry = getProviderRegistry();
+  const generationApplicationService = new GenerationApplicationService({
+    providerRegistry,
+    queueManager,
+    templateCoreService,
+    creditService: creditApplicationService
+  });
   const templatePoseProxyService = new TemplatePoseProxyService({
     providerRegistry,
-    queueManager
+    generationApplicationService
   });
   const comparisonOrchestrator = new ComparisonOrchestrator({
     providerRegistry,
     queueManager,
     creditManager,
+    creditReservation: creditApplicationService,
+    generationApplicationService,
     templateCoreService
   });
   const communityComparisonShareService = new CommunityComparisonShareService({
@@ -95,13 +105,14 @@ export function createApp() {
   });
   const getAttributesBundle = createAttributesBundleLoader();
 
-  creditReservationService.reconcileStartupOrphanReservations().catch(err => {
+  creditApplicationService.reconcileStartupOrphanReservations().catch(err => {
     console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
   });
 
   app.use(cors());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
   app.use(actorContextMiddleware);
+  app.use(requestPerformanceMiddleware);
   app.use('/react-assets', express.static(path.join(WEB_DIST_ROOT, 'react-assets')));
   // React retains only runtime data/media boundaries from the former client
   // tree. Legacy scripts, HTML and styles are intentionally not web-served.
@@ -123,6 +134,8 @@ export function createApp() {
     providerRegistry,
     queueManager,
     creditManager,
+    creditApplicationService,
+    generationApplicationService,
     collectionManager,
     comparisonOrchestrator,
     historyRepository,
@@ -149,7 +162,10 @@ export function createApp() {
     imagePresentationService
   });
   registerComparisonRoutes(app, sharedDependencies);
-  registerAdminRoutes(app, { communityFeaturePolicyService });
+  registerAdminRoutes(app, {
+    communityFeaturePolicyService,
+    adjustmentService: creditApplicationService
+  });
   registerCommunityTaxonomyRoutes(app, {
     communityClassificationService,
     communityFeaturePolicyService

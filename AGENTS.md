@@ -85,6 +85,57 @@ web/src/features/templates/
 Current server domain and repository capabilities should follow matching
 capability names where practical.
 
+## 2.1 Capability Ownership and Workflow Entry-Point Gate
+
+Follow
+`requirements/009-migration-to-react/016-capability-ownership-and-single-workflow-entry-points.md`
+for every new service, material workflow, cross-capability dependency, or
+repository access.
+
+Before implementation:
+
+1. Name the capability that owns the business rule and runtime state.
+2. Find its canonical application/domain entry point and existing callers.
+3. Search for an existing workflow before adding another service, manager,
+   mutation hook, storage path, prompt compiler, or queue path.
+4. Extend the owning public contract instead of assembling the same workflow in
+   another route or feature.
+5. Keep cross-capability dependencies directed through the target capability's
+   public facade. Do not mutate another capability's repository directly.
+6. Keep provider dispatch behind Generation, Credit mutations behind Credits,
+   reference authority behind Reference Processing, and public snapshot policy
+   behind the owning source capability plus Community publication.
+7. If migration temporarily requires two paths, document the canonical owner,
+   compatibility reason, parity test, and deletion checkpoint in the owning
+   requirement.
+
+One entry point means one canonical use-case contract, not one oversized
+service. Internal focused services remain encouraged when they are hidden
+behind the owning workflow boundary.
+
+## 2.2 Performance Ownership and Measurement Gate
+
+Follow
+`requirements/009-migration-to-react/017-performance-ownership-observability-and-tuning.md`
+for performance-sensitive work.
+
+- Measure or establish a reproducible baseline before speculative tuning.
+- Name the owner, key scope, source of truth, TTL/terminal condition,
+  invalidation events and size bound for every new cache or polling loop.
+- Do not create feature-local polling, thumbnail, provider, Credit or reference
+  caches when a canonical owner exists.
+- Bound list queries, payload size, reference count, retained image buffers and
+  browser persistence. Do not retain Base64 images in durable client state.
+- Separate application latency, queue wait, reference processing, provider
+  duration and persistence time in diagnostics.
+- Preserve actor isolation, authorization, idempotency and Credit consistency;
+  performance is not justification to bypass owning capability contracts.
+- Design APIs and repositories for pagination, cursor/filter contracts and
+  stable IDs before database migration. Keep SQL/index/pool tuning in future
+  repository/database work after representative data exists.
+- For a performance change, report the baseline, expected budget/improvement,
+  validation method and remaining capacity risk.
+
 ## 3. Server Architecture Rules
 
 - Keep `server/server.js` limited to environment loading, process bootstrap,

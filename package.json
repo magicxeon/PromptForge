@@ -12,6 +12,7 @@
     "dev:server": "nodemon server/server.js",
     "dev:web": "npm run dev --workspace web",
     "build:web": "npm run build --workspace web",
+    "performance:bundle-budget": "node scripts/measure-react-build-budget.mjs",
     "test:web": "npm run test --workspace web",
     "test:web:e2e": "npm run test:e2e --workspace web",
     "lint:web": "npm run lint --workspace web",

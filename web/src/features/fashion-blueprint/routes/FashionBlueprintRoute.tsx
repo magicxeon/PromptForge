@@ -42,6 +42,7 @@ import { Surface } from '../../../components/ui/Surface';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
 import { ApiError } from '../../../lib/api/apiError';
 import { queryKeys } from '../../../lib/api/queryKeys';
+import { pollingPolicy } from '../../../lib/api/pollingPolicy';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import {
   listCommunityPosts,
@@ -398,7 +399,7 @@ export function FashionBlueprintRoute() {
     onSuccess: nextRun => {
       setRun(nextRun);
       void queryClient.invalidateQueries({ queryKey: queryKeys.credits(actorId) });
-      void queryClient.invalidateQueries({ queryKey: ['credit-ledger', actorId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.creditLedger(actorId) });
     },
     onError: error => {
       if (isInsufficientCreditError(error)) {
@@ -411,19 +412,16 @@ export function FashionBlueprintRoute() {
     mutationFn: () => grantMockCredits(100),
     onSuccess: response => {
       queryClient.setQueryData(queryKeys.credits(actorId), response);
-      void queryClient.invalidateQueries({ queryKey: ['credit-ledger', actorId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.creditLedger(actorId) });
       setCreditDialogOpen(false);
     }
   });
   const runQuery = useQuery({
-    queryKey: ['fashion-run', actor?.userId, run?.id],
+    queryKey: queryKeys.fashionRun(actorId, run?.id || null),
     queryFn: ({ signal }) => getFashionRun(run!.id, signal),
     enabled: Boolean(run?.id),
     refetchInterval: query => {
-      const status = query.state.data?.status;
-      return status && ['completed', 'partially_completed', 'failed'].includes(status)
-        ? false
-        : 1_500;
+      return pollingPolicy.fashionRun(query.state.data?.status);
     }
   });
   const displayedRun = runQuery.data || run;

@@ -11,9 +11,13 @@ description: Plan, implement or review the complete ModelPromptForge frontend mi
 2. `requirements/099-technical-dept/000-master.md`
 3. `requirements/009-migration-to-react/000-master-react-migration-roadmap.md`
 4. `001-current-system-inventory-and-parity-baseline.md`
-5. the numbered migration requirement owning the task
-6. the original feature requirement
-7. current feature code, server route/domain and tests
+5. `016-capability-ownership-and-single-workflow-entry-points.md` for any new
+   service, workflow, cross-capability dependency or repository access
+6. `017-performance-ownership-observability-and-tuning.md` for caching, polling,
+   concurrency, media, payload, repository or performance-sensitive changes
+7. the numbered migration requirement owning the task
+8. the original feature requirement
+9. current feature code, server route/domain and tests
 
 Code and tests outrank stale requirement paths. Record discrepancies before
 changing behavior.
@@ -40,6 +44,29 @@ An implementation agent must apply all relevant skills below.
 - create adapters between feature DTOs and shared component models
 - reuse media, engagement, profile, comparison and generation components
 - do not copy legacy markup into multiple React features
+
+### Capability and Workflow Architecture
+
+- name the owning capability before adding a service or state container
+- enter each business workflow through its documented application facade
+- do not assemble Credit, Generation, Reference or publication lifecycles in a
+  second route or feature
+- do not import a foreign capability repository to bypass its domain contract
+- keep cross-capability dependencies directed through public use-case contracts
+- classify duplicate-looking behavior as shared policy, reusable workflow or
+  intentionally different presentation before extracting it
+- update Requirement 016 and the technical-debt master when ownership changes
+
+### Performance Engineering
+
+- measure a workflow baseline before speculative optimization
+- assign one owner to each cache, polling loop and concurrency policy
+- keep lists, payloads, reference counts and retained image memory bounded
+- separate application, queue, provider and persistence timing
+- use previews for discovery and authorized originals for inspection/download
+- preserve actor isolation, idempotency, Credit integrity and authorization
+- design repository contracts for pagination/filtering before database migration
+- defer SQL/index/pool tuning until the database and representative data exist
 
 ### UX/UI Design
 
@@ -166,4 +193,3 @@ rollback state and remaining parity gap
 
 Do not run Node commands in this repository. Ask the user to execute the exact
 commands and report failures.
-

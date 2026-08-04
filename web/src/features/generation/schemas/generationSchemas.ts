@@ -74,7 +74,14 @@ export const jobStatusSchema = z.object({
   error: z.union([
     z.string(),
     z.object({ code: z.string().optional(), message: z.string().optional() }).passthrough()
-  ]).nullable().optional()
+  ]).nullable().optional(),
+  timings: z.object({
+    queueWaitMs: z.number().nullable(),
+    referenceProcessingMs: z.number().nullable(),
+    providerMs: z.number().nullable(),
+    outputPersistenceMs: z.number().nullable(),
+    totalMs: z.number().nullable()
+  }).nullable().optional()
 }).passthrough();
 
 export const comparisonEstimateSchema = z.object({

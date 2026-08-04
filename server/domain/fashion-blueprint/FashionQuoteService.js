@@ -1,4 +1,4 @@
-import { creditReservationService } from '../credits/CreditReservationService.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { fashionBlueprintQuoteRepository } from '../../repositories/fashion-blueprint/FashionBlueprintQuoteRepository.js';
 import { createFashionPlanHash } from './FashionPlanHash.js';
 import { fashionError } from './FashionBlueprintService.js';
@@ -10,7 +10,7 @@ import { fashionBlueprintRunRepository } from '../../repositories/fashion-bluepr
 export class FashionQuoteService {
   constructor({
     blueprintService,
-    reservationService = creditReservationService,
+    reservationService = creditApplicationService,
     quoteRepository = fashionBlueprintQuoteRepository,
     postAccessService = communityPostAccessService,
     templateCoreService = defaultTemplateCoreService,

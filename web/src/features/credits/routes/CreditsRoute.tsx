@@ -15,7 +15,7 @@ export function CreditsRoute() {
   const queryClient = useQueryClient();
   const account = useQuery({ queryKey: queryKeys.credits(actorId), queryFn: getCreditAccount, enabled: Boolean(actor) });
   const ledger = useInfiniteQuery({
-    queryKey: ['credit-ledger', actorId],
+    queryKey: queryKeys.creditLedger(actorId),
     queryFn: ({ pageParam }) => listCreditLedger(pageParam),
     enabled: Boolean(actor),
     initialPageParam: null as string | null,
@@ -25,7 +25,7 @@ export function CreditsRoute() {
     mutationFn: () => grantMockCredits(100),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.credits(actorId) });
-      void queryClient.invalidateQueries({ queryKey: ['credit-ledger', actorId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.creditLedger(actorId) });
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
     }
   });

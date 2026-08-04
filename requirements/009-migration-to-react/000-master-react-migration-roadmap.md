@@ -82,6 +82,16 @@ When code and an older requirement differ:
 
 The migration must not silently revive deleted behavior or stale file paths.
 
+Continued architecture work must also follow
+`016-capability-ownership-and-single-workflow-entry-points.md`. That requirement
+documents capability owners, canonical application entry points, dependency
+direction and the incremental consolidation path for workflows shared by
+Generation, Credits, Comparisons, Templates, Characters and Fashion Blueprint.
+Performance work must follow
+`017-performance-ownership-observability-and-tuning.md`, which separates the
+guardrails required before database migration from database-specific and
+production-evidence tuning.
+
 ## 4. Current-System Assessment
 
 The current client has:

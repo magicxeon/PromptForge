@@ -1,30 +1,37 @@
 import {
-  compilePromptFromGenerationContext,
-  createQueueOptions
+  compilePromptFromGenerationContext
 } from '../generation/generationRequestService.js';
-import { creditReservationService } from '../credits/CreditReservationService.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { fashionBlueprintRunRepository } from '../../repositories/fashion-blueprint/FashionBlueprintRunRepository.js';
 import { fashionError } from './FashionBlueprintService.js';
 import { createFashionPlanHash } from './FashionPlanHash.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 import { createFashionExecutionContext } from './FashionGenerationContext.js';
 import { resolveFashionExecutionPrompt } from './GeminiProFashionPrompt.js';
+import { GenerationApplicationService } from '../generation/GenerationApplicationService.js';
 
 export class FashionRunService {
   constructor({
     quoteService,
     providerRegistry,
     queueManager,
-    reservationService = creditReservationService,
+    generationApplicationService = null,
+    reservationService = creditApplicationService,
     runRepository = fashionBlueprintRunRepository,
     templateCoreService = defaultTemplateCoreService
   }) {
     this.quoteService = quoteService;
     this.providerRegistry = providerRegistry;
-    this.queueManager = queueManager;
     this.reservationService = reservationService;
     this.runRepository = runRepository;
     this.templateCoreService = templateCoreService;
+    this.generationApplicationService = generationApplicationService
+      || new GenerationApplicationService({
+        providerRegistry,
+        queueManager,
+        templateCoreService,
+        creditService: reservationService
+      });
     this.inFlightRuns = new Map();
   }
 
@@ -171,7 +178,9 @@ export class FashionRunService {
       const operation = operations[index];
       const reservation = reservationResult.reservations[index];
       try {
-        const existingStatus = await this.queueManager.getJobStatus(operation.jobId);
+        const existingStatus = await this.generationApplicationService.getJobStatus(
+          operation.jobId
+        );
         if (existingStatus) {
           run.operations.push({
             operationId: operation.operationId,
@@ -193,57 +202,61 @@ export class FashionRunService {
           fallbackPrompt: compiledPrompt
         });
         const prompt = promptProjection.prompt;
-        await this.templateCoreService.attachGeneration(
-          operation.templateExecution.session.id,
-          actorContext,
-          operation.jobId
-        );
-        this.queueManager.enqueue(provider.id, model.id, prompt, createQueueOptions(operation.context, {
+        await this.generationApplicationService.enqueueReservedOperation({
           jobId: operation.jobId,
-          username: actorContext.username,
-          stream: this.providerRegistry.shouldStream(provider, model, true),
-          modelConfig: model,
-          providerConfigVersion: this.providerRegistry.getConfigVersion(),
-          reservationId: reservation.reservationId,
-          pricingSnapshot: reservation.pricingSnapshot,
+          providerId: provider.id,
+          modelId: model.id,
           payerUserId: actorContext.userId,
+          payerUsername: actorContext.username,
+          context: operation.context,
+          compiledPrompt: prompt,
+          modelConfig: model,
+          providerConfig: provider,
+          reservation,
           estimateId: operation.estimateId,
           requestId: operation.requestId,
-          routingSnapshot: {
-            ...run.routeSnapshot,
-            promptStrategyVersion: promptProjection.promptStrategyVersion
-          },
-          templateUseContext: {
-            templateId: operation.templateExecution.template.id,
-            templateVersionId: operation.templateExecution.version.id,
-            templateUseSessionId: operation.templateExecution.session.id,
-            sourceCommunityPostId: operation.templateExecution.session.sourceCommunityPostId,
-            replacementSummary: operation.templateExecution.replacementSummary
-          },
-          fashionBlueprintContext: {
-            runId: run.id,
-            planId: run.planId,
-            quoteId: run.quoteId,
-            quotePurpose: run.quotePurpose,
-            setupFingerprint: run.setupFingerprint,
-            operationId: operation.operationId,
-            productItemKey: operation.productItemKey,
-            productName: operation.productName,
-            shotKey: quote.operations.find(
-              item => item.operationId === operation.operationId
-            )?.shotKey || 'cover',
-            outfitScope: plan.productItems.find(
-              item => item.key === operation.productItemKey
-            )?.outfitScope || 'full_look',
-            referenceAssetIds: Object.values(
-              plan.productItems.find(
+          beforeEnqueue: () => this.templateCoreService.attachGeneration(
+            operation.templateExecution.session.id,
+            actorContext,
+            operation.jobId
+          ),
+          queueOptionOverrides: {
+            routingSnapshot: {
+              ...run.routeSnapshot,
+              promptStrategyVersion: promptProjection.promptStrategyVersion
+            },
+            templateUseContext: {
+              templateId: operation.templateExecution.template.id,
+              templateVersionId: operation.templateExecution.version.id,
+              templateUseSessionId: operation.templateExecution.session.id,
+              sourceCommunityPostId: operation.templateExecution.session.sourceCommunityPostId,
+              replacementSummary: operation.templateExecution.replacementSummary
+            },
+            fashionBlueprintContext: {
+              runId: run.id,
+              planId: run.planId,
+              quoteId: run.quoteId,
+              quotePurpose: run.quotePurpose,
+              setupFingerprint: run.setupFingerprint,
+              operationId: operation.operationId,
+              productItemKey: operation.productItemKey,
+              productName: operation.productName,
+              shotKey: quote.operations.find(
+                item => item.operationId === operation.operationId
+              )?.shotKey || 'cover',
+              outfitScope: plan.productItems.find(
                 item => item.key === operation.productItemKey
-              )?.references || {}
-            ).flatMap(reference => reference?.assetId ? [reference.assetId] : []),
-            promptStrategyVersion: promptProjection.promptStrategyVersion,
-            templateLineage: run.templateLineage
+              )?.outfitScope || 'full_look',
+              referenceAssetIds: Object.values(
+                plan.productItems.find(
+                  item => item.key === operation.productItemKey
+                )?.references || {}
+              ).flatMap(reference => reference?.assetId ? [reference.assetId] : []),
+              promptStrategyVersion: promptProjection.promptStrategyVersion,
+              templateLineage: run.templateLineage
+            }
           }
-        }));
+        });
         run.operations.push({
           operationId: operation.operationId,
           productItemKey: operation.productItemKey,
@@ -256,12 +269,6 @@ export class FashionRunService {
           status: 'queued'
         });
       } catch (error) {
-        await this.reservationService.refundForJob({
-          userId: actorContext.userId,
-          reservationId: reservation.reservationId,
-          jobId: operation.jobId,
-          reasonCode: 'enqueue_failed'
-        });
         run.operations.push({
           operationId: operation.operationId,
           productItemKey: operation.productItemKey,
@@ -328,7 +335,10 @@ export class FashionRunService {
 
   async hydrateRun(run, actorContext) {
     const activeOperations = await Promise.all(run.operations.map(async operation => {
-      const status = await this.queueManager.getJobStatusForUser(operation.jobId, actorContext.username);
+      const status = await this.generationApplicationService.getJobStatusForUser(
+        operation.jobId,
+        actorContext.username
+      );
       return {
         ...operation,
         status: status?.status || operation.status,
@@ -344,7 +354,7 @@ export class FashionRunService {
       );
       if (proof?.proofStatus === 'approved') {
         proofOperations = await Promise.all(proof.operations.map(async operation => {
-          const status = await this.queueManager.getJobStatusForUser(
+          const status = await this.generationApplicationService.getJobStatusForUser(
             operation.jobId,
             actorContext.username
           );

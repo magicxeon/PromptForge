@@ -2,28 +2,31 @@ import crypto from 'crypto';
 import { templateRepo } from '../../repositories/templates/TemplateRepository.js';
 import { templateVersionRepo } from '../../repositories/templates/TemplateVersionRepository.js';
 import { templatePoseProxyRepository } from '../../repositories/template-pose-proxy/TemplatePoseProxyRepository.js';
-import { creditReservationService } from '../credits/CreditReservationService.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { templatePoseProxyPolicyService } from './TemplatePoseProxyPolicyService.js';
 import { GenerativePoseProxyProcessor } from './GenerativePoseProxyProcessor.js';
 
 export class TemplatePoseProxyService {
   constructor({
     providerRegistry,
-    queueManager,
+    generationApplicationService,
     repository = templatePoseProxyRepository,
     templateRepository = templateRepo,
     versionRepository = templateVersionRepo,
-    reservationService = creditReservationService,
+    reservationService = creditApplicationService,
     policyService = templatePoseProxyPolicyService
   }) {
     this.providerRegistry = providerRegistry;
-    this.queueManager = queueManager;
+    this.generationApplicationService = generationApplicationService;
     this.repository = repository;
     this.templateRepository = templateRepository;
     this.versionRepository = versionRepository;
     this.reservationService = reservationService;
     this.policyService = policyService;
-    this.processor = new GenerativePoseProxyProcessor({ providerRegistry, queueManager });
+    this.processor = new GenerativePoseProxyProcessor({
+      providerRegistry,
+      generationApplicationService
+    });
   }
 
   async estimate({ templateId, templateVersionId = null, poseVariantId = 'default' }, actorContext) {
@@ -272,7 +275,9 @@ export class TemplatePoseProxyService {
 
   async synchronize(record) {
     if (!record || !['processing', 'pending'].includes(record.status)) return record;
-    const status = await this.queueManager.getJobStatus(record.operationId);
+    const status = await this.generationApplicationService.getJobStatus(
+      record.operationId
+    );
     if (!status || ['queued', 'processing'].includes(status.status)) return record;
     if (status.status === 'completed' && status.result?.imageUrl) {
       return this.repository.update(record.id, current => ({

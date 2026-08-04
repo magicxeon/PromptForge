@@ -51,6 +51,15 @@ export function createSafeGenerationDiagnostic(job, event, extra = {}) {
     ...(Number.isFinite(extra.returnedWidth) ? { returnedWidth: extra.returnedWidth } : {}),
     ...(Number.isFinite(extra.returnedHeight) ? { returnedHeight: extra.returnedHeight } : {}),
     ...(extra.durationSeconds ? { durationSeconds: String(extra.durationSeconds) } : {}),
+    ...(Number.isFinite(extra.queueWaitMs) ? { queueWaitMs: extra.queueWaitMs } : {}),
+    ...(Number.isFinite(extra.referenceProcessingMs)
+      ? { referenceProcessingMs: extra.referenceProcessingMs }
+      : {}),
+    ...(Number.isFinite(extra.providerMs) ? { providerMs: extra.providerMs } : {}),
+    ...(Number.isFinite(extra.outputPersistenceMs)
+      ? { outputPersistenceMs: extra.outputPersistenceMs }
+      : {}),
+    ...(Number.isFinite(extra.totalMs) ? { totalMs: extra.totalMs } : {}),
     ...(extra.errorCode ? { errorCode: String(extra.errorCode) } : {})
   };
 }

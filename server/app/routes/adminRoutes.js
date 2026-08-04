@@ -1,6 +1,6 @@
 import { adminBackofficeService } from '../../domain/admin/AdminBackofficeService.js';
 import { communityModerationService } from '../../domain/community/CommunityModerationService.js';
-import { creditAdjustmentService } from '../../domain/credits/CreditAdjustmentService.js';
+import { creditApplicationService } from '../../domain/credits/CreditApplicationService.js';
 
 function sendError(res, error) {
   res.status(error.statusCode || 500).json({
@@ -11,7 +11,7 @@ function sendError(res, error) {
 export function registerAdminRoutes(app, {
   backofficeService = adminBackofficeService,
   moderationService = communityModerationService,
-  adjustmentService = creditAdjustmentService,
+  adjustmentService = creditApplicationService,
   communityFeaturePolicyService = null
 } = {}) {
   app.get('/api/admin/overview', async (req, res) => {

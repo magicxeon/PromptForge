@@ -1,0 +1,388 @@
+{
+  "generatedAt": "2026-08-04T06:51:59.871Z",
+  "budget": {
+    "maxInitialJavaScriptChunkBytes": 512000
+  },
+  "status": "pass",
+  "assets": [
+    {
+      "path": "react-assets/react-vendor-Bz5CU0Kg.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 284853,
+      "gzipBytes": 91453
+    },
+    {
+      "path": "react-assets/index-BJjdjUFh.css",
+      "type": "css",
+      "initial": true,
+      "minifiedBytes": 200919,
+      "gzipBytes": 33468
+    },
+    {
+      "path": "react-assets/vendor-CjaOaTLW.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 171397,
+      "gzipBytes": 51119
+    },
+    {
+      "path": "react-assets/ui-vendor-CBtO0HhC.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 78080,
+      "gzipBytes": 25498
+    },
+    {
+      "path": "react-assets/i18n-vendor-CuCgFMEy.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 54736,
+      "gzipBytes": 18154
+    },
+    {
+      "path": "react-assets/index-BNa4XmSP.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 46333,
+      "gzipBytes": 14302
+    },
+    {
+      "path": "react-assets/GenerationExperience-DykmSOHI.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 39002,
+      "gzipBytes": 11319
+    },
+    {
+      "path": "react-assets/FashionBlueprintRoute-BTna88S5.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 31458,
+      "gzipBytes": 8960
+    },
+    {
+      "path": "react-assets/AdditionalDirectionField-C-qa_1eF.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 30046,
+      "gzipBytes": 10135
+    },
+    {
+      "path": "react-assets/CreditExhaustedDialog-CoH7M1tV.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 24673,
+      "gzipBytes": 7356
+    },
+    {
+      "path": "react-assets/SceneBuilderRoute-BqCaWYtZ.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 24518,
+      "gzipBytes": 7700
+    },
+    {
+      "path": "react-assets/CharacterProfileRoute-dOEYV63A.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 18478,
+      "gzipBytes": 5090
+    },
+    {
+      "path": "react-assets/GenerationLibrary-CaUbv8LX.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 17422,
+      "gzipBytes": 5209
+    },
+    {
+      "path": "react-assets/CreatorProfileRoute-DPoUif6U.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 15685,
+      "gzipBytes": 4609
+    },
+    {
+      "path": "react-assets/CommunityPostRoute-D3XNEEUx.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 12566,
+      "gzipBytes": 4105
+    },
+    {
+      "path": "react-assets/SharedTemplateEditDialog-zOl95PJq.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 11780,
+      "gzipBytes": 3313
+    },
+    {
+      "path": "react-assets/AdminRoute-E3bk0rYW.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 8893,
+      "gzipBytes": 2791
+    },
+    {
+      "path": "react-assets/ShareGeneratedDialog-B4x9T89j.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 8146,
+      "gzipBytes": 2558
+    },
+    {
+      "path": "react-assets/StudioRoute-Dv8nq3UJ.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 8007,
+      "gzipBytes": 3114
+    },
+    {
+      "path": "react-assets/ComparisonWorkspace-CGy0XT2x.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 7324,
+      "gzipBytes": 2580
+    },
+    {
+      "path": "react-assets/CommunityHomeRoute-do9JGE4R.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 6451,
+      "gzipBytes": 2267
+    },
+    {
+      "path": "react-assets/profileApi-CxffimBa.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 5991,
+      "gzipBytes": 1760
+    },
+    {
+      "path": "react-assets/MediaCard-Dm1oGMM6.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 4916,
+      "gzipBytes": 1972
+    },
+    {
+      "path": "react-assets/HistoryDetailRoute-CGGS_D6R.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 4702,
+      "gzipBytes": 1931
+    },
+    {
+      "path": "react-assets/ComparisonDetailRoute-Qz6DsHj3.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 4485,
+      "gzipBytes": 1892
+    },
+    {
+      "path": "react-assets/CollectionsRoute-Jz3bgt-B.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3912,
+      "gzipBytes": 1483
+    },
+    {
+      "path": "react-assets/CharacterDirectoryRoute-BSSQzs5w.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3773,
+      "gzipBytes": 1323
+    },
+    {
+      "path": "react-assets/communitySchemas-Blf8kaGT.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3736,
+      "gzipBytes": 1370
+    },
+    {
+      "path": "react-assets/CollectionPickerDialog-CE1ijD7P.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3693,
+      "gzipBytes": 1612
+    },
+    {
+      "path": "react-assets/PlaygroundRoute-YinbvXwt.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3650,
+      "gzipBytes": 1537
+    },
+    {
+      "path": "react-assets/FaceReferenceDestinationDialog-CI29rpBf.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3433,
+      "gzipBytes": 1403
+    },
+    {
+      "path": "react-assets/CreditsRoute-CWlVOn6X.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 3409,
+      "gzipBytes": 1278
+    },
+    {
+      "path": "react-assets/CollectionDetailRoute-BO2IQtAX.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 2883,
+      "gzipBytes": 1285
+    },
+    {
+      "path": "react-assets/comparisonApi-C_PoGxUO.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 2858,
+      "gzipBytes": 870
+    },
+    {
+      "path": "react-assets/PublishCommunityResourceDialog-CrULCcCA.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 2804,
+      "gzipBytes": 1173
+    },
+    {
+      "path": "react-assets/query-vendor-CQagWZQF.js",
+      "type": "js",
+      "initial": true,
+      "minifiedBytes": 2784,
+      "gzipBytes": 1274
+    },
+    {
+      "path": "react-assets/ComparisonsRoute-BSc-RUlj.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 2465,
+      "gzipBytes": 1179
+    },
+    {
+      "path": "react-assets/vendor-CcxH2M7l.css",
+      "type": "css",
+      "initial": true,
+      "minifiedBytes": 2400,
+      "gzipBytes": 580
+    },
+    {
+      "path": "react-assets/CharacterCard-DaI5VFif.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 1925,
+      "gzipBytes": 867
+    },
+    {
+      "path": "react-assets/communityApi-D1ykkI2C.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 1852,
+      "gzipBytes": 572
+    },
+    {
+      "path": "react-assets/historyApi-CI2GBS25.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 1842,
+      "gzipBytes": 760
+    },
+    {
+      "path": "react-assets/collectionApi-D6gvfhI8.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 1444,
+      "gzipBytes": 516
+    },
+    {
+      "path": "react-assets/ConfirmDialog-CCDWpJXc.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 1214,
+      "gzipBytes": 633
+    },
+    {
+      "path": "react-assets/HistoryRoute-JBDm_WXr.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 986,
+      "gzipBytes": 532
+    },
+    {
+      "path": "react-assets/ComparisonThumbnailGrid-Cwgml4bQ.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 961,
+      "gzipBytes": 560
+    },
+    {
+      "path": "react-assets/creditApi-CxkMv4O2.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 897,
+      "gzipBytes": 519
+    },
+    {
+      "path": "react-assets/MyProfileRoute-BHgjrD2z.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 840,
+      "gzipBytes": 491
+    },
+    {
+      "path": "react-assets/comparisonRunState-x67GdbOl.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 819,
+      "gzipBytes": 425
+    },
+    {
+      "path": "react-assets/handoffStorage-C6qlIEX_.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 807,
+      "gzipBytes": 421
+    },
+    {
+      "path": "react-assets/ContextBackLink-CcSlldgy.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 590,
+      "gzipBytes": 404
+    },
+    {
+      "path": "react-assets/TemplatePricingBadge-DjUS00p6.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 471,
+      "gzipBytes": 330
+    },
+    {
+      "path": "react-assets/pollingPolicy-DY5tdfFp.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 316,
+      "gzipBytes": 217
+    },
+    {
+      "path": "react-assets/Surface-BVQU0u2n.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 271,
+      "gzipBytes": 205
+    },
+    {
+      "path": "react-assets/returnNavigation-Bt_WvZC3.js",
+      "type": "js",
+      "initial": false,
+      "minifiedBytes": 212,
+      "gzipBytes": 178
+    }
+  ],
+  "violations": []
+}

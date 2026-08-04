@@ -1,31 +1,40 @@
 import {
   compileGenerationContext,
-  compilePromptFromGenerationContext,
-  createQueueOptions
+  compilePromptFromGenerationContext
 } from '../generation/generationRequestService.js';
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
-import { creditReservationService } from '../credits/CreditReservationService.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
 import { prepareGenerationReferences } from '../generation/prepareGenerationReferences.js';
+import { GenerationApplicationService } from '../generation/GenerationApplicationService.js';
 
 export class ComparisonOrchestrator {
   constructor({
     providerRegistry,
     queueManager,
     creditManager,
-    creditReservation = creditReservationService,
+    creditReservation = creditApplicationService,
+    generationApplicationService = null,
     repository = new ComparisonRepository(),
     templateCoreService = defaultTemplateCoreService
   }) {
     this.providerRegistry = providerRegistry;
-    this.queueManager = queueManager;
     this.creditManager = creditManager;
     this.creditReservation = creditReservation;
     this.repository = repository;
     this.templateCoreService = templateCoreService;
+    this.generationApplicationService = generationApplicationService
+      || new GenerationApplicationService({
+        providerRegistry,
+        queueManager,
+        templateCoreService,
+        creditService: creditReservation
+      });
     this.validator = new ComparisonValidator({ providerRegistry });
-    this.queueManager.subscribeLifecycle?.(event => this.handleQueueLifecycle(event));
+    this.generationApplicationService.subscribeJobLifecycle?.(
+      event => this.handleQueueLifecycle(event)
+    );
   }
 
   async init() {
@@ -130,11 +139,18 @@ export class ComparisonOrchestrator {
     const enqueuedSlots = [];
     try {
       for (const slot of pricedSlots) {
-        const stream = this.providerRegistry.shouldStream(slot.providerConfig, slot.modelConfig, payload.stream !== false);
-        const jobId = this.queueManager.createJobId();
-        const reservationResult = await this.creditReservation.validateAndReserveForRequest({
-          userId,
+        const submitted = await this.generationApplicationService.submitPreparedOperation({
+          providerId: slot.provider,
+          modelId: slot.model,
           estimateId: slot.estimateId,
+          requestId: `${idempotencyKey}:${slot.id}`,
+          payerUserId: userId,
+          payerUsername: username,
+          context,
+          compiledPrompt,
+          streamRequested: payload.stream !== false,
+          modelConfig: slot.modelConfig,
+          providerConfig: slot.providerConfig,
           generationRequest: {
             requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
             aspectRatio: context.aspectRatio,
@@ -146,60 +162,49 @@ export class ComparisonOrchestrator {
             templateUseSessionId: payload.templateUseSessionId || null,
             requestId: `${idempotencyKey}:${slot.id}`
           },
-          metadata: {
-            jobId,
+          reservationMetadata: {
             comparisonSetId: setId,
             comparisonRunId: runId,
             relatedTemplateId: templateExecution?.template.id || null,
             templateVersionId: templateExecution?.version.id || null,
             templateUseSessionId: templateExecution?.session.id || null,
             sourceCommunityPostId: templateExecution?.session.sourceCommunityPostId || null
+          },
+          beforeEnqueue: templateExecution
+            ? jobId => this.templateCoreService.attachGeneration(
+              templateExecution.session.id,
+              actor,
+              jobId
+            )
+            : null,
+          queueOptionOverrides: {
+            imageResolution: slot.imageResolution,
+            comparison: { setId, runId, slotId: slot.id },
+            templateUseContext: templateExecution
+              ? {
+                templateId: templateExecution.template.id,
+                templateVersionId: templateExecution.version.id,
+                templateTitle: templateExecution.template.title,
+                templateOwnerUsername: templateExecution.template.ownerUsername,
+                templateUseSessionId: templateExecution.session.id,
+                sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
+                replacementSummary: templateExecution.replacementSummary
+              }
+              : null
           }
         });
-        if (templateExecution) {
-          await this.templateCoreService.attachGeneration(
-            templateExecution.session.id,
-            actor,
-            jobId
-          );
-        }
-        this.queueManager.enqueue(slot.provider, slot.model, compiledPrompt, createQueueOptions(context, {
-          jobId,
-          username,
-          stream,
-          modelConfig: slot.modelConfig,
-          providerConfigVersion: this.providerRegistry.getConfigVersion(),
-          imageResolution: slot.imageResolution,
-          comparison: { setId, runId, slotId: slot.id },
-          reservationId: reservationResult.reservation.reservationId,
-          pricingSnapshot: reservationResult.reservation.pricingSnapshot,
-          payerUserId: userId,
-          estimateId: slot.estimateId,
-          requestId: `${idempotencyKey}:${slot.id}`,
-          templateUseContext: templateExecution
-            ? {
-              templateId: templateExecution.template.id,
-              templateVersionId: templateExecution.version.id,
-              templateTitle: templateExecution.template.title,
-              templateOwnerUsername: templateExecution.template.ownerUsername,
-              templateUseSessionId: templateExecution.session.id,
-              sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
-              replacementSummary: templateExecution.replacementSummary
-            }
-            : null
-        }));
         const enqueuedSlot = {
           slotId: slot.id,
-          jobId,
-          reservationId: reservationResult.reservation.reservationId,
-          providerStreaming: stream
+          jobId: submitted.jobId,
+          reservationId: submitted.reservation.reservationId,
+          providerStreaming: submitted.providerStreaming
         };
         enqueuedSlots.push(enqueuedSlot);
         await this.repository.updateRun(setId, runId, targetRun => {
           const targetSlot = targetRun.slots.find(item => item.id === slot.id);
           if (!targetSlot) return;
-          targetSlot.jobId ||= jobId;
-          targetSlot.reservationId ||= reservationResult.reservation.reservationId;
+          targetSlot.jobId ||= submitted.jobId;
+          targetSlot.reservationId ||= submitted.reservation.reservationId;
         });
       }
       const run = await this.repository.updateRun(setId, runId, targetRun => {
@@ -210,9 +215,6 @@ export class ComparisonOrchestrator {
       });
       return this.createResponse(created.set, run, false, enqueuedSlots);
     } catch (error) {
-      await Promise.all(enqueuedSlots.map(item => this.creditReservation.refundForJob({
-        userId, reservationId: item.reservationId, jobId: item.jobId, reasonCode: 'comparison_enqueue_failed'
-      }).catch(() => {})));
       await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.status = enqueuedSlots.length > 0 ? 'partially_completed' : 'failed';
         targetRun.slots.filter(slot => !slot.jobId).forEach(slot => {
@@ -315,7 +317,7 @@ export class ComparisonOrchestrator {
         .map(item => [comparisonSlotKey(item.comparisonRunId, item.comparisonSlotId), item])
     );
     const statuses = await Promise.all(run.slots.map(slot =>
-      slot.jobId ? this.queueManager.getJobStatus(slot.jobId) : null
+      slot.jobId ? this.generationApplicationService.getJobStatus(slot.jobId) : null
     ));
     const lostSlots = run.slots.filter((slot, index) =>
       slot.jobId

@@ -61,6 +61,7 @@ import {
 } from '../../features/credits/api/creditApi';
 import { CreditExhaustedDialog } from '../../features/credits/components/CreditExhaustedDialog';
 import { queryKeys } from '../../lib/api/queryKeys';
+import { pollingPolicy } from '../../lib/api/pollingPolicy';
 import { ApiError } from '../../lib/api/apiError';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 
@@ -413,14 +414,16 @@ export function GenerationExperience({
   });
   const job = useGenerationJob(jobId);
   const comparisonResult = useQuery({
-    queryKey: ['comparison', actor?.userId || 'loading', comparisonSetId],
+    queryKey: queryKeys.comparison(actor?.userId || 'loading', comparisonSetId),
     queryFn: ({ signal }) => {
       if (!comparisonSetId) throw new Error('A comparison set ID is required.');
       return getComparison(comparisonSetId, signal);
     },
     enabled: Boolean(comparisonSetId && actor),
     refetchInterval: query => {
-      return comparisonNeedsPolling(comparisonSetId, query.state.data) ? 1400 : false;
+      return pollingPolicy.comparison(
+        comparisonNeedsPolling(comparisonSetId, query.state.data)
+      );
     }
   });
   const comparisonRun = newestComparisonRun(comparisonResult.data);
@@ -432,11 +435,11 @@ export function GenerationExperience({
     },
     onSuccess: updatedComparison => {
       queryClient.setQueryData(
-        ['comparison', actor?.userId || 'loading', comparisonSetId],
+        queryKeys.comparison(actor?.userId || 'loading', comparisonSetId),
         updatedComparison
       );
       void queryClient.invalidateQueries({
-        queryKey: ['comparisons', actor?.userId || 'loading']
+        queryKey: queryKeys.comparisons(actor?.userId || 'loading')
       });
     }
   });
@@ -444,7 +447,7 @@ export function GenerationExperience({
     mutationFn: () => grantMockCredits(100),
     onSuccess: response => {
       queryClient.setQueryData(queryKeys.credits(actorId), response);
-      void queryClient.invalidateQueries({ queryKey: ['credit-ledger', actorId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.creditLedger(actorId) });
       void queryClient.invalidateQueries({ queryKey: ['generation-estimate', actorId] });
       void queryClient.invalidateQueries({ queryKey: ['comparison-estimate', actorId] });
       setCreditDialogOpen(false);

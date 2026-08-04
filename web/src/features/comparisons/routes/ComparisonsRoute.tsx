@@ -7,6 +7,7 @@ import { Surface } from '../../../components/ui/Surface';
 import { listComparisons } from '../api/comparisonApi';
 import { createReturnNavigationState } from '../../../lib/navigation/returnNavigation';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { queryKeys } from '../../../lib/api/queryKeys';
 import {
   ComparisonThumbnailGrid,
   comparisonThumbnailProfileId
@@ -18,7 +19,7 @@ export function ComparisonsRoute() {
   const actorId = actor?.userId || 'loading';
   const location = useLocation();
   const comparisons = useInfiniteQuery({
-    queryKey: ['comparisons', actorId],
+    queryKey: queryKeys.comparisons(actorId),
     queryFn: ({ pageParam }) => listComparisons(pageParam),
     enabled: Boolean(actor),
     initialPageParam: null as string | null,

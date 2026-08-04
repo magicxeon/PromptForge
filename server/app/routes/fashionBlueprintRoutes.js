@@ -6,6 +6,7 @@ import { FashionRunService } from '../../domain/fashion-blueprint/FashionRunServ
 export function registerFashionBlueprintRoutes(app, {
   providerRegistry,
   queueManager,
+  generationApplicationService,
   templatePoseProxyService
 }) {
   const blueprintService = new FashionBlueprintService({ providerRegistry });
@@ -14,7 +15,12 @@ export function registerFashionBlueprintRoutes(app, {
     providerRegistry,
     templatePoseProxyService
   });
-  const runService = new FashionRunService({ quoteService, providerRegistry, queueManager });
+  const runService = new FashionRunService({
+    quoteService,
+    providerRegistry,
+    queueManager,
+    generationApplicationService
+  });
 
   app.post('/api/fashion-blueprints/assets', async (req, res) => {
     try {

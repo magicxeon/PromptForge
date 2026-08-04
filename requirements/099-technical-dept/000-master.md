@@ -79,6 +79,8 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Capability-oriented HTTP endpoints | `server/app/routes/` |
 | Shared route error translation | `server/app/` |
 | Business rules and orchestration | `server/domain/<capability>/` |
+| Credit workflow facade and internal Credit policy | `server/domain/credits/CreditApplicationService.js`, `server/domain/credits/` |
+| Generation submission facade and Queue lifecycle | `server/domain/generation/GenerationApplicationService.js`, `server/domain/generation/QueueManager.js` |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
@@ -87,6 +89,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
 | Cross-workflow correlation context, sanitized trace events and support trace lookup | `server/middleware/`, `server/domain/observability/`, `server/repositories/observability/`, `server/data/observability/` |
+| Bounded process-local performance timing and slow-request measurement | `server/domain/observability/PerformanceTelemetry.js`, `server/middleware/requestPerformanceMiddleware.js` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
 | Request actor/security middleware | `server/middleware/` |
@@ -112,6 +115,7 @@ Server placement rules:
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
+| Actor-aware query keys and shared polling policy | `web/src/lib/api/queryKeys.ts`, `web/src/lib/api/pollingPolicy.ts` |
 | Request/correlation propagation and safe support references | `web/src/lib/api/`, `web/src/lib/telemetry/` |
 | Semantic theme resolution and actor preference | `web/src/lib/theme/`, `web/src/styles/themes.css` |
 | Actor-scoped draft and handoff persistence | `web/src/lib/persistence/` |

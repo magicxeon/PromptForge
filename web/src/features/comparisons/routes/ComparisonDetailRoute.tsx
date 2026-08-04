@@ -23,6 +23,8 @@ import {
   comparisonRunStatus,
   newestComparisonRun
 } from '../comparisonRunState';
+import { queryKeys } from '../../../lib/api/queryKeys';
+import { pollingPolicy } from '../../../lib/api/pollingPolicy';
 
 export function ComparisonDetailRoute() {
   const { t } = useTranslation('react-ui');
@@ -34,29 +36,31 @@ export function ComparisonDetailRoute() {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState('');
   const comparison = useQuery({
-    queryKey: ['comparison', actorId, setId],
+    queryKey: queryKeys.comparison(actorId, setId),
     queryFn: () => getComparison(setId),
     enabled: Boolean(setId && actor),
     refetchInterval: query => {
-      return comparisonNeedsPolling(setId, query.state.data) ? 1500 : false;
+      return pollingPolicy.comparison(comparisonNeedsPolling(setId, query.state.data));
     }
   });
   const winner = useMutation({
     mutationFn: (jobId: string | null) => setComparisonWinner(setId, jobId),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['comparison', actorId, setId] })
+    onSuccess: () => void queryClient.invalidateQueries({
+      queryKey: queryKeys.comparison(actorId, setId)
+    })
   });
   const rename = useMutation({
     mutationFn: (nextName: string) => updateComparison(setId, { name: nextName }),
     onSuccess: updated => {
-      queryClient.setQueryData(['comparison', actorId, setId], updated);
-      void queryClient.invalidateQueries({ queryKey: ['comparisons', actorId] });
+      queryClient.setQueryData(queryKeys.comparison(actorId, setId), updated);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comparisons(actorId) });
       setEditingName(false);
     }
   });
   const remove = useMutation({
     mutationFn: () => deleteComparison(setId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['comparisons', actorId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.comparisons(actorId) });
       navigate('/comparisons');
     }
   });

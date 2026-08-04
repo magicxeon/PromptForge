@@ -14,7 +14,22 @@ export default defineConfig({
   },
   build: {
     assetsDir: 'react-assets',
-    sourcemap: false
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/.test(id)) {
+            return 'react-vendor';
+          }
+          if (id.includes('@tanstack/react-query')) return 'query-vendor';
+          if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'ui-vendor';
+          if (id.includes('i18next')) return 'i18n-vendor';
+          if (id.includes('react-hook-form') || id.includes('@hookform')) return 'forms-vendor';
+          return 'vendor';
+        }
+      }
+    }
   },
   server: {
     port: 5173,
