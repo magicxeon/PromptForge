@@ -22,6 +22,12 @@ const groupsByMode: Record<GuidedStudioMode, ReadonlySet<string>> = {
   scene: new Set(['Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Fashion Direction', 'Scene Story', 'Photographic Context', 'Pose', 'Environment', 'Lighting', 'Camera', 'Quality'])
 };
 
+const hiddenSceneAuthoringGroups = new Set([
+  'Fashion Direction',
+  'Scene Story',
+  'Photographic Context'
+]);
+
 export function visibleStudioGroups(
   groups: AttributeGroup[],
   mode: GuidedStudioMode,
@@ -29,6 +35,7 @@ export function visibleStudioGroups(
 ) {
   const visible = groups.filter(group =>
     groupsByMode[mode].has(group.group)
+    && !(mode === 'scene' && hiddenSceneAuthoringGroups.has(group.group))
     && group.group !== 'NSFW'
     && !(mode === 'character-sheet'
       && characterType === 'reusable_model'

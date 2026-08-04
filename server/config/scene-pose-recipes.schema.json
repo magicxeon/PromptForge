@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Momelo Scene Pose Recipe Catalog",
+  "type": "object",
+  "required": ["schemaVersion", "catalogVersion", "recipes"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "catalogVersion": { "type": "string", "minLength": 1 },
+    "recipes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "version", "purpose", "label", "description", "bestFor", "fieldSelections", "enabled"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^scene-pose\\." },
+          "version": { "type": "integer", "minimum": 1 },
+          "purpose": { "enum": ["ecommerce", "lookbook", "editorial", "campaign", "lifestyle", "runway"] },
+          "label": { "$ref": "#/$defs/localizedText" },
+          "description": { "$ref": "#/$defs/localizedText" },
+          "bestFor": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "fieldSelections": {
+            "type": "object",
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          },
+          "enabled": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "localizedText": {
+      "type": "object",
+      "required": ["en", "th"],
+      "properties": {
+        "en": { "type": "string", "minLength": 1 },
+        "th": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

@@ -110,12 +110,35 @@ export const comparisonSubmitSchema = z.object({
   }).passthrough()).default([])
 }).passthrough();
 
+const localizedSceneRecipeTextSchema = z.object({
+  en: z.string(),
+  th: z.string()
+}).passthrough();
+
+export const scenePoseRecipeSchema = z.object({
+  id: z.string(),
+  version: z.number().int().positive(),
+  purpose: z.string(),
+  label: localizedSceneRecipeTextSchema,
+  description: localizedSceneRecipeTextSchema,
+  bestFor: z.array(z.string()).default([]),
+  fieldSelections: z.record(z.string(), z.string()),
+  enabled: z.boolean().default(true)
+}).passthrough();
+
+const scenePoseRecipeCatalogSchema = z.object({
+  schemaVersion: z.number().int().positive(),
+  catalogVersion: z.string(),
+  recipes: z.array(scenePoseRecipeSchema).default([])
+}).passthrough();
+
 export const attributesBundleSchema = z.object({
   schema: z.unknown(),
   templates: z.unknown(),
   order: z.array(z.string()).default([]),
   library: z.array(z.record(z.string(), z.unknown())).default([]),
   presets: z.unknown(),
+  scenePoseRecipes: scenePoseRecipeCatalogSchema.optional(),
   inputPolicy: z.object({
     schemaVersion: z.number(),
     customAttribute: z.object({
@@ -188,4 +211,5 @@ export type CreditEstimateResponse = z.infer<typeof creditEstimateResponseSchema
 export type JobStatus = z.infer<typeof jobStatusSchema>;
 export type ComparisonEstimate = z.infer<typeof comparisonEstimateSchema>;
 export type ReferenceAuthorityProjection = z.infer<typeof referenceAuthorityProjectionSchema>;
+export type ScenePoseRecipe = z.infer<typeof scenePoseRecipeSchema>;
 export type ReferenceProcessingPreview = z.infer<typeof referenceProcessingPreviewSchema>;

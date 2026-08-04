@@ -6,25 +6,29 @@ export function StudioConfiguratorActions({
   onReset,
   onRandomize,
   onExport,
-  randomizeDisabled = false
+  randomizeDisabled = false,
+  showRandomize = true,
+  showExport = true
 }: {
   onReset: () => void;
   onRandomize: () => void;
   onExport: () => void;
   randomizeDisabled?: boolean;
+  showRandomize?: boolean;
+  showExport?: boolean;
 }) {
   const { t } = useTranslation('react-ui');
   return (
-    <div className="studio-configurator-actions">
-      <Button
+    <div className={`studio-configurator-actions${!showRandomize && !showExport ? ' is-single' : ''}`}>
+      {showRandomize ? <Button
         size="sm"
         variant="ghost"
         icon={<RotateCcw aria-hidden="true" />}
         onClick={onReset}
       >
         {t('ui.studio.reset')}
-      </Button>
-      <Button
+      </Button> : null}
+      {showExport ? <Button
         size="sm"
         variant="secondary"
         icon={<Dices aria-hidden="true" />}
@@ -32,7 +36,7 @@ export function StudioConfiguratorActions({
         onClick={onRandomize}
       >
         {t('ui.studio.surprise')}
-      </Button>
+      </Button> : null}
       <Button
         size="sm"
         variant="secondary"

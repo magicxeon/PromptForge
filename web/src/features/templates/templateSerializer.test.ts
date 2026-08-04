@@ -23,7 +23,10 @@ describe('Template serializer', () => {
       selections: { Environment: selection },
       customColors: createStudioCustomColors(),
       references: { character_reference: '/outputs/job_character.png' },
-      additionalDirection: 'private creator formula'
+      additionalDirection: 'private creator formula',
+      poseControlMode: 'simple',
+      scenePoseRecipeId: 'scene-pose.clean-front-display',
+      scenePoseRecipeVersion: 1
     });
 
     expect(snapshot.replaceableVariables.some(item => item.sourceFieldName === 'Environment')).toBe(true);
@@ -31,6 +34,8 @@ describe('Template serializer', () => {
       item => item.sourceFieldName === 'additionalDirectionSnapshot'
     )).toBe(false);
     expect(snapshot.additionalDirectionSnapshot).toBe('private creator formula');
+    expect(snapshot.poseControlMode).toBe('simple');
+    expect(snapshot.scenePoseRecipeId).toBe('scene-pose.clean-front-display');
     expect(snapshot.referenceSlotMapping.character_reference?.value).toBe('/outputs/job_character.png');
 
     const replacements = buildTemplateReplacements({

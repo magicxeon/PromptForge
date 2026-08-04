@@ -3,7 +3,25 @@
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
 **Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `009-fashion-model-qualification-and-routing-optimization.md`, `../011-reference-processing-pipeline`, `../008-implement-adjusment-ui/014-global-route-inventory-and-target-information-architecture.md`, `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`  
 **Required skill:** `skills/design-professional-scene-prompts/SKILL.md`  
-**Status:** Partially implemented; recipe/accordion and credit-presentation completion pending
+**Status:** Partially implemented; Simple/Pro recipe and accordion experience completed 2026-08-04, credit-presentation and visual qualification remain
+
+**Implementation checkpoint (2026-08-04):**
+
+- server-owned recipe catalog: `server/config/scene-pose-recipes.json`;
+- public catalog delivery: `/api/attributes/bundle.scenePoseRecipes`;
+- canonical client resolver: `web/src/features/scene-builder/scenePoseRecipeModel.ts`;
+- reusable mode/recipe UI: `web/src/features/scene-builder/components/ScenePoseControlPanel.tsx`;
+- one-open accordion and Next behavior: shared `GuidedAttributeForm` parameters;
+- Face Creator and Character Sheet opt into the same one-open accordion and
+  Next behavior so all three Studio flows use one interaction pattern;
+- actor draft schema: version 2 with version 1 migration;
+- Template snapshots retain `poseControlMode`, recipe ID and recipe version;
+- Scene-only Surprise and Export actions are hidden through shared component flags;
+- all six MVP recipes resolve to enabled canonical attribute IDs.
+
+This checkpoint does not mark the full requirement complete. Phase C visual
+qualification, compatibility warning reason codes and Phase E credit
+presentation remain open.
 
 ## 1. Business Requirement
 
@@ -92,6 +110,130 @@ The professional recipe fills compatible Expression nuance, story beat,
 photographic context, lighting, camera and quality defaults. A user selection
 always has higher authority than a recipe default unless a Reference or
 Template contract owns that field.
+
+### 3.1 Simple and Pro Controls
+
+Guided Scene authoring has two pose-control levels backed by the same canonical
+selection, recipe and generation pipeline:
+
+```text
+Simple
+-> select a visual professional setup
+-> apply compatible pose, hands, gaze, environment, lighting and camera
+-> generate immediately
+
+Pro Controls
+-> begin with the same setup
+-> expose bounded attribute controls for detailed refinement
+-> resolve through the same canonical prompt compiler
+```
+
+The runtime values are `simple | advanced`. Customer-facing English copy uses
+`Simple` and `Pro Controls`; Thai copy must communicate the same distinction
+without implying that Simple produces lower-quality output.
+
+Simple is the default for new Scene drafts. It must:
+
+- present a compact segmented mode control and visual professional setup cards;
+- describe the commercial purpose, recommended subject/product and framing of
+  each setup in plain language;
+- apply a versioned setup containing Fashion purpose, Pose Intent, hand
+  placement, gaze, Environment, Lighting and Camera defaults together;
+- keep identity, Character, Outfit and Template/Reference authority outside the
+  setup and never overwrite them;
+- apply only fields the active Template allows the customer to replace;
+- show when retained Pro adjustments make the current values differ from the
+  selected setup;
+- permit generation without opening raw biomechanics or camera controls.
+
+Pro Controls must:
+
+- start from the currently selected Simple setup rather than an empty form;
+- expose the relevant Character, styling, Pose, Environment, Lighting, Camera,
+  Quality and Additional Direction controls;
+- keep internal mechanics such as exact joint angles, center of mass and pelvis
+  rotation inside the recipe/resolver for MVP;
+- retain user changes when switching back to Simple;
+- show a compatibility warning instead of silently replacing a meaningful
+  explicit choice when a later resolver adjustment is required.
+
+Switching Simple to Pro expands the resolved selections without changing them.
+Switching Pro to Simple does not reset advanced values. If the active selections
+no longer match the base setup, the UI identifies them as retained professional
+adjustments. Selecting a setup card again explicitly reapplies that setup.
+
+The two control levels terminate in one contract:
+
+```text
+Simple setup selection -> ScenePoseRecipe + selections -> ResolvedPoseSpec
+Pro refinements         -> ScenePoseRecipe + overrides  -> ResolvedPoseSpec
+```
+
+They must not create separate credit estimates, queues, prompt compilers,
+provider calls or Template serializers.
+
+### 3.2 Pose and Camera Setup Contract
+
+Simple setups combine pose and camera because a professional pose is not
+independent of framing and viewpoint. The versioned public setup data contains:
+
+```text
+id
+schemaVersion
+version
+purpose
+label and description
+bestFor[]
+fieldSelections
+  Fashion Direction
+  Pose Intent
+  Fashion Hand Position
+  Fashion Gaze
+  Fashion Venue
+  Lighting Setup
+  Framing
+  Focal Length
+  Perspective
+  Composition
+enabled
+```
+
+Setup values reference canonical Attribute option IDs. They do not copy prompt
+fragments into React. The server-owned Attribute Bundle publishes the setup
+catalog, React resolves IDs against the loaded Attribute library, and the
+canonical server compiler remains authoritative.
+
+Initial MVP setups:
+
+```text
+Clean Front Display
+Relaxed Three-quarter
+Natural Creator Reveal
+Refined Lookbook Pause
+Back Garment View
+Editorial Fabric Motion
+```
+
+Every full-body setup uses full-body-safe framing, complete footwear visibility
+and margin appropriate to stillness or movement. A back-view setup must not
+claim direct facial visibility. Editorial setups may use stronger asymmetry but
+must continue to preserve Character identity, garment construction and anatomy.
+
+### 3.3 Persistence and Template Compatibility
+
+Actor-scoped Scene drafts persist:
+
+```text
+poseControlMode: simple | advanced
+scenePoseRecipeId
+scenePoseRecipeVersion
+```
+
+Reusable Scene snapshots persist the same metadata alongside their immutable
+resolved structured selections. Historical snapshots without these fields
+hydrate as Pro Controls with no selected setup and preserve their existing
+selections. A loaded Template never becomes editable merely because the user
+changes control level.
 
 ## 4. Scene Direction Recipe
 

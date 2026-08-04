@@ -22,6 +22,9 @@ export const replaceableVariableSchema = z.object({
 export const sceneTemplateSnapshotSchema = z.object({
   sceneTemplateVersion: z.number().default(1),
   authoringMode: z.enum(['guided', 'manual']).default('guided'),
+  poseControlMode: z.enum(['simple', 'advanced']).optional(),
+  scenePoseRecipeId: z.string().nullable().optional(),
+  scenePoseRecipeVersion: z.number().int().positive().nullable().optional(),
   finalPromptSnapshot: z.string().default(''),
   structuredSelectionsSnapshot: z.record(z.string(), z.unknown()).default({}),
   manualPromptSnapshot: z.string().default(''),

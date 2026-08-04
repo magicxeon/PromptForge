@@ -404,6 +404,8 @@ export function StudioRoute() {
             references={compatibleReferences}
             authorityProjection={referenceAuthority}
             lockedFields={lockedFields}
+            singleOpen
+            showNextActions
             onLockChange={(fieldName, locked) => {
               setLockedFields(current => locked
                 ? [...new Set([...current, fieldName])]

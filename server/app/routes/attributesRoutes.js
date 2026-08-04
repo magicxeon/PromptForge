@@ -48,12 +48,17 @@ export function createAttributesBundleLoader() {
       const templatesRaw = await fs.readFile(path.join(attributesDir, 'spec/prompt-templates.json'), 'utf-8');
       const orderRaw = await fs.readFile(path.join(attributesDir, 'spec/prompt-order.json'), 'utf-8');
       const presetsRaw = await fs.readFile(path.join(attributesDir, 'spec/presets.json'), 'utf-8');
+      const scenePoseRecipesRaw = await fs.readFile(
+        path.join(PROJECT_ROOT, 'server/config/scene-pose-recipes.json'),
+        'utf-8'
+      );
 
       const schema = JSON.parse(schemaRaw);
       const templates = JSON.parse(templatesRaw);
       const orderData = JSON.parse(orderRaw);
       const order = orderData.order;
       const presets = JSON.parse(presetsRaw);
+      const scenePoseRecipes = validateScenePoseRecipes(JSON.parse(scenePoseRecipesRaw));
 
       const library = [];
       for (const file of ATTRIBUTE_FILES) {
@@ -73,6 +78,7 @@ export function createAttributesBundleLoader() {
         order,
         library,
         presets,
+        scenePoseRecipes,
         inputPolicy: getPublicGenerationInputPolicy()
       };
 
@@ -86,6 +92,34 @@ export function createAttributesBundleLoader() {
       throw err;
     }
   };
+}
+
+function validateScenePoseRecipes(catalog) {
+  if (!catalog || !Number.isInteger(catalog.schemaVersion) || !Array.isArray(catalog.recipes)) {
+    throw new Error('Scene Pose recipe catalog is invalid.');
+  }
+  const ids = new Set();
+  for (const recipe of catalog.recipes) {
+    if (
+      !recipe
+      || typeof recipe.id !== 'string'
+      || !recipe.id.startsWith('scene-pose.')
+      || !Number.isInteger(recipe.version)
+      || !recipe.label?.en
+      || !recipe.label?.th
+      || !recipe.description?.en
+      || !recipe.description?.th
+      || !recipe.fieldSelections
+      || typeof recipe.fieldSelections !== 'object'
+    ) {
+      throw new Error(`Scene Pose recipe '${recipe?.id || 'unknown'}' is invalid.`);
+    }
+    if (ids.has(recipe.id)) {
+      throw new Error(`Duplicate Scene Pose recipe '${recipe.id}'.`);
+    }
+    ids.add(recipe.id);
+  }
+  return catalog;
 }
 
 export function registerAttributesRoutes(app, { providerRegistry, getAttributesBundle }) {

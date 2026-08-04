@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026-08-mvp-1",
+  "recipes": [
+    {
+      "id": "scene-pose.clean-front-display",
+      "version": 1,
+      "purpose": "ecommerce",
+      "label": { "en": "Clean Front Display", "th": "ยืนตรงโชว์สินค้าชัดเจน" },
+      "description": { "en": "A clean full-body selling view with unobstructed garment details.", "th": "ภาพขายสินค้าเต็มตัวที่เห็นทรงและรายละเอียดชุดโดยไม่ถูกบัง" },
+      "bestFor": ["tops", "bottoms", "dresses", "complete outfits"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.marketplace",
+        "Pose Intent": "pose.fashion.front-product",
+        "Fashion Hand Position": "pose.hand.clear",
+        "Fashion Gaze": "pose.gaze.selling",
+        "Fashion Venue": "environment.fashion.seamless",
+        "Lighting Setup": "lighting.fashion.ecommerce",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_01",
+        "Perspective": "camera.perspective_01",
+        "Composition": "camera.composition_02"
+      },
+      "enabled": true
+    },
+    {
+      "id": "scene-pose.relaxed-three-quarter",
+      "version": 1,
+      "purpose": "ecommerce",
+      "label": { "en": "Relaxed Three-quarter", "th": "ยืนสามส่วนสี่แบบผ่อนคลาย" },
+      "description": { "en": "Shows front construction and side silhouette with natural depth.", "th": "เห็นทั้งโครงสร้างด้านหน้าและซิลูเอตด้านข้างอย่างเป็นธรรมชาติ" },
+      "bestFor": ["tailoring", "layered outfits", "dresses"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.marketplace",
+        "Pose Intent": "pose.fashion.three-quarter",
+        "Fashion Hand Position": "pose.hand.clear",
+        "Fashion Gaze": "pose.gaze.soft",
+        "Fashion Venue": "environment.fashion.product-corner",
+        "Lighting Setup": "lighting.fashion.high-key",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_02",
+        "Perspective": "camera.perspective_01",
+        "Composition": "camera.composition_01"
+      },
+      "enabled": true
+    },
+    {
+      "id": "scene-pose.creator-reveal",
+      "version": 1,
+      "purpose": "lifestyle",
+      "label": { "en": "Natural Creator Reveal", "th": "เปิดตัวลุคแบบครีเอเตอร์" },
+      "description": { "en": "An engaging mobile-ready fashion reveal with approachable energy.", "th": "เปิดตัวชุดอย่างเป็นธรรมชาติ เหมาะกับภาพครีเอเตอร์และโซเชียล" },
+      "bestFor": ["social commerce", "creator content", "casual outfits"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.social",
+        "Pose Intent": "pose.fashion.creator-reveal",
+        "Fashion Hand Position": "pose.hand.clear",
+        "Fashion Gaze": "pose.gaze.selling",
+        "Fashion Venue": "environment.fashion.creator",
+        "Lighting Setup": "lighting.fashion.creator-window",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_01",
+        "Perspective": "camera.perspective_01",
+        "Composition": "camera.composition_01"
+      },
+      "enabled": true
+    },
+    {
+      "id": "scene-pose.refined-lookbook-pause",
+      "version": 1,
+      "purpose": "lookbook",
+      "label": { "en": "Refined Lookbook Pause", "th": "หยุดโพสลุคบุ๊กอย่างประณีต" },
+      "description": { "en": "A controlled weight shift with a polished full-look silhouette.", "th": "ถ่ายน้ำหนักอย่างควบคุมเพื่อให้ลุคเต็มตัวดูประณีตและมีมิติ" },
+      "bestFor": ["lookbooks", "collections", "premium outfits"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.lookbook",
+        "Pose Intent": "pose.fashion.weight-shift",
+        "Fashion Hand Position": "pose.hand.clear",
+        "Fashion Gaze": "pose.gaze.soft",
+        "Fashion Venue": "environment.fashion.gallery",
+        "Lighting Setup": "lighting.fashion.lookbook",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_02",
+        "Perspective": "camera.perspective_01",
+        "Composition": "camera.composition_01"
+      },
+      "enabled": true
+    },
+    {
+      "id": "scene-pose.back-garment-view",
+      "version": 1,
+      "purpose": "ecommerce",
+      "label": { "en": "Back Garment View", "th": "หันหลังโชว์รายละเอียดชุด" },
+      "description": { "en": "A clear rear view that prioritizes back construction over facial visibility.", "th": "มุมด้านหลังที่ให้รายละเอียดโครงสร้างชุดสำคัญกว่าการมองเห็นใบหน้า" },
+      "bestFor": ["back closures", "back prints", "rear tailoring"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.marketplace",
+        "Pose Intent": "pose.fashion.back",
+        "Fashion Hand Position": "pose.hand.clear",
+        "Fashion Venue": "environment.fashion.seamless",
+        "Lighting Setup": "lighting.fashion.ecommerce",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_01",
+        "Perspective": "camera.perspective_01",
+        "Composition": "camera.composition_02"
+      },
+      "enabled": true
+    },
+    {
+      "id": "scene-pose.editorial-fabric-motion",
+      "version": 1,
+      "purpose": "editorial",
+      "label": { "en": "Editorial Fabric Motion", "th": "ผ้าเคลื่อนไหวแบบเอดิทอเรียล" },
+      "description": { "en": "Controlled movement, directional gaze and graphic architectural framing.", "th": "การเคลื่อนไหวที่ควบคุม พร้อมสายตาและองค์ประกอบสถาปัตยกรรมที่เด่นชัด" },
+      "bestFor": ["editorials", "campaigns", "flowing garments"],
+      "fieldSelections": {
+        "Fashion Direction": "fashion.editorial",
+        "Pose Intent": "pose.fashion.fabric-motion",
+        "Fashion Hand Position": "pose.hand.editorial",
+        "Fashion Gaze": "pose.gaze.editorial",
+        "Fashion Venue": "environment.fashion.brutalist",
+        "Lighting Setup": "lighting.fashion.hard-editorial",
+        "Framing": "camera.framing_06",
+        "Focal Length": "camera.focal_02",
+        "Perspective": "camera.perspective_02",
+        "Composition": "camera.composition_01"
+      },
+      "enabled": true
+    }
+  ]
+}

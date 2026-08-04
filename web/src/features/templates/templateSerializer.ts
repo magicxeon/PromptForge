@@ -23,6 +23,9 @@ export function buildSceneTemplateSnapshot(input: {
   customColors: StudioCustomColors;
   references: Partial<Record<GenerationReferenceRole, string>>;
   additionalDirection?: string;
+  poseControlMode?: 'simple' | 'advanced';
+  scenePoseRecipeId?: string | null;
+  scenePoseRecipeVersion?: number | null;
 }): SceneTemplateSnapshot {
   const variables = input.authoringMode === 'guided'
     ? Object.entries(input.selections).map(([fieldName, selection]) => ({
@@ -72,6 +75,9 @@ export function buildSceneTemplateSnapshot(input: {
   return {
     sceneTemplateVersion: 1,
     authoringMode: input.authoringMode,
+    poseControlMode: input.poseControlMode,
+    scenePoseRecipeId: input.scenePoseRecipeId,
+    scenePoseRecipeVersion: input.scenePoseRecipeVersion,
     finalPromptSnapshot: input.finalPrompt,
     structuredSelectionsSnapshot: input.authoringMode === 'guided' ? input.selections : {},
     manualPromptSnapshot: input.authoringMode === 'manual' ? input.finalPrompt : '',

@@ -33,6 +33,7 @@ import {
 import { requestSharedSceneTemplate } from '../api/sceneTemplateApi';
 import { HistoryReferencePicker } from '../components/HistoryReferencePicker';
 import { SharedTemplatePanel } from '../components/SharedTemplatePanel';
+import { ScenePoseControlPanel } from '../components/ScenePoseControlPanel';
 import type {
   SceneTemplateSnapshot,
   SharedTemplate,
@@ -70,10 +71,19 @@ import {
 import {
   getMissingTemplateReferenceRequirements
 } from '../templateReferenceRequirements';
+import {
+  applyScenePoseRecipe,
+  isScenePoseRecipeAdjusted,
+  normalizeScenePoseRecipes,
+  type ScenePoseControlMode
+} from '../scenePoseRecipeModel';
 
 type AuthoringMode = 'guided' | 'manual';
 const FEATURE = 'scene-builder';
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
+const SIMPLE_VISIBLE_GROUPS = new Set([
+  'Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Quality'
+]);
 
 export function SceneBuilderRoute() {
   const { t } = useTranslation('react-ui');
@@ -104,6 +114,12 @@ export function SceneBuilderRoute() {
   );
   const [additionalDirection, setAdditionalDirection] = useState(
     initialDraft.additionalDirection
+  );
+  const [poseControlMode, setPoseControlMode] = useState<ScenePoseControlMode>(
+    initialHandoff.snapshot?.poseControlMode || initialDraft.poseControlMode
+  );
+  const [scenePoseRecipeId, setScenePoseRecipeId] = useState<string | null>(
+    initialHandoff.snapshot?.scenePoseRecipeId || initialDraft.scenePoseRecipeId
   );
   const [snapshot, setSnapshot] = useState<SceneTemplateSnapshot | null>(initialHandoff.snapshot);
   const [templateUseContext, setTemplateUseContext] = useState<TemplateUseContext | null>(
@@ -136,6 +152,14 @@ export function SceneBuilderRoute() {
     ? `/profiles/${encodeURIComponent(ownCreatorProfile.data.handle)}`
     : null;
   const groups = useMemo(() => bundle.data ? normalizeAttributeGroups(bundle.data) : [], [bundle.data]);
+  const scenePoseRecipes = useMemo(
+    () => normalizeScenePoseRecipes(bundle.data?.scenePoseRecipes),
+    [bundle.data?.scenePoseRecipes]
+  );
+  const selectedScenePoseRecipe = useMemo(
+    () => scenePoseRecipes.find(recipe => recipe.id === scenePoseRecipeId) || null,
+    [scenePoseRecipeId, scenePoseRecipes]
+  );
   const sceneGroups = useMemo(
     () => visibleStudioGroups(groups, 'scene', 'styled_character'),
     [groups]
@@ -184,7 +208,10 @@ export function SceneBuilderRoute() {
     selections: generationGuidedSelections,
     customColors: effectiveCustomColors,
     references,
-    additionalDirection
+    additionalDirection,
+    poseControlMode,
+    scenePoseRecipeId,
+    scenePoseRecipeVersion: selectedScenePoseRecipe?.version || null
   }), [
     additionalDirection,
     effectiveCustomColors,
@@ -192,7 +219,10 @@ export function SceneBuilderRoute() {
     guidedPreview,
     manualPrompt,
     mode,
-    references
+    poseControlMode,
+    references,
+    scenePoseRecipeId,
+    selectedScenePoseRecipe?.version
   ]);
   const effectiveSnapshot = snapshot || authoredSnapshot;
   const useTemplate = useMutation({
@@ -205,6 +235,8 @@ export function SceneBuilderRoute() {
       setCharacterProfileContext(null);
       setFaceReferenceContext(null);
       setMode(next.snapshot.authoringMode);
+      setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
+      setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
       setSelections(next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>);
       setCustomColors(createStudioCustomColors(readSnapshotCustomColors(next.snapshot)));
       setManualPrompt(next.snapshot.manualPromptSnapshot || next.snapshot.finalPromptSnapshot || '');
@@ -237,6 +269,22 @@ export function SceneBuilderRoute() {
       : undefined,
     [templateUseContext]
   );
+  const blockedRecipeGroups = useMemo(
+    () => references.pose_reference ? new Set(['Pose']) : new Set<string>(),
+    [references.pose_reference]
+  );
+  const selectedRecipeAdjusted = useMemo(
+    () => selectedScenePoseRecipe
+      ? isScenePoseRecipeAdjusted(
+        selectedScenePoseRecipe,
+        selections,
+        editableTemplateFields,
+        blockedRecipeGroups,
+        groups
+      )
+      : false,
+    [blockedRecipeGroups, editableTemplateFields, groups, selectedScenePoseRecipe, selections]
+  );
   const templateReplacements = useMemo(
     () => templateUseContext
       ? buildTemplateReplacements({
@@ -260,6 +308,8 @@ export function SceneBuilderRoute() {
     setLockedFields(next.lockedFields);
     setCustomColors(createStudioCustomColors(next.customColors));
     setAdditionalDirection(next.additionalDirection);
+    setPoseControlMode(next.poseControlMode);
+    setScenePoseRecipeId(next.scenePoseRecipeId);
     setSnapshot(null);
     setTemplateUseContext(null);
     clearHandoff('scene-template');
@@ -279,6 +329,8 @@ export function SceneBuilderRoute() {
       setSnapshot(next.snapshot);
       setTemplateUseContext(next.templateUseContext);
       setMode(next.snapshot.authoringMode);
+      setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
+      setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
       setSelections(
         next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>
       );
@@ -314,6 +366,31 @@ export function SceneBuilderRoute() {
   }, [location.key]);
 
   useEffect(() => {
+    if (mode !== 'guided' || poseControlMode !== 'simple') return;
+    if (scenePoseRecipeId || !scenePoseRecipes.length || !groups.length) return;
+    const recipe = scenePoseRecipes[0];
+    if (!recipe) return;
+    const result = applyScenePoseRecipe({
+      recipe,
+      groups,
+      selections,
+      editableFields: editableTemplateFields,
+      blockedGroups: blockedRecipeGroups
+    });
+    setScenePoseRecipeId(recipe.id);
+    setSelections(result.selections);
+  }, [
+    blockedRecipeGroups,
+    editableTemplateFields,
+    groups,
+    mode,
+    poseControlMode,
+    scenePoseRecipeId,
+    scenePoseRecipes,
+    selections
+  ]);
+
+  useEffect(() => {
     if (!actor?.userId) return;
     writeActorScopedDraft({
       actorId: actor.userId,
@@ -325,10 +402,12 @@ export function SceneBuilderRoute() {
         selections,
         lockedFields,
         customColors,
-        additionalDirection
+        additionalDirection,
+        poseControlMode,
+        scenePoseRecipeId
       }
     });
-  }, [actor?.userId, additionalDirection, customColors, lockedFields, manualPrompt, mode, selections]);
+  }, [actor?.userId, additionalDirection, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections]);
 
   useEffect(() => {
     if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
@@ -434,6 +513,25 @@ export function SceneBuilderRoute() {
               clearHandoff('scene-template');
             }} /> : null}
             {mode === 'guided' ? <>
+            <ScenePoseControlPanel
+              mode={poseControlMode}
+              recipes={scenePoseRecipes}
+              selectedRecipeId={scenePoseRecipeId}
+              selectedRecipeAdjusted={selectedRecipeAdjusted}
+              onModeChange={setPoseControlMode}
+              onSelectRecipe={recipe => {
+                const result = applyScenePoseRecipe({
+                  recipe,
+                  groups,
+                  selections,
+                  editableFields: editableTemplateFields,
+                  blockedGroups: blockedRecipeGroups
+                });
+                setScenePoseRecipeId(recipe.id);
+                setSelections(result.selections);
+                if (!templateUseContext) setSnapshot(null);
+              }}
+            />
             <GuidedAttributeForm
               groups={groups}
               mode="scene"
@@ -446,6 +544,9 @@ export function SceneBuilderRoute() {
               characterOutfitBehavior={characterOutfitBehavior}
               lockedFields={lockedFields}
               editableFields={editableTemplateFields}
+              includedGroups={poseControlMode === 'simple' ? SIMPLE_VISIBLE_GROUPS : undefined}
+              singleOpen
+              showNextActions
               onLockChange={(fieldName, locked) => {
                 setLockedFields(current => locked
                   ? [...new Set([...current, fieldName])]
@@ -498,6 +599,8 @@ export function SceneBuilderRoute() {
               setLockedFields([]);
               setCustomColors(createStudioCustomColors());
               setAdditionalDirection('');
+              setPoseControlMode('simple');
+              setScenePoseRecipeId(null);
               setManualPrompt('');
               setSnapshot(null);
               setTemplateUseContext(null);
@@ -529,6 +632,8 @@ export function SceneBuilderRoute() {
               characterReferenceOutfitBehavior: characterOutfitBehavior,
               references: lightweightStudioReferences(references)
             })}
+            showRandomize={false}
+            showExport={false}
           />
         )}
         studioQueueExtra={(
@@ -552,6 +657,8 @@ function loadSceneDraft(actorId: string): {
   lockedFields: string[];
   customColors: StudioCustomColors;
   additionalDirection: string;
+  poseControlMode: ScenePoseControlMode;
+  scenePoseRecipeId: string | null;
 } {
   type SceneDraft = {
     mode: AuthoringMode;
@@ -560,6 +667,8 @@ function loadSceneDraft(actorId: string): {
     lockedFields?: string[];
     customColors?: Partial<StudioCustomColors>;
     additionalDirection?: string;
+    poseControlMode?: ScenePoseControlMode;
+    scenePoseRecipeId?: string | null;
   };
   const empty: SceneDraft = {
     mode: 'guided',
@@ -567,13 +676,26 @@ function loadSceneDraft(actorId: string): {
     selections: {},
     lockedFields: [],
     customColors: createStudioCustomColors(),
-    additionalDirection: ''
+    additionalDirection: '',
+    poseControlMode: 'simple',
+    scenePoseRecipeId: null
   };
   const parsed = readActorScopedDraft<SceneDraft>({
     actorId,
     feature: FEATURE,
     schemaVersion: SCHEMA_VERSION,
-    fallback: empty
+    fallback: empty,
+    migrate: envelope => {
+      const payload = envelope.payload;
+      if (!payload || typeof payload !== 'object') return null;
+      const legacy = payload as SceneDraft;
+      return {
+        ...empty,
+        ...legacy,
+        poseControlMode: Object.keys(legacy.selections || {}).length ? 'advanced' : 'simple',
+        scenePoseRecipeId: null
+      };
+    }
   });
   return {
     mode: parsed.mode === 'manual' ? 'manual' : 'guided',
@@ -587,7 +709,11 @@ function loadSceneDraft(actorId: string): {
       ? Array.from(parsed.additionalDirection)
         .slice(0, ADDITIONAL_DIRECTION_MAX_LENGTH)
         .join('')
-      : ''
+      : '',
+    poseControlMode: parsed.poseControlMode === 'advanced' ? 'advanced' : 'simple',
+    scenePoseRecipeId: typeof parsed.scenePoseRecipeId === 'string'
+      ? parsed.scenePoseRecipeId
+      : null
   };
 }
 
