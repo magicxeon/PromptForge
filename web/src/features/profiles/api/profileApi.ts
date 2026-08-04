@@ -6,6 +6,8 @@ import {
   characterHandoffSchema,
   ownerCharacterDetailSchema,
   characterWorksSchema,
+  characterFeaturedImageCandidatesSchema,
+  characterFeaturedImageUpdateSchema,
   creatorPageSchema,
   followResponseSchema
 } from '../schemas/profileSchemas';
@@ -116,6 +118,28 @@ export function updateMyCreatorProfile(input: {
 export function getCharacterWorks(characterId: string) {
   return apiRequest(`/api/community/characters/${encodeURIComponent(characterId)}/works?limit=12`, {
     schema: characterWorksSchema
+  });
+}
+
+export function getCharacterFeaturedImageCandidates(characterId: string) {
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/featured-image-candidates?limit=36`, {
+    schema: characterFeaturedImageCandidatesSchema
+  });
+}
+
+export function updateCharacterFeaturedImage(
+  characterId: string,
+  input: {
+    mode: 'auto' | 'manual';
+    sourceType?: 'generation_result' | 'community_post' | null;
+    sourceId?: string | null;
+    recordVersion: number;
+  }
+) {
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/featured-image`, {
+    method: 'PATCH',
+    body: input,
+    schema: characterFeaturedImageUpdateSchema
   });
 }
 

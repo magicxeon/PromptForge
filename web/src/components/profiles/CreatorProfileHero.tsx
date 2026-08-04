@@ -98,12 +98,17 @@ export function CreatorProfileHero({
 
         <div className="creator-profile-hero__actions">
           {viewer.canEditProfile ? (
-            <Button icon={<Pencil aria-hidden="true" />} onClick={onEdit}>
+            <Button
+              className="creator-profile-hero__action creator-profile-hero__action--secondary"
+              icon={<Pencil aria-hidden="true" />}
+              onClick={onEdit}
+            >
               {editLabel}
             </Button>
           ) : viewer.canFollow ? (
             <Button
               variant="primary"
+              className="creator-profile-hero__action creator-profile-hero__action--primary"
               icon={viewer.isFollowing
                 ? <UserRoundCheck aria-hidden="true" />
                 : <UserPlus aria-hidden="true" />}
@@ -113,7 +118,11 @@ export function CreatorProfileHero({
               {viewer.isFollowing ? followingLabel : followLabel}
             </Button>
           ) : null}
-          <Button icon={<Share2 aria-hidden="true" />} onClick={onShare}>
+          <Button
+            className="creator-profile-hero__action creator-profile-hero__action--secondary"
+            icon={<Share2 aria-hidden="true" />}
+            onClick={onShare}
+          >
             {shareLabel}
           </Button>
         </div>

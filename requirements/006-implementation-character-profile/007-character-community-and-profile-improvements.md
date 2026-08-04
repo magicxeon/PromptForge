@@ -1,7 +1,7 @@
 # Character Community and Profile Improvements
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Implemented - automated and browser validation pending
+**Status:** Implementation updated - dual-source featured-image controls validated
 
 ## 1. Business Requirement
 
@@ -112,6 +112,132 @@ PublicCharacterSummary
 
 `displayImageUrl` is for the visible card/hero. `thumbnailUrl` remains available
 for compact lists. Both URLs must be safe for a non-owner viewer.
+
+### 3.1 Owner-selected Featured Character Image
+
+The canonical Character identity asset and the public presentation image are
+separate concerns. Casting/Character Sheets remain the immutable identity
+reference used by generation. The featured image is presentation metadata only
+and never replaces the active Character version or generation handoff asset.
+
+Selection priority:
+
+```text
+1. eligible generation result explicitly selected by the Character owner
+2. eligible public Community work explicitly selected by the Character owner
+3. latest eligible result owned by the same owner as the Character
+4. eligible public Community work selected automatically by engagement
+5. approved casting front preview
+6. approved canonical Character/Casting Sheet
+7. neutral placeholder
+```
+
+Eligibility has exactly two paths:
+
+1. **Same-owner result:** the result belongs to the same durable owner as the
+   Character and its `characterProfileContext.characterProfileId` identifies
+   that Character. It does not need to be shared to Community.
+2. **Community result:** a result owned by another user is eligible only through
+   an active, moderation-visible public Community post whose source result is
+   attributed to that Character.
+
+Selecting a same-owner private result as the Character presentation image does
+not publish the original result as a Community post. When the Character itself
+is public, the server may stream only that selected image through the Character
+media boundary. The underlying History record, prompt, references, provider
+payload and owner-only metadata remain private.
+
+Persistence contract:
+
+```text
+CharacterProfile
+- featuredImageMode: auto | manual
+- featuredImageSourceType: generation_result | community_post | null
+- featuredGenerationResultId: string | null
+- featuredWorkPostId: string | null
+- recordVersion
+```
+
+Owner workflow:
+
+- the owner Character detail has a dedicated Featured Image candidate list;
+- that list combines same-owner Character results with eligible public
+  Community posts created by other users;
+- the public Creations tab remains Community-only and must not expose private
+  owner History;
+- owner-facing Character cards on Creator Profile link directly to the owner
+  detail so Featured Image settings are not hidden behind the public route;
+- `Use as featured image` stores a manual selection;
+- `Use automatic selection` clears the manual post ID and restores policy-based
+  selection;
+- same-owner History outputs are candidates without Community publication;
+- another user's output is never a candidate unless its active public Community
+  post is visible to the viewer;
+- non-owners never receive selection controls.
+
+Eligibility and fallback rules:
+
+- a same-owner result must belong to the Character owner;
+- every candidate generation result must contain
+  `characterProfileContext.characterProfileId` matching the Character;
+- a Community candidate may belong to another user, but only an active, public,
+  moderation-visible Community post is eligible;
+- the server validates eligibility again on every owner update;
+- when a selected result is removed, loses same-owner eligibility, or its source
+  Community post is retired, hidden, deleted or loses public eligibility, reads
+  fall back to automatic selection and then canonical media;
+- automatic selection first prefers work attributed to the active Character
+  version, then other work attributed to the same Character profile;
+- automatic ranking is deterministic: weighted engagement, then newest
+  `createdAt` as the tie breaker;
+- card, Character detail, Creator Profile Popular Character and Community
+  Character sections must consume the same server-resolved `displayImageUrl`;
+- changing the featured image invalidates Character directory/detail and Creator
+  Profile caches.
+
+HTTP contract:
+
+```text
+PATCH /api/character-profiles/:id/featured-image
+{
+  mode: auto | manual,
+  sourceType?: generation_result | community_post,
+  sourceId?: string | null,
+  recordVersion: number
+}
+```
+
+The update is owner-only and optimistic-concurrency protected. The response
+returns the new `recordVersion`, mode and normalized selected source; clients
+then refetch the canonical public/owner summaries.
+
+Owner-only candidate contract:
+
+```text
+GET /api/character-profiles/:id/featured-image-candidates
+
+FeaturedImageCandidate
+- id
+- sourceType: generation_result | community_post
+- sourceId
+- generationResultId
+- postId: string | null
+- ownership: owner | community
+- title
+- imageUrl
+- thumbnailUrl
+- createdAt
+```
+
+The public Character featured-image media endpoint resolves and revalidates the
+stored or automatic selection on every request. It never returns a raw private
+History contract.
+
+Owner-only candidate media must be loaded through the shared authenticated media
+client/component so the active actor header is attached. A native `<img src>`
+request must not point directly at a candidate media endpoint because browser
+image requests cannot attach the actor header and would resolve as the default
+actor. Public Character media may continue to use its public endpoint.
 
 ## 4. Public Media Correctness
 
@@ -275,6 +401,11 @@ Character Profile remains canonical. `CommunityCharacterRepository` is a
 discoverability projection and must not become a second owner of Character
 media or sharing policy.
 
+Creator Profile Character tabs must delegate to
+`CharacterProfileSharingService.listPublic` with creator/owner filters instead
+of independently rebuilding image URLs from the Community projection. This
+keeps featured-image priority and fallback behavior identical on every surface.
+
 For the MVP Character row, `CharacterProfileSharingService` may resolve featured
 work with one bounded public-post query and one batch generation-result lookup,
 then map `characterProfileContext.characterProfileId` to the requested profile
@@ -283,6 +414,28 @@ The commercial database phase may replace this with an indexed
 `community_post_character` relation without changing `PublicCharacterSummary`.
 
 ## 8. File-Level Implementation Plan
+
+### Current React implementation ownership
+
+The React migration supersedes the legacy `client/community/*.js` paths below.
+The featured-image implementation is owned by:
+
+```text
+server/domain/character-profiles/CharacterProfileSharingService.js
+server/domain/character-profiles/CharacterProfileService.js
+server/repositories/character-profiles/CharacterProfileRepository.js
+server/domain/community/CommunityGalleryService.js
+server/app/routes/characterProfileRoutes.js
+web/src/components/profiles/CharacterCard.tsx
+web/src/components/profiles/CharacterFeaturedImagePicker.tsx
+web/src/features/profiles/api/profileApi.ts
+web/src/features/profiles/schemas/profileSchemas.ts
+web/src/features/profiles/routes/CharacterProfileRoute.tsx
+client/i18n/locales/<locale>/character-profiles.json
+```
+
+Legacy paths retained in the historical plan are context only and must not
+receive new browser behavior.
 
 ### Modify
 

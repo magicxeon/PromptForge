@@ -32,7 +32,11 @@ export function buildCommunityPostPublicView(post = {}) {
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
     presentationUrls: (post.thumbnailUrl || post.imageUrl) ? {
-      templateCard: communityPresentationUrl(post.id, 'template-card-person-focus')
+      templateCard: communityPresentationUrl(post.id, 'template-card-person-focus'),
+      profileTemplateSquare: communityPresentationUrl(
+        post.id,
+        'profile-template-square-person-focus'
+      )
     } : {},
     officialTags: stringArray(post.officialTags),
     customTags: stringArray(post.customTags),

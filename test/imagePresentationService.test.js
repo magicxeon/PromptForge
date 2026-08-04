@@ -62,6 +62,16 @@ test('unknown presentation profiles fail closed', () => {
   );
 });
 
+test('Creator Profile Template presentation is square and uses Sharp attention', () => {
+  const profile = resolveImagePresentationProfile('profile-template-square-person-focus');
+
+  assert.equal(profile.width, 640);
+  assert.equal(profile.height, 640);
+  assert.equal(profile.fit, 'cover');
+  assert.equal(profile.positionStrategy, 'attention');
+  assert.equal(profile.format, 'webp');
+});
+
 test('comparison card profiles match each count-aware tile geometry', () => {
   const expected = {
     'comparison-card-1-person-focus': [864, 648],

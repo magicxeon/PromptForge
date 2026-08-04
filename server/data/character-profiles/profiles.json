@@ -14,7 +14,7 @@
     "activeVersionId": "charver_1785668757784_fv9uu7gi",
     "creatorProfileId": "creator_alice",
     "idempotencyKey": "react_character_profile_job_1785668499409_21viddhhw",
-    "recordVersion": 7,
+    "recordVersion": 12,
     "id": "charprof_1785668757771_4sv6c0pg",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
@@ -22,11 +22,15 @@
     "visibility": "public",
     "status": "approved",
     "createdAt": "2026-08-02T11:05:57.768Z",
-    "updatedAt": "2026-08-02T13:54:24.244Z",
+    "updatedAt": "2026-08-04T03:32:39.863Z",
     "deletedAt": null,
     "metadata": {},
     "rightsDeclarationVersion": null,
-    "rightsDeclarationAcceptedAt": null
+    "rightsDeclarationAcceptedAt": null,
+    "featuredImageMode": "manual",
+    "featuredWorkPostId": null,
+    "featuredImageSourceType": "generation_result",
+    "featuredGenerationResultId": "job_fashion_a7567066c521b3d64b_1"
   },
   {
     "ownerUsernameSnapshot": "user_alice",

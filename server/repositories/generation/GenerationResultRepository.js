@@ -33,6 +33,18 @@ export class GenerationResultRepository {
     );
   }
 
+  async findByCharacterProfileIds(profileIds = []) {
+    const requestedIds = new Set((Array.isArray(profileIds) ? profileIds : []).filter(Boolean));
+    if (!requestedIds.size) return [];
+    const historyItems = await this.historyStore.readAll();
+    const items = await Promise.all(
+      historyItems
+        .filter(item => requestedIds.has(item?.characterProfileContext?.characterProfileId))
+        .map(item => normalizeGenerationHistoryRecord(item, this.userRepository))
+    );
+    return items.sort((left, right) => generationTimestamp(right) - generationTimestamp(left));
+  }
+
   async findByOwner(ownerUserId, query = {}) {
     const owner = await this.userRepository.findById(ownerUserId);
     if (!owner) return createPage([]);
@@ -51,6 +63,13 @@ export class GenerationResultRepository {
     const result = await this.findById(id);
     return assertOwnerScope(result, ownerUserId);
   }
+}
+
+function generationTimestamp(item = {}) {
+  const value = Number(item.timestamp);
+  if (Number.isFinite(value)) return value;
+  const parsed = Date.parse(item.createdAt || item.updatedAt || '');
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export const generationResultRepo = new GenerationResultRepository();

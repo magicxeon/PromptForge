@@ -58,7 +58,8 @@ export const communityPostSchema = z.object({
   imageUrl: nullableText,
   thumbnailUrl: nullableText,
   presentationUrls: z.object({
-    templateCard: nullableText
+    templateCard: nullableText,
+    profileTemplateSquare: nullableText
   }).default({}),
   officialTags: z.array(z.string()).default([]),
   customTags: z.array(z.string()).default([]),

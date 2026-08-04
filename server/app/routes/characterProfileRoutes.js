@@ -139,6 +139,45 @@ export function registerCharacterProfileRoutes(app, {
     }
   });
 
+  app.patch('/api/character-profiles/:id/featured-image', async (req, res) => {
+    try {
+      return res.json(await sharingService.updateFeaturedImage(
+        req.params.id,
+        req.body,
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.get('/api/character-profiles/:id/featured-image-candidates', async (req, res) => {
+    try {
+      return res.json(await sharingService.listFeaturedImageCandidates(
+        req.params.id,
+        req.query,
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.get('/api/character-profiles/:id/featured-image-candidates/:sourceType/:sourceId/media', async (req, res) => {
+    try {
+      const filePath = await sharingService.getFeaturedCandidateMediaFile(
+        req.params.id,
+        req.params.sourceType,
+        req.params.sourceId,
+        req.actorContext
+      );
+      res.set('Cache-Control', 'private, no-store');
+      return res.sendFile(filePath);
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
   app.get('/api/character-profiles/:id/stats', async (req, res) => {
     try {
       const detail = await profileService.getOwnerDetail(req.params.id, req.actorContext);
@@ -220,6 +259,17 @@ export function registerCharacterProfileRoutes(app, {
       await assertCommunityEnabled();
       const filePath = await sharingService.getMediaFile(req.params.id, req.actorContext, 'image');
       res.set('Cache-Control', 'private, max-age=60');
+      return res.sendFile(filePath);
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.get('/api/community/character-profiles/:id/featured-image', async (req, res) => {
+    try {
+      await assertCommunityEnabled();
+      const filePath = await sharingService.getFeaturedImageFile(req.params.id, req.actorContext);
+      res.set('Cache-Control', 'private, no-store');
       return res.sendFile(filePath);
     } catch (error) {
       return sendError(res, error);

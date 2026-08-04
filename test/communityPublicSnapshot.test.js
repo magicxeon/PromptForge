@@ -60,6 +60,10 @@ test('public community post view exposes only allowlisted presentation fields', 
     view.presentationUrls.templateCard,
     '/api/scene-templates/shared/post_1/presentations/template-card-person-focus'
   );
+  assert.equal(
+    view.presentationUrls.profileTemplateSquare,
+    '/api/scene-templates/shared/post_1/presentations/profile-template-square-person-focus'
+  );
   assert.equal(view.contentDisclosure, 'ai_generated');
 });
 

@@ -1,26 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, LockKeyhole, Shirt, Sparkles } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MediaCard } from '../../../components/media/MediaCard';
 import { Button } from '../../../components/ui/Button';
-import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
-import { Surface } from '../../../components/ui/Surface';
+import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { routePaths } from '../../../app/routeRegistry/routes';
-import { apiMediaUrl } from '../../../lib/api/apiClient';
-import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
+import { CharacterFeaturedImagePicker } from '../../../components/profiles/CharacterFeaturedImagePicker';
+import { CharacterProfileHero } from '../../../components/profiles/CharacterProfileHero';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { writeHandoff } from '../../../lib/persistence/handoffStorage';
+import { showToast } from '../../../components/ui/toastStore';
 import {
   getCharacter,
   getCharacterWorks,
+  getCharacterFeaturedImageCandidates,
   getOwnedCharacter,
   approveCharacterProfile,
   requestCharacterHandoff,
   updateCharacterMetadata,
-  updateCharacterSharing
+  updateCharacterSharing,
+  updateCharacterFeaturedImage
 } from '../api/profileApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
 
@@ -39,6 +40,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation('character-profiles');
+  const [activeTab, setActiveTab] = useState<'overview' | 'creations' | 'details'>('overview');
   const ownerDetail = useQuery({
     queryKey: ['owned-character', actorId, characterId],
     queryFn: () => getOwnedCharacter(characterId),
@@ -53,7 +55,12 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const works = useQuery({
     queryKey: ['character-works', actorId, characterId],
     queryFn: () => getCharacterWorks(characterId),
-    enabled: Boolean(characterId && actor && character && access === 'public')
+    enabled: Boolean(characterId && actor && character)
+  });
+  const featuredCandidates = useQuery({
+    queryKey: ['character-featured-image-candidates', actorId, characterId],
+    queryFn: () => getCharacterFeaturedImageCandidates(characterId),
+    enabled: Boolean(characterId && actor && character && access === 'owner' && character.isOwner)
   });
   const updateMetadata = useMutation({
     mutationFn: (input: { displayName: string; personalitySummary: string }) => updateCharacterMetadata(characterId, input),
@@ -75,6 +82,24 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
       void queryClient.invalidateQueries({ queryKey: ['character', actorId, characterId] });
       void queryClient.invalidateQueries({ queryKey: ['owned-character', actorId, characterId] });
       void queryClient.invalidateQueries({ queryKey: ['characters'] });
+    }
+  });
+  const updateFeaturedImage = useMutation({
+    mutationFn: (input: {
+      mode: 'auto' | 'manual';
+      sourceType?: 'generation_result' | 'community_post' | null;
+      sourceId?: string | null;
+    }) =>
+      updateCharacterFeaturedImage(characterId, {
+        ...input,
+        recordVersion: ownerDetail.data?.recordVersion || character?.recordVersion || 1
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['character', actorId, characterId] });
+      void queryClient.invalidateQueries({ queryKey: ['owned-character', actorId, characterId] });
+      void queryClient.invalidateQueries({ queryKey: ['characters'] });
+      void queryClient.invalidateQueries({ queryKey: ['creator-page'] });
+      void queryClient.invalidateQueries({ queryKey: ['character-featured-image-candidates', actorId, characterId] });
     }
   });
   const handoff = useMutation({
@@ -102,78 +127,154 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
       else void detail.refetch();
     }} />;
   }
+  const publicWorks = works.data?.items || [];
+  const fashionAvailable = character.handoffAvailable
+    && character.destinationCapabilities.includes('fashion_blueprint');
+  const sceneAvailable = character.handoffAvailable
+    && character.destinationCapabilities.includes('scene_builder');
+  const characterName = character.displayName;
+  async function shareCharacter() {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: characterName, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      showToast({ tone: 'success', title: t('character-profiles.actions.linkCopied') });
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') return;
+      showToast({ tone: 'error', title: t('character-profiles.actions.shareFailed') });
+    }
+  }
   return (
-    <main>
+    <main className="character-profile-page">
       <ContextBackLink fallbackTo={access === 'owner' ? '/me/characters' : routePaths.exploreCharacters}>
         {access === 'owner'
           ? t('character-profiles.community.myCharacters')
           : t('character-profiles.community.back')}
       </ContextBackLink>
-      <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(320px,0.85fr)_minmax(0,1.15fr)]">
-        <Surface className="overflow-hidden bg-black p-0">
-          <div className="grid min-h-[560px] place-items-center">
-            {character.displayImageUrl && access === 'owner' ? (
-              <AuthenticatedMediaImage
-                src={character.displayImageUrl}
-                alt={t('character-profiles.media.alt')}
-                className="max-h-[78vh] w-full object-contain"
-                fallback={<LockKeyhole className="size-10 text-[var(--mpf-text-muted)]" />}
-              />
-            ) : character.displayImageUrl ? (
-              <img src={apiMediaUrl(character.displayImageUrl) || ''} alt={t('character-profiles.media.alt')} className="max-h-[78vh] w-full object-contain" />
-            ) : <LockKeyhole className="size-10 text-[var(--mpf-text-muted)]" />}
-          </div>
-        </Surface>
-        <Surface className="p-6">
-          <span className="text-xs font-bold uppercase text-cyan-300">{t('character-profiles.page.kicker')}</span>
-          <h1 className="mb-1 mt-2 text-3xl">{character.displayName}</h1>
-          <p className="text-sm text-[var(--mpf-text-muted)]">{t('character-profiles.page.by')} <strong className="text-white">@{character.ownerUsername}</strong></p>
-          <p className="my-6 leading-7 text-[var(--mpf-text-muted)]">{character.personalitySummary || character.shortDescription}</p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Info icon={character.characterType === 'reusable_model' ? Sparkles : Shirt} label={t('character-profiles.metadata.type')} value={character.characterType === 'reusable_model' ? t('character-profiles.type.reusable') : t('character-profiles.type.styled')} />
-            <Info icon={character.handoffAvailable ? CheckCircle2 : LockKeyhole} label={t('character-profiles.metadata.availability')} value={character.handoffAvailable ? t('character-profiles.status.available') : t('character-profiles.status.viewOnly')} />
-          </div>
-          <div className="my-6 grid grid-cols-3 gap-2">
-            <Stat value={character.stats.totalOutputs} label={t('character-profiles.stats.total')} />
-            <Stat value={character.stats.byUseCase.fashion} label={t('character-profiles.stats.fashion')} />
-            <Stat value={character.stats.byUseCase.sceneStory} label={t('character-profiles.stats.scene')} />
-          </div>
-          {character.handoffAvailable ? (
-            <div className="flex flex-wrap gap-2">
-              {character.destinationCapabilities.includes('fashion_blueprint') ? (
-                <Button variant="primary" disabled={handoff.isPending} onClick={() => handoff.mutate('fashion_blueprint')}>
-                  {t('character-profiles.actions.useFashion')}
-                </Button>
-              ) : null}
-              {character.destinationCapabilities.includes('scene_builder') ? (
-                <Button disabled={handoff.isPending} onClick={() => handoff.mutate('scene_builder')}>
-                  {t('character-profiles.actions.useScene')}
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
-          {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
-          {access === 'owner' && character.isOwner ? (
-            <OwnerCharacterControls
-              character={ownerDetail.data || character}
-              pending={updateMetadata.isPending || updateSharing.isPending || approve.isPending}
-              onMetadata={input => updateMetadata.mutate(input)}
-              onSharing={input => updateSharing.mutate(input)}
-              onApprove={() => approve.mutate()}
-            />
-          ) : null}
-        </Surface>
+      <CharacterProfileHero
+        character={character}
+        ownerAccess={access === 'owner'}
+        handoffPending={handoff.isPending}
+        onFashion={fashionAvailable ? () => handoff.mutate('fashion_blueprint') : undefined}
+        onScene={sceneAvailable ? () => handoff.mutate('scene_builder') : undefined}
+        onShare={() => void shareCharacter()}
+      />
+      {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
+
+      <div className="character-profile-tabs" role="tablist" aria-label={t('character-profiles.tabs.label')}>
+        {(['overview', 'creations', 'details'] as const).map(tab => (
+          <button
+            key={tab}
+            type="button"
+            role="tab"
+            id={`character-tab-${tab}`}
+            aria-selected={activeTab === tab}
+            aria-controls={`character-panel-${tab}`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {t(`character-profiles.tabs.${tab}`)}
+          </button>
+        ))}
       </div>
-      {works.data?.items.length ? (
-        <section className="mt-8">
-          <h2>{t('character-profiles.works.title')}</h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {works.data.items.map(post => <MediaCard key={post.id} post={post} />)}
-          </div>
-        </section>
-      ) : null}
+
+      <section
+        className="character-profile-panel"
+        role="tabpanel"
+        id={`character-panel-${activeTab}`}
+        aria-labelledby={`character-tab-${activeTab}`}
+      >
+        {activeTab === 'overview' ? (
+          <CharacterWorks
+            title={t('character-profiles.works.title')}
+            description={t('character-profiles.works.description')}
+            items={publicWorks.slice(0, 6)}
+            emptyLabel={t('character-profiles.works.empty')}
+          />
+        ) : null}
+
+        {activeTab === 'creations' ? (
+          <CharacterWorks
+            title={t('character-profiles.works.allTitle')}
+            description={t('character-profiles.works.description')}
+            items={publicWorks}
+            emptyLabel={t('character-profiles.works.empty')}
+          />
+        ) : null}
+
+        {activeTab === 'details' ? (
+          <>
+            <header className="character-profile-panel__header">
+              <h2>{t('character-profiles.details.title')}</h2>
+              <p>{t('character-profiles.details.description')}</p>
+            </header>
+            <div className="character-profile-detail-grid">
+              <DetailCard label={t('character-profiles.metadata.type')} value={character.characterType === 'reusable_model' ? t('character-profiles.type.reusable') : t('character-profiles.type.styled')} />
+              <DetailCard label={t('character-profiles.fields.intendedUses')} value={character.intendedUses.map(use => use.replaceAll('_', ' ')).join(', ') || t('character-profiles.uses.general')} />
+              <DetailCard label={t('character-profiles.metadata.availability')} value={character.handoffAvailable ? t('character-profiles.status.available') : t('character-profiles.status.viewOnly')} />
+            </div>
+            {access === 'owner' && character.isOwner ? (
+              <OwnerCharacterControls
+                character={ownerDetail.data || character}
+                pending={updateMetadata.isPending || updateSharing.isPending || approve.isPending}
+                onMetadata={input => updateMetadata.mutate(input)}
+                onSharing={input => updateSharing.mutate(input)}
+                onApprove={() => approve.mutate()}
+              />
+            ) : null}
+            {access === 'owner' && character.isOwner ? (
+              <CharacterFeaturedImagePicker
+                candidates={featuredCandidates.data?.items || []}
+                mode={character.featuredImageMode}
+                selectedSourceType={character.featuredImageSourceType}
+                selectedSourceId={character.featuredImageSourceType === 'generation_result'
+                  ? character.featuredGenerationResultId
+                  : character.featuredWorkPostId}
+                displaySource={character.displayImageSource}
+                pending={updateFeaturedImage.isPending || featuredCandidates.isLoading}
+                onSelect={candidate => updateFeaturedImage.mutate({
+                  mode: 'manual',
+                  sourceType: candidate.sourceType,
+                  sourceId: candidate.sourceId
+                })}
+                onUseAutomatic={() => updateFeaturedImage.mutate({ mode: 'auto' })}
+              />
+            ) : null}
+            {updateFeaturedImage.isError ? (
+              <p className="text-sm text-red-300">{updateFeaturedImage.error.message}</p>
+            ) : null}
+          </>
+        ) : null}
+      </section>
     </main>
   );
+}
+
+function CharacterWorks({ title, description, items, emptyLabel }: {
+  title: string;
+  description: string;
+  items: NonNullable<Awaited<ReturnType<typeof getCharacterWorks>>>['items'];
+  emptyLabel: string;
+}) {
+  return (
+    <>
+      <header className="character-profile-panel__header">
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </header>
+      {items.length ? (
+        <div className="character-profile-work-grid">
+          {items.map(post => <MediaCard key={post.id} post={post} previewFit="cover" />)}
+        </div>
+      ) : <EmptyState title={emptyLabel} />}
+    </>
+  );
+}
+
+function DetailCard({ label, value }: { label: string; value: string }) {
+  return <div className="character-profile-detail-card"><small>{label}</small><strong>{value}</strong></div>;
 }
 
 function OwnerCharacterControls({
@@ -235,12 +336,4 @@ function OwnerCharacterControls({
       ) : null}
     </div>
   );
-}
-
-function Info({ icon: Icon, label, value }: { icon: typeof Sparkles; label: string; value: string }) {
-  return <div className="flex items-center gap-3 border border-[var(--mpf-border)] p-3"><Icon className="size-5 text-cyan-300" /><span><small className="block text-[var(--mpf-text-muted)]">{label}</small><strong>{value}</strong></span></div>;
-}
-
-function Stat({ value, label }: { value: number; label: string }) {
-  return <div className="border border-[var(--mpf-border)] p-3 text-center"><strong className="block text-xl">{value}</strong><small className="text-[var(--mpf-text-muted)]">{label}</small></div>;
 }

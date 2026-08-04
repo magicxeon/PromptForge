@@ -119,7 +119,7 @@ export class CharacterProfileSharingService {
     );
     return {
       ...page,
-      items: await this.applyFeaturedWork(summaries, actor)
+      items: await this.applyFeaturedWork(summaries, actor, page.items)
     };
   }
 
@@ -129,7 +129,7 @@ export class CharacterProfileSharingService {
     const version = await this.requireActiveVersion(profile);
     const stats = await this.usageService.getStats(profile.id);
     const summary = await this.buildPublicSummary(profile, actor, version);
-    const [featuredSummary] = await this.applyFeaturedWork([summary], actor);
+    const [featuredSummary] = await this.applyFeaturedWork([summary], actor, [profile]);
     return {
       ...featuredSummary,
       shortDescription: profile.shortDescription,
@@ -218,6 +218,184 @@ export class CharacterProfileSharingService {
     };
   }
 
+  async listFeaturedImageCandidates(profileId, query = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const profile = await this.profileRepository.findByIdForOwner(profileId, actor.userId);
+    if (!profile) {
+      throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
+    }
+    const limit = Math.min(60, Math.max(1, Number(query.limit) || 36));
+    const candidates = await this.resolveFeaturedCandidates([profile]);
+    const seenGenerationIds = new Set();
+    const items = [];
+    for (const candidate of candidates.get(profile.id) || []) {
+      if (candidate.sourceType === 'community_post'
+        && candidate.ownership === 'owner'
+        && seenGenerationIds.has(candidate.generationResultId)) continue;
+      if (candidate.sourceType === 'generation_result') {
+        seenGenerationIds.add(candidate.generationResultId);
+      }
+      items.push(toFeaturedCandidateView(profile.id, candidate));
+      if (items.length >= limit) break;
+    }
+    return { items, nextCursor: null, hasMore: false };
+  }
+
+  async updateFeaturedImage(profileId, input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const profile = await this.profileRepository.findByIdForOwner(profileId, actor.userId);
+    if (!profile) {
+      throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
+    }
+    const mode = input.mode === 'manual' ? 'manual' : 'auto';
+    let sourceType = null;
+    let generationResultId = null;
+    let postId = null;
+    if (mode === 'manual') {
+      sourceType = input.sourceType === 'generation_result'
+        ? 'generation_result'
+        : input.sourceType === 'community_post' || input.postId
+          ? 'community_post'
+          : null;
+      const sourceId = String(input.sourceId || input.postId || '').trim();
+      if (!sourceType || !sourceId) {
+        throw new RepositoryContractError(
+          'character_featured_work_required',
+          'Choose an eligible Character image to feature.',
+          400
+        );
+      }
+      if (sourceType === 'generation_result') {
+        const result = await this.generationResultRepository.findById(sourceId);
+        if (!isOwnedCharacterResult(result, profile)) {
+          throw new RepositoryContractError(
+            'character_featured_work_ineligible',
+            'The selected image is not an eligible result owned by this Character owner.',
+            409
+          );
+        }
+        generationResultId = result.id;
+      } else {
+        const post = await this.communityPostRepository.findPublicById(sourceId);
+        const result = post?.sourceGenerationResultId
+          ? await this.generationResultRepository.findById(post.sourceGenerationResultId)
+          : null;
+        if (!post || !isCharacterResult(result, profile)) {
+          throw new RepositoryContractError(
+            'character_featured_work_ineligible',
+            'The selected image is not an eligible public Community work for this Character.',
+            409
+          );
+        }
+        postId = post.id;
+      }
+    }
+    const updated = await this.profileRepository.updateOwned(profile.id, {
+      version: input.recordVersion,
+      featuredImageMode: mode,
+      featuredImageSourceType: sourceType,
+      featuredGenerationResultId: generationResultId,
+      featuredWorkPostId: postId
+    }, actor);
+    await this.syncProjection(updated, actor);
+    return {
+      characterProfileId: updated.id,
+      recordVersion: updated.recordVersion,
+      featuredImageMode: updated.featuredImageMode,
+      featuredImageSourceType: updated.featuredImageSourceType,
+      featuredGenerationResultId: updated.featuredGenerationResultId,
+      featuredWorkPostId: updated.featuredWorkPostId
+    };
+  }
+
+  async getFeaturedCandidateMediaFile(profileId, sourceType, sourceId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const profile = await this.profileRepository.findByIdForOwner(profileId, actor.userId);
+    if (!profile) {
+      throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
+    }
+    const candidate = await this.resolveRequestedCandidate(profile, sourceType, sourceId);
+    return this.resolveCandidateFile(candidate);
+  }
+
+  async getFeaturedImageFile(profileId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
+    const candidatesByProfileId = await this.resolveFeaturedCandidates([profile]);
+    const candidate = selectFeaturedCandidate(
+      profile,
+      candidatesByProfileId.get(profile.id) || [],
+      profile.activeVersionId
+    );
+    if (!candidate) return this.getMediaFile(profileId, actor, 'thumbnail');
+    return this.resolveCandidateFile(candidate);
+  }
+
+  async resolveRequestedCandidate(profile, sourceType, sourceId) {
+    const id = String(sourceId || '').trim();
+    if (sourceType === 'generation_result') {
+      const result = await this.generationResultRepository.findById(id);
+      if (isOwnedCharacterResult(result, profile)) return buildResultCandidate(result, profile);
+    } else if (sourceType === 'community_post') {
+      const post = await this.communityPostRepository.findPublicById(id);
+      const result = post?.sourceGenerationResultId
+        ? await this.generationResultRepository.findById(post.sourceGenerationResultId)
+        : null;
+      if (post && isCharacterResult(result, profile)) return buildPostCandidate(post, result, profile);
+    }
+    throw new RepositoryContractError(
+      'character_featured_work_ineligible',
+      'The selected Character image is no longer eligible.',
+      409
+    );
+  }
+
+  async resolveCandidateFile(candidate) {
+    const result = candidate?.generationResultId
+      ? await this.generationResultRepository.findById(candidate.generationResultId)
+      : null;
+    const thumbnailPath = await resolveExistingOutputPath(result?.thumbnailUrl);
+    if (thumbnailPath) return thumbnailPath;
+    const imagePath = await resolveExistingOutputPath(result?.imageUrl);
+    if (imagePath) return imagePath;
+    throw new RepositoryContractError(
+      'character_featured_media_missing',
+      'The selected Character image file is unavailable.',
+      404
+    );
+  }
+
+  async resolveFeaturedCandidates(profiles = []) {
+    const profileIds = profiles.map(profile => profile.id).filter(Boolean);
+    const results = await this.generationResultRepository.findByCharacterProfileIds(profileIds);
+    const posts = await this.communityPostRepository.findPublicBySourceGenerationResultIds(
+      results.map(result => result.id)
+    );
+    const postsByResultId = new Map();
+    for (const post of posts) {
+      const entries = postsByResultId.get(post.sourceGenerationResultId) || [];
+      entries.push(post);
+      postsByResultId.set(post.sourceGenerationResultId, entries);
+    }
+    const profileById = new Map(profiles.map(profile => [profile.id, profile]));
+    const candidatesByProfileId = new Map(profileIds.map(id => [id, []]));
+    for (const result of results) {
+      const profile = profileById.get(result?.characterProfileContext?.characterProfileId);
+      if (!profile || !hasRenderableImage(result)) continue;
+      const candidates = candidatesByProfileId.get(profile.id);
+      if (result.ownerUserId === profile.ownerUserId) {
+        candidates.push(buildResultCandidate(result, profile));
+      }
+      for (const post of postsByResultId.get(result.id) || []) {
+        candidates.push(buildPostCandidate(post, result, profile));
+      }
+    }
+    for (const candidates of candidatesByProfileId.values()) {
+      candidates.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+    }
+    return candidatesByProfileId;
+  }
+
   async getMediaFile(profileId, actorContext, mediaKind = 'image') {
     const actor = assertActorContext(actorContext);
     const profile = assertProfileView(await this.profileRepository.findById(profileId), actor);
@@ -254,37 +432,39 @@ export class CharacterProfileSharingService {
     );
   }
 
-  async applyFeaturedWork(summaries = [], actorContext) {
+  async applyFeaturedWork(summaries = [], actorContext, profiles = []) {
     if (!summaries.length) return summaries;
     try {
-      const profileIds = new Set(summaries.map(item => item.id));
-      const posts = await this.communityPostRepository.listPublic(
-        { limit: 50, sort: 'newest' },
-        actorContext
-      );
-      const sourceIds = posts.items.map(post => post.sourceGenerationResultId).filter(Boolean);
-      const results = await this.generationResultRepository.findByIds(sourceIds);
-      const resultById = new Map(results.map(result => [result.id, result]));
-      const featuredByProfileId = new Map();
+      const profileById = new Map(profiles.map(profile => [profile.id, profile]));
+      const candidatesByProfileId = await this.resolveFeaturedCandidates(profiles);
 
-      for (const post of posts.items) {
-        const result = resultById.get(post.sourceGenerationResultId);
-        const profileId = result?.characterProfileContext?.characterProfileId;
-        if (!profileIds.has(profileId) || featuredByProfileId.has(profileId)) continue;
-        const publicPost = buildCommunityPostPublicView(post);
-        const displayImageUrl = publicPost.thumbnailUrl || publicPost.imageUrl;
-        if (displayImageUrl) {
-          featuredByProfileId.set(profileId, {
-            displayImageUrl,
-            displayImageSource: 'featured_work'
-          });
-        }
-      }
-
-      return summaries.map(summary => ({
-        ...summary,
-        ...(featuredByProfileId.get(summary.id) || {})
-      }));
+      return summaries.map(summary => {
+        const profile = profileById.get(summary.id);
+        const candidates = candidatesByProfileId.get(summary.id) || [];
+        const selected = selectFeaturedCandidate(profile, candidates, summary.characterProfileVersionId);
+        const manual = profile?.featuredImageMode === 'manual' && isStoredSelection(profile, selected);
+        return selected ? {
+          ...summary,
+          displayImageUrl: `/api/community/character-profiles/${encodeURIComponent(summary.id)}/featured-image`,
+          displayImageSource: selected.ownership === 'owner'
+            ? manual ? 'owner_selected_generation' : 'owner_generation'
+            : manual ? 'owner_selected_work' : 'featured_work',
+          featuredImageMode: manual ? 'manual' : 'auto',
+          featuredImageSourceType: manual ? selected.sourceType : null,
+          featuredGenerationResultId: manual && selected.sourceType === 'generation_result'
+            ? selected.generationResultId
+            : null,
+          featuredWorkPostId: manual && selected.sourceType === 'community_post'
+            ? selected.postId
+            : null
+        } : {
+          ...summary,
+          featuredImageMode: profile?.featuredImageMode === 'manual' ? 'manual' : 'auto',
+          featuredImageSourceType: profile?.featuredImageSourceType || null,
+          featuredGenerationResultId: profile?.featuredGenerationResultId || null,
+          featuredWorkPostId: profile?.featuredWorkPostId || null
+        };
+      });
     } catch (error) {
       console.warn('[Character Profiles] Featured public work lookup failed:', error.message);
       return summaries;
@@ -319,6 +499,10 @@ export class CharacterProfileSharingService {
       faceThumbnailUrl: `/api/community/character-profiles/${encodeURIComponent(profile.id)}/face`,
       displayImageUrl: hasCastingPreview ? thumbnailUrl : canonicalImageUrl,
       displayImageSource: hasCastingPreview ? 'casting_preview' : 'canonical_sheet',
+      featuredImageMode: profile.featuredImageMode === 'manual' ? 'manual' : 'auto',
+      featuredImageSourceType: profile.featuredImageSourceType || null,
+      featuredGenerationResultId: profile.featuredGenerationResultId || null,
+      featuredWorkPostId: profile.featuredWorkPostId || null,
       characterProfileVersionId: version.id,
       stats
     };
@@ -331,6 +515,10 @@ export class CharacterProfileSharingService {
       visibility: profile.visibility,
       reusePolicy: profile.reusePolicy,
       characterType: normalizeCharacterType(profile.characterType),
+      featuredImageMode: profile.featuredImageMode === 'manual' ? 'manual' : 'auto',
+      featuredImageSourceType: profile.featuredImageSourceType || null,
+      featuredGenerationResultId: profile.featuredGenerationResultId || null,
+      featuredWorkPostId: profile.featuredWorkPostId || null,
       recordVersion: profile.recordVersion
     };
   }
@@ -342,6 +530,126 @@ export class CharacterProfileSharingService {
     }
     return version;
   }
+}
+
+function featuredEngagementScore(post) {
+  const engagement = post.engagementSummary || {};
+  return (Number(engagement.likeCount) || 0) * 3
+    + (Number(engagement.saveCount) || 0) * 4
+    + (Number(engagement.commentCount) || 0) * 4
+    + (Number(engagement.remixSuccessCount) || 0) * 5
+    + (Number(engagement.comparisonVoteCount) || 0) * 4
+    + (Number(engagement.viewCount) || 0) * 0.1;
+}
+
+function hasRenderableImage(result) {
+  return Boolean(
+    result?.id
+    && (result.imageUrl || result.thumbnailUrl)
+    && result.artifactVisibility !== 'system_internal'
+    && result.operationPurpose !== 'template_pose_proxy'
+  );
+}
+
+function isCharacterResult(result, profile) {
+  return hasRenderableImage(result)
+    && result.characterProfileContext?.characterProfileId === profile.id;
+}
+
+function isOwnedCharacterResult(result, profile) {
+  return isCharacterResult(result, profile) && result.ownerUserId === profile.ownerUserId;
+}
+
+function buildResultCandidate(result, profile) {
+  return {
+    sourceType: 'generation_result',
+    sourceId: result.id,
+    generationResultId: result.id,
+    postId: null,
+    ownership: 'owner',
+    title: result.fashionBlueprintContext?.productName
+      || result.title
+      || `Generation ${result.id.slice(-6)}`,
+    createdAt: normalizeCandidateDate(result.timestamp || result.createdAt),
+    characterProfileVersionId: result.characterProfileContext?.characterProfileVersionId || null,
+    score: 0,
+    profileId: profile.id
+  };
+}
+
+function buildPostCandidate(post, result, profile) {
+  const publicPost = buildCommunityPostPublicView(post);
+  return {
+    sourceType: 'community_post',
+    sourceId: post.id,
+    generationResultId: result.id,
+    postId: post.id,
+    ownership: result.ownerUserId === profile.ownerUserId ? 'owner' : 'community',
+    title: publicPost.title || `Community work ${post.id.slice(-6)}`,
+    createdAt: normalizeCandidateDate(publicPost.createdAt || result.timestamp),
+    characterProfileVersionId: result.characterProfileContext?.characterProfileVersionId || null,
+    score: featuredEngagementScore(publicPost),
+    profileId: profile.id
+  };
+}
+
+function normalizeCandidateDate(value) {
+  const date = typeof value === 'number' ? new Date(value) : new Date(value || 0);
+  return Number.isNaN(date.getTime()) ? new Date(0).toISOString() : date.toISOString();
+}
+
+function isStoredSelection(profile, candidate) {
+  if (!profile || !candidate) return false;
+  const sourceType = profile.featuredImageSourceType
+    || (profile.featuredGenerationResultId ? 'generation_result' : null)
+    || (profile.featuredWorkPostId ? 'community_post' : null);
+  return sourceType === candidate.sourceType
+    && (sourceType === 'generation_result'
+      ? profile.featuredGenerationResultId === candidate.generationResultId
+      : profile.featuredWorkPostId === candidate.postId);
+}
+
+function selectFeaturedCandidate(profile, candidates = [], activeVersionId = null) {
+  if (!profile) return null;
+  if (profile.featuredImageMode === 'manual') {
+    const manual = candidates.find(candidate => isStoredSelection(profile, candidate));
+    if (manual) return manual;
+  }
+  const byVersionAndDate = (left, right) => {
+    const leftActive = left.characterProfileVersionId === activeVersionId ? 1 : 0;
+    const rightActive = right.characterProfileVersionId === activeVersionId ? 1 : 0;
+    return rightActive - leftActive || right.createdAt.localeCompare(left.createdAt);
+  };
+  const owned = candidates
+    .filter(candidate => candidate.sourceType === 'generation_result' && candidate.ownership === 'owner')
+    .sort(byVersionAndDate)[0];
+  if (owned) return owned;
+  return candidates
+    .filter(candidate => candidate.sourceType === 'community_post')
+    .sort((left, right) => {
+      const versionOrder = byVersionAndDate(left, right);
+      if (left.characterProfileVersionId !== right.characterProfileVersionId) return versionOrder;
+      return right.score - left.score || right.createdAt.localeCompare(left.createdAt);
+    })[0] || null;
+}
+
+function toFeaturedCandidateView(profileId, candidate) {
+  const pathSourceType = encodeURIComponent(candidate.sourceType);
+  const pathSourceId = encodeURIComponent(candidate.sourceId);
+  const mediaUrl = `/api/character-profiles/${encodeURIComponent(profileId)}`
+    + `/featured-image-candidates/${pathSourceType}/${pathSourceId}/media`;
+  return {
+    id: `${candidate.sourceType}:${candidate.sourceId}`,
+    sourceType: candidate.sourceType,
+    sourceId: candidate.sourceId,
+    generationResultId: candidate.generationResultId,
+    postId: candidate.postId,
+    ownership: candidate.ownership,
+    title: candidate.title,
+    imageUrl: mediaUrl,
+    thumbnailUrl: mediaUrl,
+    createdAt: candidate.createdAt
+  };
 }
 
 function sanitizeCompatibleAttributes(snapshot = {}) {

@@ -12,12 +12,14 @@ export function MediaStage({
   className,
   eager = false,
   fit = 'contain',
+  presentation = 'templateCard',
   source = 'preview'
 }: {
   post: CommunityPost;
   className?: string;
   eager?: boolean;
   fit?: 'contain' | 'cover';
+  presentation?: 'templateCard' | 'profileTemplateSquare';
   source?: 'preview' | 'original';
 }) {
   if (post.postType === 'comparison') {
@@ -73,7 +75,7 @@ export function MediaStage({
 
   const fallbackUrl = apiMediaUrl(images[0]) || '';
   const attentionUrl = fit === 'cover'
-    ? apiMediaUrl(post.presentationUrls.templateCard) || fallbackUrl
+    ? apiMediaUrl(post.presentationUrls[presentation]) || fallbackUrl
     : fallbackUrl;
   return (
     <div className={cn('grid aspect-[4/3] place-items-center overflow-hidden bg-black', className)}>

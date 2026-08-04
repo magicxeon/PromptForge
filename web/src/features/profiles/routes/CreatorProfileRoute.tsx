@@ -6,6 +6,7 @@ import { MediaCard } from '../../../components/media/MediaCard';
 import { CharacterCard } from '../../../components/profiles/CharacterCard';
 import { CreatorProfileHero } from '../../../components/profiles/CreatorProfileHero';
 import { ProfileOverviewSection } from '../../../components/profiles/ProfileOverviewSection';
+import { ProfileTemplateMosaic } from '../../../components/profiles/ProfileTemplateMosaic';
 import {
   CreatorHighlights,
   ProfileCollectionMosaic,
@@ -306,7 +307,16 @@ function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase:
           >
             <div className="creator-profile-card-grid creator-profile-card-grid--characters">
               {page.overview.characters.items.slice(0, 4).map(item => (
-                <CharacterCard key={item.id} character={item} />
+                <CharacterCard
+                  key={item.id}
+                  character={item}
+                  detailHref={page.viewer.canManageContent
+                    ? routeBuilders.ownedCharacter(item.id)
+                    : undefined}
+                  managementLabel={page.viewer.canManageContent
+                    ? t('ui.action.manageCharacter')
+                    : undefined}
+                />
               ))}
             </div>
           </ProfileOverviewSection>
@@ -315,21 +325,13 @@ function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase:
         {page.overview.templates.items.length ? (
           <ProfileOverviewSection
             title={t('ui.creator.popularTemplates')}
-            viewAllHref={`${profileBase}/templates`}
             viewAllLabel={t('ui.creator.viewAll')}
           >
-            <div className="creator-profile-card-grid creator-profile-card-grid--templates">
-              {page.overview.templates.items.slice(0, 2).map(item => (
-                <MediaCard
-                  key={item.id}
-                  post={item}
-                  previewFit="cover"
-                  ownerAction={page.viewer.canManageContent
-                    ? <SharedTemplateEditDialog post={item} />
-                    : undefined}
-                />
-              ))}
-            </div>
+            <ProfileTemplateMosaic
+              posts={page.overview.templates.items}
+              viewAllHref={`${profileBase}/templates`}
+              viewAllLabel={t('ui.creator.viewAll')}
+            />
           </ProfileOverviewSection>
         ) : null}
 
@@ -375,7 +377,18 @@ function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase:
   });
   return (
     <div className="creator-profile-tab-grid">
-      {characters.map(item => <CharacterCard key={item.id} character={item} />)}
+      {characters.map(item => (
+        <CharacterCard
+          key={item.id}
+          character={item}
+          detailHref={page.viewer.canManageContent
+            ? routeBuilders.ownedCharacter(item.id)
+            : undefined}
+          managementLabel={page.viewer.canManageContent
+            ? t('ui.action.manageCharacter')
+            : undefined}
+        />
+      ))}
       {posts.map(item => (
         <MediaCard
           key={item.id}

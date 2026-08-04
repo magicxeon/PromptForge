@@ -67,6 +67,8 @@ export class CharacterProfileRepository {
     const reusable = query.reusable === true || query.reusable === 'true';
     const reusePolicy = String(query.reusePolicy || normalizedQuery.filters.reusePolicy || '').trim();
     const creator = String(query.creator || normalizedQuery.filters.creator || '').trim().toLocaleLowerCase('en-US');
+    const creatorProfileId = String(normalizedQuery.filters.creatorProfileId || '').trim();
+    const ownerUserId = String(normalizedQuery.filters.ownerUserId || '').trim();
     const items = (await this.readAll()).filter(item =>
       item.visibility === VISIBILITY.PUBLIC
       && item.status === 'approved'
@@ -76,6 +78,8 @@ export class CharacterProfileRepository {
       && (!creator || String(item.ownerUsernameSnapshot || item.ownerUsername || '')
         .toLocaleLowerCase('en-US')
         .includes(creator))
+      && (!creatorProfileId || item.creatorProfileId === creatorProfileId)
+      && (!ownerUserId || item.ownerUserId === ownerUserId)
     );
     const page = paginateRepositoryRecords(
       items,
@@ -86,6 +90,8 @@ export class CharacterProfileRepository {
         reusable,
         reusePolicy,
         creator,
+        creatorProfileId,
+        ownerUserId,
         sort: normalizedQuery.sort
       }),
       this.cursorSecret
@@ -107,6 +113,10 @@ export class CharacterProfileRepository {
       characterType,
       intendedUses: normalizeIntendedUsesForType(input.intendedUses, characterType),
       reusePolicy: 'owner_only',
+      featuredImageMode: 'auto',
+      featuredImageSourceType: null,
+      featuredGenerationResultId: null,
+      featuredWorkPostId: null,
       activeVersionId: input.activeVersionId || null,
       creatorProfileId: input.creatorProfileId || null,
       idempotencyKey: input.idempotencyKey || null,
@@ -213,6 +223,14 @@ function normalizeProfile(value = {}) {
     status: STATUSES.includes(value.status) ? value.status : 'draft',
     visibility: VISIBILITIES.includes(value.visibility) ? value.visibility : VISIBILITY.PRIVATE,
     reusePolicy: REUSE_POLICIES.includes(value.reusePolicy) ? value.reusePolicy : 'owner_only',
+    featuredImageMode: value.featuredImageMode === 'manual' ? 'manual' : 'auto',
+    featuredImageSourceType: normalizeFeaturedImageSourceType(
+      value.featuredImageSourceType,
+      value.featuredGenerationResultId,
+      value.featuredWorkPostId
+    ),
+    featuredGenerationResultId: normalizeOptionalId(value.featuredGenerationResultId),
+    featuredWorkPostId: normalizeOptionalId(value.featuredWorkPostId),
     recordVersion: Math.max(1, Number(value.recordVersion || value.version || 1))
   };
 }
@@ -227,9 +245,42 @@ function applyPatch(current, patch) {
   if (Object.hasOwn(patch, 'intendedUses')) {
     next.intendedUses = normalizeIntendedUsesForType(patch.intendedUses, current.characterType);
   }
+  if (Object.hasOwn(patch, 'featuredImageMode')) {
+    next.featuredImageMode = patch.featuredImageMode === 'manual' ? 'manual' : 'auto';
+  }
+  if (Object.hasOwn(patch, 'featuredImageSourceType')) {
+    next.featuredImageSourceType = normalizeFeaturedImageSourceType(patch.featuredImageSourceType);
+  }
+  if (Object.hasOwn(patch, 'featuredGenerationResultId')) {
+    next.featuredGenerationResultId = normalizeOptionalId(patch.featuredGenerationResultId);
+  }
+  if (Object.hasOwn(patch, 'featuredWorkPostId')) {
+    next.featuredWorkPostId = normalizeOptionalId(patch.featuredWorkPostId);
+  }
+  if (next.featuredImageMode === 'auto') {
+    next.featuredImageSourceType = null;
+    next.featuredGenerationResultId = null;
+    next.featuredWorkPostId = null;
+  } else if (next.featuredImageSourceType === 'generation_result') {
+    next.featuredWorkPostId = null;
+  } else if (next.featuredImageSourceType === 'community_post') {
+    next.featuredGenerationResultId = null;
+  }
   next.updatedAt = new Date().toISOString();
   next.recordVersion = current.recordVersion + 1;
   return next;
+}
+
+function normalizeOptionalId(value) {
+  const id = String(value || '').trim();
+  return id ? id.slice(0, 160) : null;
+}
+
+function normalizeFeaturedImageSourceType(value, generationResultId = null, postId = null) {
+  if (value === 'generation_result' || value === 'community_post') return value;
+  if (normalizeOptionalId(generationResultId)) return 'generation_result';
+  if (normalizeOptionalId(postId)) return 'community_post';
+  return null;
 }
 
 function normalizeRequiredText(value, code, maxLength) {

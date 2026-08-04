@@ -108,6 +108,12 @@ export class CharacterProfileService {
         const ownerThumbnailUrl = canonicalAssetId
           ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/thumbnail`
           : null;
+        const ownerImageUrl = canonicalAssetId
+          ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/image`
+          : null;
+        const hasCastingPreview = normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.REUSABLE_MODEL
+          && Boolean(version?.castingFrontPreviewUrl);
+        const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
         return {
           ...profile,
           isOwner: true,
@@ -118,10 +124,14 @@ export class CharacterProfileService {
           destinationCapabilities: normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.STYLED_CHARACTER
             ? ['scene_builder']
             : ['fashion_blueprint', 'scene_builder'],
-          imageUrl: ownerThumbnailUrl,
+          imageUrl: ownerImageUrl,
           thumbnailUrl: ownerThumbnailUrl,
-          displayImageUrl: ownerThumbnailUrl,
-          displayImageSource: ownerThumbnailUrl ? 'owner_canonical_sheet' : undefined,
+          displayImageUrl: ownerDisplayUrl,
+          displayImageSource: ownerThumbnailUrl
+            ? hasCastingPreview
+              ? 'casting_preview'
+              : 'owner_canonical_sheet'
+            : undefined,
           stats: await this.usageService.getStats(profile.id)
         };
       }))
@@ -146,7 +156,13 @@ export class CharacterProfileService {
     const ownerImageUrl = canonicalAssetId
       ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/image`
       : null;
-    return {
+    const ownerThumbnailUrl = canonicalAssetId
+      ? `/api/character-profiles/${encodeURIComponent(profile.id)}/media/thumbnail`
+      : null;
+    const hasCastingPreview = characterType === CHARACTER_TYPE.REUSABLE_MODEL
+      && Boolean(version?.castingFrontPreviewUrl);
+    const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
+    const ownerDetail = {
       ...profile,
       ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
       versions: await this.versionRepository.listByProfileId(profile.id),
@@ -159,10 +175,21 @@ export class CharacterProfileService {
       handoffAvailable: profile.status === 'approved' && version?.status === 'approved',
       characterProfileVersionId: version?.id || '',
       imageUrl: ownerImageUrl,
-      thumbnailUrl: ownerImageUrl,
-      displayImageUrl: ownerImageUrl,
-      displayImageSource: ownerImageUrl ? 'owner_canonical_sheet' : undefined
+      thumbnailUrl: ownerThumbnailUrl,
+      displayImageUrl: ownerDisplayUrl,
+      displayImageSource: ownerDisplayUrl
+        ? hasCastingPreview
+          ? 'casting_preview'
+          : 'owner_canonical_sheet'
+        : undefined
     };
+    if (typeof this.profileSharingService.applyFeaturedWork !== 'function') return ownerDetail;
+    const [featuredDetail] = await this.profileSharingService.applyFeaturedWork(
+      [ownerDetail],
+      actor,
+      [profile]
+    );
+    return featuredDetail;
   }
 
   async updateMetadata(id, input = {}, actorContext) {
@@ -172,7 +199,14 @@ export class CharacterProfileService {
       throw new RepositoryContractError('character_profile_not_found', 'Character Profile not found.', 404);
     }
     const updated = await this.profileRepository.updateOwned(id, {
-      ...input,
+      version: input.version,
+      ...(Object.hasOwn(input, 'displayName') ? { displayName: input.displayName } : {}),
+      ...(Object.hasOwn(input, 'shortDescription')
+        ? { shortDescription: input.shortDescription }
+        : {}),
+      ...(Object.hasOwn(input, 'personalitySummary')
+        ? { personalitySummary: input.personalitySummary }
+        : {}),
       ...(Object.hasOwn(input, 'intendedUses')
         ? {
           intendedUses: normalizeIntendedUsesForCharacterType(

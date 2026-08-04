@@ -17,6 +17,10 @@ const character: CharacterSummary = {
   imageUrl: '/api/community/character-profiles/charprof_alice/image',
   thumbnailUrl: '/api/community/character-profiles/charprof_alice/thumbnail',
   displayImageUrl: null,
+  featuredImageMode: 'auto',
+  featuredImageSourceType: null,
+  featuredGenerationResultId: null,
+  featuredWorkPostId: null,
   characterProfileVersionId: 'charver_alice',
   stats: {
     totalOutputs: 0,
@@ -35,6 +39,23 @@ describe('CharacterCard', () => {
     expect(screen.getByRole('img')).toHaveAttribute(
       'src',
       '/api/community/character-profiles/charprof_alice/thumbnail'
+    );
+  });
+
+  it('exposes the owner management route when requested by the profile surface', () => {
+    render(
+      <MemoryRouter>
+        <CharacterCard
+          character={character}
+          detailHref="/me/characters/charprof_alice"
+          managementLabel="Manage Character"
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole('link', { name: 'Manage Character' })).toHaveAttribute(
+      'href',
+      '/me/characters/charprof_alice'
     );
   });
 });

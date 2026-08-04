@@ -13,6 +13,15 @@ export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
     format: 'webp',
     quality: 86
   }),
+  'profile-template-square-person-focus': Object.freeze({
+    id: 'profile-template-square-person-focus',
+    width: 640,
+    height: 640,
+    fit: 'cover',
+    positionStrategy: 'attention',
+    format: 'webp',
+    quality: 88
+  }),
   'comparison-card-1-person-focus': comparisonProfile(
     'comparison-card-1-person-focus',
     864,

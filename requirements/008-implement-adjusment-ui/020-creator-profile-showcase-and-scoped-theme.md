@@ -57,6 +57,20 @@ components and are gated by the server viewer projection.
   media primitive. A failed presentation falls back to the authorized
   thumbnail; React must not implement a second crop algorithm.
 - Public and owner Profile modes use the same component tree.
+- Popular Templates uses a reusable square-tile Profile mosaic with one large
+  2-by-2 lead image, three compact square Template images and one explicit
+  square `View all` tile. Every Template image requests the allowlisted
+  `profile-template-square-person-focus` 640-by-640 Sharp Attention rendition;
+  CSS must not recrop the wide Template-card presentation. The compact Overview
+  does not duplicate full Template-card controls.
+- When the viewer owns the Profile, every Character card exposes a visible
+  `Manage character` route to `/me/characters/:characterId`; visitors continue
+  to open the public Character route.
+- Generated Character work may replace the casting/canonical fallback only
+  after the owner shares that output publicly and it remains eligible under the
+  featured-image policy. Private History output is never exposed by a public
+  Creator Profile. The owner management route must make the featured-image
+  picker discoverable and explain this boundary.
 
 Do not place decorative cards inside cards. Profile sections are structural
 surfaces; only repeated resources and genuinely framed highlight tools are
@@ -111,6 +125,10 @@ changing global document theme or local storage.
 Implementation requirements:
 
 - use inherited semantic `--theme-*` tokens under a scoped Profile attribute;
+- every control rendered inside the Profile canvas, including Hero Edit,
+  Follow and Share actions, must resolve its background, border, foreground,
+  hover and focus colors from the scoped `--theme-*` tokens rather than the
+  viewer shell's `--mpf-*` aliases;
 - use CSS gradients only, with no canvas, blur filter or continuously running
   animation;
 - never mutate `documentElement[data-theme]` for Profile presentation;

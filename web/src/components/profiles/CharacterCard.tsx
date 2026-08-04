@@ -1,4 +1,4 @@
-import { LockKeyhole, Sparkles } from 'lucide-react';
+import { LockKeyhole, Settings2, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { CharacterSummary } from '../../features/profiles/schemas/profileSchemas';
@@ -6,18 +6,26 @@ import { apiMediaUrl } from '../../lib/api/apiClient';
 import { createReturnNavigationState } from '../../lib/navigation/returnNavigation';
 import { routeBuilders } from '../../app/routeRegistry/routes';
 
-export function CharacterCard({ character }: { character: CharacterSummary }) {
+export function CharacterCard({
+  character,
+  detailHref,
+  managementLabel
+}: {
+  character: CharacterSummary;
+  detailHref?: string;
+  managementLabel?: string;
+}) {
   const { t } = useTranslation('character-profiles');
   const location = useLocation();
   const available = character.handoffAvailable;
-  const previewUrl = character.thumbnailUrl
-    || character.displayImageUrl
+  const previewUrl = character.displayImageUrl
+    || character.thumbnailUrl
     || character.imageUrl
     || null;
   return (
     <article className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)]">
       <Link
-        to={routeBuilders.character(character.id)}
+        to={detailHref || routeBuilders.character(character.id)}
         state={createReturnNavigationState(location)}
         className="block text-inherit no-underline"
       >
@@ -52,6 +60,16 @@ export function CharacterCard({ character }: { character: CharacterSummary }) {
           </div>
         </div>
       </Link>
+      {detailHref && managementLabel ? (
+        <Link
+          to={detailHref}
+          state={createReturnNavigationState(location)}
+          className="creator-profile-character-manage"
+        >
+          <Settings2 aria-hidden="true" />
+          {managementLabel}
+        </Link>
+      ) : null}
     </article>
   );
 }

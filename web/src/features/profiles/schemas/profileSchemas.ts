@@ -26,6 +26,10 @@ export const characterSummarySchema = z.object({
   faceThumbnailUrl: z.string().nullable().optional(),
   displayImageUrl: z.string().nullable().optional(),
   displayImageSource: z.string().optional(),
+  featuredImageMode: z.enum(['auto', 'manual']).default('auto'),
+  featuredImageSourceType: z.enum(['generation_result', 'community_post']).nullable().default(null),
+  featuredGenerationResultId: z.string().nullable().default(null),
+  featuredWorkPostId: z.string().nullable().default(null),
   characterProfileVersionId: z.string().default(''),
   stats: z.object({
     totalOutputs: z.number().default(0),
@@ -63,6 +67,27 @@ export const ownerCharacterDetailSchema = characterDetailSchema.extend({
   lifecycleStatus: z.string().optional()
 }).passthrough();
 export const characterWorksSchema = pageSchema(communityPostSchema);
+export const characterFeaturedImageCandidateSchema = z.object({
+  id: z.string(),
+  sourceType: z.enum(['generation_result', 'community_post']),
+  sourceId: z.string(),
+  generationResultId: z.string(),
+  postId: z.string().nullable(),
+  ownership: z.enum(['owner', 'community']),
+  title: z.string(),
+  imageUrl: z.string().nullable().optional(),
+  thumbnailUrl: z.string().nullable().optional(),
+  createdAt: z.string()
+});
+export const characterFeaturedImageCandidatesSchema = pageSchema(characterFeaturedImageCandidateSchema);
+export const characterFeaturedImageUpdateSchema = z.object({
+  characterProfileId: z.string(),
+  recordVersion: z.number(),
+  featuredImageMode: z.enum(['auto', 'manual']),
+  featuredImageSourceType: z.enum(['generation_result', 'community_post']).nullable(),
+  featuredGenerationResultId: z.string().nullable(),
+  featuredWorkPostId: z.string().nullable()
+});
 
 const profileSchema = z.object({
   id: z.string(),
@@ -154,3 +179,4 @@ export const characterHandoffSchema = z.object({
 
 export type CreatorPage = z.infer<typeof creatorPageSchema>;
 export type CharacterSummary = z.infer<typeof characterSummarySchema>;
+export type CharacterFeaturedImageCandidate = z.infer<typeof characterFeaturedImageCandidateSchema>;

@@ -10,6 +10,7 @@ import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplat
 import { communityPostAccessService } from './CommunityPostAccessService.js';
 import { creatorProfileService } from './CreatorProfileService.js';
 import { isCommunityPostFeedVisible } from './communityPostPolicy.js';
+import { characterProfileSharingService } from '../character-profiles/CharacterProfileSharingService.js';
 
 export class CommunityGalleryService {
   constructor({
@@ -18,7 +19,8 @@ export class CommunityGalleryService {
     postRepository = communityPostRepo,
     profileRepository = creatorProfileRepo,
     postAccessService = communityPostAccessService,
-    profileService = creatorProfileService
+    profileService = creatorProfileService,
+    profileCharacterService = null
   } = {}) {
     this.galleryRepository = galleryRepository;
     this.characterRepository = characterRepository;
@@ -26,6 +28,7 @@ export class CommunityGalleryService {
     this.profileRepository = profileRepository;
     this.postAccessService = postAccessService;
     this.profileService = profileService;
+    this.profileCharacterService = profileCharacterService;
   }
 
   async addGalleryItem(input = {}, actorContext) {
@@ -112,8 +115,18 @@ export class CommunityGalleryService {
   }
 
   async listCharactersByHandle(handle, query, actorContext) {
-    assertActorContext(actorContext);
+    const actor = assertActorContext(actorContext);
     const profile = await this.requireProfile(handle);
+    if (this.profileCharacterService) {
+      return this.profileCharacterService.listPublic({
+        ...query,
+        filters: {
+          ...(query?.filters || {}),
+          creatorProfileId: profile.id,
+          ownerUserId: profile.userId
+        }
+      }, actor);
+    }
     const page = await this.characterRepository.listPublic({
       ...query,
       filters: {
@@ -268,4 +281,6 @@ function forcePrivateCharacterReplacements(snapshot, item, viewerIsOwner) {
   });
 }
 
-export const communityGalleryService = new CommunityGalleryService();
+export const communityGalleryService = new CommunityGalleryService({
+  profileCharacterService: characterProfileSharingService
+});

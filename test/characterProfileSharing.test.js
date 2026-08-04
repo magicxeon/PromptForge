@@ -155,25 +155,24 @@ test('public Character summary prefers its newest public work and retains canoni
       findById: async id => id === version.id ? version : null
     },
     generationResultRepository: {
-      findByIds: async ids => ids.includes('job_featured')
+      findByCharacterProfileIds: async ids => ids.includes(profile.id)
         ? [{
           id: 'job_featured',
+          ownerUserId: viewer.userId,
+          imageUrl: '/outputs/featured.png',
           characterProfileContext: { characterProfileId: profile.id }
         }]
         : []
     },
     communityPostRepository: {
-      listPublic: async () => ({
-        items: [{
+      findPublicBySourceGenerationResultIds: async () => [{
           id: 'post_featured',
+          ownerUserId: viewer.userId,
           sourceGenerationResultId: 'job_featured',
           imageUrl: '/outputs/featured.png',
           visibility: 'public',
           status: 'published'
-        }],
-        nextCursor: null,
-        hasMore: false
-      })
+        }]
     },
     usageService: {
       getStats: async () => ({ totalOutputs: 4, byUseCase: { fashion: 4 } })
@@ -185,10 +184,237 @@ test('public Character summary prefers its newest public work and retains canoni
   assert.equal(page.items[0].displayImageSource, 'featured_work');
   assert.equal(
     page.items[0].displayImageUrl,
-    '/api/scene-templates/shared/post_featured/thumbnail'
+    '/api/community/character-profiles/charprof_featured/featured-image'
   );
   assert.equal(
     page.items[0].thumbnailUrl,
     '/api/community/character-profiles/charprof_featured/thumbnail'
   );
 });
+
+test('automatic Character feature selection prefers active-version engagement over recency', async () => {
+  const profile = {
+    id: 'charprof_ranked',
+    activeVersionId: 'charver_active',
+    ownerUserId: owner.userId,
+    displayName: 'Ranked Mina',
+    intendedUses: ['fashion'],
+    characterType: 'reusable_model',
+    status: 'approved',
+    visibility: 'public',
+    reusePolicy: 'public_reusable',
+    featuredImageMode: 'auto'
+  };
+  const version = {
+    id: 'charver_active',
+    characterProfileId: profile.id,
+    status: 'approved',
+    canonicalCastingExportAssetId: 'job_casting'
+  };
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      listPublic: async () => ({ items: [profile], nextCursor: null, hasMore: false })
+    },
+    versionRepository: { findById: async () => version },
+    generationResultRepository: {
+      findByCharacterProfileIds: async () => [
+        { id: 'job_new', ownerUserId: viewer.userId, imageUrl: '/outputs/new.png', characterProfileContext: { characterProfileId: profile.id } },
+        {
+          id: 'job_active',
+          ownerUserId: viewer.userId,
+          imageUrl: '/outputs/active.png',
+          characterProfileContext: {
+            characterProfileId: profile.id,
+            characterProfileVersionId: version.id
+          }
+        }
+      ]
+    },
+    communityPostRepository: {
+      findPublicBySourceGenerationResultIds: async () => [
+          publicPost('post_new', 'job_new', { likeCount: 99 }, '2026-08-03T12:00:00.000Z'),
+          publicPost('post_active', 'job_active', { likeCount: 2 }, '2026-08-01T12:00:00.000Z')
+        ],
+      findPublicById: async () => null
+    },
+    usageService: { getStats: async () => ({ totalOutputs: 2, byUseCase: {} }) }
+  });
+
+  const page = await service.listPublic({}, viewer);
+  assert.equal(page.items[0].displayImageSource, 'featured_work');
+  assert.equal(page.items[0].displayImageUrl, '/api/community/character-profiles/charprof_ranked/featured-image');
+});
+
+test('owner can select an eligible public Character work and reset to automatic mode', async () => {
+  const profile = {
+    id: 'charprof_manual',
+    ownerUserId: owner.userId,
+    recordVersion: 4,
+    featuredImageMode: 'auto',
+    featuredWorkPostId: null
+  };
+  const updates = [];
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      findByIdForOwner: async () => profile,
+      updateOwned: async (_id, patch) => {
+        updates.push(patch);
+        return {
+          ...profile,
+          featuredImageMode: patch.featuredImageMode,
+          featuredImageSourceType: patch.featuredImageSourceType,
+          featuredGenerationResultId: patch.featuredGenerationResultId,
+          featuredWorkPostId: patch.featuredWorkPostId,
+          recordVersion: profile.recordVersion + updates.length
+        };
+      }
+    },
+    versionRepository: { findById: async () => null },
+    communityCharacterRepository: { upsertProfileProjection: async () => null },
+    communityPostRepository: {
+      findPublicById: async id => id === 'post_owned'
+        ? { id, ownerUserId: viewer.userId, sourceGenerationResultId: 'job_owned' }
+        : null
+    },
+    generationResultRepository: {
+      findById: async () => ({
+        id: 'job_owned',
+        ownerUserId: viewer.userId,
+        imageUrl: '/outputs/job_owned.png',
+        characterProfileContext: { characterProfileId: profile.id }
+      })
+    }
+  });
+
+  const selected = await service.updateFeaturedImage(profile.id, {
+    mode: 'manual',
+    postId: 'post_owned',
+    recordVersion: 4
+  }, owner);
+  assert.equal(selected.featuredImageMode, 'manual');
+  assert.equal(selected.featuredWorkPostId, 'post_owned');
+
+  const automatic = await service.updateFeaturedImage(profile.id, {
+    mode: 'auto',
+    recordVersion: selected.recordVersion
+  }, owner);
+  assert.equal(automatic.featuredImageMode, 'auto');
+  assert.equal(automatic.featuredWorkPostId, null);
+});
+
+test('owner can feature an unshared same-owner Character result', async () => {
+  const profile = {
+    id: 'charprof_private_result',
+    ownerUserId: owner.userId,
+    recordVersion: 2,
+    featuredImageMode: 'auto'
+  };
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      findByIdForOwner: async () => profile,
+      updateOwned: async (_id, patch) => ({ ...profile, ...patch, recordVersion: 3 })
+    },
+    versionRepository: { findById: async () => null },
+    communityCharacterRepository: { upsertProfileProjection: async () => null },
+    generationResultRepository: {
+      findById: async id => ({
+        id,
+        ownerUserId: owner.userId,
+        imageUrl: `/outputs/${id}.png`,
+        characterProfileContext: { characterProfileId: profile.id }
+      })
+    }
+  });
+
+  const selected = await service.updateFeaturedImage(profile.id, {
+    mode: 'manual',
+    sourceType: 'generation_result',
+    sourceId: 'job_private_owner',
+    recordVersion: 2
+  }, owner);
+
+  assert.equal(selected.featuredImageSourceType, 'generation_result');
+  assert.equal(selected.featuredGenerationResultId, 'job_private_owner');
+  assert.equal(selected.featuredWorkPostId, null);
+});
+
+test('owner cannot feature another user result without a public Community post', async () => {
+  const profile = { id: 'charprof_guarded', ownerUserId: owner.userId, recordVersion: 1 };
+  const service = new CharacterProfileSharingService({
+    profileRepository: { findByIdForOwner: async () => profile },
+    generationResultRepository: {
+      findById: async id => ({
+        id,
+        ownerUserId: viewer.userId,
+        imageUrl: `/outputs/${id}.png`,
+        characterProfileContext: { characterProfileId: profile.id }
+      })
+    }
+  });
+
+  await assert.rejects(
+    service.updateFeaturedImage(profile.id, {
+      mode: 'manual',
+      sourceType: 'generation_result',
+      sourceId: 'job_other_private',
+      recordVersion: 1
+    }, owner),
+    error => error.code === 'character_featured_work_ineligible'
+  );
+});
+
+test('featured image candidates combine same-owner results with other users public posts', async () => {
+  const profile = { id: 'charprof_candidates', ownerUserId: owner.userId };
+  const ownerResult = {
+    id: 'job_owner',
+    ownerUserId: owner.userId,
+    imageUrl: '/outputs/job_owner.png',
+    timestamp: Date.parse('2026-08-04T01:00:00.000Z'),
+    characterProfileContext: { characterProfileId: profile.id }
+  };
+  const sharedResult = {
+    id: 'job_shared',
+    ownerUserId: viewer.userId,
+    imageUrl: '/outputs/job_shared.png',
+    timestamp: Date.parse('2026-08-04T00:00:00.000Z'),
+    characterProfileContext: { characterProfileId: profile.id }
+  };
+  const privateOtherResult = {
+    id: 'job_private_other',
+    ownerUserId: viewer.userId,
+    imageUrl: '/outputs/job_private_other.png',
+    characterProfileContext: { characterProfileId: profile.id }
+  };
+  const service = new CharacterProfileSharingService({
+    profileRepository: { findByIdForOwner: async () => profile },
+    generationResultRepository: {
+      findByCharacterProfileIds: async () => [ownerResult, sharedResult, privateOtherResult]
+    },
+    communityPostRepository: {
+      findPublicBySourceGenerationResultIds: async () => [
+        publicPost('post_shared', sharedResult.id, {}, '2026-08-04T00:30:00.000Z')
+      ]
+    }
+  });
+
+  const page = await service.listFeaturedImageCandidates(profile.id, {}, owner);
+  assert.deepEqual(page.items.map(item => item.id), [
+    'generation_result:job_owner',
+    'community_post:post_shared'
+  ]);
+  assert.deepEqual(page.items.map(item => item.ownership), ['owner', 'community']);
+});
+
+function publicPost(id, sourceGenerationResultId, engagementSummary, createdAt) {
+  return {
+    id,
+    ownerUserId: owner.userId,
+    ownerUsername: 'owner',
+    sourceGenerationResultId,
+    imageUrl: `/outputs/${id}.png`,
+    visibility: 'public',
+    status: 'published',
+    engagementSummary,
+    createdAt
+  };
+}

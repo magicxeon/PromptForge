@@ -124,6 +124,14 @@ export class CommunityPostRepository {
     return post;
   }
 
+  async findPublicBySourceGenerationResultIds(ids = []) {
+    const requestedIds = new Set((Array.isArray(ids) ? ids : []).filter(Boolean));
+    if (!requestedIds.size) return [];
+    return (await this.readAll()).filter(post =>
+      requestedIds.has(post.sourceGenerationResultId) && isVisiblePublicPost(post)
+    );
+  }
+
   async create(recordInput = {}, actorContext) {
     const actor = assertActorContext(actorContext);
     const title = String(recordInput.title || '').trim();
