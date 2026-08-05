@@ -25,7 +25,10 @@ import {
   randomizeStudioSelections,
   visibleStudioGroups
 } from '../../studio/studioModePolicy';
-import type { CharacterOutfitBehavior } from '../../studio/referenceAuthorityPolicy';
+import {
+  characterOutfitBehaviorForType,
+  type CharacterOutfitBehavior
+} from '../../studio/referenceAuthorityPolicy';
 import {
   downloadStudioConfig,
   lightweightStudioReferences
@@ -80,7 +83,7 @@ import {
 
 type AuthoringMode = 'guided' | 'manual';
 const FEATURE = 'scene-builder';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const SIMPLE_VISIBLE_GROUPS = new Set([
   'Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Quality'
 ]);
@@ -120,6 +123,9 @@ export function SceneBuilderRoute() {
   );
   const [scenePoseRecipeId, setScenePoseRecipeId] = useState<string | null>(
     initialHandoff.snapshot?.scenePoseRecipeId || initialDraft.scenePoseRecipeId
+  );
+  const [appliedScenePoseRecipeVersion, setAppliedScenePoseRecipeVersion] = useState<number | null>(
+    initialHandoff.snapshot?.scenePoseRecipeVersion || initialDraft.scenePoseRecipeVersion
   );
   const [snapshot, setSnapshot] = useState<SceneTemplateSnapshot | null>(initialHandoff.snapshot);
   const [templateUseContext, setTemplateUseContext] = useState<TemplateUseContext | null>(
@@ -211,9 +217,10 @@ export function SceneBuilderRoute() {
     additionalDirection,
     poseControlMode,
     scenePoseRecipeId,
-    scenePoseRecipeVersion: selectedScenePoseRecipe?.version || null
+    scenePoseRecipeVersion: appliedScenePoseRecipeVersion
   }), [
     additionalDirection,
+    appliedScenePoseRecipeVersion,
     effectiveCustomColors,
     generationGuidedSelections,
     guidedPreview,
@@ -221,8 +228,7 @@ export function SceneBuilderRoute() {
     mode,
     poseControlMode,
     references,
-    scenePoseRecipeId,
-    selectedScenePoseRecipe?.version
+    scenePoseRecipeId
   ]);
   const effectiveSnapshot = snapshot || authoredSnapshot;
   const useTemplate = useMutation({
@@ -237,6 +243,7 @@ export function SceneBuilderRoute() {
       setMode(next.snapshot.authoringMode);
       setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
       setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
+      setAppliedScenePoseRecipeVersion(next.snapshot.scenePoseRecipeVersion || null);
       setSelections(next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>);
       setCustomColors(createStudioCustomColors(readSnapshotCustomColors(next.snapshot)));
       setManualPrompt(next.snapshot.manualPromptSnapshot || next.snapshot.finalPromptSnapshot || '');
@@ -310,6 +317,7 @@ export function SceneBuilderRoute() {
     setAdditionalDirection(next.additionalDirection);
     setPoseControlMode(next.poseControlMode);
     setScenePoseRecipeId(next.scenePoseRecipeId);
+    setAppliedScenePoseRecipeVersion(next.scenePoseRecipeVersion);
     setSnapshot(null);
     setTemplateUseContext(null);
     clearHandoff('scene-template');
@@ -331,6 +339,7 @@ export function SceneBuilderRoute() {
       setMode(next.snapshot.authoringMode);
       setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
       setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
+      setAppliedScenePoseRecipeVersion(next.snapshot.scenePoseRecipeVersion || null);
       setSelections(
         next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>
       );
@@ -367,9 +376,14 @@ export function SceneBuilderRoute() {
 
   useEffect(() => {
     if (mode !== 'guided' || poseControlMode !== 'simple') return;
-    if (scenePoseRecipeId || !scenePoseRecipes.length || !groups.length) return;
-    const recipe = scenePoseRecipes[0];
+    if (templateUseContext || !scenePoseRecipes.length || !groups.length) return;
+    const recipe = scenePoseRecipes.find(item => item.id === scenePoseRecipeId)
+      || scenePoseRecipes[0];
     if (!recipe) return;
+    if (
+      scenePoseRecipeId === recipe.id
+      && appliedScenePoseRecipeVersion === recipe.version
+    ) return;
     const result = applyScenePoseRecipe({
       recipe,
       groups,
@@ -378,8 +392,10 @@ export function SceneBuilderRoute() {
       blockedGroups: blockedRecipeGroups
     });
     setScenePoseRecipeId(recipe.id);
+    setAppliedScenePoseRecipeVersion(recipe.version);
     setSelections(result.selections);
   }, [
+    appliedScenePoseRecipeVersion,
     blockedRecipeGroups,
     editableTemplateFields,
     groups,
@@ -387,7 +403,8 @@ export function SceneBuilderRoute() {
     poseControlMode,
     scenePoseRecipeId,
     scenePoseRecipes,
-    selections
+    selections,
+    templateUseContext
   ]);
 
   useEffect(() => {
@@ -404,10 +421,11 @@ export function SceneBuilderRoute() {
         customColors,
         additionalDirection,
         poseControlMode,
-        scenePoseRecipeId
+        scenePoseRecipeId,
+        scenePoseRecipeVersion: appliedScenePoseRecipeVersion
       }
     });
-  }, [actor?.userId, additionalDirection, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections]);
+  }, [actor?.userId, additionalDirection, appliedScenePoseRecipeVersion, customColors, lockedFields, manualPrompt, mode, poseControlMode, scenePoseRecipeId, selections]);
 
   useEffect(() => {
     if (!bundle.isLoading && location.hash === '#studio-configurator-title') {
@@ -440,7 +458,7 @@ export function SceneBuilderRoute() {
             setFaceReferenceContext(null);
           }
           if (next.character_reference !== references.character_reference) {
-            setCharacterOutfitBehavior('preserve');
+            setCharacterOutfitBehavior('replaceable');
             setCharacterProfileContext(null);
           }
           setReferences(next);
@@ -528,6 +546,7 @@ export function SceneBuilderRoute() {
                   blockedGroups: blockedRecipeGroups
                 });
                 setScenePoseRecipeId(recipe.id);
+                setAppliedScenePoseRecipeVersion(recipe.version);
                 setSelections(result.selections);
                 if (!templateUseContext) setSnapshot(null);
               }}
@@ -581,9 +600,11 @@ export function SceneBuilderRoute() {
               selectedRole={historyRole}
               onRoleChange={setHistoryRole}
               viewAllHref={creatorProfileBase ? `${creatorProfileBase}/gallery` : null}
-              onPick={(role, imageUrl) => {
+              onPick={(role, imageUrl, item) => {
                 if (role === 'character_reference') {
-                  setCharacterOutfitBehavior('preserve');
+                  setCharacterOutfitBehavior(characterOutfitBehaviorForType(
+                    item.characterSheetConfig?.characterType
+                  ));
                   setCharacterProfileContext(null);
                 }
                 setReferences(current => ({ ...current, [role]: imageUrl }));
@@ -601,6 +622,7 @@ export function SceneBuilderRoute() {
               setAdditionalDirection('');
               setPoseControlMode('simple');
               setScenePoseRecipeId(null);
+              setAppliedScenePoseRecipeVersion(null);
               setManualPrompt('');
               setSnapshot(null);
               setTemplateUseContext(null);
@@ -659,6 +681,7 @@ function loadSceneDraft(actorId: string): {
   additionalDirection: string;
   poseControlMode: ScenePoseControlMode;
   scenePoseRecipeId: string | null;
+  scenePoseRecipeVersion: number | null;
 } {
   type SceneDraft = {
     mode: AuthoringMode;
@@ -669,6 +692,7 @@ function loadSceneDraft(actorId: string): {
     additionalDirection?: string;
     poseControlMode?: ScenePoseControlMode;
     scenePoseRecipeId?: string | null;
+    scenePoseRecipeVersion?: number | null;
   };
   const empty: SceneDraft = {
     mode: 'guided',
@@ -678,7 +702,8 @@ function loadSceneDraft(actorId: string): {
     customColors: createStudioCustomColors(),
     additionalDirection: '',
     poseControlMode: 'simple',
-    scenePoseRecipeId: null
+    scenePoseRecipeId: null,
+    scenePoseRecipeVersion: null
   };
   const parsed = readActorScopedDraft<SceneDraft>({
     actorId,
@@ -689,11 +714,15 @@ function loadSceneDraft(actorId: string): {
       const payload = envelope.payload;
       if (!payload || typeof payload !== 'object') return null;
       const legacy = payload as SceneDraft;
+      if (envelope.schemaVersion >= 2) {
+        return { ...empty, ...legacy, scenePoseRecipeVersion: null };
+      }
       return {
         ...empty,
         ...legacy,
         poseControlMode: Object.keys(legacy.selections || {}).length ? 'advanced' : 'simple',
-        scenePoseRecipeId: null
+        scenePoseRecipeId: null,
+        scenePoseRecipeVersion: null
       };
     }
   });
@@ -713,6 +742,9 @@ function loadSceneDraft(actorId: string): {
     poseControlMode: parsed.poseControlMode === 'advanced' ? 'advanced' : 'simple',
     scenePoseRecipeId: typeof parsed.scenePoseRecipeId === 'string'
       ? parsed.scenePoseRecipeId
+      : null,
+    scenePoseRecipeVersion: Number.isInteger(parsed.scenePoseRecipeVersion)
+      ? Number(parsed.scenePoseRecipeVersion)
       : null
   };
 }
@@ -735,10 +767,11 @@ function getTemplateReferenceRoles(
   const schemaRoles = context?.publicInputSchema.inputs
     .filter(input => input.type === 'reference_image' && input.replacementPolicy !== 'locked')
     .flatMap(input => normalizeRole(input.sourceFieldName)) || [];
-  return [...new Set([
-    ...Object.keys(snapshot.referenceSlotMapping).flatMap(normalizeRole),
-    ...schemaRoles
-  ])];
+  if (context) return [...new Set(schemaRoles)];
+  const snapshotRoles = Object.entries(snapshot.referenceSlotMapping)
+    .filter(([, policy]) => policy.replacementPolicy !== 'locked')
+    .flatMap(([fieldName]) => normalizeRole(fieldName));
+  return [...new Set(snapshotRoles)];
 }
 
 function getRequiredReferenceRoles(

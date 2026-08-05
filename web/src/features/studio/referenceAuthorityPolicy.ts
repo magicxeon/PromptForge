@@ -15,6 +15,13 @@ export type ReferenceAuthority =
   | 'template';
 export type GenerationReferences = Partial<Record<GenerationReferenceRole, string>>;
 export type CharacterOutfitBehavior = 'replaceable' | 'preserve';
+export type CharacterReferenceType = 'reusable_model' | 'styled_character' | null | undefined;
+
+export function characterOutfitBehaviorForType(
+  characterType: CharacterReferenceType
+): CharacterOutfitBehavior {
+  return characterType === 'styled_character' ? 'preserve' : 'replaceable';
+}
 
 const CHARACTER_OWNED_GROUPS = new Set([
   'Character',

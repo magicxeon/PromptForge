@@ -86,21 +86,35 @@ export function GuidedAttributeForm({
   }, [openGroup, singleOpen, visible]);
   const gender = selections.Gender;
   const customCharacterCount = countCustomSelectionCharacters(selections);
+  const selectableGroupNames = useMemo(() => new Set(
+    visible
+      .filter(group => group.fields.some(field => !resolveFieldReferenceAuthority(
+        field,
+        references,
+        characterOutfitBehavior,
+        authorityProjection
+      )))
+      .map(group => group.group)
+  ), [authorityProjection, characterOutfitBehavior, references, visible]);
   return (
     <div className="studio-attribute-groups">
-      {visible.map((group, groupIndex) => (
-        <details
-          key={group.group}
-          ref={element => {
-            if (element) groupRefs.current.set(group.group, element);
-            else groupRefs.current.delete(group.group);
-          }}
-          open={singleOpen ? openGroup === group.group : groupIndex < 2}
-          onToggle={event => {
-            if (singleOpen && event.currentTarget.open) setOpenGroup(group.group);
-          }}
-          className="studio-attribute-group"
-        >
+      {visible.map((group, groupIndex) => {
+        const nextGroup = visible
+          .slice(groupIndex + 1)
+          .find(candidate => selectableGroupNames.has(candidate.group));
+        return (
+          <details
+            key={group.group}
+            ref={element => {
+              if (element) groupRefs.current.set(group.group, element);
+              else groupRefs.current.delete(group.group);
+            }}
+            open={singleOpen ? openGroup === group.group : groupIndex < 2}
+            onToggle={event => {
+              if (singleOpen && event.currentTarget.open) setOpenGroup(group.group);
+            }}
+            className="studio-attribute-group"
+          >
           <summary>
             <span>{group.group}</span>
             <small>{group.fields.filter(field => selections[field.name]).length}/{group.fields.length}</small>
@@ -147,10 +161,9 @@ export function GuidedAttributeForm({
                 <Button
                   size="sm"
                   variant="secondary"
-                  disabled={groupIndex === visible.length - 1}
-                  icon={groupIndex < visible.length - 1 ? <ArrowRight aria-hidden="true" /> : undefined}
+                  disabled={!nextGroup}
+                  icon={nextGroup ? <ArrowRight aria-hidden="true" /> : undefined}
                   onClick={() => {
-                    const nextGroup = visible[groupIndex + 1];
                     if (!nextGroup) return;
                     setOpenGroup(nextGroup.group);
                     window.setTimeout(() => {
@@ -163,15 +176,16 @@ export function GuidedAttributeForm({
                     }, 0);
                   }}
                 >
-                  {groupIndex < visible.length - 1
+                  {nextGroup
                     ? t('ui.studio.nextSettings')
                     : t('ui.studio.settingsComplete')}
                 </Button>
               </div>
             ) : null}
           </div>
-        </details>
-      ))}
+          </details>
+        );
+      })}
     </div>
   );
 }

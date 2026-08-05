@@ -2,9 +2,14 @@ import { z } from 'zod';
 import { apiRequest } from '../../../lib/api/apiClient';
 import { collectionsSchema, historyItemSchema, historyPageSchema } from '../schemas/historySchemas';
 
-export function listHistory(cursor?: string | null, collectionId = 'all') {
+export function listHistory(
+  cursor?: string | null,
+  collectionId = 'all',
+  referenceRole?: string | null
+) {
   const query = new URLSearchParams({ limit: '24', collectionId });
   if (cursor) query.set('cursor', cursor);
+  if (referenceRole) query.set('referenceRole', referenceRole);
   return apiRequest(`/api/history?${query}`, { schema: historyPageSchema });
 }
 

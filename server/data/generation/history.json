@@ -1,5 +1,2382 @@
 [
   {
+    "id": "job_1785934371257_83ubb9w84",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Preserve the original outfit identity and garment details from the outfit-bound character reference. Follow the destination expression, pose, styling, and environment directions without replacing the original outfit. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, subtle friendly smile, one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed, natural relaxed hands kept clear of all key garment details, warm direct eye contact with an engaging selling connection, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, in a clean seamless commerce studio with an unobtrusive neutral background, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, full-body shot, 50mm lens, eye-level shot, centered symmetry composition, For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides, If footwear is not otherwise specified by the clothing direction or visibly supplied by an outfit reference, select simple coherent footwear appropriate to the outfit, environment, and action; keep both shoes fully visible and do not add unrelated accessories (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785934371257_83ubb9w84.jpg",
+    "timestamp": 1785934383189,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed",
+        "label": "Front Product View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern mirrorless camera",
+        "label": "Modern Mirrorless Camera",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "sharp prime lens",
+        "label": "Sharp Prime Lens",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+        "label": "Optical Imperfections",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.seamless",
+        "value": "in a clean seamless commerce studio with an unobtrusive neutral background",
+        "label": "Seamless Commerce Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "label": "Marketplace Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.clear",
+        "value": "natural relaxed hands kept clear of all key garment details",
+        "label": "Hands Clear of Garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.selling",
+        "value": "warm direct eye contact with an engaging selling connection",
+        "label": "Direct Selling Connection",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Framing": {
+        "id": "camera.framing_06",
+        "value": "full-body shot",
+        "label": "Full-body Shot",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "full body"
+        ],
+        "gptPositiveWords": []
+      },
+      "Focal Length": {
+        "id": "camera.focal_01",
+        "value": "50mm lens",
+        "label": "50mm (Natural View)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "50mm"
+        ],
+        "gptPositiveWords": []
+      },
+      "Perspective": {
+        "id": "camera.perspective_01",
+        "value": "eye-level shot",
+        "label": "Eye-level Natural View",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "perspective",
+          "eye level"
+        ],
+        "gptPositiveWords": []
+      },
+      "Composition": {
+        "id": "camera.composition_02",
+        "value": "centered symmetry composition",
+        "label": "Centered Symmetry",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "composition",
+          "symmetrical"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "poseControlMode": "simple",
+      "scenePoseRecipeId": "scene-pose.clean-front-display",
+      "scenePoseRecipeVersion": 2,
+      "finalPromptSnapshot": "one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, in a clean seamless commerce studio with an unobtrusive neutral background, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, natural relaxed hands kept clear of all key garment details, warm direct eye contact with an engaging selling connection, full-body shot, 50mm lens, eye-level shot, centered symmetry composition, subtle friendly smile, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Pose Intent": {
+          "id": "pose.fashion.front-product",
+          "value": "one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed",
+          "label": "Front Product View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Brand": {
+          "id": "camera.brand_01",
+          "value": "shot on a modern mirrorless camera",
+          "label": "Modern Mirrorless Camera",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "brand",
+            "mirrorless"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lens": {
+          "id": "camera.lens_01",
+          "value": "sharp prime lens",
+          "label": "Sharp Prime Lens",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "lens",
+            "prime"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_02",
+          "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+          "label": "Optical Imperfections",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "lens"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.seamless",
+          "value": "in a clean seamless commerce studio with an unobtrusive neutral background",
+          "label": "Seamless Commerce Studio",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.marketplace",
+          "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+          "label": "Marketplace Commerce",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.clear",
+          "value": "natural relaxed hands kept clear of all key garment details",
+          "label": "Hands Clear of Garment",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.selling",
+          "value": "warm direct eye contact with an engaging selling connection",
+          "label": "Direct Selling Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Framing": {
+          "id": "camera.framing_06",
+          "value": "full-body shot",
+          "label": "Full-body Shot",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "full body"
+          ],
+          "gptPositiveWords": []
+        },
+        "Focal Length": {
+          "id": "camera.focal_01",
+          "value": "50mm lens",
+          "label": "50mm (Natural View)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "50mm"
+          ],
+          "gptPositiveWords": []
+        },
+        "Perspective": {
+          "id": "camera.perspective_01",
+          "value": "eye-level shot",
+          "label": "Eye-level Natural View",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "perspective",
+            "eye level"
+          ],
+          "gptPositiveWords": []
+        },
+        "Composition": {
+          "id": "camera.composition_02",
+          "value": "centered symmetry composition",
+          "label": "Centered Symmetry",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "composition",
+            "symmetrical"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.front-product",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_brand",
+          "label": "Brand",
+          "type": "select_option",
+          "sourceFieldName": "Brand",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.brand_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lens",
+          "label": "Lens",
+          "type": "select_option",
+          "sourceFieldName": "Lens",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.lens_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.seamless",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.marketplace",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.selling",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_framing",
+          "label": "Framing",
+          "type": "select_option",
+          "sourceFieldName": "Framing",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.framing_06",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_focal_length",
+          "label": "Focal Length",
+          "type": "select_option",
+          "sourceFieldName": "Focal Length",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.focal_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_perspective",
+          "label": "Perspective",
+          "type": "select_option",
+          "sourceFieldName": "Perspective",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.perspective_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_composition",
+          "label": "Composition",
+          "type": "select_option",
+          "sourceFieldName": "Composition",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.composition_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785934371257_83ubb9w84",
+      "createdAt": 1785934383189
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "236e334fb03f6331677c9067236479d0c4fbc462ea5d6f1178d93ec4fd119d0a",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 46,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785934371257_83ubb9w84.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 32022,
+    "originalBytes": 457327,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 45,
+      "providerMs": 11813,
+      "outputPersistenceMs": 234,
+      "totalMs": 12093
+    }
+  },
+  {
+    "id": "job_1785934319894_q9ueniqep",
+    "username": "user_alice",
+    "prompt": "Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. subtle friendly smile, wearing a plain T-shirt with loose wide-leg jeans, one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed, natural relaxed hands kept clear of all key garment details, warm direct eye contact with an engaging selling connection, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, in a clean seamless commerce studio with an unobtrusive neutral background, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, full-body shot, 50mm lens, eye-level shot, centered symmetry composition, For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides, If footwear is not otherwise specified by the clothing direction or visibly supplied by an outfit reference, select simple coherent footwear appropriate to the outfit, environment, and action; keep both shoes fully visible and do not add unrelated accessories (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785934319894_q9ueniqep.jpg",
+    "timestamp": 1785934326735,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {
+      "Outfit Base": {
+        "id": "outfit.base.unisex.tshirt_wide_jeans",
+        "value": "wearing a plain T-shirt with loose wide-leg jeans",
+        "label": "T-shirt and Wide Jeans",
+        "isCustom": false,
+        "group": "Clothing",
+        "category": "clothing",
+        "tags": [
+          "clothing",
+          "outfit-base",
+          "outfit-base-unisex",
+          "casual",
+          "street"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.front-product",
+        "value": "one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed",
+        "label": "Front Product View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.ecommerce",
+        "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+        "label": "Even E-commerce Softbox",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern mirrorless camera",
+        "label": "Modern Mirrorless Camera",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "sharp prime lens",
+        "label": "Sharp Prime Lens",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+        "label": "Optical Imperfections",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.seamless",
+        "value": "in a clean seamless commerce studio with an unobtrusive neutral background",
+        "label": "Seamless Commerce Studio",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "label": "Marketplace Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.clear",
+        "value": "natural relaxed hands kept clear of all key garment details",
+        "label": "Hands Clear of Garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.selling",
+        "value": "warm direct eye contact with an engaging selling connection",
+        "label": "Direct Selling Connection",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "social",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Framing": {
+        "id": "camera.framing_06",
+        "value": "full-body shot",
+        "label": "Full-body Shot",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "full body"
+        ],
+        "gptPositiveWords": []
+      },
+      "Focal Length": {
+        "id": "camera.focal_01",
+        "value": "50mm lens",
+        "label": "50mm (Natural View)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "50mm"
+        ],
+        "gptPositiveWords": []
+      },
+      "Perspective": {
+        "id": "camera.perspective_01",
+        "value": "eye-level shot",
+        "label": "Eye-level Natural View",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "perspective",
+          "eye level"
+        ],
+        "gptPositiveWords": []
+      },
+      "Composition": {
+        "id": "camera.composition_02",
+        "value": "centered symmetry composition",
+        "label": "Centered Symmetry",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "composition",
+          "symmetrical"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "poseControlMode": "simple",
+      "scenePoseRecipeId": "scene-pose.clean-front-display",
+      "scenePoseRecipeVersion": 2,
+      "finalPromptSnapshot": "wearing a plain T-shirt with loose wide-leg jeans, one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed, even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, in a clean seamless commerce studio with an unobtrusive neutral background, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, natural relaxed hands kept clear of all key garment details, warm direct eye contact with an engaging selling connection, full-body shot, 50mm lens, eye-level shot, centered symmetry composition, subtle friendly smile, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Outfit Base": {
+          "id": "outfit.base.unisex.tshirt_wide_jeans",
+          "value": "wearing a plain T-shirt with loose wide-leg jeans",
+          "label": "T-shirt and Wide Jeans",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "outfit-base-unisex",
+            "casual",
+            "street"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.front-product",
+          "value": "one full-body subject in a clean front-facing fashion product stance, shoulders and pelvis square to the camera, head facing forward, weight balanced naturally across both feet, feet separated at a comfortable hip-width distance, arms relaxed beside the torso, both hands fully visible and clear of the garment, complete front construction and silhouette unobstructed",
+          "label": "Front Product View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.ecommerce",
+          "value": "even neutral e-commerce softbox lighting, accurate garment color, texture, and construction clearly visible, minimal distracting shadows",
+          "label": "Even E-commerce Softbox",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Brand": {
+          "id": "camera.brand_01",
+          "value": "shot on a modern mirrorless camera",
+          "label": "Modern Mirrorless Camera",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "brand",
+            "mirrorless"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lens": {
+          "id": "camera.lens_01",
+          "value": "sharp prime lens",
+          "label": "Sharp Prime Lens",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "lens",
+            "prime"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_02",
+          "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+          "label": "Optical Imperfections",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "lens"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.seamless",
+          "value": "in a clean seamless commerce studio with an unobtrusive neutral background",
+          "label": "Seamless Commerce Studio",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.marketplace",
+          "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+          "label": "Marketplace Commerce",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.clear",
+          "value": "natural relaxed hands kept clear of all key garment details",
+          "label": "Hands Clear of Garment",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.selling",
+          "value": "warm direct eye contact with an engaging selling connection",
+          "label": "Direct Selling Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "social",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Framing": {
+          "id": "camera.framing_06",
+          "value": "full-body shot",
+          "label": "Full-body Shot",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "full body"
+          ],
+          "gptPositiveWords": []
+        },
+        "Focal Length": {
+          "id": "camera.focal_01",
+          "value": "50mm lens",
+          "label": "50mm (Natural View)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "50mm"
+          ],
+          "gptPositiveWords": []
+        },
+        "Perspective": {
+          "id": "camera.perspective_01",
+          "value": "eye-level shot",
+          "label": "Eye-level Natural View",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "perspective",
+            "eye level"
+          ],
+          "gptPositiveWords": []
+        },
+        "Composition": {
+          "id": "camera.composition_02",
+          "value": "centered symmetry composition",
+          "label": "Centered Symmetry",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "composition",
+            "symmetrical"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.unisex.tshirt_wide_jeans",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.front-product",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.ecommerce",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_brand",
+          "label": "Brand",
+          "type": "select_option",
+          "sourceFieldName": "Brand",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.brand_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lens",
+          "label": "Lens",
+          "type": "select_option",
+          "sourceFieldName": "Lens",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.lens_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.seamless",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.marketplace",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.selling",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_framing",
+          "label": "Framing",
+          "type": "select_option",
+          "sourceFieldName": "Framing",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.framing_06",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_focal_length",
+          "label": "Focal Length",
+          "type": "select_option",
+          "sourceFieldName": "Focal Length",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.focal_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_perspective",
+          "label": "Perspective",
+          "type": "select_option",
+          "sourceFieldName": "Perspective",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.perspective_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_composition",
+          "label": "Composition",
+          "type": "select_option",
+          "sourceFieldName": "Composition",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.composition_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.004",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785934319894_q9ueniqep",
+      "createdAt": 1785934326735
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "320f41c1458f347da4adf6b302a5ee825c5d4e65590a880cf9d8fd0a97d8f623",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "6.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785934319894_q9ueniqep.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 34812,
+    "originalBytes": 608374,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 1,
+      "providerMs": 6775,
+      "outputPersistenceMs": 272,
+      "totalMs": 7050
+    }
+  },
+  {
+    "id": "job_1785843111112_bobr9jzl0",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Preserve the original outfit identity and garment details from the outfit-bound character reference. Follow the destination expression, pose, styling, and environment directions without replacing the original outfit. Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene, three-quarter fashion product pose showing front construction and side silhouette, natural relaxed hands kept clear of all key garment details, soft confident connection with the camera, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, in a minimal clean product photography corner, high-key seamless studio lighting with clean soft shadows and clear product separation, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, full-body shot, 85mm lens, eye-level shot, rule-of-thirds composition, For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides, If footwear is not otherwise specified by the clothing direction or visibly supplied by an outfit reference, select simple coherent footwear appropriate to the outfit, environment, and action; keep both shoes fully visible and do not add unrelated accessories (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1785843111112_bobr9jzl0.png",
+    "timestamp": 1785843143953,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "normal",
+    "selections": {
+      "Pose Intent": {
+        "id": "pose.fashion.three-quarter",
+        "value": "three-quarter fashion product pose showing front construction and side silhouette",
+        "label": "Three-quarter Product View",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.high-key",
+        "value": "high-key seamless studio lighting with clean soft shadows and clear product separation",
+        "label": "High-key Seamless Studio",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Brand": {
+        "id": "camera.brand_01",
+        "value": "shot on a modern mirrorless camera",
+        "label": "Modern Mirrorless Camera",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "brand",
+          "mirrorless"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lens": {
+        "id": "camera.lens_01",
+        "value": "sharp prime lens",
+        "label": "Sharp Prime Lens",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "lens",
+          "prime"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_02",
+        "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+        "label": "Optical Imperfections",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "lens"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.product-corner",
+        "value": "in a minimal clean product photography corner",
+        "label": "Minimal Product Corner",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "marketplace"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Direction": {
+        "id": "fashion.marketplace",
+        "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+        "label": "Marketplace Commerce",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "marketplace",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.clear",
+        "value": "natural relaxed hands kept clear of all key garment details",
+        "label": "Hands Clear of Garment",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.soft",
+        "value": "soft confident connection with the camera",
+        "label": "Soft Camera Connection",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Framing": {
+        "id": "camera.framing_06",
+        "value": "full-body shot",
+        "label": "Full-body Shot",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "full body"
+        ],
+        "gptPositiveWords": []
+      },
+      "Focal Length": {
+        "id": "camera.focal_02",
+        "value": "85mm lens",
+        "label": "85mm (Classic Portrait)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "85mm"
+        ],
+        "gptPositiveWords": []
+      },
+      "Perspective": {
+        "id": "camera.perspective_01",
+        "value": "eye-level shot",
+        "label": "Eye-level Natural View",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "perspective",
+          "eye level"
+        ],
+        "gptPositiveWords": []
+      },
+      "Composition": {
+        "id": "camera.composition_01",
+        "value": "rule-of-thirds composition",
+        "label": "Rule of Thirds",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "composition",
+          "thirds"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "guided",
+      "manualPromptText": "",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "poseControlMode": "simple",
+      "scenePoseRecipeId": "scene-pose.relaxed-three-quarter",
+      "scenePoseRecipeVersion": 1,
+      "finalPromptSnapshot": "three-quarter fashion product pose showing front construction and side silhouette, high-key seamless studio lighting with clean soft shadows and clear product separation, shot on a modern mirrorless camera, sharp prime lens, minor chromatic aberration, corner softness, realistic lens optical imperfections, in a minimal clean product photography corner, marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible, natural relaxed hands kept clear of all key garment details, soft confident connection with the camera, full-body shot, 85mm lens, eye-level shot, rule-of-thirds composition, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Pose Intent": {
+          "id": "pose.fashion.three-quarter",
+          "value": "three-quarter fashion product pose showing front construction and side silhouette",
+          "label": "Three-quarter Product View",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.high-key",
+          "value": "high-key seamless studio lighting with clean soft shadows and clear product separation",
+          "label": "High-key Seamless Studio",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Brand": {
+          "id": "camera.brand_01",
+          "value": "shot on a modern mirrorless camera",
+          "label": "Modern Mirrorless Camera",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "brand",
+            "mirrorless"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lens": {
+          "id": "camera.lens_01",
+          "value": "sharp prime lens",
+          "label": "Sharp Prime Lens",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "lens",
+            "prime"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_02",
+          "value": "minor chromatic aberration, corner softness, realistic lens optical imperfections",
+          "label": "Optical Imperfections",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "lens"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.product-corner",
+          "value": "in a minimal clean product photography corner",
+          "label": "Minimal Product Corner",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "marketplace"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Direction": {
+          "id": "fashion.marketplace",
+          "value": "marketplace fashion commerce photography, product-first styling, garment details and silhouette clearly visible",
+          "label": "Marketplace Commerce",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "marketplace",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.clear",
+          "value": "natural relaxed hands kept clear of all key garment details",
+          "label": "Hands Clear of Garment",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.soft",
+          "value": "soft confident connection with the camera",
+          "label": "Soft Camera Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Framing": {
+          "id": "camera.framing_06",
+          "value": "full-body shot",
+          "label": "Full-body Shot",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "full body"
+          ],
+          "gptPositiveWords": []
+        },
+        "Focal Length": {
+          "id": "camera.focal_02",
+          "value": "85mm lens",
+          "label": "85mm (Classic Portrait)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "85mm"
+          ],
+          "gptPositiveWords": []
+        },
+        "Perspective": {
+          "id": "camera.perspective_01",
+          "value": "eye-level shot",
+          "label": "Eye-level Natural View",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "perspective",
+            "eye level"
+          ],
+          "gptPositiveWords": []
+        },
+        "Composition": {
+          "id": "camera.composition_01",
+          "value": "rule-of-thirds composition",
+          "label": "Rule of Thirds",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "composition",
+            "thirds"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "role": "outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.three-quarter",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.high-key",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_brand",
+          "label": "Brand",
+          "type": "select_option",
+          "sourceFieldName": "Brand",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.brand_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lens",
+          "label": "Lens",
+          "type": "select_option",
+          "sourceFieldName": "Lens",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.lens_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.product-corner",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.marketplace",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.soft",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_framing",
+          "label": "Framing",
+          "type": "select_option",
+          "sourceFieldName": "Framing",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.framing_06",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_focal_length",
+          "label": "Focal Length",
+          "type": "select_option",
+          "sourceFieldName": "Focal Length",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.focal_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_perspective",
+          "label": "Perspective",
+          "type": "select_option",
+          "sourceFieldName": "Perspective",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.perspective_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_composition",
+          "label": "Composition",
+          "type": "select_option",
+          "sourceFieldName": "Composition",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.composition_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_1785843111112_bobr9jzl0",
+      "createdAt": 1785843143953
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-07-v4",
+      "planFingerprint": "8f4aa1dbb9f988693a6ce1db1818cf69ab08b9bffc804bf3a3a40ffc02ec5c12",
+      "executionMode": "single_stage",
+      "referenceCount": 1,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 95,
+    "mimeType": "image/png",
+    "width": 1024,
+    "height": 1536,
+    "usage": {
+      "input_tokens": 6907,
+      "input_tokens_details": {
+        "image_tokens": 6563,
+        "text_tokens": 344
+      },
+      "output_tokens": 1928,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 344
+      },
+      "total_tokens": 8835
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "32.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1785843111112_bobr9jzl0.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 853,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 61000,
+    "originalBytes": 2211543,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 31,
+      "providerMs": 32736,
+      "outputPersistenceMs": 302,
+      "totalMs": 33071
+    }
+  },
+  {
     "id": "job_fashion_ee4687af8cac1af742_1",
     "username": "user_alice",
     "prompt": "Create exactly one photorealistic vertical commercial fashion photograph.\n\nIMAGE_1 is the exclusive authority for the final person. Reconstruct this exact recognizable adult character before applying the target pose. Preserve facial identity, facial proportions, skin tone, hairstyle, height relationship, body shape, and complete body proportions. Ignore the source background, source pose, source clothing, and casting-sheet layout. Do not average or blend identity traits from any other image.\n\nIMAGE_2 is the exclusive authority for the clothing. Dress the exact character from IMAGE_1 in this product. Preserve garment category, silhouette, construction, color, pattern, material, seams, closures, fit, and visible product details. Infer only physically necessary drape, folds, and hidden areas. Ignore any wearer identity, body, pose, environment, and lighting in the outfit source.\n\nIMAGE_0 is an identity-neutral structural pose proxy. Use it only for pose joints, movement, hand placement, neck and head direction, gaze, camera, framing, perspective, environment, architecture, and lighting. It has no identity, face, skin, hair, body, garment, accessory, or footwear authority. Replace the proxy completely and never render mannequin surfaces, wireframe lines, grid lines, or proxy clothing.\n\nIdentity, skin, hair, height, and body proportions must come from IMAGE_1 only. Garment must come from IMAGE_2 only. Pose and composition must come from IMAGE_0 only.\n\nCreate a polished ecommerce fashion campaign image. Use a 6:8 vertical composition. Keep the complete head-to-feet subject visible with a clear safety margin. Preserve the pose proxy camera, framing, environment, lighting, walking action, joint positions, hand placement, neck rotation, head direction, and gaze. Use simple coherent footwear only when footwear is not supplied by the outfit reference. Do not add jewelry, bags, logos, accessories, garment layers, text, labels, watermarks, extra people, multiple views, a casting sheet, a contact sheet, or a split screen.\n\nOutput one person in one continuous full-frame photograph. Do not blend identities or reproduce a person from the original Template.",

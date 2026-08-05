@@ -943,7 +943,7 @@
     },
     "prompt": {
       "default": "slightly low angle",
-      "gpt-image": "medium close-up shot captured from a slightly low camera angle, highlighting posture",
+      "gpt-image": "shot from a slightly low camera angle highlighting posture while preserving the separately selected framing",
       "gpt-image-safe": "shot captured from a slightly low camera angle highlighting posture",
       "gpt-image-positive": "low-angle portrait, majestic posture, high-fashion framing"
     },

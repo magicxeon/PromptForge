@@ -300,23 +300,31 @@ export function compilePromptFromGenerationContext(context) {
         : 'Follow the destination expression, pose, clothing, styling, and environment directions.'
     ]
     : [];
+  const sceneOutputDirective = context.generationMode === 'scene'
+    ? [
+      'Create exactly one continuous photograph containing one person shown once in one pose.',
+      'Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions.',
+      'Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition.'
+    ].join(' ')
+    : '';
+  const directedPrompt = [sceneOutputDirective, templateDirectedPrompt].filter(Boolean).join(' ');
   return castingExport
       ? (context.userRole === 'admin' && adminPromptOverride
-      ? `${castingPolicy.promptDirective}, ${templateDirectedPrompt}`
-      : templateDirectedPrompt)
+      ? `${castingPolicy.promptDirective}, ${directedPrompt}`
+      : directedPrompt)
     : context.characterProfileContext?.purpose === 'character_usage'
       ? [
         ...characterReferenceDirective,
         context.characterProfileContext.personalitySummarySnapshot
           ? `Portray the character personality as: ${context.characterProfileContext.personalitySummarySnapshot}.`
           : '',
-        templateDirectedPrompt
+        directedPrompt
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
-        ? [...characterReferenceDirective, templateDirectedPrompt].filter(Boolean).join(' ')
+        ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
-        ? `${castingPolicy.promptDirective}, ${templateDirectedPrompt}`
-        : templateDirectedPrompt;
+        ? `${castingPolicy.promptDirective}, ${directedPrompt}`
+        : directedPrompt;
 }
 
 export function createQueueOptions(context, {

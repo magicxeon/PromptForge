@@ -2,6 +2,10 @@ import {
   HistoryCursorError,
   isCustomerVisibleHistoryItem
 } from '../../repositories/generation/HistoryRepository.js';
+import {
+  HISTORY_REFERENCE_ROLES,
+  isHistoryEligibleForReferenceRole
+} from '../../domain/generation/historyReferenceEligibility.js';
 
 export function registerHistoryRoutes(app, {
   historyRepository,
@@ -14,6 +18,12 @@ export function registerHistoryRoutes(app, {
   app.get('/api/history', async (req, res) => {
     try {
       const collectionId = req.query.collectionId || 'all';
+      const referenceRole = req.query.referenceRole || null;
+      if (referenceRole && !HISTORY_REFERENCE_ROLES.has(referenceRole)) {
+        return res.status(400).json({
+          error: { code: 'invalid_history_reference_role', message: 'History reference role is invalid.' }
+        });
+      }
       const username = resolveRequestUsername(req, { allowBody: false });
       let allowedJobIds = null;
       if (collectionId !== 'all') {
@@ -27,7 +37,11 @@ export function registerHistoryRoutes(app, {
         limit: req.query.limit,
         collectionId,
         allowedJobIds,
-        username
+        username,
+        filterKey: referenceRole ? `reference:${referenceRole}` : null,
+        itemFilter: referenceRole
+          ? item => isHistoryEligibleForReferenceRole(item, referenceRole)
+          : null
       }));
     } catch (error) {
       if (error instanceof HistoryCursorError) {

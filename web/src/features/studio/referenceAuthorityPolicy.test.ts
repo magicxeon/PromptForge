@@ -4,6 +4,7 @@ import type {
   AttributeSelection
 } from './attributes/attributeModel';
 import {
+  characterOutfitBehaviorForType,
   filterReferenceOwnedSelections,
   referenceControlledFieldNames,
   resolveFieldReferenceAuthority,
@@ -11,6 +12,12 @@ import {
 } from './referenceAuthorityPolicy';
 
 describe('referenceAuthorityPolicy', () => {
+  it('maps reusable and legacy Character history to replaceable clothing', () => {
+    expect(characterOutfitBehaviorForType('reusable_model')).toBe('replaceable');
+    expect(characterOutfitBehaviorForType(undefined)).toBe('replaceable');
+    expect(characterOutfitBehaviorForType('styled_character')).toBe('preserve');
+  });
+
   it('lets Expression direct performance while Face Reference owns facial identity', () => {
     const references = { face_reference: '/outputs/face.png' };
 

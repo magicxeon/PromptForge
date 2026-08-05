@@ -66,13 +66,16 @@ export class HistoryRepository {
     collectionId = 'all',
     allowedJobIds = null,
     username = null,
-    includeInternalArtifacts = false
+    includeInternalArtifacts = false,
+    filterKey = null,
+    itemFilter = null
   } = {}) {
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 24));
     const scope = JSON.stringify({
       collectionId: collectionId || 'all',
       username: username || 'all',
-      includeInternalArtifacts
+      includeInternalArtifacts,
+      filterKey: filterKey || null
     });
     const decodedCursor = cursor ? this.decodeCursor(cursor, scope) : null;
     let items = await this.readAll();
@@ -86,6 +89,7 @@ export class HistoryRepository {
       });
     }
     if (allowedJobIds instanceof Set) items = items.filter(item => allowedJobIds.has(item.id));
+    if (typeof itemFilter === 'function') items = items.filter(itemFilter);
     items.sort(compareHistoryItems);
     if (decodedCursor) {
       items = items.filter(item => compareHistoryItems(item, decodedCursor) > 0);

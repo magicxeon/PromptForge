@@ -54,6 +54,27 @@ test('history collection pagination filters before applying its limit', async t 
   assert.equal(page.hasMore, true);
 });
 
+test('history reference filtering happens before pagination and scopes its cursor', async t => {
+  const { directory, repository } = await createRepository();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const first = await repository.listPage({
+    limit: 2,
+    filterKey: 'reference:face_reference',
+    itemFilter: item => ['job_01', 'job_04', 'job_06'].includes(item.id)
+  });
+  assert.deepEqual(first.items.map(item => item.id), ['job_01', 'job_04']);
+  assert.equal(first.hasMore, true);
+  await assert.rejects(
+    repository.listPage({
+      limit: 2,
+      cursor: first.nextCursor,
+      filterKey: 'reference:character_reference',
+      itemFilter: () => true
+    }),
+    HistoryCursorError
+  );
+});
+
 test('customer history excludes internal template pose proxies while repository audit can include them', async t => {
   const { directory, repository } = await createRepository();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
