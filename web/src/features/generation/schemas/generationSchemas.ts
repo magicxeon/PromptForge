@@ -122,7 +122,10 @@ export const scenePoseRecipeSchema = z.object({
   label: localizedSceneRecipeTextSchema,
   description: localizedSceneRecipeTextSchema,
   bestFor: z.array(z.string()).default([]),
+  previewAsset: z.string().optional(),
+  discoverable: z.boolean().default(true),
   fieldSelections: z.record(z.string(), z.string()),
+  clearFields: z.array(z.string()).default([]),
   enabled: z.boolean().default(true)
 }).passthrough();
 

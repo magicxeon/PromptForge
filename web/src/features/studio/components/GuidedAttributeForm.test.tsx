@@ -86,6 +86,38 @@ describe('GuidedAttributeForm progression', () => {
       expect(details[2]).toHaveAttribute('open');
     });
   });
+
+  it('supports capability-owned field hiding and bounded option catalogs', () => {
+    const cameraGroup: AttributeGroup = {
+      group: 'Camera',
+      fields: [
+        field('Camera', 'Brand', ['camera.brand.modern']),
+        field('Camera', 'Motion Blur', ['camera.blur.frozen', 'camera.blur.unbounded'])
+      ]
+    };
+
+    const { container } = render(
+      <GuidedAttributeForm
+        groups={[cameraGroup]}
+        mode="scene"
+        characterType="styled_character"
+        selections={{}}
+        customColors={createStudioCustomColors()}
+        excludedFields={new Set(['Brand'])}
+        optionIdsByField={new Map([
+          ['Motion Blur', new Set(['camera.blur.frozen'])]
+        ])}
+        onCustomColorsChange={() => {}}
+        onChange={() => {}}
+      />
+    );
+
+    expect(container.textContent).not.toContain('Brand');
+    const select = container.querySelector('select');
+    expect(select?.querySelectorAll('option')).toHaveLength(3);
+    expect(select?.textContent).toContain('camera.blur.frozen');
+    expect(select?.textContent).not.toContain('camera.blur.unbounded');
+  });
 });
 
 function group(groupName: string, fieldName: string): AttributeGroup {
@@ -105,5 +137,22 @@ function group(groupName: string, fieldName: string): AttributeGroup {
         tags: []
       }]
     }]
+  };
+}
+
+function field(groupName: string, fieldName: string, optionIds: string[]) {
+  return {
+    name: fieldName,
+    control: 'select',
+    group: groupName,
+    options: optionIds.map(id => ({
+      id,
+      category: groupName.toLocaleLowerCase(),
+      subcategory: fieldName,
+      label: id,
+      group: groupName,
+      prompt: id,
+      tags: []
+    }))
   };
 }

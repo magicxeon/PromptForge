@@ -156,6 +156,32 @@ test('Full-body Scene does not add footwear fallback when footwear is explicit',
   assert.doesNotMatch(prompt, /select simple coherent footwear/i);
 });
 
+test('Explicit portrait Framing prevents negated full-body wording from enabling silhouette policy', () => {
+  const prompt = compilePromptOnServer(
+    {
+      'Pose Intent': {
+        value: 'tight head-and-shoulders portrait, never widen to a full-body or environmental portrait',
+        group: 'Pose',
+        category: 'pose'
+      },
+      Framing: {
+        id: 'camera.framing_03',
+        value: 'medium close-up shot',
+        group: 'Camera',
+        category: 'camera_framing'
+      }
+    },
+    '6:8',
+    {},
+    'normal',
+    'portrait'
+  );
+
+  assert.match(prompt, /medium close-up shot/i);
+  assert.doesNotMatch(prompt, /For this full-body photograph/i);
+  assert.doesNotMatch(prompt, /select simple coherent footwear/i);
+});
+
 test('Explicit Outfit Reference owns clothing even for a reusable Character Reference', () => {
   const prompt = compilePromptOnServer(
     {

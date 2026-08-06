@@ -193,3 +193,26 @@ test('Studio mode control updates route, sidebar target and breadcrumb together'
   await expect(page.getByTestId('breadcrumbs')).toContainText(/Scene/i);
   await expect(page.locator('.engine-comparison-toggle')).toBeVisible();
 });
+
+test('Scene Simple Shot Recipes are visual, selectable and viewport-safe', async ({ page }) => {
+  await page.goto('/create/studio/scene');
+  const controls = page.locator('.scene-pose-controls');
+  const recipes = controls.locator('.scene-pose-recipe');
+
+  await expect(controls).toBeVisible();
+  await expect(recipes).toHaveCount(8);
+  await expect(recipes.locator('img')).toHaveCount(8);
+  await expect.poll(async () => recipes.locator('img').evaluateAll(images =>
+    images.every(image => (image as HTMLImageElement).complete
+      && (image as HTMLImageElement).naturalWidth > 0)
+  )).toBe(true);
+
+  await recipes.nth(1).click();
+  await expect(recipes.nth(1)).toHaveAttribute('aria-pressed', 'true');
+
+  const overflow = await controls.evaluate(element => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth
+  }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+});

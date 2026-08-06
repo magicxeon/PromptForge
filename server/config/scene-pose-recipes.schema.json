@@ -18,9 +18,16 @@
           "label": { "$ref": "#/$defs/localizedText" },
           "description": { "$ref": "#/$defs/localizedText" },
           "bestFor": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "previewAsset": { "type": "string", "pattern": "^/assets/scene-builder/shot-recipes/" },
+          "discoverable": { "type": "boolean" },
           "fieldSelections": {
             "type": "object",
             "additionalProperties": { "type": "string", "minLength": 1 }
+          },
+          "clearFields": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
           },
           "enabled": { "type": "boolean" }
         },

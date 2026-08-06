@@ -1,8 +1,9 @@
-import { Aperture, Camera, Scan, ShoppingBag, Sparkles, WandSparkles } from 'lucide-react';
+import { Aperture, Camera, Megaphone, Scan, ShoppingBag, Sparkles, WandSparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import type { ScenePoseRecipe } from '../../generation/schemas/generationSchemas';
 import {
+  discoverableScenePoseRecipes,
   localizedSceneRecipeText,
   type ScenePoseControlMode
 } from '../scenePoseRecipeModel';
@@ -11,7 +12,8 @@ const iconByPurpose = {
   ecommerce: ShoppingBag,
   lifestyle: Sparkles,
   lookbook: Aperture,
-  editorial: Camera
+  editorial: Camera,
+  campaign: Megaphone
 };
 
 export function ScenePoseControlPanel({
@@ -30,6 +32,7 @@ export function ScenePoseControlPanel({
   onSelectRecipe: (recipe: ScenePoseRecipe) => void;
 }) {
   const { t, i18n } = useTranslation('react-ui');
+  const visibleRecipes = discoverableScenePoseRecipes(recipes, selectedRecipeId);
   return (
     <section className="scene-pose-controls" aria-labelledby="scene-pose-controls-title">
       <div className="scene-pose-controls__heading">
@@ -61,7 +64,7 @@ export function ScenePoseControlPanel({
 
       {mode === 'simple' ? (
         <div className="scene-pose-recipes" role="list">
-          {recipes.map(recipe => {
+          {visibleRecipes.map(recipe => {
             const Icon = iconByPurpose[recipe.purpose as keyof typeof iconByPurpose] || Sparkles;
             const selected = recipe.id === selectedRecipeId;
             return (
@@ -73,14 +76,26 @@ export function ScenePoseControlPanel({
                 aria-pressed={selected}
                 onClick={() => onSelectRecipe(recipe)}
               >
-                <span className="scene-pose-recipe__icon"><Icon aria-hidden="true" /></span>
-                <strong>{localizedSceneRecipeText(recipe.label, i18n.resolvedLanguage || i18n.language)}</strong>
-                <span>{localizedSceneRecipeText(recipe.description, i18n.resolvedLanguage || i18n.language)}</span>
-                {selected ? (
-                  <small>{selectedRecipeAdjusted
-                    ? t('ui.scene.poseRecipeAdjusted')
-                    : t('ui.scene.poseRecipeSelected')}</small>
-                ) : null}
+                <span className="scene-pose-recipe__preview">
+                  {recipe.previewAsset ? (
+                    <img
+                      src={recipe.previewAsset}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : <Icon aria-hidden="true" />}
+                  <span className="scene-pose-recipe__purpose"><Icon aria-hidden="true" /></span>
+                </span>
+                <span className="scene-pose-recipe__body">
+                  <strong>{localizedSceneRecipeText(recipe.label, i18n.resolvedLanguage || i18n.language)}</strong>
+                  <span>{localizedSceneRecipeText(recipe.description, i18n.resolvedLanguage || i18n.language)}</span>
+                  {selected ? (
+                    <small>{selectedRecipeAdjusted
+                      ? t('ui.scene.poseRecipeAdjusted')
+                      : t('ui.scene.poseRecipeSelected')}</small>
+                  ) : null}
+                </span>
               </button>
             );
           })}

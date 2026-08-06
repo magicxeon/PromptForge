@@ -21,6 +21,13 @@ export function normalizeScenePoseRecipes(value: unknown): ScenePoseRecipe[] {
   return Array.isArray(recipes) ? recipes.filter(recipe => recipe.enabled) : [];
 }
 
+export function discoverableScenePoseRecipes(
+  recipes: ScenePoseRecipe[],
+  selectedRecipeId?: string | null
+) {
+  return recipes.filter(recipe => recipe.discoverable || recipe.id === selectedRecipeId);
+}
+
 export function applyScenePoseRecipe({
   recipe,
   groups,
@@ -32,6 +39,17 @@ export function applyScenePoseRecipe({
   const next = { ...selections };
   const missingOptionIds: string[] = [];
   const appliedFields: string[] = [];
+  const clearedFields: string[] = [];
+
+  (recipe.clearFields || []).forEach(fieldName => {
+    const field = fields.get(fieldName);
+    if (!field || blockedGroups.has(field.group)) return;
+    if (editableFields && !editableFields.has(fieldName)) return;
+    if (next[fieldName]) {
+      delete next[fieldName];
+      clearedFields.push(fieldName);
+    }
+  });
 
   Object.entries(recipe.fieldSelections).forEach(([fieldName, optionId]) => {
     const field = fields.get(fieldName);
@@ -46,7 +64,7 @@ export function applyScenePoseRecipe({
     appliedFields.push(fieldName);
   });
 
-  return { selections: next, appliedFields, missingOptionIds };
+  return { selections: next, appliedFields, clearedFields, missingOptionIds };
 }
 
 export function isScenePoseRecipeAdjusted(
@@ -59,6 +77,13 @@ export function isScenePoseRecipeAdjusted(
   const groupByField = new Map(groups.flatMap(group =>
     group.fields.map(field => [field.name, field.group] as const)
   ));
+  const hasClearedFieldAdjustment = (recipe.clearFields || []).some(fieldName => {
+    if (editableFields && !editableFields.has(fieldName)) return false;
+    const group = groupByField.get(fieldName);
+    if (group && blockedGroups.has(group)) return false;
+    return Boolean(selections[fieldName]);
+  });
+  if (hasClearedFieldAdjustment) return true;
   return Object.entries(recipe.fieldSelections).some(([fieldName, optionId]) => {
     if (editableFields && !editableFields.has(fieldName)) return false;
     const group = groupByField.get(fieldName);

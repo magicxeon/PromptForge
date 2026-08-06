@@ -716,18 +716,19 @@
 
 .scene-pose-recipes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .scene-pose-recipe {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  align-items: start;
-  gap: 3px 9px;
+  grid-template-columns: minmax(92px, 36%) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
   min-width: 0;
-  min-height: 112px;
-  padding: 11px;
+  min-height: 128px;
+  padding: 0;
   border: 1px solid var(--theme-border, var(--mpf-border));
   border-radius: 8px;
   background: var(--theme-surface-raised, rgb(7 9 16 / 76%));
@@ -747,18 +748,61 @@
   box-shadow: inset 3px 0 0 var(--theme-accent, var(--neon-cyan)), 0 0 16px rgb(6 182 212 / 10%);
 }
 
-.scene-pose-recipe__icon {
+.scene-pose-recipe__preview {
+  position: relative;
   display: grid;
-  grid-row: 1 / span 3;
+  min-width: 0;
+  overflow: hidden;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  background: var(--theme-surface, rgb(6 7 12 / 88%));
+}
+
+.scene-pose-recipe__preview > img {
+  width: 100%;
+  height: 100%;
+  min-height: 128px;
+  object-fit: cover;
+  object-position: center 28%;
+  transition: transform 220ms ease;
+}
+
+.scene-pose-recipe:hover .scene-pose-recipe__preview > img {
+  transform: scale(1.035);
+}
+
+.scene-pose-recipe__preview > svg {
+  width: 25px;
+  height: 25px;
   color: var(--theme-accent, var(--neon-cyan));
 }
 
-.scene-pose-recipe__icon svg {
-  width: 19px;
-  height: 19px;
+.scene-pose-recipe__purpose {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: 8px;
+  background: rgb(4 6 12 / 76%);
+  color: var(--theme-accent, var(--neon-cyan));
+  backdrop-filter: blur(6px);
+  place-items: center;
+}
+
+.scene-pose-recipe__purpose svg {
+  width: 14px;
+  height: 14px;
+}
+
+.scene-pose-recipe__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px;
 }
 
 .scene-pose-recipe strong {
@@ -767,7 +811,7 @@
   line-height: 1.35;
 }
 
-.scene-pose-recipe > span:not(.scene-pose-recipe__icon) {
+.scene-pose-recipe__body > span {
   color: var(--theme-text-muted, var(--mpf-text-muted));
   font-size: 0.68rem;
   line-height: 1.45;

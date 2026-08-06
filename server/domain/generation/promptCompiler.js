@@ -23,9 +23,18 @@ function isSceneExpressionSelection(fieldName, selection) {
     && selection?.category === "expression";
 }
 
-function requestsFullBodyScene(...segments) {
-  return /\b(?:full[- ]body|head[- ]to[- ]toe|head[- ]to[- ]feet|complete (?:full )?body)\b/i
-    .test(segments.filter(Boolean).join(" "));
+function requestsFullBodyScene(activeSelections, ...fallbackSegments) {
+  const fullBodyPattern = /\b(?:full[- ]body|head[- ]to[- ]toe|head[- ]to[- ]feet|complete (?:full )?body)\b/i;
+  const framingSelection = activeSelections?.Framing;
+  if (framingSelection) {
+    return fullBodyPattern.test([
+      framingSelection.id,
+      framingSelection.value,
+      framingSelection.prompt,
+      framingSelection.label
+    ].filter(Boolean).join(" "));
+  }
+  return fullBodyPattern.test(fallbackSegments.filter(Boolean).join(" "));
 }
 
 function specifiesFootwear(clothingPrompt) {
@@ -617,7 +626,7 @@ export function compilePromptOnServer(
     const styleReferenceText = imageReferences?.styleMatch
       ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
       : "";
-    const fullBodyScene = requestsFullBodyScene(pose, camera);
+    const fullBodyScene = requestsFullBodyScene(activeSelections, pose, camera);
     const fullBodyFramingDirective = fullBodyScene
       ? "For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides"
       : "";

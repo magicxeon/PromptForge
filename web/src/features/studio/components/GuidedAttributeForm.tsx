@@ -37,6 +37,8 @@ export function GuidedAttributeForm({
   lockedFields = [],
   editableFields,
   includedGroups,
+  excludedFields,
+  optionIdsByField,
   singleOpen = false,
   showNextActions = false,
   customInputLimits = DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
@@ -56,6 +58,8 @@ export function GuidedAttributeForm({
   lockedFields?: string[];
   editableFields?: ReadonlySet<string>;
   includedGroups?: ReadonlySet<string>;
+  excludedFields?: ReadonlySet<string>;
+  optionIdsByField?: ReadonlyMap<string, ReadonlySet<string>>;
   singleOpen?: boolean;
   showNextActions?: boolean;
   customInputLimits?: CustomAttributeInputLimits;
@@ -69,12 +73,20 @@ export function GuidedAttributeForm({
       .filter(group => !includedGroups || includedGroups.has(group.group))
       .map(group => ({
         ...group,
-        fields: editableFields
-          ? group.fields.filter(field => editableFields.has(field.name))
-          : group.fields
+        fields: group.fields
+          .filter(field =>
+            (!editableFields || editableFields.has(field.name))
+            && !excludedFields?.has(field.name)
+          )
+          .map(field => {
+            const allowedOptionIds = optionIdsByField?.get(field.name);
+            return allowedOptionIds
+              ? { ...field, options: field.options.filter(option => allowedOptionIds.has(option.id)) }
+              : field;
+          })
       }))
       .filter(group => group.fields.length > 0),
-    [characterType, editableFields, groups, includedGroups, mode]
+    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField]
   );
   const [openGroup, setOpenGroup] = useState<string | null>(visible[0]?.group || null);
   const groupRefs = useRef(new Map<string, HTMLDetailsElement>());

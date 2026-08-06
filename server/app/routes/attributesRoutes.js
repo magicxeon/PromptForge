@@ -109,13 +109,26 @@ function validateScenePoseRecipes(catalog) {
       || !recipe.label?.th
       || !recipe.description?.en
       || !recipe.description?.th
+      || (recipe.previewAsset !== undefined && typeof recipe.previewAsset !== 'string')
+      || (recipe.discoverable !== undefined && typeof recipe.discoverable !== 'boolean')
       || !recipe.fieldSelections
       || typeof recipe.fieldSelections !== 'object'
+      || (recipe.clearFields !== undefined && (
+        !Array.isArray(recipe.clearFields)
+        || recipe.clearFields.some(fieldName => typeof fieldName !== 'string' || !fieldName.trim())
+      ))
     ) {
       throw new Error(`Scene Pose recipe '${recipe?.id || 'unknown'}' is invalid.`);
     }
     if (ids.has(recipe.id)) {
       throw new Error(`Duplicate Scene Pose recipe '${recipe.id}'.`);
+    }
+    const clearFields = recipe.clearFields || [];
+    if (
+      new Set(clearFields).size !== clearFields.length
+      || clearFields.some(fieldName => Object.hasOwn(recipe.fieldSelections, fieldName))
+    ) {
+      throw new Error(`Scene Pose recipe '${recipe.id}' has conflicting clear fields.`);
     }
     ids.add(recipe.id);
   }

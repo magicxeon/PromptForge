@@ -87,6 +87,17 @@ const SCHEMA_VERSION = 3;
 const SIMPLE_VISIBLE_GROUPS = new Set([
   'Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Quality'
 ]);
+const SCENE_RECIPE_OWNED_FIELDS = new Set([
+  'Brand', 'Lens', 'ISO', 'White Balance', 'Set Design'
+]);
+const SCENE_CURATED_OPTIONS = new Map<string, ReadonlySet<string>>([
+  ['Motion Blur', new Set([
+    'camera.blur_00',
+    'camera.blur_01',
+    'camera.blur_02',
+    'camera.blur_05'
+  ])]
+]);
 
 export function SceneBuilderRoute() {
   const { t } = useTranslation('react-ui');
@@ -378,6 +389,7 @@ export function SceneBuilderRoute() {
     if (mode !== 'guided' || poseControlMode !== 'simple') return;
     if (templateUseContext || !scenePoseRecipes.length || !groups.length) return;
     const recipe = scenePoseRecipes.find(item => item.id === scenePoseRecipeId)
+      || scenePoseRecipes.find(item => item.discoverable)
       || scenePoseRecipes[0];
     if (!recipe) return;
     if (
@@ -564,6 +576,8 @@ export function SceneBuilderRoute() {
               lockedFields={lockedFields}
               editableFields={editableTemplateFields}
               includedGroups={poseControlMode === 'simple' ? SIMPLE_VISIBLE_GROUPS : undefined}
+              excludedFields={SCENE_RECIPE_OWNED_FIELDS}
+              optionIdsByField={SCENE_CURATED_OPTIONS}
               singleOpen
               showNextActions
               onLockChange={(fieldName, locked) => {
