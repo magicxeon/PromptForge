@@ -23,7 +23,10 @@ const featurePolicySchema = z.object({
   }),
   routing: z.object({
     automaticSimpleModeEnabled: z.boolean().default(false)
-  })
+  }),
+  generation: z.object({
+    promptRefinementEnabled: z.boolean().default(false)
+  }).default({ promptRefinementEnabled: false })
 });
 
 export type FeaturePolicy = z.infer<typeof featurePolicySchema>;
@@ -38,7 +41,8 @@ type FeaturePolicyContextValue = {
 type FeaturePath =
   | `community.${keyof FeaturePolicy['community']}`
   | `development.${keyof FeaturePolicy['development']}`
-  | `routing.${keyof FeaturePolicy['routing']}`;
+  | `routing.${keyof FeaturePolicy['routing']}`
+  | `generation.${keyof FeaturePolicy['generation']}`;
 
 const FeaturePolicyContext = createContext<FeaturePolicyContextValue | null>(null);
 

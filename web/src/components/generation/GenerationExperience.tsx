@@ -64,6 +64,10 @@ import { queryKeys } from '../../lib/api/queryKeys';
 import { pollingPolicy } from '../../lib/api/pollingPolicy';
 import { ApiError } from '../../lib/api/apiError';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
+import {
+  readPromptRefinementPreference,
+  writePromptRefinementPreference
+} from '../../features/generation/promptRefinementPreference';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -181,6 +185,8 @@ export function GenerationExperience({
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
   const [comparisonPreferencesActorId, setComparisonPreferencesActorId] = useState<string | null>(null);
   const [creditDialogOpen, setCreditDialogOpen] = useState(false);
+  const [promptRefinementEnabled, setPromptRefinementEnabled] = useState(false);
+  const [promptRefinementActorId, setPromptRefinementActorId] = useState<string | null>(null);
   const completedJobRef = useRef<string | null>(null);
   const actorId = actor?.userId || 'loading';
 
@@ -198,12 +204,25 @@ export function GenerationExperience({
     setComparisonSlots([]);
     setComparisonPreferencesActorId(null);
     setCreditDialogOpen(false);
+    setPromptRefinementEnabled(false);
+    setPromptRefinementActorId(null);
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
     setReferenceScopes({});
     completedJobRef.current = null;
   }, [actor?.userId]);
+
+  useEffect(() => {
+    if (!actor || promptRefinementActorId === actor.userId) return;
+    setPromptRefinementEnabled(readPromptRefinementPreference(actor.userId));
+    setPromptRefinementActorId(actor.userId);
+  }, [actor, promptRefinementActorId]);
+
+  useEffect(() => {
+    if (!actor || promptRefinementActorId !== actor.userId) return;
+    writePromptRefinementPreference(actor.userId, promptRefinementEnabled);
+  }, [actor, promptRefinementActorId, promptRefinementEnabled]);
 
   useEffect(() => {
     if (!catalog.data || engine.provider) return;
@@ -271,6 +290,7 @@ export function GenerationExperience({
     }
     : null, [engine, sceneTemplateSnapshot]);
 
+  const promptRefinementAvailable = isEnabled('generation.promptRefinementEnabled');
   const draft = useMemo<GenerationRequestDraft>(() => ({
     provider: engine.provider,
     submodel: engine.model,
@@ -293,8 +313,9 @@ export function GenerationExperience({
     characterReferenceOutfitBehavior,
     faceReferenceContext,
     authoringMode,
-    characterType
-  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+    characterType,
+    promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
+  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -660,9 +681,12 @@ export function GenerationExperience({
       comparisonEstimateError={comparisonEstimate.error?.message || null}
       studioLayout={layoutVariant === 'studio' || layoutVariant === 'playground'}
       allowComparison={allowComparison}
+      promptRefinementAvailable={promptRefinementAvailable}
+      promptRefinementEnabled={promptRefinementEnabled}
       onChange={setEngine}
       onComparisonChange={setComparison}
       onSlotsChange={setComparisonSlots}
+      onPromptRefinementChange={setPromptRefinementEnabled}
     />
   ) : null;
   const submitGenerationRequest = () => {

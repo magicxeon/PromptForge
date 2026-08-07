@@ -164,5 +164,7 @@
   "playground.reference.role.style_reference": "Visual style",
   "playground.reference.role.pose_reference": "Pose",
   "playground.reference.role.product_reference": "Product",
-  "playground.reference.role.environment_reference": "Environment"
+  "playground.reference.role.environment_reference": "Environment",
+  "playground.promptRefinement.label": "AI Prompt Refine",
+  "playground.promptRefinement.description": "Polish the final prompt before generation while keeping your selections locked."
 }

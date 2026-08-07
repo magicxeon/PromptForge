@@ -1162,3 +1162,308 @@ The compiler now treats the structured `Framing` selection as authoritative:
 
 Regression coverage preserves full-body Scene safety while proving that
 negative full-body wording inside a close portrait cannot activate it.
+
+## 21. Attribute Composition Audit and Production Prompt Architecture
+
+This section records the current attribute surface and the deterministic logic
+required to turn user selections into one natural, commercially usable
+direction. It is an architecture requirement, not evidence that every rule
+below is implemented yet.
+
+### 21.1 Audited sources and current inventory
+
+The audit uses the current runtime sources rather than legacy UI assumptions:
+
+- `attributes/spec/ui-schema.json` defines the field surface;
+- `attributes/001-character.json` through
+  `attributes/024-fashion-commerce.json` provide 776 enabled option records;
+- `server/config/scene-pose-recipes.json` defines compatible Simple-mode
+  starting points;
+- `web/src/features/studio/studioModePolicy.ts` owns mode visibility;
+- `web/src/features/studio/referenceAuthorityPolicy.ts` removes fields owned by
+  an attached reference; and
+- `server/domain/generation/promptCompiler.js` is the canonical final compiler.
+
+The normalized bundle currently exposes 68 effective fields. `Face > Smile`
+exists in the UI schema but has no matching option subcategory and is therefore
+not an effective runtime field. Expression is the canonical smile/emotion
+control until that stale schema field is either populated or removed.
+
+| Group | Effective attributes |
+|---|---|
+| Character | Gender, Age, Ethnicity, Beauty |
+| Fashion Direction | Fashion Direction |
+| Scene Story | Fashion Story |
+| Photographic Context | Fashion Photography Context |
+| Face | Face Shape, Eyes, Eyebrows, Nose, Lips, Expression |
+| Hair | Length, Cut / Style, Texture, Parting / Fringe, Color, Finish |
+| Skin | Tone, Skin Texture, Makeup, Freckles |
+| Body | Height Impression, Model Build, Body Silhouette, Sheet Layout |
+| Clothing | Outfit Base, Primary Color, Secondary Color, Pattern, Material, Outfit Preset, Product Type, Garment Silhouette, Material / Surface, Construction / Detail, Styling |
+| Pose | Pose Intent, Fashion Hand Position, Fashion Gaze |
+| Environment | Fashion Venue, Set Design, Atmosphere |
+| Lighting | Lighting Setup, Contrast, Color Temperature, Shadow Character, Lighting Accent |
+| Camera | Brand, Lens, Focal Length, Aperture, Framing, ISO, White Balance, Perspective, Composition, Motion Blur, Camera Imperfections |
+| Quality | Resolution, Sharpness, Photorealism, Color Grading, Film Look, Output Frame |
+| NSFW | Nudity Level, Sensual Pose |
+
+Current mode projection is:
+
+| Workflow | Effective attribute surface |
+|---|---|
+| Face Creator | Character, Face, Hair, Skin, Lighting, Camera and Quality |
+| Styled Character Sheet | Character, Face, Hair, Skin, Body, Clothing, Camera and Quality |
+| Reusable Character Sheet | The same Character Sheet surface except Clothing, because the casting-uniform contract owns clothing |
+| Scene Builder | 58 direct fields: Character, Expression, Hair, Skin, Body, Clothing, Pose, Environment, Lighting, Camera and Quality |
+| Scene Recipe internals | Fashion Direction, Fashion Story and Fashion Photography Context remain recipe/compiler inputs but are hidden from direct Scene authoring |
+| Customer generation | NSFW controls are excluded from the current Studio and Scene UI |
+
+### 21.2 Existing behavior and production gaps
+
+The current system already provides useful foundations:
+
+1. stable option IDs and prompt phrases;
+2. mode-specific field visibility;
+3. reference authority that suppresses identity or outfit controls owned by an
+   uploaded reference;
+4. versioned Scene Recipes with `fieldSelections` and `clearFields`;
+5. custom color compilation;
+6. fixed Headshot and Character Sheet composition contracts;
+7. prompt ordering and exact-phrase deduplication; and
+8. a small tag-conflict resolver for pairs such as indoor/outdoor, day/night
+   and direct gaze/look away.
+
+These mechanisms do not yet form a complete production constraint model:
+
+- conflict tags cannot express pose mechanics, crop boundaries, subject contact
+  with architecture, light-source geometry or lens/framing relationships;
+- exact-phrase deduplication cannot reconcile two differently worded commands
+  that mean opposite things;
+- field priority alone cannot decide which instruction owns a body part,
+  garment, camera axis or light source;
+- recipe fields can be changed later into an incoherent combination unless a
+  recipe explicitly clears a known stale field;
+- broad options can describe a mood without defining the physical information
+  needed to reproduce the preview; and
+- the final compiler currently produces prose directly rather than validating
+  one normalized semantic plan first.
+
+### 21.3 Canonical semantic ownership
+
+Every selected field must project into exactly one primary semantic section.
+This prevents several controls from independently describing the same decision.
+
+| Semantic section | Owning inputs | Required behavior |
+|---|---|---|
+| Identity | Character, Face, Hair, Skin, Body or identity references | Preserve one recognizable person; reference authority wins over conflicting manual appearance fields |
+| Wardrobe | Clothing or Outfit References | Define garment identity, construction, color and styling; an explicit Outfit Reference wins over textual clothing |
+| Expression | Expression | May alter emotion and gaze-compatible facial behavior without replacing identity |
+| Pose mechanics | Pose Intent, Fashion Hand Position, Fashion Gaze | Resolve head, torso, arms, hands, pelvis, legs, balance, contact points and gaze into one anatomically coherent action |
+| Camera geometry | Framing, Perspective, Composition, Focal Length, Lens, Aperture | Resolve camera axis, height, pitch, distance, crop and depth behavior; structured Framing is crop authority |
+| Environment | Fashion Venue, Set Design, Atmosphere | Produce one physically plausible location with restrained supporting objects |
+| Lighting | Lighting Setup, Contrast, Color Temperature, Shadow Character, Lighting Accent | Produce one motivated source hierarchy with a traceable path, fill ratio and physically related shadows |
+| Capture character | Brand, ISO, White Balance, Motion Blur, Camera Imperfections | Describe restrained photographic behavior without overriding geometry or lighting |
+| Output finish | Quality fields and aspect ratio | Define output treatment without changing identity, pose, clothing, framing or scene structure |
+
+Authority order for conflicts is:
+
+```text
+safety and workflow invariants
+  > Template/Reference authority projection
+  > selected versioned Recipe invariants
+  > explicit user-editable selections
+  > compatibility defaults
+  > optional fallback prose
+```
+
+A lower authority may enrich a higher authority but must not contradict or
+replace it. Provider adapters may translate syntax but must not change this
+semantic authority order.
+
+### 21.4 Attribute compatibility contract
+
+Attributes need machine-readable relationships in addition to labels, tags and
+prompt prose. The eventual schema should support the following concepts without
+embedding route-specific conditions in React:
+
+```json
+{
+  "id": "pose.fashion.soft-character-portrait",
+  "semanticRole": "pose_mechanics",
+  "contributesTo": ["pose", "crop_boundary"],
+  "requires": [
+    { "field": "Framing", "oneOf": ["camera.framing_03"] }
+  ],
+  "compatibleWith": [
+    { "field": "Fashion Venue", "family": "portrait_background" }
+  ],
+  "conflictsWith": [
+    { "field": "Motion Blur", "family": "visible_motion" },
+    { "field": "Lighting Accent", "family": "colored_effect" }
+  ],
+  "locks": ["crop_boundary"],
+  "fallbacks": {
+    "Lighting Setup": "lighting.fashion.soft-character"
+  }
+}
+```
+
+The final property names may change during schema implementation, but the
+contract must express:
+
+- prerequisites;
+- compatible option families;
+- hard conflicts;
+- semantic ownership/locks;
+- deterministic fallbacks;
+- whether a conflict blocks generation, replaces a lower-authority option or
+  only raises a warning; and
+- provider/model restrictions where the option depends on a capability.
+
+Recipes should declare a coherent baseline and an explicit editable surface.
+They must not rely on hidden prose to repair arbitrary combinations after the
+fact.
+
+### 21.5 Deterministic production pipeline
+
+The canonical Generation capability remains the single owner. UI routes must
+not compose a parallel final prompt. The required pipeline is:
+
+1. **Normalize input**: resolve option IDs, custom values, colors, mode and
+   aspect ratio into typed selections.
+2. **Apply authority**: remove fields controlled by Template, Character, Face,
+   Outfit, Pose or Style References.
+3. **Apply recipe baseline**: load the exact recipe version, clear declared
+   stale fields and apply its invariant/default selections.
+4. **Apply permitted user edits**: accept only fields exposed by the workflow
+   or Template version.
+5. **Resolve constraints**: evaluate prerequisites, families, semantic locks
+   and hard conflicts. Never infer the winner from prose order.
+6. **Build a semantic direction plan**: create structured Identity, Wardrobe,
+   Expression, Pose, Camera, Environment, Lighting, Capture and Output sections.
+7. **Run the Prompt Quality Gate**: block impossible combinations and report
+   actionable field-level errors or warnings.
+8. **Compile provider-neutral prose**: emit one ordered direction from the
+   validated semantic plan and remove semantic duplication.
+9. **Apply provider/model adapter**: translate reference ordering, supported
+   parameters and model-specific syntax without changing intent.
+10. **Freeze execution evidence**: persist recipe version, selected option IDs,
+    normalized plan fingerprint, compiler version, provider adapter version and
+    final prompt with the Job trace.
+
+Suggested implementation ownership:
+
+```text
+attributes/*.json
+  option phrases and compatibility metadata
+
+server/config/scene-pose-recipes.json
+  versioned coherent recipe baselines
+
+server/domain/generation/
+  canonical normalization, constraint resolution, quality gate,
+  semantic plan and final compilation
+
+server/providers/
+  provider/model request translation only
+
+web/src/features/studio/ and scene-builder/
+  selection UX, compatibility feedback and field-level correction actions
+```
+
+Focused internal modules may be extracted under Generation, but they remain
+behind its canonical application workflow and must not become a second prompt
+pipeline.
+
+### 21.6 Prompt Quality Gate
+
+Before estimate lock and queue submission, validation must inspect structured
+meaning rather than search the final prose alone.
+
+Blocking checks:
+
+- reference authority or Template policy is violated;
+- selected framing contradicts a recipe crop invariant;
+- pose requests impossible or mutually exclusive body mechanics;
+- hand interaction references an absent garment, prop or surface;
+- full-body output lacks complete silhouette safety or produces a portrait-only
+  camera combination;
+- lighting has no plausible source or requests physically contradictory shadow
+  behavior;
+- provider/model cannot accept the selected references or output capability;
+  or
+- required structured sections for the selected recipe are absent.
+
+Warning checks with deterministic repair where safe:
+
+- footwear is unspecified in a full-body fashion image;
+- environment includes unnecessary competing props;
+- several fields repeat the same aesthetic treatment;
+- optical/film effects weaken an identity-first or product-fidelity recipe; or
+- a custom field approaches its length/specificity budget.
+
+Validation output must identify the owning field and suggested correction. It
+must not silently rewrite a user-owned creative decision when more than one
+valid resolution exists.
+
+### 21.7 Production qualification
+
+Each discoverable recipe requires golden-case qualification using fixed
+Character, Outfit and provider/model fixtures. Record at minimum:
+
+- identity and body fidelity;
+- outfit fidelity;
+- pose mechanics and hand correctness;
+- camera/crop parity with the preview;
+- environment and lighting plausibility;
+- commercial polish;
+- provider/model, duration, credits and failure code; and
+- recipe, semantic-plan, compiler and adapter versions.
+
+Automated tests should validate constraint decisions and compiled semantic
+sections. Visual approval remains provider-specific and requires generated
+samples; prompt-text assertions alone are insufficient evidence of production
+quality.
+
+### 21.8 Optional Luna AI Prompt Director MVP
+
+Requirement
+`014-luna-ai-prompt-refinement-provider.md` activates the first controlled
+Prompt Director using `gpt-5.6-luna`. The deterministic pipeline must still
+produce a valid production prompt without an AI rewrite call.
+
+The Engine & Target Output panel exposes an actor-scoped opt-in toggle only when
+the server enables refinement. When enabled, Generate compiles the canonical
+prompt first, sends that prompt plus sanitized workflow structure to Luna, then
+queues the validated refined prompt. Single and Comparison generation use the
+same Generation-owned method; Comparison refines once before its slots fan out.
+
+Luna may improve instruction order, physical relationships, natural language
+and photographic realism, but it may not change reference authority, selected
+identity, wardrobe, pose intent, framing, environment, lighting or output
+constraints. Invalid output, refusal, timeout or provider failure falls back to
+the deterministic prompt without failing image generation.
+
+During non-production qualification, `LOG_AI_PROMPT_REFINE=true` may emit the
+before/after prompt pair for manual tuning. Production logs must never contain
+raw private prompts. Model, latency, status and fingerprints remain traceable.
+
+The MVP accepts the compiled prompt and sanitized context until the semantic
+direction plan from Sections 21.3-21.6 is implemented. It must then migrate to
+that structure without moving provider calls out of Generation.
+
+### 21.9 Delivery sequence
+
+Implementation should minimize repeated migration work:
+
+1. define and validate compatibility metadata plus semantic-plan schemas;
+2. extract the current compiler into normalize, authority, constraint, plan,
+   validate and compose stages behind the existing Generation entry point;
+3. migrate one recipe at a time, starting with Soft Character Portrait and
+   Sunlit Storefront because they expose crop/light conflicts clearly;
+4. add field-level UI feedback using server-owned validation results;
+5. qualify every discoverable recipe across supported production models; and
+6. remove compatibility tag/prose fallbacks only after parity coverage proves
+   the structured replacement.
+
+Luna refinement is optional and is not a blocker for deterministic steps 1-6.

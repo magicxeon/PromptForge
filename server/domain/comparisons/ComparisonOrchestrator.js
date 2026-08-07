@@ -1,6 +1,5 @@
 import {
-  compileGenerationContext,
-  compilePromptFromGenerationContext
+  compileGenerationContext
 } from '../generation/generationRequestService.js';
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
@@ -82,7 +81,7 @@ export class ComparisonOrchestrator {
     } = await this.resolveTemplatePayload(payload, actor);
     const { context } = compileGenerationContext(executionPayload, actor);
     await this.processReferencesForSlots(context, payload.slots, actor);
-    const compiledPrompt = compilePromptFromGenerationContext(context);
+    const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const slots = this.validator.validateSlots(payload.slots, context);
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
     const pricedSlots = slots.map(slot => {
@@ -99,8 +98,12 @@ export class ComparisonOrchestrator {
       expiresAt: Number(payload.estimateExpiresAt || 0)
     };
     this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, userId);
+    const promptExecution = await this.generationApplicationService.compilePromptForExecution(
+      context,
+      { requestId: idempotencyKey }
+    );
+    const compiledPrompt = promptExecution.prompt;
 
-    const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const timestamp = Date.now();
     const draftRun = {
       idempotencyKey,
@@ -111,6 +114,7 @@ export class ComparisonOrchestrator {
       actualTotalCredit: 0,
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       promptCompilerVersion: 1,
+      promptRefinement: promptExecution.metadata,
       createdAt: timestamp,
       completedAt: null,
       payerUserId: userId,
@@ -190,8 +194,10 @@ export class ComparisonOrchestrator {
                 sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
                 replacementSummary: templateExecution.replacementSummary
               }
-              : null
-          }
+              : null,
+            promptRefinement: promptExecution.metadata
+          },
+          promptRefinementAudit: promptExecution.audit
         });
         const enqueuedSlot = {
           slotId: slot.id,

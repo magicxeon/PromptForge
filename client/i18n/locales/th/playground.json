@@ -164,5 +164,7 @@
   "playground.reference.role.style_reference": "สไตล์ภาพ",
   "playground.reference.role.pose_reference": "ท่าทาง",
   "playground.reference.role.product_reference": "สินค้า",
-  "playground.reference.role.environment_reference": "สภาพแวดล้อม"
+  "playground.reference.role.environment_reference": "สภาพแวดล้อม",
+  "playground.promptRefinement.label": "ปรับ Prompt ด้วย AI",
+  "playground.promptRefinement.description": "เกลาพรอมป์ก่อนสร้างภาพ โดยคงตัวเลือกที่คุณกำหนดไว้ทั้งหมด"
 }

@@ -7,6 +7,7 @@ import {
   createQueueOptions
 } from './generationRequestService.js';
 import { prepareGenerationReferences } from './prepareGenerationReferences.js';
+import { promptRefinementService as defaultPromptRefinementService } from './PromptRefinementService.js';
 
 export class GenerationApplicationService {
   constructor({
@@ -15,7 +16,8 @@ export class GenerationApplicationService {
     templateCoreService,
     creditService = creditApplicationService,
     castingExportService = characterCastingExportService,
-    telemetry = performanceTelemetry
+    telemetry = performanceTelemetry,
+    promptRefinementService = defaultPromptRefinementService
   }) {
     this.providerRegistry = providerRegistry;
     this.queueManager = queueManager;
@@ -23,6 +25,7 @@ export class GenerationApplicationService {
     this.creditService = creditService;
     this.castingExportService = castingExportService;
     this.telemetry = telemetry;
+    this.promptRefinementService = promptRefinementService;
   }
 
   async preview(body, actorContext, userRole) {
@@ -80,14 +83,17 @@ export class GenerationApplicationService {
         modelId: model.id,
         modelConfig: model
       });
-      const compiledPrompt = compilePromptFromGenerationContext(context);
       this.providerRegistry.validateRequest(model, {
         aspectRatio: context.aspectRatio,
         referenceCount: context.referenceCount,
         imageResolution: context.imageResolution || model.defaults?.resolution || null
       });
-
       const operationRequestId = body.requestId || requestId;
+      const promptExecution = await this.compilePromptForExecution(context, {
+        requestId: operationRequestId
+      });
+      const compiledPrompt = promptExecution.prompt;
+
       const result = await this.submitPreparedOperation({
         providerId: provider.id,
         modelId: model.id,
@@ -134,8 +140,10 @@ export class GenerationApplicationService {
           )
           : null,
         queueOptionOverrides: {
-          templateUseContext: createTemplateUseContext(templateExecution)
-        }
+          templateUseContext: createTemplateUseContext(templateExecution),
+          promptRefinement: promptExecution.metadata
+        },
+        promptRefinementAudit: promptExecution.audit
       });
       finish('ok', { jobId: result.jobId });
       return result;
@@ -143,6 +151,16 @@ export class GenerationApplicationService {
       finish('error');
       throw error;
     }
+  }
+
+  async compilePromptForExecution(context, { requestId = null } = {}) {
+    const canonicalPrompt = compilePromptFromGenerationContext(context);
+    return this.promptRefinementService.refine({
+      prompt: canonicalPrompt,
+      requested: context.promptRefinement?.enabled === true,
+      context,
+      requestId
+    });
   }
 
   async submitPreparedOperation({
@@ -160,7 +178,8 @@ export class GenerationApplicationService {
     generationRequest,
     reservationMetadata = {},
     beforeEnqueue = null,
-    queueOptionOverrides = {}
+    queueOptionOverrides = {},
+    promptRefinementAudit = null
   }) {
     const jobId = this.queueManager.createJobId();
     const reservationResult = await this.creditService.validateAndReserveForRequest({
@@ -195,6 +214,10 @@ export class GenerationApplicationService {
           ...queueOptionOverrides
         })
       );
+      await this.promptRefinementService.persistAudit?.(jobId, promptRefinementAudit)
+        .catch(error => {
+          console.warn(`[Generation] Prompt refinement audit write failed for ${jobId}:`, error.message);
+        });
     } catch (error) {
       await this.creditService.refundForJob({
         userId: payerUserId,

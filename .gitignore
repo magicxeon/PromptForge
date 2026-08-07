@@ -46,9 +46,16 @@ Thumbs.db
 
 # Runtime/generated project data
 /client/outputs/
+/server/data/generation/output/
 /server/migrations/
 
 # Local working notes and scratch assets
 _concept-idea.txt
 z_continue_here.txt
 _temp/
+
+# Local Prompt Research Lab datasets and generated output
+/lab/**/datasets/source-images/
+/lab/**/datasets/raw-responses/
+/lab/**/evaluations/generated-images/
+/lab/**/outputs/

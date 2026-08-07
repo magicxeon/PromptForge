@@ -37,6 +37,15 @@ test('cross-capability generation workflows do not enqueue directly', async () =
   });
 });
 
+test('Comparison refines its shared prompt through the Generation entry point', async () => {
+  const source = await readFile(files.comparison, 'utf8');
+  assert.equal(
+    source.match(/generationApplicationService\.compilePromptForExecution/g)?.length,
+    1
+  );
+  assert.doesNotMatch(source, /OpenAITextProvider|PromptRefinementService/);
+});
+
 test('queued Comparison slots retain terminal Credit ownership after a later enqueue fails', async () => {
   const source = await readFile(files.comparison, 'utf8');
   assert.doesNotMatch(source, /comparison_enqueue_failed/);

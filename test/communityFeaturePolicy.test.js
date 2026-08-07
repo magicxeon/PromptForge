@@ -119,3 +119,24 @@ test('public runtime policy exposes the explicit debug prompt override', { concu
     else process.env.OVERRIDE_DEBUG_PROMPT = previous;
   }
 });
+
+test('public runtime policy exposes prompt refinement only with rollout and credentials', { concurrency: false }, async () => {
+  const previousEnabled = process.env.ENABLE_AI_PROMPT_REFINE;
+  const previousKey = process.env.OPENAI_API_KEY;
+  const policy = new CommunityFeaturePolicyService({
+    configLoader: async () => flags()
+  });
+  try {
+    process.env.ENABLE_AI_PROMPT_REFINE = 'true';
+    process.env.OPENAI_API_KEY = 'test-key';
+    assert.equal((await policy.getPublicFlags()).generation.promptRefinementEnabled, true);
+
+    process.env.OPENAI_API_KEY = 'your_openai_api_key_here';
+    assert.equal((await policy.getPublicFlags()).generation.promptRefinementEnabled, false);
+  } finally {
+    if (previousEnabled === undefined) delete process.env.ENABLE_AI_PROMPT_REFINE;
+    else process.env.ENABLE_AI_PROMPT_REFINE = previousEnabled;
+    if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = previousKey;
+  }
+});

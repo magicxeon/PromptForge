@@ -467,6 +467,7 @@ class QueueManager {
         comparisonSlotId: job.options.comparisonSlotId || null,
         templateUseContext: job.options.templateUseContext || null,
         fashionBlueprintContext: job.options.fashionBlueprintContext || null,
+        promptRefinement: job.options.promptRefinement || null,
         routingSnapshot: job.options.routingSnapshot || null
       };
       const operationPurpose = job.options.routingSnapshot?.operationPurpose || null;

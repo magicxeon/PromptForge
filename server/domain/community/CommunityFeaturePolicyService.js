@@ -2,6 +2,7 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
+import { getPublicPromptRefinementPolicy } from '../../config/prompt-refinement-policy.js';
 
 const CONFIG_FILE = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -63,6 +64,9 @@ export class CommunityFeaturePolicyService {
       },
       routing: {
         automaticSimpleModeEnabled: flags.routing.automaticSimpleModeEnabled === true
+      },
+      generation: {
+        promptRefinementEnabled: getPublicPromptRefinementPolicy().enabled
       }
     };
   }

@@ -186,6 +186,9 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
 
   const normalizedContext = {
     ...payload,
+    promptRefinement: {
+      enabled: payload.promptRefinement?.enabled === true
+    },
     mode,
     characterType,
     characterReferenceOutfitBehavior,
@@ -343,7 +346,8 @@ export function createQueueOptions(context, {
   estimateId = null,
   requestId = null,
   templateUseContext = null,
-  fashionBlueprintContext = null
+  fashionBlueprintContext = null,
+  promptRefinement = null
 }) {
   const references = context.imageReferences;
   const {
@@ -436,6 +440,10 @@ export function createQueueOptions(context, {
     fashionBlueprintContext:
       fashionBlueprintContext && typeof fashionBlueprintContext === 'object'
         ? structuredClone(fashionBlueprintContext)
+        : null,
+    promptRefinement:
+      promptRefinement && typeof promptRefinement === 'object'
+        ? structuredClone(promptRefinement)
         : null,
     imageResolution: imageResolution || context.imageResolution || modelConfig.defaults?.resolution || null,
     templateBaselineReference: context.templateBaselineReference || null,

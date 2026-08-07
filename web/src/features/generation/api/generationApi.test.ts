@@ -179,6 +179,12 @@ describe('React generation contract', () => {
     expect(payload.sceneBuilder.manualPromptText).toBe('');
   });
 
+  it('submits the explicit prompt refinement preference without changing pricing inputs', () => {
+    const input = draft({ promptRefinementEnabled: true });
+    expect(generationPayload(input).promptRefinement).toEqual({ enabled: true });
+    expect(pricingPayload(input)).not.toHaveProperty('promptRefinement');
+  });
+
   it('carries reusable and styled Character Reference outfit behavior', () => {
     expect(generationPayload(draft({
       generationMode: 'scene',

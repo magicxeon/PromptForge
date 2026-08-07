@@ -14,6 +14,11 @@ export const OUTPUTS_DIR = path.resolve(CLIENT_ROOT, 'outputs');
 export const DATA_ROOT = path.resolve(SERVER_ROOT, 'data');
 export const IDENTITY_DATA_DIR = path.resolve(DATA_ROOT, 'identity');
 export const GENERATION_DATA_DIR = path.resolve(DATA_ROOT, 'generation');
+export const PROMPT_REFINEMENT_AUDIT_DIR = path.resolve(
+  GENERATION_DATA_DIR,
+  'output',
+  'prompt-refinement'
+);
 export const COLLECTIONS_DATA_DIR = path.resolve(DATA_ROOT, 'collections');
 export const CREDITS_DATA_DIR = path.resolve(DATA_ROOT, 'credits');
 export const COMMUNITY_DATA_DIR = path.resolve(DATA_ROOT, 'community');

@@ -45,6 +45,7 @@ export type GenerationRequestDraft = {
   authoringMode?: 'guided' | 'manual';
   characterType?: 'reusable_model' | 'styled_character' | null;
   referenceScopes?: Partial<Record<GenerationReferenceRole, string>>;
+  promptRefinementEnabled?: boolean;
 };
 
 export type ComparisonSlotInput = { id: string; provider: string; model: string };
@@ -203,6 +204,9 @@ export function generationPayload(
         ? 'replaceable'
         : 'preserve',
     faceReferenceContext: draft.faceReferenceContext || null,
+    promptRefinement: {
+      enabled: draft.promptRefinementEnabled === true
+    },
     isGptSafe: false,
     routingMode: 'advanced',
     qualityTier: 'standard',

@@ -1,4 +1,4 @@
-import { Columns3 } from 'lucide-react';
+import { Columns3, Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
@@ -31,9 +31,12 @@ export function EngineTargetPanel({
   comparisonEstimateError = null,
   studioLayout = false,
   allowComparison = true,
+  promptRefinementAvailable = false,
+  promptRefinementEnabled = false,
   onChange,
   onComparisonChange,
-  onSlotsChange
+  onSlotsChange,
+  onPromptRefinementChange = () => {}
 }: {
   catalog: ProviderCatalog;
   value: EngineValue;
@@ -44,9 +47,12 @@ export function EngineTargetPanel({
   comparisonEstimateError?: string | null;
   studioLayout?: boolean;
   allowComparison?: boolean;
+  promptRefinementAvailable?: boolean;
+  promptRefinementEnabled?: boolean;
   onChange: (value: EngineValue) => void;
   onComparisonChange: (active: boolean) => void;
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
+  onPromptRefinementChange?: (enabled: boolean) => void;
 }) {
   const { t } = useTranslation('playground');
   const { t: tUi } = useTranslation('react-ui');
@@ -131,6 +137,25 @@ export function EngineTargetPanel({
           estimateError={comparisonEstimateError}
           onChange={onSlotsChange}
         />
+      ) : null}
+      {promptRefinementAvailable ? (
+        <div className="engine-prompt-refinement">
+          <Sparkles className="engine-prompt-refinement__icon" aria-hidden="true" />
+          <div className="engine-prompt-refinement__copy">
+            <strong>{t('playground.promptRefinement.label')}</strong>
+            <span>{t('playground.promptRefinement.description')}</span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={promptRefinementEnabled}
+            aria-label={t('playground.promptRefinement.label')}
+            className="engine-prompt-refinement__switch"
+            onClick={() => onPromptRefinementChange(!promptRefinementEnabled)}
+          >
+            <span />
+          </button>
+        </div>
       ) : null}
     </section>
   );
