@@ -88,6 +88,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Private Template Pose Proxy preparation, cache lifecycle and readiness | `server/domain/template-pose-proxy/`, `server/repositories/template-pose-proxy/`, `server/data/template-pose-proxy/` |
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
+| Canonical Attribute definitions, revisions, compatibility and published releases | `server/domain/attribute-catalog/`, `server/repositories/attribute-catalog/`, `server/data/attribute-catalog/` |
 | Cross-workflow correlation context, sanitized trace events and support trace lookup | `server/middleware/`, `server/domain/observability/`, `server/repositories/observability/`, `server/data/observability/` |
 | Bounded process-local performance timing and slow-request measurement | `server/domain/observability/PerformanceTelemetry.js`, `server/middleware/requestPerformanceMiddleware.js` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
@@ -95,6 +96,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Request actor/security middleware | `server/middleware/` |
 | AI provider adapters and registry | `server/providers/` |
 | Paths, provider metadata, and server configuration | `server/config/` |
+| Isolated prompt and visual research | `lab/<experiment>/` |
 
 Server placement rules:
 
@@ -103,6 +105,11 @@ Server placement rules:
 *   A route should coordinate HTTP input/output and delegate business behavior.
 *   A domain module should not hard-code runtime JSON paths.
 *   Data access should be replaceable without rewriting route or domain contracts.
+*   Experimental code under `lab/` must not be imported by production runtime
+    modules. Promote reviewed, versioned configuration into its canonical owner
+    with schema validation and tests.
+*   Large/private Lab datasets, raw provider responses, generated images and
+    experiment output remain local and must be excluded from Git.
 
 ### 4.2 Frontend
 
@@ -111,6 +118,7 @@ Server placement rules:
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | React navigation metadata | `web/src/app/routeRegistry/` |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
+| Admin Attribute authoring and catalog operations | `web/src/features/admin/attributes/` |
 | Template serialization and client contracts | `web/src/features/templates/` |
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |

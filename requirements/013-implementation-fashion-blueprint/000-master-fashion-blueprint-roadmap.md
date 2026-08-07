@@ -364,6 +364,9 @@ reference count and quote consistency before accepting the plan.
    credit recovery before paid pilot operations.
 11. Complete `008` automated/manual QA, then enable public entry flags in the
     rollout order.
+12. Qualify optional Luna prompt refinement from
+    `014-luna-ai-prompt-refinement-provider.md`; deterministic generation remains
+    the release fallback and must pass independently.
 ```
 
 The route may remain visible for internal prototype validation. Public entry

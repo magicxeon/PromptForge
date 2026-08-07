@@ -1,5 +1,10 @@
 # 010-010 Future Admin Configuration Contract
 
+> **Superseded planning notice:** The complete implementation owner is now
+> `requirements/098-admin-visual-attribute-studio/`. This file remains as
+> historical Character Sheet context and must not be used to create a parallel
+> Admin configuration path.
+
 **Status:** Draft - Revised  
 **Parent:** `010-character-reference-clothing-concept.md`  
 **Depends on:** manual visual setup, 010-001 through 010-009
