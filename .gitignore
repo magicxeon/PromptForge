@@ -58,4 +58,7 @@ _temp/
 /lab/**/datasets/source-images/
 /lab/**/datasets/raw-responses/
 /lab/**/evaluations/generated-images/
+/lab/**/evaluations/contact-sheets/
 /lab/**/outputs/
+
+requirements/015-lab-finetune-prompt/street-walk-editorial/*
