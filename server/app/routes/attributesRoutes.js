@@ -95,8 +95,37 @@ export function createAttributesBundleLoader() {
 }
 
 function validateScenePoseRecipes(catalog) {
-  if (!catalog || !Number.isInteger(catalog.schemaVersion) || !Array.isArray(catalog.recipes)) {
+  if (
+    !catalog
+    || !Number.isInteger(catalog.schemaVersion)
+    || !Array.isArray(catalog.poseStyles)
+    || !Array.isArray(catalog.recipes)
+  ) {
     throw new Error('Scene Pose recipe catalog is invalid.');
+  }
+  const styleIds = new Set();
+  for (const style of catalog.poseStyles) {
+    if (
+      !style
+      || typeof style.id !== 'string'
+      || !style.id.startsWith('pose-style.')
+      || !style.label?.en
+      || !style.label?.th
+      || !style.description?.en
+      || !style.description?.th
+      || (style.optionId !== null && typeof style.optionId !== 'string')
+      || !Array.isArray(style.excludedRecipeIds)
+      || style.excludedRecipeIds.some(recipeId => typeof recipeId !== 'string')
+      || new Set(style.excludedRecipeIds).size !== style.excludedRecipeIds.length
+      || typeof style.enabled !== 'boolean'
+    ) {
+      throw new Error(`Scene Pose style '${style?.id || 'unknown'}' is invalid.`);
+    }
+    if (styleIds.has(style.id)) throw new Error(`Duplicate Scene Pose style '${style.id}'.`);
+    styleIds.add(style.id);
+  }
+  if (catalog.poseStyles.filter(style => style.optionId === null).length !== 1) {
+    throw new Error('Scene Pose style catalog must define exactly one Auto Match style.');
   }
   const ids = new Set();
   for (const recipe of catalog.recipes) {
@@ -131,6 +160,12 @@ function validateScenePoseRecipes(catalog) {
       throw new Error(`Scene Pose recipe '${recipe.id}' has conflicting clear fields.`);
     }
     ids.add(recipe.id);
+  }
+  for (const style of catalog.poseStyles) {
+    const unknownRecipeId = style.excludedRecipeIds.find(recipeId => !ids.has(recipeId));
+    if (unknownRecipeId) {
+      throw new Error(`Scene Pose style '${style.id}' references unknown recipe '${unknownRecipeId}'.`);
+    }
   }
   return catalog;
 }

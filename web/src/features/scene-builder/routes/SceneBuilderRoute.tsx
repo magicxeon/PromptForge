@@ -76,8 +76,11 @@ import {
 } from '../templateReferenceRequirements';
 import {
   applyScenePoseRecipe,
+  applyScenePoseStyle,
   isScenePoseRecipeAdjusted,
+  isScenePoseStyleCompatible,
   normalizeScenePoseRecipes,
+  normalizeScenePoseStyles,
   type ScenePoseControlMode
 } from '../scenePoseRecipeModel';
 
@@ -88,7 +91,7 @@ const SIMPLE_VISIBLE_GROUPS = new Set([
   'Character', 'Face', 'Hair', 'Skin', 'Body', 'Clothing', 'Quality'
 ]);
 const SCENE_RECIPE_OWNED_FIELDS = new Set([
-  'Brand', 'Lens', 'ISO', 'White Balance', 'Set Design'
+  'Brand', 'Lens', 'ISO', 'White Balance', 'Set Design', 'Pose Style'
 ]);
 const SCENE_CURATED_OPTIONS = new Map<string, ReadonlySet<string>>([
   ['Motion Blur', new Set([
@@ -173,10 +176,20 @@ export function SceneBuilderRoute() {
     () => normalizeScenePoseRecipes(bundle.data?.scenePoseRecipes),
     [bundle.data?.scenePoseRecipes]
   );
+  const scenePoseStyles = useMemo(
+    () => normalizeScenePoseStyles(bundle.data?.scenePoseRecipes),
+    [bundle.data?.scenePoseRecipes]
+  );
   const selectedScenePoseRecipe = useMemo(
     () => scenePoseRecipes.find(recipe => recipe.id === scenePoseRecipeId) || null,
     [scenePoseRecipeId, scenePoseRecipes]
   );
+  const selectedScenePoseStyleId = useMemo(() => {
+    const optionId = selections['Pose Style']?.id;
+    return scenePoseStyles.find(style => style.optionId === optionId)?.id
+      || scenePoseStyles.find(style => style.optionId === null)?.id
+      || 'pose-style.auto';
+  }, [scenePoseStyles, selections]);
   const sceneGroups = useMemo(
     () => visibleStudioGroups(groups, 'scene', 'styled_character'),
     [groups]
@@ -403,9 +416,18 @@ export function SceneBuilderRoute() {
       editableFields: editableTemplateFields,
       blockedGroups: blockedRecipeGroups
     });
+    const selectedStyle = scenePoseStyles.find(style => style.id === selectedScenePoseStyleId);
+    const nextSelections = applyScenePoseStyle({
+      style: selectedStyle && isScenePoseStyleCompatible(selectedStyle, recipe.id)
+        ? selectedStyle
+        : null,
+      recipeId: recipe.id,
+      groups,
+      selections: result.selections
+    });
     setScenePoseRecipeId(recipe.id);
     setAppliedScenePoseRecipeVersion(recipe.version);
-    setSelections(result.selections);
+    setSelections(nextSelections);
   }, [
     appliedScenePoseRecipeVersion,
     blockedRecipeGroups,
@@ -415,6 +437,8 @@ export function SceneBuilderRoute() {
     poseControlMode,
     scenePoseRecipeId,
     scenePoseRecipes,
+    scenePoseStyles,
+    selectedScenePoseStyleId,
     selections,
     templateUseContext
   ]);
@@ -546,9 +570,21 @@ export function SceneBuilderRoute() {
             <ScenePoseControlPanel
               mode={poseControlMode}
               recipes={scenePoseRecipes}
+              poseStyles={scenePoseStyles}
               selectedRecipeId={scenePoseRecipeId}
+              selectedPoseStyleId={selectedScenePoseStyleId}
+              poseStyleEditable={!editableTemplateFields || editableTemplateFields.has('Pose Style')}
               selectedRecipeAdjusted={selectedRecipeAdjusted}
-              onModeChange={setPoseControlMode}
+              onModeChange={nextMode => {
+                setPoseControlMode(nextMode);
+                if (nextMode === 'advanced' && selections['Pose Style']) {
+                  setSelections(current => {
+                    const next = { ...current };
+                    delete next['Pose Style'];
+                    return next;
+                  });
+                }
+              }}
               onSelectRecipe={recipe => {
                 const result = applyScenePoseRecipe({
                   recipe,
@@ -557,9 +593,30 @@ export function SceneBuilderRoute() {
                   editableFields: editableTemplateFields,
                   blockedGroups: blockedRecipeGroups
                 });
+                const selectedStyle = scenePoseStyles.find(
+                  style => style.id === selectedScenePoseStyleId
+                );
+                const nextSelections = applyScenePoseStyle({
+                  style: selectedStyle && isScenePoseStyleCompatible(selectedStyle, recipe.id)
+                    ? selectedStyle
+                    : null,
+                  recipeId: recipe.id,
+                  groups,
+                  selections: result.selections
+                });
                 setScenePoseRecipeId(recipe.id);
                 setAppliedScenePoseRecipeVersion(recipe.version);
-                setSelections(result.selections);
+                setSelections(nextSelections);
+                if (!templateUseContext) setSnapshot(null);
+              }}
+              onSelectPoseStyle={style => {
+                if (editableTemplateFields && !editableTemplateFields.has('Pose Style')) return;
+                setSelections(current => applyScenePoseStyle({
+                  style,
+                  recipeId: scenePoseRecipeId,
+                  groups,
+                  selections: current
+                }));
                 if (!templateUseContext) setSnapshot(null);
               }}
             />

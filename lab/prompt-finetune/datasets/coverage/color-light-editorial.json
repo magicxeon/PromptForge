@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "prompt-coverage-v1",
+  "styleFamily": "color-light-editorial",
+  "stage1Prompt": "datasets/stage-1-prompts/color-light-editorial.md",
+  "stage2Extraction": "datasets/stage-2-extractions/color-light-editorial.json",
+  "correct": ["two-family color separation", "controlled studio context", "readable face and edges", "optional haze", "crop-independent treatment"],
+  "missing": ["overhead warm pool is a full-body variation", "some samples use three colors rather than two"],
+  "invented": [],
+  "contradictory": ["garment color preservation cannot be guaranteed under saturated colored spill"],
+  "lowConfidence": ["camera and pose rules because the dataset intentionally varies them"],
+  "verdict": "Use only as a lighting modifier with a product-color conflict rule."
+}

@@ -246,12 +246,18 @@ export function compileSelectionPreview(
     'Body'
   ]));
   const cameraAndQuality = valuesForGroups(new Set(['Camera', 'Quality']));
+  const castingPresentation = resolveCastingPresentation(selections);
+  const reusableCastingUniform = castingPresentation === 'female'
+    ? 'wearing an opaque matte medium-gray unbranded silhouette-reading casting outfit with a fitted short-sleeve athletic top with a deep rounded scoop neckline ending securely above the cleavage line, the top ending cleanly at the natural waist, and matching fitted high-rise short upper-thigh athletic shorts with a short inseam and complete seat and groin coverage'
+    : castingPresentation === 'male'
+      ? 'wearing an opaque matte medium-gray unbranded silhouette-reading casting outfit with a fitted short-sleeve high crew-neck athletic T-shirt ending at the natural waist and matching fitted mid-thigh athletic shorts'
+      : 'wearing an opaque matte medium-gray unbranded silhouette-reading casting outfit with a fitted short-sleeve high crew-neck athletic top ending at the natural waist and matching fitted mid-thigh athletic shorts';
   const clothing = characterType === 'reusable_model'
     ? [
-      'wearing an opaque matte neutral medium-gray four-way-stretch jersey casting uniform with a seam-minimal short-sleeve top, a modest high crew neckline, and matching mid-thigh shorts',
-      'a subtle technical contour grid of thin evenly spaced light-gray horizontal and vertical lines follows the gray fabric surface and curves naturally over the exact body contours, with no numbers, letters, labels, symbols, logos, or measurement text',
-      'maintain clear tonal separation between the gray uniform, the character skin, and the pure white background',
-      'the close contoured fit follows the exact natural anatomy without compression, padding, reshaping, concealment, or flattening of the upper torso, waist, hips, or seat',
+      reusableCastingUniform,
+      'a subtle white contour grid of thin evenly spaced horizontal and vertical lines follows the gray fabric surface and curves naturally over the body, with no numbers, labels, symbols, or measurement marks',
+      'maintain clear tonal separation between the medium-gray outfit, its white grid, the character skin, and the light warm-gray background',
+      'the close contoured fit follows the exact natural anatomy without compression, padding, lifting, reshaping, concealment, or flattening of the upper torso, waist, hips, or seat',
       'never underwear, lingerie, swimwear, transparent fabric, or sexualized styling'
     ]
     : valuesForGroups(new Set(['Clothing']));
@@ -260,22 +266,35 @@ export function compileSelectionPreview(
     : clothing;
 
   return [
-    'professional full-body character model sheet showing exactly three clearly separated views side by side in one horizontal row at the same scale, ordered left to right: front view, exact side profile facing toward the viewer right, and back view',
+    'professional photorealistic full-body character casting reference showing exactly three clearly separated views side by side in one horizontal row at the same scale, ordered left to right: front view, exact side profile facing toward the viewer right, and back view',
     'in the side profile, the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body',
     'complete head-to-feet figure in every view at the same scale with generous clear margins, neutral upright standing pose',
+    'realistic adult fashion-model proportions with a naturally proportioned head-to-body relationship of approximately 1:7.5 to 1:8, a full-length torso, and naturally long legs; never an oversized head, shortened torso, compressed legs, childlike anatomy, doll-like anatomy, chibi, or caricature',
     ...identityAndBody,
     ...colorPhrases.hair,
     ...styledClothing,
     ...(characterType === 'styled_character' ? colorPhrases.garment : []),
-    'on a solid pure white background',
-    'unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark',
-    'photorealistic photography',
-    'realistic camera imperfections',
+    characterType === 'reusable_model'
+      ? 'on a seamless matte light warm-gray studio background'
+      : 'on a solid pure white background',
+    'unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, measurement lines, rulers, diagrams, borders, dividers, logos, watermark, or isolated foot close-up',
+    'real high-resolution studio photography of a real adult person using a level eye-height camera and an 85 to 105mm full-frame-equivalent perspective',
+    'natural skin texture, realistic fabric tension, physically plausible shadows, and subtle photographic grain; never AI art, CGI, 3D rendering, illustration, or a mannequin',
     ...cameraAndQuality
   ]
     .join(', ')
     .replace(/,\s*,/g, ',')
     .trim();
+}
+
+function resolveCastingPresentation(selections: Record<string, AttributeSelection>) {
+  const evidence = Object.values(selections)
+    .flatMap(selection => [selection.id, selection.value, selection.label, ...selection.tags])
+    .join(' ')
+    .toLowerCase();
+  if (/\b(female|woman|women|girl)\b/.test(evidence)) return 'female';
+  if (/\b(male|man|men|boy)\b/.test(evidence)) return 'male';
+  return 'neutral';
 }
 
 export function localized(value: string | Record<string, string>) {

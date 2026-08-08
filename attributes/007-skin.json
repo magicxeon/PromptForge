@@ -37,10 +37,10 @@
       "group": "Skin"
     },
     "prompt": {
-      "default": "porcelain skin",
-      "gpt-image": "porcelain skin",
-      "gpt-image-safe": "smooth porcelain-like skin",
-      "gpt-image-positive": "professional studio lighting, smooth skin details, refined complexion"
+      "default": "very fair neutral skin tone",
+      "gpt-image": "very fair neutral skin tone",
+      "gpt-image-safe": "very fair neutral skin tone",
+      "gpt-image-positive": "professional studio lighting, realistic natural skin detail"
     },
     "tags": [
       "skin",

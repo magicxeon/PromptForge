@@ -597,21 +597,35 @@ export function compilePromptOnServer(
     prompt = elements.join(", ");
   } else if (mode === "character-sheet") {
     let sheetLayout = getCharacterSheetLayoutSegment();
-    let elements = [
-      sheetLayout,
-      fullSubject,
-      appearance,
-      hair,
-      skin,
-      clothing,
-      additionalDirection,
-      "on a solid pure white background",
-      "unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark",
-      "photorealistic photography",
-      "realistic camera imperfections",
-      camera,
-      quality
-    ].filter(s => s && s.toString().trim() !== "");
+    const completeCastingPolicy = typeof options.characterSheetLayoutOverride === "string"
+      && options.characterSheetLayoutOverride.trim() !== ""
+      && options.omitCharacterSheetClothing === true;
+    let elements = (completeCastingPolicy
+      ? [
+        sheetLayout,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        additionalDirection,
+        camera,
+        quality
+      ]
+      : [
+        sheetLayout,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        clothing,
+        additionalDirection,
+        "on a solid pure white background",
+        "unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark",
+        "photorealistic photography",
+        "realistic camera imperfections",
+        camera,
+        quality
+      ]).filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else {
     const characterReferenceText = imageReferences?.characterReference

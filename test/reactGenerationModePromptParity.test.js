@@ -25,7 +25,7 @@ test('React Headshot generationMode selects the strict white-background compiler
   assert.doesNotMatch(compiledPrompt, /busy city street/i);
 });
 
-test('React Reusable Character Sheet uses casting layout and gray contour-grid uniform', () => {
+test('React Reusable Character Sheet uses the photorealistic gray grid casting policy', () => {
   const { context, compiledPrompt } = compileGenerationContext({
     mode: 'normal',
     generationMode: 'character-sheet',
@@ -47,12 +47,18 @@ test('React Reusable Character Sheet uses casting layout and gray contour-grid u
     /front view facing directly toward the camera.*exact side profile facing toward the viewer right.*back view facing directly away from the camera/i
   );
   assert.match(compiledPrompt, /head aligned with the torso/i);
-  assert.match(compiledPrompt, /medium-gray.+four-way-stretch jersey casting uniform/i);
+  assert.match(compiledPrompt, /matte medium-gray.+silhouette-reading casting outfit/i);
+  assert.match(compiledPrompt, /subtle white contour grid/i);
+  assert.match(compiledPrompt, /deep rounded scoop neckline.+natural waist/i);
+  assert.match(compiledPrompt, /short upper-thigh athletic shorts.+complete seat and groin coverage/i);
   assert.match(compiledPrompt, /warm olive skin tone/i);
   assert.match(compiledPrompt, /natural detailed skin texture/i);
   assert.match(compiledPrompt, /athletic natural build/i);
   assert.match(compiledPrompt, /balanced hourglass body silhouette/i);
-  assert.match(compiledPrompt, /solid pure white background/i);
+  assert.match(compiledPrompt, /seamless matte light warm-gray studio background/i);
+  assert.doesNotMatch(compiledPrompt, /solid pure white background/i);
+  assert.match(compiledPrompt, /real high-resolution studio photograph/i);
+  assert.match(compiledPrompt, /must not look like AI art, CGI, 3D rendering, illustration/i);
   assert.doesNotMatch(compiledPrompt, /red evening dress/i);
 });
 
@@ -68,7 +74,7 @@ test('React Reusable Character Sheet preserves an explicit runway hourglass body
         'body'
       ),
       'Model Build': selection(
-        'slender curvaceous adult fashion-model build with a narrow lean frame, slim shoulders, arms, waist, and legs, while retaining distinctly fuller natural upper-torso volume and proportionate rounded hips; do not interpret slender as a straight, flat, or low-curve body shape',
+        'slender adult fashion-model build with a narrow lean frame and slim shoulders, arms, and legs; preserve the separately selected natural body silhouette without flattening or exaggerating it',
         'Body',
         'body'
       ),
@@ -81,17 +87,16 @@ test('React Reusable Character Sheet preserves an explicit runway hourglass body
   }, actor);
 
   assert.match(compiledPrompt, /elongated runway-style body line/i);
-  assert.match(compiledPrompt, /slender curvaceous adult fashion-model build/i);
-  assert.match(compiledPrompt, /do not interpret slender as a straight, flat, or low-curve body shape/i);
+  assert.match(compiledPrompt, /slender adult fashion-model build/i);
+  assert.match(compiledPrompt, /preserve the separately selected natural body silhouette/i);
   assert.match(compiledPrompt, /distinctly fuller natural bust volume/i);
   assert.match(compiledPrompt, /clear natural forward upper-torso projection/i);
   assert.match(compiledPrompt, /narrow clearly defined waist/i);
   assert.match(compiledPrompt, /without normalizing them toward average body proportions/i);
-  assert.match(compiledPrompt, /four-way-stretch jersey/i);
+  assert.match(compiledPrompt, /matte medium-gray unbranded silhouette-reading casting outfit/i);
   assert.match(compiledPrompt, /clear tonal separation/i);
-  assert.match(compiledPrompt, /technical contour grid/i);
-  assert.match(compiledPrompt, /without compression, padding, reshaping, concealment, or flattening/i);
-  assert.match(compiledPrompt, /never underwear, lingerie, swimwear/i);
+  assert.match(compiledPrompt, /without compression, padding, lifting, reshaping, concealment, or flattening/i);
+  assert.match(compiledPrompt, /never use underwear, lingerie, swimwear/i);
 });
 
 test('React Styled Character Sheet preserves selected clothing on white', () => {

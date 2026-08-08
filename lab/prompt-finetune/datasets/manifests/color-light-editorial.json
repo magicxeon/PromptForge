@@ -1,0 +1,99 @@
+﻿{
+    "schemaVersion":  "fashion-dataset-manifest-v1",
+    "styleFamily":  "color-light-editorial",
+    "sampleCount":  7,
+    "createdAt":  "2026-08-07T04:35:30.8885901Z",
+    "items":  [
+                  {
+                      "sampleId":  "color-light-editorial-001",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-001.jpg",
+                      "originalFileName":  "3d710c9433d8e1a2897e151fb9f40bcd.jpg",
+                      "sha256":  "d75a3dfafb108540f626395874d1e5143091619e1c8b78296a3d2c4785235c67",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-002",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-002.jpg",
+                      "originalFileName":  "4a7c1049966908ba30b30631ac498ad4.jpg",
+                      "sha256":  "7ce1ac3b68f9a7739a76a1346f2c8e88a482dc9f0ca2382175f87af60379f438",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-003",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-003.jpg",
+                      "originalFileName":  "7230944ae1d8ccef5d08e546d1a47219.jpg",
+                      "sha256":  "66ff9e10d4f21e31422241acd12c0b0fda9277efb3c42b5a063b8b332141929a",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-004",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-004.jpg",
+                      "originalFileName":  "7e0e197007eeccbf6fca98492a952cec.jpg",
+                      "sha256":  "ca6a5a0498e29d71cbb8d8de1dfac1145977a18a56f25147cf0e0aafede17d79",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-005",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-005.jpg",
+                      "originalFileName":  "cf5e9a0a4e9247d95482383f17a5bd75.jpg",
+                      "sha256":  "1c87760380ebf9ae6bedad333fe83b03aed345f64165ff3e2ab52a7a206aa5fe",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-006",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-006.jpg",
+                      "originalFileName":  "color-light-editorial.jpg",
+                      "sha256":  "3166b0fafa14fb110f8317d4e180baea924810000fcefee40e21263cb05a6880",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "color-light-editorial-007",
+                      "styleFamily":  "color-light-editorial",
+                      "sourcePath":  "datasets/source-images/color-light-editorial/color-light-editorial-007.jpg",
+                      "originalFileName":  "f1fcf1fdf312410687ab150cc98bdddd.jpg",
+                      "sha256":  "cc7a57dfa810e7f404e7c3386d80821789f8818d394245b5abcf352ddf483a4e",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  }
+              ]
+}

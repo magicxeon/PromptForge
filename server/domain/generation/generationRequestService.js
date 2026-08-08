@@ -5,7 +5,10 @@ import {
   stripEmbeddedReferenceDataFromSnapshot
 } from './referenceUtils.js';
 import { sanitizeReferenceSlotsForPublic } from '../scene-templates/sceneTemplateSanitizer.js';
-import { getCharacterCastingPolicy } from '../character-profiles/characterCastingPolicy.js';
+import {
+  compileCharacterCastingDirective,
+  getCharacterCastingPolicy
+} from '../character-profiles/characterCastingPolicy.js';
 import {
   CHARACTER_TYPE,
   normalizeCharacterType
@@ -254,6 +257,7 @@ export function compilePromptFromGenerationContext(context) {
   const castingExport = context.characterProfileContext?.purpose === 'character_casting_export';
   const usesCastingLayout = reusableCharacterSheet || castingExport;
   const castingPolicy = getCharacterCastingPolicy();
+  const castingDirective = compileCharacterCastingDirective(context.selections);
   const basePrompt = context.userRole === 'admin' && adminPromptOverride
     ? adminPromptOverride
     : (manualScenePrompt
@@ -272,7 +276,7 @@ export function compilePromptFromGenerationContext(context) {
         additionalDirection: context.additionalDirection,
         ...(usesCastingLayout
           ? {
-            characterSheetLayoutOverride: castingPolicy.promptDirective,
+            characterSheetLayoutOverride: castingDirective,
             omitCharacterSheetClothing: true
           }
           : {})
@@ -313,7 +317,7 @@ export function compilePromptFromGenerationContext(context) {
   const directedPrompt = [sceneOutputDirective, templateDirectedPrompt].filter(Boolean).join(' ');
   return castingExport
       ? (context.userRole === 'admin' && adminPromptOverride
-      ? `${castingPolicy.promptDirective}, ${directedPrompt}`
+      ? `${castingDirective}, ${directedPrompt}`
       : directedPrompt)
     : context.characterProfileContext?.purpose === 'character_usage'
       ? [
@@ -326,7 +330,7 @@ export function compilePromptFromGenerationContext(context) {
       : characterReferenceDirective.length
         ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
-        ? `${castingPolicy.promptDirective}, ${directedPrompt}`
+        ? `${castingDirective}, ${directedPrompt}`
         : directedPrompt;
 }
 

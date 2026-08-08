@@ -224,6 +224,10 @@
       {
         "name": "Fashion Gaze",
         "control": "select"
+      },
+      {
+        "name": "Pose Style",
+        "control": "select"
       }
     ]
   },

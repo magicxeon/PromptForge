@@ -33,6 +33,7 @@ export function EngineTargetPanel({
   allowComparison = true,
   promptRefinementAvailable = false,
   promptRefinementEnabled = false,
+  fixedAspectRatio = null,
   onChange,
   onComparisonChange,
   onSlotsChange,
@@ -49,6 +50,7 @@ export function EngineTargetPanel({
   allowComparison?: boolean;
   promptRefinementAvailable?: boolean;
   promptRefinementEnabled?: boolean;
+  fixedAspectRatio?: string | null;
   onChange: (value: EngineValue) => void;
   onComparisonChange: (active: boolean) => void;
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
@@ -58,7 +60,8 @@ export function EngineTargetPanel({
   const { t: tUi } = useTranslation('react-ui');
   const provider = catalog.providers.find(item => item.id === value.provider) || catalog.providers[0];
   const model = provider?.models.find(item => item.id === value.model) || provider?.models[0];
-  const ratios = model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
+  const availableRatios = model?.capabilities.aspectRatios.length ? model.capabilities.aspectRatios : ['6:8', '1:1', '16:9'];
+  const ratios = fixedAspectRatio ? [fixedAspectRatio] : availableRatios;
   const resolutions = model?.capabilities.resolutions || [];
   const dimensions = dimensionsForRatio(value.aspectRatio);
 
@@ -119,6 +122,7 @@ export function EngineTargetPanel({
                   className={value.aspectRatio === ratio ? 'is-selected' : ''}
                   size="sm"
                   variant={value.aspectRatio === ratio ? 'primary' : 'secondary'}
+                  disabled={Boolean(fixedAspectRatio)}
                   onClick={() => onChange({ ...value, aspectRatio: ratio })}
                 >
                   {ratioLabels[ratio] || ratio}
@@ -171,7 +175,8 @@ function dimensionsForRatio(ratio: string) {
     '1:1': { width: 1024, height: 1024 },
     '9:16': { width: 768, height: 1365 },
     '16:9': { width: 1365, height: 768 },
-    '4:5': { width: 819, height: 1024 }
+    '4:5': { width: 819, height: 1024 },
+    '4:3': { width: 1024, height: 768 }
   };
   return dimensions[ratio] || { width: 1024, height: 1024 };
 }

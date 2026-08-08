@@ -107,10 +107,10 @@ test('canonical Reusable Model source enters review without a second generation'
       version: 1,
       characterType: 'reusable_model',
       castingCandidate: true,
-      layout: { type: 'character-casting-three-view-v2' },
-      castingLayoutVersion: 'character-casting-three-view-v2',
-      uniformPolicyVersion: 'casting-uniform-gray-grid-v4',
-      aspectRatio: '6:8',
+      layout: { type: 'character-casting-three-view-v4' },
+      castingLayoutVersion: 'character-casting-three-view-v4',
+      uniformPolicyVersion: 'casting-uniform-gray-grid-v7',
+      aspectRatio: '1:1',
       outputCount: 1
     }
   };
@@ -136,8 +136,8 @@ test('canonical Reusable Model source enters review without a second generation'
   assert.equal(created.versions[0].status, 'review');
   assert.equal(created.versions[0].castingExportGenerationResultId, sourceResult.id);
   assert.equal(created.versions[0].canonicalCastingExportAssetId, sourceResult.id);
-  assert.equal(created.versions[0].castingExportLayoutVersion, 'character-casting-three-view-v2');
-  assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-gray-grid-v4');
+  assert.equal(created.versions[0].castingExportLayoutVersion, 'character-casting-three-view-v4');
+  assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-gray-grid-v7');
   assert.equal(
     created.displayImageUrl,
     `/api/character-profiles/${encodeURIComponent(created.id)}/media/image`

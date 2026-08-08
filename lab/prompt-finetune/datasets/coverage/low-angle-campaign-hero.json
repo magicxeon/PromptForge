@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "prompt-coverage-v1",
+  "styleFamily": "low-angle-campaign-hero",
+  "stage1Prompt": "datasets/stage-1-prompts/low-angle-campaign-hero.md",
+  "stage2Extraction": "datasets/stage-2-extractions/low-angle-campaign-hero.json",
+  "correct": ["camera below subject", "upward angle", "dominant subject", "clean negative space", "anatomical distortion guard"],
+  "missing": ["full-body and portrait clusters require separate shot-size settings"],
+  "invented": [],
+  "contradictory": [],
+  "lowConfidence": ["exact lens and camera distance"],
+  "verdict": "Camera recipe is strong; split crop variants and exclude sample 002."
+}

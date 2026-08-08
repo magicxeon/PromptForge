@@ -1,7 +1,7 @@
 # Fashion Prompt Recipe Lab
 
 **ID:** `015-lab-finetune-prompt`  
-**Status:** Design approved; implementation pending  
+**Status:** Design approved; five-style manual pilot processed; automated runners pending
 **Owner:** Prompt Research Lab  
 **Lab root:** `lab/prompt-finetune/`
 
@@ -254,3 +254,34 @@ to correct the schema and evidence rules before costs multiply.
 - `requirements/009-migration-to-react/017-performance-ownership-observability-and-tuning.md`
 - `requirements/099-technical-dept/000-master.md`
 
+## 12. Pilot Checkpoint (2026-08-07)
+
+The first manual calibration pass processed 51 user-supplied images across
+Architectural Lean, Color Light Editorial, Low-angle Campaign Hero, Soft
+Character Portrait, and Sunlit Storefront.
+
+Artifacts are under `lab/prompt-finetune/`:
+
+- stable manifests with original filenames and SHA-256 hashes
+- local ignored source images and contact sheets
+- five Stage 1 provider-neutral prompt observations
+- five independent Stage 2 style-family extractions
+- five prompt coverage audits
+- `reports/pilot-5-style-analysis.md`
+
+This checkpoint does not satisfy the automated runner, direct-baseline,
+generation evaluation, or promotion acceptance criteria. All source licenses
+remain review-required. Architectural Lean is the recommended first fixed-fixture
+generation candidate; no recipe has been promoted to production.
+
+## 13. Street Walk Editorial Calibration Checkpoint (2026-08-07)
+
+Eight additional user-supplied vertical references were analyzed as the
+`Street Walk Editorial` family. Requirement
+`001-street-walk-editorial-calibration-and-promotion.md` records hashes,
+invariants, controlled variations, conflict rules, the promoted candidate v2
+configuration and its pending manual qualification gate.
+
+The production candidate uses the existing Scene Recipe and Generation
+contracts. It introduces no Lab runtime dependency and no parallel prompt
+compiler. Source licensing remains review-required.

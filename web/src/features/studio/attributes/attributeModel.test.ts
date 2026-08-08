@@ -110,7 +110,10 @@ describe('Studio attribute model', () => {
     const option = normalizeAttributeGroups(bundle)[0]!.fields[0]!.options[0]!;
     const selection = createSelection(option);
     const preview = compileSelectionPreview(
-      { 'Face Shape': selection },
+      {
+        Gender: previewSelection('female adult', 'Character', 'character'),
+        'Face Shape': selection
+      },
       'character-sheet',
       'reusable_model'
     );
@@ -118,25 +121,29 @@ describe('Studio attribute model', () => {
     expect(preview).toContain('front view, exact side profile facing toward the viewer right, and back view');
     expect(preview).toContain('head aligned with the torso');
     expect(preview).toContain('unlabeled image only');
-    expect(preview).toContain('opaque matte neutral medium-gray four-way-stretch jersey casting uniform');
-    expect(preview).toContain('clear tonal separation between the gray uniform');
-    expect(preview).toContain('technical contour grid');
-    expect(preview).toContain('without compression, padding, reshaping, concealment, or flattening');
-    expect(preview).toContain('on a solid pure white background');
+    expect(preview).toContain('opaque matte medium-gray unbranded silhouette-reading casting outfit');
+    expect(preview).toContain('deep rounded scoop neckline ending securely above the cleavage line');
+    expect(preview).toContain('short upper-thigh athletic shorts with a short inseam');
+    expect(preview).toContain('subtle white contour grid');
+    expect(preview).toContain('head-to-body relationship of approximately 1:7.5 to 1:8');
+    expect(preview).toContain('clear tonal separation between the medium-gray outfit');
+    expect(preview).toContain('without compression, padding, lifting, reshaping, concealment, or flattening');
+    expect(preview).toContain('on a seamless matte light warm-gray studio background');
+    expect(preview).toContain('never AI art, CGI, 3D rendering, illustration, or a mannequin');
     expect(preview).toContain('oval face');
   });
 
   it('keeps a slender curvaceous build distinct from a straight slender build', () => {
     const preview = compileSelectionPreview({
       'Model Build': previewSelection(
-        'slender curvaceous adult fashion-model build with a narrow lean frame while retaining distinctly fuller natural upper-torso volume and proportionate rounded hips; do not interpret slender as a straight, flat, or low-curve body shape',
+        'slender adult fashion-model build with a narrow lean frame and slim shoulders, arms, and legs; preserve the separately selected natural body silhouette without flattening or exaggerating it',
         'Body',
         'body'
       )
     }, 'character-sheet', 'reusable_model');
 
-    expect(preview).toContain('slender curvaceous adult fashion-model build');
-    expect(preview).toContain('do not interpret slender as a straight, flat, or low-curve body shape');
+    expect(preview).toContain('slender adult fashion-model build');
+    expect(preview).toContain('preserve the separately selected natural body silhouette');
   });
 
   it('rehydrates persisted option prompt values from the current catalog', () => {

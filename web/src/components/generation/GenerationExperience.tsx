@@ -189,6 +189,10 @@ export function GenerationExperience({
   const [promptRefinementActorId, setPromptRefinementActorId] = useState<string | null>(null);
   const completedJobRef = useRef<string | null>(null);
   const actorId = actor?.userId || 'loading';
+  const fixedAspectRatio = generationMode === 'character-sheet'
+    && characterType === 'reusable_model'
+    ? '1:1'
+    : null;
 
   const catalog = useQuery({ queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000 });
   const creditAccount = useQuery({
@@ -232,9 +236,15 @@ export function GenerationExperience({
       provider: provider?.id || '',
       model: model?.id || '',
       resolution: model?.capabilities.resolutions?.[0] || model?.defaults?.resolution || null,
-      aspectRatio: model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'
+      aspectRatio: fixedAspectRatio
+        || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1')
     });
-  }, [catalog.data, engine.provider]);
+  }, [catalog.data, engine.provider, fixedAspectRatio]);
+
+  useEffect(() => {
+    if (!fixedAspectRatio || engine.aspectRatio === fixedAspectRatio) return;
+    setEngine(current => ({ ...current, aspectRatio: fixedAspectRatio }));
+  }, [engine.aspectRatio, fixedAspectRatio]);
 
   useEffect(() => {
     if (!actor || !catalog.data || comparisonPreferencesActorId === actor.userId) return;
@@ -683,6 +693,7 @@ export function GenerationExperience({
       allowComparison={allowComparison}
       promptRefinementAvailable={promptRefinementAvailable}
       promptRefinementEnabled={promptRefinementEnabled}
+      fixedAspectRatio={fixedAspectRatio}
       onChange={setEngine}
       onComparisonChange={setComparison}
       onSlotsChange={setComparisonSlots}

@@ -1,13 +1,17 @@
 # Standardized Character Casting Export
 
 **Parent:** `000-master-character-profile-roadmap.md`  
-**Status:** Implemented; validation pending
+**Status:** Implemented baseline; current presentation superseded by Requirement 010
 
 ## 1. Business Requirement
 
 Every reusable Character needs a clear, neutral reference that shows face,
 proportions and silhouette consistently enough for Fashion Blueprint and Scene
 Builder.
+
+> Current generation policy: see
+> `010-photorealistic-silhouette-casting-reference.md`. This document retains
+> the v2/v4 baseline and historical compatibility contract.
 
 This export applies only to `reusable_model`. A `styled_character` keeps its
 outfit-bound Character Sheet until the owner explicitly converts it into a new
@@ -68,8 +72,9 @@ Legacy `casting-uniform-white-v1`, `casting-uniform-white-v2`,
 `casting-uniform-gray-v3` and
 `character-casting-four-view-v1` records
 remain readable and usable when already approved, but new direct casting
-candidates must use the current uniform and three-view policies. Do not rewrite
-historical generation or approved profile records during this policy change.
+candidates use the v3/v5 policy defined by Requirement 010. The v2/v4 policy in
+this document is also historical and remains readable. Do not rewrite historical
+generation or approved profile records during this policy change.
 
 Selection derivatives:
 

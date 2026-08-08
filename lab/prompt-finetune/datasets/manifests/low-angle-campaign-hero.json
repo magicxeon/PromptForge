@@ -1,0 +1,99 @@
+﻿{
+    "schemaVersion":  "fashion-dataset-manifest-v1",
+    "styleFamily":  "low-angle-campaign-hero",
+    "sampleCount":  7,
+    "createdAt":  "2026-08-07T04:35:30.9635092Z",
+    "items":  [
+                  {
+                      "sampleId":  "low-angle-campaign-hero-001",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-001.jpg",
+                      "originalFileName":  "39ce9365e738d75632f5153306cf99f5.jpg",
+                      "sha256":  "628a5f166e989d258cb037f7661f0191b22c6573468d321a2c272fd48918bf5d",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-002",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-002.jpg",
+                      "originalFileName":  "59cccf9c89c56eb16df7593c02c19fe3.jpg",
+                      "sha256":  "53462ed0662c5f1d6cb3fb0106d329a4cd33a285344339a5b691f245b25cf963",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-003",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-003.jpg",
+                      "originalFileName":  "75e6c94ffdef676bcaa68c59827b1e5e.jpg",
+                      "sha256":  "6ca0afeec6f07b9454e73812a4d73b0bef1363b04a3af5cfece9a2518263d04c",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-004",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-004.jpg",
+                      "originalFileName":  "8cf576659e04e627281ff414bd3b9b64.jpg",
+                      "sha256":  "4d720384a1f4f905b81502ddcfe5e41e50859d4eeeb4a09c9d7609326d982e9d",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-005",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-005.jpg",
+                      "originalFileName":  "d7c2190aa6690be2f3985d64af6138f4.jpg",
+                      "sha256":  "0e6c56687b6a615aeb2fb8ff1bf68d11adf6180beab4ef806e39b4cb6d84fea6",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-006",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-006.jpg",
+                      "originalFileName":  "e84f58e3ef7ab00ae9a495f6bb31c6d1.jpg",
+                      "sha256":  "29bf9495680de4b41675569d6e4cc0b677d7eb76b0552fb35140098174c8d25e",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "low-angle-campaign-hero-007",
+                      "styleFamily":  "low-angle-campaign-hero",
+                      "sourcePath":  "datasets/source-images/low-angle-campaign-hero/low-angle-campaign-hero-007.jpg",
+                      "originalFileName":  "f17c6e52316f575081eaae5a55b83e19.jpg",
+                      "sha256":  "592bc786c034811bb6e50fd708e6551ce25fe22dfbbc437d962a713b2de6d9e9",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  }
+              ]
+}

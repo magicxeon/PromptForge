@@ -73,6 +73,24 @@ while the subject remains evenly lit. The prompt must establish:
 `Shadow` is not a decorative overlay. If the subject is outside the motivated
 beam, the recipe has failed even when a graphic pattern exists elsewhere.
 
+## Editorial Pose Gate
+
+A professional fashion pose must define a readable asymmetric body line, not
+only a generic stance plus aesthetic adjectives. For a standing editorial
+recipe, verify:
+
+1. one anatomically credible supporting leg and explicit weight ownership;
+2. a distinct free-leg line that does not merge, lock or destroy balance;
+3. pelvis, ribcage and shoulders using restrained counter-direction;
+4. a lifted torso and intentional silhouette rather than a stiff frontal pose;
+5. non-mirrored hands with a clear role and natural wrists; and
+6. garment-safe placement that preserves closures, waist construction and the
+   principal product detail.
+
+Do not place both hands behind the body merely to keep a garment clear when the
+recipe promises editorial impact. Use one restrained angular hand line and one
+quiet counterbalancing arm instead.
+
 ## Grounded Fashion Environment Gate
 
 Environment prose must describe a real, photographable fashion location rather

@@ -23,9 +23,9 @@ const expectedPoseDetails = new Map([
   ['pose.fashion.weight-shift', /seventy percent.+opposite knee relaxes/i],
   ['pose.fashion.back', /facing directly away.+without looking over either shoulder/i],
   ['pose.fashion.fabric-motion', /controlled editorial lateral step.+single elegant wave of fabric/i],
-  ['pose.fashion.street-walk-editorial', /natural editorial mid-stride.+credible weight transfer/i],
+  ['pose.fashion.street-walk-editorial', /decisive instant of a natural editorial street stride.+central horizontal corridor/i],
   ['pose.fashion.architectural-lean', /architectural lean.+physically plausible contact/i],
-  ['pose.fashion.window-shadow-lookbook', /seventy percent of weight.+restrained negative space/i],
+  ['pose.fashion.window-shadow-lookbook', /high-fashion editorial contrapposto.+asymmetric S-curve.+flat symmetrical catalog stance/i],
   ['pose.fashion.cafe-seated-lifestyle', /anatomically stable seated fashion pose.+footwear without cropped limbs/i],
   ['pose.fashion.sunlit-storefront', /storefront fashion stance.+clean environmental escape space/i],
   ['pose.fashion.low-angle-campaign-hero', /campaign stance.+upper-frame negative space/i],
@@ -35,7 +35,21 @@ const expectedPoseDetails = new Map([
 
 test('all Simple Scene recipes resolve to precise single-subject pose directions', () => {
   assert.equal(recipeCatalog.recipes.length, expectedPoseDetails.size);
-  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-6');
+  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-8');
+  assert.deepEqual(
+    recipeCatalog.poseStyles.map(style => style.id),
+    [
+      'pose-style.auto',
+      'pose-style.soft-natural',
+      'pose-style.clean-minimal',
+      'pose-style.confident-editorial',
+      'pose-style.dynamic-fashion'
+    ]
+  );
+  assert.equal(recipeCatalog.poseStyles[0].optionId, null);
+  for (const style of recipeCatalog.poseStyles.filter(item => item.optionId)) {
+    assert.ok(attributesById.has(style.optionId), `${style.id} must resolve ${style.optionId}`);
+  }
   const discoverable = recipeCatalog.recipes.filter(recipe => recipe.discoverable !== false);
   assert.equal(discoverable.length, 8);
 
@@ -54,13 +68,15 @@ test('all Simple Scene recipes resolve to precise single-subject pose directions
     assert.match(recipe.previewAsset, /^\/assets\/scene-builder\/shot-recipes\/.+\.jpg$/);
     assert.equal(
       recipe.version,
-      [
-        'scene-pose.sunlit-storefront',
-        'scene-pose.window-shadow-lookbook',
-        'scene-pose.soft-character-portrait'
-      ].includes(recipe.id)
-        ? 2
-        : 1
+      recipe.id === 'scene-pose.window-shadow-lookbook'
+        ? 3
+        : [
+            'scene-pose.street-walk-editorial',
+            'scene-pose.sunlit-storefront',
+            'scene-pose.soft-character-portrait'
+          ].includes(recipe.id)
+          ? 2
+          : 1
     );
   }
 });
@@ -117,12 +133,67 @@ test('a professional Shot Recipe reaches the canonical compiler as one resolved 
     template: 'portrait'
   });
 
-  assert.match(prompt, /natural editorial mid-stride/i);
-  assert.match(prompt, /one hand resting naturally inside one available garment pocket/i);
-  assert.match(prompt, /quiet contemporary city street/i);
-  assert.match(prompt, /outdoor open-shade lighting/i);
-  assert.match(prompt, /environmental portrait framing/i);
+  assert.equal(recipe.version, 2);
+  assert.match(prompt, /decisive instant of a natural editorial street stride/i);
+  assert.match(prompt, /complete subject inside the central horizontal corridor/i);
+  assert.match(prompt, /when the actual garment has a clearly available pocket/i);
+  assert.match(prompt, /never invent a pocket, bag, drink, phone, or accessory/i);
+  assert.match(prompt, /real contemporary city walking route/i);
+  assert.match(prompt, /visible pavement or crosswalk plane.+coherent depth/i);
+  assert.match(prompt, /physically motivated directional city daylight/i);
+  assert.match(prompt, /seventy-eight to eighty-six percent of the frame height/i);
+  assert.match(prompt, /four to seven percent below.+both pieces of footwear/i);
+  assert.match(prompt, /visual center held at approximately fifty percent of the frame width/i);
   assert.match(prompt, /slight handheld camera movement/i);
+  assert.doesNotMatch(prompt, /rule-of-thirds composition/i);
+  assert.doesNotMatch(prompt, /environmental portrait framing/i);
+  assert.doesNotMatch(prompt, /clean outdoor open-shade lighting/i);
+});
+
+test('a compatible Pose Style modifies body language without replacing the Scene recipe', () => {
+  const recipe = recipeCatalog.recipes.find(item =>
+    item.id === 'scene-pose.window-shadow-lookbook'
+  );
+  const style = recipeCatalog.poseStyles.find(item =>
+    item.id === 'pose-style.confident-editorial'
+  );
+  assert.ok(recipe);
+  assert.ok(style?.optionId);
+
+  const selections = Object.fromEntries(
+    Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
+      const attribute = attributesById.get(optionId);
+      return [fieldName, {
+        id: optionId,
+        value: attribute.prompt.default,
+        group: fieldName === 'Fashion Direction'
+          ? 'Fashion Direction'
+          : (attribute.ui?.group || attribute.category),
+        category: attribute.category
+      }];
+    })
+  );
+  const styleAttribute = attributesById.get(style.optionId);
+  selections['Pose Style'] = {
+    id: style.optionId,
+    value: styleAttribute.prompt.default,
+    group: styleAttribute.ui?.group || styleAttribute.category,
+    category: styleAttribute.category
+  };
+
+  const prompt = compilePromptFromGenerationContext({
+    generationMode: 'scene',
+    mode: 'normal',
+    selections,
+    aspectRatio: '6:8',
+    imageReferences: {},
+    template: 'portrait'
+  });
+
+  assert.match(prompt, /high-fashion editorial contrapposto/i);
+  assert.match(prompt, /strengthening its existing asymmetry/i);
+  assert.equal((prompt.match(/strengthening its existing asymmetry/gi) || []).length, 1);
+  assert.match(prompt, /window-mullion shadow bands crossing the subject/i);
 });
 
 test('Sunlit Storefront compiles physical camera, contact, and lighting direction', () => {
@@ -171,7 +242,7 @@ test('Window Shadow Lookbook lights the subject and uses a grounded fashion loca
     item.id === 'scene-pose.window-shadow-lookbook'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
 
   const selections = Object.fromEntries(
     Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
@@ -203,6 +274,10 @@ test('Window Shadow Lookbook lights the subject and uses a grounded fashion loca
   assert.match(prompt, /same aligned window-frame geometry continues.+onto the wall and floor/i);
   assert.match(prompt, /no evenly lit subject.+no shadow pattern isolated only on the background/i);
   assert.match(prompt, /no abstract void.+floating lights.+unexplained neon/i);
+  assert.match(prompt, /high-fashion editorial contrapposto.+asymmetric S-curve/i);
+  assert.match(prompt, /one hand rests lightly along the high hip or waist side seam/i);
+  assert.match(prompt, /two hands never mirror each other/i);
+  assert.doesNotMatch(prompt, /both hands placed loosely behind the body/i);
 });
 
 test('Soft Character Portrait compiles a tight identity portrait without environmental conflicts', () => {

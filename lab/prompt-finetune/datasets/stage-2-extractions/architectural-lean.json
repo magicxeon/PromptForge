@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "fashion-style-family-extraction-v1",
+  "styleFamily": "architectural-lean",
+  "sampleCount": 10,
+  "method": {
+    "stage": "stage-2",
+    "authority": "original-images",
+    "stage1UsedAsEvidence": false,
+    "aggregation": "human-reviewed style-family summary"
+  },
+  "classification": {
+    "recipeRole": ["pose", "environment-composition"],
+    "clusterHealth": "strong with two outliers"
+  },
+  "fashionIntent": {
+    "primary": "editorial fashion portrait using architecture as a physical pose partner",
+    "commercialRead": "lookbook or campaign"
+  },
+  "subject": {
+    "count": 1,
+    "wardrobeTreatment": "varied; not an invariant",
+    "expression": "calm, confident, or neutral"
+  },
+  "pose": {
+    "invariants": [
+      "visible physical contact with a wall, column, tree, or structural support",
+      "asymmetric weight distribution",
+      "one relaxed or bent leg in most full-body samples",
+      "controlled hands that do not dominate the frame"
+    ],
+    "variations": [
+      "one or both hands in pockets",
+      "one hand touching the support",
+      "crossed ankles or one foot resting against the plane",
+      "three-quarter crop when the leg relationship is not the main idea"
+    ],
+    "avoid": ["floating shoulder contact", "physically impossible balance", "unrequested props"]
+  },
+  "camera": {
+    "shotSize": ["full-body", "three-quarter"],
+    "height": ["eye-level", "slightly low"],
+    "angle": "mostly frontal or modest three-quarter",
+    "lensCharacter": "natural to mildly compressed; no extreme wide-angle evidence"
+  },
+  "composition": {
+    "invariants": ["architecture remains legible around the body", "structural lines reinforce the pose"],
+    "variations": ["centered", "rule-of-thirds", "diagonal support"]
+  },
+  "lighting": {
+    "source": ["daylight", "window light"],
+    "quality": ["soft directional", "hard geometric sunlight"],
+    "subjectIllumination": "subject and contact plane share a plausible light direction"
+  },
+  "environment": {
+    "invariants": ["real surface texture", "believable ground or floor contact"],
+    "variations": ["concrete", "plaster", "tile", "scaffolding", "tree or column"]
+  },
+  "capture": {
+    "texture": "photographic editorial finish",
+    "depth": "environment visible but subordinate"
+  },
+  "qualityFlags": ["sample 008 includes social-interface residue", "sample 009 appears synthetic and prop-led"],
+  "confidence": {"pose": 0.94, "camera": 0.78, "lighting": 0.78, "environment": 0.9},
+  "sampleDisposition": [
+    {"sampleId": "architectural-lean-001", "role": "variation", "notes": "busy transit setting and tighter crop"},
+    {"sampleId": "architectural-lean-002", "role": "core", "notes": "clear wall contact and bent leg"},
+    {"sampleId": "architectural-lean-003", "role": "core", "notes": "full-body lean with geometric sunlight"},
+    {"sampleId": "architectural-lean-004", "role": "core", "notes": "outdoor wall contact and crossed ankles"},
+    {"sampleId": "architectural-lean-005", "role": "variation", "notes": "three-quarter crop"},
+    {"sampleId": "architectural-lean-006", "role": "core", "notes": "strong architectural geometry and low viewpoint"},
+    {"sampleId": "architectural-lean-007", "role": "core", "notes": "column contact and clear body line"},
+    {"sampleId": "architectural-lean-008", "role": "outlier", "notes": "dynamic scaffolding gesture and interface residue"},
+    {"sampleId": "architectural-lean-009", "role": "outlier", "notes": "book and bag drive the image; likely synthetic"},
+    {"sampleId": "architectural-lean-010", "role": "variation", "notes": "hard sunlight and tighter crop"}
+  ]
+}

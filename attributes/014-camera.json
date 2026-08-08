@@ -1030,6 +1030,32 @@
     "enabled": true
   },
   {
+    "id": "camera.composition_03",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": {
+      "en": "Central Movement Corridor",
+      "th": "แนวการเคลื่อนไหวกึ่งกลางภาพ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "central movement-corridor composition with the subject's visual center held at approximately fifty percent of the frame width, allowing only a small five-percent lateral variation while street and architectural leading lines create movement around the subject rather than pushing the subject toward either edge",
+      "gpt-image": "central movement-corridor composition, subject visual center at approximately fifty percent frame width with no more than five-percent lateral variation, urban leading lines provide motion without moving the subject to an outer third",
+      "gpt-image-safe": "center the moving subject horizontally while urban leading lines create depth around the subject"
+    },
+    "tags": [
+      "camera",
+      "composition",
+      "street-style",
+      "movement",
+      "centered"
+    ],
+    "enabled": true
+  },
+  {
     "id": "camera.framing_03",
     "category": "camera_framing",
     "subcategory": "Framing",
@@ -1164,6 +1190,20 @@
       "gpt-image-safe": "environmental portrait balancing the subject with meaningful surroundings"
     },
     "tags": ["camera", "framing", "environmental portrait", "scenery"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_10",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Full-body Street Editorial", "th": "เต็มตัวแบบสตรีตเอดิทอเรียล" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "vertical full-body street-editorial framing with one moving subject occupying approximately seventy-eight to eighty-six percent of the frame height; preserve visible space of roughly four to seven percent below the lowest point of both pieces of footwear and a comfortable margin above every strand of hair, keep the complete silhouette inside both side edges, and never crop or nearly touch the frame with the head, hair, hands, legs, ankles, heels, toes, or footwear",
+      "gpt-image": "vertical full-body street-editorial framing, one moving subject occupies about seventy-eight to eighty-six percent of frame height, both shoes fully visible with four-to-seven percent clear ground below them and safe space above the hair and beside the silhouette",
+      "gpt-image-safe": "complete vertical full-body street framing with clear space below both shoes, above the hair, and beside the silhouette"
+    },
+    "tags": ["camera", "framing", "full body", "street-style", "footwear-safe"],
     "enabled": true
   },
   {

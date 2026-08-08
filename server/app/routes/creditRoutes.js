@@ -37,28 +37,23 @@ export function registerCreditRoutes(app, {
   app.post('/api/credits/estimate', async (req, res) => {
     try {
       const userId = req.actorContext?.userId || resolveRequestUsername(req);
-      const templatePricing = await templateCoreService.resolvePricing(
-        req.body?.templateUseSessionId,
-        req.actorContext,
-        req.body?.outputCount
-      );
       const processing = await resolveEstimateReferenceProcessing({
         body: req.body || {},
         actorContext: req.actorContext,
         templateCoreService,
         providerRegistry
       });
-      const estimate = await creditApplicationService.estimate({
-        ...req.body,
-        referenceCount: processing
-          ? processing.referenceCount
-          : Math.max(0, Number(req.body?.referenceCount) || 0)
-            + Math.max(0, Number(templatePricing?.executionReferenceCount) || 0),
-        referenceProcessingPlanFingerprint:
-          processing?.planFingerprint || null,
+      const templatePricing = await templateCoreService.resolvePricing(
+        req.body?.templateUseSessionId,
+        req.actorContext,
+        processing?.outputCount ?? req.body?.outputCount
+      );
+      const estimate = await creditApplicationService.estimate(createEstimateOptions({
+        body: req.body || {},
+        processing,
         templatePricing,
         userId
-      });
+      }));
       const account = await creditApplicationService.getAccount(userId);
       const available = account.availableCredits;
 
@@ -170,6 +165,30 @@ async function resolveEstimateReferenceProcessing({
   });
   return {
     referenceCount: result.providerPlan.referenceCount,
-    planFingerprint: result.planFingerprint
+    planFingerprint: result.planFingerprint,
+    aspectRatio: context.aspectRatio,
+    outputCount: context.outputCount,
+    generationMode: context.generationMode
+  };
+}
+
+export function createEstimateOptions({
+  body = {},
+  processing = null,
+  templatePricing = null,
+  userId
+} = {}) {
+  return {
+    ...body,
+    aspectRatio: processing?.aspectRatio ?? body.aspectRatio ?? null,
+    outputCount: processing?.outputCount ?? body.outputCount ?? 1,
+    generationMode: processing?.generationMode ?? body.generationMode ?? 'scene',
+    referenceCount: processing
+      ? processing.referenceCount
+      : Math.max(0, Number(body.referenceCount) || 0)
+        + Math.max(0, Number(templatePricing?.executionReferenceCount) || 0),
+    referenceProcessingPlanFingerprint: processing?.planFingerprint || null,
+    templatePricing,
+    userId
   };
 }

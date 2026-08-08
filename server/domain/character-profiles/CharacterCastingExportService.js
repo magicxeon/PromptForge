@@ -5,7 +5,10 @@ import { characterProfileRepo } from '../../repositories/character-profiles/Char
 import { characterProfileVersionRepo } from '../../repositories/character-profiles/CharacterProfileVersionRepository.js';
 import { generationResultRepo } from '../../repositories/generation/GenerationResultRepository.js';
 import { assertActorContext, RepositoryContractError } from '../../repositories/repositoryContracts.js';
-import { getCharacterCastingPolicy } from './characterCastingPolicy.js';
+import {
+  compileCharacterCastingDirective,
+  getCharacterCastingPolicy
+} from './characterCastingPolicy.js';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { CHARACTER_TYPE, normalizeCharacterType } from './characterTypePolicy.js';
 
@@ -74,7 +77,7 @@ export class CharacterCastingExportService {
       uniformPolicyId: policy.uniformPolicyId,
       outputCount: policy.outputCount,
       aspectRatio: policy.aspectRatio,
-      promptDirective: policy.promptDirective,
+      promptDirective: compileCharacterCastingDirective(version.structuredCharacterSnapshot),
       referenceGenerationResultId,
       referenceImageUrl: referenceResult.imageUrl,
       structuredCharacterSnapshot: castingCharacterSnapshot(version.structuredCharacterSnapshot),

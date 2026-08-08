@@ -1,0 +1,190 @@
+﻿{
+    "schemaVersion":  "fashion-dataset-manifest-v1",
+    "styleFamily":  "soft-character-portrait",
+    "sampleCount":  14,
+    "createdAt":  "2026-08-07T04:35:31.1127247Z",
+    "items":  [
+                  {
+                      "sampleId":  "soft-character-portrait-001",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-001.jpg",
+                      "originalFileName":  "01ffdf4d4a27ac44b6ff0f0417267089.jpg",
+                      "sha256":  "6fb1618c6159c020fcc612fb50bcaa0d101caa3f3a60b76ed911eaced26d1835",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-002",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-002.jpg",
+                      "originalFileName":  "6796df7c527c9365cd69b6142c454ae0.jpg",
+                      "sha256":  "85bb388fc01972961d802548330c1b03b6df1297474d548e02e947da4acb36d1",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-003",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-003.jpg",
+                      "originalFileName":  "6d9e0ad54fcec355014ecdbff7817890.jpg",
+                      "sha256":  "cb5888c3db7c7dfa26dc83c9e2623b895019d801907e2d96a8d3ecb27d7274c9",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-004",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-004.jpg",
+                      "originalFileName":  "7d77d637a30f6bf44495934a3d6dc673.jpg",
+                      "sha256":  "a10667f9d97ab34f7687ccc604ea799566ee2e4634aea13ac4a2e5d6484012aa",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-005",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-005.jpg",
+                      "originalFileName":  "905b61b0de8f67a375679c860b1516e1.jpg",
+                      "sha256":  "f480848400a8db517d085b9703bee0b9858f55a2783a6602f653797fab6b8982",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-006",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-006.jpg",
+                      "originalFileName":  "9934bf0d7cae903743a5b67bdb7bc373.jpg",
+                      "sha256":  "fe204a3342cdc0f34feeedfc843fb473fc9dbff95c97641440c582b2fdd5bae5",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-007",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-007.jpg",
+                      "originalFileName":  "a2e4721c8e277b4527bcbd05ec5c622d.jpg",
+                      "sha256":  "2d4ae6950f3a503308dc4857e69ffbf2efeb4570d218c629aa204dc2ba21783e",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-008",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-008.jpg",
+                      "originalFileName":  "cca07fc1d009037080410b222bda0e7b.jpg",
+                      "sha256":  "341a9c118e84d26a12061e81591e1bf2d56a3b01e40a5b8fcf8429f7610276f3",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-009",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-009.jpg",
+                      "originalFileName":  "cfb6762b0b893b074e98001be2624c33.jpg",
+                      "sha256":  "4b0a88bf209d6efc52a65c7a3fe170069ee20210317d5a1a6f1baf8a5afc4409",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-010",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-010.jpg",
+                      "originalFileName":  "d25dc68059596dba758f515d100c4be5.jpg",
+                      "sha256":  "39b145b6609030983377d7a0d2d8c8966b547bae429776baa0b3a2a71b866d36",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-011",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-011.jpg",
+                      "originalFileName":  "e00f15f733d072c4c9fc6fcc6aa36c5c.jpg",
+                      "sha256":  "8d34d2fa87e55fc238cab58ef41697eed2230d428c670dc5ebb022fcda6933f8",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-012",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-012.jpg",
+                      "originalFileName":  "e57419372fbc3b1bb772e6aa508b252e.jpg",
+                      "sha256":  "d190a60e1724658295f694bdbc876950d70eb9107a3bae6a1992141ca1a4c872",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-013",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-013.jpg",
+                      "originalFileName":  "ee1775c4476abf2f172ce87586401324.jpg",
+                      "sha256":  "e56cbefa595e6261d612dc8765f7e54289339d245cf6f57781f95d516b69eacf",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "soft-character-portrait-014",
+                      "styleFamily":  "soft-character-portrait",
+                      "sourcePath":  "datasets/source-images/soft-character-portrait/soft-character-portrait-014.jpg",
+                      "originalFileName":  "f17baa4ded61631e1a70443cefcd0dab.jpg",
+                      "sha256":  "b83ff6477660fa5e318e2d49cd1f2fa177acabca980e822bd499c9a47e8aa048",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  }
+              ]
+}

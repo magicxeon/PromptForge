@@ -1,6 +1,48 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-08-professional-6",
+  "catalogVersion": "2026-08-professional-8",
+  "poseStyles": [
+    {
+      "id": "pose-style.auto",
+      "label": { "en": "Auto Match", "th": "จับคู่ให้อัตโนมัติ" },
+      "description": { "en": "Keep the pose language designed for the selected Scene Direction.", "th": "ใช้ภาษาท่าโพสที่ออกแบบไว้สำหรับ Scene Direction ที่เลือก" },
+      "optionId": null,
+      "excludedRecipeIds": [],
+      "enabled": true
+    },
+    {
+      "id": "pose-style.soft-natural",
+      "label": { "en": "Soft & Natural", "th": "นุ่มนวลเป็นธรรมชาติ" },
+      "description": { "en": "Relaxed joints and approachable body language.", "th": "ข้อต่อผ่อนคลายและภาษากายที่เข้าถึงง่าย" },
+      "optionId": "pose.style.soft-natural",
+      "excludedRecipeIds": [],
+      "enabled": true
+    },
+    {
+      "id": "pose-style.clean-minimal",
+      "label": { "en": "Clean Minimal", "th": "มินิมอลสะอาดตา" },
+      "description": { "en": "Quiet geometry with a precise garment-first silhouette.", "th": "เส้นสายสงบและแม่นยำโดยให้ชุดเด่นเป็นหลัก" },
+      "optionId": "pose.style.clean-minimal",
+      "excludedRecipeIds": [],
+      "enabled": true
+    },
+    {
+      "id": "pose-style.confident-editorial",
+      "label": { "en": "Confident Editorial", "th": "เอดิทอเรียลมั่นใจ" },
+      "description": { "en": "Stronger asymmetry and a deliberate fashion line.", "th": "ความอสมมาตรที่ชัดขึ้นและเส้นสายแฟชั่นที่ตั้งใจ" },
+      "optionId": "pose.style.confident-editorial",
+      "excludedRecipeIds": ["scene-pose.clean-front-display", "scene-pose.soft-character-portrait"],
+      "enabled": true
+    },
+    {
+      "id": "pose-style.dynamic-fashion",
+      "label": { "en": "Dynamic Fashion", "th": "แฟชั่นเคลื่อนไหว" },
+      "description": { "en": "Controlled movement while preserving balance and garment readability.", "th": "การเคลื่อนไหวแบบควบคุมโดยยังรักษาสมดุลและรายละเอียดชุด" },
+      "optionId": "pose.style.dynamic-fashion",
+      "excludedRecipeIds": ["scene-pose.clean-front-display", "scene-pose.back-garment-view", "scene-pose.cafe-seated-lifestyle", "scene-pose.soft-character-portrait"],
+      "enabled": true
+    }
+  ],
   "recipes": [
     {
       "id": "scene-pose.clean-front-display",
@@ -135,7 +177,7 @@
     },
     {
       "id": "scene-pose.street-walk-editorial",
-      "version": 1,
+      "version": 2,
       "purpose": "lookbook",
       "label": { "en": "Street Walk Editorial", "th": "เดินแฟชั่นสตรีต" },
       "description": { "en": "A natural mid-stride look with street depth and clear garment movement.", "th": "จังหวะก้าวเดินธรรมชาติ มีมิติของถนนและเห็นการเคลื่อนไหวของชุดชัดเจน" },
@@ -146,14 +188,14 @@
         "Pose Intent": "pose.fashion.street-walk-editorial",
         "Fashion Hand Position": "pose.hand.street-pocket",
         "Fashion Gaze": "pose.gaze.movement",
-        "Fashion Venue": "environment.fashion.city",
+        "Fashion Venue": "environment.fashion.street-editorial",
         "Atmosphere": "environment.atmosphere.clear",
-        "Lighting Setup": "lighting.fashion.open-shade",
-        "Framing": "camera.framing_09",
+        "Lighting Setup": "lighting.fashion.street-editorial-daylight",
+        "Framing": "camera.framing_10",
         "Focal Length": "camera.focal_01",
         "Aperture": "camera.aperture_03",
         "Perspective": "camera.perspective_01",
-        "Composition": "camera.composition_01",
+        "Composition": "camera.composition_03",
         "Motion Blur": "camera.blur_02",
         "Camera Imperfections": "camera.imp_01"
       },
@@ -187,7 +229,7 @@
     },
     {
       "id": "scene-pose.window-shadow-lookbook",
-      "version": 2,
+      "version": 3,
       "purpose": "lookbook",
       "label": { "en": "Window Shadow Lookbook", "th": "ลุคบุ๊กเงาหน้าต่าง" },
       "description": { "en": "A refined weight shift shaped by graphic window light and clean negative space.", "th": "ท่าถ่ายน้ำหนักประณีตกับเงาหน้าต่างกราฟิกและพื้นที่ว่างสะอาด" },
@@ -196,7 +238,7 @@
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.window-shadow-lookbook",
-        "Fashion Hand Position": "pose.hand.behind-clear",
+        "Fashion Hand Position": "pose.hand.window-editorial",
         "Fashion Gaze": "pose.gaze.quiet-lookbook",
         "Fashion Venue": "environment.fashion.gallery",
         "Atmosphere": "environment.atmosphere.clear",

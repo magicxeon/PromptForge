@@ -1082,6 +1082,22 @@ non-flat fill, grounded gallery structure and abstract-environment exclusions.
 Manual qualification must still generate Window Shadow samples per provider and
 score light-path coherence, face/garment readability and location plausibility.
 
+### 19.1 Window Shadow editorial pose qualification
+
+Catalog `2026-08-professional-7` upgrades `Window Shadow Lookbook` to recipe
+version 3 after manual verification confirmed that its physical shadow was
+coherent but its former symmetrical weight shift and both-hands-behind direction
+did not create a strong fashion silhouette.
+
+The recipe now owns a stable editorial contrapposto: one long supporting leg,
+one softly crossed free leg, restrained pelvis/ribcage counter-rotation, an
+elongated asymmetric S-curve and a slight head return. Its dedicated asymmetric
+hand direction places one hand at the high hip or waist side seam and the other
+low beside or slightly behind the outer thigh. Hands cannot mirror each other or
+cover the garment front, closure, waist construction or principal product
+detail. Environment, camera and the qualified physical Window Shadow lighting
+contract remain unchanged.
+
 ## 20. Implementation Checkpoint - Soft Character Portrait Parity
 
 Catalog `2026-08-professional-6` upgrades `Soft Character Portrait` to recipe
@@ -1467,3 +1483,66 @@ Implementation should minimize repeated migration work:
    the structured replacement.
 
 Luna refinement is optional and is not a blocker for deterministic steps 1-6.
+
+## 21.1 Street Walk Editorial reference calibration
+
+The eight-sample calibration documented by
+`requirements/015-lab-finetune-prompt/001-street-walk-editorial-calibration-and-promotion.md`
+upgrades `Street Walk Editorial` to Recipe version 2 in catalog
+`2026-08-professional-8`.
+
+The recipe now treats the central horizontal movement corridor, complete
+head-to-foot silhouette and visible ground beneath both pieces of footwear as
+hard composition invariants. A real layered city route and physically motivated
+directional daylight replace the former generic quiet street and open-shade-only
+directions. Hand and gaze behavior remain controlled variations: a real pocket
+may be used when present, otherwise the arms swing naturally, and the face may
+connect near camera or follow movement without an extreme neck turn.
+
+The recipe must not reintroduce rule-of-thirds placement, generic environmental
+portrait framing, invented accessories or a competing background figure. Manual
+three-run qualification remains required before the Lab candidate is marked
+final.
+
+## 22. Simple Mode Pose Style Modifier
+
+Simple Mode exposes one compact `Pose Style` selector after Scene Direction.
+It changes the body-language interpretation of the selected recipe without
+replacing its action, crop, camera, lighting, environment, Character identity,
+Outfit authority or garment-safety constraints.
+
+The server-owned recipe catalog defines five localized choices:
+
+1. `Auto Match` adds no modifier and preserves the recipe's qualified pose;
+2. `Soft & Natural` releases unnecessary joint tension and adds restrained
+   human asymmetry;
+3. `Clean Minimal` favors quiet geometry and a garment-first silhouette;
+4. `Confident Editorial` strengthens plausible pelvis, ribcage, shoulder and
+   hand counter-direction; and
+5. `Dynamic Fashion` adds one controlled instant of movement with credible
+   weight transfer.
+
+The selector uses compact icon cards with stable dimensions, clear selected and
+disabled states, theme tokens and responsive wrapping. `Auto Match` is the
+default. Styles whose movement or asymmetry conflicts with an e-commerce,
+rear-garment, seated or identity-portrait recipe are disabled by catalog
+compatibility metadata. Changing to an incompatible recipe clears the modifier
+back to Auto rather than retaining a hidden conflicting prompt. Entering
+Advanced Mode also clears the Simple modifier so granular Pose controls remain
+the only pose authority.
+
+`Pose Style` is a normal structured attribute selection. Existing actor-scoped
+Scene draft persistence, Template snapshots and the canonical Generation prompt
+compiler therefore carry it without another workflow or storage key. The
+modifier is not inferred from ethnicity. Character ethnicity remains identity
+data; users may choose any available fashion body language independently.
+
+Acceptance criteria:
+
+- Simple Mode shows all five localized choices and selects Auto initially;
+- selecting a compatible style adds exactly one `Pose Style` attribute;
+- Auto, Advanced Mode and incompatible recipe transitions remove that attribute;
+- recipe-owned pose, hands, gaze, camera and lighting remain intact;
+- server catalog validation rejects malformed or duplicate style definitions;
+- desktop and mobile layouts contain no clipped or overlapping labels; and
+- model, prompt-policy, localization and TypeScript validation pass.

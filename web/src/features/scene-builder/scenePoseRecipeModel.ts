@@ -1,4 +1,7 @@
-import type { ScenePoseRecipe } from '../generation/schemas/generationSchemas';
+import type {
+  ScenePoseRecipe,
+  ScenePoseStyle
+} from '../generation/schemas/generationSchemas';
 import {
   createSelection,
   type AttributeGroup,
@@ -6,6 +9,7 @@ import {
 } from '../studio/attributes/attributeModel';
 
 export type ScenePoseControlMode = 'simple' | 'advanced';
+export type { ScenePoseStyle };
 
 type ApplyRecipeInput = {
   recipe: ScenePoseRecipe;
@@ -19,6 +23,41 @@ export function normalizeScenePoseRecipes(value: unknown): ScenePoseRecipe[] {
   if (!value || typeof value !== 'object' || !('recipes' in value)) return [];
   const recipes = (value as { recipes?: ScenePoseRecipe[] }).recipes;
   return Array.isArray(recipes) ? recipes.filter(recipe => recipe.enabled) : [];
+}
+
+export function normalizeScenePoseStyles(value: unknown): ScenePoseStyle[] {
+  if (!value || typeof value !== 'object' || !('poseStyles' in value)) return [];
+  const styles = (value as { poseStyles?: ScenePoseStyle[] }).poseStyles;
+  return Array.isArray(styles) ? styles.filter(style => style.enabled) : [];
+}
+
+export function isScenePoseStyleCompatible(
+  style: ScenePoseStyle,
+  recipeId?: string | null
+) {
+  return !recipeId || !style.excludedRecipeIds.includes(recipeId);
+}
+
+export function applyScenePoseStyle({
+  style,
+  recipeId,
+  groups,
+  selections
+}: {
+  style?: ScenePoseStyle | null;
+  recipeId?: string | null;
+  groups: AttributeGroup[];
+  selections: Record<string, AttributeSelection>;
+}) {
+  const next = { ...selections };
+  delete next['Pose Style'];
+  if (!style?.optionId || !isScenePoseStyleCompatible(style, recipeId)) return next;
+  const field = groups
+    .flatMap(group => group.fields)
+    .find(candidate => candidate.name === 'Pose Style');
+  const option = field?.options.find(candidate => candidate.id === style.optionId);
+  if (option) next['Pose Style'] = createSelection(option);
+  return next;
 }
 
 export function discoverableScenePoseRecipes(

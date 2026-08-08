@@ -1,6 +1,6 @@
 # Character Profile Master Roadmap
 
-**Status:** In progress - improvement 007 implemented, validation pending
+**Status:** In progress - photorealistic silhouette casting policy implemented, validation pending
 **Goal:** Turn an approved Character Sheet into a named, reusable and optionally
 public Character Profile.
 
@@ -10,8 +10,9 @@ A user can:
 
 1. Create a character through the existing Headshot and Character Sheet flow.
 2. Name the character and add a short personality/usage description.
-3. Generate the initial Reusable Model as a standardized Character Casting
-   Sheet in a modest opaque white fitted outfit.
+3. Generate the initial Reusable Model as a standardized photorealistic
+   Character Casting Sheet in a modest opaque medium-gray fitted outfit with a
+   thin white contour grid.
 4. Pay once for that initial generation; a second export generation is not
    required when the result already satisfies the casting contract.
 5. Keep the profile private or share it for other users.
@@ -61,7 +62,8 @@ MVP decisions:
 
 - Standard export contains three views: front, exact side profile and back,
   arranged side by side with every figure visible from head to feet.
-- The casting outfit is opaque, non-revealing, unbranded and white.
+- The current casting outfit is opaque, non-revealing, unbranded and
+  medium-gray with a white contour grid on a light warm-gray studio background.
 - Only a generated/approved canonical export may become publicly reusable.
 - Private source uploads, Base64 payloads and provider request payloads are never
   published.
@@ -104,6 +106,8 @@ Community character store.
 | `006-character-profile-qa-and-release-gates.md` | End-to-end release gates | All above |
 | `007-character-community-and-profile-improvements.md` | Community Character row, owner entry, sharing UX and public media correctness | 003, 004, Community |
 | `008-character-approval-and-generation-library-flow.md` | Shared Recent Generations, owner approval routes and authenticated draft media | 001, 003, 007, React History |
+| `009-character-profile-concept-showcase.md` | Creator-facing Character showcase and featured media | 004, 007, Profiles |
+| `010-photorealistic-silhouette-casting-reference.md` | Current v3/v5 photographic casting layout and gender-aware covered outfit | 002, Generation prompt compiler |
 
 ## 5. Architecture
 

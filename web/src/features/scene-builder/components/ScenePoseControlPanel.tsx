@@ -1,11 +1,24 @@
-import { Aperture, Camera, Megaphone, Scan, ShoppingBag, Sparkles, WandSparkles } from 'lucide-react';
+import {
+  AlignCenter,
+  Aperture,
+  Camera,
+  Feather,
+  Megaphone,
+  Move,
+  Scan,
+  ShoppingBag,
+  Sparkles,
+  WandSparkles
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import type { ScenePoseRecipe } from '../../generation/schemas/generationSchemas';
 import {
   discoverableScenePoseRecipes,
+  isScenePoseStyleCompatible,
   localizedSceneRecipeText,
-  type ScenePoseControlMode
+  type ScenePoseControlMode,
+  type ScenePoseStyle
 } from '../scenePoseRecipeModel';
 
 const iconByPurpose = {
@@ -16,20 +29,36 @@ const iconByPurpose = {
   campaign: Megaphone
 };
 
+const iconByPoseStyle = {
+  'pose-style.auto': WandSparkles,
+  'pose-style.soft-natural': Feather,
+  'pose-style.clean-minimal': AlignCenter,
+  'pose-style.confident-editorial': Sparkles,
+  'pose-style.dynamic-fashion': Move
+};
+
 export function ScenePoseControlPanel({
   mode,
   recipes,
+  poseStyles,
   selectedRecipeId,
+  selectedPoseStyleId,
+  poseStyleEditable,
   selectedRecipeAdjusted,
   onModeChange,
-  onSelectRecipe
+  onSelectRecipe,
+  onSelectPoseStyle
 }: {
   mode: ScenePoseControlMode;
   recipes: ScenePoseRecipe[];
+  poseStyles: ScenePoseStyle[];
   selectedRecipeId: string | null;
+  selectedPoseStyleId: string;
+  poseStyleEditable: boolean;
   selectedRecipeAdjusted: boolean;
   onModeChange: (mode: ScenePoseControlMode) => void;
   onSelectRecipe: (recipe: ScenePoseRecipe) => void;
+  onSelectPoseStyle: (style: ScenePoseStyle) => void;
 }) {
   const { t, i18n } = useTranslation('react-ui');
   const visibleRecipes = discoverableScenePoseRecipes(recipes, selectedRecipeId);
@@ -63,6 +92,7 @@ export function ScenePoseControlPanel({
       </div>
 
       {mode === 'simple' ? (
+        <>
         <div className="scene-pose-recipes" role="list">
           {visibleRecipes.map(recipe => {
             const Icon = iconByPurpose[recipe.purpose as keyof typeof iconByPurpose] || Sparkles;
@@ -100,6 +130,47 @@ export function ScenePoseControlPanel({
             );
           })}
         </div>
+        <div className="scene-pose-style-selector">
+          <div className="scene-pose-style-selector__heading">
+            <strong>{t('ui.scene.poseStyleTitle')}</strong>
+            <span>{t('ui.scene.poseStyleDescription')}</span>
+          </div>
+          <div
+            className="scene-pose-style-options"
+            role="radiogroup"
+            aria-label={t('ui.scene.poseStyleTitle')}
+          >
+            {poseStyles.map(style => {
+              const Icon = iconByPoseStyle[style.id as keyof typeof iconByPoseStyle] || Sparkles;
+              const selected = style.id === selectedPoseStyleId;
+              const compatible = isScenePoseStyleCompatible(style, selectedRecipeId);
+              const disabled = !compatible || !poseStyleEditable;
+              return (
+                <button
+                  key={style.id}
+                  type="button"
+                  role="radio"
+                  className="scene-pose-style-option"
+                  aria-checked={selected}
+                  disabled={disabled}
+                  title={!compatible
+                    ? t('ui.scene.poseStyleUnavailable')
+                    : !poseStyleEditable
+                      ? t('ui.scene.poseStyleLocked')
+                      : undefined}
+                  onClick={() => onSelectPoseStyle(style)}
+                >
+                  <Icon aria-hidden="true" />
+                  <span>
+                    <strong>{localizedSceneRecipeText(style.label, i18n.resolvedLanguage || i18n.language)}</strong>
+                    <small>{localizedSceneRecipeText(style.description, i18n.resolvedLanguage || i18n.language)}</small>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        </>
       ) : (
         <p className="scene-pose-controls__advanced-note">{t('ui.scene.poseAdvancedDescription')}</p>
       )}

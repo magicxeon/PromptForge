@@ -1,0 +1,138 @@
+﻿{
+    "schemaVersion":  "fashion-dataset-manifest-v1",
+    "styleFamily":  "architectural-lean",
+    "sampleCount":  10,
+    "createdAt":  "2026-08-07T04:35:30.8143416Z",
+    "items":  [
+                  {
+                      "sampleId":  "architectural-lean-001",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-001.jpg",
+                      "originalFileName":  "316c07d675d1177f262c5cd4cdfe22bf.jpg",
+                      "sha256":  "957102a5e70d47819ba56724589d91c404064f2b2c921482b8a5b6ff7f46e379",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-002",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-002.jpg",
+                      "originalFileName":  "35b89e779f62a0d2203d80e4cf577e4d.jpg",
+                      "sha256":  "f091f767bd3a0b1182025432b8998682927082a2fe682d1b88e106daf3af02d7",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-003",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-003.jpg",
+                      "originalFileName":  "3f1561caaa8e75f2c3ba504ee04505eb.jpg",
+                      "sha256":  "5f2f6db9717c23087669a60d5a8e10652f953f5c0f45bb5be71a00a5007b74c1",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-004",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-004.jpg",
+                      "originalFileName":  "4ee9b24ac0c938a9849c69657b29d820.jpg",
+                      "sha256":  "c038be7b5ef3efb157a10430d1005815607bd7b715bcb6fd4a0b2843f133181e",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-005",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-005.jpg",
+                      "originalFileName":  "6daf2d4b6391fb907ac06b8e7f3417f3.jpg",
+                      "sha256":  "2077bcd9de2be9972cbed8274335bbf10674c32831b959fc871e9df78d3662b7",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-006",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-006.jpg",
+                      "originalFileName":  "7b14ca50b38c5c08d78681a2a8b01006.jpg",
+                      "sha256":  "3606cd7c06f623a9c31e168e308fa0bc60d98ccc966dbd473442dcdd23e7dd91",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-007",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-007.jpg",
+                      "originalFileName":  "8bc0c4d028846d7a3a702039a635ea3b.jpg",
+                      "sha256":  "83533ea36249a2416c83ad7dfde5e24303b7bf05cc45a65fc3c22a8ddd9e6d57",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-008",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-008.jpg",
+                      "originalFileName":  "943abcb14ab3d7db9ed7f34c0a11db37.jpg",
+                      "sha256":  "ebe07eb3ff8ead6796cec20aa66304d0dd3a80acd59f79ec5c3050a788d28202",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-009",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-009.jpg",
+                      "originalFileName":  "ddb3cef6aba3cb8f856ad047af00f87f.jpg",
+                      "sha256":  "93c7c3b5d1651409abb9493cb0d43f2cd362428373916138746e8ed3c01395b2",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "architectural-lean-010",
+                      "styleFamily":  "architectural-lean",
+                      "sourcePath":  "datasets/source-images/architectural-lean/architectural-lean-010.jpg",
+                      "originalFileName":  "fbfcd1b82c0fcb39f7eeec7bdce2dca0.jpg",
+                      "sha256":  "52649573b15a4232230afe28429cc4ec31a6dbc2c26275d08124463c5e855b6d",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  }
+              ]
+}

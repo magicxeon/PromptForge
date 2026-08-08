@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import type { ScenePoseRecipe } from '../generation/schemas/generationSchemas';
+import type {
+  ScenePoseRecipe,
+  ScenePoseStyle
+} from '../generation/schemas/generationSchemas';
 import type { AttributeGroup } from '../studio/attributes/attributeModel';
 import {
   applyScenePoseRecipe,
+  applyScenePoseStyle,
   discoverableScenePoseRecipes,
-  isScenePoseRecipeAdjusted
+  isScenePoseRecipeAdjusted,
+  isScenePoseStyleCompatible
 } from './scenePoseRecipeModel';
 
 const groups: AttributeGroup[] = [{
@@ -20,6 +25,19 @@ const groups: AttributeGroup[] = [{
       label: 'Front pose',
       group: 'Pose',
       prompt: 'front-facing pose',
+      tags: []
+    }]
+  }, {
+    name: 'Pose Style',
+    control: 'select',
+    group: 'Pose',
+    options: [{
+      id: 'pose.style.editorial',
+      category: 'pose',
+      subcategory: 'Pose Style',
+      label: 'Editorial',
+      group: 'Pose',
+      prompt: 'confident editorial body language',
       tags: []
     }]
   }]
@@ -56,6 +74,15 @@ const recipe = {
   clearFields: [],
   enabled: true
 } as ScenePoseRecipe;
+
+const editorialStyle = {
+  id: 'pose-style.editorial',
+  label: { en: 'Editorial', th: 'Editorial' },
+  description: { en: 'Editorial', th: 'Editorial' },
+  optionId: 'pose.style.editorial',
+  excludedRecipeIds: ['scene-pose.blocked'],
+  enabled: true
+} as ScenePoseStyle;
 
 describe('Scene Pose recipe model', () => {
   it('applies canonical catalog options without replacing unrelated selections', () => {
@@ -159,5 +186,34 @@ describe('Scene Pose recipe model', () => {
       .toEqual(['scene-pose.current']);
     expect(discoverableScenePoseRecipes([legacy, current], legacy.id).map(item => item.id))
       .toEqual(['scene-pose.legacy', 'scene-pose.current']);
+  });
+
+  it('applies one compatible Pose Style and lets Auto Match clear it', () => {
+    const styled = applyScenePoseStyle({
+      style: editorialStyle,
+      recipeId: recipe.id,
+      groups,
+      selections: {}
+    });
+    expect(styled['Pose Style']?.id).toBe('pose.style.editorial');
+
+    const automatic = applyScenePoseStyle({
+      style: null,
+      recipeId: recipe.id,
+      groups,
+      selections: styled
+    });
+    expect(automatic['Pose Style']).toBeUndefined();
+  });
+
+  it('rejects a Pose Style that conflicts with the selected recipe', () => {
+    expect(isScenePoseStyleCompatible(editorialStyle, 'scene-pose.blocked')).toBe(false);
+    const selections = applyScenePoseStyle({
+      style: editorialStyle,
+      recipeId: 'scene-pose.blocked',
+      groups,
+      selections: {}
+    });
+    expect(selections['Pose Style']).toBeUndefined();
   });
 });

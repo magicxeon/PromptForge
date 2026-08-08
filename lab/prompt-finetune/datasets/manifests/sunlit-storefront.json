@@ -1,0 +1,177 @@
+﻿{
+    "schemaVersion":  "fashion-dataset-manifest-v1",
+    "styleFamily":  "sunlit-storefront",
+    "sampleCount":  13,
+    "createdAt":  "2026-08-07T04:35:31.2553282Z",
+    "items":  [
+                  {
+                      "sampleId":  "sunlit-storefront-001",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-001.jpg",
+                      "originalFileName":  "423fd5d9e1f89588968f0699ec252dfb.jpg",
+                      "sha256":  "dbec78266675f82f11bc990974ca5b841f974eb72223719a623b0344e0df5d0d",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-002",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-002.jpg",
+                      "originalFileName":  "4487d9aa5cd07f98886908bceadce7fa.jpg",
+                      "sha256":  "da820f9a79dd35e4da7bd6fc9f877bd210d88117f85d77747fd3c309e004a249",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-003",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-003.jpg",
+                      "originalFileName":  "55baf0ad3088de8c00c6cd5cbc1b0048.jpg",
+                      "sha256":  "d63cc0b8b3aa95c20c0022a186eac505586275a82d06a60178aef87367f15438",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-004",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-004.jpg",
+                      "originalFileName":  "57800df7ae7c26eb639013c6dd4c4239.jpg",
+                      "sha256":  "c832736dd5fd282d14e414ed39e98aee0f51eab990fa39012f67a7a376ca8f68",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-005",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-005.jpg",
+                      "originalFileName":  "5ecb8130438734f1e4baee4d869fbe47.jpg",
+                      "sha256":  "9f6e1b8c11c244595dac277f617162e34b4a6aaa5d1a39165edb21bb1f8b3378",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-006",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-006.jpg",
+                      "originalFileName":  "7bbb1486ef858647c1cf2ddbfc66763b.jpg",
+                      "sha256":  "35afd2ba6900a2e6273c47cdf140883922c15b94b3ea8dcb72a3be3f83c4e3c5",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-007",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-007.jpg",
+                      "originalFileName":  "7eeb887b966a0704b77fb4b0a3bfa72e.jpg",
+                      "sha256":  "cc214c6281f6424bd5b36796da4ba4bfa167eed86c5881526997487dc3d9396b",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-008",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-008.jpg",
+                      "originalFileName":  "820fa1c83fe40823d62fb093a403edea.jpg",
+                      "sha256":  "f2ccb0a3648d9b76d7a1796ccb0844aac11f69c92c817d142f107ac324c7857a",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-009",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-009.jpg",
+                      "originalFileName":  "a99970e433c6ce659496f8218232e51f.jpg",
+                      "sha256":  "fd82de523bd720c32a46ec71e1e856e65e9566d7246f9912633c254779dc827b",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-010",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-010.jpg",
+                      "originalFileName":  "cc8585df27ef8942018cdd6eacc9ea65.jpg",
+                      "sha256":  "3348d0aede3e0ec0904df8df773a5a7781511364fbd3bd0a50c020800d2aa499",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-011",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-011.jpg",
+                      "originalFileName":  "d88562d39d52a653f8a6b64798f493ea.jpg",
+                      "sha256":  "cd668ec87e0439dffb80ca56548b7cc3f3ddd5ffcc7cd24d53c3c42bd2f62746",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-012",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-012.png",
+                      "originalFileName":  "download.png",
+                      "sha256":  "facc78e84b0cdfd933a190b5ee1b16ad27d475d1cfa3c287f28f45f767da852e",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  },
+                  {
+                      "sampleId":  "sunlit-storefront-013",
+                      "styleFamily":  "sunlit-storefront",
+                      "sourcePath":  "datasets/source-images/sunlit-storefront/sunlit-storefront-013.jpg",
+                      "originalFileName":  "f57de63a9b3db81a1bcebe5b1d905203.jpg",
+                      "sha256":  "49db30ee60863a9a0deaf3ef2a10d7a47d8d963333c9944a3d132c3f2adc4629",
+                      "provenance":  {
+                                         "source":  "user-supplied",
+                                         "licenseStatus":  "review-required",
+                                         "allowedUse":  "prompt-recipe-research-only-until-reviewed"
+                                     },
+                      "reviewStatus":  "pending"
+                  }
+              ]
+}

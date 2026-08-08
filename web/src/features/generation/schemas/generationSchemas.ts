@@ -129,9 +129,19 @@ export const scenePoseRecipeSchema = z.object({
   enabled: z.boolean().default(true)
 }).passthrough();
 
+export const scenePoseStyleSchema = z.object({
+  id: z.string(),
+  label: localizedSceneRecipeTextSchema,
+  description: localizedSceneRecipeTextSchema,
+  optionId: z.string().nullable(),
+  excludedRecipeIds: z.array(z.string()).default([]),
+  enabled: z.boolean().default(true)
+}).passthrough();
+
 const scenePoseRecipeCatalogSchema = z.object({
   schemaVersion: z.number().int().positive(),
   catalogVersion: z.string(),
+  poseStyles: z.array(scenePoseStyleSchema).default([]),
   recipes: z.array(scenePoseRecipeSchema).default([])
 }).passthrough();
 
@@ -215,4 +225,5 @@ export type JobStatus = z.infer<typeof jobStatusSchema>;
 export type ComparisonEstimate = z.infer<typeof comparisonEstimateSchema>;
 export type ReferenceAuthorityProjection = z.infer<typeof referenceAuthorityProjectionSchema>;
 export type ScenePoseRecipe = z.infer<typeof scenePoseRecipeSchema>;
+export type ScenePoseStyle = z.infer<typeof scenePoseStyleSchema>;
 export type ReferenceProcessingPreview = z.infer<typeof referenceProcessingPreviewSchema>;
