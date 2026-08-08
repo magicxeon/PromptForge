@@ -95,6 +95,32 @@ describe('GenerationResultSurface', () => {
     expect(screen.getByText('Choose models and generate.')).toBeVisible();
   });
 
+  it('stops loading and exposes the provider error when a job fails', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <I18nextProvider i18n={testI18n}>
+          <GenerationResultSurface
+            job={{
+              id: 'job_failed',
+              status: 'failed',
+              error: {
+                code: 'provider_error',
+                message: 'Internal error encountered.'
+              }
+            }}
+            pending={false}
+            showEmpty
+            onGoToPrompt={() => {}}
+          />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Internal error encountered.')).toBeVisible();
+    expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeInTheDocument();
+  });
+
   it('separates result utilities from feature workflow actions', () => {
     const { container } = render(
       <MemoryRouter>

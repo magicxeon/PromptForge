@@ -28,14 +28,14 @@ const expectedPoseDetails = new Map([
   ['pose.fashion.window-shadow-lookbook', /high-fashion editorial contrapposto.+asymmetric S-curve.+flat symmetrical catalog stance/i],
   ['pose.fashion.cafe-seated-lifestyle', /anatomically stable seated fashion pose.+footwear without cropped limbs/i],
   ['pose.fashion.sunlit-storefront', /storefront fashion stance.+clean environmental escape space/i],
-  ['pose.fashion.low-angle-campaign-hero', /campaign stance.+upper-frame negative space/i],
+  ['pose.fashion.low-angle-campaign-hero', /campaign stance close to the camera.+upward camera view creates presence/i],
   ['pose.fashion.soft-character-portrait', /tight identity-first head-and-shoulders portrait.+margin above every strand of hair/i],
   ['pose.fashion.color-light-editorial', /strong controlled editorial pose.+limbs distinct/i]
 ]);
 
 test('all Simple Scene recipes resolve to precise single-subject pose directions', () => {
   assert.equal(recipeCatalog.recipes.length, expectedPoseDetails.size);
-  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-8');
+  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-10');
   assert.deepEqual(
     recipeCatalog.poseStyles.map(style => style.id),
     [
@@ -66,18 +66,15 @@ test('all Simple Scene recipes resolve to precise single-subject pose directions
 
   for (const recipe of discoverable) {
     assert.match(recipe.previewAsset, /^\/assets\/scene-builder\/shot-recipes\/.+\.jpg$/);
-    assert.equal(
-      recipe.version,
-      recipe.id === 'scene-pose.window-shadow-lookbook'
-        ? 3
-        : [
-            'scene-pose.street-walk-editorial',
-            'scene-pose.sunlit-storefront',
-            'scene-pose.soft-character-portrait'
-          ].includes(recipe.id)
-          ? 2
-          : 1
-    );
+    const expectedVersion = new Map([
+      ['scene-pose.window-shadow-lookbook', 3],
+      ['scene-pose.sunlit-storefront', 3],
+      ['scene-pose.street-walk-editorial', 2],
+      ['scene-pose.low-angle-campaign-hero', 2],
+      ['scene-pose.soft-character-portrait', 2],
+      ['scene-pose.color-light-editorial', 3]
+    ]).get(recipe.id) ?? 1;
+    assert.equal(recipe.version, expectedVersion);
   }
 });
 
@@ -201,7 +198,7 @@ test('Sunlit Storefront compiles physical camera, contact, and lighting directio
     item.id === 'scene-pose.sunlit-storefront'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
   assert.equal(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01');
 
   const selections = Object.fromEntries(
@@ -229,12 +226,99 @@ test('Sunlit Storefront compiles physical camera, contact, and lighting directio
 
   assert.match(prompt, /photorealistic on-location fashion photography/i);
   assert.match(prompt, /shoulder blade and outer hip.+contact with the storefront wall/i);
-  assert.match(prompt, /looking diagonally along the storefront wall.+thirty degrees/i);
+  assert.match(prompt, /torso turned no more than thirty degrees away from the camera/i);
+  assert.match(prompt, /facial plane.+zero to thirty degrees.+both eyes clearly visible/i);
+  assert.match(prompt, /never a side profile/i);
   assert.match(prompt, /late-afternoon sunlight.+upper camera-left/i);
   assert.match(prompt, /opposite side approximately one-and-a-half stops darker/i);
   assert.match(prompt, /contact shadows.+body meets the wall.+beneath both feet/i);
   assert.match(prompt, /no frontal beauty fill.+no flat uniform illumination/i);
   assert.doesNotMatch(prompt, /gentle highlight halation/i);
+});
+
+test('Low-angle Campaign Hero compiles a close upward view with commercial high-rises and visible sky', () => {
+  const recipe = recipeCatalog.recipes.find(item =>
+    item.id === 'scene-pose.low-angle-campaign-hero'
+  );
+  assert.ok(recipe);
+  assert.equal(recipe.version, 2);
+  assert.equal(recipe.fieldSelections['Fashion Venue'], 'environment.fashion.commercial-highrise');
+  assert.equal(recipe.fieldSelections.Framing, 'camera.framing_11');
+  assert.equal(recipe.fieldSelections.Perspective, 'camera.perspective_04');
+  assert.equal(recipe.fieldSelections.Composition, 'camera.composition_04');
+
+  const selections = Object.fromEntries(
+    Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
+      const attribute = attributesById.get(optionId);
+      return [fieldName, {
+        id: optionId,
+        value: attribute.prompt.default,
+        group: fieldName === 'Fashion Direction'
+          ? 'Fashion Direction'
+          : (attribute.ui?.group || attribute.category),
+        category: attribute.category
+      }];
+    })
+  );
+
+  const prompt = compilePromptFromGenerationContext({
+    generationMode: 'scene',
+    mode: 'normal',
+    selections,
+    aspectRatio: '6:8',
+    imageReferences: {},
+    template: 'portrait'
+  });
+
+  assert.match(prompt, /subject holding a confident campaign stance close to the camera/i);
+  assert.match(prompt, /glass-and-steel office towers.+rising behind and above the subject/i);
+  assert.match(prompt, /open sky.+no isolated concrete slab.+blank cement pillar/i);
+  assert.match(prompt, /camera positioned around knee-to-low-waist height/i);
+  assert.match(prompt, /tilted approximately fifteen to twenty-five degrees upward/i);
+  assert.match(prompt, /eighty-six to ninety-two percent of the frame height/i);
+  assert.match(prompt, /building edges and facade lines converging upward.+visible area of sky/i);
+  assert.doesNotMatch(prompt, /environmental portrait framing|monumental brutalist architectural location/i);
+});
+
+test('Color-light Editorial keeps scarlet red and cobalt blue distinct on the subject and set', () => {
+  const recipe = recipeCatalog.recipes.find(item =>
+    item.id === 'scene-pose.color-light-editorial'
+  );
+  assert.ok(recipe);
+  assert.equal(recipe.version, 3);
+
+  const selections = Object.fromEntries(
+    Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {
+      const attribute = attributesById.get(optionId);
+      return [fieldName, {
+        id: optionId,
+        value: attribute.prompt.default,
+        group: fieldName === 'Fashion Direction'
+          ? 'Fashion Direction'
+          : (attribute.ui?.group || attribute.category),
+        category: attribute.category
+      }];
+    })
+  );
+
+  const prompt = compilePromptFromGenerationContext({
+    generationMode: 'scene',
+    mode: 'normal',
+    selections,
+    aspectRatio: '6:8',
+    imageReferences: {},
+    template: 'portrait'
+  });
+
+  assert.match(prompt, /hot-versus-cool split lighting.+exactly two physically motivated color-gel sources/i);
+  assert.match(prompt, /cobalt-blue key.+face, skin, shoulder, torso, arm, and garment/i);
+  assert.match(prompt, /scarlet-red side and rim source.+cheek, hair, shoulder, arm, torso edge, and garment edge/i);
+  assert.match(prompt, /red-versus-blue boundary.+narrow neutral transition/i);
+  assert.match(prompt, /matte charcoal background/i);
+  assert.match(prompt, /cobalt-lit side stays recognizably blue.+scarlet-lit side stays recognizably red/i);
+  assert.match(prompt, /never blend the two sources into a magenta, violet, purple, pink, pastel, or uniform color wash/i);
+  assert.match(prompt, /never leave the subject neutral while only the background is colored/i);
+  assert.match(prompt, /neutral fill.+at least two and a half stops below the colored sources/i);
 });
 
 test('Window Shadow Lookbook lights the subject and uses a grounded fashion location', () => {

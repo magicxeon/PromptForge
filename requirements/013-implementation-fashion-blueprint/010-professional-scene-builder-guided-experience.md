@@ -318,9 +318,9 @@ Reference family:
 
 ```text
 purpose: approachable street lookbook / creator campaign
-body: relaxed standing or cross-leg stance with credible balance
+body: relaxed standing or cross-leg stance with credible balance; torso remains within 30 degrees of camera
 hands: restrained interaction with a bag, drink or garment edge
-gaze: looking toward street activity or softly back toward the camera
+gaze: both eyes visible; facial plane remains 0-30 degrees from camera and never becomes a side profile
 environment: storefront or cafe facade with one recognizable architectural anchor
 camera: eye level, 50-85mm, medium-full or full-body framing
 composition: subject offset from center with environmental context and clean escape space
@@ -337,9 +337,9 @@ purpose: premium campaign hero / character presence
 body: strong elongated line with shoulders and torso deliberately directed
 hands: pockets or a restrained confident position outside the primary crop
 gaze: commanding off-camera or near-camera connection
-environment: modern architecture or city light with vertical scale
-camera: clearly low but anatomically safe angle, environmental portrait framing
-composition: dominant subject with intentional upper-frame negative space and converging architecture
+environment: real glass-and-steel commercial high-rises with glazed facades and visible sky; never an isolated concrete slab or blank pillar
+camera: close campaign framing, camera around knee-to-low-waist height and tilted 15-25 degrees upward
+composition: dominant nearby subject occupying about 86-92% of frame height with converging high-rise lines and controlled sky space
 lighting: cinematic environmental color contrast with preserved face and garment detail
 garment policy: suitable for campaign identity; not presented as a strict catalog-fidelity view
 ```
@@ -378,7 +378,7 @@ gaze: intense editorial connection without sexualized wording
 environment: dark studio, haze or minimal graphic background
 camera: eye to slightly low level, 70-85mm, medium or medium-full framing
 composition: strong silhouette and controlled negative space
-lighting: split-color key/rim relationship or hard graphic shadow with intentional color separation
+lighting: split-color key/rim relationship visibly shapes the subject's face, skin and garment as well as the background; never color only the set
 garment policy: preserve garment color recognizability unless the user explicitly accepts editorial color shift
 ```
 
@@ -1503,6 +1503,56 @@ The recipe must not reintroduce rule-of-thirds placement, generic environmental
 portrait framing, invented accessories or a competing background figure. Manual
 three-run qualification remains required before the Lab candidate is marked
 final.
+
+## 21.2 Catalog v9 Visual Qualification Corrections
+
+Owner visual review on 2026-08-08 accepts `Street Walk Editorial` version 2 for
+lighting and pose and accepts `Soft Character Portrait` version 2 for its
+evaluated fixture. These results qualify the intended Simple Mode behavior but
+do not claim cross-provider parity.
+
+Catalog `2026-08-professional-9` promotes three corrected candidates:
+
+- `Sunlit Storefront` version 3 keeps torso and facial plane within 30 degrees
+  of the camera axis, both eyes visible and the garment front readable;
+- `Low-angle Campaign Hero` version 2 replaces generic environmental framing,
+  a slight low angle and ambiguous Brutalist context with dedicated close hero
+  framing, pronounced upward perspective, rising composition and a real
+  glass-high-rise district with visible sky; and
+- `Color-light Editorial` version 2 requires cyan/blue and magenta/red sources
+  to shape the subject's face, skin and garment as well as the set.
+
+These behaviors remain canonical Attribute selections. Simple Mode applies the
+qualified bundle, while Pro Mode can select the same individual options. No
+parallel prompt compiler or provider path is introduced. Requirement
+`../015-lab-finetune-prompt/002-scene-recipe-visual-qualification-and-v9-corrections.md`
+owns the evidence and the next three-run visual review gate.
+
+Owner review on 2026-08-08 accepts `Sunlit Storefront` version 3 for the
+evaluated fixture. `Low-angle Campaign Hero` version 2 and `Color-light
+Editorial` version 2 remain pending visual qualification.
+
+### 21.3 Catalog v10 Hot-versus-cool Color Separation
+
+Owner review on 2026-08-08 accepts `Low-angle Campaign Hero` version 2 for the
+MVP, with weaker-run consistency retained as a later optimization item.
+`Color-light Editorial` version 2 composes successfully but does not provide
+enough chromatic contrast because cyan and magenta can converge into one purple
+family.
+
+Catalog `2026-08-professional-10` advances `Color-light Editorial` to version 3.
+The Recipe now combines a dedicated matte-charcoal studio, clear atmosphere, a
+deep cobalt-blue key and a saturated scarlet-red opposing source. The two color
+fields must remain spatially separate across the subject and set with only a
+narrow neutral transition. Neutral detail fill remains at least 2.5 stops below
+the colored sources. Magenta, violet, purple, pink, pastel and low-saturation
+wash outcomes are explicit failures.
+
+The lighting setup, separation accent and studio venue are canonical
+Attributes available to Pro Mode. Simple Mode selects the qualified bundle;
+it does not introduce another compiler or provider path. Visual acceptance
+remains pending three-run owner review with the same Character, Outfit,
+provider, model, aspect ratio and resolution.
 
 ## 22. Simple Mode Pose Style Modifier
 

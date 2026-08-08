@@ -2,6 +2,12 @@ import { CircleCheck, CircleX, Clock3, LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Surface } from '../ui/Surface';
+import {
+  ACTIVE_JOB_STATUSES,
+  COMPLETE_JOB_STATUSES,
+  FAILED_JOB_STATUSES,
+  normalizeJobStatus
+} from '../../lib/api/jobLifecycle';
 
 type GenerationQueueStatusProps = {
   jobId?: string | null;
@@ -19,23 +25,6 @@ export type GenerationProcessQueueItem = {
   jobId?: string | null;
   status: string;
 };
-
-const ACTIVE_STATUSES = new Set([
-  'submitting',
-  'pending',
-  'queued',
-  'processing',
-  'streaming',
-  'generating',
-  'running'
-]);
-const COMPLETE_STATUSES = new Set([
-  'completed',
-  'succeeded',
-  'partial',
-  'partially_completed'
-]);
-const FAILED_STATUSES = new Set(['failed', 'cancelled']);
 
 export function GenerationQueueStatus({
   jobId = null,
@@ -58,17 +47,17 @@ export function GenerationQueueStatus({
   const isComparison = Boolean(comparisonSetId || comparisonStatus || comparisonItems.length);
   const rawStatus = (isComparison ? comparisonStatus : jobStatus)
     || (submitting ? 'submitting' : 'idle');
-  const status = rawStatus.toLowerCase();
-  const active = ACTIVE_STATUSES.has(status);
-  const completed = COMPLETE_STATUSES.has(status);
-  const failed = FAILED_STATUSES.has(status);
+  const status = normalizeJobStatus(rawStatus);
+  const active = ACTIVE_JOB_STATUSES.has(status);
+  const completed = COMPLETE_JOB_STATUSES.has(status);
+  const failed = FAILED_JOB_STATUSES.has(status);
   const href = isComparison && comparisonSetId
     ? `/comparisons/${encodeURIComponent(comparisonSetId)}`
     : jobId
       ? `/history/${encodeURIComponent(jobId)}`
       : null;
   const completedItems = comparisonItems.filter(item =>
-    COMPLETE_STATUSES.has(item.status.toLowerCase())
+    COMPLETE_JOB_STATUSES.has(normalizeJobStatus(item.status))
   ).length;
 
   return (
@@ -100,7 +89,7 @@ export function GenerationQueueStatus({
       {comparisonItems.length ? (
         <div className="generation-process-queue" aria-label={t('playground.queue.processList')}>
           {comparisonItems.map(item => {
-            const itemStatus = item.status.toLowerCase();
+            const itemStatus = normalizeJobStatus(item.status);
             return (
               <div
                 key={item.slotId}
@@ -127,19 +116,19 @@ export function GenerationQueueStatus({
 
 function queueStatusKey(status: string) {
   if (status === 'submitting') return 'playground.queue.statusSubmitting';
-  if (ACTIVE_STATUSES.has(status)) {
+  if (ACTIVE_JOB_STATUSES.has(status)) {
     return status === 'queued' || status === 'pending'
       ? 'playground.queue.statusQueued'
       : 'playground.queue.statusProcessing';
   }
-  if (COMPLETE_STATUSES.has(status)) return 'playground.queue.statusCompleted';
-  if (FAILED_STATUSES.has(status)) return 'playground.queue.statusFailed';
+  if (COMPLETE_JOB_STATUSES.has(status)) return 'playground.queue.statusCompleted';
+  if (FAILED_JOB_STATUSES.has(status)) return 'playground.queue.statusFailed';
   return 'playground.queue.statusIdle';
 }
 
 function queueStatusIcon(status: string) {
-  if (ACTIVE_STATUSES.has(status)) return <LoaderCircle className="animate-spin" />;
-  if (FAILED_STATUSES.has(status)) return <CircleX />;
-  if (COMPLETE_STATUSES.has(status)) return <CircleCheck />;
+  if (ACTIVE_JOB_STATUSES.has(status)) return <LoaderCircle className="animate-spin" />;
+  if (FAILED_JOB_STATUSES.has(status)) return <CircleX />;
+  if (COMPLETE_JOB_STATUSES.has(status)) return <CircleCheck />;
   return <Clock3 />;
 }

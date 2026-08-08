@@ -110,7 +110,8 @@ export async function estimateAndSubmitGeneration(draft: GenerationRequestDraft)
 export function getJobStatus(jobId: string, signal?: AbortSignal) {
   return apiRequest(`/api/jobs/${encodeURIComponent(jobId)}`, {
     schema: jobStatusSchema,
-    signal
+    signal,
+    cache: 'no-store'
   });
 }
 

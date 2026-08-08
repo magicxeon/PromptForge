@@ -63,6 +63,21 @@ describe('GenerationQueueStatus', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it('stops the progress animation when a job fails', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <I18nextProvider i18n={testI18n}>
+          <GenerationQueueStatus jobId="job_failed" jobStatus="FAILED" />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Generation failed')).toBeVisible();
+    expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+    expect(container.querySelector('.generation-queue-status'))
+      .toHaveAttribute('aria-busy', 'false');
+  });
+
   it('links a completed comparison to its canonical Comparison Screen', () => {
     render(
       <MemoryRouter>

@@ -1,6 +1,37 @@
 [
   {
     "ownerUsernameSnapshot": "user_alice",
+    "displayName": "บักหลุน",
+    "slug": "character-5",
+    "shortDescription": "บักหลุนเป็นคนเกาหลี เกิดที่หนองคาย และย้ายกลับไปเป็นนายแบบอยู่ที่ มิยองดง",
+    "personalitySummary": "หล่อ คิดว่าตัวเองหล่อ เทห์ มีไสตร์ ไม่เหมือนครัย",
+    "characterType": "reusable_model",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "reusePolicy": "owner_only",
+    "featuredImageMode": "auto",
+    "featuredImageSourceType": null,
+    "featuredGenerationResultId": null,
+    "featuredWorkPostId": null,
+    "activeVersionId": "charver_1786202741214_pfx7qnyr",
+    "creatorProfileId": "creator_alice",
+    "idempotencyKey": "react_character_profile_job_1786202563801_i2gckjz3f",
+    "recordVersion": 2,
+    "id": "charprof_1786202741198_pg30aht8",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "review",
+    "createdAt": "2026-08-08T15:25:41.196Z",
+    "updatedAt": "2026-08-08T15:25:41.228Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "ownerUsernameSnapshot": "user_alice",
     "displayName": "น้องจือ",
     "slug": "character-4",
     "shortDescription": "สาวเหนือหน้าตาธรรมดาที่มีความฝัน",

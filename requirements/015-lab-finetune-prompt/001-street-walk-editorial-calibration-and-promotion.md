@@ -1,7 +1,7 @@
 # Street Walk Editorial Calibration and Promotion
 
 **ID:** `015-001-street-walk-editorial-calibration`  
-**Status:** Candidate v2 implemented; fixed-fixture generation review pending  
+**Status:** Recipe v2 owner-qualified on 2026-08-08; broader provider matrix remains pending
 **Owner:** Prompt Research Lab, promoted through Generation configuration  
 **Production artifact:** `server/config/scene-pose-recipes.json`
 
@@ -140,5 +140,7 @@ Fashion score is at least 4/5.
 - Compiled prompt no longer contains generic rule-of-thirds, generic
   environmental portrait or open-shade-only direction for this Recipe.
 - JSON catalogs parse and Recipe regression tests cover the v2 contract.
-- Manual qualification results are appended before declaring the Recipe final.
-
+- Owner visual qualification on 2026-08-08 confirmed that Recipe v2 produces
+  good lighting and a good Fashion walking pose for the evaluated fixture.
+- Cross-provider qualification remains required before claiming universal
+  provider parity; this does not reopen the accepted Simple Mode behavior.

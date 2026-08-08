@@ -51,6 +51,7 @@ export function registerGenerationRoutes(app, {
   });
 
   app.get('/api/jobs/:id', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
     const username = resolveRequestUsername(req, { allowBody: false });
     const status = await generationApplicationService.getJobStatusForUser(
       req.params.id,

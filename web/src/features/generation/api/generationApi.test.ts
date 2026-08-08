@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   estimateAndSubmitGeneration,
   generationPayload,
+  getJobStatus,
   pricingPayload,
   type GenerationRequestDraft
 } from './generationApi';
@@ -29,6 +30,26 @@ function draft(overrides: Partial<GenerationRequestDraft> = {}): GenerationReque
 }
 
 describe('React generation contract', () => {
+  it('bypasses browser cache while polling mutable job status', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.cache).toBe('no-store');
+      return new Response(JSON.stringify({
+        id: 'job_failed',
+        status: 'failed',
+        error: { code: 'provider_error', message: 'Internal error encountered.' }
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const status = await getJobStatus('job_failed');
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(status.status).toBe('failed');
+  });
+
   it('maps every explicit reference role to the canonical request fields', () => {
     const payload = generationPayload(draft({
       references: {

@@ -285,3 +285,31 @@ configuration and its pending manual qualification gate.
 The production candidate uses the existing Scene Recipe and Generation
 contracts. It introduces no Lab runtime dependency and no parallel prompt
 compiler. Source licensing remains review-required.
+
+## 14. Visual Qualification and Recipe Correction Checkpoint (2026-08-08)
+
+Owner review accepted `Street Walk Editorial` version 2 for lighting and pose,
+and accepted `Soft Character Portrait` version 2 for its intended identity-led
+portrait result. The broader provider matrix remains a separate qualification
+task.
+
+The same review rejected or constrained three remaining candidates:
+
+- `Sunlit Storefront` must keep the face and garment front readable, with the
+  facial plane no more than 30 degrees from the camera axis;
+- `Low-angle Campaign Hero` must move materially closer, use a pronounced
+  upward camera angle, and show real glass/commercial high-rises plus visible
+  sky instead of isolated concrete forms; and
+- `Color-light Editorial` must place visible colored light across the subject's
+  face, skin and garment, not color only the background.
+
+Requirement
+`002-scene-recipe-visual-qualification-and-v9-corrections.md` owns the v9
+promotion contract and the next fixed-fixture review gate.
+
+`Sunlit Storefront` version 3 and `Low-angle Campaign Hero` version 2 passed
+owner visual review on 2026-08-08. Low-angle retains a weaker-run consistency
+note for later optimization. `Color-light Editorial` version 2 composed
+successfully but lacked decisive color contrast, so catalog v10 replaces its
+cyan/magenta family with the scarlet-red versus cobalt-blue contract in version
+3. The visual gate remains open for Color-light v3.

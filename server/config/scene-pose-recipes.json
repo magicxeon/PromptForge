@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-08-professional-8",
+  "catalogVersion": "2026-08-professional-10",
   "poseStyles": [
     {
       "id": "pose-style.auto",
@@ -281,7 +281,7 @@
     },
     {
       "id": "scene-pose.sunlit-storefront",
-      "version": 2,
+      "version": 3,
       "purpose": "lifestyle",
       "label": { "en": "Sunlit Storefront", "th": "แฟชั่นหน้าร้านรับแสง" },
       "description": { "en": "An approachable storefront stance with restrained interaction and lively daylight.", "th": "ท่าหน้าร้านที่เข้าถึงง่าย มีปฏิสัมพันธ์พอดีและแสงธรรมชาติมีชีวิต" },
@@ -307,7 +307,7 @@
     },
     {
       "id": "scene-pose.low-angle-campaign-hero",
-      "version": 1,
+      "version": 2,
       "purpose": "campaign",
       "label": { "en": "Low-angle Campaign Hero", "th": "แคมเปญฮีโร่มุมต่ำ" },
       "description": { "en": "A confident campaign image with architectural scale and intentional negative space.", "th": "ภาพแคมเปญมั่นใจ ใช้สเกลสถาปัตยกรรมและพื้นที่ว่างอย่างตั้งใจ" },
@@ -318,14 +318,14 @@
         "Pose Intent": "pose.fashion.low-angle-campaign-hero",
         "Fashion Hand Position": "pose.hand.campaign-confident",
         "Fashion Gaze": "pose.gaze.campaign",
-        "Fashion Venue": "environment.fashion.brutalist",
+        "Fashion Venue": "environment.fashion.commercial-highrise",
         "Atmosphere": "environment.atmosphere.clear",
         "Lighting Setup": "lighting.fashion.city-campaign",
-        "Framing": "camera.framing_09",
+        "Framing": "camera.framing_11",
         "Focal Length": "camera.focal_03",
         "Aperture": "camera.aperture_03",
-        "Perspective": "camera.perspective_02",
-        "Composition": "camera.composition_01",
+        "Perspective": "camera.perspective_04",
+        "Composition": "camera.composition_04",
         "Motion Blur": "camera.blur_00",
         "Camera Imperfections": "camera.imp_02"
       },
@@ -360,7 +360,7 @@
     },
     {
       "id": "scene-pose.color-light-editorial",
-      "version": 1,
+      "version": 3,
       "purpose": "editorial",
       "label": { "en": "Color-light Editorial", "th": "เอดิทอเรียลแสงสี" },
       "description": { "en": "A strong fashion line with controlled split color and clear identity.", "th": "เส้นสายแฟชั่นชัดเจนกับแสงสีแยกโทนแบบควบคุมและยังเห็นอัตลักษณ์" },
@@ -371,10 +371,10 @@
         "Pose Intent": "pose.fashion.color-light-editorial",
         "Fashion Hand Position": "pose.hand.editorial-pocket",
         "Fashion Gaze": "pose.gaze.color-editorial",
-        "Fashion Venue": "environment.fashion.industrial",
-        "Atmosphere": "environment.atmosphere.mist",
+        "Fashion Venue": "environment.fashion.hot-cool-studio",
+        "Atmosphere": "environment.atmosphere.clear",
         "Lighting Setup": "lighting.fashion.color-gel",
-        "Lighting Accent": "lighting.accent.neon",
+        "Lighting Accent": "lighting.accent.hot-cool-separation",
         "Framing": "camera.framing_04",
         "Focal Length": "camera.focal_02",
         "Aperture": "camera.aperture_03",

@@ -256,6 +256,23 @@ the user benefits from understanding that a future/conditional action exists.
 - Toasts report transient outcomes; durable errors remain near the affected control.
 - No unbounded polling survives route or actor changes.
 
+### 10.1 Terminal Generation Failure Checkpoint (2026-08-08)
+
+Mutable `/api/jobs/:id` responses must use `Cache-Control: private, no-store`,
+and the React status request must use `cache: 'no-store'`. Browser or proxy
+cache must never keep a previous `queued` or `processing` response after the
+Queue has moved the Job to a terminal state.
+
+`web/src/lib/api/jobLifecycle.ts` is the shared client policy for normalized
+active, successful and failed Job statuses. Generation result, queue,
+submission pending state and polling must consume this policy rather than keep
+independent terminal lists.
+
+`failed`, `error`, `rejected`, `cancelled` and `expired` are terminal failures.
+They stop polling and every progress animation, clear `aria-busy`, render a
+failure icon and expose the sanitized Job error. This behavior applies to the
+shared Generation experience used by Studio and Playground.
+
 ## 11. Acceptance Criteria
 
 - One API client serves every React feature.

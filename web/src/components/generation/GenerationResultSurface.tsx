@@ -14,6 +14,7 @@ import { ComparisonWorkspace } from '../comparisons/ComparisonWorkspace';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
 import { apiMediaUrl } from '../../lib/api/apiClient';
+import { isActiveJobStatus } from '../../lib/api/jobLifecycle';
 import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
 import type { ComparisonSet } from '../../features/comparisons/schemas/comparisonSchemas';
 import { CollectionPickerDialog } from '../collections/CollectionPickerDialog';
@@ -66,7 +67,7 @@ export function GenerationResultSurface({
   const [editingComparisonName, setEditingComparisonName] = useState(false);
   const [comparisonNameDraft, setComparisonNameDraft] = useState(comparison?.name || '');
   const run = newestComparisonRun(comparison);
-  const loading = pending || isActiveGenerationStatus(job?.status);
+  const loading = pending || isActiveJobStatus(job?.status);
   const visible = pending || job || run || comparisonActive;
   if (!visible && !showEmpty) return null;
 
@@ -328,13 +329,8 @@ function jobError(job?: JobStatus | null) {
   return typeof job.error === 'string' ? job.error : job.error.message || job.error.code || '';
 }
 
-function isActiveGenerationStatus(status?: string) {
-  return ['queued', 'pending', 'processing', 'streaming', 'generating', 'running']
-    .includes((status || '').toLowerCase());
-}
-
 function generationStatusKey(status?: string) {
-  const normalized = (status || '').toLowerCase();
+  const normalized = String(status || '').trim().toLowerCase();
   if (normalized === 'queued' || normalized === 'pending') {
     return 'playground.result.queued' as const;
   }

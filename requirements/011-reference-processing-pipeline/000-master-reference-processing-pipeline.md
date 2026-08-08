@@ -151,6 +151,7 @@ Recommended defaults requiring product review:
 ## 8. Requirement Index
 
 - [RPP-001 Config-Driven Reference Authority And Preprocessing](./001-config-driven-reference-authority-and-preprocessing.md)
+- [RPP-002 Character Identity Pack And Face Override](./002-character-identity-pack-and-face-override.md)
 
 ## 9. MVP Delivery Record
 

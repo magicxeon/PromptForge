@@ -62,6 +62,7 @@ import {
 import { CreditExhaustedDialog } from '../../features/credits/components/CreditExhaustedDialog';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { pollingPolicy } from '../../lib/api/pollingPolicy';
+import { isTerminalJobStatus } from '../../lib/api/jobLifecycle';
 import { ApiError } from '../../lib/api/apiError';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 import {
@@ -535,8 +536,7 @@ export function GenerationExperience({
     || availableCredits >= estimate;
   const pending = submitSingle.isPending
     || submitCompare.isPending
-    || Boolean(jobId && !['completed', 'succeeded', 'failed', 'cancelled']
-      .includes(job.data?.status || ''))
+    || Boolean(jobId && !isTerminalJobStatus(job.data?.status))
     || comparisonNeedsPolling(comparisonSetId, comparisonResult.data);
   const submitError = submitSingle.error || submitCompare.error;
   const comparisonQueueItems: GenerationProcessQueueItem[] = comparison
