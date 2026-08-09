@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-08-professional-11",
+  "catalogVersion": "2026-08-professional-12",
   "poseStyles": [
     {
       "id": "pose-style.auto",
@@ -345,10 +345,10 @@
     },
     {
       "id": "scene-pose.soft-character-portrait",
-      "version": 2,
+      "version": 3,
       "purpose": "lifestyle",
       "label": { "en": "Soft Character Portrait", "th": "พอร์ตเทรตตัวละครนุ่มนวล" },
-      "description": { "en": "An identity-first portrait with natural shoulder direction and gentle eye contact.", "th": "พอร์ตเทรตเน้นอัตลักษณ์ด้วยมุมไหล่ธรรมชาติและสายตานุ่มนวล" },
+      "description": { "en": "A professional close character profile whose expression and portrait mood adapt naturally to personality.", "th": "ภาพโปรไฟล์ตัวละครระยะใกล้แบบมืออาชีพที่ปรับสีหน้าและอารมณ์ภาพตามบุคลิกอย่างเป็นธรรมชาติ" },
       "bestFor": ["character profiles", "creator portraits", "beauty-led looks"],
       "previewAsset": "/assets/scene-builder/shot-recipes/soft-character-portrait.jpg",
       "clearFields": ["Lighting Accent", "Film Look", "Color Grading"],

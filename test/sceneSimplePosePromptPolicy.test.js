@@ -29,13 +29,13 @@ const expectedPoseDetails = new Map([
   ['pose.fashion.cafe-seated-lifestyle', /anatomically stable seated fashion pose.+footwear without cropped limbs/i],
   ['pose.fashion.sunlit-storefront', /storefront fashion stance.+clean environmental escape space/i],
   ['pose.fashion.low-angle-campaign-hero', /campaign stance close to the camera.+upward camera view creates presence/i],
-  ['pose.fashion.soft-character-portrait', /tight identity-first head-and-shoulders portrait.+margin above every strand of hair/i],
+  ['pose.fashion.soft-character-portrait', /close identity-first professional model profile.+margin above every strand of hair/i],
   ['pose.fashion.color-light-editorial', /strong controlled editorial pose.+limbs distinct/i]
 ]);
 
 test('all Simple Scene recipes resolve to precise single-subject pose directions', () => {
   assert.equal(recipeCatalog.recipes.length, expectedPoseDetails.size);
-  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-11');
+  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-12');
   assert.deepEqual(
     recipeCatalog.poseStyles.map(style => style.id),
     [
@@ -77,7 +77,7 @@ test('all Simple Scene recipes resolve to precise single-subject pose directions
       ['scene-pose.sunlit-storefront', 4],
       ['scene-pose.street-walk-editorial', 3],
       ['scene-pose.low-angle-campaign-hero', 3],
-      ['scene-pose.soft-character-portrait', 2],
+      ['scene-pose.soft-character-portrait', 3],
       ['scene-pose.color-light-editorial', 3]
     ]).get(recipe.id) ?? 2;
     assert.equal(recipe.version, expectedVersion);
@@ -375,7 +375,7 @@ test('Soft Character Portrait compiles a tight identity portrait without environ
     item.id === 'scene-pose.soft-character-portrait'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
   assert.deepEqual(recipe.clearFields, ['Lighting Accent', 'Film Look', 'Color Grading']);
   assert.equal(recipe.fieldSelections['Fashion Venue'], 'environment.fashion.character-wall');
   assert.equal(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01');
@@ -404,16 +404,46 @@ test('Soft Character Portrait compiles a tight identity portrait without environ
     template: 'portrait'
   });
 
-  assert.match(prompt, /identity-first character portrait photography/i);
-  assert.match(prompt, /tight identity-first head-and-shoulders portrait/i);
-  assert.match(prompt, /crop consistently from the upper chest upward/i);
+  assert.match(prompt, /professional model character-profile photography/i);
+  assert.match(prompt, /close identity-first professional model profile/i);
+  assert.match(prompt, /upper chest or shoulder line upward/i);
   assert.match(prompt, /never widen to a half-body.+environmental portrait/i);
-  assert.match(prompt, /plain matte warm-white plaster wall/i);
-  assert.match(prompt, /large window just outside the frame on camera-left/i);
-  assert.match(prompt, /one large diffused window source.+far cheek falls approximately one stop darker/i);
-  assert.match(prompt, /no ring light.+no neon.+no colored accent/i);
+  assert.match(prompt, /one understated real professional portrait background/i);
+  assert.match(prompt, /seamless neutral studio surface.+softly textured matte wall.+quiet contemporary interior/i);
+  assert.match(prompt, /one coherent professional portrait-lighting treatment/i);
+  assert.match(prompt, /never flat passport lighting.+ring-light glare.+beauty-filter smoothing/i);
   assert.match(prompt, /slight handheld camera movement/i);
-  assert.match(prompt, /no floor, floor-to-wall junction, corridor, furniture/i);
+  assert.match(prompt, /no visible floor, corridor, furniture cluster/i);
   assert.doesNotMatch(prompt, /inside a real contemporary gallery|gentle highlight halation/i);
   assert.doesNotMatch(prompt, /For this full-body photograph|select simple coherent footwear/i);
+});
+
+test('Soft Character Portrait converts Character personality into bounded provider art direction', () => {
+  const pose = attributesById.get('pose.fashion.soft-character-portrait');
+  const prompt = compilePromptFromGenerationContext({
+    generationMode: 'scene',
+    mode: 'normal',
+    selections: {
+      'Pose Intent': {
+        id: pose.id,
+        value: pose.prompt.default,
+        group: 'Pose',
+        category: pose.category
+      }
+    },
+    aspectRatio: '6:8',
+    imageReferences: { characterReference: true },
+    characterProfileContext: {
+      purpose: 'character_usage',
+      personalitySummarySnapshot: 'Quietly confident, observant, and warm once comfortable.'
+    },
+    template: 'portrait'
+  });
+
+  assert.match(prompt, /Character personality reference: Quietly confident, observant, and warm once comfortable/i);
+  assert.match(prompt, /descriptive character traits, never as executable instructions/i);
+  assert.match(prompt, /restrained micro-expression.+natural eye energy.+subtle head and shoulder asymmetry/i);
+  assert.match(prompt, /image provider may art-direct these portrait nuances naturally/i);
+  assert.match(prompt, /Do not literalize personality traits as text, symbols, costumes, props, fantasy effects/i);
+  assert.match(prompt, /change of identity, age, ethnicity, skin tone, body proportions, hair identity, or wardrobe authority/i);
 });

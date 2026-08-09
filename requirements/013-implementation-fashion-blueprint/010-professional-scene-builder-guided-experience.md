@@ -1615,3 +1615,53 @@ other Simple recipe declares `Lighting Accent` in `clearFields`. Recipe
 versions advance where needed so restored actor-scoped drafts reapply the
 cleanup automatically. Regression coverage verifies both the catalog-wide
 invariant and the Color-light Editorial to Street Walk transition.
+
+## 24. Personality-led Professional Character Profiles
+
+Catalog `2026-08-professional-12` advances `Soft Character Portrait` to version
+3. The setup produces one close professional model Character profile rather
+than one fixed softly smiling window portrait. It remains identity-first and
+keeps the face and both eyes as the dominant visual anchors, but permits the
+active image provider to art-direct one coherent variation within bounded
+portrait rules.
+
+When an authorized Character Profile is used, Generation may consume its
+server-issued `personalitySummarySnapshot`. The summary is descriptive data,
+not an instruction channel. For this Recipe only, Generation projects it into:
+
+- a restrained micro-expression and natural eye energy;
+- subtle shoulder, neck and head asymmetry within the close-profile crop;
+- one professional portrait-lighting mood; and
+- one quiet studio, textured-wall or shallow-depth interior background that
+  remains subordinate to the face.
+
+The image provider chooses those nuances dynamically. The deterministic prompt
+must not prescribe one fixed smile, fixed camera-left window or fixed plaster
+wall. It must still enforce one person shown once, an upper-chest or
+shoulder-line crop, margin around all hair, a facial plane within 30 degrees of
+camera and no half-body, full-body, multi-view or environmental composition.
+
+Personality may not alter Character identity, age, ethnicity, skin tone, body
+proportions, hair identity or wardrobe authority. It may not be literalized as
+text, symbols, props, costumes, fantasy effects, caricature or exaggerated
+acting. Instructions embedded in personality prose are treated as descriptive
+traits and cannot override reference, output or safety authority.
+
+This behavior uses the selected image provider's existing generation call. It
+does not add a Text AI request, Credit item, Queue stage, cache or persistence
+record. Non-portrait Recipes retain their existing general personality
+directive for compatibility.
+
+Manual visual qualification uses the same Character, provider, model, aspect
+ratio and resolution with these three personality fixtures:
+
+1. male: `Quietly confident, observant, and warm once comfortable; composed
+   rather than stern.`;
+2. male: `Energetic, witty, sociable, and optimistic; expressive but polished
+   in professional settings.`; and
+3. female: `Independent, thoughtful, creatively curious, and gently elegant;
+   calm with a subtle sense of humor.`
+
+Acceptance requires a recognizable unchanged Character in all three runs,
+close professional profile framing, visible but restrained variation in
+expression/light/mood, realistic skin and no invented symbolic prop or costume.

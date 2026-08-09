@@ -1,5 +1,46 @@
 [
   {
+    "displayName": "น้องจือ",
+    "description": "สาวเหนือหน้าตาธรรมดาที่มีความฝัน",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786066306896_tdl9qp67c",
+    "previewImageAssetId": "job_1786066306896_tdl9qp67c",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786066442793_bhqmmr1q",
+    "characterProfileVersionId": "charver_1786066442795_61n1y7bm",
+    "personalitySummary": "Independent, thoughtful, creatively curious, and gently elegant; calm with a subtle sense of humor.",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786066306896_tdl9qp67c",
+    "canonicalCharacterSheetAssetId": "job_1786066306896_tdl9qp67c",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786066306896_tdl9qp67c"
+    ],
+    "officialTags": [],
+    "reusePolicy": "view_only",
+    "id": "char_1786287602138_jlib0a8w",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-09T15:00:02.138Z",
+    "updatedAt": "2026-08-09T15:06:43.546Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "นักจ่อย",
     "description": "เกิดที่หนองคายกลับไปเป็นนายแบบที่ โซล",
     "characterType": "reusable_model",
@@ -12,7 +53,7 @@
     "sceneBuilderHandoffSnapshot": null,
     "characterProfileId": "charprof_1786278727204_wc2e9zlv",
     "characterProfileVersionId": "charver_1786278727209_exgqwxke",
-    "personalitySummary": "สนุกสนาน ชอบกิน เล่น ไม่ดื่มเหล้า แต่ดื่มสาโธ กะยาดอง",
+    "personalitySummary": "Quietly confident, observant, and warm once comfortable; composed rather than stern.",
     "intendedUses": [
       "fashion",
       "scene_story"
@@ -33,10 +74,10 @@
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
-    "visibility": "private",
-    "status": "hidden",
+    "visibility": "public",
+    "status": "active",
     "createdAt": "2026-08-09T12:32:33.390Z",
-    "updatedAt": "2026-08-09T13:10:15.999Z",
+    "updatedAt": "2026-08-09T14:59:47.719Z",
     "deletedAt": null,
     "metadata": {}
   },
@@ -53,7 +94,7 @@
     "sceneBuilderHandoffSnapshot": null,
     "characterProfileId": "charprof_1786202741198_pg30aht8",
     "characterProfileVersionId": "charver_1786202741214_pfx7qnyr",
-    "personalitySummary": "หล่อ คิดว่าตัวเองหล่อ เทห์ มีไสตร์ ไม่เหมือนครัย",
+    "personalitySummary": "Energetic, witty, sociable, and optimistic; expressive but polished in professional settings.",
     "intendedUses": [
       "fashion",
       "scene_story"
@@ -77,7 +118,7 @@
     "visibility": "public",
     "status": "active",
     "createdAt": "2026-08-09T07:01:04.026Z",
-    "updatedAt": "2026-08-09T13:09:20.119Z",
+    "updatedAt": "2026-08-09T15:00:19.511Z",
     "deletedAt": null,
     "metadata": {}
   },
