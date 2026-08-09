@@ -1,5 +1,319 @@
 [
   {
+    "characterProfileId": "charprof_1786278727204_wc2e9zlv",
+    "versionNumber": 1,
+    "sourceMode": "character-sheet",
+    "characterType": "reusable_model",
+    "structuredCharacterSnapshot": {
+      "selections": {
+        "Expression": {
+          "id": "expression.001",
+          "value": "subtle relaxed micro-expression",
+          "label": "Subtle Micro-Expression",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "natural",
+            "candid",
+            "neutral"
+          ],
+          "gptPositiveWords": []
+        },
+        "Length": {
+          "id": "hair_003",
+          "value": "long hair",
+          "label": "Long Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "length"
+          ],
+          "gptPositiveWords": []
+        },
+        "Texture": {
+          "id": "hair.text_01",
+          "value": "silky smooth hair",
+          "label": "Silky Smooth Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "texture"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color": {
+          "id": "hair_013",
+          "value": "jet black hair",
+          "label": "Jet Black",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "color"
+          ],
+          "gptPositiveWords": []
+        },
+        "Height Impression": {
+          "id": "body.height.tall-fashion",
+          "value": "tall adult fashion-model height with naturally long legs and realistic torso proportions",
+          "label": "Tall Fashion Proportion",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion"
+          ],
+          "gptPositiveWords": []
+        },
+        "Model Build": {
+          "id": "body.build.athletic",
+          "value": "athletic adult build with naturally developed shoulders, arms, core, and legs, realistic muscle tone, and no bodybuilding exaggeration; preserve the separately selected body silhouette",
+          "label": "Athletic",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "inclusive"
+          ],
+          "gptPositiveWords": []
+        },
+        "Body Silhouette": {
+          "id": "body.silhouette.straight",
+          "value": "anatomically natural straight silhouette with shoulders, waist, and hips following a relatively aligned body line and only subtle waist indentation",
+          "label": "Straight Silhouette",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "inclusive"
+          ],
+          "gptPositiveWords": []
+        },
+        "Tone": {
+          "id": "skin.tone_02",
+          "value": "very fair neutral skin tone",
+          "label": "Porcelain skin",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "tone",
+            "porcelain"
+          ],
+          "gptPositiveWords": []
+        },
+        "Makeup": {
+          "id": "skin.makeup_02",
+          "value": "soft peach makeup style",
+          "label": "Soft K-Beauty Makeup",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "makeup",
+            "k-beauty",
+            "asian"
+          ],
+          "gptPositiveWords": []
+        },
+        "Freckles": {
+          "id": "skin.freckles_01",
+          "value": "even skin with no freckles",
+          "label": "No Freckles",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "freckles",
+            "none"
+          ],
+          "gptPositiveWords": []
+        },
+        "Cut / Style": {
+          "id": "hair_022",
+          "value": "layered hush cut hairstyle",
+          "label": "Layered Hush Cut",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "style"
+          ],
+          "gptPositiveWords": []
+        },
+        "Parting / Fringe": {
+          "id": "hair_038",
+          "value": "side-parted hair, no bangs",
+          "label": "Side Parting",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "bangs",
+            "parting"
+          ],
+          "gptPositiveWords": []
+        },
+        "Finish": {
+          "id": "hair_017",
+          "value": "glossy healthy hair",
+          "label": "Glossy",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "finish"
+          ],
+          "gptPositiveWords": []
+        },
+        "Gender": {
+          "id": "character.002",
+          "value": "male",
+          "label": "Male",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Age": {
+          "id": "character.004",
+          "value": "young adult",
+          "label": "Young Adult (24-27)",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Ethnicity": {
+          "id": "character.009",
+          "value": "korean ethnicity",
+          "label": "Korean",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "korean"
+          ],
+          "gptPositiveWords": []
+        },
+        "Beauty": {
+          "id": "character.beauty_editorial",
+          "value": "sleek high-fashion editorial face",
+          "label": "Sleek high-fashion editorial face",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "beauty"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "characterSheetConfig": {
+        "version": 1,
+        "mode": "character-sheet",
+        "characterType": "reusable_model",
+        "sourceHeadshotIds": [],
+        "identitySelectionIds": {
+          "Expression": "expression.001",
+          "Length": "hair_003",
+          "Texture": "hair.text_01",
+          "Color": "hair_013",
+          "Tone": "skin.tone_02",
+          "Makeup": "skin.makeup_02",
+          "Freckles": "skin.freckles_01",
+          "Cut / Style": "hair_022",
+          "Parting / Fringe": "hair_038",
+          "Finish": "hair_017",
+          "Gender": "character.002",
+          "Age": "character.004",
+          "Ethnicity": "character.009",
+          "Beauty": "character.beauty_editorial"
+        },
+        "bodySelectionIds": {
+          "Height Impression": "body.height.tall-fashion",
+          "Model Build": "body.build.athletic",
+          "Body Silhouette": "body.silhouette.straight"
+        },
+        "outfitSource": {
+          "type": "baseline",
+          "frontReferenceIds": [],
+          "backReferenceIds": []
+        },
+        "outfitReferenceOverrides": {
+          "enabled": false,
+          "primaryColor": false,
+          "secondaryColor": false,
+          "pattern": false,
+          "material": false
+        },
+        "outfitSelectionIds": {},
+        "layout": {
+          "type": "character-casting-three-view-v4"
+        },
+        "castingCandidate": true,
+        "castingLayoutVersion": "character-casting-three-view-v4",
+        "uniformPolicyVersion": "casting-uniform-gray-grid-v7",
+        "aspectRatio": "1:1",
+        "outputCount": 1,
+        "sourceOwnership": null
+      },
+      "sourceOwnership": null
+    },
+    "sourceGenerationResultIds": [
+      "job_1786278584500_mtc3up510"
+    ],
+    "canonicalHeadshotAssetId": null,
+    "canonicalFaceAssetId": "/outputs/character-profiles/charprof_1786278727204_wc2e9zlv/charver_1786278727209_exgqwxke/face.webp",
+    "canonicalCharacterSheetAssetId": "job_1786278584500_mtc3up510",
+    "canonicalThreeViewAssetId": "job_1786278584500_mtc3up510",
+    "canonicalCastingExportAssetId": "job_1786278584500_mtc3up510",
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1786278727204_wc2e9zlv/charver_1786278727209_exgqwxke/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1786278727204_wc2e9zlv/charver_1786278727209_exgqwxke/face.webp",
+    "castingExportGenerationResultId": "job_1786278584500_mtc3up510",
+    "castingExportLayoutVersion": "character-casting-three-view-v4",
+    "castingUniformPolicyVersion": "casting-uniform-gray-grid-v7",
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "resolution": null,
+      "providerConfigVersion": 1
+    },
+    "promptSnapshotHash": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-09T12:32:33.377Z",
+    "id": "charver_1786278727209_exgqwxke",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-08-09T12:32:07.208Z",
+    "updatedAt": "2026-08-09T12:32:33.377Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "characterProfileId": "charprof_1786202741198_pg30aht8",
     "versionNumber": 1,
     "sourceMode": "character-sheet",
@@ -286,8 +600,8 @@
     "canonicalHeadshotAssetId": null,
     "canonicalCharacterSheetAssetId": "job_1786202563801_i2gckjz3f",
     "canonicalCastingExportAssetId": "job_1786202563801_i2gckjz3f",
-    "castingFrontPreviewUrl": null,
-    "castingFacePreviewUrl": null,
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1786202741198_pg30aht8/charver_1786202741214_pfx7qnyr/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1786202741198_pg30aht8/charver_1786202741214_pfx7qnyr/face.webp",
     "castingExportGenerationResultId": "job_1786202563801_i2gckjz3f",
     "castingExportLayoutVersion": "character-casting-three-view-v4",
     "castingUniformPolicyVersion": "casting-uniform-gray-grid-v7",
@@ -298,18 +612,21 @@
       "providerConfigVersion": 1
     },
     "promptSnapshotHash": null,
-    "consentDeclarationVersion": null,
-    "approvedAt": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-09T07:01:04.000Z",
     "id": "charver_1786202741214_pfx7qnyr",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "visibility": "private",
-    "status": "review",
+    "status": "approved",
     "createdAt": "2026-08-08T15:25:41.213Z",
-    "updatedAt": "2026-08-08T15:25:41.225Z",
+    "updatedAt": "2026-08-09T07:01:04.000Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "canonicalThreeViewAssetId": "job_1786202563801_i2gckjz3f",
+    "canonicalFaceAssetId": "/outputs/character-profiles/charprof_1786202741198_pg30aht8/charver_1786202741214_pfx7qnyr/face.webp",
+    "identityPackStatus": "identity_pack_legacy_fallback"
   },
   {
     "characterProfileId": "charprof_1786066442793_bhqmmr1q",
@@ -624,7 +941,10 @@
     "createdAt": "2026-08-07T01:34:02.795Z",
     "updatedAt": "2026-08-07T01:34:02.805Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "canonicalThreeViewAssetId": "job_1786066306896_tdl9qp67c",
+    "canonicalFaceAssetId": null,
+    "identityPackStatus": "identity_pack_legacy_fallback"
   },
   {
     "characterProfileId": "charprof_1785668757771_4sv6c0pg",
@@ -925,7 +1245,10 @@
     "createdAt": "2026-08-02T11:05:57.784Z",
     "updatedAt": "2026-08-02T13:51:25.942Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "canonicalThreeViewAssetId": "job_1785668499409_21viddhhw",
+    "canonicalFaceAssetId": "/outputs/character-profiles/charprof_1785668757771_4sv6c0pg/charver_1785668757784_fv9uu7gi/face.webp",
+    "identityPackStatus": "identity_pack_ready"
   },
   {
     "characterProfileId": "charprof_1785135501348_4te0f9xf",
@@ -1323,7 +1646,10 @@
     "createdAt": "2026-07-27T06:58:21.361Z",
     "updatedAt": "2026-07-27T06:58:24.280Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "canonicalThreeViewAssetId": "job_1785135394799_ouq46p6rw",
+    "canonicalFaceAssetId": "/outputs/character-profiles/charprof_1785135501348_4te0f9xf/charver_1785135501362_do0479ps/face.webp",
+    "identityPackStatus": "identity_pack_ready"
   },
   {
     "characterProfileId": "charprof_1785131463245_pbvnvs64",
@@ -1711,6 +2037,9 @@
     "createdAt": "2026-07-27T05:51:03.247Z",
     "updatedAt": "2026-07-27T05:51:03.247Z",
     "deletedAt": null,
-    "metadata": {}
+    "metadata": {},
+    "canonicalThreeViewAssetId": "job_1785131305432_l4w6mobng",
+    "canonicalFaceAssetId": null,
+    "identityPackStatus": "identity_pack_legacy_fallback"
   }
 ]

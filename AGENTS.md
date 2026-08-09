@@ -202,6 +202,12 @@ for performance-sensitive work.
 
 ## 6. Generation, References, and Credits
 
+- For changes crossing multiple Generation lifecycle stages, or changing
+  Credit settlement, idempotency, Queue/provider dispatch, terminal polling,
+  reference-count parity, Comparison ownership or multi-output groups, follow
+  `requirements/009-migration-to-react/skills/implement-generation-workflow/SKILL.md`.
+  Do not load that Skill for isolated CSS, copy, localization, prompt wording
+  or presentation-only changes with unchanged workflow contracts.
 - Use the existing canonical generation pipeline. UI modules must not call AI
   providers or mutate the queue directly.
 - Final prompt generation remains owned by the canonical client/server prompt

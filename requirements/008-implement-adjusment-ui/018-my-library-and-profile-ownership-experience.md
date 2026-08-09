@@ -1,6 +1,6 @@
 # UI-018 My Library And Profile Ownership Experience
 
-**Status:** Implemented; automated route gate passed, manual actor review pending  
+**Status:** Implemented; updated My Characters route validation and manual actor review pending
 **Depends on:** canonical resource and context routes
 
 ## 1. Purpose
@@ -13,6 +13,7 @@ same cards, viewers, actions and profile sections.
 ```text
 Recent       all actor-owned generation history available to the customer
 Collections  actor-owned organization and shareable collection management
+My Characters actor-owned Character drafts, reviews, approvals and private/public settings
 ```
 
 `Recent` is the full destination corresponding to the compact Recent
@@ -66,6 +67,8 @@ with the Profile trigger.
 ## 5. Acceptance Criteria
 
 - Recent and compact generation surfaces expose consistent actions.
+- My Characters is reachable from My Library without requiring a direct URL.
+- Draft, review, approved and private Characters remain visible to their owner.
 - Owner/private outputs never leak into public Profile tabs.
 - Public and owner Profile reuse the same presentation components.
 - Actor switching updates Profile identity, Library data and permissions
@@ -74,15 +77,17 @@ with the Profile trigger.
 
 ## 6. Implementation Checkpoint
 
-- `/library/recent` and `/library/collections` are the only primary My Library
-  destinations.
+- `/library/recent`, `/library/collections` and `/me/characters` are the primary
+  My Library destinations.
 - Compact and full Recent continue using shared `GenerationLibrary` adapters,
   viewers and action capability rules.
 - `/me` resolves the active actor and redirects to immutable Profile ID.
 - The existing Profile route remains shared for visitor and owner; its canonical
   `works` URL maps to the existing Gallery server projection.
-- My Characters moved out of the primary sidebar and remains reachable through
-  `/me/characters` and the Profile Characters tab.
+- My Characters is available under My Library. `/me/characters` lists all
+  actor-owned lifecycle states and `/me/characters/:characterId` opens owner
+  approval and management. The Profile Characters tab remains the public or
+  presentation-oriented projection and must not replace owner management.
 - Actor switching keeps the account trigger separate and re-resolves `/me`.
 
 **Manual verify:** switch Alice/Bob while on `/me`, Recent and Collections;
@@ -93,3 +98,9 @@ private Recent outputs do not appear in another actor's Profile.
 and legacy direct-load checks on desktop/mobile. The gate identified and fixed
 the missing semantic `<main>` owner on the full Recent route while preserving
 the compact Studio component contract.
+
+**My Characters checkpoint (2026-08-09):** The existing owner directory is now
+registered at `/me/characters`, linked from My Library and kept active through
+`/me/characters/:characterId`. Breadcrumbs identify this as private Library
+management rather than the public Profile Characters projection. Updated route
+tests, TypeScript validation and owner/private browser review remain pending.

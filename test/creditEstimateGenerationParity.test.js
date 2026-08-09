@@ -14,7 +14,7 @@ test('credit estimate uses canonical Reusable Model ratio instead of stale clien
     },
     processing: {
       aspectRatio: '1:1',
-      outputCount: 1,
+      outputCount: 4,
       generationMode: 'character-sheet',
       referenceCount: 1,
       planFingerprint: 'rpp-casting'
@@ -23,7 +23,7 @@ test('credit estimate uses canonical Reusable Model ratio instead of stale clien
   });
 
   assert.equal(options.aspectRatio, '1:1');
-  assert.equal(options.outputCount, 1);
+  assert.equal(options.outputCount, 4);
   assert.equal(options.generationMode, 'character-sheet');
   assert.equal(options.referenceCount, 1);
   assert.equal(options.referenceProcessingPlanFingerprint, 'rpp-casting');

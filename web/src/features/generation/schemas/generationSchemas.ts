@@ -50,10 +50,13 @@ export const creditEstimateResponseSchema = z.object({
 
 export const generationSubmitSchema = z.object({
   jobId: z.string(),
+  groupId: z.string().optional(),
+  requestedOutputCount: z.number().int().min(1).max(4).optional(),
+  childJobIds: z.array(z.string()).optional(),
   status: z.string(),
   providerStreaming: z.boolean().optional(),
   reservation: z.object({
-    reservationId: z.string(),
+    reservationId: z.string().optional(),
     amountCredits: z.number()
   }).optional()
 }).passthrough();
@@ -83,6 +86,28 @@ export const jobStatusSchema = z.object({
     totalMs: z.number().nullable()
   }).nullable().optional()
 }).passthrough();
+
+export const generationGroupStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(['queued', 'running', 'completed', 'partially_completed', 'failed']),
+  requestedOutputCount: z.number().int().min(1).max(4),
+  completedCount: z.number().int().nonnegative(),
+  failedCount: z.number().int().nonnegative(),
+  estimateId: z.string().nullable().optional(),
+  createdAt: z.string(),
+  completedAt: z.string().nullable().optional(),
+  children: z.array(z.object({
+    jobId: z.string(),
+    outputIndex: z.number().int().nonnegative(),
+    status: z.string(),
+    result: jobStatusSchema.shape.result,
+    error: jobStatusSchema.shape.error,
+    creditCost: z.number().optional(),
+    creditCharged: z.boolean().optional(),
+    creditRefunded: z.boolean().optional(),
+    timings: jobStatusSchema.shape.timings.optional()
+  }).passthrough())
+});
 
 export const comparisonEstimateSchema = z.object({
   slots: z.array(z.object({
@@ -222,6 +247,7 @@ export type ProviderCatalog = z.infer<typeof providerCatalogSchema>;
 export type ProviderModel = z.infer<typeof providerModelSchema>;
 export type CreditEstimateResponse = z.infer<typeof creditEstimateResponseSchema>;
 export type JobStatus = z.infer<typeof jobStatusSchema>;
+export type GenerationGroupStatus = z.infer<typeof generationGroupStatusSchema>;
 export type ComparisonEstimate = z.infer<typeof comparisonEstimateSchema>;
 export type ReferenceAuthorityProjection = z.infer<typeof referenceAuthorityProjectionSchema>;
 export type ScenePoseRecipe = z.infer<typeof scenePoseRecipeSchema>;

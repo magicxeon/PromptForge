@@ -1623,6 +1623,33 @@
   gap: 10px;
 }
 
+.engine-output-count {
+  display: grid;
+  align-content: end;
+  gap: 6px;
+  color: var(--theme-text-muted);
+  font-size: 0.75rem;
+}
+
+.engine-output-count__stepper {
+  display: grid;
+  grid-template-columns: 40px 48px 40px;
+  align-items: center;
+  gap: 6px;
+}
+
+.engine-output-count__stepper output {
+  display: grid;
+  min-height: 40px;
+  place-items: center;
+  border: 1px solid var(--theme-border-strong);
+  border-radius: 10px;
+  background: var(--theme-input);
+  color: var(--theme-text);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
 .engine-target-panel__model-grid {
   margin-bottom: 11px;
 }

@@ -182,6 +182,7 @@ export class CharacterProfileSharingService {
       reusePolicy: profile.reusePolicy,
       createdAt: new Date().toISOString(),
       characterProfileContext: {
+        purpose: 'character_usage',
         characterProfileId: profile.id,
         characterProfileVersionId: version.id,
         useCase: destination === 'fashion_blueprint' ? 'fashion' : 'scene_story',

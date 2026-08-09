@@ -1,4 +1,4 @@
-import { Columns3, Sparkles } from 'lucide-react';
+import { Columns3, Minus, Plus, Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
@@ -19,6 +19,7 @@ export type EngineValue = {
   model: string;
   resolution: string | null;
   aspectRatio: string;
+  outputCount: number;
 };
 
 export function EngineTargetPanel({
@@ -31,6 +32,7 @@ export function EngineTargetPanel({
   comparisonEstimateError = null,
   studioLayout = false,
   allowComparison = true,
+  allowMultiOutput = true,
   promptRefinementAvailable = false,
   promptRefinementEnabled = false,
   fixedAspectRatio = null,
@@ -48,6 +50,7 @@ export function EngineTargetPanel({
   comparisonEstimateError?: string | null;
   studioLayout?: boolean;
   allowComparison?: boolean;
+  allowMultiOutput?: boolean;
   promptRefinementAvailable?: boolean;
   promptRefinementEnabled?: boolean;
   fixedAspectRatio?: string | null;
@@ -130,6 +133,36 @@ export function EngineTargetPanel({
               ))}
             </div>
           </div>
+          {!comparison && allowMultiOutput ? (
+            <div className="engine-output-count">
+              <span>{t('playground.engine.images')}</span>
+              <div className="engine-output-count__stepper">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  title={t('playground.engine.decreaseImages')}
+                  aria-label={t('playground.engine.decreaseImages')}
+                  disabled={value.outputCount <= 1}
+                  icon={<Minus className="size-4" />}
+                  onClick={() => onChange({ ...value, outputCount: Math.max(1, value.outputCount - 1) })}
+                />
+                <output aria-live="polite" aria-label={t('playground.engine.images')}>
+                  {value.outputCount}
+                </output>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  title={t('playground.engine.increaseImages')}
+                  aria-label={t('playground.engine.increaseImages')}
+                  disabled={value.outputCount >= 4}
+                  icon={<Plus className="size-4" />}
+                  onClick={() => onChange({ ...value, outputCount: Math.min(4, value.outputCount + 1) })}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
       {comparison ? (

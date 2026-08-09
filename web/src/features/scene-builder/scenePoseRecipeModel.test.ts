@@ -178,6 +178,45 @@ describe('Scene Pose recipe model', () => {
     )).toBe(true);
   });
 
+  it('clears the Color-light accent when Street Walk is selected next', () => {
+    const lightingGroups: AttributeGroup[] = [
+      ...groups,
+      {
+        group: 'Lighting',
+        fields: [{
+          name: 'Lighting Accent',
+          control: 'select',
+          group: 'Lighting',
+          options: []
+        }]
+      }
+    ];
+    const streetWalkRecipe = {
+      ...recipe,
+      id: 'scene-pose.street-walk-editorial',
+      clearFields: ['Lighting Accent']
+    } as ScenePoseRecipe;
+    const result = applyScenePoseRecipe({
+      recipe: streetWalkRecipe,
+      groups: lightingGroups,
+      selections: {
+        'Lighting Accent': {
+          id: 'lighting.accent.hot-cool-separation',
+          value: 'red-blue separation',
+          label: 'Red-blue Separation',
+          isCustom: false,
+          group: 'Lighting',
+          category: 'lighting',
+          tags: [],
+          gptPositiveWords: []
+        }
+      }
+    });
+
+    expect(result.selections['Lighting Accent']).toBeUndefined();
+    expect(result.clearedFields).toEqual(['Lighting Accent']);
+  });
+
   it('keeps legacy recipes for a restored selection without showing them in discovery', () => {
     const legacy = { ...recipe, id: 'scene-pose.legacy', discoverable: false };
     const current = { ...recipe, id: 'scene-pose.current', discoverable: true };

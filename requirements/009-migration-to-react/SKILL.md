@@ -5,6 +5,12 @@ description: Plan, implement or review the complete ModelPromptForge frontend mi
 
 # Migrate ModelPromptForge to React
 
+For work that crosses Generation lifecycle stages or changes Credit, Queue,
+provider dispatch, terminal polling, reference-count parity, Comparison
+ownership or multi-output groups, use
+`skills/implement-generation-workflow/SKILL.md`. Do not load that specialized
+Skill for isolated presentation, copy or prompt-wording changes.
+
 ## Required Reading
 
 1. `AGENTS.md`

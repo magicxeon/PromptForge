@@ -14,7 +14,7 @@ export class CharacterProfileVersionRepository {
   async readAll() {
     const data = await readJsonFile(this.versionsFile, FALLBACK);
     if (!Array.isArray(data)) throw new TypeError('Character Profile versions data must be an array.');
-    return data.map(item => structuredClone(item));
+    return data.map(item => structuredClone(withIdentityPackDefaults(item)));
   }
 
   async findById(id) {
@@ -37,7 +37,9 @@ export class CharacterProfileVersionRepository {
       structuredCharacterSnapshot: stripEmbeddedBase64(input.structuredCharacterSnapshot || {}),
       sourceGenerationResultIds: [...new Set((input.sourceGenerationResultIds || []).filter(Boolean))],
       canonicalHeadshotAssetId: input.canonicalHeadshotAssetId || null,
+      canonicalFaceAssetId: input.canonicalFaceAssetId || input.canonicalHeadshotAssetId || null,
       canonicalCharacterSheetAssetId: input.canonicalCharacterSheetAssetId || null,
+      canonicalThreeViewAssetId: input.canonicalThreeViewAssetId || null,
       canonicalCastingExportAssetId: null,
       castingFrontPreviewUrl: null,
       castingFacePreviewUrl: null,
@@ -92,6 +94,10 @@ export class CharacterProfileVersionRepository {
         ...items[index],
         castingExportGenerationResultId: patch.generationResultId,
         canonicalCastingExportAssetId: patch.assetId || patch.generationResultId,
+        canonicalThreeViewAssetId: patch.assetId || patch.generationResultId,
+        canonicalFaceAssetId: items[index].canonicalFaceAssetId
+          || items[index].canonicalHeadshotAssetId
+          || null,
         castingFrontPreviewUrl: patch.castingFrontPreviewUrl || null,
         castingFacePreviewUrl: patch.castingFacePreviewUrl || null,
         castingExportLayoutVersion: patch.castingExportLayoutVersion
@@ -122,6 +128,10 @@ export class CharacterProfileVersionRepository {
       const now = new Date().toISOString();
       items[index] = {
         ...items[index],
+        canonicalFaceAssetId: items[index].canonicalFaceAssetId
+          || items[index].canonicalHeadshotAssetId
+          || items[index].castingFacePreviewUrl
+          || null,
         status: 'approved',
         approvedAt: now,
         consentDeclarationVersion: consentDeclarationVersion || null,
@@ -155,6 +165,23 @@ export class CharacterProfileVersionRepository {
       return structuredClone(items[index]);
     });
   }
+
+  async migrateIdentityPackDefaults() {
+    return mutateJsonFile(this.versionsFile, FALLBACK, async items => {
+      assertStore(items);
+      let updatedCount = 0;
+      for (let index = 0; index < items.length; index += 1) {
+        const normalized = withIdentityPackDefaults(items[index]);
+        const changed = normalized.canonicalThreeViewAssetId !== items[index].canonicalThreeViewAssetId
+          || normalized.canonicalFaceAssetId !== items[index].canonicalFaceAssetId
+          || normalized.identityPackStatus !== items[index].identityPackStatus;
+        if (!changed) continue;
+        items[index] = normalized;
+        updatedCount += 1;
+      }
+      return { totalCount: items.length, updatedCount };
+    });
+  }
 }
 
 function assertStore(value) {
@@ -163,6 +190,29 @@ function assertStore(value) {
 
 function normalizeCharacterType(value) {
   return value === 'styled_character' ? 'styled_character' : 'reusable_model';
+}
+
+function withIdentityPackDefaults(item = {}) {
+  const canonicalThreeViewAssetId = item.canonicalThreeViewAssetId
+    || item.canonicalCastingExportAssetId
+    || item.canonicalCharacterSheetAssetId
+    || null;
+  const trustedCanonicalFaceAssetId = item.canonicalFaceAssetId
+    || item.canonicalHeadshotAssetId
+    || null;
+  const canonicalFaceAssetId = trustedCanonicalFaceAssetId
+    || (item.status === 'approved' ? item.castingFacePreviewUrl : null)
+    || null;
+  return {
+    ...item,
+    canonicalThreeViewAssetId,
+    canonicalFaceAssetId,
+    identityPackStatus: canonicalThreeViewAssetId && canonicalFaceAssetId
+      ? 'identity_pack_ready'
+      : canonicalThreeViewAssetId && item.castingFacePreviewUrl
+        ? 'identity_pack_review_required'
+        : 'identity_pack_legacy_fallback'
+  };
 }
 
 export const characterProfileVersionRepo = new CharacterProfileVersionRepository();

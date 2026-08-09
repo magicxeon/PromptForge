@@ -25,7 +25,10 @@ strongest public creations understandable before exposing owner management.
    - Overview shows a bounded selection of public Character creations.
    - Creations shows every item returned by the bounded works query.
    - Details explains Character type, permitted destinations and usage totals.
-   - Owner edit, approval, sharing and featured-image controls live in Details.
+   - Owner edit, sharing and featured-image controls live in Details.
+   - A draft/review Character exposes its required approval callout directly
+     in `character-showcase__summary`, beside the identity and availability
+     context, so approval is visible without opening Details.
 
 ## 3. Component And Data Rules
 
@@ -56,7 +59,8 @@ strongest public creations understandable before exposing owner management.
 - No mock rating, like, save, follow, credit price or license is shown.
 - Public work is reachable from both Overview and Creations without duplicating
   card behavior.
-- Owner controls remain functional and are discoverable in Details.
+- Owner management controls remain functional and discoverable in Details;
+  pending approval appears once in the Hero summary and is not duplicated.
 - Public and owner routes reuse the same page and Hero component.
 - The layout has no horizontal page overflow at desktop or mobile widths.
 
@@ -64,8 +68,8 @@ strongest public creations understandable before exposing owner management.
 
 - [ ] Public reusable Character shows supported create actions.
 - [ ] View-only Character hides create actions and explains its state.
-- [ ] Owner Details exposes approval/edit/sharing and featured image controls.
+- [ ] Owner Hero summary exposes pending approval; Details retains edit,
+  sharing and featured-image controls without duplicating approval.
 - [ ] Overview and Creations open the same canonical Community post details.
 - [ ] Creator link returns to the correct public Creator Profile.
 - [ ] Desktop and mobile preserve the full Character image without cropping.
-

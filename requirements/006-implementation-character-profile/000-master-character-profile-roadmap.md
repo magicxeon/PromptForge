@@ -108,6 +108,7 @@ Community character store.
 | `008-character-approval-and-generation-library-flow.md` | Shared Recent Generations, owner approval routes and authenticated draft media | 001, 003, 007, React History |
 | `009-character-profile-concept-showcase.md` | Creator-facing Character showcase and featured media | 004, 007, Profiles |
 | `010-photorealistic-silhouette-casting-reference.md` | Current v3/v5 photographic casting layout and gender-aware covered outfit | 002, Generation prompt compiler |
+| `011-character-visibility-works-and-featured-image-contract.md` | Owner/public visibility matrix, Character works lineage and profile-image eligibility | 003, 008, 009, Generation lineage |
 
 ## 5. Architecture
 

@@ -10,6 +10,7 @@ export const routePaths = {
   createFashion: '/create/fashion',
   libraryRecent: '/library/recent',
   libraryCollections: '/library/collections',
+  ownedCharacters: '/me/characters',
   accountCredits: '/credits',
   admin: '/admin'
 } as const;
@@ -35,6 +36,7 @@ export type NavigationRouteId =
   | 'playground'
   | 'history'
   | 'collections'
+  | 'myCharacters'
   | 'admin';
 
 export type NavigationRoute = {
@@ -71,6 +73,7 @@ export const navigationRoutes: readonly NavigationRoute[] = [
   { id: 'playground', path: routePaths.createPlayground, labelKey: 'shell.navigation.items.playground', navigation: 'primary' },
   { id: 'history', path: routePaths.libraryRecent, labelKey: 'shell.navigation.items.recent', navigation: 'primary' },
   { id: 'collections', path: routePaths.libraryCollections, labelKey: 'shell.navigation.items.collections', navigation: 'primary' },
+  { id: 'myCharacters', path: routePaths.ownedCharacters, labelKey: 'shell.navigation.items.myCharacters', navigation: 'primary' },
   { id: 'admin', path: routePaths.admin, labelKey: 'shell.navigation.items.admin', navigation: 'role', allowedRoles: ['admin', 'support'] }
 ] as const;
 
@@ -108,7 +111,8 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
     labelKey: 'shell.navigation.groups.library',
     items: [
       { id: 'history', path: routePaths.libraryRecent, labelKey: 'shell.navigation.items.recent', icon: 'history' },
-      { id: 'collections', path: routePaths.libraryCollections, labelKey: 'shell.navigation.items.collections', icon: 'collections' }
+      { id: 'collections', path: routePaths.libraryCollections, labelKey: 'shell.navigation.items.collections', icon: 'collections' },
+      { id: 'my-characters', path: routePaths.ownedCharacters, labelKey: 'shell.navigation.items.myCharacters', icon: 'characters', feature: 'characters' }
     ]
   },
   {
@@ -141,6 +145,7 @@ export function isSidebarNavigationTargetActive(id: string, currentLocation: str
   if (id === 'playground') return pathname.startsWith(routePaths.createPlayground);
   if (id === 'history') return pathname.startsWith(routePaths.libraryRecent);
   if (id === 'collections') return pathname.startsWith(routePaths.libraryCollections);
+  if (id === 'my-characters') return pathname.startsWith(routePaths.ownedCharacters);
   if (id === 'admin') return pathname.startsWith(routePaths.admin);
   return false;
 }

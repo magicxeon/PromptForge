@@ -183,6 +183,104 @@
   color: var(--theme-text-muted);
 }
 
+.generation-result-group__progress {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text-muted);
+  font-size: 0.75rem;
+}
+
+.generation-result-group__progress strong {
+  color: var(--theme-text);
+}
+
+.generation-result-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  background: var(--theme-media-backdrop, var(--theme-bg));
+}
+
+.generation-result-grid[data-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.generation-result-grid[data-count="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.generation-result-grid[data-count="4"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.generation-result-grid__tile {
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  background: var(--theme-media-backdrop, #05070d);
+}
+
+.generation-result-grid__open {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.generation-result-grid__open img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.generation-result-grid__state {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  padding: 16px;
+  color: var(--theme-text-muted);
+  text-align: center;
+}
+
+.generation-result-grid__state strong,
+.generation-result-grid__state small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .generation-result-grid[data-count="3"],
+  .generation-result-grid[data-count="4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .generation-result-grid[data-count] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generation-result-grid * {
+    transition: none !important;
+  }
+}
+
 @keyframes generationNormalStageEnter {
   from {
     opacity: 0;

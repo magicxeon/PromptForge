@@ -13,12 +13,18 @@
 .reference-slot__preview {
   width: 58px;
   height: 58px;
+  display: grid;
+  place-items: center;
   margin: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--theme-primary) 62%, var(--theme-border));
   border-radius: 8px;
   background: var(--theme-media-backdrop);
   box-shadow: 0 0 14px color-mix(in srgb, var(--theme-primary) 16%, transparent);
+}
+
+.reference-slot__preview .authenticated-media-image__loading {
+  display: block;
 }
 
 .reference-slot__preview img {

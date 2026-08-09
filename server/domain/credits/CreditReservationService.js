@@ -200,6 +200,62 @@ export class CreditReservationService {
     });
   }
 
+  async reserveGenerationGroup({
+    userId,
+    estimateId,
+    generationRequest,
+    groupId,
+    children,
+    metadata = {}
+  }) {
+    if (!userId || !estimateId || !generationRequest?.requestId || !groupId
+      || !Array.isArray(children) || !children.length) {
+      throw createCreditError(
+        CREDIT_ERROR_CODES.ESTIMATE_STALE,
+        'A complete generation group reservation is required.',
+        400
+      );
+    }
+    const estimate = this.estimateCache.get(estimateId)
+      || await this.accountRepo.getEstimateById(estimateId);
+    assertEstimateCanReserve({ estimate, userId, generationRequest });
+    const outputCount = Math.max(1, Math.floor(Number(estimate.pricingInputs?.outputCount) || 1));
+    if (children.length !== outputCount) {
+      throw createCreditError(
+        CREDIT_ERROR_CODES.ESTIMATE_STALE,
+        'The generation group size does not match the locked estimate.',
+        400,
+        { expected: outputCount, actual: children.length }
+      );
+    }
+    const allocations = splitCredits(estimate.estimatedCredits, outputCount).map((amountCredits, index) => ({
+      operationId: `output_${index}`,
+      estimateId,
+      requestId: `${generationRequest.requestId}:output:${index}`,
+      jobId: children[index].jobId,
+      amountCredits,
+      expiresAt: estimate.expiresAt,
+      pricingSnapshot: {
+        providerId: estimate.routing?.requestedProviderId,
+        modelId: estimate.routing?.requestedModelId,
+        pricingPolicyVersion: estimate.pricingPolicyVersion,
+        estimatedCredits: amountCredits,
+        groupEstimatedCredits: estimate.estimatedCredits,
+        outputIndex: index,
+        breakdown: estimate.breakdown
+      }
+    }));
+    return this.accountRepo.reserveCreditPlan({
+      userId,
+      quoteId: estimateId,
+      planId: groupId,
+      idempotencyKey: `generation-group:${userId}:${generationRequest.requestId}`,
+      allocations,
+      relatedTemplateId: metadata.relatedTemplateId || null,
+      planKind: 'generation_group'
+    });
+  }
+
   async refundForJob({ userId, reservationId, jobId, reasonCode = 'technical_failure', metadata = {} }) {
     return this.accountRepo.refundReservation({
       userId,
@@ -241,3 +297,58 @@ export class CreditReservationService {
 }
 
 export const creditReservationService = new CreditReservationService();
+
+function splitCredits(total, count) {
+  const normalizedTotal = Math.max(0, Math.floor(Number(total) || 0));
+  const base = Math.floor(normalizedTotal / count);
+  const remainder = normalizedTotal % count;
+  return Array.from({ length: count }, (_, index) => base + (index < remainder ? 1 : 0));
+}
+
+function assertEstimateCanReserve({ estimate, userId, generationRequest }) {
+  if (!estimate) {
+    throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_NOT_FOUND, 'Estimate not found or invalid.', 404);
+  }
+  if (estimate.userId !== userId) {
+    throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_NOT_FOUND, 'Estimate does not belong to the active user.', 404);
+  }
+  if (new Date(estimate.expiresAt) < new Date()) {
+    throw createCreditError(CREDIT_ERROR_CODES.ESTIMATE_EXPIRED, 'Credit estimate has expired.', 400);
+  }
+  const inputs = estimate.pricingInputs || {};
+  const route = estimate.routing || {};
+  const normalized = value => value === undefined || value === null || value === ''
+    ? null
+    : String(value).trim();
+  const resolution = value => normalized(value)?.toUpperCase() || null;
+  const integer = (value, fallback) => Math.max(0, Math.floor(Number(value ?? fallback) || 0));
+  const comparisons = [
+    ['routingMode', normalized(route.routingMode), normalized(generationRequest.routingMode ?? route.routingMode)],
+    ['qualityTier', normalized(route.qualityTier), normalized(generationRequest.qualityTier ?? route.qualityTier)],
+    ['providerId', normalized(route.requestedProviderId), normalized(generationRequest.requestedProviderId)],
+    ['modelId', normalized(route.requestedModelId), normalized(generationRequest.requestedModelId)],
+    ['resolution', resolution(inputs.resolution), resolution(generationRequest.resolution)],
+    ['aspectRatio', normalized(inputs.aspectRatio), normalized(generationRequest.aspectRatio)],
+    ['quality', normalized(inputs.quality), normalized(generationRequest.quality)],
+    ['referenceCount', integer(inputs.referenceCount, 0), integer(generationRequest.referenceCount, 0)],
+    ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
+    ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
+    ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
+    ...(normalized(inputs.referenceProcessingPlanFingerprint) ? [[
+      'referenceProcessingPlanFingerprint',
+      normalized(inputs.referenceProcessingPlanFingerprint),
+      normalized(generationRequest.referenceProcessingPlanFingerprint)
+    ]] : [])
+  ];
+  const mismatches = comparisons
+    .filter(([, expected, actual]) => expected !== actual)
+    .map(([field, expected, actual]) => ({ field, expected, actual }));
+  if (mismatches.length) {
+    throw createCreditError(
+      CREDIT_ERROR_CODES.ESTIMATE_STALE,
+      'Generation request parameters do not match locked estimate.',
+      400,
+      { mismatches }
+    );
+  }
+}

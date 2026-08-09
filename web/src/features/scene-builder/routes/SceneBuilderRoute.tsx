@@ -12,6 +12,7 @@ import { getAttributesBundle } from '../../generation/api/generationApi';
 import type { GenerationReferenceRole } from '../../generation/api/generationApi';
 import { loadStudioVisualManifests } from '../../studio/api/visualManifestApi';
 import { getMyCreatorProfile } from '../../profiles/api/profileApi';
+import { readCharacterHandoffNavigationState } from '../../profiles/characterHandoffNavigation';
 import {
   compileSelectionPreview,
   normalizeAttributeGroups,
@@ -109,7 +110,7 @@ export function SceneBuilderRoute() {
   const location = useLocation();
   const previousActorId = useRef(getActiveActorId());
   const hydratedLocationKey = useRef(location.key);
-  const initialHandoff = useMemo(loadSceneHandoff, []);
+  const initialHandoff = useMemo(() => loadSceneHandoff(location.state), []);
   const initialDraft = useMemo(() => loadSceneDraft(getActiveActorId()), []);
   const [mode, setMode] = useState<AuthoringMode>(
     initialHandoff.snapshot?.authoringMode || initialDraft.mode
@@ -354,7 +355,7 @@ export function SceneBuilderRoute() {
   useEffect(() => {
     if (hydratedLocationKey.current === location.key) return;
     hydratedLocationKey.current = location.key;
-    const next = loadSceneHandoff();
+    const next = loadSceneHandoff(location.state);
     if (!next.hasHandoff) return;
 
     if (next.hasTemplateHandoff && next.snapshot) {
@@ -883,7 +884,7 @@ function normalizeRole(value: string): GenerationReferenceRole[] {
   return aliases[value] ? [aliases[value]] : [];
 }
 
-function loadSceneHandoff(): {
+function loadSceneHandoff(routeState: unknown = null): {
   hasHandoff: boolean;
   hasTemplateHandoff: boolean;
   hasCharacterHandoff: boolean;
@@ -921,10 +922,15 @@ function loadSceneHandoff(): {
       outfitBehavior?: string;
       characterProfileContext?: Record<string, unknown>;
     }>({ actorId: activeActorId, kind: 'character', consume: true });
+    const routeCharacterPayload = readCharacterHandoffNavigationState(
+      routeState,
+      'scene_builder'
+    );
     const face = readFaceReferenceHandoff(activeActorId, 'scene_builder');
-    const characterPayload = character?.payload?.destination === 'scene_builder'
-      ? character.payload
-      : null;
+    const characterPayload = routeCharacterPayload
+      || (character?.payload?.destination === 'scene_builder'
+        ? character.payload
+        : null);
     return {
       hasHandoff: Boolean(template || characterPayload || face),
       hasTemplateHandoff: Boolean(template),

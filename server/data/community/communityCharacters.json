@@ -1,5 +1,87 @@
 [
   {
+    "displayName": "นักจ่อย",
+    "description": "เกิดที่หนองคายกลับไปเป็นนายแบบที่ โซล",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786278584500_mtc3up510",
+    "previewImageAssetId": "job_1786278584500_mtc3up510",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786278727204_wc2e9zlv",
+    "characterProfileVersionId": "charver_1786278727209_exgqwxke",
+    "personalitySummary": "สนุกสนาน ชอบกิน เล่น ไม่ดื่มเหล้า แต่ดื่มสาโธ กะยาดอง",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786278584500_mtc3up510",
+    "canonicalCharacterSheetAssetId": "job_1786278584500_mtc3up510",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786278584500_mtc3up510"
+    ],
+    "officialTags": [],
+    "reusePolicy": "view_only",
+    "id": "char_1786278753391_5yl3twy0",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "hidden",
+    "createdAt": "2026-08-09T12:32:33.390Z",
+    "updatedAt": "2026-08-09T13:10:15.999Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "displayName": "บักหลุน",
+    "description": "บักหลุนเป็นคนเกาหลี เกิดที่หนองคาย และย้ายกลับไปเป็นนายแบบอยู่ที่ มิยองดง",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786202563801_i2gckjz3f",
+    "previewImageAssetId": "job_1786202563801_i2gckjz3f",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786202741198_pg30aht8",
+    "characterProfileVersionId": "charver_1786202741214_pfx7qnyr",
+    "personalitySummary": "หล่อ คิดว่าตัวเองหล่อ เทห์ มีไสตร์ ไม่เหมือนครัย",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786202563801_i2gckjz3f",
+    "canonicalCharacterSheetAssetId": "job_1786202563801_i2gckjz3f",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786202563801_i2gckjz3f"
+    ],
+    "officialTags": [],
+    "reusePolicy": "view_only",
+    "id": "char_1786258864027_1ktdkt57",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-09T07:01:04.026Z",
+    "updatedAt": "2026-08-09T13:09:20.119Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "น้องเปิ้ล",
     "description": "เปิ้ลน่ารัก",
     "characterType": "reusable_model",

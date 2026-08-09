@@ -25,7 +25,8 @@ export function validatePlaygroundReferenceRoles(payload = {}) {
   const hasOutfitBack = hasValue(payload.outfitReferenceImageBack);
   const hasOutfitFront = hasValue(payload.outfitReferenceImageFront);
 
-  if (hasFace && hasCharacter) {
+  const isSystemCharacterPack = payload.characterProfileContext?.purpose === 'character_usage';
+  if (hasFace && hasCharacter && !isSystemCharacterPack) {
     const error = new Error('Face Reference and Character Reference cannot be used together in Playground.');
     error.statusCode = 400;
     error.code = 'reference_role_conflict';

@@ -51,6 +51,9 @@ test('Scene handoff snapshots personality and excludes casting outfit attributes
   assert.equal(handoff.compatibleAttributeSnapshot.Outfit, undefined);
   assert.equal(handoff.compatibleAttributeSnapshot.Pose, undefined);
   assert.equal(handoff.outfitBehavior, 'replaceable');
+  assert.equal(handoff.characterProfileContext.purpose, 'character_usage');
+  assert.equal(handoff.characterProfileContext.characterProfileId, profile.id);
+  assert.equal(handoff.characterProfileContext.characterProfileVersionId, version.id);
 });
 
 test('server replaces client Character metadata with canonical snapshots before queueing', async () => {

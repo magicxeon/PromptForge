@@ -95,6 +95,8 @@ My Library
   /library/recent/:generationId
   /library/collections
   /library/collections/:collectionId
+  /me/characters
+  /me/characters/:characterId
 
 Public resources
   /posts/:postId

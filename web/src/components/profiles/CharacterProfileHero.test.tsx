@@ -66,4 +66,24 @@ describe('CharacterProfileHero', () => {
     })).not.toBeInTheDocument();
     expect(screen.getAllByText('character-profiles.status.viewOnly')).not.toHaveLength(0);
   });
+
+  it('puts owner approval in the summary for a draft Character', () => {
+    const onApprove = vi.fn();
+    render(
+      <MemoryRouter>
+        <CharacterProfileHero
+          character={{ ...reusableCharacter, status: 'review' }}
+          ownerAccess
+          handoffPending={false}
+          approvalPending={false}
+          onApprove={onApprove}
+          onShare={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'ui.action.approve' }));
+    expect(onApprove).toHaveBeenCalledOnce();
+    expect(screen.getByText('ui.character.approvalRequired')).toBeVisible();
+  });
 });

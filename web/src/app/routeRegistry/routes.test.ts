@@ -24,12 +24,15 @@ describe('Momelo sidebar navigation registry', () => {
     expect(isSidebarNavigationTargetActive('scene-builder', '/create/studio/scene')).toBe(true);
   });
 
-  it('keeps only private Recent and Collections destinations in My Library', () => {
+  it('keeps private work and owned Characters in My Library', () => {
     const library = sidebarNavigationGroups.find(group => group.id === 'library');
     expect(library?.items.map(item => [item.id, item.path])).toEqual([
       ['history', '/library/recent'],
-      ['collections', '/library/collections']
+      ['collections', '/library/collections'],
+      ['my-characters', '/me/characters']
     ]);
     expect(isSidebarNavigationTargetActive('history', '/library/recent')).toBe(true);
+    expect(isSidebarNavigationTargetActive('my-characters', '/me/characters')).toBe(true);
+    expect(isSidebarNavigationTargetActive('my-characters', '/me/characters/charprof_1')).toBe(true);
   });
 });

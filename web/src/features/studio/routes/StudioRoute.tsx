@@ -450,13 +450,14 @@ export function StudioRoute() {
             })}
           />
         )}
-        renderResultActions={job => mode === 'headshot' && (job.jobId || job.id) && job.result?.imageUrl ? (
+        renderResultActions={(job, { closeViewer }) => mode === 'headshot' && (job.jobId || job.id) && job.result?.imageUrl ? (
           <FaceReferenceDestinationDialog
             source={{
               sourceType: 'generation',
               sourceId: job.jobId || job.id || ''
             }}
             imageUrl={job.result.imageUrl}
+            onHandoffComplete={closeViewer}
           />
         ) : mode === 'character-sheet'
           && (job.jobId || job.id)
@@ -467,6 +468,7 @@ export function StudioRoute() {
               imageUrl={job.result.imageUrl}
               sourceJobId={job.jobId || job.id || ''}
               characterType={characterType}
+              onHandoffComplete={closeViewer}
             />
           </>
         ) : null}

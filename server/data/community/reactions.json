@@ -22,5 +22,13 @@
     "active": true,
     "createdAt": "2026-07-27T20:02:21.810Z",
     "updatedAt": "2026-07-27T20:02:21.810Z"
+  },
+  {
+    "postId": "post_1786280895995_fwubekgr",
+    "actorUserId": "usr_alice",
+    "reactionType": "like",
+    "active": true,
+    "createdAt": "2026-08-09T13:10:51.492Z",
+    "updatedAt": "2026-08-09T13:10:51.492Z"
   }
 ]

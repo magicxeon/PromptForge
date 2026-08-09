@@ -2,9 +2,23 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ReferencePolicyRegistry } from '../server/domain/reference-processing/ReferencePolicyRegistry.js';
 import { ReferenceProcessingService } from '../server/domain/reference-processing/ReferenceProcessingService.js';
+import { collectReferenceInputs } from '../server/domain/reference-processing/referenceProcessingContracts.js';
 
 const policyRegistry = new ReferencePolicyRegistry({
   knownProcessorIds: ['image_probe', 'orientation_normalize']
+});
+
+test('canonical Character media is classified as Character authority without an upload fallback', () => {
+  const references = collectReferenceInputs({
+    imageReferences: { faceMatch: true },
+    faceReferenceImageA: '/api/community/character-profiles/charprof_1/face',
+    faceReferenceImageB: '/outputs/character-profiles/charprof_1/charver_1/face.webp'
+  });
+
+  assert.deepEqual(references.map(reference => reference.source.kind), [
+    'character',
+    'character'
+  ]);
 });
 
 test('processing service orders, deduplicates and bounds reference authority', async () => {

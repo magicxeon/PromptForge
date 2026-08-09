@@ -147,6 +147,8 @@ export function publicPlanLineage(result = {}) {
     references: Array.isArray(result.processedReferences)
       ? result.processedReferences.map(reference => ({
         role: reference.role,
+        sourceAssetId: reference.sourceAssetId || null,
+        derivativeAssetId: reference.derivativeAssetId || null,
         processorIds: [...(reference.processorIds || [])],
         processorVersions: { ...(reference.processorVersions || {}) },
         detectedScope: reference.detectedScope || null,
@@ -157,6 +159,8 @@ export function publicPlanLineage(result = {}) {
 }
 
 function inferSourceKind(value) {
+  if (/^\/api\/(?:community\/)?character-profiles\//.test(value)
+    || /^\/outputs\/character-profiles\//.test(value)) return 'character';
   if (/^\/outputs\/references\//.test(value)) return 'asset';
   if (/^\/outputs\/(?:job_|thumbnails\/)|^job_/.test(value)) return 'history';
   return 'asset';

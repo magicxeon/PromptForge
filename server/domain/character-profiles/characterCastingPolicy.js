@@ -13,7 +13,12 @@ export function compileCharacterCastingDirective(source = {}) {
   const uniformDirective = policy.uniformDirectives?.[presentation]
     || policy.uniformDirectives?.neutral
     || '';
-  return [policy.layoutDirective, uniformDirective, policy.outputDirective]
+  return [
+    policy.layoutDirective,
+    policy.anatomicalDirectionDirective,
+    uniformDirective,
+    policy.outputDirective
+  ]
     .filter(value => typeof value === 'string' && value.trim())
     .join(' ');
 }

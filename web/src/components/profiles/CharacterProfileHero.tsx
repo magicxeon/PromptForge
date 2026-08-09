@@ -36,11 +36,14 @@ type CharacterProfileHeroProps = {
     };
     updatedAt?: string | null;
     visibility?: string;
+    status?: string;
   };
   ownerAccess: boolean;
   handoffPending: boolean;
+  approvalPending?: boolean;
   onFashion?: () => void;
   onScene?: () => void;
+  onApprove?: () => void;
   onShare: () => void;
 };
 
@@ -48,11 +51,13 @@ export function CharacterProfileHero({
   character,
   ownerAccess,
   handoffPending,
+  approvalPending = false,
   onFashion,
   onScene,
+  onApprove,
   onShare
 }: CharacterProfileHeroProps) {
-  const { t, i18n } = useTranslation('character-profiles');
+  const { t, i18n } = useTranslation(['character-profiles', 'react-ui']);
   const creatorHandle = normalizeCreatorHandle(character.ownerUsername);
   const availabilityLabel = character.handoffAvailable
     ? t('character-profiles.status.available')
@@ -111,6 +116,24 @@ export function CharacterProfileHero({
               || character.shortDescription
               || t('character-profiles.page.noPersonality')}
           </p>
+
+          {ownerAccess
+            && onApprove
+            && ['draft', 'review'].includes(character.status || '') ? (
+            <div className="character-showcase__approval" role="status">
+              <div>
+                <strong>{t('ui.character.approvalRequired', { ns: 'react-ui' })}</strong>
+                <p>{t('ui.character.approvalHelp', { ns: 'react-ui' })}</p>
+              </div>
+              <Button
+                variant="primary"
+                disabled={approvalPending}
+                onClick={onApprove}
+              >
+                {t('ui.action.approve', { ns: 'react-ui' })}
+              </Button>
+            </div>
+          ) : null}
 
           <div className="character-showcase__tags" aria-label={t('character-profiles.fields.intendedUses')}>
             <span>{typeLabel}</span>

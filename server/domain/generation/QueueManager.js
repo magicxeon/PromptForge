@@ -401,7 +401,9 @@ class QueueManager {
         jobId,
         metadata: {
           comparisonSetId: job.options.comparisonSetId,
-          comparisonRunId: job.options.comparisonRunId
+          comparisonRunId: job.options.comparisonRunId,
+          generationGroupId: job.options.generationGroupId,
+          outputIndex: job.options.outputIndex
         }
       });
       job.creditCharged = true;
@@ -465,6 +467,12 @@ class QueueManager {
         comparisonSetId: job.options.comparisonSetId || null,
         comparisonRunId: job.options.comparisonRunId || null,
         comparisonSlotId: job.options.comparisonSlotId || null,
+        generationGroupId: job.options.generationGroupId || null,
+        outputIndex: Number.isInteger(job.options.outputIndex) ? job.options.outputIndex : null,
+        requestedOutputCount: Number(job.options.requestedOutputCount || 1),
+        promptFingerprint: job.options.promptRefinement?.afterFingerprint || null,
+        referenceProcessingPlanFingerprint:
+          job.options.referenceProcessingPlan?.planFingerprint || null,
         templateUseContext: job.options.templateUseContext || null,
         fashionBlueprintContext: job.options.fashionBlueprintContext || null,
         promptRefinement: job.options.promptRefinement || null,
@@ -562,7 +570,9 @@ class QueueManager {
             reasonCode: job.error.code || 'technical_failure',
             metadata: {
               comparisonSetId: job.options.comparisonSetId,
-              comparisonRunId: job.options.comparisonRunId
+              comparisonRunId: job.options.comparisonRunId,
+              generationGroupId: job.options.generationGroupId,
+              outputIndex: job.options.outputIndex
             }
           });
           job.creditRefunded = true;

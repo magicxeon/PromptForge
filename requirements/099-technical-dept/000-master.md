@@ -81,6 +81,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Business rules and orchestration | `server/domain/<capability>/` |
 | Credit workflow facade and internal Credit policy | `server/domain/credits/CreditApplicationService.js`, `server/domain/credits/` |
 | Generation submission facade and Queue lifecycle | `server/domain/generation/GenerationApplicationService.js`, `server/domain/generation/QueueManager.js` |
+| Generation Group persistence and child status aggregation | `server/repositories/generation/GenerationGroupRepository.js`, `server/data/generation/groups.json` |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
@@ -122,6 +123,7 @@ Server placement rules:
 | Template serialization and client contracts | `web/src/features/templates/` |
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |
+| Shared normal-generation result grid and group polling | `web/src/components/generation/GenerationResultGrid.tsx`, `web/src/features/generation/hooks/useGenerationGroup.ts` |
 | Shared API, identity, i18n and telemetry adapters | `web/src/lib/` |
 | Actor-aware query keys and shared polling policy | `web/src/lib/api/queryKeys.ts`, `web/src/lib/api/pollingPolicy.ts` |
 | Request/correlation propagation and safe support references | `web/src/lib/api/`, `web/src/lib/telemetry/` |

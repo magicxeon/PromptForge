@@ -23,6 +23,7 @@ export const router = createBrowserRouter([{
     { path: 'posts/:postId', lazy: lazyRoute(() => import('../features/community/routes/CommunityPostRoute'), 'CommunityPostRoute') },
     { path: 'characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterProfileRoute') },
     { path: 'profiles/:handle/:profileTab?', lazy: lazyRoute(() => import('../features/profiles/routes/CreatorProfileRoute'), 'CreatorProfileRoute') },
+    { path: 'me/characters', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterOwnerDirectoryRoute'), 'CharacterOwnerDirectoryRoute') },
     { path: 'me/:profileTab?', lazy: lazyRoute(() => import('../features/profiles/routes/MyProfileRoute'), 'MyProfileRoute') },
     { path: 'me/characters/:characterId', lazy: lazyRoute(() => import('../features/profiles/routes/CharacterProfileRoute'), 'CharacterOwnerProfileRoute') },
 

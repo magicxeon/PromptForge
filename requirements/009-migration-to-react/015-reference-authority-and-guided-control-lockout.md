@@ -50,6 +50,12 @@ Precedence:
    controls for either character type.
 5. Face Reference owns facial identity when no Character Reference is active.
 6. Expression is never removed by Face or Character reference authority.
+7. Selecting a system Character does not disable the Face Reference slot. The
+   Character supplies its canonical face internally, while the slot remains an
+   optional explicit facial-identity override. Guided Face identity controls
+   remain disabled and Expression remains editable. The complete contract is
+   owned by
+   `requirements/011-reference-processing-pipeline/002-character-identity-pack-and-face-override.md`.
 
 ## 3. Software Design
 

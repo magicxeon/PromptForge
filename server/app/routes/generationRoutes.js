@@ -67,6 +67,20 @@ export function registerGenerationRoutes(app, {
     return res.json(status);
   });
 
+  app.get('/api/generation-groups/:id', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    const group = await generationApplicationService.getGroupStatusForActor(
+      req.params.id,
+      req.actorContext
+    );
+    if (!group) {
+      return res.status(404).json({
+        error: { code: 'generation_group_not_found', message: 'Generation group not found.' }
+      });
+    }
+    return res.json(group);
+  });
+
   app.get('/api/jobs/:id/stream', (req, res) => {
     const jobId = req.params.id;
     const username = resolveRequestUsername(req, { allowBody: false });

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "2026-08-professional-10",
+  "catalogVersion": "2026-08-professional-11",
   "poseStyles": [
     {
       "id": "pose-style.auto",
@@ -46,12 +46,13 @@
   "recipes": [
     {
       "id": "scene-pose.clean-front-display",
-      "version": 2,
+      "version": 3,
       "purpose": "ecommerce",
       "label": { "en": "Clean Front Display", "th": "ยืนตรงโชว์สินค้าชัดเจน" },
       "description": { "en": "A clean full-body selling view with unobstructed garment details.", "th": "ภาพขายสินค้าเต็มตัวที่เห็นทรงและรายละเอียดชุดโดยไม่ถูกบัง" },
       "bestFor": ["tops", "bottoms", "dresses", "complete outfits"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.marketplace",
         "Pose Intent": "pose.fashion.front-product",
@@ -68,12 +69,13 @@
     },
     {
       "id": "scene-pose.relaxed-three-quarter",
-      "version": 2,
+      "version": 3,
       "purpose": "ecommerce",
       "label": { "en": "Relaxed Three-quarter", "th": "ยืนสามส่วนสี่แบบผ่อนคลาย" },
       "description": { "en": "Shows front construction and side silhouette with natural depth.", "th": "เห็นทั้งโครงสร้างด้านหน้าและซิลูเอตด้านข้างอย่างเป็นธรรมชาติ" },
       "bestFor": ["tailoring", "layered outfits", "dresses"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.marketplace",
         "Pose Intent": "pose.fashion.three-quarter",
@@ -90,12 +92,13 @@
     },
     {
       "id": "scene-pose.creator-reveal",
-      "version": 2,
+      "version": 3,
       "purpose": "lifestyle",
       "label": { "en": "Natural Creator Reveal", "th": "เปิดตัวลุคแบบครีเอเตอร์" },
       "description": { "en": "An engaging mobile-ready fashion reveal with approachable energy.", "th": "เปิดตัวชุดอย่างเป็นธรรมชาติ เหมาะกับภาพครีเอเตอร์และโซเชียล" },
       "bestFor": ["social commerce", "creator content", "casual outfits"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.social",
         "Pose Intent": "pose.fashion.creator-reveal",
@@ -112,12 +115,13 @@
     },
     {
       "id": "scene-pose.refined-lookbook-pause",
-      "version": 2,
+      "version": 3,
       "purpose": "lookbook",
       "label": { "en": "Refined Lookbook Pause", "th": "หยุดโพสลุคบุ๊กอย่างประณีต" },
       "description": { "en": "A controlled weight shift with a polished full-look silhouette.", "th": "ถ่ายน้ำหนักอย่างควบคุมเพื่อให้ลุคเต็มตัวดูประณีตและมีมิติ" },
       "bestFor": ["lookbooks", "collections", "premium outfits"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.weight-shift",
@@ -134,12 +138,13 @@
     },
     {
       "id": "scene-pose.back-garment-view",
-      "version": 2,
+      "version": 3,
       "purpose": "ecommerce",
       "label": { "en": "Back Garment View", "th": "หันหลังโชว์รายละเอียดชุด" },
       "description": { "en": "A clear rear view that prioritizes back construction over facial visibility.", "th": "มุมด้านหลังที่ให้รายละเอียดโครงสร้างชุดสำคัญกว่าการมองเห็นใบหน้า" },
       "bestFor": ["back closures", "back prints", "rear tailoring"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.marketplace",
         "Pose Intent": "pose.fashion.back",
@@ -155,12 +160,13 @@
     },
     {
       "id": "scene-pose.editorial-fabric-motion",
-      "version": 2,
+      "version": 3,
       "purpose": "editorial",
       "label": { "en": "Editorial Fabric Motion", "th": "ผ้าเคลื่อนไหวแบบเอดิทอเรียล" },
       "description": { "en": "Controlled movement, directional gaze and graphic architectural framing.", "th": "การเคลื่อนไหวที่ควบคุม พร้อมสายตาและองค์ประกอบสถาปัตยกรรมที่เด่นชัด" },
       "bestFor": ["editorials", "campaigns", "flowing garments"],
       "discoverable": false,
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.editorial",
         "Pose Intent": "pose.fashion.fabric-motion",
@@ -177,12 +183,13 @@
     },
     {
       "id": "scene-pose.street-walk-editorial",
-      "version": 2,
+      "version": 3,
       "purpose": "lookbook",
       "label": { "en": "Street Walk Editorial", "th": "เดินแฟชั่นสตรีต" },
       "description": { "en": "A natural mid-stride look with street depth and clear garment movement.", "th": "จังหวะก้าวเดินธรรมชาติ มีมิติของถนนและเห็นการเคลื่อนไหวของชุดชัดเจน" },
       "bestFor": ["street style", "casual collections", "outerwear"],
       "previewAsset": "/assets/scene-builder/shot-recipes/street-walk-editorial.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.street-walk-editorial",
@@ -203,12 +210,13 @@
     },
     {
       "id": "scene-pose.architectural-lean",
-      "version": 1,
+      "version": 2,
       "purpose": "lifestyle",
       "label": { "en": "Architectural Lean", "th": "เอนพิงอย่างมีสไตล์" },
       "description": { "en": "A polished supported stance with relaxed legs and deliberate off-camera direction.", "th": "ท่าเอนพิงที่ดูประณีต ขาผ่อนคลายและมองนอกกล้องอย่างตั้งใจ" },
       "bestFor": ["menswear", "tailoring", "structured looks"],
       "previewAsset": "/assets/scene-builder/shot-recipes/architectural-lean.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.architectural-lean",
@@ -229,12 +237,13 @@
     },
     {
       "id": "scene-pose.window-shadow-lookbook",
-      "version": 3,
+      "version": 4,
       "purpose": "lookbook",
       "label": { "en": "Window Shadow Lookbook", "th": "ลุคบุ๊กเงาหน้าต่าง" },
       "description": { "en": "A refined weight shift shaped by graphic window light and clean negative space.", "th": "ท่าถ่ายน้ำหนักประณีตกับเงาหน้าต่างกราฟิกและพื้นที่ว่างสะอาด" },
       "bestFor": ["lookbooks", "minimal collections", "texture-led garments"],
       "previewAsset": "/assets/scene-builder/shot-recipes/window-shadow-lookbook.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.lookbook",
         "Pose Intent": "pose.fashion.window-shadow-lookbook",
@@ -255,12 +264,13 @@
     },
     {
       "id": "scene-pose.cafe-seated-lifestyle",
-      "version": 1,
+      "version": 2,
       "purpose": "lifestyle",
       "label": { "en": "Cafe Seated Lifestyle", "th": "นั่งคาเฟ่ไลฟ์สไตล์" },
       "description": { "en": "A natural seated fashion moment with foreground depth and a candid gaze.", "th": "ช่วงเวลานั่งแฟชั่นอย่างเป็นธรรมชาติ มีมิติด้านหน้าและสายตาแคนดิด" },
       "bestFor": ["travel fashion", "social commerce", "casual outfits"],
       "previewAsset": "/assets/scene-builder/shot-recipes/cafe-seated-lifestyle.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.social",
         "Pose Intent": "pose.fashion.cafe-seated-lifestyle",
@@ -281,12 +291,13 @@
     },
     {
       "id": "scene-pose.sunlit-storefront",
-      "version": 3,
+      "version": 4,
       "purpose": "lifestyle",
       "label": { "en": "Sunlit Storefront", "th": "แฟชั่นหน้าร้านรับแสง" },
       "description": { "en": "An approachable storefront stance with restrained interaction and lively daylight.", "th": "ท่าหน้าร้านที่เข้าถึงง่าย มีปฏิสัมพันธ์พอดีและแสงธรรมชาติมีชีวิต" },
       "bestFor": ["creator campaigns", "street lookbooks", "summer collections"],
       "previewAsset": "/assets/scene-builder/shot-recipes/sunlit-storefront.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.social",
         "Pose Intent": "pose.fashion.sunlit-storefront",
@@ -307,12 +318,13 @@
     },
     {
       "id": "scene-pose.low-angle-campaign-hero",
-      "version": 2,
+      "version": 3,
       "purpose": "campaign",
       "label": { "en": "Low-angle Campaign Hero", "th": "แคมเปญฮีโร่มุมต่ำ" },
       "description": { "en": "A confident campaign image with architectural scale and intentional negative space.", "th": "ภาพแคมเปญมั่นใจ ใช้สเกลสถาปัตยกรรมและพื้นที่ว่างอย่างตั้งใจ" },
       "bestFor": ["campaign heroes", "outerwear", "character features"],
       "previewAsset": "/assets/scene-builder/shot-recipes/low-angle-campaign-hero.jpg",
+      "clearFields": ["Lighting Accent"],
       "fieldSelections": {
         "Fashion Direction": "fashion.editorial",
         "Pose Intent": "pose.fashion.low-angle-campaign-hero",

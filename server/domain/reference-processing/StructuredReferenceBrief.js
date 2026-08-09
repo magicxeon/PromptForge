@@ -31,11 +31,13 @@ export function buildStructuredReferenceBrief({
 
   const templateIndex = findReferenceIndex(orderedReferences, 'template_baseline');
   const characterIndex = findReferenceIndex(orderedReferences, 'character_reference');
+  const faceIndex = findReferenceIndex(orderedReferences, 'face_reference');
   const outfitFrontIndex = findReferenceIndex(orderedReferences, 'outfit_front');
   const outfitBackIndex = findReferenceIndex(orderedReferences, 'outfit_back');
 
   const templateImage = imageLabel(templateIndex);
   const characterImage = imageLabel(characterIndex);
+  const faceImage = imageLabel(faceIndex);
   const outfitFrontImage = imageLabel(outfitFrontIndex);
   const outfitBackImage = imageLabel(outfitBackIndex);
 
@@ -46,10 +48,11 @@ export function buildStructuredReferenceBrief({
       config.templateDirection,
       templateImage
     ),
-    character_identity: sectionWithSource(
-      config.characterIdentity,
-      characterImage
-    ),
+    character_identity: {
+      ...sectionWithSource(config.characterIdentity, faceImage || characterImage),
+      body_source_image: characterImage,
+      ...(faceImage ? { face_source_image: faceImage } : {})
+    },
     outfit_transfer: {
       ...sectionWithSource(config.outfitTransfer, outfitFrontImage),
       ...(outfitBackImage ? { back_source_image: outfitBackImage } : {})
@@ -59,7 +62,9 @@ export function buildStructuredReferenceBrief({
       subject_count: config.output.subjectCount,
       single_full_frame_photo: config.output.singleFullFramePhoto,
       full_body_visible: config.output.fullBodyVisible,
-      identity_source: `${characterImage} only`,
+      identity_source: faceImage
+        ? `${faceImage} for detailed face identity and ${characterImage} for body identity only`
+        : `${characterImage} only`,
       composition_source: `${templateImage} only`,
       garment_source: outfitBackImage
         ? `${outfitFrontImage} and ${outfitBackImage} only`

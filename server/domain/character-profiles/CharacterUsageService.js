@@ -53,6 +53,10 @@ export class CharacterUsageService {
     const canonicalAssetId = version
       ? resolveCanonicalCharacterAsset(version, characterType)
       : null;
+    const canonicalFaceAssetId = version?.canonicalFaceAssetId
+      || version?.canonicalHeadshotAssetId
+      || version?.castingFacePreviewUrl
+      || null;
     if (!profile || !version || version.characterProfileId !== profile.id
       || version.status !== 'approved'
       || !canonicalAssetId
@@ -67,8 +71,21 @@ export class CharacterUsageService {
     return {
       ...context,
       authorizedCharacterReferenceAssetId: canonicalAssetId,
+      authorizedCharacterFaceReferenceAssetId: canonicalFaceAssetId,
       authorizedCharacterFaceReferenceUrl: version.castingFacePreviewUrl || null,
       authorizedCharacterFrontReferenceUrl: version.castingFrontPreviewUrl || null,
+      identityPack: {
+        characterProfileId: profile.id,
+        characterProfileVersionId: version.id,
+        canonicalThreeViewAssetId: canonicalAssetId,
+        canonicalFaceAssetId,
+        characterType,
+        outfitBehavior: capabilities.outfitBehavior,
+        identityPolicyVersion: 'character-identity-pack-v1',
+        status: version.identityPackStatus || (canonicalFaceAssetId
+          ? 'identity_pack_ready'
+          : 'identity_pack_legacy_fallback')
+      },
       characterType,
       outfitBehavior: capabilities.outfitBehavior,
       displayNameSnapshot: profile.displayName,

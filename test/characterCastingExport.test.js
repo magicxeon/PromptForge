@@ -9,7 +9,7 @@ import { normalizeGenerationContext, compileGenerationContext } from '../server/
 test('casting export policy requires three photorealistic full-body views and a gray grid outfit', () => {
   const policy = getCharacterCastingPolicy();
   const directive = compileCharacterCastingDirective({ Gender: { value: 'female' } });
-  assert.equal(policy.layoutId, 'character-casting-three-view-v4');
+  assert.equal(policy.layoutId, 'character-casting-three-view-v5');
   assert.equal(policy.uniformPolicyId, 'casting-uniform-gray-grid-v7');
   assert.equal(policy.aspectRatio, '1:1');
   for (const phrase of ['three', 'front view', 'side profile', 'back view', 'head-to-feet', 'opaque', 'warm-gray']) {
@@ -19,6 +19,9 @@ test('casting export policy requires three photorealistic full-body views and a 
   assert.match(directive, /never crop the head/i);
   assert.match(directive, /head aligned with the torso/i);
   assert.match(directive, /viewer right/i);
+  assert.match(directive, /one continuous anatomically coherent person from crown to toes/i);
+  assert.match(directive, /backs of both knees, heels, and backs of both feet.+away from the camera/i);
+  assert.match(directive, /never combine a front-facing leg set with a back-facing torso/i);
   assert.match(directive, /unlabeled image only/i);
   assert.match(directive, /no text, captions, words, letters, view titles/i);
   assert.match(directive, /matte medium-gray.+silhouette-reading casting outfit/i);
@@ -115,11 +118,12 @@ test('Reusable Model Character Sheet strips editable clothing and outfit referen
   assert.equal(context.selections.Outfit, undefined);
   assert.equal(context.imageReferences.outfitReference, false);
   assert.equal(context.aspectRatio, '1:1');
-  assert.equal(context.outputCount, 1);
+  assert.equal(context.outputCount, 4);
   assert.equal(context.characterSheetConfig.characterType, 'reusable_model');
   assert.equal(context.characterSheetConfig.castingCandidate, true);
-  assert.equal(context.characterSheetConfig.layout.type, 'character-casting-three-view-v4');
-  assert.equal(context.characterSheetConfig.castingLayoutVersion, 'character-casting-three-view-v4');
+  assert.equal(context.characterSheetConfig.outputCount, 1);
+  assert.equal(context.characterSheetConfig.layout.type, 'character-casting-three-view-v5');
+  assert.equal(context.characterSheetConfig.castingLayoutVersion, 'character-casting-three-view-v5');
   assert.equal(context.characterSheetConfig.uniformPolicyVersion, 'casting-uniform-gray-grid-v7');
   assert.match(compiledPrompt, /three clearly separated equal-scale views/i);
   assert.match(compiledPrompt, /front view.+exact side profile.+back view/i);

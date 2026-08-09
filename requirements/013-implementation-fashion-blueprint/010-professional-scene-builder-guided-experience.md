@@ -152,6 +152,10 @@ Simple is the default for new Scene drafts. It must:
 - keep identity, Character, Outfit and Template/Reference authority outside the
   setup and never overwrite them;
 - apply only fields the active Template allows the customer to replace;
+- clear recipe-exclusive fields that are not owned by the newly selected setup;
+  specifically, switching away from Color-light Editorial must remove its
+  `Lighting Accent` before prompt compilation so red/blue separation cannot
+  leak into Street Walk or another natural-light setup;
 - show when retained Pro adjustments make the current values differ from the
   selected setup;
 - permit generation without opening raw biomechanics or camera controls.
@@ -1596,3 +1600,18 @@ Acceptance criteria:
 - server catalog validation rejects malformed or duplicate style definitions;
 - desktop and mobile layouts contain no clipped or overlapping labels; and
 - model, prompt-policy, localization and TypeScript validation pass.
+
+## 23. Recipe-exclusive Lighting Cleanup
+
+Job `job_1786268515117_nr6o25dli` exposed a state transition defect: Street
+Walk Editorial correctly selected natural street daylight, but retained
+`lighting.accent.hot-cool-separation` from the previously selected Color-light
+Editorial recipe. The stale accent reached the final prompt and produced blue
+and red light on the subject.
+
+Catalog `2026-08-professional-11` makes ownership explicit. Color-light
+Editorial remains the only Simple recipe that sets `Lighting Accent`; every
+other Simple recipe declares `Lighting Accent` in `clearFields`. Recipe
+versions advance where needed so restored actor-scoped drafts reapply the
+cleanup automatically. Regression coverage verifies both the catalog-wide
+invariant and the Color-light Editorial to Street Walk transition.

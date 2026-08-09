@@ -101,7 +101,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const normalizedAspectRatio = (isCharacterCastingExport || reusableCharacterSheet)
     ? castingPolicy.aspectRatio
     : (payload.aspectRatio || '1:1');
-  const normalizedOutputCount = (isCharacterCastingExport || reusableCharacterSheet)
+  const normalizedOutputCount = isCharacterCastingExport
     ? castingPolicy.outputCount
     : Math.max(1, Number.isFinite(requestedOutputCount) ? requestedOutputCount : 1);
   const hasTemplateOutfit = payload.sceneTemplateSnapshot
@@ -351,11 +351,15 @@ export function createQueueOptions(context, {
   requestId = null,
   templateUseContext = null,
   fashionBlueprintContext = null,
-  promptRefinement = null
+  promptRefinement = null,
+  generationGroupId = null,
+  outputIndex = null,
+  requestedOutputCount = 1
 }) {
   const references = context.imageReferences;
   const {
     authorizedCharacterReferenceAssetId,
+    authorizedCharacterFaceReferenceAssetId,
     authorizedCharacterFaceReferenceUrl,
     authorizedCharacterFrontReferenceUrl,
     ...persistedCharacterProfileContext
@@ -395,7 +399,10 @@ export function createQueueOptions(context, {
       : null,
     authorizedCharacterReferenceJobIds:
       context.characterProfileContext?.purpose === 'character_usage'
-        ? normalizeReferenceJobIds([authorizedCharacterReferenceAssetId])
+        ? normalizeReferenceJobIds([
+          authorizedCharacterReferenceAssetId,
+          authorizedCharacterFaceReferenceAssetId
+        ])
         : [],
     authorizedCharacterReferenceUrls:
       context.characterProfileContext?.purpose === 'character_usage'
@@ -438,6 +445,9 @@ export function createQueueOptions(context, {
     payerUserId: payerUserId || username || 'usr_demo',
     estimateId,
     requestId,
+    generationGroupId,
+    outputIndex,
+    requestedOutputCount,
     templateUseContext: templateUseContext && typeof templateUseContext === 'object'
       ? structuredClone(templateUseContext)
       : null,

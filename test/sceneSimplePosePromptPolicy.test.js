@@ -35,7 +35,7 @@ const expectedPoseDetails = new Map([
 
 test('all Simple Scene recipes resolve to precise single-subject pose directions', () => {
   assert.equal(recipeCatalog.recipes.length, expectedPoseDetails.size);
-  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-10');
+  assert.equal(recipeCatalog.catalogVersion, '2026-08-professional-11');
   assert.deepEqual(
     recipeCatalog.poseStyles.map(style => style.id),
     [
@@ -62,18 +62,24 @@ test('all Simple Scene recipes resolve to precise single-subject pose directions
     for (const [fieldName, optionId] of Object.entries(recipe.fieldSelections)) {
       assert.ok(attributesById.has(optionId), `${recipe.id} ${fieldName} must resolve ${optionId}`);
     }
+    if (recipe.id !== 'scene-pose.color-light-editorial') {
+      assert.ok(
+        recipe.clearFields?.includes('Lighting Accent'),
+        `${recipe.id} must clear the Color-light-only Lighting Accent`
+      );
+    }
   }
 
   for (const recipe of discoverable) {
     assert.match(recipe.previewAsset, /^\/assets\/scene-builder\/shot-recipes\/.+\.jpg$/);
     const expectedVersion = new Map([
-      ['scene-pose.window-shadow-lookbook', 3],
-      ['scene-pose.sunlit-storefront', 3],
-      ['scene-pose.street-walk-editorial', 2],
-      ['scene-pose.low-angle-campaign-hero', 2],
+      ['scene-pose.window-shadow-lookbook', 4],
+      ['scene-pose.sunlit-storefront', 4],
+      ['scene-pose.street-walk-editorial', 3],
+      ['scene-pose.low-angle-campaign-hero', 3],
       ['scene-pose.soft-character-portrait', 2],
       ['scene-pose.color-light-editorial', 3]
-    ]).get(recipe.id) ?? 1;
+    ]).get(recipe.id) ?? 2;
     assert.equal(recipe.version, expectedVersion);
   }
 });
@@ -130,7 +136,7 @@ test('a professional Shot Recipe reaches the canonical compiler as one resolved 
     template: 'portrait'
   });
 
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
   assert.match(prompt, /decisive instant of a natural editorial street stride/i);
   assert.match(prompt, /complete subject inside the central horizontal corridor/i);
   assert.match(prompt, /when the actual garment has a clearly available pocket/i);
@@ -198,7 +204,7 @@ test('Sunlit Storefront compiles physical camera, contact, and lighting directio
     item.id === 'scene-pose.sunlit-storefront'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 3);
+  assert.equal(recipe.version, 4);
   assert.equal(recipe.fieldSelections['Camera Imperfections'], 'camera.imp_01');
 
   const selections = Object.fromEntries(
@@ -241,7 +247,7 @@ test('Low-angle Campaign Hero compiles a close upward view with commercial high-
     item.id === 'scene-pose.low-angle-campaign-hero'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 2);
+  assert.equal(recipe.version, 3);
   assert.equal(recipe.fieldSelections['Fashion Venue'], 'environment.fashion.commercial-highrise');
   assert.equal(recipe.fieldSelections.Framing, 'camera.framing_11');
   assert.equal(recipe.fieldSelections.Perspective, 'camera.perspective_04');
@@ -326,7 +332,7 @@ test('Window Shadow Lookbook lights the subject and uses a grounded fashion loca
     item.id === 'scene-pose.window-shadow-lookbook'
   );
   assert.ok(recipe);
-  assert.equal(recipe.version, 3);
+  assert.equal(recipe.version, 4);
 
   const selections = Object.fromEntries(
     Object.entries(recipe.fieldSelections).map(([fieldName, optionId]) => {

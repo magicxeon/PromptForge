@@ -9,6 +9,8 @@ import {
   createReferenceRoleManifest,
   validatePlaygroundReferenceRoles
 } from '../server/domain/generation/referenceRolePolicy.js';
+import { prepareGenerationReferences } from '../server/domain/generation/prepareGenerationReferences.js';
+import { buildStructuredReferenceBrief } from '../server/domain/reference-processing/StructuredReferenceBrief.js';
 
 const image = name => `data:image/png;base64,${name}`;
 
@@ -44,6 +46,104 @@ test('Playground rejects simultaneous Face and Character identity authorities', 
     () => validatePlaygroundReferenceRoles(payload),
     error => error.code === 'reference_role_conflict' && error.statusCode === 400
   );
+});
+
+test('system Character identity pack may use body and face authorities together', () => {
+  const payload = playgroundPayload({
+    characterProfileContext: { purpose: 'character_usage' },
+    imageReferences: { faceMatch: true, characterReference: true },
+    faceReferenceImageA: image('face'),
+    characterReferenceImageA: image('character')
+  });
+  assert.doesNotThrow(() => validatePlaygroundReferenceRoles(payload));
+});
+
+test('Character identity pack injects canonical face unless an explicit override exists', async () => {
+  const processingCalls = [];
+  const characterService = {
+    validateGenerationContext: async context => ({
+      ...context,
+      purpose: 'character_usage',
+      authorizedCharacterReferenceAssetId: 'asset_three_view',
+      authorizedCharacterFaceReferenceAssetId: 'asset_canonical_face',
+      outfitBehavior: 'replaceable'
+    })
+  };
+  const processingService = {
+    processContext: async context => {
+      processingCalls.push(structuredClone(context));
+      return context;
+    }
+  };
+  const base = {
+    imageReferences: { faceMatch: false, characterReference: false },
+    characterProfileContext: { purpose: 'character_usage' }
+  };
+
+  const canonical = await prepareGenerationReferences(structuredClone(base), {
+    actorContext: { userId: 'usr_1', username: 'owner' },
+    providerId: 'gemini',
+    modelId: 'image',
+    modelConfig: {},
+    characterService,
+    processingService
+  });
+  assert.equal(canonical.characterReferenceImageA, 'asset_three_view');
+  assert.equal(canonical.faceReferenceImageA, 'asset_canonical_face');
+  assert.equal(canonical.characterProfileContext.faceAuthoritySource, 'character_canonical_face');
+
+  const explicit = await prepareGenerationReferences({
+    ...structuredClone(base),
+    imageReferences: { faceMatch: true, characterReference: false },
+    faceReferenceImageA: 'asset_explicit_face'
+  }, {
+    actorContext: { userId: 'usr_1', username: 'owner' },
+    providerId: 'gemini',
+    modelId: 'image',
+    modelConfig: {},
+    characterService,
+    processingService
+  });
+  assert.equal(explicit.characterReferenceImageA, 'asset_three_view');
+  assert.equal(explicit.faceReferenceImageA, 'asset_explicit_face');
+  assert.equal(explicit.characterProfileContext.faceAuthoritySource, 'explicit_face_override');
+  assert.equal(processingCalls.length, 2);
+});
+
+test('structured provider brief separates detailed face authority from Character body authority', () => {
+  const section = {
+    authority: ['identity'],
+    preserve: ['identity'],
+    ignore: ['source pose']
+  };
+  const brief = buildStructuredReferenceBrief({
+    orderedReferences: [
+      { roles: ['template_baseline'] },
+      { roles: ['character_reference'] },
+      { roles: ['face_reference'] },
+      { roles: ['outfit_front'] }
+    ],
+    config: {
+      id: 'test',
+      generationSurfaces: ['fashion'],
+      requiredRoles: ['template_baseline', 'character_reference', 'outfit_front'],
+      task: 'Generate one image.',
+      templateDirection: section,
+      characterIdentity: section,
+      outfitTransfer: section,
+      output: {
+        subjectCount: 1,
+        singleFullFramePhoto: true,
+        fullBodyVisible: true,
+        prohibit: []
+      }
+    },
+    context: { generationSurface: 'fashion', aspectRatio: '6:8' }
+  });
+  assert.equal(brief.character_identity.source_image, 'IMAGE_2');
+  assert.equal(brief.character_identity.face_source_image, 'IMAGE_2');
+  assert.equal(brief.character_identity.body_source_image, 'IMAGE_1');
+  assert.match(brief.output.identity_source, /IMAGE_2.+IMAGE_1/);
 });
 
 test('Playground Character reference survives normalization', () => {

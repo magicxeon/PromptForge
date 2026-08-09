@@ -15,6 +15,11 @@ type GenerationQueueStatusProps = {
   comparisonSetId?: string | null;
   comparisonStatus?: string | null;
   comparisonItems?: GenerationProcessQueueItem[];
+  groupId?: string | null;
+  groupStatus?: string | null;
+  groupCompletedCount?: number;
+  groupFailedCount?: number;
+  groupTotalCount?: number;
   submitting?: boolean;
 };
 
@@ -32,6 +37,11 @@ export function GenerationQueueStatus({
   comparisonSetId = null,
   comparisonStatus = null,
   comparisonItems = [],
+  groupId = null,
+  groupStatus = null,
+  groupCompletedCount = 0,
+  groupFailedCount = 0,
+  groupTotalCount = 0,
   submitting = false
 }: GenerationQueueStatusProps) {
   const { t } = useTranslation('playground');
@@ -41,11 +51,14 @@ export function GenerationQueueStatus({
     || comparisonSetId
     || comparisonStatus
     || comparisonItems.length
+    || groupId
+    || groupStatus
     || submitting
   );
   if (!hasQueue) return null;
-  const isComparison = Boolean(comparisonSetId || comparisonStatus || comparisonItems.length);
-  const rawStatus = (isComparison ? comparisonStatus : jobStatus)
+  const isGroup = Boolean(groupId || groupStatus);
+  const isComparison = !isGroup && Boolean(comparisonSetId || comparisonStatus || comparisonItems.length);
+  const rawStatus = (isGroup ? groupStatus : isComparison ? comparisonStatus : jobStatus)
     || (submitting ? 'submitting' : 'idle');
   const status = normalizeJobStatus(rawStatus);
   const active = ACTIVE_JOB_STATUSES.has(status);
@@ -73,8 +86,16 @@ export function GenerationQueueStatus({
       <div className="generation-queue-status__copy">
         <strong>{isComparison
           ? t('playground.queue.comparison')
+          : isGroup
+            ? t('playground.queue.outputGroup')
           : t('playground.queue.current')}</strong>
-        <small>{comparisonItems.length
+        <small>{isGroup
+          ? t('playground.queue.groupProgress', {
+              completed: groupCompletedCount,
+              failed: groupFailedCount,
+              total: groupTotalCount
+            })
+          : comparisonItems.length
           ? t('playground.queue.progress', {
               completed: completedItems,
               total: comparisonItems.length

@@ -28,6 +28,7 @@ import {
   type GenerationRequestDraft
 } from '../../features/generation/api/generationApi';
 import { useGenerationJob } from '../../features/generation/hooks/useGenerationJob';
+import { useGenerationGroup } from '../../features/generation/hooks/useGenerationGroup';
 import {
   getComparison,
   updateComparison
@@ -69,6 +70,10 @@ import {
   readPromptRefinementPreference,
   writePromptRefinementPreference
 } from '../../features/generation/promptRefinementPreference';
+import {
+  readOutputCountPreference,
+  writeOutputCountPreference
+} from '../../features/generation/outputCountPreference';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -104,7 +109,7 @@ type GenerationExperienceProps = {
   recentExpanded?: boolean;
   onRecentExpandedChange?: (expanded: boolean) => void;
   referenceRoles?: GenerationReferenceRole[];
-  renderResultActions?: (job: JobStatus) => ReactNode;
+  renderResultActions?: (job: JobStatus, context: { closeViewer: () => void }) => ReactNode;
   studioBuilder?: ReactNode;
   studioModeSelector?: ReactNode;
   studioQueueExtra?: ReactNode;
@@ -173,7 +178,7 @@ export function GenerationExperience({
     setLocalReferences(next);
     onReferencesChange?.(next);
   };
-  const [engine, setEngine] = useState<EngineValue>({ provider: '', model: '', resolution: null, aspectRatio: '6:8' });
+  const [engine, setEngine] = useState<EngineValue>({ provider: '', model: '', resolution: null, aspectRatio: '6:8', outputCount: 1 });
   const [comparison, setComparison] = useState(false);
   const [comparisonSlots, setComparisonSlots] = useState<ComparisonSlotInput[]>([]);
   const [comparisonJobBindings, setComparisonJobBindings] = useState<Array<{
@@ -181,6 +186,7 @@ export function GenerationExperience({
     jobId?: string | null;
   }>>([]);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [generationGroupId, setGenerationGroupId] = useState<string | null>(null);
   const [comparisonSetId, setComparisonSetId] = useState<string | null>(null);
   const [resultFocusSequence, setResultFocusSequence] = useState(0);
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
@@ -189,6 +195,8 @@ export function GenerationExperience({
   const [promptRefinementEnabled, setPromptRefinementEnabled] = useState(false);
   const [promptRefinementActorId, setPromptRefinementActorId] = useState<string | null>(null);
   const completedJobRef = useRef<string | null>(null);
+  const completedGroupJobsRef = useRef(new Set<string>());
+  const [outputCountPreferenceActorId, setOutputCountPreferenceActorId] = useState<string | null>(null);
   const actorId = actor?.userId || 'loading';
   const fixedAspectRatio = generationMode === 'character-sheet'
     && characterType === 'reusable_model'
@@ -204,6 +212,7 @@ export function GenerationExperience({
   });
   useEffect(() => {
     setJobId(null);
+    setGenerationGroupId(null);
     setComparisonSetId(null);
     setComparison(false);
     setComparisonSlots([]);
@@ -211,12 +220,27 @@ export function GenerationExperience({
     setCreditDialogOpen(false);
     setPromptRefinementEnabled(false);
     setPromptRefinementActorId(null);
+    setOutputCountPreferenceActorId(null);
+    setEngine(current => ({ ...current, outputCount: 1 }));
     setLocalPrompt(initialPromptRef.current);
     setNegativePrompt('');
     setLocalReferences(initialReferencesRef.current);
     setReferenceScopes({});
     completedJobRef.current = null;
+    completedGroupJobsRef.current.clear();
   }, [actor?.userId]);
+
+  useEffect(() => {
+    if (!actor || outputCountPreferenceActorId === actor.userId) return;
+    const outputCount = readOutputCountPreference(actor.userId);
+    setEngine(current => ({ ...current, outputCount }));
+    setOutputCountPreferenceActorId(actor.userId);
+  }, [actor, outputCountPreferenceActorId]);
+
+  useEffect(() => {
+    if (!actor || outputCountPreferenceActorId !== actor.userId) return;
+    writeOutputCountPreference(actor.userId, engine.outputCount);
+  }, [actor, engine.outputCount, outputCountPreferenceActorId]);
 
   useEffect(() => {
     if (!actor || promptRefinementActorId === actor.userId) return;
@@ -238,9 +262,10 @@ export function GenerationExperience({
       model: model?.id || '',
       resolution: model?.capabilities.resolutions?.[0] || model?.defaults?.resolution || null,
       aspectRatio: fixedAspectRatio
-        || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1')
+        || (model?.capabilities.aspectRatios.includes('6:8') ? '6:8' : model?.capabilities.aspectRatios[0] || '1:1'),
+      outputCount: engine.outputCount
     });
-  }, [catalog.data, engine.provider, fixedAspectRatio]);
+  }, [catalog.data, engine.outputCount, engine.provider, fixedAspectRatio]);
 
   useEffect(() => {
     if (!fixedAspectRatio || engine.aspectRatio === fixedAspectRatio) return;
@@ -296,7 +321,7 @@ export function GenerationExperience({
         ...asRecord(sceneTemplateSnapshot.generationSettingsSnapshot),
         aspectRatio: engine.aspectRatio,
         resolution: engine.resolution,
-        outputCount: 1
+        outputCount: engine.outputCount
       }
     }
     : null, [engine, sceneTemplateSnapshot]);
@@ -310,7 +335,7 @@ export function GenerationExperience({
     additionalDirection,
     aspectRatio: engine.aspectRatio,
     imageResolution: engine.resolution,
-    outputCount: 1,
+    outputCount: comparison ? 1 : engine.outputCount,
     generationMode,
     generationSurface: surface,
     references,
@@ -326,7 +351,7 @@ export function GenerationExperience({
     authoringMode,
     characterType,
     promptRefinementEnabled: promptRefinementAvailable && promptRefinementEnabled
-  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
+  }), [additionalDirection, authoringMode, characterProfileContext, characterReferenceOutfitBehavior, characterType, comparison, customColors, engine, faceReferenceContext, generationMode, negativePrompt, prompt, promptRefinementAvailable, promptRefinementEnabled, referenceScopes, references, resolvedSceneTemplateSnapshot, selections, surface, templateUseContext]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedDraft(draft), 320);
@@ -386,12 +411,14 @@ export function GenerationExperience({
     mutationFn: () => estimateAndSubmitGeneration(draft),
     onMutate: () => {
       setJobId(null);
+      setGenerationGroupId(null);
       setComparisonSetId(null);
       setComparisonJobBindings([]);
     },
     onSuccess: response => {
       setComparisonSetId(null);
-      setJobId(response.jobId);
+      setJobId(response.groupId ? null : response.jobId);
+      setGenerationGroupId(response.groupId || null);
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         jobId: response.jobId,
@@ -418,6 +445,7 @@ export function GenerationExperience({
     },
     onMutate: () => {
       setJobId(null);
+      setGenerationGroupId(null);
       setComparisonSetId(null);
       setComparisonJobBindings([]);
     },
@@ -445,6 +473,7 @@ export function GenerationExperience({
     }
   });
   const job = useGenerationJob(jobId);
+  const generationGroup = useGenerationGroup(generationGroupId);
   const comparisonResult = useQuery({
     queryKey: queryKeys.comparison(actor?.userId || 'loading', comparisonSetId),
     queryFn: ({ signal }) => {
@@ -501,6 +530,20 @@ export function GenerationExperience({
     }
   }, [job.data?.id, job.data?.jobId, job.data?.status, jobId, onCompleted, queryClient]);
   useEffect(() => {
+    if (!generationGroupId || !generationGroup.data) return;
+    const terminal = ['completed', 'partially_completed', 'failed']
+      .includes(generationGroup.data.status);
+    for (const child of generationGroup.data.children) {
+      if (child.status !== 'completed' || completedGroupJobsRef.current.has(child.jobId)) continue;
+      completedGroupJobsRef.current.add(child.jobId);
+      onCompleted?.(child.jobId);
+    }
+    if (terminal) {
+      void queryClient.invalidateQueries({ queryKey: ['history'] });
+      void queryClient.invalidateQueries({ queryKey: ['credits'] });
+    }
+  }, [generationGroup.data, generationGroupId, onCompleted, queryClient]);
+  useEffect(() => {
     if (!jobId || !job.data?.status) return;
     emitTelemetry('generation_transition', {
       actorId: actor?.userId,
@@ -537,6 +580,8 @@ export function GenerationExperience({
   const pending = submitSingle.isPending
     || submitCompare.isPending
     || Boolean(jobId && !isTerminalJobStatus(job.data?.status))
+    || Boolean(generationGroupId && !['completed', 'partially_completed', 'failed']
+      .includes(generationGroup.data?.status || 'queued'))
     || comparisonNeedsPolling(comparisonSetId, comparisonResult.data);
   const submitError = submitSingle.error || submitCompare.error;
   const comparisonQueueItems: GenerationProcessQueueItem[] = comparison
@@ -561,7 +606,10 @@ export function GenerationExperience({
         };
       })
     : [];
-  const effectiveResultActions = (completedJob: JobStatus) => (
+  const effectiveResultActions = (
+    completedJob: JobStatus,
+    context: { closeViewer: () => void }
+  ) => (
     <>
       {model?.capabilities.imageReferences && completedJob.result?.imageUrl ? (
         <GenerationReferenceActions
@@ -572,7 +620,7 @@ export function GenerationExperience({
           onChange={setReferences}
         />
       ) : null}
-      {renderResultActions?.(completedJob)}
+      {renderResultActions?.(completedJob, context)}
     </>
   );
 
@@ -580,6 +628,7 @@ export function GenerationExperience({
     <div ref={node => { resultRef.current = node; }}>
       <GenerationResultSurface
         job={job.data}
+        group={generationGroup.data}
         comparison={comparisonResult.data}
         pending={pending}
         onGoToPrompt={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
@@ -673,6 +722,7 @@ export function GenerationExperience({
       authorityProjection={referencePreview.data?.publicAuthorityProjection}
       processing={referencePreview.isFetching}
       processingError={referencePreview.error?.message || null}
+      characterIdentityPackActive={characterProfileContext?.purpose === 'character_usage'}
       scopes={referenceScopes}
       onScopeChange={(role, scope) => {
         setReferenceScopes(current => ({ ...current, [role]: scope }));
@@ -731,7 +781,11 @@ export function GenerationExperience({
       >
         <span>{pending
           ? t('playground.result.generating')
-          : t('playground.action.generate')}</span>
+          : comparison
+            ? t('playground.action.generateComparison')
+            : engine.outputCount > 1
+              ? t('playground.action.generateImages', { count: engine.outputCount })
+              : t('playground.action.generate')}</span>
         <small>
           {comparison
             ? t('playground.estimate.comparisonDetail')
@@ -758,7 +812,13 @@ export function GenerationExperience({
             disabled={!prompt.trim() || pending || Boolean(blockedReason)}
             onClick={submitGenerationRequest}
           >
-            {pending ? t('playground.result.generating') : comparison ? t('playground.action.generateComparison') : t('playground.action.generate')}
+            {pending
+              ? t('playground.result.generating')
+              : comparison
+                ? t('playground.action.generateComparison')
+                : engine.outputCount > 1
+                  ? t('playground.action.generateImages', { count: engine.outputCount })
+                  : t('playground.action.generate')}
           </Button>
         </div>
     </Surface>
@@ -794,6 +854,11 @@ export function GenerationExperience({
           {job.error.message}
         </StatusNotice>
       ) : null}
+      {generationGroup.isError ? (
+        <StatusNotice tone="error" title={tUi('ui.status.error')}>
+          {generationGroup.error.message}
+        </StatusNotice>
+      ) : null}
     </>
   );
   const queueStatusRegion = (
@@ -804,6 +869,11 @@ export function GenerationExperience({
       comparisonStatus={derivedComparisonStatus
         || (comparisonSetId ? 'queued' : null)}
       comparisonItems={comparisonQueueItems}
+      groupId={generationGroupId}
+      groupStatus={generationGroup.data?.status || null}
+      groupCompletedCount={generationGroup.data?.completedCount || 0}
+      groupFailedCount={generationGroup.data?.failedCount || 0}
+      groupTotalCount={generationGroup.data?.requestedOutputCount || engine.outputCount}
       submitting={Boolean(jobId || comparisonSetId)
         && (submitSingle.isPending || submitCompare.isPending)}
     />

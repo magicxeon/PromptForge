@@ -274,7 +274,8 @@ export class CreditAccountRepository {
     quoteId,
     idempotencyKey,
     allocations = [],
-    relatedTemplateId = null
+    relatedTemplateId = null,
+    planKind = 'fashion'
   }) {
     if (!userId || !planId || !quoteId || !idempotencyKey || !Array.isArray(allocations) || !allocations.length) {
       throw createCreditError(
@@ -360,7 +361,7 @@ export class CreditAccountRepository {
         data.accounts.push(account);
       }
       if (account.status !== 'active' || account.availableCredits < totalCredits) {
-        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, 'Insufficient credits for the Fashion plan.', 402, {
+        throw createCreditError(CREDIT_ERROR_CODES.INSUFFICIENT, `Insufficient credits for the ${planKind === 'generation_group' ? 'generation group' : 'Fashion plan'}.`, 402, {
           requiredCredits: totalCredits,
           availableCredits: account.availableCredits
         });
@@ -388,7 +389,7 @@ export class CreditAccountRepository {
           capturedAt: null,
           refundedAt: null,
           terminalReason: null,
-          metadata: { planId, quoteId, operationId: allocation.operationId }
+          metadata: { planId, quoteId, operationId: allocation.operationId, planKind }
         };
         data.reservations.push(reservation);
         data.ledgerEntries.push({
@@ -409,10 +410,12 @@ export class CreditAccountRepository {
           modelId: allocation.pricingSnapshot?.modelId || null,
           pricingPolicyVersion: allocation.pricingSnapshot?.pricingPolicyVersion || 'unknown',
           idempotencyKey: allocationKey(allocation.operationId),
-          reasonCode: 'fashion_plan_reserved',
+          reasonCode: planKind === 'generation_group'
+            ? 'generation_group_reserved'
+            : 'fashion_plan_reserved',
           actorUserId: userId,
           createdAt: now,
-          metadata: { planId, quoteId, operationId: allocation.operationId }
+          metadata: { planId, quoteId, operationId: allocation.operationId, planKind }
         });
         return reservation;
       });

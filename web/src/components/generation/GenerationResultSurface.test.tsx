@@ -6,6 +6,10 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { comparisonSetSchema } from '../../features/comparisons/schemas/comparisonSchemas';
 import { GenerationResultSurface } from './GenerationResultSurface';
 
+vi.mock('../collections/CollectionMembershipSection', () => ({
+  CollectionMembershipSection: () => null
+}));
+
 const testI18n = i18next.createInstance();
 
 describe('GenerationResultSurface', () => {
@@ -148,6 +152,40 @@ describe('GenerationResultSurface', () => {
     expect(container.querySelector('.generation-result__workflow-actions')).toContainElement(
       screen.getByRole('button', { name: 'Use this Face' })
     );
+  });
+
+  it('lets a completed downstream handoff close the parent image viewer', async () => {
+    render(
+      <MemoryRouter>
+        <I18nextProvider i18n={testI18n}>
+          <GenerationResultSurface
+            job={{
+              id: 'job_face_group_child',
+              jobId: 'job_face_group_child',
+              status: 'completed',
+              result: {
+                imageUrl: '/outputs/job_face_group_child.png',
+                mimeType: 'image/png'
+              }
+            }}
+            pending={false}
+            onGoToPrompt={() => {}}
+            renderActions={(_job, { closeViewer }) => (
+              <button type="button" onClick={closeViewer}>Complete face handoff</button>
+            )}
+          />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'playground.result.openImage' }));
+    expect(screen.getByRole('dialog')).toBeVisible();
+    const viewerHandoff = screen
+      .getAllByRole('button', { name: 'Complete face handoff' })
+      .find(button => button.closest('.generation-viewer__actions'));
+    expect(viewerHandoff).toBeDefined();
+    fireEvent.click(viewerHandoff!);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('renames a completed comparison directly from the result heading', async () => {

@@ -2,6 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { CheckCircle2, Clock3, LockKeyhole } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { routeBuilders } from '../../../app/routeRegistry/routes';
 import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/ui/AsyncState';
@@ -54,7 +55,7 @@ export function CharacterOwnerDirectoryRoute() {
           return (
             <Link
               key={character.id}
-              to={`/me/characters/${encodeURIComponent(character.id)}`}
+              to={routeBuilders.ownedCharacter(character.id)}
               state={createReturnNavigationState(location)}
               className="overflow-hidden rounded-[var(--mpf-radius-md)] border border-[var(--mpf-border)] bg-[var(--mpf-surface)] text-inherit no-underline transition hover:border-cyan-400/55"
             >

@@ -6,6 +6,7 @@ import {
   compiledPromptPreviewSchema,
   creditEstimateResponseSchema,
   generationSubmitSchema,
+  generationGroupStatusSchema,
   jobStatusSchema,
   providerCatalogSchema,
   referenceProcessingPreviewSchema,
@@ -110,6 +111,14 @@ export async function estimateAndSubmitGeneration(draft: GenerationRequestDraft)
 export function getJobStatus(jobId: string, signal?: AbortSignal) {
   return apiRequest(`/api/jobs/${encodeURIComponent(jobId)}`, {
     schema: jobStatusSchema,
+    signal,
+    cache: 'no-store'
+  });
+}
+
+export function getGenerationGroupStatus(groupId: string, signal?: AbortSignal) {
+  return apiRequest(`/api/generation-groups/${encodeURIComponent(groupId)}`, {
+    schema: generationGroupStatusSchema,
     signal,
     cache: 'no-store'
   });

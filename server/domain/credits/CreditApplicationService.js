@@ -32,6 +32,10 @@ export class CreditApplicationService {
     return this.reservationService.reservePlan(input);
   }
 
+  reserveGenerationGroup(input) {
+    return this.reservationService.reserveGenerationGroup(input);
+  }
+
   captureForJob(input) {
     return this.reservationService.captureForJob(input);
   }

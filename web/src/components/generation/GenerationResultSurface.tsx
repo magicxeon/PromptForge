@@ -16,6 +16,7 @@ import { Surface } from '../ui/Surface';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { isActiveJobStatus } from '../../lib/api/jobLifecycle';
 import type { JobStatus } from '../../features/generation/schemas/generationSchemas';
+import type { GenerationGroupStatus } from '../../features/generation/schemas/generationSchemas';
 import type { ComparisonSet } from '../../features/comparisons/schemas/comparisonSchemas';
 import { CollectionPickerDialog } from '../collections/CollectionPickerDialog';
 import { ShareGeneratedDialog } from '../community/ShareGeneratedDialog';
@@ -25,9 +26,11 @@ import {
 } from '../media/GenerationImageViewer';
 import momeloMark from '../../assets/brand/momelo-mark.svg';
 import { newestComparisonRun } from '../../features/comparisons/comparisonRunState';
+import { GenerationResultGrid } from './GenerationResultGrid';
 
 export function GenerationResultSurface({
   job,
+  group,
   comparison,
   pending,
   onGoToPrompt,
@@ -42,10 +45,11 @@ export function GenerationResultSurface({
   comparisonRenameError = null
 }: {
   job?: JobStatus | null;
+  group?: GenerationGroupStatus | null;
   comparison?: ComparisonSet | null;
   pending: boolean;
   onGoToPrompt: () => void;
-  renderActions?: (job: JobStatus) => ReactNode;
+  renderActions?: (job: JobStatus, context: { closeViewer: () => void }) => ReactNode;
   showEmpty?: boolean;
   showGoToPrompt?: boolean;
   comparisonActive?: boolean;
@@ -64,11 +68,22 @@ export function GenerationResultSurface({
   const { t } = useTranslation('playground');
   const { t: tUi } = useTranslation('react-ui');
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [activeViewerId, setActiveViewerId] = useState<string | null>(null);
   const [editingComparisonName, setEditingComparisonName] = useState(false);
   const [comparisonNameDraft, setComparisonNameDraft] = useState(comparison?.name || '');
+  const closeViewer = () => setViewerOpen(false);
   const run = newestComparisonRun(comparison);
-  const loading = pending || isActiveJobStatus(job?.status);
-  const visible = pending || job || run || comparisonActive;
+  const groupJobs = (group?.children || []).map(child => ({
+    id: child.jobId,
+    jobId: child.jobId,
+    status: child.status,
+    result: child.result,
+    error: child.error
+  } satisfies JobStatus));
+  const groupLoading = group && !['completed', 'partially_completed', 'failed'].includes(group.status);
+  const jobStatus = job?.status;
+  const loading = pending || Boolean(groupLoading) || isActiveJobStatus(jobStatus);
+  const visible = pending || job || group || run || comparisonActive;
   if (!visible && !showEmpty) return null;
 
   async function saveComparisonName(event: FormEvent<HTMLFormElement>) {
@@ -153,7 +168,48 @@ export function GenerationResultSurface({
           <Button variant="ghost" icon={<ArrowDown className="size-4" />} onClick={onGoToPrompt}>{t('playground.result.goToPrompt')}</Button>
         ) : null}
       </header>
-      {run ? (
+      {group ? (
+        <Surface className="generation-result__media-surface overflow-hidden bg-[var(--theme-bg-raised)] p-0">
+          <div className="generation-result-group__progress">
+            <strong>{group.completedCount} / {group.requestedOutputCount}</strong>
+            <span>{group.failedCount > 0
+              ? t('playground.result.groupFailedCount', { count: group.failedCount })
+              : t(`playground.result.groupStatus.${group.status}`)}</span>
+          </div>
+          <GenerationResultGrid
+            items={groupJobs.map((child, index) => ({
+              id: child.jobId || child.id || `output-${index}`,
+              imageUrl: child.result?.imageUrl,
+              status: child.status,
+              error: child.error,
+              label: t('playground.result.groupImageLabel', { number: index + 1 })
+            }))}
+            onOpen={id => {
+              setActiveViewerId(id);
+              setViewerOpen(true);
+            }}
+          />
+          <GenerationImageViewer
+            items={groupJobs
+              .filter(child => Boolean(child.result?.imageUrl))
+              .map(child => toViewerItem(child, viewerContext))}
+            activeId={activeViewerId}
+            open={viewerOpen}
+            canRevealPrompt={canRevealPrompt}
+            onOpenChange={setViewerOpen}
+            onActiveIdChange={setActiveViewerId}
+            renderActions={item => {
+              const selected = groupJobs.find(child => (child.jobId || child.id) === item.id);
+              return selected ? (
+                <>
+                  <ShareGeneratedDialog jobId={selected.jobId || selected.id || ''} />
+                  {renderActions?.(selected, { closeViewer })}
+                </>
+              ) : null;
+            }}
+          />
+        </Surface>
+      ) : run ? (
         <>
           <ComparisonWorkspace mode="generation" run={run} winnerJobId={comparison?.winnerJobId} />
           {comparison?.id ? (
@@ -189,61 +245,64 @@ export function GenerationResultSurface({
         </Surface>
       ) : (
         <Surface className="generation-result__media-surface overflow-hidden bg-[var(--theme-bg-raised)] p-0">
-          {job?.result?.imageUrl ? (
+          {job ? (
             <>
-              <button
-                type="button"
-                className="generation-result__open"
-                title={t('playground.result.openImage')}
-                onClick={() => setViewerOpen(true)}
-              >
-                <img
-                  src={apiMediaUrl(job.result.imageUrl) || ''}
-                  alt={t('playground.result.imageAlt')}
-                />
-              </button>
-              <div className="generation-result__action-bar">
-                <div className="generation-result__utility-actions">
-                  <a
-                    href={apiMediaUrl(job.result.imageUrl) || ''}
-                    download
-                    className="generation-result__action"
-                  >
-                    <Download aria-hidden="true" />
-                    {t('playground.result.download')}
-                  </a>
-                  {job.jobId || job.id ? (
-                    <>
-                      <Link
-                        to={`/history/${encodeURIComponent(job.jobId || job.id || '')}`}
+              <GenerationResultGrid
+                items={[{
+                  id: job.jobId || job.id || 'active-output',
+                  imageUrl: job.result?.imageUrl,
+                  status: job.status,
+                  error: job.error,
+                  label: t('playground.result.groupImageLabel', { number: 1 })
+                }]}
+                onOpen={() => setViewerOpen(true)}
+              />
+              {job.result?.imageUrl ? (
+                <>
+                  <div className="generation-result__action-bar">
+                    <div className="generation-result__utility-actions">
+                      <a
+                        href={apiMediaUrl(job.result.imageUrl) || ''}
+                        download
                         className="generation-result__action"
                       >
-                        <ImageIcon aria-hidden="true" />
-                        {t('playground.result.openDetail')}
-                      </Link>
-                      <CollectionPickerDialog jobId={job.jobId || job.id || ''} />
-                      <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
-                    </>
-                  ) : null}
-                </div>
-                <div className="generation-result__workflow-actions">
-                  {renderActions?.(job)}
-                </div>
-              </div>
-              <GenerationImageViewer
-                items={[toViewerItem(job, viewerContext)]}
-                activeId={job.jobId || job.id || null}
-                open={viewerOpen}
-                canRevealPrompt={canRevealPrompt}
-                onOpenChange={setViewerOpen}
-                onActiveIdChange={() => {}}
-                renderActions={() => (
-                  <>
-                    <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
-                    {renderActions?.(job)}
-                  </>
-                )}
-              />
+                        <Download aria-hidden="true" />
+                        {t('playground.result.download')}
+                      </a>
+                      {job.jobId || job.id ? (
+                        <>
+                          <Link
+                            to={`/history/${encodeURIComponent(job.jobId || job.id || '')}`}
+                            className="generation-result__action"
+                          >
+                            <ImageIcon aria-hidden="true" />
+                            {t('playground.result.openDetail')}
+                          </Link>
+                          <CollectionPickerDialog jobId={job.jobId || job.id || ''} />
+                          <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
+                        </>
+                      ) : null}
+                    </div>
+                    <div className="generation-result__workflow-actions">
+                      {renderActions?.(job, { closeViewer })}
+                    </div>
+                  </div>
+                  <GenerationImageViewer
+                    items={[toViewerItem(job, viewerContext)]}
+                    activeId={job.jobId || job.id || null}
+                    open={viewerOpen}
+                    canRevealPrompt={canRevealPrompt}
+                    onOpenChange={setViewerOpen}
+                    onActiveIdChange={() => {}}
+                    renderActions={() => (
+                      <>
+                        <ShareGeneratedDialog jobId={job.jobId || job.id || ''} />
+                        {renderActions?.(job, { closeViewer })}
+                      </>
+                    )}
+                  />
+                </>
+              ) : null}
             </>
           ) : (
             <div
@@ -275,8 +334,8 @@ export function GenerationResultSurface({
                 )}
                 <strong className="mt-4 block">
                   {loading
-                    ? t(generationStatusKey(job?.status))
-                    : job?.status || t('playground.result.preparing')}
+                    ? t(generationStatusKey(jobStatus))
+                    : jobStatus || t('playground.result.preparing')}
                 </strong>
                 <p className="text-sm text-[var(--mpf-text-muted)]">
                   {jobError(job) || (loading

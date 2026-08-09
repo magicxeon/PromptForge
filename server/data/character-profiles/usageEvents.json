@@ -1,5 +1,26 @@
 [
   {
+    "characterProfileId": "charprof_1786278727204_wc2e9zlv",
+    "characterProfileVersionId": "charver_1786278727209_exgqwxke",
+    "consumerUserId": "usr_alice",
+    "useCase": "scene_story",
+    "sourceType": "scene_builder",
+    "sourceId": "charprof_1786278727204_wc2e9zlv",
+    "generationJobId": "job_1786285489990_0p36mcliq",
+    "successfulOutputCount": 1,
+    "idempotencyKey": "character-usage:job_1786285489990_0p36mcliq:charprof_1786278727204_wc2e9zlv",
+    "id": "charuse_1786285499576_5rtxsi1q",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": null,
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-09T14:24:59.576Z",
+    "updatedAt": "2026-08-09T14:24:59.576Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "characterProfileId": "charprof_1785668757771_4sv6c0pg",
     "characterProfileVersionId": "charver_1785668757784_fv9uu7gi",
     "consumerUserId": "usr_alice",

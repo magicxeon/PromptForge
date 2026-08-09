@@ -8,6 +8,7 @@ import {
 } from './generationRequestService.js';
 import { prepareGenerationReferences } from './prepareGenerationReferences.js';
 import { promptRefinementService as defaultPromptRefinementService } from './PromptRefinementService.js';
+import { generationGroupRepository as defaultGenerationGroupRepository } from '../../repositories/generation/GenerationGroupRepository.js';
 
 export class GenerationApplicationService {
   constructor({
@@ -17,7 +18,8 @@ export class GenerationApplicationService {
     creditService = creditApplicationService,
     castingExportService = characterCastingExportService,
     telemetry = performanceTelemetry,
-    promptRefinementService = defaultPromptRefinementService
+    promptRefinementService = defaultPromptRefinementService,
+    generationGroupRepository = defaultGenerationGroupRepository
   }) {
     this.providerRegistry = providerRegistry;
     this.queueManager = queueManager;
@@ -26,6 +28,8 @@ export class GenerationApplicationService {
     this.castingExportService = castingExportService;
     this.telemetry = telemetry;
     this.promptRefinementService = promptRefinementService;
+    this.generationGroupRepository = generationGroupRepository;
+    this.queueManager.subscribeLifecycle?.(event => this.handleGroupLifecycle(event));
   }
 
   async preview(body, actorContext, userRole) {
@@ -38,6 +42,7 @@ export class GenerationApplicationService {
         body.submodel
       );
       const { context } = compileGenerationContext(requestPayload, actorContext);
+      assertSupportedOutputCount(context);
       await prepareGenerationReferences(context, {
         actorContext,
         providerId: provider.id,
@@ -73,6 +78,7 @@ export class GenerationApplicationService {
       const templateExecution = await this.resolveTemplateExecution(body, actorContext);
       const requestPayload = createGenerationRequestPayload(body, userRole, templateExecution);
       const { context } = compileGenerationContext(requestPayload, actorContext);
+      assertSupportedOutputCount(context);
       await this.castingExportService.validateGenerationContext(
         context.characterProfileContext,
         actorContext
@@ -94,7 +100,7 @@ export class GenerationApplicationService {
       });
       const compiledPrompt = promptExecution.prompt;
 
-      const result = await this.submitPreparedOperation({
+      const operation = {
         providerId: provider.id,
         modelId: model.id,
         estimateId: body.estimateId,
@@ -144,8 +150,11 @@ export class GenerationApplicationService {
           promptRefinement: promptExecution.metadata
         },
         promptRefinementAudit: promptExecution.audit
-      });
-      finish('ok', { jobId: result.jobId });
+      };
+      const result = context.outputCount > 1
+        ? await this.submitPreparedGroup(operation)
+        : await this.submitPreparedOperation(operation);
+      finish('ok', { jobId: result.jobId, groupId: result.groupId || null });
       return result;
     } catch (error) {
       finish('error');
@@ -241,6 +250,163 @@ export class GenerationApplicationService {
     };
   }
 
+  async submitPreparedGroup({
+    providerId,
+    modelId,
+    estimateId,
+    requestId,
+    payerUserId,
+    payerUsername,
+    context,
+    compiledPrompt,
+    streamRequested = true,
+    modelConfig,
+    providerConfig,
+    generationRequest,
+    reservationMetadata = {},
+    beforeEnqueue = null,
+    queueOptionOverrides = {},
+    promptRefinementAudit = null
+  }) {
+    const existing = await this.generationGroupRepository.findByRequest(
+      payerUserId,
+      requestId
+    );
+    if (existing) {
+      return {
+        groupId: existing.id,
+        jobId: existing.childJobIds[0] || null,
+        status: existing.status,
+        requestedOutputCount: existing.requestedOutputCount,
+        childJobIds: [...existing.childJobIds]
+      };
+    }
+    const requestedOutputCount = context.outputCount;
+    const groupId = `ggrp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const children = Array.from({ length: requestedOutputCount }, (_, outputIndex) => ({
+      outputIndex,
+      jobId: this.queueManager.createJobId()
+    }));
+    const reservationResult = await this.creditService.reserveGenerationGroup({
+      userId: payerUserId,
+      estimateId,
+      generationRequest,
+      groupId,
+      children,
+      metadata: reservationMetadata
+    });
+    const now = new Date().toISOString();
+    try {
+      await this.generationGroupRepository.create({
+        schemaVersion: 1,
+        id: groupId,
+        actorUserId: payerUserId,
+        actorUsername: payerUsername,
+        requestId,
+        estimateId,
+        requestedOutputCount,
+        status: 'queued',
+        childJobIds: children.map(child => child.jobId),
+        children: children.map(child => ({
+          ...child,
+          status: 'queued',
+          result: null,
+          error: null
+        })),
+        enqueueFailures: [],
+        completedCount: 0,
+        failedCount: 0,
+        createdAt: now,
+        updatedAt: now,
+        completedAt: null
+      });
+    } catch (error) {
+      await Promise.allSettled(reservationResult.reservations.map(reservation =>
+        this.creditService.refundForJob({
+          userId: payerUserId,
+          reservationId: reservation.reservationId,
+          jobId: reservation.jobId,
+          reasonCode: 'group_persistence_failed'
+        })
+      ));
+      throw error;
+    }
+    const reservationsByJobId = new Map(
+      reservationResult.reservations.map(reservation => [reservation.jobId, reservation])
+    );
+    const enqueueFailures = [];
+    for (const child of children) {
+      const reservation = reservationsByJobId.get(child.jobId);
+      if (!reservation) {
+        enqueueFailures.push({
+          jobId: child.jobId,
+          outputIndex: child.outputIndex,
+          error: {
+            code: 'generation_group_reservation_missing',
+            message: 'This output did not receive a Credit reservation.'
+          }
+        });
+        continue;
+      }
+      try {
+        await this.enqueueReservedOperation({
+          jobId: child.jobId,
+          providerId,
+          modelId,
+          payerUserId,
+          payerUsername,
+          context: { ...context, outputCount: 1 },
+          compiledPrompt,
+          modelConfig,
+          providerConfig,
+          reservation,
+          estimateId,
+          requestId: `${requestId}:output:${child.outputIndex}`,
+          streamRequested,
+          beforeEnqueue,
+          queueOptionOverrides: {
+            ...queueOptionOverrides,
+            generationGroupId: groupId,
+            outputIndex: child.outputIndex,
+            requestedOutputCount
+          },
+          refundReasonCode: 'group_child_enqueue_failed'
+        });
+        if (child.outputIndex === 0) {
+          await this.promptRefinementService.persistAudit?.(child.jobId, promptRefinementAudit)
+            .catch(error => {
+              console.warn(`[Generation] Prompt refinement audit write failed for ${child.jobId}:`, error.message);
+            });
+        }
+      } catch (error) {
+        enqueueFailures.push({
+          jobId: child.jobId,
+          outputIndex: child.outputIndex,
+          error: {
+            code: error.code || 'generation_enqueue_failed',
+            message: error.message || 'This output could not be queued.'
+          }
+        });
+      }
+    }
+    if (enqueueFailures.length) {
+      await this.generationGroupRepository.update(groupId, { enqueueFailures });
+    }
+    return {
+      groupId,
+      jobId: children[0]?.jobId || null,
+      status: enqueueFailures.length === children.length ? 'failed' : 'queued',
+      requestedOutputCount,
+      childJobIds: children.map(child => child.jobId),
+      reservation: {
+        amountCredits: reservationResult.reservations.reduce(
+          (sum, reservation) => sum + Number(reservation.amountCredits || 0),
+          0
+        )
+      }
+    };
+  }
+
   async enqueueReservedOperation({
     jobId,
     providerId,
@@ -309,6 +475,98 @@ export class GenerationApplicationService {
     return this.queueManager.getJobStatusForUser(jobId, username);
   }
 
+  async getGroupStatusForActor(groupId, actorContext) {
+    const group = await this.generationGroupRepository.findById(groupId);
+    if (!group || !actorContext?.userId || group.actorUserId !== actorContext.userId) {
+      return null;
+    }
+    const enqueueFailureByJob = new Map(
+      (group.enqueueFailures || []).map(failure => [failure.jobId, failure])
+    );
+    const persistedByJob = new Map(
+      (group.children || []).map(child => [child.jobId, child])
+    );
+    const children = await Promise.all(group.childJobIds.map(async (jobId, outputIndex) => {
+      const failure = enqueueFailureByJob.get(jobId);
+      if (failure) {
+        return { jobId, outputIndex, status: 'failed', result: null, error: failure.error };
+      }
+      const status = await this.queueManager.getJobStatusForUser(jobId, group.actorUsername);
+      if (!status) {
+        return persistedByJob.get(jobId) || {
+          jobId,
+          outputIndex,
+          status: 'queued',
+          result: null,
+          error: null
+        };
+      }
+      return {
+        jobId,
+        outputIndex,
+        status: status?.status || 'queued',
+        result: status?.result || null,
+        error: status?.error || null,
+        creditCost: status?.creditCost || 0,
+        creditCharged: status?.creditCharged === true,
+        creditRefunded: status?.creditRefunded === true,
+        timings: status?.timings || null
+      };
+    }));
+    const completedCount = children.filter(child => child.status === 'completed').length;
+    const failedCount = children.filter(child => child.status === 'failed').length;
+    const terminalCount = completedCount + failedCount;
+    const status = terminalCount === group.requestedOutputCount
+      ? completedCount === group.requestedOutputCount
+        ? 'completed'
+        : completedCount > 0 ? 'partially_completed' : 'failed'
+      : children.some(child => child.status === 'processing' || child.status === 'completed')
+        ? 'running'
+        : 'queued';
+    const terminal = ['completed', 'partially_completed', 'failed'].includes(status);
+    if (status !== group.status || completedCount !== group.completedCount
+      || failedCount !== group.failedCount) {
+      await this.generationGroupRepository.update(group.id, {
+        status,
+        completedCount,
+        failedCount,
+        children,
+        completedAt: terminal ? (group.completedAt || new Date().toISOString()) : null
+      });
+    }
+    return {
+      id: group.id,
+      status,
+      requestedOutputCount: group.requestedOutputCount,
+      completedCount,
+      failedCount,
+      estimateId: group.estimateId,
+      createdAt: group.createdAt,
+      completedAt: terminal ? (group.completedAt || new Date().toISOString()) : null,
+      children
+    };
+  }
+
+  async handleGroupLifecycle({ job, status, result = null, error = null }) {
+    const groupId = job?.options?.generationGroupId;
+    if (!groupId || !job?.id) return null;
+    const publicStatus = await this.queueManager.getJobStatusForUser(
+      job.id,
+      job.options.username
+    );
+    return this.generationGroupRepository.recordChildStatus(groupId, {
+      jobId: job.id,
+      outputIndex: Number.isInteger(job.options.outputIndex) ? job.options.outputIndex : 0,
+      status,
+      result: status === 'completed' ? (publicStatus?.result || result || job.result || null) : null,
+      error: status === 'failed' ? (publicStatus?.error || error || job.error || null) : null,
+      creditCost: Number(publicStatus?.creditCost || job.options.pricingSnapshot?.estimatedCredits || 0),
+      creditCharged: publicStatus?.creditCharged === true || job.creditCharged === true,
+      creditRefunded: publicStatus?.creditRefunded === true || job.creditRefunded === true,
+      timings: publicStatus?.timings || null
+    });
+  }
+
   addJobListener(jobId, response, username) {
     return this.queueManager.addListener(jobId, response, username);
   }
@@ -367,4 +625,15 @@ function createTemplateUseContext(templateExecution) {
     sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
     replacementSummary: templateExecution.replacementSummary
   };
+}
+
+export function assertSupportedOutputCount(context) {
+  if (context.generationSurface === 'fashion') return;
+  const count = Number(context.outputCount);
+  if (!Number.isInteger(count) || count < 1 || count > 4) {
+    const error = new Error('Output count must be an integer from 1 through 4.');
+    error.statusCode = 400;
+    error.code = 'generation_output_count_invalid';
+    throw error;
+  }
 }

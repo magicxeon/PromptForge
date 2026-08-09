@@ -91,6 +91,14 @@ Performance work must follow
 `017-performance-ownership-observability-and-tuning.md`, which separates the
 guardrails required before database migration from database-specific and
 production-evidence tuning.
+Normal Studio, Scene Builder and Playground multi-output work must follow
+`018-multi-output-generation-groups-and-result-grid.md`. It owns the bounded
+one-to-four output group, exact Credit/Queue contract and shared result grid;
+Fashion Blueprint is explicitly deferred from that scope.
+Cross-layer Generation implementation and review should use the bounded trigger
+policy in `019-generation-workflow-skill-and-trigger-policy.md`. The specialized
+Skill is intentionally not loaded for isolated styling, copy, localization or
+prompt-wording work.
 
 ## 4. Current-System Assessment
 
@@ -233,6 +241,8 @@ generation control, engagement action or profile section.
 | 011 | Scene Builder and template workflows | Guided/manual scenes, variables and handoffs |
 | 012 | Quality, cutover and decommission | Security, performance, final switch and legacy removal |
 | 013 | Guided generation prompt parity | Correct Face, Character Sheet and Scene compiler-mode contracts |
+| 018 | Multi-output generation and result grid | One-to-four normal outputs with exact Credits, grouped Queue state and shared Studio/Playground display |
+| 019 | Generation workflow Skill | Conditional cross-layer guardrails without presentation-task overhead |
 
 Steps 001-004 are mandatory foundation gates. Feature steps may overlap only
 when they consume released foundation APIs and do not edit the same legacy

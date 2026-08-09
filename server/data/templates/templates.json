@@ -1,6 +1,39 @@
 [
   {
     "kind": "scene_image",
+    "title": "บักหลุนชมเมือง",
+    "description": "template บักหลุนกำลังเดินชมเมือง",
+    "currentVersionId": "tmplv_1786268744424_lhshqes1",
+    "preview": {
+      "imageUrl": "/outputs/job_1786268515117_5nbhfztli.jpg",
+      "thumbnailUrl": "/outputs/thumbnails/job_1786268515117_5nbhfztli.webp",
+      "imageAssetId": null,
+      "thumbnailAssetId": null,
+      "aspectRatio": "6:8"
+    },
+    "pricing": {
+      "accessCredits": 15,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "compatibility": {},
+    "sourceGenerationId": "job_1786268515117_5nbhfztli",
+    "sourceCommunityPostId": null,
+    "id": "tmpl_1786268744418_0tbfx2ou",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "published",
+    "createdAt": "2026-08-09T09:45:44.418Z",
+    "updatedAt": "2026-08-09T09:45:44.430Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "kind": "scene_image",
     "title": "Testing 003",
     "description": "003",
     "currentVersionId": "tmplv_1785605251161_hbpt0rmk",

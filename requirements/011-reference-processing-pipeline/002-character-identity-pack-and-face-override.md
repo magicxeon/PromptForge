@@ -1,7 +1,7 @@
 # RPP-002 Character Identity Pack And Face Override
 
 **Requirement ID:** RPP-002  
-**Status:** Requirement approved for later implementation  
+**Status:** Implemented; automated and manual validation pending
 **Owner:** Character Profile and Reference Processing  
 **Depends on:** RPP-001, Character Profile lifecycle, Asset ownership,
 Generation provider planning and React reference-slot controls
@@ -212,3 +212,29 @@ remain separate, auditable actions.
    estimate, dispatched count and lineage.
 6. Verify private Character identity assets cannot be fetched by another actor.
 
+## 11. Implementation Record
+
+Implemented through the canonical Character Profile, Reference Processing and
+Generation entry points:
+
+- Character versions now normalize and migrate canonical three-view, canonical
+  face and identity-pack readiness metadata through
+  `CharacterProfileVersionRepository`.
+- `CharacterUsageService` resolves actor-authorized pack assets and immutable
+  Character policy metadata.
+- `prepareGenerationReferences` expands the logical Character selection into
+  three-view plus canonical face, while an explicit Face Reference replaces the
+  canonical face only.
+- Reference Processing keeps Face as detailed identity authority, Character as
+  body authority, blocks before Credit reservation when provider capacity is
+  insufficient, and records source/derivative lineage.
+- Structured provider briefs name separate face and body source images when the
+  selected provider uses the Fashion JSON brief.
+- The shared Face Reference slot remains available and describes its optional
+  Character-face override behavior.
+- `scripts/migrate-character-identity-packs.mjs` performs an idempotent metadata
+  migration only; it never requests a paid AI asset.
+
+Automated coverage was added to `test/playgroundReferenceRoles.test.js` for the
+system-pack role exception, default canonical face, explicit override and
+structured face/body authority contract.

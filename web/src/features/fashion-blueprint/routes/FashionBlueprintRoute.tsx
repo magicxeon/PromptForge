@@ -111,7 +111,8 @@ export function FashionBlueprintRoute() {
     provider: '',
     model: '',
     resolution: null,
-    aspectRatio: '6:8'
+    aspectRatio: '6:8',
+    outputCount: 1
   });
   const [quotePurpose, setQuotePurpose] = useState<QuotePurpose>('full');
   const [approvedProofRunId, setApprovedProofRunId] = useState<string | null>(null);
@@ -196,7 +197,8 @@ export function FashionBlueprintRoute() {
         || null,
       aspectRatio: model?.capabilities.aspectRatios.includes('6:8')
         ? '6:8'
-        : model?.capabilities.aspectRatios[0] || '1:1'
+        : model?.capabilities.aspectRatios[0] || '1:1',
+      outputCount: 1
     });
   }, [catalog.data, engine.provider]);
 
@@ -1108,6 +1110,7 @@ function FashionReviewStep({
           comparison={false}
           comparisonSlots={[]}
           allowComparison={false}
+          allowMultiOutput={false}
           onChange={onEngineChange}
           onComparisonChange={() => {}}
           onSlotsChange={() => {}}

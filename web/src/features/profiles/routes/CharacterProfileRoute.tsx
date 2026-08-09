@@ -24,6 +24,7 @@ import {
   updateCharacterFeaturedImage
 } from '../api/profileApi';
 import { useActor } from '../../../lib/auth/ActorProvider';
+import { createCharacterHandoffNavigationState } from '../characterHandoffNavigation';
 
 export function CharacterProfileRoute() {
   return <CharacterProfilePage access="public" />;
@@ -111,10 +112,13 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
         kind: 'character',
         payload
       });
-      const destination = payload.destination === 'fashion_blueprint'
-        ? '/create/fashion'
-        : '/create/scenes';
-      navigate(destination);
+      if (payload.destination === 'fashion_blueprint') {
+        navigate(routePaths.createFashion);
+        return;
+      }
+      navigate(routePaths.createStudioScene, {
+        state: createCharacterHandoffNavigationState(payload)
+      });
     }
   });
 
@@ -158,10 +162,15 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
         character={character}
         ownerAccess={access === 'owner'}
         handoffPending={handoff.isPending}
+        approvalPending={approve.isPending}
         onFashion={fashionAvailable ? () => handoff.mutate('fashion_blueprint') : undefined}
         onScene={sceneAvailable ? () => handoff.mutate('scene_builder') : undefined}
+        onApprove={access === 'owner' && character.isOwner
+          ? () => approve.mutate()
+          : undefined}
         onShare={() => void shareCharacter()}
       />
+      {approve.isError ? <p className="text-sm text-red-300">{approve.error.message}</p> : null}
       {handoff.isError ? <p className="text-sm text-red-300">{handoff.error.message}</p> : null}
 
       <div className="character-profile-tabs" role="tablist" aria-label={t('character-profiles.tabs.label')}>
@@ -218,10 +227,9 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
             {access === 'owner' && character.isOwner ? (
               <OwnerCharacterControls
                 character={ownerDetail.data || character}
-                pending={updateMetadata.isPending || updateSharing.isPending || approve.isPending}
+                pending={updateMetadata.isPending || updateSharing.isPending}
                 onMetadata={input => updateMetadata.mutate(input)}
                 onSharing={input => updateSharing.mutate(input)}
-                onApprove={() => approve.mutate()}
               />
             ) : null}
             {access === 'owner' && character.isOwner ? (
@@ -281,8 +289,7 @@ function OwnerCharacterControls({
   character,
   pending,
   onMetadata,
-  onSharing,
-  onApprove
+  onSharing
 }: {
   character: {
     displayName: string;
@@ -294,7 +301,6 @@ function OwnerCharacterControls({
   pending: boolean;
   onMetadata: (input: { displayName: string; personalitySummary: string }) => void;
   onSharing: (input: { visibility: string; reusePolicy: string }) => void;
-  onApprove: () => void;
 }) {
   const { t } = useTranslation('react-ui');
   const [open, setOpen] = useState(false);
@@ -313,15 +319,6 @@ function OwnerCharacterControls({
   }
   return (
     <div className="mt-6 border-t border-[var(--mpf-border)] pt-5">
-      {['review', 'draft'].includes(character.status || '') ? (
-        <div className="mb-4 border border-amber-300/35 bg-amber-300/5 p-3">
-          <strong className="block text-sm text-amber-200">{t('ui.character.approvalRequired')}</strong>
-          <p className="mb-3 mt-1 text-xs text-[var(--mpf-text-muted)]">
-            {t('ui.character.approvalHelp')}
-          </p>
-          <Button variant="primary" disabled={pending} onClick={onApprove}>{t('ui.action.approve')}</Button>
-        </div>
-      ) : null}
       <Button onClick={() => setOpen(value => !value)}>{t('ui.action.manageCharacter')}</Button>
       {open ? (
         <form className="mt-4 grid gap-3" onSubmit={submit}>

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "rpp-2026-07-v4",
+  "policyVersion": "rpp-2026-08-v5",
   "defaultFallbackMode": "safe_deterministic",
   "defaultReferenceOrder": [
     "character_reference",
@@ -14,7 +14,7 @@
     "environment_reference"
   ],
   "domainPriorities": {
-    "identity": ["character_reference", "face_reference", "template_baseline", "attributes"],
+    "identity": ["face_reference", "character_reference", "template_baseline", "attributes"],
     "body": ["character_reference", "template_baseline", "attributes"],
     "expression": ["attributes", "template_baseline"],
     "pose": ["pose_reference", "template_baseline", "attributes"],

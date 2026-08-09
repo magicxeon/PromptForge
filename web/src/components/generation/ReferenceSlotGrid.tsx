@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import { scheduleHashTargetScroll } from '../../lib/navigation/hashScroll';
+import { AuthenticatedMediaImage } from '../media/AuthenticatedMediaImage';
 import {
   uploadGenerationReference,
   type GenerationReferenceRole
@@ -36,6 +37,7 @@ export function ReferenceSlotGrid({
   authorityProjection,
   processing = false,
   processingError = null,
+  characterIdentityPackActive = false,
   scopes = {},
   uploadReference,
   onScopeChange,
@@ -49,6 +51,7 @@ export function ReferenceSlotGrid({
   authorityProjection?: ReferenceAuthorityProjection | null;
   processing?: boolean;
   processingError?: string | null;
+  characterIdentityPackActive?: boolean;
   scopes?: Partial<Record<GenerationReferenceRole, string>>;
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
   onScopeChange?: (role: GenerationReferenceRole, scope: string) => void;
@@ -77,7 +80,9 @@ export function ReferenceSlotGrid({
             key={definition.role}
             role={definition.role}
             label={t(definition.labelKey)}
-            description={t(definition.descriptionKey)}
+            description={definition.role === 'face_reference' && characterIdentityPackActive
+              ? t('playground.reference.faceCharacterOverrideScope')
+              : t(definition.descriptionKey)}
             icon={definition.icon}
             value={value[definition.role]}
             disabled={!value[definition.role] && activeCount >= maxReferences}
@@ -174,7 +179,15 @@ function ReferenceSlot({
       <div className="relative flex h-full flex-col">
         {value ? (
           <figure className="reference-slot__preview" title={sourceLabel}>
-            <img src={apiMediaUrl(value) || ''} alt={label} />
+            {isAuthenticatedMediaPath(value) ? (
+              <AuthenticatedMediaImage
+                src={value}
+                alt={label}
+                fallback={<Icon className="reference-slot__icon size-6 text-cyan-300" />}
+              />
+            ) : (
+              <img src={apiMediaUrl(value) || ''} alt={label} />
+            )}
           </figure>
         ) : (
           <Icon className="reference-slot__icon size-6 text-cyan-300" />
@@ -211,6 +224,10 @@ function readFileAsDataUrl(file: File) {
 }
 
 class ReferenceReadError extends Error {}
+
+function isAuthenticatedMediaPath(value: string) {
+  return /^\/api\//.test(value);
+}
 
 function referenceSourceLabel(value: string, uploadedLabel: string, fallbackLabel: string) {
   if (value.startsWith('data:') || value.startsWith('blob:')) return uploadedLabel;

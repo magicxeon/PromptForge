@@ -448,9 +448,13 @@ function isCanonicalInitialCastingCandidate(source, characterType) {
   }
   const policy = getCharacterCastingPolicy();
   const config = source.characterSheetConfig || {};
+  const compatibleLayoutIds = new Set([
+    policy.layoutId,
+    ...(Array.isArray(policy.compatibleLayoutIds) ? policy.compatibleLayoutIds : [])
+  ]);
   return config.castingCandidate === true
-    && config.layout?.type === policy.layoutId
-    && config.castingLayoutVersion === policy.layoutId
+    && config.layout?.type === config.castingLayoutVersion
+    && compatibleLayoutIds.has(config.castingLayoutVersion)
     && config.uniformPolicyVersion === policy.uniformPolicyId
     && config.aspectRatio === policy.aspectRatio
     && Number(config.outputCount) === Number(policy.outputCount);

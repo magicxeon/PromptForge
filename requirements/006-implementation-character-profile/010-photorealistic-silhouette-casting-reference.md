@@ -107,13 +107,13 @@ or isolated body-part crop.
 Current policy markers:
 
 ```text
-layoutId: character-casting-three-view-v4
+layoutId: character-casting-three-view-v5
 uniformPolicyId: casting-uniform-gray-grid-v7
 aspectRatio: 1:1
 outputCount: 1
 ```
 
-Historical v2/v3 layouts and gray-grid-v4/v6/black-silhouette-v5 uniform records
+Historical v2/v3/v4 layouts and gray-grid-v4/v6/black-silhouette-v5 uniform records
 remain readable and usable. They are not
 rewritten and do not become invalid merely because the current generation policy
 changed.
@@ -144,7 +144,7 @@ must not create another generation workflow.
   only the unlabeled white contour grid printed on the outfit is allowed.
 - Prompt explicitly requires real photographic output and rejects CGI/AI-art
   treatment.
-- New Character snapshots record v4/v7 policy IDs and a `1:1` aspect ratio.
+- New Character snapshots record v5/v7 policy IDs and a `1:1` aspect ratio.
 - Credit estimation uses the same normalized `aspectRatio`, `outputCount`,
   `generationMode`, reference count, and processing-plan fingerprint that the
   Generation request will enqueue. A stale client ratio such as `6:8` must not
@@ -192,3 +192,25 @@ Character options must remain orthogonal when compiled together:
 
 Catalog prompt changes apply to newly reconciled selections. Historical job
 prompts and generated assets remain immutable.
+
+## 12. Three-view Anatomical Direction Regression
+
+Repeated male casting generations exposed occasional mixed body direction in
+which the torso, legs or feet did not belong to the same view. The current
+layout policy must treat every figure as one continuous anatomical chain:
+
+- front view: face, sternum, pelvis, kneecaps and toes all face the camera;
+- exact right-facing side view: head, torso, pelvis, knees, ankles and toes all
+  face viewer right; and
+- back view: head, shoulder blades, pelvis, backs of knees, heels and backs of
+  the feet all face directly away from the camera.
+
+The provider must not mirror only the lower body, rotate feet independently,
+splice a front-facing leg set onto the back figure, or mix front/side/back
+anatomy within one silhouette. The versioned layout advances to v5 while v4
+remains an accepted historical casting candidate for owner approval.
+
+Normal Character Sheet authoring may request 1-4 independent candidates under
+Requirement REACT-GEN-018. `characterSheetConfig.outputCount` continues to
+describe one canonical candidate image, while Generation Group lineage records
+the logical requested count.
