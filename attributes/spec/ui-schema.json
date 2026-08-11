@@ -76,6 +76,10 @@
         "control": "select"
       },
       {
+        "name": "Facial Hair",
+        "control": "select"
+      },
+      {
         "name": "Smile",
         "control": "select"
       },

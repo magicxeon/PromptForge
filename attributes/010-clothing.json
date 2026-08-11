@@ -2024,6 +2024,116 @@
     "enabled": true
   },
   {
+    "id": "outfit.base.male.chore_jacket_chinos",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Chore Jacket and Chinos", "th": "แจ็กเก็ตชอร์และกางเกงชิโน" },
+    "description": { "en": "A lightweight chore jacket, plain top, and relaxed straight chinos.", "th": "แจ็กเก็ตชอร์น้ำหนักเบา เสื้อเรียบ และกางเกงชิโนทรงตรงสบาย" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a brand-free lightweight chore jacket over a plain crew-neck top with relaxed straight chinos", "gpt-image": "wearing a brand-free lightweight chore jacket over a plain crew-neck top with relaxed straight chinos" },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "smart-casual", "workwear"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.overshirt_pleated_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Overshirt and Pleated Trousers", "th": "โอเวอร์เชิ้ตและกางเกงพลีต" },
+    "description": { "en": "A relaxed overshirt and softly pleated straight trousers.", "th": "โอเวอร์เชิ้ตทรงสบายและกางเกงทรงตรงจับจีบอ่อน" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a clean relaxed overshirt over a fine-knit or plain top with softly pleated straight trousers", "gpt-image": "wearing a clean relaxed overshirt over a fine-knit or plain top with softly pleated straight trousers" },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "smart-casual", "relaxed-tailoring"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.minimal_bomber_tapered_pants",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Minimal Bomber and Tapered Pants", "th": "บอมเบอร์มินิมอลและกางเกงขาเรียว" },
+    "description": { "en": "An unbranded minimal bomber with clean tapered pants.", "th": "แจ็กเก็ตบอมเบอร์มินิมอลไร้แบรนด์กับกางเกงขาเรียวสะอาดตา" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing an unbranded minimal bomber jacket over a plain top with clean tapered pants", "gpt-image": "wearing an unbranded minimal bomber jacket over a plain top with clean tapered pants" },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "street", "minimal"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.denim_jacket_wide_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Denim Jacket and Wide Trousers", "th": "แจ็กเก็ตเดนิมและกางเกงขากว้าง" },
+    "description": { "en": "A simple denim jacket and relaxed wide-leg trousers.", "th": "แจ็กเก็ตเดนิมเรียบและกางเกงขากว้างทรงสบาย" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a simple denim jacket over a plain crew-neck top with relaxed wide-leg trousers", "gpt-image": "wearing a simple denim jacket over a plain crew-neck top with relaxed wide-leg trousers" },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "denim", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.male.camp_collar_tailored_shorts",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Camp-collar Shirt and Tailored Shorts", "th": "เสื้อคอแคมป์และกางเกงขาสั้นเทเลอร์" },
+    "description": { "en": "A relaxed camp-collar shirt and clean knee-length tailored shorts.", "th": "เสื้อคอแคมป์ทรงสบายและกางเกงขาสั้นเทเลอร์ระดับเข่า" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a relaxed camp-collar short-sleeve shirt with clean knee-length tailored shorts", "gpt-image": "wearing a relaxed camp-collar short-sleeve shirt with clean knee-length tailored shorts" },
+    "tags": ["clothing", "outfit-base", "outfit-base-male", "resort", "smart-casual"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.square_neck_knit_tailored_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Square-neck Knit and Tailored Trousers", "th": "เสื้อถักคอเหลี่ยมและกางเกงเทเลอร์" },
+    "description": { "en": "A modest square-neck knit and high-waist straight tailored trousers.", "th": "เสื้อถักคอเหลี่ยมสุภาพและกางเกงเทเลอร์เอวสูงทรงตรง" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a modest fitted square-neck knit top with high-waist straight tailored trousers", "gpt-image": "wearing a modest fitted square-neck knit top with high-waist straight tailored trousers" },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "smart-casual", "knit"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.oversized_blazer_tailored_shorts",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Oversized Blazer and Tailored Shorts", "th": "เบลเซอร์โอเวอร์ไซซ์และกางเกงขาสั้นเทเลอร์" },
+    "description": { "en": "A relaxed blazer, fitted plain top, and tailored shorts.", "th": "เบลเซอร์ทรงสบาย เสื้อด้านในเรียบ และกางเกงขาสั้นเทเลอร์" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts", "gpt-image": "wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts" },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "smart-casual", "tailoring"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.cropped_cardigan_bias_midi_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Cropped Cardigan and Midi Skirt", "th": "คาร์ดิแกนเอวลอยและกระโปรงมิดี้" },
+    "description": { "en": "A waist-length knit cardigan and clean bias-cut midi skirt.", "th": "คาร์ดิแกนถักยาวระดับเอวและกระโปรงมิดี้ตัดเฉลียง" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a waist-length knit cardigan with a clean bias-cut midi skirt", "gpt-image": "wearing a waist-length knit cardigan with a clean bias-cut midi skirt" },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "knit", "feminine"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.denim_jacket_wide_trousers",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Denim Jacket and Wide Trousers", "th": "แจ็กเก็ตเดนิมและกางเกงขากว้าง" },
+    "description": { "en": "A simple denim jacket and high-waist wide-leg trousers.", "th": "แจ็กเก็ตเดนิมเรียบและกางเกงเอวสูงขากว้าง" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a simple denim jacket over a fitted plain top with high-waist wide-leg trousers", "gpt-image": "wearing a simple denim jacket over a fitted plain top with high-waist wide-leg trousers" },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "denim", "street"],
+    "enabled": true
+  },
+  {
+    "id": "outfit.base.female.sleeveless_knit_pleated_midi_skirt",
+    "category": "clothing",
+    "subcategory": "Outfit Base",
+    "label": { "en": "Sleeveless Knit and Pleated Midi Skirt", "th": "เสื้อถักแขนกุดและกระโปรงมิดี้พลีต" },
+    "description": { "en": "A modest sleeveless high-neck knit and softly pleated midi skirt.", "th": "เสื้อถักคอสูงแขนกุดสุภาพและกระโปรงมิดี้จับพลีตอ่อน" },
+    "ui": { "control": "select", "group": "Clothing" },
+    "prompt": { "default": "wearing a modest sleeveless high-neck knit top with a softly pleated midi skirt", "gpt-image": "wearing a modest sleeveless high-neck knit top with a softly pleated midi skirt" },
+    "tags": ["clothing", "outfit-base", "outfit-base-female", "knit", "feminine"],
+    "enabled": true
+  },
+  {
     "id": "outfit.pattern.solid",
     "category": "clothing",
     "subcategory": "Pattern",

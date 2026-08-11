@@ -242,3 +242,47 @@ exist only in development and must not ship as public navigation.
   same longest-label gate before their manifest entry is enabled.
 - Components meet keyboard and focus requirements.
 - Token changes propagate predictably across migrated routes.
+
+## 11. Engine & Target Output Action Framing
+
+`EngineTargetPanel` owns the shared engine and output controls. The generation
+surface hosting it owns the action framing so the visual boundary also contains
+References, Prompt controls, and the Generate command. In Studio this host is
+`.studio-step-card--generation`; in Playground it is
+`.playground-engine-surface`.
+
+Required treatment:
+
+- frame the complete host generation surface with a one-pixel `--theme-action`
+  border so it echoes the Generate button;
+- add a restrained action-color outer glow and inset highlight to separate the
+  panel from adjacent dark surfaces;
+- give the header an artistic diagonal gradient that begins at the upper-left
+  corner, blends action and accent colors, and fades to transparent before it
+  reaches the controls;
+- keep the controls on a quieter raised surface so labels, inputs, selected
+  states, and Comparison controls retain clear hierarchy;
+- resolve all colors from semantic theme tokens so Momelo Neon, Pearl Editorial,
+  and Electric Studio remain readable;
+- retain a 10px radius and avoid animation on the host surface;
+- keep `#generation-engine` borderless inside the host to avoid nested framing;
+- size `#generation-engine` from its rendered content with no fixed height or inherited
+  grid-row stretching, including when Comparison or Prompt Refine content is
+  shown or hidden;
+- prevent the panel from shrinking inside the bounded Studio or Playground
+  scroll column; the parent scroll region owns overflow while the panel retains
+  the full intrinsic height of its heading and controls;
+- apply equivalent host-surface treatment in Studio and Playground while
+  retaining one shared `.engine-target-panel` control layout.
+
+Manual verification:
+
+- inspect Studio and Playground at approximately 1440px and 390px widths;
+- verify normal and Comparison modes in every enabled theme;
+- confirm the gradient does not reduce heading or control contrast;
+- confirm the host does not introduce clipping, horizontal overflow, or nested
+  double borders around Reference Images.
+- confirm its lower border follows the final visible child after normal,
+  Comparison, and Prompt Refine content changes.
+- confirm a short viewport scrolls the parent column instead of clipping the
+  engine controls inside the panel.

@@ -14,6 +14,10 @@ import {
   normalizeCharacterType
 } from '../character-profiles/characterTypePolicy.js';
 import {
+  compileCharacterAgeRangeDirective,
+  normalizeCharacterIdentityText
+} from '../character-profiles/characterIdentityMetadata.js';
+import {
   compileReferenceRoleDirective,
   createReferenceRoleManifest,
   validatePlaygroundReferenceRoles
@@ -76,7 +80,8 @@ function normalizeCharacterReferenceOutfitBehavior(value) {
 
 function compileCharacterPersonalityDirective(context) {
   const personality = typeof context.characterProfileContext?.personalitySummarySnapshot === 'string'
-    ? context.characterProfileContext.personalitySummarySnapshot.replace(/\s+/g, ' ').trim().slice(0, 500)
+    ? normalizeCharacterIdentityText(context.characterProfileContext.personalitySummarySnapshot)
+      .replace(/\s+/g, ' ').trim().slice(0, 500)
     : '';
   if (!personality) return '';
 
@@ -344,7 +349,8 @@ export function compilePromptFromGenerationContext(context) {
       ? [
         ...characterReferenceDirective,
         compileCharacterPersonalityDirective(context),
-        directedPrompt
+        directedPrompt,
+        compileCharacterAgeRangeDirective(context.characterProfileContext)
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
         ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')

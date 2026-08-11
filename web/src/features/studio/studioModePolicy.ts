@@ -1,5 +1,6 @@
 import {
   createSelection,
+  isAdultMalePresentation,
   type AttributeGroup,
   type AttributeSelection
 } from './attributes/attributeModel';
@@ -62,6 +63,9 @@ export function filterStudioSelections(
         && selection.group === 'Clothing')
     )
   ) as Record<string, AttributeSelection>;
+  if (!isAdultMalePresentation(modeCompatible)) {
+    delete modeCompatible['Facial Hair'];
+  }
   return filterReferenceOwnedSelections(
     modeCompatible,
     references,
@@ -121,5 +125,9 @@ export function randomizeStudioSelections(
       if (option) entries.push([field.name, createSelection(option)]);
     }
   }
-  return Object.fromEntries(entries);
+  const randomized = Object.fromEntries(entries) as Record<string, AttributeSelection>;
+  if (!isAdultMalePresentation(randomized)) {
+    delete randomized['Facial Hair'];
+  }
+  return randomized;
 }

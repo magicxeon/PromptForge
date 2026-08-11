@@ -29,12 +29,14 @@ export class CharacterProfileVersionRepository {
 
   async create(input = {}, actorContext) {
     const now = new Date().toISOString();
+    const structuredCharacterSnapshot = stripEmbeddedBase64(input.structuredCharacterSnapshot || {});
     const record = applyRecordDefaults({
       characterProfileId: input.characterProfileId,
       versionNumber: 1,
       sourceMode: 'character-sheet',
       characterType: normalizeCharacterType(input.characterType),
-      structuredCharacterSnapshot: stripEmbeddedBase64(input.structuredCharacterSnapshot || {}),
+      structuredCharacterSnapshot,
+      identityMetadata: stripEmbeddedBase64(input.identityMetadata || {}),
       sourceGenerationResultIds: [...new Set((input.sourceGenerationResultIds || []).filter(Boolean))],
       canonicalHeadshotAssetId: input.canonicalHeadshotAssetId || null,
       canonicalFaceAssetId: input.canonicalFaceAssetId || input.canonicalHeadshotAssetId || null,
@@ -207,6 +209,9 @@ function withIdentityPackDefaults(item = {}) {
     ...item,
     canonicalThreeViewAssetId,
     canonicalFaceAssetId,
+    identityMetadata: item.identityMetadata && typeof item.identityMetadata === 'object'
+      ? item.identityMetadata
+      : {},
     identityPackStatus: canonicalThreeViewAssetId && canonicalFaceAssetId
       ? 'identity_pack_ready'
       : canonicalThreeViewAssetId && item.castingFacePreviewUrl

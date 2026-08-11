@@ -77,6 +77,13 @@ test('server replaces client Character metadata with canonical snapshots before 
         characterProfileId: profile.id,
         status: 'approved',
         canonicalCastingExportAssetId: 'job_casting',
+        identityMetadata: {
+          ageRange: {
+            attributeId: 'character.004',
+            minimum: 24,
+            maximum: 27
+          }
+        },
         castingFacePreviewUrl: '/outputs/character-profiles/charprof_1/charver_1/face.webp',
         castingFrontPreviewUrl: '/outputs/character-profiles/charprof_1/charver_1/front.webp'
       })
@@ -88,10 +95,18 @@ test('server replaces client Character metadata with canonical snapshots before 
     characterProfileId: profile.id,
     characterProfileVersionId: 'charver_1',
     displayNameSnapshot: 'tampered',
-    personalitySummarySnapshot: 'tampered'
+    personalitySummarySnapshot: 'tampered',
+    identityMetadata: {
+      ageRange: { minimum: 35, maximum: 40 }
+    }
   }, { userId: 'usr_viewer', username: 'viewer' });
   assert.equal(context.displayNameSnapshot, profile.displayName);
   assert.equal(context.personalitySummarySnapshot, profile.personalitySummary);
+  assert.deepEqual(context.identityPack.ageRange, {
+    attributeId: 'character.004',
+    minimum: 24,
+    maximum: 27
+  });
   assert.equal(context.attribution.ownerUserId, profile.ownerUserId);
   assert.equal(context.authorizedCharacterReferenceAssetId, 'job_casting');
   assert.equal(
@@ -102,13 +117,21 @@ test('server replaces client Character metadata with canonical snapshots before 
     context.authorizedCharacterFrontReferenceUrl,
     '/outputs/character-profiles/charprof_1/charver_1/front.webp'
   );
-  assert.match(compilePromptFromGenerationContext({
+  const compiledPrompt = compilePromptFromGenerationContext({
     mode: 'normal',
     selections: {},
     aspectRatio: '1:1',
     imageReferences: {},
     characterProfileContext: context
-  }), /Warm and confident/);
+  });
+  assert.match(compiledPrompt, /Warm and confident/);
+  assert.match(compiledPrompt, /selected apparent age range of 24-27 years/i);
+  assert.doesNotMatch(compiledPrompt, /35-40/);
+  assert.ok(
+    compiledPrompt.lastIndexOf('immutable part of character identity')
+      > compiledPrompt.lastIndexOf('Warm and confident'),
+    'the immutable age guard must remain after destination and personality directions'
+  );
 
   const queueOptions = createQueueOptions({
     selections: {},

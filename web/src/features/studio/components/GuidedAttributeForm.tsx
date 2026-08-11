@@ -10,7 +10,9 @@ import type {
 } from '../attributes/attributeModel';
 import {
   countCustomSelectionCharacters,
-  DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS
+  DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
+  filterApplicableAttributeGroups,
+  isAdultMalePresentation
 } from '../attributes/attributeModel';
 import type { VisualManifest } from '../schemas/visualManifestSchemas';
 import { resolveVisualPresentation } from '../visual-options/visualOptionRegistry';
@@ -69,7 +71,10 @@ export function GuidedAttributeForm({
 }) {
   const { t } = useTranslation('react-ui');
   const visible = useMemo(
-    () => visibleStudioGroups(groups, mode, characterType)
+    () => filterApplicableAttributeGroups(
+      visibleStudioGroups(groups, mode, characterType),
+      selections
+    )
       .filter(group => !includedGroups || includedGroups.has(group.group))
       .map(group => ({
         ...group,
@@ -86,7 +91,7 @@ export function GuidedAttributeForm({
           })
       }))
       .filter(group => group.fields.length > 0),
-    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField]
+    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField, selections]
   );
   const [openGroup, setOpenGroup] = useState<string | null>(visible[0]?.group || null);
   const groupRefs = useRef(new Map<string, HTMLDetailsElement>());
@@ -96,6 +101,12 @@ export function GuidedAttributeForm({
       setOpenGroup(visible[0]?.group || null);
     }
   }, [openGroup, singleOpen, visible]);
+  useEffect(() => {
+    if (!selections['Facial Hair'] || isAdultMalePresentation(selections)) return;
+    const next = { ...selections };
+    delete next['Facial Hair'];
+    onChange(next);
+  }, [onChange, selections]);
   const gender = selections.Gender;
   const customCharacterCount = countCustomSelectionCharacters(selections);
   const selectableGroupNames = useMemo(() => new Set(

@@ -28,7 +28,8 @@ const ATTRIBUTE_FILES = [
   '021-accessories.json',
   '022-hair-extra.json',
   '023-architecture.json',
-  '024-fashion-commerce.json'
+  '024-fashion-commerce.json',
+  '025-facial-hair.json'
 ];
 
 export function createAttributesBundleLoader() {

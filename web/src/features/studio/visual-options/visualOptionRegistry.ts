@@ -13,6 +13,7 @@ type VisualFieldConfig = {
   kind: 'image' | 'swatch';
   fieldId?: string;
   variants?: Record<string, string>;
+  combineVariantsWhenUnspecified?: boolean;
   optionMap?: Record<string, string>;
   presentationOptionIds?: Partial<Record<
     'female' | 'male',
@@ -85,6 +86,7 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'lips.shape.heavy_upper': 'lips.011',
     'lips.shape.wide': 'lips.012'
   }),
+  'Face::Facial Hair': image('facial_hair.style', {}),
   'Face::Expression': image('expression.face', {
     'expression.face.subtle_micro': 'expression.001',
     'expression.face.thoughtful': 'expression.002',
@@ -176,6 +178,7 @@ const visualFields: Record<string, VisualFieldConfig> = {
       female: 'clothing.outfit-base.female',
       male: 'clothing.outfit-base.male'
     },
+    combineVariantsWhenUnspecified: true,
     size: 'large'
   },
   'Clothing::Pattern': { kind: 'swatch' },
@@ -291,14 +294,22 @@ export function resolveVisualPresentation({
   }
 
   const variant = normalizeGender(gender);
-  const fieldId = variant && config.variants?.[variant]
-    ? config.variants[variant]
-    : config.fieldId;
-  const manifest = fieldId ? manifests[fieldId] : null;
-  if (!manifest) return null;
+  const fieldIds = variant && config.variants?.[variant]
+    ? [config.variants[variant]]
+    : config.combineVariantsWhenUnspecified && config.variants
+      ? Object.values(config.variants)
+      : config.fieldId
+        ? [config.fieldId]
+        : [];
+  const fieldManifests = fieldIds.flatMap(fieldId => {
+    const manifest = manifests[fieldId];
+    return manifest ? [manifest] : [];
+  });
+  if (!fieldManifests.length) return null;
 
   const optionsById = new Map(field.options.map(option => [option.id, option]));
-  const items = manifest.items.flatMap(item => {
+  const seenAttributeIds = new Set<string>();
+  const items = fieldManifests.flatMap(manifest => manifest.items).flatMap(item => {
     const attributeId = item.attributeId
       || config.optionMap?.[item.optionId]
       || item.optionId;
@@ -310,7 +321,8 @@ export function resolveVisualPresentation({
     }
     const option = optionsById.get(attributeId);
     const imageUrl = preferredImage(item);
-    if (!option || !imageUrl) return [];
+    if (!option || !imageUrl || seenAttributeIds.has(attributeId)) return [];
+    seenAttributeIds.add(attributeId);
     return [{
       option,
       assetId: item.assetId,

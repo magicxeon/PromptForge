@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.facial-hair",
+  "fieldId": "facial_hair.style",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "sourceSheet": {
+    "folder": "facial-hair",
+    "filename": "facial-hair-set-r1-male.png",
+    "revision": 1,
+    "rows": 1,
+    "columns": 5,
+    "sliceStrategy": "grid",
+    "width": null,
+    "height": null
+  },
+  "runtimeProfiles": {
+    "preview": { "width": 256, "height": 256, "format": "png" },
+    "thumb": { "width": 128, "height": 128, "format": "png" }
+  },
+  "items": [
+    {
+      "assetId": "visual.facial_hair.designer_stubble", "optionId": "facial_hair.designer_stubble", "attributeId": "facial_hair.designer_stubble", "slug": "designer-stubble", "row": 1, "column": 1, "sourceBounds": null, "assetRevision": 1, "overrideFilename": null, "focalPoint": "50% 48%", "alt": { "en": "Adult male face with designer stubble", "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมหนวดเคราสั้นแบบดีไซเนอร์" }, "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.facial_hair.chevron_moustache", "optionId": "facial_hair.chevron_moustache", "attributeId": "facial_hair.chevron_moustache", "slug": "chevron-moustache", "row": 1, "column": 2, "sourceBounds": null, "assetRevision": 1, "overrideFilename": null, "focalPoint": "50% 48%", "alt": { "en": "Adult male face with a chevron moustache", "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมหนวดเชฟรอน" }, "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.facial_hair.trimmed_goatee", "optionId": "facial_hair.trimmed_goatee", "attributeId": "facial_hair.trimmed_goatee", "slug": "trimmed-goatee", "row": 1, "column": 3, "sourceBounds": null, "assetRevision": 1, "overrideFilename": null, "focalPoint": "50% 48%", "alt": { "en": "Adult male face with a trimmed goatee", "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราแพะตัดแต่ง" }, "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.facial_hair.short_boxed_beard", "optionId": "facial_hair.short_boxed_beard", "attributeId": "facial_hair.short_boxed_beard", "slug": "short-boxed-beard", "row": 1, "column": 4, "sourceBounds": null, "assetRevision": 1, "overrideFilename": null, "focalPoint": "50% 48%", "alt": { "en": "Adult male face with a short boxed beard", "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราทรงบ็อกซ์สั้น" }, "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.facial_hair.full_groomed_beard", "optionId": "facial_hair.full_groomed_beard", "attributeId": "facial_hair.full_groomed_beard", "slug": "full-groomed-beard", "row": 1, "column": 5, "sourceBounds": null, "assetRevision": 1, "overrideFilename": null, "focalPoint": "50% 48%", "alt": { "en": "Adult male face with a full groomed beard", "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราเต็มทรงเรียบร้อย" }, "reviewStatus": "source-selected"
+    }
+  ]
+}

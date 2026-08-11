@@ -4,6 +4,8 @@ import {
   countCharacters,
   countCustomSelectionCharacters,
   createSelection,
+  filterApplicableAttributeGroups,
+  isAdultMalePresentation,
   normalizeAttributeGroups,
   reconcileSelectionsWithCatalog
 } from './attributeModel';
@@ -13,6 +15,41 @@ import {
 } from './customColorModel';
 
 describe('Studio attribute model', () => {
+  it('shows Facial Hair only for an adult male and filters Outfit Base by presentation', () => {
+    const groups = [
+      {
+        group: 'Face',
+        fields: [{
+          name: 'Facial Hair', control: 'select', group: 'Face', options: [option('facial_hair.designer_stubble', 'Face', 'Facial Hair', ['adult-male'])]
+        }]
+      },
+      {
+        group: 'Clothing',
+        fields: [{
+          name: 'Outfit Base', control: 'select', group: 'Clothing', options: [
+            option('outfit.base.male.chore_jacket_chinos', 'Clothing', 'Outfit Base', ['outfit-base-male']),
+            option('outfit.base.female.square_neck_knit_tailored_trousers', 'Clothing', 'Outfit Base', ['outfit-base-female'])
+          ]
+        }]
+      }
+    ];
+    const adultMale = {
+      Gender: previewSelection('male man', 'Character', 'character'),
+      Age: previewSelection('21-year-old young adult', 'Character', 'character')
+    };
+    const female = {
+      Gender: previewSelection('female woman', 'Character', 'character'),
+      Age: previewSelection('21-year-old young adult', 'Character', 'character')
+    };
+
+    expect(isAdultMalePresentation(adultMale)).toBe(true);
+    expect(filterApplicableAttributeGroups(groups, adultMale)[0]?.fields[0]?.name)
+      .toBe('Facial Hair');
+    expect(filterApplicableAttributeGroups(groups, adultMale)[1]?.fields[0]?.options.map(item => item.id))
+      .toEqual(['outfit.base.male.chore_jacket_chinos']);
+    expect(filterApplicableAttributeGroups(groups, female).some(group => group.group === 'Face'))
+      .toBe(false);
+  });
   it('counts Unicode custom directions without truncating their value', () => {
     const pose = '\u0e17\u0e48\u0e32\u0e17\u0e32\u0e07'.repeat(140);
     const selection = {
@@ -313,6 +350,18 @@ function previewSelection(value: string, group: string, category: string) {
     category,
     tags: [],
     gptPositiveWords: []
+  };
+}
+
+function option(id: string, group: string, subcategory: string, tags: string[]) {
+  return {
+    id,
+    category: group.toLowerCase(),
+    subcategory,
+    label: id,
+    group,
+    prompt: id,
+    tags
   };
 }
 

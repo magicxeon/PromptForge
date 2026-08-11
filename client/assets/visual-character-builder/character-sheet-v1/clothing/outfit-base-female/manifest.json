@@ -114,6 +114,96 @@
         "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-thai-linen-blouse-wrap-skirt-r1.png",
         "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-thai-linen-blouse-wrap-skirt-r1.png"
       }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.square_neck_knit_tailored_trousers",
+      "optionId": "outfit.base.female.square_neck_knit_tailored_trousers",
+      "attributeId": "outfit.base.female.square_neck_knit_tailored_trousers",
+      "slug": "female-square-neck-knit-tailored-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female square-neck knit and tailored trousers outfit icon",
+        "th": "ชุดผู้หญิงเสื้อถักคอเหลี่ยมและกางเกงเทเลอร์"
+      },
+      "sourceHash": "cf62f7ff75609293696810e24169eb6f8673d27ad739c3c572ab2dc7e23024e1",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-square-neck-knit-tailored-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-square-neck-knit-tailored-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.oversized_blazer_tailored_shorts",
+      "optionId": "outfit.base.female.oversized_blazer_tailored_shorts",
+      "attributeId": "outfit.base.female.oversized_blazer_tailored_shorts",
+      "slug": "female-oversized-blazer-tailored-shorts",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female oversized blazer and tailored shorts outfit icon",
+        "th": "ชุดผู้หญิงเบลเซอร์โอเวอร์ไซซ์และกางเกงขาสั้นเทเลอร์"
+      },
+      "sourceHash": "b9a371955863f9e79ab3b73b92cc8a4f58f310cd2325b51c42848d0e09b8b873",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-oversized-blazer-tailored-shorts-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-oversized-blazer-tailored-shorts-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.cropped_cardigan_bias_midi_skirt",
+      "optionId": "outfit.base.female.cropped_cardigan_bias_midi_skirt",
+      "attributeId": "outfit.base.female.cropped_cardigan_bias_midi_skirt",
+      "slug": "female-cropped-cardigan-bias-midi-skirt",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female cropped cardigan and bias-cut midi skirt outfit icon",
+        "th": "ชุดผู้หญิงคาร์ดิแกนเอวลอยและกระโปรงมิดี้ตัดเฉลียง"
+      },
+      "sourceHash": "1f4c3a8c0d8886e22e521b52790db50821f1c0a6850034476fdf97993dff1b28",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-cropped-cardigan-bias-midi-skirt-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-cropped-cardigan-bias-midi-skirt-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.denim_jacket_wide_trousers",
+      "optionId": "outfit.base.female.denim_jacket_wide_trousers",
+      "attributeId": "outfit.base.female.denim_jacket_wide_trousers",
+      "slug": "female-denim-jacket-wide-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female denim jacket and wide trousers outfit icon",
+        "th": "ชุดผู้หญิงแจ็กเก็ตเดนิมและกางเกงขากว้าง"
+      },
+      "sourceHash": "e4b70a03a9c1cdc963b9e417a281340aa3f057de1798f6c5c4f6fa4339d68141",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-denim-jacket-wide-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-denim-jacket-wide-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.sleeveless_knit_pleated_midi_skirt",
+      "optionId": "outfit.base.female.sleeveless_knit_pleated_midi_skirt",
+      "attributeId": "outfit.base.female.sleeveless_knit_pleated_midi_skirt",
+      "slug": "female-sleeveless-knit-pleated-midi-skirt",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Female sleeveless knit and pleated midi skirt outfit icon",
+        "th": "ชุดผู้หญิงเสื้อถักแขนกุดและกระโปรงมิดี้พลีต"
+      },
+      "sourceHash": "a9b44f456d1e980791be3fb6fef045a28a5861b6e0a61e1843d6477d3c088996",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-sleeveless-knit-pleated-midi-skirt-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/thumb/female-sleeveless-knit-pleated-midi-skirt-r1.png"
+      }
     }
   ]
 }

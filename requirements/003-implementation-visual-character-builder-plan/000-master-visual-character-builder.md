@@ -140,6 +140,7 @@ Start Headshot
 | 009 | Headshot Integration Accessibility and QA | Persistence, performance and release gate | 001-008 |
 | 010 | Character Reference and Clothing Concept | Future contract only | Headshot MVP accepted |
 | 010-014 | Scene Character Directing and Reference Set | Editable expression with Character Reference, richer pose/environment direction, and future four-image reference set | 010-013 and Scene Builder |
+| 011 | Popular Outfit and Male Facial Hair Visual Expansion | Five additional male outfits, five additional female outfits and five adult male facial-hair styles | 003, 005, 010-011 |
 
 Do not begin mass asset production before the Face Structure pilot passes its visual review gate.
 

@@ -42,6 +42,21 @@ function specifiesFootwear(clothingPrompt) {
     .test(clothingPrompt || "");
 }
 
+function isAdultMaleFacialHairSelectionAllowed(selections) {
+  const evidence = selection => selection
+    ? [selection.id, selection.value, selection.label, ...(selection.tags || [])].join(" ").toLowerCase()
+    : "";
+  const gender = evidence(selections?.Gender);
+  if (!/\b(male|man|men)\b/.test(gender) || /\b(female|woman|women|child|girl|boy)\b/.test(gender)) {
+    return false;
+  }
+  const age = evidence(selections?.Age);
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
 const CATEGORY_PRIORITIES = {
   "environment": 100,
   "lighting": 90,
@@ -60,7 +75,7 @@ const CATEGORY_PRIORITIES = {
 
 const FIELD_TO_CATEGORY_MAP = {
   "Gender": "character", "Age": "character", "Ethnicity": "character", "Beauty": "character", "Fashion Direction": "fashion_direction",
-  "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Smile": "lips", "Expression": "expression",
+  "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Facial Hair": "facial_hair", "Smile": "lips", "Expression": "expression",
   "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
   "Tone": "skin", "Skin Texture": "skin", "Makeup": "skin", "Freckles": "skin",
   "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body", "Sheet Layout": "body",
@@ -310,7 +325,8 @@ function buildCleanPromptSegments(activeSelections, getValue) {
     valuesByField["Eyes"],
     valuesByField["Eyebrows"],
     valuesByField["Nose"],
-    valuesByField["Lips"]
+    valuesByField["Lips"],
+    valuesByField["Facial Hair"]
   ].filter(Boolean)).join(", ");
 
   return {
@@ -345,6 +361,9 @@ export function compilePromptOnServer(
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
   delete activeSelections["Reference Image"];
+  if (!isAdultMaleFacialHairSelectionAllowed(activeSelections)) {
+    delete activeSelections["Facial Hair"];
+  }
   const referenceOwnsAppearance = mode === "normal"
     && imageReferences?.characterReference
     && !imageReferences?.characterOverrides;
@@ -444,7 +463,7 @@ export function compilePromptOnServer(
           ? getPromptValueWithColor(expressionSelection, "Expression")
           : "";
         return [
-          "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.",
+          "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, skin tone, facial maturity, and apparent age while allowing only subtle natural variations from expression, camera perspective, lighting, and lens characteristics. Those variations must not invent age-related facial features absent from the reference. Prioritize identity preservation over exact geometric matching.",
           expression
         ].filter(Boolean).join(", ");
       }

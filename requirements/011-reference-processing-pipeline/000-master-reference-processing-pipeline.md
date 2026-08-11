@@ -152,6 +152,7 @@ Recommended defaults requiring product review:
 
 - [RPP-001 Config-Driven Reference Authority And Preprocessing](./001-config-driven-reference-authority-and-preprocessing.md)
 - [RPP-002 Character Identity Pack And Face Override](./002-character-identity-pack-and-face-override.md)
+- [RPP-003 Character Identity Age Range Continuity](./003-character-identity-age-range-continuity.md)
 
 ## 9. MVP Delivery Record
 

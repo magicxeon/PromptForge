@@ -19,6 +19,34 @@ const faceShapeField: AttributeField = {
 };
 
 describe('Studio visual option registry', () => {
+  it('resolves canonical Facial Hair assets without a compatibility option map', () => {
+    const field: AttributeField = {
+      name: 'Facial Hair',
+      control: 'select',
+      group: 'Face',
+      options: [{
+        id: 'facial_hair.designer_stubble',
+        category: 'facial_hair',
+        subcategory: 'Facial Hair',
+        label: 'Designer Stubble',
+        group: 'Face',
+        prompt: 'designer stubble',
+        tags: ['adult-male']
+      }]
+    };
+    const manifest = createManifest({
+      fieldId: 'facial_hair.style',
+      optionId: 'facial_hair.designer_stubble',
+      imageUrl: '/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/designer-stubble-r1.png'
+    });
+    manifest.items[0]!.attributeId = 'facial_hair.designer_stubble';
+
+    expect(resolveVisualPresentation({
+      field,
+      manifests: { 'facial_hair.style': manifest },
+      gender: selection('character.002', 'Male')
+    })?.items.map(item => item.option.id)).toEqual(['facial_hair.designer_stubble']);
+  });
   it('maps a manifest option to the canonical attribute option', () => {
     const manifest = createManifest({
       fieldId: 'face.shape',
@@ -91,6 +119,52 @@ describe('Studio visual option registry', () => {
 
     expect(result?.size).toBe('large');
     expect(result?.items[0]?.option.id).toBe('body.female_silhouette_01');
+  });
+
+  it('shows Character Sheet outfit visuals in Scene Builder before presentation is known', () => {
+    const field: AttributeField = {
+      name: 'Outfit Base',
+      control: 'select',
+      group: 'Clothing',
+      options: [
+        outfitOption('outfit.base.female.square_neck_knit_tailored_trousers'),
+        outfitOption('outfit.base.male.chore_jacket_chinos')
+      ]
+    };
+    const female = createManifest({
+      fieldId: 'clothing.outfit-base.female',
+      optionId: 'outfit.base.female.square_neck_knit_tailored_trousers',
+      imageUrl: '/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-female/preview/female-square-neck-knit-tailored-trousers-r1.png'
+    });
+    const male = createManifest({
+      fieldId: 'clothing.outfit-base.male',
+      optionId: 'outfit.base.male.chore_jacket_chinos',
+      imageUrl: '/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-chore-jacket-chinos-r1.png'
+    });
+
+    const result = resolveVisualPresentation({
+      field,
+      manifests: {
+        'clothing.outfit-base.female': female,
+        'clothing.outfit-base.male': male
+      }
+    });
+
+    expect(result?.kind).toBe('image');
+    expect(result?.items.map(item => item.option.id)).toEqual([
+      'outfit.base.female.square_neck_knit_tailored_trousers',
+      'outfit.base.male.chore_jacket_chinos'
+    ]);
+    expect(resolveVisualPresentation({
+      field,
+      manifests: {
+        'clothing.outfit-base.female': female,
+        'clothing.outfit-base.male': male
+      },
+      gender: selection('gender.male', 'Male')
+    })?.items.map(item => item.option.id)).toEqual([
+      'outfit.base.male.chore_jacket_chinos'
+    ]);
   });
 
   it('renders Clothing Pattern and Material fields as semantic swatches', () => {
@@ -201,6 +275,18 @@ function clothingField(name: string, optionId: string): AttributeField {
       prompt: optionId,
       tags: ['clothing']
     }]
+  };
+}
+
+function outfitOption(id: string): AttributeField['options'][number] {
+  return {
+    id,
+    category: 'clothing',
+    subcategory: 'Outfit Base',
+    label: id,
+    group: 'Clothing',
+    prompt: id,
+    tags: ['clothing', 'outfit-base']
   };
 }
 

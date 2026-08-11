@@ -18,7 +18,15 @@ test('Character Profile creation is owner-scoped, idempotent and optimistic', as
     id: 'job_character_sheet',
     ownerUserId: actor.userId,
     mode: 'character-sheet',
-    selections: { Gender: { id: 'female', group: 'Character', value: 'female' } },
+    selections: {
+      Gender: { id: 'female', group: 'Character', value: 'female' },
+      Age: {
+        id: 'character.004',
+        group: 'Character',
+        label: 'Young Adult (24-27)',
+        value: 'young adult'
+      }
+    },
     characterSheetConfig: {
       version: 1,
       characterType: 'reusable_model',
@@ -64,6 +72,11 @@ test('Character Profile creation is owner-scoped, idempotent and optimistic', as
   assert.equal(created.characterType, 'reusable_model');
   assert.deepEqual(created.destinationCapabilities, ['fashion_blueprint', 'scene_builder']);
   assert.equal(created.versions[0].sourceMode, 'character-sheet');
+  assert.deepEqual(created.versions[0].identityMetadata.ageRange, {
+    attributeId: 'character.004',
+    minimum: 24,
+    maximum: 27
+  });
   assert.doesNotMatch(JSON.stringify(created), /data:image\//);
   const updated = await service.updateMetadata(created.id, {
     personalitySummary: 'Calm and precise',

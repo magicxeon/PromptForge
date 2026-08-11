@@ -114,6 +114,96 @@
         "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-thai-linen-shirt-pants-r1.png",
         "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-thai-linen-shirt-pants-r1.png"
       }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.chore_jacket_chinos",
+      "optionId": "outfit.base.male.chore_jacket_chinos",
+      "attributeId": "outfit.base.male.chore_jacket_chinos",
+      "slug": "male-chore-jacket-chinos",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male chore jacket and chinos outfit icon",
+        "th": "ชุดผู้ชายแจ็กเก็ตชอร์และกางเกงชิโน"
+      },
+      "sourceHash": "927df8d8074d2dc44410994d237fa9bb19feb446d5f57b7b27d1e37c454b073a",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-chore-jacket-chinos-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-chore-jacket-chinos-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.overshirt_pleated_trousers",
+      "optionId": "outfit.base.male.overshirt_pleated_trousers",
+      "attributeId": "outfit.base.male.overshirt_pleated_trousers",
+      "slug": "male-overshirt-pleated-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male overshirt and pleated trousers outfit icon",
+        "th": "ชุดผู้ชายโอเวอร์เชิ้ตและกางเกงพลีต"
+      },
+      "sourceHash": "d0bba7fdc5336d43152853aacee27b18a7c87b7ed5952669da6714c6c106194a",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-overshirt-pleated-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-overshirt-pleated-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.minimal_bomber_tapered_pants",
+      "optionId": "outfit.base.male.minimal_bomber_tapered_pants",
+      "attributeId": "outfit.base.male.minimal_bomber_tapered_pants",
+      "slug": "male-minimal-bomber-tapered-pants",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male minimal bomber and tapered pants outfit icon",
+        "th": "ชุดผู้ชายบอมเบอร์มินิมอลและกางเกงขาเรียว"
+      },
+      "sourceHash": "aa7b39ab24ce0c75832a5d07708cf89e1c49a3a9ea023700358b60d7bbef6dbf",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-minimal-bomber-tapered-pants-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-minimal-bomber-tapered-pants-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.denim_jacket_wide_trousers",
+      "optionId": "outfit.base.male.denim_jacket_wide_trousers",
+      "attributeId": "outfit.base.male.denim_jacket_wide_trousers",
+      "slug": "male-denim-jacket-wide-trousers",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male denim jacket and wide trousers outfit icon",
+        "th": "ชุดผู้ชายแจ็กเก็ตเดนิมและกางเกงขากว้าง"
+      },
+      "sourceHash": "fa117878b60fb33bed496e1d38786a274d5d897ce82f05f33d8d9d907fd32cc6",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-denim-jacket-wide-trousers-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-denim-jacket-wide-trousers-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.camp_collar_tailored_shorts",
+      "optionId": "outfit.base.male.camp_collar_tailored_shorts",
+      "attributeId": "outfit.base.male.camp_collar_tailored_shorts",
+      "slug": "male-camp-collar-tailored-shorts",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 52%",
+      "alt": {
+        "en": "Male camp-collar shirt and tailored shorts outfit icon",
+        "th": "ชุดผู้ชายเสื้อคอแคมป์และกางเกงขาสั้นเทเลอร์"
+      },
+      "sourceHash": "e7e843fa46c020cc5888b1fce5479df480994c9b3e5beeda580201d60e8218e2",
+      "assets": {
+        "preview": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/preview/male-camp-collar-tailored-shorts-r1.png",
+        "thumb": "/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base-male/thumb/male-camp-collar-tailored-shorts-r1.png"
+      }
     }
   ]
 }

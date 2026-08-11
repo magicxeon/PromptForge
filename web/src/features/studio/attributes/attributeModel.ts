@@ -40,6 +40,43 @@ export type AttributeSelection = {
   gptPositiveWords: string[];
 };
 
+export function isAdultMalePresentation(
+  selections: Record<string, AttributeSelection>
+) {
+  const gender = selectionEvidence(selections.Gender);
+  if (!/\b(male|man|men)\b/.test(gender) || /\b(female|woman|women|child|girl|boy)\b/.test(gender)) {
+    return false;
+  }
+
+  const age = selectionEvidence(selections.Age);
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
+export function filterApplicableAttributeGroups(
+  groups: AttributeGroup[],
+  selections: Record<string, AttributeSelection>
+) {
+  const gender = resolvePresentationGender(selections.Gender);
+  const adultMale = isAdultMalePresentation(selections);
+  return groups.flatMap(group => {
+    const fields = group.fields.flatMap(field => {
+      if (field.group === 'Face' && field.name === 'Facial Hair' && !adultMale) return [];
+      if (field.group !== 'Clothing' || field.name !== 'Outfit Base' || !gender) {
+        return [field];
+      }
+      const genderTag = `outfit-base-${gender}`;
+      return [{
+        ...field,
+        options: field.options.filter(option => option.tags.includes(genderTag))
+      }];
+    });
+    return fields.length ? [{ ...group, fields }] : [];
+  });
+}
+
 export type CustomAttributeInputLimits = {
   maxCharactersPerField: number;
   maxCharactersTotal: number;
@@ -295,6 +332,19 @@ function resolveCastingPresentation(selections: Record<string, AttributeSelectio
   if (/\b(female|woman|women|girl)\b/.test(evidence)) return 'female';
   if (/\b(male|man|men|boy)\b/.test(evidence)) return 'male';
   return 'neutral';
+}
+
+function resolvePresentationGender(selection?: AttributeSelection) {
+  const evidence = selectionEvidence(selection);
+  if (/\b(female|woman|women)\b/.test(evidence)) return 'female';
+  if (/\b(male|man|men)\b/.test(evidence)) return 'male';
+  return null;
+}
+
+function selectionEvidence(selection?: AttributeSelection) {
+  return selection
+    ? [selection.id, selection.value, selection.label, ...selection.tags].join(' ').toLowerCase()
+    : '';
 }
 
 export function localized(value: string | Record<string, string>) {

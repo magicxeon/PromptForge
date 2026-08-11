@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "headshot.facial-features.facial-hair",
+  "fieldId": "facial_hair.style",
+  "sectionId": "facial-features",
+  "visualStyleVersion": "headshot-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": [
+    {
+      "assetId": "visual.facial_hair.designer_stubble",
+      "optionId": "facial_hair.designer_stubble",
+      "attributeId": "facial_hair.designer_stubble",
+      "slug": "designer-stubble",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Adult male face with designer stubble",
+        "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมหนวดเคราสั้นแบบดีไซเนอร์"
+      },
+      "sourceHash": "ad2d50370e412f211c1cbd43c1d7be2b961c3fbe93b518556779bdaf66adbf1f",
+      "assets": {
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/designer-stubble-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/thumb/designer-stubble-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.facial_hair.chevron_moustache",
+      "optionId": "facial_hair.chevron_moustache",
+      "attributeId": "facial_hair.chevron_moustache",
+      "slug": "chevron-moustache",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Adult male face with a chevron moustache",
+        "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมหนวดเชฟรอน"
+      },
+      "sourceHash": "28f7c3e5bc30432b24ac839a96619210ceeda98d5d88fda16b39cb99d024c38c",
+      "assets": {
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/chevron-moustache-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/thumb/chevron-moustache-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.facial_hair.trimmed_goatee",
+      "optionId": "facial_hair.trimmed_goatee",
+      "attributeId": "facial_hair.trimmed_goatee",
+      "slug": "trimmed-goatee",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Adult male face with a trimmed goatee",
+        "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราแพะตัดแต่ง"
+      },
+      "sourceHash": "7418a9959ff1aba89c1bfa520541554fdea863d5b66b5bd55500b09104a851ee",
+      "assets": {
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/trimmed-goatee-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/thumb/trimmed-goatee-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.facial_hair.short_boxed_beard",
+      "optionId": "facial_hair.short_boxed_beard",
+      "attributeId": "facial_hair.short_boxed_beard",
+      "slug": "short-boxed-beard",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Adult male face with a short boxed beard",
+        "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราทรงบ็อกซ์สั้น"
+      },
+      "sourceHash": "72bc1518de96c518346db3ae01825368593cfce5e9b34a3591bf5559a33d5d4d",
+      "assets": {
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/short-boxed-beard-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/thumb/short-boxed-beard-r1.png"
+      }
+    },
+    {
+      "assetId": "visual.facial_hair.full_groomed_beard",
+      "optionId": "facial_hair.full_groomed_beard",
+      "attributeId": "facial_hair.full_groomed_beard",
+      "slug": "full-groomed-beard",
+      "assetRevision": 1,
+      "recolorMode": "mask",
+      "focalPoint": "50% 48%",
+      "alt": {
+        "en": "Adult male face with a full groomed beard",
+        "th": "ใบหน้าผู้ชายผู้ใหญ่พร้อมเคราเต็มทรงเรียบร้อย"
+      },
+      "sourceHash": "15446bd6df95555bc0c97cd5c4dc7e531cc4b8de10376ab64606ee839bb26256",
+      "assets": {
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/preview/full-groomed-beard-r1.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/thumb/full-groomed-beard-r1.png"
+      }
+    }
+  ]
+}

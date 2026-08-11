@@ -16,6 +16,10 @@ import {
   resolveCanonicalCharacterAsset
 } from './characterTypePolicy.js';
 import { getCharacterCastingPolicy } from './characterCastingPolicy.js';
+import {
+  deriveCharacterIdentityMetadata,
+  normalizeCharacterIdentityMetadata
+} from './characterIdentityMetadata.js';
 
 export class CharacterProfileService {
   constructor({
@@ -69,14 +73,16 @@ export class CharacterProfileService {
     }, actor);
     const existingVersions = await this.versionRepository.listByProfileId(profile.id);
     if (existingVersions.length) return this.getOwnerDetail(profile.id, actor);
+    const structuredCharacterSnapshot = stripEmbeddedReferenceDataFromSnapshot({
+      selections: source.selections || {},
+      characterSheetConfig: source.characterSheetConfig || null,
+      sourceOwnership: source.sourceOwnership || null
+    });
     const version = await this.versionRepository.create({
       characterProfileId: profile.id,
       characterType,
-      structuredCharacterSnapshot: stripEmbeddedReferenceDataFromSnapshot({
-        selections: source.selections || {},
-        characterSheetConfig: source.characterSheetConfig || null,
-        sourceOwnership: source.sourceOwnership || null
-      }),
+      structuredCharacterSnapshot,
+      identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
       sourceGenerationResultIds: [source.id],
       canonicalCharacterSheetAssetId: source.id
     }, actor);
@@ -248,14 +254,16 @@ export class CharacterProfileService {
     const nextCharacterType = normalizeCharacterType(
       source.characterSheetConfig?.characterType || source.characterType
     );
+    const structuredCharacterSnapshot = stripEmbeddedReferenceDataFromSnapshot({
+      selections: source.selections || {},
+      characterSheetConfig: source.characterSheetConfig || null,
+      sourceOwnership: source.sourceOwnership || null
+    });
     const version = await this.versionRepository.create({
       characterProfileId: profile.id,
       characterType: nextCharacterType,
-      structuredCharacterSnapshot: stripEmbeddedReferenceDataFromSnapshot({
-        selections: source.selections || {},
-        characterSheetConfig: source.characterSheetConfig || null,
-        sourceOwnership: source.sourceOwnership || null
-      }),
+      structuredCharacterSnapshot,
+      identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
       sourceGenerationResultIds: [source.id],
       canonicalCharacterSheetAssetId: source.id
     }, actor);
@@ -332,6 +340,10 @@ export class CharacterProfileService {
       characterProfileId: profile.id,
       characterType: CHARACTER_TYPE.REUSABLE_MODEL,
       structuredCharacterSnapshot: sourceVersion.structuredCharacterSnapshot,
+      identityMetadata: normalizeCharacterIdentityMetadata(
+        sourceVersion.identityMetadata,
+        sourceVersion.structuredCharacterSnapshot
+      ),
       sourceGenerationResultIds: sourceVersion.sourceGenerationResultIds,
       canonicalCharacterSheetAssetId: sourceVersion.canonicalCharacterSheetAssetId
     }, actor);

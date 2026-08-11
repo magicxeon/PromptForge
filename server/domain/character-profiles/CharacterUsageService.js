@@ -9,6 +9,10 @@ import {
   normalizeCharacterType,
   resolveCanonicalCharacterAsset
 } from './characterTypePolicy.js';
+import {
+  normalizeCharacterIdentityMetadata,
+  normalizeCharacterIdentityText
+} from './characterIdentityMetadata.js';
 
 export class CharacterUsageService {
   constructor({
@@ -57,6 +61,10 @@ export class CharacterUsageService {
       || version?.canonicalHeadshotAssetId
       || version?.castingFacePreviewUrl
       || null;
+    const identityMetadata = normalizeCharacterIdentityMetadata(
+      version?.identityMetadata,
+      version?.structuredCharacterSnapshot
+    );
     if (!profile || !version || version.characterProfileId !== profile.id
       || version.status !== 'approved'
       || !canonicalAssetId
@@ -79,17 +87,19 @@ export class CharacterUsageService {
         characterProfileVersionId: version.id,
         canonicalThreeViewAssetId: canonicalAssetId,
         canonicalFaceAssetId,
+        ageRange: identityMetadata.ageRange || null,
         characterType,
         outfitBehavior: capabilities.outfitBehavior,
-        identityPolicyVersion: 'character-identity-pack-v1',
+        identityPolicyVersion: 'character-identity-pack-v2',
         status: version.identityPackStatus || (canonicalFaceAssetId
           ? 'identity_pack_ready'
           : 'identity_pack_legacy_fallback')
       },
+      identityMetadata,
       characterType,
       outfitBehavior: capabilities.outfitBehavior,
       displayNameSnapshot: profile.displayName,
-      personalitySummarySnapshot: profile.personalitySummary || '',
+      personalitySummarySnapshot: normalizeCharacterIdentityText(profile.personalitySummary || ''),
       intendedUsesSnapshot: [...(profile.intendedUses || [])],
       attribution: {
         characterProfileId: profile.id,

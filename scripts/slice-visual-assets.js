@@ -9,7 +9,8 @@ const AUTHORING_DIR = path.join(ROOT_DIR, 'visual-assets/character-builder');
 const RUNTIME_ROOT = path.join(ROOT_DIR, 'client/assets/visual-character-builder');
 const ATTRIBUTE_FILES = [
   path.join(ROOT_DIR, 'attributes/009-body.json'),
-  path.join(ROOT_DIR, 'attributes/010-clothing.json')
+  path.join(ROOT_DIR, 'attributes/010-clothing.json'),
+  path.join(ROOT_DIR, 'attributes/025-facial-hair.json')
 ];
 
 const FIELD_MANIFESTS = {
@@ -18,6 +19,7 @@ const FIELD_MANIFESTS = {
   'eyebrows.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/eyebrows.manifest.json'),
   'nose.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/nose.manifest.json'),
   'lips.shape': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/lips.manifest.json'),
+  'facial_hair.style': path.join(AUTHORING_DIR, 'manifests/headshot/facial-features/facial-hair.manifest.json'),
   'expression.face': path.join(AUTHORING_DIR, 'manifests/headshot/expression/face-expression.manifest.json'),
   'hair.length': path.join(AUTHORING_DIR, 'manifests/headshot/hair/length.manifest.json'),
   'hair.cut_style': path.join(AUTHORING_DIR, 'manifests/headshot/hair/cut-style.manifest.json'),
@@ -38,6 +40,7 @@ const FIELD_FOLDERS = {
   'eyebrows.shape': 'eyebrows',
   'nose.shape': 'nose',
   'lips.shape': 'lips',
+  'facial_hair.style': 'facial-hair',
   'expression.face': 'face-expression',
   'hair.length': 'length',
   'hair.cut_style': 'cut-style',
@@ -59,6 +62,7 @@ const FIELD_GROUPS = {
     'eyebrows.shape',
     'nose.shape',
     'lips.shape',
+    'facial_hair.style',
     'expression.face',
     'hair.length',
     'hair.cut_style',
@@ -111,6 +115,12 @@ const RUNTIME_MANIFESTS = [
     manifestId: 'headshot.facial-features.lips',
     sectionId: 'facial-features',
     folder: 'lips'
+  },
+  {
+    fieldId: 'facial_hair.style',
+    manifestId: 'headshot.facial-features.facial-hair',
+    sectionId: 'facial-features',
+    folder: 'facial-hair'
   },
   {
     fieldId: 'expression.face',
@@ -291,7 +301,9 @@ async function validateManifest(manifest, paths) {
   if (manifest.recolorMode !== 'mask') errors.push('Only mask recolorMode is supported.');
 
   for (const item of manifest.items || []) {
-    const positionKey = `${item.row}:${item.column}`;
+    const itemSourceSheet = item.sourceSheet || manifest.sourceSheet;
+    const sourceKey = `${itemSourceSheet.folder || manifest.sourceSheet.folder || ''}/${itemSourceSheet.filename}`;
+    const positionKey = `${sourceKey}:${item.row}:${item.column}`;
     if (positions.has(positionKey)) errors.push(`Duplicate row/column ${positionKey}.`);
     positions.add(positionKey);
 
@@ -301,7 +313,7 @@ async function validateManifest(manifest, paths) {
     if (slugs.has(item.slug)) errors.push(`Duplicate slug ${item.slug}.`);
     slugs.add(item.slug);
 
-    if (item.row > manifest.sourceSheet.rows || item.column > manifest.sourceSheet.columns) {
+    if (item.row > itemSourceSheet.rows || item.column > itemSourceSheet.columns) {
       errors.push(`${item.optionId} is outside the declared grid.`);
     }
     if (!item.alt?.en || !item.alt?.th) {
@@ -323,6 +335,13 @@ async function validateManifest(manifest, paths) {
   if (!await fileExists(paths.sourcePath)) {
     warnings.push(`Source sheet not found yet: ${paths.sourcePath}`);
   }
+  for (const item of manifest.items || []) {
+    if (!item.sourceSheet) continue;
+    const itemSourcePath = resolveItemSourcePath(manifest, paths, item.sourceSheet);
+    if (!await fileExists(itemSourcePath)) {
+      warnings.push(`Source sheet not found yet: ${itemSourcePath}`);
+    }
+  }
   warnings.push(...getPublishReadinessWarnings(manifest));
 
   return {
@@ -340,6 +359,7 @@ async function sliceManifest(manifest, paths) {
   const sharp = (await import('sharp')).default;
   assertPublishReady(manifest);
   const sourceMetadata = await sharp(paths.sourcePath).metadata();
+  const sourceMetadataByPath = new Map([[paths.sourcePath, sourceMetadata]]);
   const outputs = [];
 
   await fs.mkdir(paths.runtimeDirectory, { recursive: true });
@@ -350,15 +370,22 @@ async function sliceManifest(manifest, paths) {
 
   const runtimeItems = [];
   for (const item of manifest.items) {
+    const itemSourceSheet = item.sourceSheet || manifest.sourceSheet;
+    const itemSourcePath = item.sourceSheet
+      ? resolveItemSourcePath(manifest, paths, item.sourceSheet)
+      : paths.sourcePath;
     const sourcePath = item.overrideFilename
       ? path.join(paths.overrideDirectory, item.overrideFilename)
-      : paths.sourcePath;
+      : itemSourcePath;
+    if (!sourceMetadataByPath.has(sourcePath)) {
+      sourceMetadataByPath.set(sourcePath, await sharp(sourcePath).metadata());
+    }
     const sourceForItemMetadata = item.overrideFilename
       ? await sharp(sourcePath).metadata()
-      : sourceMetadata;
+      : sourceMetadataByPath.get(sourcePath);
     const bounds = item.overrideFilename
       ? fullBounds(sourceForItemMetadata)
-      : item.sourceBounds || gridBounds(manifest.sourceSheet, sourceMetadata, item);
+      : item.sourceBounds || gridBounds(itemSourceSheet, sourceForItemMetadata, item);
     validateBounds(bounds, sourceForItemMetadata, item.optionId);
 
     const extracted = await sharp(sourcePath)
@@ -427,6 +454,18 @@ async function sliceManifest(manifest, paths) {
   const contactSheetPath = await createContactSheetFromRuntime(manifest, paths);
 
   return { outputs, runtimeManifestPath, indexManifestPath, contactSheetPath };
+}
+
+function resolveItemSourcePath(manifest, paths, sourceSheet) {
+  const sourceFolder = sourceSheet.folder || manifest.sourceSheet.folder || paths.fieldSlug;
+  return path.join(
+    AUTHORING_DIR,
+    'source-sets',
+    paths.style,
+    manifest.sectionId,
+    sourceFolder,
+    sourceSheet.filename
+  );
 }
 
 function normalizeIcon(sharp, alphaBuffer, rawInfo, profile) {
