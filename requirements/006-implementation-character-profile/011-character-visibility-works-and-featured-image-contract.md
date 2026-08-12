@@ -191,7 +191,32 @@ Expected under this contract:
 4. Publication, reuse and generated-work sharing need explicit state summaries
    so users do not infer one from another.
 
-### 9.1 Scene handoff lineage regression
+### 9.1 Public Reuse Save Regression
+
+Manual verification on 2026-08-11 found that the React owner editor submitted
+`public_reuse`, while Character Profiles accepts only `public_reusable`. The
+server retained `owner_only`, the editor closed without surfacing the failed
+contract, and the owner hero misleadingly displayed `Available to use` because
+it derived the reuse label from owner handoff capability rather than persisted
+reuse policy.
+
+Implementation correction:
+
+- the owner editor submits `public_reusable` and includes the required rights
+  declaration in the same request;
+- the editor remains open and renders a visible error when either management
+  request fails;
+- successful saves invalidate owner detail, Character discovery and Creator
+  profile projections;
+- Character Profiles rejects unknown visibility/reuse values instead of
+  silently preserving old state; and
+- the hero's Reuse rights label derives from persisted `reusePolicy`, while
+  destination buttons continue to derive from authorized handoff capability.
+
+Regression coverage must prove that a public reusable save persists the policy,
+creates an active reusable projection, and that the obsolete alias is rejected.
+
+### 9.2 Scene handoff lineage regression
 
 Manual verification on 2026-08-09 found that
 `job_1786283170133_xxlg606cb` dispatched one raw `character_reference` while

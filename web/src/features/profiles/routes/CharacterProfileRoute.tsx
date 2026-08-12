@@ -71,10 +71,16 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
     }
   });
   const updateSharing = useMutation({
-    mutationFn: (input: { visibility: string; reusePolicy: string }) => updateCharacterSharing(characterId, input),
+    mutationFn: (input: {
+      visibility: string;
+      reusePolicy: string;
+      rightsDeclarationAccepted?: boolean;
+    }) => updateCharacterSharing(characterId, input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['character', actorId, characterId] });
       void queryClient.invalidateQueries({ queryKey: ['owned-character', actorId, characterId] });
+      void queryClient.invalidateQueries({ queryKey: ['characters'] });
+      void queryClient.invalidateQueries({ queryKey: ['creator-page'] });
     }
   });
   const approve = useMutation({
@@ -228,8 +234,19 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
               <OwnerCharacterControls
                 character={ownerDetail.data || character}
                 pending={updateMetadata.isPending || updateSharing.isPending}
-                onMetadata={input => updateMetadata.mutate(input)}
-                onSharing={input => updateSharing.mutate(input)}
+                onSave={async input => {
+                  await Promise.all([
+                    updateMetadata.mutateAsync({
+                      displayName: input.displayName,
+                      personalitySummary: input.personalitySummary
+                    }),
+                    updateSharing.mutateAsync({
+                      visibility: input.visibility,
+                      reusePolicy: input.reusePolicy,
+                      rightsDeclarationAccepted: input.rightsDeclarationAccepted
+                    })
+                  ]);
+                }}
               />
             ) : null}
             {access === 'owner' && character.isOwner ? (
@@ -285,11 +302,13 @@ function DetailCard({ label, value }: { label: string; value: string }) {
   return <div className="character-profile-detail-card"><small>{label}</small><strong>{value}</strong></div>;
 }
 
-function OwnerCharacterControls({
+type CharacterVisibility = 'private' | 'unlisted' | 'public';
+type CharacterReusePolicy = 'owner_only' | 'view_only' | 'public_reusable';
+
+export function OwnerCharacterControls({
   character,
   pending,
-  onMetadata,
-  onSharing
+  onSave
 }: {
   character: {
     displayName: string;
@@ -297,40 +316,116 @@ function OwnerCharacterControls({
     visibility?: string;
     reusePolicy?: string;
     status?: string;
+    rightsDeclarationAcceptedAt?: string | null;
   };
   pending: boolean;
-  onMetadata: (input: { displayName: string; personalitySummary: string }) => void;
-  onSharing: (input: { visibility: string; reusePolicy: string }) => void;
+  onSave: (input: {
+    displayName: string;
+    personalitySummary: string;
+    visibility: CharacterVisibility;
+    reusePolicy: CharacterReusePolicy;
+    rightsDeclarationAccepted: boolean;
+  }) => Promise<void>;
 }) {
-  const { t } = useTranslation('react-ui');
+  const { t } = useTranslation('character-profiles');
+  const { t: tUi } = useTranslation('react-ui');
   const [open, setOpen] = useState(false);
-  function submit(event: FormEvent<HTMLFormElement>) {
+  const [visibility, setVisibility] = useState<CharacterVisibility>(normalizeCharacterVisibility(character.visibility));
+  const [reusePolicy, setReusePolicy] = useState<CharacterReusePolicy>(normalizeCharacterReusePolicy(character.reusePolicy));
+  const [rightsAccepted, setRightsAccepted] = useState(Boolean(character.rightsDeclarationAcceptedAt));
+  const [submitError, setSubmitError] = useState('');
+
+  function toggleOpen() {
+    if (!open) {
+      setVisibility(normalizeCharacterVisibility(character.visibility));
+      setReusePolicy(normalizeCharacterReusePolicy(character.reusePolicy));
+      setRightsAccepted(Boolean(character.rightsDeclarationAcceptedAt));
+      setSubmitError('');
+    }
+    setOpen(value => !value);
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    onMetadata({
-      displayName: String(form.get('displayName') || '').trim(),
-      personalitySummary: String(form.get('personalitySummary') || '').trim()
-    });
-    onSharing({
-      visibility: String(form.get('visibility') || 'private'),
-      reusePolicy: String(form.get('reusePolicy') || 'view_only')
-    });
-    setOpen(false);
+    setSubmitError('');
+    try {
+      await onSave({
+        displayName: String(form.get('displayName') || '').trim(),
+        personalitySummary: String(form.get('personalitySummary') || '').trim(),
+        visibility,
+        reusePolicy,
+        rightsDeclarationAccepted: reusePolicy === 'public_reusable' && rightsAccepted
+      });
+      showToast({ tone: 'success', title: t('character-profiles.sharing.saved') });
+      setOpen(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setSubmitError(message);
+      showToast({ tone: 'error', title: message });
+    }
   }
+
+  const effectiveResult = visibility === 'private'
+    ? t('character-profiles.sharing.effective.private')
+    : visibility === 'unlisted'
+      ? t('character-profiles.sharing.effective.unlisted')
+      : reusePolicy === 'public_reusable'
+        ? t('character-profiles.sharing.effective.reusable')
+        : reusePolicy === 'view_only'
+          ? t('character-profiles.sharing.effective.viewOnly')
+          : t('character-profiles.sharing.effective.ownerOnly');
+
   return (
     <div className="mt-6 border-t border-[var(--mpf-border)] pt-5">
-      <Button onClick={() => setOpen(value => !value)}>{t('ui.action.manageCharacter')}</Button>
+      <Button onClick={toggleOpen}>{tUi('ui.action.manageCharacter')}</Button>
       {open ? (
         <form className="mt-4 grid gap-3" onSubmit={submit}>
-          <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{t('ui.character.name')}<input name="displayName" required defaultValue={character.displayName} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3 text-white" /></label>
-          <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{t('ui.character.personality')}<textarea name="personalitySummary" defaultValue={character.personalitySummary} className="h-28 resize-y border border-[var(--mpf-border)] bg-black/35 p-3 text-white" /></label>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{t('ui.character.visibility')}<select name="visibility" defaultValue={character.visibility || 'private'} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3 text-white"><option value="private">{t('ui.character.private')}</option><option value="public">{t('ui.character.public')}</option></select></label>
-            <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{t('ui.character.reuseQuestion')}<select name="reusePolicy" defaultValue={character.reusePolicy || 'view_only'} className="h-11 border border-[var(--mpf-border)] bg-black/35 px-3 text-white"><option value="view_only">{t('ui.character.viewOnly')}</option><option value="public_reuse">{t('ui.character.anyone')}</option><option value="owner_only">{t('ui.character.ownerOnly')}</option></select></label>
+          <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{tUi('ui.character.name')}<input name="displayName" required defaultValue={character.displayName} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]" /></label>
+          <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">{tUi('ui.character.personality')}<textarea name="personalitySummary" defaultValue={character.personalitySummary} className="h-28 resize-y border border-[var(--mpf-border)] bg-[var(--theme-input)] p-3 text-[var(--mpf-text)]" /></label>
+          <div>
+            <p className="m-0 text-sm font-semibold text-[var(--mpf-text)]">{t('character-profiles.sharing.title')}</p>
+            <p className="m-0 mt-1 text-xs text-[var(--mpf-text-muted)]">{t('character-profiles.sharing.description')}</p>
           </div>
-          <div className="flex justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>{t('ui.action.cancel')}</Button><Button type="submit" variant="primary" disabled={pending}>{t('ui.action.saveCharacter')}</Button></div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">
+              {t('character-profiles.sharing.visibility')}
+              <select value={visibility} onChange={event => setVisibility(event.target.value as CharacterVisibility)} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]">
+                <option value="private">{t('character-profiles.sharing.options.private')}</option>
+                <option value="unlisted">{t('character-profiles.sharing.options.unlisted')}</option>
+                <option value="public">{t('character-profiles.sharing.options.public')}</option>
+              </select>
+              <span>{t('character-profiles.sharing.visibilityHelp')}</span>
+            </label>
+            <label className="grid gap-1 text-xs text-[var(--mpf-text-muted)]">
+              {t('character-profiles.sharing.reuse')}
+              <select value={reusePolicy} onChange={event => setReusePolicy(event.target.value as CharacterReusePolicy)} className="h-11 border border-[var(--mpf-border)] bg-[var(--theme-input)] px-3 text-[var(--mpf-text)]">
+                <option value="owner_only">{t('character-profiles.sharing.options.owner_only')}</option>
+                <option value="view_only">{t('character-profiles.sharing.options.view_only')}</option>
+                <option value="public_reusable">{t('character-profiles.sharing.options.public_reusable')}</option>
+              </select>
+              <span>{t('character-profiles.sharing.reuseHelp')}</span>
+            </label>
+          </div>
+          {reusePolicy === 'public_reusable' ? (
+            <label className="flex min-h-11 items-center gap-3 border border-[var(--mpf-border)] bg-[var(--theme-hover)] px-3 text-sm text-[var(--mpf-text)]">
+              <input type="checkbox" checked={rightsAccepted} onChange={event => setRightsAccepted(event.target.checked)} />
+              {t('character-profiles.sharing.rights')}
+            </label>
+          ) : null}
+          <p className="m-0 text-xs font-semibold text-[var(--theme-primary)]">{effectiveResult}</p>
+          {submitError ? <p role="alert" className="m-0 border border-[var(--theme-danger)] p-3 text-sm text-[var(--theme-danger)]">{submitError}</p> : null}
+          <div className="flex flex-wrap justify-end gap-2"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tUi('ui.action.cancel')}</Button><Button type="submit" variant="primary" disabled={pending || (reusePolicy === 'public_reusable' && !rightsAccepted)}>{pending ? t('character-profiles.sharing.saving') : t('character-profiles.sharing.save')}</Button></div>
         </form>
       ) : null}
     </div>
   );
+}
+
+function normalizeCharacterVisibility(value: string | undefined): CharacterVisibility {
+  return value === 'unlisted' || value === 'public' ? value : 'private';
+}
+
+function normalizeCharacterReusePolicy(value: string | undefined): CharacterReusePolicy {
+  return value === 'view_only' || value === 'public_reusable' ? value : 'owner_only';
 }

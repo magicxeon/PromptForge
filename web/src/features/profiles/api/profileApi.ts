@@ -83,7 +83,11 @@ export function updateCharacterMetadata(
 
 export function updateCharacterSharing(
   characterId: string,
-  input: { visibility: string; reusePolicy: string }
+  input: {
+    visibility: string;
+    reusePolicy: string;
+    rightsDeclarationAccepted?: boolean;
+  }
 ) {
   return apiRequest(`/api/character-profiles/${encodeURIComponent(characterId)}/sharing`, {
     method: 'POST',

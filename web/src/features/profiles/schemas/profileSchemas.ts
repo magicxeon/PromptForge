@@ -64,6 +64,7 @@ export const ownerCharacterDetailSchema = characterDetailSchema.extend({
   visibility: z.string().optional(),
   personality: z.string().optional(),
   reusePolicy: z.string().optional(),
+  rightsDeclarationAcceptedAt: z.string().nullable().optional(),
   lifecycleStatus: z.string().optional()
 }).passthrough();
 export const characterWorksSchema = pageSchema(communityPostSchema);

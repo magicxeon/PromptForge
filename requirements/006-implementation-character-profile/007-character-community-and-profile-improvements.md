@@ -354,6 +354,23 @@ Compatibility behavior:
   confirmation.
 - The server remains authoritative and validates every combination.
 
+### 6.1 Sharing Persistence Regression
+
+The owner editor and server contract use the same canonical reuse values:
+`owner_only`, `view_only`, and `public_reusable`. The browser must never submit
+the obsolete `public_reuse` alias. Enabling `public_reusable` requires the
+rights declaration in the same request.
+
+- keep the editor open until metadata and sharing requests both succeed;
+- show a visible error and do not report success when either request fails;
+- refresh owner detail, public Character discovery, Creator profile Characters,
+  and Character pickers after a successful update;
+- reject unknown visibility or reuse-policy values at the server boundary
+  instead of silently retaining the previous value;
+- reopening Manage Character must show the persisted server value;
+- another actor can request a handoff immediately after an approved public
+  Character is saved as `public_reusable`.
+
 ## 7. System Design
 
 ### 7.1 Client responsibilities

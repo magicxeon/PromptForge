@@ -25,6 +25,81 @@ test('public reusable Character permits viewer handoff while view-only does not'
   assert.equal(canReuseCharacterProfile(viewOnly, owner), true);
 });
 
+test('Character sharing rejects an unknown reuse policy instead of silently retaining owner-only', async () => {
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      findByIdForOwner: async () => ({
+        id: 'charprof_policy',
+        ownerUserId: owner.userId,
+        status: 'approved',
+        visibility: 'public',
+        reusePolicy: 'owner_only'
+      })
+    }
+  });
+
+  await assert.rejects(
+    service.updateSharing('charprof_policy', {
+      visibility: 'public',
+      reusePolicy: 'public_reuse'
+    }, owner),
+    error => error?.code === 'character_reuse_policy_invalid'
+  );
+});
+
+test('Character sharing persists public reuse and synchronizes a reusable projection', async () => {
+  let persistedPatch = null;
+  let projectedRecord = null;
+  const profile = {
+    id: 'charprof_reusable',
+    activeVersionId: 'charver_reusable',
+    ownerUserId: owner.userId,
+    status: 'approved',
+    visibility: 'public',
+    reusePolicy: 'owner_only',
+    displayName: 'Reusable Mina',
+    shortDescription: '',
+    personalitySummary: '',
+    intendedUses: ['scene_story'],
+    characterType: 'reusable_model'
+  };
+  const service = new CharacterProfileSharingService({
+    profileRepository: {
+      findByIdForOwner: async () => profile,
+      updateSystem: async (_id, patch) => {
+        persistedPatch = patch;
+        return { ...profile, ...patch, recordVersion: 2 };
+      }
+    },
+    versionRepository: {
+      findById: async () => ({
+        id: 'charver_reusable',
+        characterProfileId: profile.id,
+        status: 'approved',
+        canonicalCastingExportAssetId: 'job_casting'
+      })
+    },
+    communityCharacterRepository: {
+      upsertProfileProjection: async record => {
+        projectedRecord = record;
+        return record;
+      }
+    }
+  });
+
+  const result = await service.updateSharing(profile.id, {
+    visibility: 'public',
+    reusePolicy: 'public_reusable',
+    rightsDeclarationAccepted: true
+  }, owner);
+
+  assert.equal(persistedPatch.reusePolicy, 'public_reusable');
+  assert.equal(persistedPatch.rightsDeclarationVersion, 'character-public-reuse-rights-v1');
+  assert.equal(projectedRecord.reusePolicy, 'use_as_character');
+  assert.equal(projectedRecord.status, 'active');
+  assert.equal(result.reusePolicy, 'public_reusable');
+});
+
 test('public Character Profile projection is selectable without a legacy handoff snapshot', async t => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mpf-character-projection-'));
   t.after(() => fs.rm(dir, { recursive: true, force: true }));

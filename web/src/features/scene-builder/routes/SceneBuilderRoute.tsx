@@ -726,8 +726,7 @@ export function SceneBuilderRoute() {
               characterReferenceOutfitBehavior: characterOutfitBehavior,
               references: lightweightStudioReferences(references)
             })}
-            showRandomize={false}
-            showExport={false}
+            variant="scene"
           />
         )}
         studioQueueExtra={(

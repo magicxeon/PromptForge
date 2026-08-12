@@ -1,5 +1,77 @@
 [
   {
+    "templateId": "tmpl_1786268744418_0tbfx2ou",
+    "templateVersionId": "tmplv_1786268744424_lhshqes1",
+    "sourceCommunityPostId": "post_1786268744435_5h7mwkul",
+    "actorUserId": "usr_support",
+    "actorUsername": "support_demo",
+    "pricingSnapshot": {
+      "accessCredits": 15,
+      "cadence": "per_output",
+      "creatorShareBps": 7500,
+      "platformShareBps": 2500,
+      "currency": "credits"
+    },
+    "publicInputSchema": {
+      "schemaVersion": 1,
+      "inputs": [
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.character",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "required": true,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_front",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "fashionBindingRole": "fashion.outfit_back",
+          "allowedOptionIds": []
+        }
+      ]
+    },
+    "expiresAt": "2026-08-11T17:24:53.769Z",
+    "consumedAt": null,
+    "generatedJobIds": [],
+    "id": "tmpls_1786465493769_6kuuigvo",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_support",
+    "ownerUsername": "support_demo",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-11T16:24:53.769Z",
+    "updatedAt": "2026-08-11T16:24:53.769Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "templateId": "tmpl_1785602001168_s960q769",
     "templateVersionId": "tmplv_1785602001173_26ect756",
     "sourceCommunityPostId": "post_1785602001186_pbu5qf1a",

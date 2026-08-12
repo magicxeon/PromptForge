@@ -54,12 +54,24 @@ export class CharacterProfileSharingService {
         409
       );
     }
-    const visibility = ['private', 'unlisted', 'public'].includes(input.visibility)
-      ? input.visibility
-      : profile.visibility;
-    const reusePolicy = ['owner_only', 'view_only', 'public_reusable'].includes(input.reusePolicy)
-      ? input.reusePolicy
-      : profile.reusePolicy;
+    const visibilityPolicies = ['private', 'unlisted', 'public'];
+    const reusePolicies = ['owner_only', 'view_only', 'public_reusable'];
+    if (input.visibility !== undefined && !visibilityPolicies.includes(input.visibility)) {
+      throw new RepositoryContractError(
+        'character_visibility_invalid',
+        'Character visibility is invalid.',
+        400
+      );
+    }
+    if (input.reusePolicy !== undefined && !reusePolicies.includes(input.reusePolicy)) {
+      throw new RepositoryContractError(
+        'character_reuse_policy_invalid',
+        'Character reuse policy is invalid.',
+        400
+      );
+    }
+    const visibility = input.visibility ?? profile.visibility;
+    const reusePolicy = input.reusePolicy ?? profile.reusePolicy;
     if (reusePolicy === 'public_reusable' && input.rightsDeclarationAccepted !== true) {
       throw new RepositoryContractError(
         'character_rights_declaration_required',

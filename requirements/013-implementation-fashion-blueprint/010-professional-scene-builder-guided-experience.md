@@ -614,6 +614,13 @@ For Scene Builder:
 - The Admin/debug prompt surface includes a familiar Copy icon action that
   copies the current canonical compiled prompt from the read-only text area.
 
+The shared configurator action contract uses explicit `standard` and `scene`
+variants instead of unrelated visibility flags. Hiding a retired Scene action
+must never hide Reset or reveal another retired action accidentally. Component
+regression coverage must assert both inventories: standard Studio retains all
+actions owned by its requirements, while Scene Builder retains Reset and omits
+Surprise and Export.
+
 This requirement does not remove Surprise or Export from another surface
 unless that surface's owning requirement also removes it.
 
@@ -853,6 +860,8 @@ Manual visual review:
 - Custom Write-In has a clear committed state and cannot conflict with a
   catalog selection.
 - Scene Builder no longer shows Surprise Me or Export Config.
+- Scene Builder continues to show a working Reset Form action; shared action
+  visibility cannot substitute one button for another.
 - Every released recipe passes professional pose/environment/camera/lighting
   review.
 - The server remains authoritative for prompt compilation and reference
@@ -1665,3 +1674,12 @@ ratio and resolution with these three personality fixtures:
 Acceptance requires a recognizable unchanged Character in all three runs,
 close professional profile framing, visible but restrained variation in
 expression/light/mood, realistic skin and no invented symbolic prop or costume.
+
+## 25. Manual Verification - Mutable Draft Prompt Reconciliation
+
+Owner verification on 2026-08-11 passed the stale Attribute Prompt scenario.
+An actor-scoped Scene Builder draft retained its selected option IDs while the
+authoring prompt was automatically refreshed from the current Attribute
+Catalog. The user did not need to Reset Form, stale literal prompt text was not
+dispatched, and immutable published Template snapshots remained outside this
+mutable-draft reconciliation contract.

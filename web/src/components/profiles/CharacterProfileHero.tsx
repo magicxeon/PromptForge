@@ -59,7 +59,8 @@ export function CharacterProfileHero({
 }: CharacterProfileHeroProps) {
   const { t, i18n } = useTranslation(['character-profiles', 'react-ui']);
   const creatorHandle = normalizeCreatorHandle(character.ownerUsername);
-  const availabilityLabel = character.handoffAvailable
+  const publiclyReusable = character.reusePolicy === 'public_reusable' && character.handoffAvailable;
+  const availabilityLabel = publiclyReusable
     ? t('character-profiles.status.available')
     : character.reusePolicy === 'owner_only'
       ? t('character-profiles.status.ownerOnly')
@@ -103,8 +104,8 @@ export function CharacterProfileHero({
               <span className="character-showcase__kicker">{t('character-profiles.page.kicker')}</span>
               <h1 id="character-profile-title">{character.displayName}</h1>
             </div>
-            <span className={`character-showcase__availability${character.handoffAvailable ? ' is-available' : ''}`}>
-              {character.handoffAvailable
+            <span className={`character-showcase__availability${publiclyReusable ? ' is-available' : ''}`}>
+              {publiclyReusable
                 ? <CheckCircle2 aria-hidden="true" />
                 : <LockKeyhole aria-hidden="true" />}
               {availabilityLabel}

@@ -600,5 +600,18 @@
     "occurredAt": "2026-08-09T13:16:52.027Z",
     "requestId": "req_1786281412023_1zwjyr8",
     "metadata": {}
+  },
+  {
+    "id": "engevt_7f82c872-04ed-492c-8c2f-9312f6e9ffad",
+    "schemaVersion": 1,
+    "postId": "post_1786268744435_5h7mwkul",
+    "actorUserId": "usr_support",
+    "anonymousSessionHash": null,
+    "eventType": "view",
+    "targetId": null,
+    "dedupeKey": "view:post_1786268744435_5h7mwkul:usr_support:2026-08-11T16:24:52.135Z",
+    "occurredAt": "2026-08-11T16:24:52.135Z",
+    "requestId": "req_1786465492127_vni0irl",
+    "metadata": {}
   }
 ]
