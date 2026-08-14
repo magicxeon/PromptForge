@@ -221,6 +221,60 @@ export class CommunityPostRepository {
         visibility: presentation.visibility === undefined
           ? current.visibility
           : pickAllowedValue(presentation.visibility, allowedVisibility, current.visibility),
+        promptVisibility: presentation.promptVisibility === undefined
+          ? current.promptVisibility
+          : pickAllowedValue(
+            presentation.promptVisibility,
+            ['full', 'partial', 'remix_only', 'private'],
+            current.promptVisibility
+          ),
+        templatePricing: presentation.templatePricing === undefined
+          ? current.templatePricing
+          : structuredClone(presentation.templatePricing),
+        sharedPromptSnapshot: presentation.sharedPromptSnapshot === undefined
+          ? current.sharedPromptSnapshot
+          : stripEmbeddedBase64(presentation.sharedPromptSnapshot),
+        sceneTemplateSnapshot: presentation.sceneTemplateSnapshot === undefined
+          ? current.sceneTemplateSnapshot
+          : stripEmbeddedBase64(presentation.sceneTemplateSnapshot),
+        updatedAt: new Date().toISOString()
+      };
+      posts[index] = next;
+      return normalizeCommunityPostRecord(next, this.userRepository);
+    });
+  }
+
+  async activatePreparedTemplateByVersion(templateId, templateVersionId, actorContext) {
+    const actor = assertActorContext(actorContext);
+    return mutateJsonFile(this.postsFile, POST_FALLBACK, async posts => {
+      if (!Array.isArray(posts)) throw new TypeError('Community posts data must be an array.');
+      const index = posts.findIndex(post => (
+        post.templateId === templateId
+        && post.templateVersionId === templateVersionId
+        && post.ownerUserId === actor.userId
+      ));
+      if (index < 0) {
+        throw new RepositoryContractError(
+          'community_template_setup_not_found',
+          'Owned Template setup was not found.',
+          404
+        );
+      }
+      const current = posts[index];
+      if (current.status === 'published') {
+        return normalizeCommunityPostRecord(current, this.userRepository);
+      }
+      if (current.status !== 'draft') {
+        throw new RepositoryContractError(
+          'community_template_setup_not_activatable',
+          'This Template setup cannot be published from its current state.',
+          409
+        );
+      }
+      const next = {
+        ...current,
+        status: 'published',
+        publishedAt: current.publishedAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
       posts[index] = next;

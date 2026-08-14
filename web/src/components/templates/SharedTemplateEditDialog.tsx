@@ -11,8 +11,9 @@ import {
   Trash2,
   X
 } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   retireCommunityPost,
   updateCommunityPostPresentation
@@ -34,6 +35,7 @@ import { showToast } from '../ui/toastStore';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { pollingPolicy } from '../../lib/api/pollingPolicy';
 import { useActor } from '../../lib/auth/ActorProvider';
+import { routeBuilders } from '../../app/routeRegistry/routes';
 
 export function SharedTemplateEditDialog({
   post,
@@ -51,8 +53,10 @@ export function SharedTemplateEditDialog({
   hideTrigger?: boolean;
 }) {
   const { t } = useTranslation('react-ui');
+  const navigate = useNavigate();
   const { actor } = useActor();
   const actorId = actor?.userId || 'loading';
+  const helpId = useId();
   const queryClient = useQueryClient();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -61,6 +65,7 @@ export function SharedTemplateEditDialog({
     onOpenChange?.(next);
   };
   const [poseProxyEstimate, setPoseProxyEstimate] = useState<TemplatePoseProxyEstimate | null>(null);
+  const [activatedDuringSession, setActivatedDuringSession] = useState(false);
   const autoEstimateKey = useRef<string | null>(null);
   const templateId = post.templateId || null;
   const poseProxy = useQuery({
@@ -115,10 +120,24 @@ export function SharedTemplateEditDialog({
       poseProxy.data!.proxyId!,
       decision
     ),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.templatePoseProxy(actorId, templateId)
-      });
+    onSuccess: async (_, decision) => {
+      if (decision === 'approve') {
+        setActivatedDuringSession(true);
+        showToast({
+          tone: 'success',
+          title: t('ui.toast.templatePublished'),
+          description: t('ui.toast.templatePublishedDescription')
+        });
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.templatePoseProxy(actorId, templateId)
+        }),
+        queryClient.invalidateQueries({ queryKey: ['community-post', post.id] }),
+        queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
+        queryClient.invalidateQueries({ queryKey: ['creator-page'] }),
+        queryClient.invalidateQueries({ queryKey: ['fashion-ready-template-index'] })
+      ]);
     }
   });
   const update = useMutation({
@@ -127,6 +146,8 @@ export function SharedTemplateEditDialog({
       description: string;
       customTags: string[];
       visibility: 'public' | 'unlisted' | 'private';
+      promptVisibility: 'full' | 'remix_only';
+      templateAccessCredits: number;
     }) => updateCommunityPostPresentation(post.id, input),
     onSuccess: async () => {
       setOpen(false);
@@ -136,6 +157,7 @@ export function SharedTemplateEditDialog({
         queryClient.invalidateQueries({ queryKey: ['community-posts'] }),
         queryClient.invalidateQueries({ queryKey: ['creator-page'] })
       ]);
+      navigate(routeBuilders.post(post.id));
     },
     onError: error => showToast({
       tone: 'error',
@@ -180,7 +202,9 @@ export function SharedTemplateEditDialog({
     || ['pending', 'processing'].includes(displayedReadinessStatus);
   const sharingStatus = post.status === 'owner_unpublished'
     ? 'retired'
-    : normalizeSharingStatus(post.visibility);
+    : post.status === 'draft' && !activatedDuringSession
+      ? 'setup_required'
+      : normalizeSharingStatus(post.visibility);
   const requestPoseProxyEstimate = estimateProxy.mutate;
 
   useEffect(() => {
@@ -219,7 +243,12 @@ export function SharedTemplateEditDialog({
       title: String(form.get('title') || '').trim(),
       description: String(form.get('description') || '').trim(),
       customTags: parseTags(String(form.get('customTags') || '')),
-      visibility: normalizeVisibility(form.get('visibility'))
+      visibility: normalizeVisibility(form.get('visibility')),
+      promptVisibility: normalizeTemplatePromptVisibility(form.get('promptVisibility')),
+      templateAccessCredits: Math.max(
+        0,
+        Math.trunc(Number(form.get('templateAccessCredits')) || 0)
+      )
     });
   }
 
@@ -403,8 +432,12 @@ export function SharedTemplateEditDialog({
                   maxLength={300}
                   defaultValue={post.customTags.join(', ')}
                   placeholder={t('ui.templateManagement.customTagsPlaceholder')}
+                  aria-label={t('ui.templateManagement.customTags')}
+                  aria-describedby={`${helpId}-custom-tags`}
                 />
-                <small>{t('ui.templateManagement.customTagsHelp')}</small>
+                <small id={`${helpId}-custom-tags`}>
+                  {t('ui.templateManagement.customTagsHelp')}
+                </small>
               </label>
 
               <label className="template-management-dialog__field">
@@ -417,6 +450,38 @@ export function SharedTemplateEditDialog({
                   <option value="unlisted">{t('ui.share.unlisted')}</option>
                   <option value="private">{t('ui.character.private')}</option>
                 </select>
+              </label>
+
+              <label className="template-management-dialog__field">
+                <span>{t('ui.templateManagement.promptVisibility')}</span>
+                <select
+                  name="promptVisibility"
+                  defaultValue={post.promptVisibility === 'remix_only' ? 'remix_only' : 'full'}
+                  aria-label={t('ui.templateManagement.promptVisibility')}
+                  aria-describedby={`${helpId}-prompt-visibility`}
+                >
+                  <option value="full">{t('ui.share.full')}</option>
+                  <option value="remix_only">{t('ui.share.remixOnly')}</option>
+                </select>
+                <small id={`${helpId}-prompt-visibility`}>
+                  {t('ui.templateManagement.promptVisibilityHelp')}
+                </small>
+              </label>
+
+              <label className="template-management-dialog__field">
+                <span>{t('ui.templateManagement.accessCredits')}</span>
+                <input
+                  type="number"
+                  name="templateAccessCredits"
+                  min="0"
+                  step="1"
+                  defaultValue={post.templatePricing?.accessCredits || 0}
+                  aria-label={t('ui.templateManagement.accessCredits')}
+                  aria-describedby={`${helpId}-access-credits`}
+                />
+                <small id={`${helpId}-access-credits`}>
+                  {t('ui.templateManagement.accessCreditsHelp')}
+                </small>
               </label>
 
               {update.isError ? (
@@ -495,6 +560,12 @@ function normalizeVisibility(
   value: FormDataEntryValue | null
 ): 'public' | 'unlisted' | 'private' {
   return value === 'unlisted' || value === 'private' ? value : 'public';
+}
+
+function normalizeTemplatePromptVisibility(
+  value: FormDataEntryValue | null
+): 'full' | 'remix_only' {
+  return value === 'remix_only' ? 'remix_only' : 'full';
 }
 
 function inferVisibility(post: CommunityPost): 'public' | 'unlisted' | 'private' {

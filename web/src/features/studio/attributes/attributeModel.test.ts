@@ -8,7 +8,9 @@ import {
   isAdultMalePresentation,
   normalizeAttributeGroups,
   reconcileSelectionsWithApplicability,
-  reconcileSelectionsWithCatalog
+  reconcileSelectionsWithCatalog,
+  sanitizeAttributeSelections,
+  type AttributeSelection
 } from './attributeModel';
 import {
   applyCustomColorSelectionAuthority,
@@ -297,6 +299,27 @@ describe('Studio attribute model', () => {
 
     expect(reconciled['Body Silhouette']?.value)
       .toBe('current anatomical proportion direction');
+  });
+
+  it('drops malformed persisted selections before reconciliation or prompt compilation', () => {
+    const malformed = {
+      'Pose Intent': {
+        value: 'legacy pose without an option id',
+        label: 'Legacy pose',
+        isCustom: false,
+        group: 'Pose',
+        category: 'pose'
+      }
+    } as unknown as Record<string, AttributeSelection>;
+
+    expect(sanitizeAttributeSelections(malformed)).toEqual({});
+    expect(() => reconcileSelectionsWithCatalog(malformed, [])).not.toThrow();
+    expect(() => reconcileSelectionsWithApplicability(malformed, [])).not.toThrow();
+    expect(() => compileSelectionPreview(
+      malformed,
+      'scene',
+      'styled_character'
+    )).not.toThrow();
   });
 
   it('restores legacy Body fields through their canonical Character Sheet names', () => {

@@ -47,6 +47,7 @@ export const communityPostSchema = z.object({
   title: z.string().default(''),
   description: z.string().default(''),
   status: z.enum([
+    'draft',
     'active',
     'published',
     'reported',
@@ -59,6 +60,7 @@ export const communityPostSchema = z.object({
   thumbnailUrl: nullableText,
   presentationUrls: z.object({
     templateCard: nullableText,
+    templateDetail: nullableText,
     profileTemplateSquare: nullableText
   }).default({}),
   officialTags: z.array(z.string()).default([]),

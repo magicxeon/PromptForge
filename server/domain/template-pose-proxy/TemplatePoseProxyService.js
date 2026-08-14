@@ -14,7 +14,8 @@ export class TemplatePoseProxyService {
     templateRepository = templateRepo,
     versionRepository = templateVersionRepo,
     reservationService = creditApplicationService,
-    policyService = templatePoseProxyPolicyService
+    policyService = templatePoseProxyPolicyService,
+    onActivated = null
   }) {
     this.providerRegistry = providerRegistry;
     this.generationApplicationService = generationApplicationService;
@@ -23,6 +24,7 @@ export class TemplatePoseProxyService {
     this.versionRepository = versionRepository;
     this.reservationService = reservationService;
     this.policyService = policyService;
+    this.onActivated = typeof onActivated === 'function' ? onActivated : null;
     this.processor = new GenerativePoseProxyProcessor({
       providerRegistry,
       generationApplicationService
@@ -270,6 +272,12 @@ export class TemplatePoseProxyService {
       reviewedAt: now,
       activatedAt: approved ? now : null
     }));
+    if (approved && this.onActivated) {
+      await this.onActivated({
+        templateId: updated.templateId,
+        templateVersionId: updated.templateVersionId
+      }, actorContext);
+    }
     return this.toPublicReadiness(updated);
   }
 

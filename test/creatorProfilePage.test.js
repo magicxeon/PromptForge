@@ -44,6 +44,15 @@ const posts = [
   publicPost('post_comparison', 'comparison'),
   publicPost('post_collection', 'collection')
 ];
+const ownerPosts = [
+  ...posts,
+  {
+    ...publicPost('post_template_setup', 'template'),
+    status: 'draft',
+    templateId: 'tmpl_setup',
+    templateVersionId: 'tmplv_setup'
+  }
+];
 
 function createService() {
   return new CreatorProfilePageService({
@@ -55,6 +64,12 @@ function createService() {
       listPublic: async () => ({
         items: structuredClone(posts),
         totalApprox: posts.length,
+        hasMore: false,
+        nextCursor: null
+      }),
+      findByOwner: async () => ({
+        items: structuredClone(ownerPosts),
+        totalApprox: ownerPosts.length,
         hasMore: false,
         nextCursor: null
       })
@@ -99,7 +114,7 @@ test('creator profile page returns a bounded overview and owner management conte
   assert.equal(model.profile.coverImageUrl, '/api/scene-templates/shared/post_image/image');
   assert.equal(model.profile.profileTheme, 'creative');
   assert.equal(model.counts.publicCharacters, 1);
-  assert.equal(model.counts.templates, 1);
+  assert.equal(model.counts.templates, 2);
   assert.equal(model.overview.featured.items[0].id, 'post_image');
   assert.equal(model.overview.characters.items[0].id, 'character_one');
   assert.equal(model.viewer.canManageContent, true);
@@ -112,6 +127,19 @@ test('creator profile public page excludes owner management and selects a deep-l
   assert.deepEqual(model.tabData.page.items.map(item => item.id), ['post_template']);
   assert.equal(model.viewer.canManageContent, false);
   assert.equal(model.management, null);
+});
+
+test('owner Templates tab includes setup drafts without exposing them to another viewer', async () => {
+  const service = createService();
+  const ownerPage = await service.getPage('owner', { tab: 'templates' }, owner);
+  const viewerPage = await service.getPage('owner', { tab: 'templates' }, viewer);
+
+  assert.deepEqual(ownerPage.tabData.page.items.map(item => item.id), [
+    'post_template',
+    'post_template_setup'
+  ]);
+  assert.equal(ownerPage.tabData.page.items[1].status, 'draft');
+  assert.deepEqual(viewerPage.tabData.page.items.map(item => item.id), ['post_template']);
 });
 
 test('creator profile page resolves the immutable profile id used by canonical routes', async () => {

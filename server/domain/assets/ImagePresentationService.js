@@ -4,12 +4,43 @@ import path from 'path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
 export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
+  'template-card-person-focus-v2': Object.freeze({
+    id: 'template-card-person-focus-v2',
+    width: 640,
+    height: 400,
+    fit: 'cover',
+    positionStrategy: 'north',
+    sourceMedia: 'thumbnail',
+    format: 'webp',
+    quality: 86
+  }),
+  'template-detail-person-focus-v1': Object.freeze({
+    id: 'template-detail-person-focus-v1',
+    width: 768,
+    height: 960,
+    fit: 'cover',
+    positionStrategy: 'north',
+    sourceMedia: 'image',
+    format: 'webp',
+    quality: 90
+  }),
+  'profile-template-square-person-focus-v2': Object.freeze({
+    id: 'profile-template-square-person-focus-v2',
+    width: 640,
+    height: 640,
+    fit: 'cover',
+    positionStrategy: 'north',
+    sourceMedia: 'thumbnail',
+    format: 'webp',
+    quality: 88
+  }),
   'template-card-person-focus': Object.freeze({
     id: 'template-card-person-focus',
     width: 640,
     height: 400,
     fit: 'cover',
     positionStrategy: 'attention',
+    sourceMedia: 'thumbnail',
     format: 'webp',
     quality: 86
   }),
@@ -19,6 +50,7 @@ export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
     height: 640,
     fit: 'cover',
     positionStrategy: 'attention',
+    sourceMedia: 'thumbnail',
     format: 'webp',
     quality: 88
   }),
@@ -144,6 +176,7 @@ function comparisonProfile(id, width, height) {
     height,
     fit: 'cover',
     positionStrategy: 'attention',
+    sourceMedia: 'thumbnail',
     format: 'webp',
     quality: 86
   });

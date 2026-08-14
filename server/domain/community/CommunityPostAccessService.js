@@ -66,6 +66,13 @@ export class CommunityPostAccessService {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
+    if (!['active', 'published'].includes(post.status)) {
+      throw new RepositoryContractError(
+        'community_template_setup_incomplete',
+        'This Template is still being prepared and cannot be reused yet.',
+        409
+      );
+    }
     if (post.reusePolicy !== 'remix_allowed') {
       throw new RepositoryContractError('community_template_unavailable', 'This template is not available for reuse.', 404);
     }
@@ -137,7 +144,11 @@ export class CommunityPostAccessService {
       title: presentation.title,
       description: presentation.description,
       customTags: presentation.customTags,
-      visibility: presentation.visibility
+      visibility: presentation.visibility,
+      promptVisibility: presentation.promptVisibility,
+      templatePricing: presentation.templatePricing,
+      sharedPromptSnapshot: presentation.sharedPromptSnapshot,
+      sceneTemplateSnapshot: presentation.sceneTemplateSnapshot
     }, actor);
     await this.auditRepository.appendEvent({
       action: 'community_post_owner_presentation_updated',
@@ -222,6 +233,8 @@ function publicPresentationAuditSnapshot(post = {}) {
     description: post.description || '',
     customTags: Array.isArray(post.customTags) ? [...post.customTags] : [],
     visibility: post.visibility || 'public',
+    promptVisibility: post.promptVisibility || 'hidden',
+    templateAccessCredits: Math.max(0, Number(post.templatePricing?.accessCredits) || 0),
     templateId: post.templateId || null,
     templateVersionId: post.templateVersionId || null
   };

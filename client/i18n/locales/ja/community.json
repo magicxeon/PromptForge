@@ -161,5 +161,6 @@
   "community.detail.collectionComingSoon": "近日公開",
   "community.detail.moreFromCreator": "{name} のその他の作品",
   "community.comments.empty": "コメントはまだありません。最初のコメントを投稿しましょう。",
-  "community.status.retired": "廃止済み"
+  "community.status.retired": "廃止済み",
+  "community.status.setupRequired": "セットアップが必要"
 }

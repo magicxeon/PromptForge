@@ -41,6 +41,17 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
   assert.equal(published.template.pricing.creatorShareBps, 7500);
   assert.equal(published.template.pricing.platformShareBps, 2500);
 
+  const updatedSettings = await service.updatePublishedSettings(published.template.id, {
+    accessCredits: 11,
+    promptVisibility: 'remix_only',
+    visibility: 'unlisted'
+  }, actor);
+  assert.equal(updatedSettings.template.pricing.accessCredits, 11);
+  assert.equal(updatedSettings.template.visibility, 'unlisted');
+  assert.equal(updatedSettings.version.id, published.version.id);
+  assert.equal(updatedSettings.version.promptVisibility, 'remix_only');
+  assert.equal(updatedSettings.version.visibility, 'unlisted');
+
   const handoff = await service.createUseSession({
     templateId: published.template.id,
     sourceCommunityPostId: 'post_1'
@@ -52,7 +63,7 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
     undefined
   );
   assert.equal(handoff.useSession.sourceCommunityPostId, 'post_1');
-  assert.equal(handoff.pricing.accessCredits, 7);
+  assert.equal(handoff.pricing.accessCredits, 11);
 
   const resolved = await service.resolveSession(handoff.useSession.id, viewer, {
     environment: { id: 'environment.rooftop', value: 'city rooftop' }
@@ -72,6 +83,7 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
   });
   const pricing = await service.resolvePricing(handoff.useSession.id, viewer);
   assert.equal(pricing.executionReferenceCount, 1);
+  assert.equal(pricing.unitCredits, 11);
   await service.attachGeneration(handoff.useSession.id, viewer, 'job_result_1');
   const firstUsage = await service.recordSuccessfulUse({
     sessionId: handoff.useSession.id,

@@ -16,6 +16,7 @@ import { readCharacterHandoffNavigationState } from '../../profiles/characterHan
 import {
   compileSelectionPreview,
   normalizeAttributeGroups,
+  sanitizeAttributeSelections,
   type AttributeSelection
 } from '../../studio/attributes/attributeModel';
 import { GuidedAttributeForm } from '../../studio/components/GuidedAttributeForm';
@@ -122,8 +123,9 @@ export function SceneBuilderRoute() {
       || initialDraft.manualPrompt
   );
   const [selections, setSelections] = useState<Record<string, AttributeSelection>>(
-    initialHandoff.snapshot?.structuredSelectionsSnapshot as Record<string, AttributeSelection>
-      || initialDraft.selections
+    sanitizeAttributeSelections(
+      initialHandoff.snapshot?.structuredSelectionsSnapshot || initialDraft.selections
+    )
   );
   const [lockedFields, setLockedFields] = useState<string[]>(initialDraft.lockedFields);
   const [customColors, setCustomColors] = useState<StudioCustomColors>(
@@ -274,7 +276,7 @@ export function SceneBuilderRoute() {
       setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
       setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
       setAppliedScenePoseRecipeVersion(next.snapshot.scenePoseRecipeVersion || null);
-      setSelections(next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>);
+      setSelections(sanitizeAttributeSelections(next.snapshot.structuredSelectionsSnapshot));
       setCustomColors(createStudioCustomColors(readSnapshotCustomColors(next.snapshot)));
       setManualPrompt(next.snapshot.manualPromptSnapshot || next.snapshot.finalPromptSnapshot || '');
       if (next.context) {
@@ -371,9 +373,9 @@ export function SceneBuilderRoute() {
       setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
       setScenePoseRecipeId(next.snapshot.scenePoseRecipeId || null);
       setAppliedScenePoseRecipeVersion(next.snapshot.scenePoseRecipeVersion || null);
-      setSelections(
-        next.snapshot.structuredSelectionsSnapshot as Record<string, AttributeSelection>
-      );
+      setSelections(sanitizeAttributeSelections(
+        next.snapshot.structuredSelectionsSnapshot
+      ));
       setCustomColors(createStudioCustomColors(
         readSnapshotCustomColors(next.snapshot)
       ));
@@ -812,9 +814,7 @@ function loadSceneDraft(actorId: string): {
   return {
     mode: parsed.mode === 'manual' ? 'manual' : 'guided',
     manualPrompt: typeof parsed.manualPrompt === 'string' ? parsed.manualPrompt : '',
-    selections: parsed.selections && typeof parsed.selections === 'object'
-      ? parsed.selections
-      : {},
+    selections: sanitizeAttributeSelections(parsed.selections),
     lockedFields: Array.isArray(parsed.lockedFields) ? parsed.lockedFields : [],
     customColors: createStudioCustomColors(parsed.customColors),
     additionalDirection: typeof parsed.additionalDirection === 'string'
@@ -923,7 +923,7 @@ function loadSceneHandoff(routeState: unknown = null): {
   };
   try {
     const activeActorId = getActiveActorId();
-    const template = readHandoff<{
+    const storedTemplate = readHandoff<{
       sceneTemplateSnapshot?: SceneTemplateSnapshot;
       templateUseContext?: TemplateUseContext;
       payload?: { snapshot?: SceneTemplateSnapshot; sceneTemplateSnapshot?: SceneTemplateSnapshot };
@@ -940,6 +940,11 @@ function loadSceneHandoff(routeState: unknown = null): {
       'scene_builder'
     );
     const face = readFaceReferenceHandoff(activeActorId, 'scene_builder');
+    const storedTemplateContext = storedTemplate?.payload?.templateUseContext || null;
+    const template = isExpiredTemplateUseContext(storedTemplateContext)
+      ? null
+      : storedTemplate;
+    if (storedTemplate && !template) clearHandoff('scene-template');
     const characterPayload = routeCharacterPayload
       || (character?.payload?.destination === 'scene_builder'
         ? character.payload
@@ -973,4 +978,10 @@ function loadSceneHandoff(routeState: unknown = null): {
   } catch {
     return empty;
   }
+}
+
+function isExpiredTemplateUseContext(context: TemplateUseContext | null) {
+  if (!context || typeof context.expiresAt !== 'string') return false;
+  const expiresAt = Date.parse(context.expiresAt);
+  return Number.isFinite(expiresAt) && expiresAt <= Date.now();
 }

@@ -1,11 +1,35 @@
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { communityPostSchema } from '../../features/community/schemas/communitySchemas';
-import { MediaStage } from './MediaStage';
+import { MediaStage, resolveCommunityPostDetailMedia } from './MediaStage';
+
+vi.mock('./AuthenticatedMediaImage', () => ({
+  AuthenticatedMediaImage: ({
+    src,
+    alt,
+    className,
+    loading
+  }: {
+    src: string;
+    alt?: string;
+    className?: string;
+    loading?: 'eager' | 'lazy';
+  }) => (
+    <img
+      src={src}
+      alt={alt || ''}
+      className={className}
+      loading={loading}
+      data-authenticated-media="true"
+    />
+  )
+}));
 
 const post = communityPostSchema.parse({
   id: 'post_media_source',
   postType: 'image',
+  status: 'published',
+  visibility: 'public',
   creator: { displayName: 'Creator' },
   imageUrl: '/api/scene-templates/shared/post_media_source/image',
   thumbnailUrl: '/api/scene-templates/shared/post_media_source/thumbnail',
@@ -13,6 +37,19 @@ const post = communityPostSchema.parse({
 });
 
 describe('MediaStage media source', () => {
+  it('keeps Template detail face-focused without changing ordinary Image detail', () => {
+    expect(resolveCommunityPostDetailMedia({ postType: 'template' })).toEqual({
+      fit: 'cover',
+      presentation: 'templateDetail',
+      source: 'original'
+    });
+    expect(resolveCommunityPostDetailMedia({ postType: 'image' })).toEqual({
+      fit: 'contain',
+      presentation: 'templateCard',
+      source: 'original'
+    });
+  });
+
   it('uses the preview by default for discovery surfaces', () => {
     const { container } = render(<MediaStage post={post} />);
 
@@ -31,22 +68,65 @@ describe('MediaStage media source', () => {
     );
   });
 
-  it('uses the server attention presentation for cover previews', () => {
+  it('uses actor-authenticated media for an owner-only Template draft', () => {
+    const draft = communityPostSchema.parse({
+      ...post,
+      postType: 'template',
+      status: 'draft',
+      visibility: 'private'
+    });
+    const { container } = render(<MediaStage post={draft} fit="cover" />);
+
+    expect(container.querySelector('img')).toHaveAttribute('data-authenticated-media', 'true');
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      '/api/scene-templates/shared/post_media_source/thumbnail'
+    );
+  });
+
+  it('uses the server person-focused presentation for cover previews', () => {
     const focusedPost = communityPostSchema.parse({
       ...post,
       presentationUrls: {
-        templateCard: '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus'
+        templateCard: '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus-v2'
       }
     });
     const { container } = render(<MediaStage post={focusedPost} fit="cover" />);
 
     expect(container.querySelector('img')).toHaveAttribute(
       'src',
-      '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus'
+      '/api/scene-templates/shared/post_media_source/presentations/template-card-person-focus-v2'
     );
     expect(container.querySelector('img')).toHaveAttribute(
       'data-fallback-src',
       '/api/scene-templates/shared/post_media_source/thumbnail'
+    );
+  });
+
+  it('uses the dedicated portrait person presentation for Template detail', () => {
+    const focusedPost = communityPostSchema.parse({
+      ...post,
+      postType: 'template',
+      presentationUrls: {
+        templateDetail: '/api/scene-templates/shared/post_media_source/presentations/template-detail-person-focus-v1'
+      }
+    });
+    const { container } = render(
+      <MediaStage
+        post={focusedPost}
+        fit="cover"
+        presentation="templateDetail"
+        source="original"
+      />
+    );
+
+    expect(container.querySelector('img')).toHaveAttribute(
+      'src',
+      '/api/scene-templates/shared/post_media_source/presentations/template-detail-person-focus-v1'
+    );
+    expect(container.querySelector('img')).toHaveAttribute(
+      'data-fallback-src',
+      '/api/scene-templates/shared/post_media_source/image'
     );
   });
 

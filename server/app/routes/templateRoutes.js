@@ -14,14 +14,15 @@ export function registerTemplateRoutes(app, { templateCoreService, templatePoseP
         kind: req.query.kind || null,
         limit: req.query.limit
       });
+      const hydrated = await Promise.all(items.map(async item => ({
+        ...item,
+        poseProxyReadiness: await templatePoseProxyService.getReadiness(
+          item.id,
+          item.currentVersionId
+        )
+      })));
       return res.json({
-        items: await Promise.all(items.map(async item => ({
-          ...item,
-          poseProxyReadiness: await templatePoseProxyService.getReadiness(
-            item.id,
-            item.currentVersionId
-          )
-        })))
+        items: hydrated.filter(item => item.poseProxyReadiness.status === 'active')
       });
     } catch (error) {
       return sendTemplateError(res, error, 'template_list_failed');
@@ -31,9 +32,16 @@ export function registerTemplateRoutes(app, { templateCoreService, templatePoseP
   app.get('/api/templates/:templateId', async (req, res) => {
     try {
       const { template, version } = await templateCoreService.getPublicTemplate(req.params.templateId);
+      const poseProxyReadiness = await templatePoseProxyService.getReadiness(template.id, version.id);
+      if (poseProxyReadiness.status !== 'active') {
+        const error = new Error('This Template is still being prepared.');
+        error.code = 'template_setup_incomplete';
+        error.statusCode = 409;
+        throw error;
+      }
       return res.json({
         ...templateCoreService.toPublicTemplate(template, version),
-        poseProxyReadiness: await templatePoseProxyService.getReadiness(template.id, version.id)
+        poseProxyReadiness
       });
     } catch (error) {
       return sendTemplateError(res, error, 'template_read_failed');
@@ -42,6 +50,16 @@ export function registerTemplateRoutes(app, { templateCoreService, templatePoseP
 
   app.post('/api/templates/:templateId/use-sessions', async (req, res) => {
     try {
+      const readiness = await templatePoseProxyService.getReadiness(
+        req.params.templateId,
+        req.body?.templateVersionId || null
+      );
+      if (readiness.status !== 'active') {
+        const error = new Error('This Template is still being prepared and cannot be reused yet.');
+        error.code = 'template_setup_incomplete';
+        error.statusCode = 409;
+        throw error;
+      }
       const result = await templateCoreService.createUseSession({
         templateId: req.params.templateId,
         templateVersionId: req.body?.templateVersionId,

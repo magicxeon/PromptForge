@@ -6,6 +6,21 @@ import {
   ComparisonThumbnailGrid,
   comparisonThumbnailProfileId
 } from '../comparisons/ComparisonThumbnailGrid';
+import { AuthenticatedMediaImage } from './AuthenticatedMediaImage';
+
+export function resolveCommunityPostDetailMedia(post: Pick<CommunityPost, 'postType'>) {
+  return post.postType === 'template'
+    ? {
+        fit: 'cover' as const,
+        presentation: 'templateDetail' as const,
+        source: 'original' as const
+      }
+    : {
+        fit: 'contain' as const,
+        presentation: 'templateCard' as const,
+        source: 'original' as const
+      };
+}
 
 export function MediaStage({
   post,
@@ -19,7 +34,7 @@ export function MediaStage({
   className?: string;
   eager?: boolean;
   fit?: 'contain' | 'cover';
-  presentation?: 'templateCard' | 'profileTemplateSquare';
+  presentation?: 'templateCard' | 'templateDetail' | 'profileTemplateSquare';
   source?: 'preview' | 'original';
 }) {
   if (post.postType === 'comparison') {
@@ -73,28 +88,55 @@ export function MediaStage({
     );
   }
 
-  const fallbackUrl = apiMediaUrl(images[0]) || '';
-  const attentionUrl = fit === 'cover'
-    ? apiMediaUrl(post.presentationUrls[presentation]) || fallbackUrl
-    : fallbackUrl;
+  const fallbackPath = images[0];
+  const attentionPath = fit === 'cover'
+    ? post.presentationUrls[presentation] || fallbackPath
+    : fallbackPath;
+  const imageClassName = cn(
+    'h-full w-full',
+    fit === 'cover' ? 'object-cover object-top' : 'object-contain'
+  );
   return (
     <div className={cn('grid aspect-[4/3] place-items-center overflow-hidden bg-black', className)}>
-      <img
-        src={attentionUrl}
-        alt=""
-        loading={eager ? 'eager' : 'lazy'}
-        className={cn('h-full w-full', fit === 'cover' ? 'object-cover object-top' : 'object-contain')}
-        data-fallback-src={fallbackUrl}
-        onError={event => {
-          const fallback = event.currentTarget.dataset.fallbackSrc;
-          if (fallback && event.currentTarget.dataset.fallbackApplied !== 'true') {
-            event.currentTarget.dataset.fallbackApplied = 'true';
-            event.currentTarget.src = fallback;
-          }
-        }}
-      />
+      {requiresAuthenticatedMedia(post) ? (
+        <AuthenticatedMediaImage
+          src={attentionPath}
+          alt=""
+          loading={eager ? 'eager' : 'lazy'}
+          className={imageClassName}
+          fallback={attentionPath !== fallbackPath ? (
+            <AuthenticatedMediaImage
+              src={fallbackPath}
+              alt=""
+              loading={eager ? 'eager' : 'lazy'}
+              className={imageClassName}
+              fallback={<Images className="size-8 text-[var(--mpf-text-muted)]" aria-hidden="true" />}
+            />
+          ) : <Images className="size-8 text-[var(--mpf-text-muted)]" aria-hidden="true" />}
+        />
+      ) : (
+        <img
+          src={apiMediaUrl(attentionPath) || ''}
+          alt=""
+          loading={eager ? 'eager' : 'lazy'}
+          className={imageClassName}
+          data-fallback-src={apiMediaUrl(fallbackPath) || ''}
+          onError={event => {
+            const fallback = event.currentTarget.dataset.fallbackSrc;
+            if (fallback && event.currentTarget.dataset.fallbackApplied !== 'true') {
+              event.currentTarget.dataset.fallbackApplied = 'true';
+              event.currentTarget.src = fallback;
+            }
+          }}
+        />
+      )}
     </div>
   );
+}
+
+function requiresAuthenticatedMedia(post: CommunityPost) {
+  return post.visibility === 'private'
+    || !['active', 'published', 'reported'].includes(post.status || '');
 }
 
 function getPostImages(post: CommunityPost, source: 'preview' | 'original') {

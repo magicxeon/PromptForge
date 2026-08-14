@@ -4033,6 +4033,128 @@
       },
       "createdAt": "2026-08-04T05:33:03.442Z",
       "expiresAt": "2026-08-04T05:48:03.405Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "fqt_1786720949460_dv1bkne",
+      "actorUserId": "usr_bob",
+      "planHash": "6a3cd2361583e12153db0645102601ee765a0f1ea71f93fb0b409375814a4705",
+      "setupFingerprint": "1e71e9789be3b7c5b27fa677fb504c8af1601dcea99cb2b711a6f5f5b7e64175",
+      "quotePurpose": "full",
+      "approvedProofRunId": null,
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "templateId": "post_1786716962811_vz14fvt1",
+      "canonicalTemplateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1786716962796_3rxqostm",
+      "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "shotKey": "cover",
+          "estimateId": "est_1786720949427_w2n3llv",
+          "estimatedCredits": 114,
+          "pricingBreakdown": {
+            "baseOutputCredits": 90,
+            "referenceCredits": 4,
+            "generationCredits": 94,
+            "templateUsageCredits": 20,
+            "templateId": "tmpl_1786716962788_t1fxowtc",
+            "templateVersionId": "tmplv_1786716962796_3rxqostm",
+            "templateCreatorUserId": "usr_alice",
+            "templateCreatorUsername": "user_alice",
+            "templateCreatorShareBps": 7500,
+            "textCredits": 0,
+            "adjustmentCredits": 0,
+            "totalCredits": 114
+          },
+          "estimateExpiresAt": "2026-08-14T15:37:29.427Z",
+          "operationFingerprint": "616dca0d41fb1a342d987f8aa17d5c8ab88250708c7813b8ea31728d025b98c7",
+          "referenceProcessingPlanFingerprint": "30fe0b79d8986eefd71689085f78f83dbf94c16b98fa00721ba24a7d7efba92a"
+        }
+      ],
+      "operationCount": 1,
+      "outputCount": 1,
+      "estimatedCredits": 114,
+      "maximumCredits": 114,
+      "breakdown": {
+        "generationCredits": 94,
+        "templateUsageCredits": 20,
+        "operationCredits": {
+          "op_fashion_item_1786719939671_1_cover": 114
+        }
+      },
+      "createdAt": "2026-08-14T15:22:29.460Z",
+      "expiresAt": "2026-08-14T15:37:29.427Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "fqt_1786721287793_698rd08",
+      "actorUserId": "usr_bob",
+      "planHash": "785a734aff56ca87acd811fb8dc13baa79b4ce8862997ca5626687f8abd5d1cc",
+      "setupFingerprint": "bb6040456afd819c2c028aa3e1e217ab82c8814e137d134b2bdfbb4041507a76",
+      "quotePurpose": "full",
+      "approvedProofRunId": null,
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "templateId": "post_1786716962811_vz14fvt1",
+      "canonicalTemplateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1786716962796_3rxqostm",
+      "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "operation_only",
+        "promptStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2"
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "shotKey": "cover",
+          "estimateId": "est_1786721287756_loa8prk",
+          "estimatedCredits": 69,
+          "pricingBreakdown": {
+            "baseOutputCredits": 45,
+            "referenceCredits": 4,
+            "generationCredits": 49,
+            "templateUsageCredits": 20,
+            "templateId": "tmpl_1786716962788_t1fxowtc",
+            "templateVersionId": "tmplv_1786716962796_3rxqostm",
+            "templateCreatorUserId": "usr_alice",
+            "templateCreatorUsername": "user_alice",
+            "templateCreatorShareBps": 7500,
+            "textCredits": 0,
+            "adjustmentCredits": 0,
+            "totalCredits": 69
+          },
+          "estimateExpiresAt": "2026-08-14T15:43:07.756Z",
+          "operationFingerprint": "614587f91cad7c3ff2a183c56f7ed8d5f295fb0c14aa1c178c2d8571b7e6f35e",
+          "referenceProcessingPlanFingerprint": "259aeaeaea9ece530200b57c7ca9b8387417a791f7959b38916bb782c7adbda0"
+        }
+      ],
+      "operationCount": 1,
+      "outputCount": 1,
+      "estimatedCredits": 69,
+      "maximumCredits": 69,
+      "breakdown": {
+        "generationCredits": 49,
+        "templateUsageCredits": 20,
+        "operationCredits": {
+          "op_fashion_item_1786719939671_1_cover": 69
+        }
+      },
+      "createdAt": "2026-08-14T15:28:07.793Z",
+      "expiresAt": "2026-08-14T15:43:07.756Z"
     }
   ]
 }

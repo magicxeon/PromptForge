@@ -133,6 +133,106 @@ test('Fashion Advanced routes bind the same approved Pose Proxy as Simple routes
   assert.equal(plan.templatePoseProxy.sourceGenerationId, 'job_pose_proxy_1');
 });
 
+test('Fashion quote accepts the canonical plan Character with a Template Outfit binding', async () => {
+  const service = new FashionQuoteService({
+    blueprintService: {},
+    providerRegistry: {},
+    postAccessService: {
+      async getPostForTemplateUse() {
+        return {
+          id: 'post_1',
+          postType: 'template',
+          templateId: 'tmpl_1',
+          imageUrl: '/outputs/template.jpg'
+        };
+      }
+    },
+    templateCoreService: {
+      async loadSession() {
+        return {
+          template: { id: 'tmpl_1' },
+          version: {
+            id: 'tmplv_1',
+            preview: { imageUrl: '/outputs/template.jpg' },
+            publicInputSchema: {
+              inputs: [{
+                id: 'outfit_front_reference',
+                sourceFieldName: 'outfit_front_reference',
+                fashionBindingRole: 'fashion.outfit_front'
+              }]
+            }
+          }
+        };
+      }
+    }
+  });
+
+  const context = await service.validateTemplate(
+    'post_1',
+    'tmpls_1',
+    { userId: 'usr_bob' },
+    {
+      characterProfileContext: { characterProfileId: 'charprof_1' },
+      productItems: [{
+        references: {
+          character_reference: {
+            imageUrl: '/api/community/character-profiles/charprof_1/image'
+          }
+        }
+      }]
+    }
+  );
+
+  assert.equal(context.session.version.id, 'tmplv_1');
+});
+
+test('Fashion quote still rejects a Template with no Character authority', async () => {
+  const service = new FashionQuoteService({
+    blueprintService: {},
+    providerRegistry: {},
+    postAccessService: {
+      async getPostForTemplateUse() {
+        return {
+          id: 'post_1',
+          postType: 'template',
+          templateId: 'tmpl_1',
+          imageUrl: '/outputs/template.jpg'
+        };
+      }
+    },
+    templateCoreService: {
+      async loadSession() {
+        return {
+          template: { id: 'tmpl_1' },
+          version: {
+            id: 'tmplv_1',
+            preview: { imageUrl: '/outputs/template.jpg' },
+            publicInputSchema: {
+              inputs: [{
+                id: 'outfit_front_reference',
+                sourceFieldName: 'outfit_front_reference',
+                fashionBindingRole: 'fashion.outfit_front'
+              }]
+            }
+          }
+        };
+      }
+    }
+  });
+
+  await assert.rejects(
+    () => service.validateTemplate(
+      'post_1',
+      'tmpls_1',
+      { userId: 'usr_bob' },
+      { productItems: [] }
+    ),
+    error => error.code === 'fashion_template_bindings_required'
+      && error.details.hasPlanCharacterBinding === false
+      && error.details.hasOutfitBinding === true
+  );
+});
+
 test('Fashion Advanced routes retain model qualification and prompt strategy metadata', () => {
   const service = new FashionBlueprintService({
     providerRegistry: createRegistry()

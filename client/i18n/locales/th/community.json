@@ -218,5 +218,6 @@
   "community.detail.collectionComingSoon": "กำลังพัฒนา",
   "community.detail.moreFromCreator": "ผลงานเพิ่มเติมจาก {name}",
   "community.comments.empty": "ยังไม่มีความคิดเห็น เริ่มแบ่งปันความคิดเห็นเป็นคนแรก",
-  "community.status.retired": "เลิกใช้งานแล้ว"
+  "community.status.retired": "เลิกใช้งานแล้ว",
+  "community.status.setupRequired": "ต้องตั้งค่าให้เสร็จ"
 }

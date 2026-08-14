@@ -8,6 +8,8 @@ function template(id: string): CommunityPost {
   return {
     id,
     postType: 'template',
+    status: 'published',
+    visibility: 'public',
     title: `Template ${id}`,
     imageUrl: `/images/${id}.jpg`,
     thumbnailUrl: `/images/${id}-thumb.jpg`,

@@ -22,6 +22,7 @@ import {
   normalizeAttributeGroups,
   reconcileSelectionsWithCatalog,
   reconcileSelectionsWithApplicability,
+  sanitizeAttributeSelections,
   type AttributeSelection
 } from '../attributes/attributeModel';
 import { GuidedAttributeForm } from '../components/GuidedAttributeForm';
@@ -142,7 +143,7 @@ export function StudioRoute() {
       schemaVersion: STUDIO_DRAFT_VERSION,
       fallback: emptyDraft
     });
-    setSelections(draft.selections || {});
+    setSelections(sanitizeAttributeSelections(draft.selections));
     setReferences({
       ...removeInlineReferences(draft.references || {}),
       ...(initialFaceHandoff?.referenceValue.imageUrl

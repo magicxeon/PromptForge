@@ -15,7 +15,8 @@ describe('MediaCard', () => {
       resources: {
         en: {
           community: {
-            'community.creator.untitled': 'Untitled'
+            'community.creator.untitled': 'Untitled',
+            'community.status.setupRequired': 'Setup required'
           }
         }
       },
@@ -44,5 +45,30 @@ describe('MediaCard', () => {
     expect(screen.getByRole('link', { name: 'Fashion portrait' }))
       .toHaveAttribute('href', '/posts/post_1');
     expect(screen.getByText('Mint Studio')).toBeInTheDocument();
+  });
+
+  it('labels an owner Template draft as setup required without losing its management action', () => {
+    const post = communityPostSchema.parse({
+      id: 'post_template_draft',
+      postType: 'template',
+      status: 'draft',
+      creator: { displayName: 'Mint Studio' },
+      title: 'Editorial Template',
+      thumbnailUrl: '/api/scene-templates/shared/post_template_draft/thumbnail',
+      engagementSummary: {}
+    });
+
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <MemoryRouter>
+          <MediaCard post={post} ownerAction={<button>Continue setup</button>} />
+        </MemoryRouter>
+      </I18nextProvider>
+    );
+
+    expect(screen.getByText('Setup required')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Continue setup' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Editorial Template' }))
+      .toHaveAttribute('href', '/posts/post_template_draft');
   });
 });

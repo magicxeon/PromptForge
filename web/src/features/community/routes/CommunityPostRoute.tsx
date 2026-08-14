@@ -6,7 +6,10 @@ import { useTranslation } from 'react-i18next';
 import { CommentThread } from '../../../components/community/CommentThread';
 import { CreatorIdentity } from '../../../components/community/CreatorIdentity';
 import { EngagementBar } from '../../../components/community/EngagementBar';
-import { MediaStage } from '../../../components/media/MediaStage';
+import {
+  MediaStage,
+  resolveCommunityPostDetailMedia
+} from '../../../components/media/MediaStage';
 import { Button } from '../../../components/ui/Button';
 import { ErrorState, LoadingState } from '../../../components/ui/AsyncState';
 import { MediaCard } from '../../../components/media/MediaCard';
@@ -143,8 +146,7 @@ export function CommunityPostRoute() {
                 <MediaStage
                   post={item}
                   eager
-                  fit="contain"
-                  source="original"
+                  {...resolveCommunityPostDetailMedia(item)}
                   className="community-post-media-panel__stage"
                 />
               </div>

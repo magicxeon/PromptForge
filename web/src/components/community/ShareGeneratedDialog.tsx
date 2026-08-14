@@ -58,8 +58,8 @@ export function ShareGeneratedDialog({
         setTemplateManagementOpen(true);
         showToast({
           tone: 'success',
-          title: t('ui.toast.templatePublished'),
-          description: t('ui.toast.templatePublishedDescription')
+          title: t('ui.toast.templateSetupSaved'),
+          description: t('ui.toast.templateSetupSavedDescription')
         });
       } else {
         showToast({ tone: 'success', title: t('ui.toast.postPublished') });

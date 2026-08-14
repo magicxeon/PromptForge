@@ -98,6 +98,46 @@ export class TemplateCoreService {
     return this.templateRepository.archive(templateId, actorContext);
   }
 
+  async updatePublishedSettings(templateId, input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const current = await this.templateRepository.findById(templateId);
+    if (!current || current.ownerUserId !== actor.userId || current.status !== 'published') {
+      throw new RepositoryContractError('template_not_found', 'Template not found.', 404);
+    }
+    const currentVersion = await this.versionRepository.findById(current.currentVersionId);
+    if (!currentVersion || currentVersion.templateId !== current.id) {
+      throw new RepositoryContractError(
+        'template_version_not_found',
+        'Published template version not found.',
+        404
+      );
+    }
+    const promptVisibility = input.promptVisibility === undefined
+      ? currentVersion.promptVisibility
+      : normalizeTemplatePromptVisibility(input.promptVisibility, currentVersion.executionSnapshot);
+    const pricing = input.accessCredits === undefined
+      ? current.pricing
+      : normalizeTemplatePricing({
+        ...current.pricing,
+        accessCredits: input.accessCredits
+      });
+    const visibility = input.visibility === undefined
+      ? current.visibility
+      : normalizeTemplateVisibility(input.visibility);
+    const [template, version] = await Promise.all([
+      this.templateRepository.updatePublishedSettings(templateId, { pricing, visibility }, actor),
+      this.versionRepository.updatePublishedSettings(currentVersion.id, {
+        promptVisibility,
+        visibility
+      }, actor)
+    ]);
+    return {
+      template,
+      version,
+      sceneTemplateSnapshot: createPublicTemplateProjection(version)
+    };
+  }
+
   async listPublished(query = {}) {
     const templates = await this.templateRepository.listPublished(query);
     return Promise.all(templates.map(async template => {
@@ -294,6 +334,16 @@ export class TemplateCoreService {
 }
 
 export const templateCoreService = new TemplateCoreService();
+
+function normalizeTemplateVisibility(value) {
+  if ([VISIBILITY.PUBLIC, VISIBILITY.UNLISTED, VISIBILITY.PRIVATE].includes(value)) {
+    return value;
+  }
+  throw new RepositoryContractError(
+    'template_visibility_invalid',
+    'Template visibility must be public, unlisted, or private.'
+  );
+}
 
 function safeMediaPointer(value) {
   const pointer = String(value || '').trim();

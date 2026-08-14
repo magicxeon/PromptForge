@@ -27,7 +27,7 @@ function createService(generation) {
         id: `post_${posts.length + 1}`,
         ownerUserId: actor.userId,
         ownerUsername: actor.username,
-        status: 'published'
+        status: input.status || 'published'
       };
       posts.push(post);
       return structuredClone(post);
@@ -124,6 +124,7 @@ test('partial prompt publishing stores only a bounded public-safe excerpt', asyn
   });
   assert.equal(post.reusePolicy, 'view_only');
   assert.equal(post.postType, 'image');
+  assert.equal(post.status, 'published');
   assert.equal(buildCommunityPostPublicView(post).promptPreview, 'Fashion portrait in a bright studio, crisp clothing detail.');
 });
 

@@ -74,3 +74,52 @@ test('Fashion rejects an active Pose Proxy from an obsolete safety strategy', as
     error => error.code === 'fashion_template_pose_proxy_required'
   );
 });
+
+test('approving a Pose Proxy activates its owning Template publication once', async () => {
+  const activated = [];
+  let record = {
+    id: 'proxy_review',
+    templateId: 'tmpl_1',
+    templateVersionId: 'tmplv_1',
+    poseVariantId: 'default',
+    status: 'review_required',
+    qaDecision: 'pending',
+    qaReasonCodes: []
+  };
+  const service = new TemplatePoseProxyService({
+    providerRegistry: {},
+    generationApplicationService: {},
+    repository: {
+      findById: async () => structuredClone(record),
+      update: async (_id, updater) => {
+        record = updater(structuredClone(record));
+        return structuredClone(record);
+      }
+    },
+    templateRepository: {
+      findById: async () => ({ id: 'tmpl_1', ownerUserId: 'usr_owner' })
+    },
+    versionRepository: {},
+    reservationService: {},
+    policyService: {
+      getPolicy: () => ({
+        policyVersion: 'test-policy',
+        processorStrategyVersion: 'test-strategy'
+      })
+    },
+    onActivated: async (input, actor) => activated.push({ input, actor })
+  });
+
+  const result = await service.review({
+    templateId: 'tmpl_1',
+    proxyId: 'proxy_review',
+    decision: 'approve'
+  }, { userId: 'usr_owner', username: 'owner', role: 'creator' });
+
+  assert.equal(result.status, 'active');
+  assert.equal(activated.length, 1);
+  assert.deepEqual(activated[0].input, {
+    templateId: 'tmpl_1',
+    templateVersionId: 'tmplv_1'
+  });
+});

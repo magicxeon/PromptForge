@@ -128,11 +128,16 @@ export class CreatorProfilePageService {
   }
 
   async listCreatorPosts(ownerUserId, actor) {
-    const page = await this.postRepository.listPublic({
-      limit: 50,
-      sort: 'newest',
-      filters: { ownerUserId }
-    }, actor);
+    const page = actor.userId === ownerUserId
+      ? await this.postRepository.findByOwner(ownerUserId, {
+        limit: 50,
+        sort: 'newest'
+      })
+      : await this.postRepository.listPublic({
+        limit: 50,
+        sort: 'newest',
+        filters: { ownerUserId }
+      }, actor);
     return page.items.map(buildCommunityPostPublicView);
   }
 

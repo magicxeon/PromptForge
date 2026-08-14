@@ -11,6 +11,7 @@ export const routePaths = {
   libraryRecent: '/library/recent',
   libraryCollections: '/library/collections',
   ownedCharacters: '/me/characters',
+  ownedTemplates: '/me/templates',
   accountCredits: '/credits',
   admin: '/admin'
 } as const;
@@ -112,7 +113,8 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
     items: [
       { id: 'history', path: routePaths.libraryRecent, labelKey: 'shell.navigation.items.recent', icon: 'history' },
       { id: 'collections', path: routePaths.libraryCollections, labelKey: 'shell.navigation.items.collections', icon: 'collections' },
-      { id: 'my-characters', path: routePaths.ownedCharacters, labelKey: 'shell.navigation.items.myCharacters', icon: 'characters', feature: 'characters' }
+      { id: 'my-characters', path: routePaths.ownedCharacters, labelKey: 'shell.navigation.items.myCharacters', icon: 'characters', feature: 'characters' },
+      { id: 'my-templates', path: routePaths.ownedTemplates, labelKey: 'shell.navigation.items.myTemplates', icon: 'templates', feature: 'community' }
     ]
   },
   {
@@ -146,6 +148,7 @@ export function isSidebarNavigationTargetActive(id: string, currentLocation: str
   if (id === 'history') return pathname.startsWith(routePaths.libraryRecent);
   if (id === 'collections') return pathname.startsWith(routePaths.libraryCollections);
   if (id === 'my-characters') return pathname.startsWith(routePaths.ownedCharacters);
+  if (id === 'my-templates') return pathname === routePaths.ownedTemplates;
   if (id === 'admin') return pathname.startsWith(routePaths.admin);
   return false;
 }

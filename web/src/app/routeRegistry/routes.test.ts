@@ -29,10 +29,12 @@ describe('Momelo sidebar navigation registry', () => {
     expect(library?.items.map(item => [item.id, item.path])).toEqual([
       ['history', '/library/recent'],
       ['collections', '/library/collections'],
-      ['my-characters', '/me/characters']
+      ['my-characters', '/me/characters'],
+      ['my-templates', '/me/templates']
     ]);
     expect(isSidebarNavigationTargetActive('history', '/library/recent')).toBe(true);
     expect(isSidebarNavigationTargetActive('my-characters', '/me/characters')).toBe(true);
     expect(isSidebarNavigationTargetActive('my-characters', '/me/characters/charprof_1')).toBe(true);
+    expect(isSidebarNavigationTargetActive('my-templates', '/me/templates')).toBe(true);
   });
 });

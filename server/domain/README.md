@@ -30,9 +30,11 @@ Approved local bridge examples:
 - `assets/ImagePresentationService.js` renders bounded, in-memory-cached
   presentation variants from authorized local media. Profile dimensions and
   Sharp operations are server allowlists; browser callers cannot supply raw
-  resize/crop options. The `template-card-person-focus` profile uses Sharp
-  attention cropping for full-frame Template cards without changing
-  `preview-v1`.
+  resize/crop options. Current versioned Template card, profile-square and
+  detail profiles use deterministic top-biased Sharp cropping so a portrait
+  subject's face is not displaced by high-contrast clothing or scenery. Legacy
+  unversioned profiles remain readable for compatibility and `preview-v1`
+  remains unchanged.
 
 JSON state must go through repositories or `server/repositories/json/jsonFileStore.js`.
 

@@ -26,8 +26,8 @@ function createService(generations = {}) {
         id: `post_${posts.length + 1}`,
         ownerUserId: actor.userId,
         ownerUsername: actor.username,
-        visibility: 'public',
-        status: 'published'
+        visibility: input.visibility || 'public',
+        status: input.status || 'published'
       };
       posts.push(post);
       return structuredClone(post);
@@ -35,6 +35,16 @@ function createService(generations = {}) {
     async findById(id) {
       const post = posts.find(item => item.id === id);
       return post ? structuredClone(post) : null;
+    },
+    async activatePreparedTemplateByVersion(templateId, templateVersionId, actor) {
+      const post = posts.find(item => (
+        item.templateId === templateId
+        && item.templateVersionId === templateVersionId
+        && item.ownerUserId === actor.userId
+      ));
+      if (!post) return null;
+      post.status = 'published';
+      return structuredClone(post);
     }
   };
   const remixRepository = {
@@ -143,12 +153,13 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
   assert.equal(post.ownerUserId, 'usr_alice');
   assert.equal(post.creatorProfileId, 'creator_alice');
   assert.equal(post.postType, 'template');
+  assert.equal(post.status, 'draft');
   assert.equal(post.sceneTemplateSnapshot.finalPromptSnapshot, '');
   assert.equal(posts.length, 1);
 });
 
-test('template use and remix events retain actor identity separately from post ownership', async () => {
-  const { service, events } = createService({
+test('reusable Template remains owner-only until preparation approval activates the same post', async () => {
+  const { service, events, posts } = createService({
     job_guided: generation('job_guided'),
     job_bob_result: {
       ...generation('job_bob_result'),
@@ -161,6 +172,20 @@ test('template use and remix events retain actor identity separately from post o
   const post = await service.publishSceneTemplateShare(draft.id, {
     title: 'Reusable template', promptVisibility: 'full'
   }, alice);
+
+  assert.equal(post.status, 'draft');
+  await assert.rejects(
+    () => service.getTemplateForViewer(post.id, bob),
+    error => error.code === 'community_post_unavailable'
+  );
+
+  const activated = await service.activatePreparedTemplate({
+    templateId: post.templateId,
+    templateVersionId: post.templateVersionId
+  }, alice);
+  assert.equal(activated.id, post.id);
+  assert.equal(activated.status, 'published');
+  assert.equal(posts.length, 1);
 
   const payload = await service.getTemplateForViewer(post.id, bob);
   assert.equal(payload.postId, post.id);

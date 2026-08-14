@@ -33,6 +33,23 @@ This checkpoint does not mark the full requirement complete. Phase C visual
 qualification, compatibility warning reason codes and Phase E credit
 presentation remain open.
 
+### Runtime recovery checkpoint (2026-08-14)
+
+- Scene Builder must normalize actor drafts and Template handoff selections at
+  the browser persistence boundary before compiling prompts or rendering
+  attribute controls.
+- A malformed or legacy selection without a canonical string `id`, prompt
+  value or owning group is discarded instead of crashing the route.
+- Expired Template use handoffs are cleared and ignored when Scene Builder is
+  opened. Manual runtime cleanup of a Template must not leave the route trapped
+  behind a stale browser handoff.
+- Attribute reconciliation and prompt preview retain defensive normalization so
+  malformed restored state cannot reach `startsWith` or other string-only
+  operations.
+- Regression coverage must prove malformed restored selections are removed and
+  that catalog reconciliation, applicability reconciliation and Scene prompt
+  compilation remain available.
+
 ## 1. Business Requirement
 
 Scene Builder is the visual direction layer used to create attractive Scene
@@ -673,9 +690,10 @@ different service scope until Phase2-19 approves it.
 
 ### 8.2 Scene-to-Template Fashion readiness
 
-A generated Scene may be published as ordinary Community work without becoming
-a Fashion-ready Template. Fashion readiness is a separate owner-controlled
-state:
+A generated Scene may be published immediately as ordinary Community work. If
+the creator chooses a reusable Template, its canonical Template/version is
+saved as an owner-only setup draft and is not public until Fashion readiness is
+approved:
 
 ```text
 Scene output
@@ -683,6 +701,7 @@ Scene output
 -> calculate one-time preparation estimate
 -> prepare private identity-neutral Pose Proxy
 -> creator review and approval
+-> publish the same Community post
 -> Fashion-ready
 ```
 
@@ -691,6 +710,8 @@ Fashion Blueprint. Preparing, failed, rejected, retired and stale versions may
 remain visible to their owner with clear status, but must not appear as usable
 Fashion choices. The preparation operation and final customer generation use
 separate quotes and must not be merged into one unexplained credit amount.
+The owner resumes an incomplete setup through `/me/templates`; viewers cannot
+discover or invoke its public use contract before activation.
 
 ## 9. State and Compatibility Contract
 

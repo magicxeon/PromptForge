@@ -90,7 +90,9 @@ export function createApp() {
   });
   const templatePoseProxyService = new TemplatePoseProxyService({
     providerRegistry,
-    generationApplicationService
+    generationApplicationService,
+    onActivated: (input, actorContext) =>
+      communityShareService.activatePreparedTemplate(input, actorContext)
   });
   const comparisonOrchestrator = new ComparisonOrchestrator({
     providerRegistry,

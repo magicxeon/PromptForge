@@ -213,3 +213,28 @@ test('retired templates stay in the owner portfolio and remain hidden from viewe
   )), true);
   assert.equal(viewerPortfolio.items.some(post => post.id === template.id), false);
 });
+
+test('Template setup drafts stay in the owner Templates portfolio and remain hidden from viewers', async t => {
+  const fixture = await createFixture();
+  t.after(() => fs.rm(fixture.directory, { recursive: true, force: true }));
+  const profile = await fixture.service.getOwnProfile(alice);
+  const template = await fixture.postRepository.create({
+    postType: 'template',
+    title: 'Editorial look setup',
+    creatorProfileId: profile.id,
+    visibility: 'public',
+    status: 'draft'
+  }, alice);
+
+  const ownerPortfolio = await fixture.service.listPublicPortfolio(profile.handle, {
+    postType: 'template'
+  }, alice);
+  const viewerPortfolio = await fixture.service.listPublicPortfolio(profile.handle, {
+    postType: 'template'
+  }, bob);
+
+  assert.equal(ownerPortfolio.items.some(post => (
+    post.id === template.id && post.status === 'draft'
+  )), true);
+  assert.equal(viewerPortfolio.items.some(post => post.id === template.id), false);
+});

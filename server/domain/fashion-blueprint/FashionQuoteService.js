@@ -34,7 +34,8 @@ export class FashionQuoteService {
     const templateContext = await this.validateTemplate(
       planInput.templateId,
       planInput.templateUseSessionId,
-      actorContext
+      actorContext,
+      planInput
     );
     let plan = this.blueprintService.resolvePlan(planInput, actorContext);
     plan = await this.blueprintService.authorizePlanAssets(plan, actorContext);
@@ -183,7 +184,8 @@ export class FashionQuoteService {
     const templateContext = await this.validateTemplate(
       input.templateId,
       input.templateUseSessionId,
-      actorContext
+      actorContext,
+      input
     );
     let plan = this.blueprintService.resolvePlan(input, actorContext);
     plan = await this.blueprintService.authorizePlanAssets(plan, actorContext);
@@ -200,7 +202,7 @@ export class FashionQuoteService {
     return { quote, plan };
   }
 
-  async validateTemplate(templateId, templateUseSessionId, actorContext) {
+  async validateTemplate(templateId, templateUseSessionId, actorContext, planInput = {}) {
     const post = await this.postAccessService.getPostForTemplateUse(templateId, actorContext);
     if (post.postType !== 'template') {
       throw fashionError('fashion_template_invalid', 'The selected post is not a reusable Template.', 409);
@@ -232,12 +234,21 @@ export class FashionQuoteService {
       );
     }
     const inputs = session.version.publicInputSchema?.inputs || [];
-    const hasCharacterBinding = inputs.some(input => {
+    const hasTemplateCharacterBinding = inputs.some(input => {
       const field = String(input.sourceFieldName || '').toLowerCase();
       return input.fashionBindingRole === 'fashion.character'
         || field.includes('character')
         || field.includes('face');
     });
+    const hasPlanCharacterBinding = Boolean(
+      planInput.characterProfileContext?.characterProfileId
+      && Array.isArray(planInput.productItems)
+      && planInput.productItems.some(item =>
+        Boolean(item?.references?.character_reference?.imageUrl
+          || item?.references?.character_reference)
+      )
+    );
+    const hasCharacterBinding = hasTemplateCharacterBinding || hasPlanCharacterBinding;
     const hasOutfitBinding = inputs.some(input => {
       const field = String(input.sourceFieldName || '').toLowerCase();
       return String(input.fashionBindingRole || '').startsWith('fashion.outfit')
@@ -246,9 +257,14 @@ export class FashionQuoteService {
     if (!hasCharacterBinding || !hasOutfitBinding) {
       throw fashionError(
         'fashion_template_bindings_required',
-        'Fashion Templates must expose Character and Outfit replacement bindings.',
+        'Fashion plans require Character authority and a Template Outfit replacement binding.',
         409,
-        { hasCharacterBinding, hasOutfitBinding }
+        {
+          hasCharacterBinding,
+          hasTemplateCharacterBinding,
+          hasPlanCharacterBinding,
+          hasOutfitBinding
+        }
       );
     }
     return { post, session };

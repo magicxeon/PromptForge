@@ -5,7 +5,7 @@ import {
   resolveImagePresentationProfile
 } from '../server/domain/assets/ImagePresentationService.js';
 
-test('template card presentation uses the shared Sharp attention crop profile', async () => {
+test('template card presentation uses the shared Sharp top-biased crop profile', async () => {
   const calls = [];
   const sharp = filePath => {
     const pipeline = {
@@ -38,8 +38,8 @@ test('template card presentation uses the shared Sharp attention crop profile', 
     statLoader: async () => ({ size: 2048, mtimeMs: 1234 })
   });
 
-  const first = await service.renderFile('/outputs/source.png', 'template-card-person-focus');
-  const second = await service.renderFile('/outputs/source.png', 'template-card-person-focus');
+  const first = await service.renderFile('/outputs/source.png', 'template-card-person-focus-v2');
+  const second = await service.renderFile('/outputs/source.png', 'template-card-person-focus-v2');
 
   assert.equal(first, second);
   assert.equal(first.contentType, 'image/webp');
@@ -49,7 +49,7 @@ test('template card presentation uses the shared Sharp attention crop profile', 
     width: 640,
     height: 400,
     fit: 'cover',
-    position: 'sharp-attention',
+    position: 'north',
     withoutEnlargement: true
   });
   assert.equal(calls.filter(call => call[0] === 'source').length, 1);
@@ -62,13 +62,25 @@ test('unknown presentation profiles fail closed', () => {
   );
 });
 
-test('Creator Profile Template presentation is square and uses Sharp attention', () => {
-  const profile = resolveImagePresentationProfile('profile-template-square-person-focus');
+test('Creator Profile Template presentation is square and top-biased', () => {
+  const profile = resolveImagePresentationProfile('profile-template-square-person-focus-v2');
 
   assert.equal(profile.width, 640);
   assert.equal(profile.height, 640);
   assert.equal(profile.fit, 'cover');
-  assert.equal(profile.positionStrategy, 'attention');
+  assert.equal(profile.positionStrategy, 'north');
+  assert.equal(profile.sourceMedia, 'thumbnail');
+  assert.equal(profile.format, 'webp');
+});
+
+test('Template detail presentation uses a top-biased portrait crop', () => {
+  const profile = resolveImagePresentationProfile('template-detail-person-focus-v1');
+
+  assert.equal(profile.width, 768);
+  assert.equal(profile.height, 960);
+  assert.equal(profile.fit, 'cover');
+  assert.equal(profile.positionStrategy, 'north');
+  assert.equal(profile.sourceMedia, 'image');
   assert.equal(profile.format, 'webp');
 });
 
@@ -86,6 +98,7 @@ test('comparison card profiles match each count-aware tile geometry', () => {
     assert.equal(profile.height, height);
     assert.equal(profile.fit, 'cover');
     assert.equal(profile.positionStrategy, 'attention');
+    assert.equal(profile.sourceMedia, 'thumbnail');
     assert.equal(profile.format, 'webp');
   }
 });

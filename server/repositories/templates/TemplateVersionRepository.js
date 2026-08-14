@@ -2,7 +2,11 @@ import { resolveDataFile } from '../../config/paths.js';
 import { assertActorContext } from '../repositoryContracts.js';
 import { applyRecordDefaults } from '../schemaVersioning.js';
 import { stripEmbeddedBase64 } from '../recordNormalizer.js';
-import { insertTemplateRecord, readTemplateRecords } from './templateRepositoryUtils.js';
+import {
+  insertTemplateRecord,
+  readTemplateRecords,
+  updateTemplateRecord
+} from './templateRepositoryUtils.js';
 
 export class TemplateVersionRepository {
   constructor({ versionsFile = resolveDataFile('templateVersions') } = {}) {
@@ -47,6 +51,30 @@ export class TemplateVersionRepository {
       now
     });
     return insertTemplateRecord(this.versionsFile, record);
+  }
+
+  async updatePublishedSettings(versionId, input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const updated = await updateTemplateRecord(this.versionsFile, versionId, current => {
+      if (current.ownerUserId !== actor.userId || current.status !== 'published') return current;
+      return {
+        ...current,
+        visibility: input.visibility === undefined
+          ? current.visibility
+          : input.visibility,
+        promptVisibility: input.promptVisibility === undefined
+          ? current.promptVisibility
+          : input.promptVisibility,
+        updatedAt: new Date().toISOString()
+      };
+    });
+    if (!updated || updated.ownerUserId !== actor.userId || updated.status !== 'published') {
+      const error = new Error('Template version not found.');
+      error.code = 'template_version_not_found';
+      error.statusCode = 404;
+      throw error;
+    }
+    return updated;
   }
 }
 

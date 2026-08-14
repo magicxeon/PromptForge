@@ -1,4 +1,7 @@
-import { imagePresentationService as defaultImagePresentationService } from '../../domain/assets/ImagePresentationService.js';
+import {
+  imagePresentationService as defaultImagePresentationService,
+  resolveImagePresentationProfile
+} from '../../domain/assets/ImagePresentationService.js';
 
 function sendSceneTemplateError(
   res,
@@ -96,9 +99,10 @@ export function registerSceneTemplateRoutes(app, {
   app.get('/api/scene-templates/shared/:postId/presentations/:profileId', async (req, res) => {
     try {
       await communityFeaturePolicyService.assertEnabled('community.enabled');
+      const profile = resolveImagePresentationProfile(req.params.profileId);
       const filePath = await communityShareService.getSharedPostMediaFile(
         req.params.postId,
-        'thumbnail',
+        profile.sourceMedia,
         req.actorContext
       );
       const presentation = await imagePresentationService.renderFile(

@@ -255,6 +255,7 @@ export class CommunityShareService {
       sceneTemplateSnapshot: canonicalTemplate ? publishedSnapshots.sceneTemplateSnapshot : null,
       visibility,
       reusePolicy: canonicalTemplate ? 'remix_allowed' : 'view_only',
+      status: canonicalTemplate ? 'draft' : 'published',
       ...taxonomy
     }, actor);
 
@@ -370,7 +371,58 @@ export class CommunityShareService {
   }
 
   async updateSharedPostPresentation(postId, presentation, actorContext) {
-    return this.postAccessService.updatePresentation(postId, presentation, actorContext);
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    if (!post || post.ownerUserId !== actor.userId) {
+      throw new RepositoryContractError(
+        'community_post_forbidden',
+        'You do not have permission to edit this post.',
+        403
+      );
+    }
+    let templateSettings = null;
+    if (post.postType === 'template' && post.templateId && (
+      presentation?.templateAccessCredits !== undefined
+      || presentation?.promptVisibility !== undefined
+      || presentation?.visibility !== undefined
+    )) {
+      templateSettings = await this.templateCoreService.updatePublishedSettings(
+        post.templateId,
+        {
+          accessCredits: presentation.templateAccessCredits,
+          promptVisibility: presentation.promptVisibility,
+          visibility: presentation.visibility
+        },
+        actor
+      );
+    }
+    const promptVisibility = templateSettings?.version.promptVisibility
+      || presentation?.promptVisibility;
+    const sceneTemplateSnapshot = templateSettings?.sceneTemplateSnapshot;
+    const publicPromptText = promptVisibility === 'full'
+      ? String(templateSettings?.version.executionSnapshot?.finalPromptSnapshot || '').trim() || null
+      : null;
+    return this.postAccessService.updatePresentation(postId, {
+      ...presentation,
+      promptVisibility,
+      templatePricing: templateSettings?.template.pricing,
+      sceneTemplateSnapshot,
+      sharedPromptSnapshot: templateSettings
+        ? {
+          ...(post.sharedPromptSnapshot || {}),
+          publicPromptText
+        }
+        : undefined
+    }, actor);
+  }
+
+  async activatePreparedTemplate({ templateId, templateVersionId }, actorContext) {
+    const actor = assertActorContext(actorContext);
+    return this.postRepository.activatePreparedTemplateByVersion(
+      templateId,
+      templateVersionId,
+      actor
+    );
   }
 
   async updateSharedPostTaxonomy(postId, taxonomy, actorContext) {

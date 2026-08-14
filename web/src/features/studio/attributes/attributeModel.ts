@@ -211,12 +211,32 @@ export function countCharacters(value: string) {
 export function countCustomSelectionCharacters(
   selections: Record<string, AttributeSelection>
 ) {
-  return Object.values(selections).reduce(
+  return Object.values(sanitizeAttributeSelections(selections)).reduce(
     (total, selection) => total + (selection.isCustom
       ? countCharacters(selection.value.trim())
       : 0),
     0
   );
+}
+
+export function sanitizeAttributeSelections(
+  value: unknown
+): Record<string, AttributeSelection> {
+  if (!isRecord(value)) return {};
+  let changed = false;
+  const entries: Array<[string, AttributeSelection]> = [];
+  for (const [fieldName, candidate] of Object.entries(value)) {
+    const normalized = normalizeRestoredSelection(candidate);
+    if (!normalized) {
+      changed = true;
+      continue;
+    }
+    if (normalized !== candidate) changed = true;
+    entries.push([fieldName, normalized]);
+  }
+  return changed
+    ? Object.fromEntries(entries)
+    : value as Record<string, AttributeSelection>;
 }
 
 export function reconcileSelectionsWithCatalog(
@@ -226,8 +246,9 @@ export function reconcileSelectionsWithCatalog(
   const optionsById = new Map(groups.flatMap(group =>
     group.fields.flatMap(field => field.options.map(option => [option.id, option] as const))
   ));
-  let changed = false;
-  const reconciled = Object.fromEntries(Object.entries(selections).map(([fieldName, selection]) => {
+  const sanitized = sanitizeAttributeSelections(selections);
+  let changed = sanitized !== selections;
+  const reconciled = Object.fromEntries(Object.entries(sanitized).map(([fieldName, selection]) => {
     if (selection.isCustom || selection.id.startsWith('custom.')) {
       return [fieldName, selection];
     }
@@ -256,10 +277,11 @@ export function reconcileSelectionsWithApplicability(
   groups: AttributeGroup[],
   presentationGender?: AttributeSelection
 ) {
-  const effectiveSelections = withPresentationGender(selections, presentationGender);
+  const sanitized = sanitizeAttributeSelections(selections);
+  const effectiveSelections = withPresentationGender(sanitized, presentationGender);
   const gender = resolvePresentationGender(effectiveSelections.Gender);
-  let changed = false;
-  const next = { ...selections };
+  let changed = sanitized !== selections;
+  const next = { ...sanitized };
   for (const group of groups) {
     for (const field of group.fields) {
       const selection = next[field.name];
@@ -280,6 +302,7 @@ export function compileSelectionPreview(
   characterType: 'reusable_model' | 'styled_character',
   customColors?: StudioCustomColors
 ) {
+  selections = sanitizeAttributeSelections(selections);
   const normalizedColors = createStudioCustomColors(customColors);
   const colorPhrases = compileCustomColorPhrases(normalizedColors);
   const earlyTwenties = isEarlyTwentiesPresentation(selections);
@@ -504,6 +527,49 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isStringRecord(value: unknown): value is Record<string, string> {
   return isRecord(value) && Object.values(value).every(item => typeof item === 'string');
+}
+
+function normalizeRestoredSelection(value: unknown): AttributeSelection | null {
+  if (!isRecord(value)) return null;
+  const id = typeof value.id === 'string' ? value.id.trim() : '';
+  const prompt = typeof value.value === 'string' ? value.value : '';
+  const group = typeof value.group === 'string' ? value.group : '';
+  if (!id || !prompt.trim() || !group) return null;
+
+  const label = typeof value.label === 'string' ? value.label : prompt;
+  const isCustom = value.isCustom === true || id.startsWith('custom.');
+  const category = typeof value.category === 'string' ? value.category : slug(group);
+  const tags = normalizeTags(value.tags as readonly string[] | undefined);
+  const gptPositiveWords = normalizeTags(
+    value.gptPositiveWords as readonly string[] | undefined
+  );
+  if (
+    value.id === id
+    && value.value === prompt
+    && value.label === label
+    && value.isCustom === isCustom
+    && value.group === group
+    && value.category === category
+    && Array.isArray(value.tags)
+    && arraysEqual(value.tags.filter(item => typeof item === 'string') as string[], tags)
+    && Array.isArray(value.gptPositiveWords)
+    && arraysEqual(
+      value.gptPositiveWords.filter(item => typeof item === 'string') as string[],
+      gptPositiveWords
+    )
+  ) {
+    return value as unknown as AttributeSelection;
+  }
+  return {
+    id,
+    value: prompt,
+    label,
+    isCustom,
+    group,
+    category,
+    tags,
+    gptPositiveWords
+  };
 }
 
 function slug(value: string) {

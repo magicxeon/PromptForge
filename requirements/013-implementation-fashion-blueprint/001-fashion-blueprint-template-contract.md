@@ -191,8 +191,10 @@ A published Template is selectable only when all are true:
 - `templateKind` supports `scene_image`;
 - compatible consumers include `fashion`;
 - a valid final preview exists;
-- the public input schema exposes Character and Outfit bindings needed by the
-  Fashion recipe;
+- the Fashion recipe has both Character and Outfit authority: Outfit remains
+  an explicit public Template input, while Character may be either an explicit
+  Template input or the canonical approved `characterProfileContext` plus
+  `character_reference` selected in the dedicated Fashion Character step;
 - hidden prompt policy can execute server-side;
 - current actor may create a use session;
 - the active provider plan can accept the processed reference count.
@@ -224,3 +226,14 @@ check through Template Core and Reference Processing.
 4. Revalidate the session/version/input bindings in Quote and Run.
 5. Add private, deprecated-version, unavailable-default-Character and hidden
    prompt tests before enabling Community creator Templates.
+
+### 8.1 Plan-level Character Binding Compatibility
+
+The Fashion Character step is a canonical workflow binding, not an untrusted
+UI shortcut. Quote validation may satisfy Character authority from the plan
+when both an approved Character Profile context and a Character reference are
+present. Asset ownership and approved-version authorization still run through
+the normal Fashion plan authorization and Reference Processing pipeline before
+Credit estimation. A loose image URL without Character Profile context is not
+sufficient. Outfit authority must remain exposed by the immutable Template
+public input schema.

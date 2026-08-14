@@ -198,13 +198,20 @@ refresh-safe through the persisted Fashion run id.
 `Publish as a reusable Template` is a controlled disclosure inside Share to
 Community:
 
+- it is unchecked by default; ordinary Community sharing is the primary
+  action and Template publication requires explicit creator intent;
+- it is absent, rather than disabled, when the server share draft marks the
+  source as Template-ineligible;
 - unchecked collapses every Template-only control;
-- unchecking it clears all selected replaceable inputs and every `Required`
-  flag;
+- unchecking it clears creator-optional replaceable inputs and their
+  `Required` flags;
 - unchecking one replaceable input also clears and disables its matching
   `Required` flag;
-- re-enabling Template publication does not silently restore cleared required
-  inputs; the creator makes the selection explicitly;
+- system-mandatory inputs are server-derived, hidden or shown read-only, and
+  cannot be unchecked or altered; Fashion Outfit Front is mandatory while
+  Outfit Back remains optional;
+- re-enabling Template publication does not silently restore cleared optional
+  inputs; mandatory policy is injected independently by the server;
 - image-only publication never creates a Template version or preparation job.
 
 After reusable Template publication succeeds, the same user journey continues

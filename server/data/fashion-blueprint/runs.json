@@ -2593,6 +2593,148 @@
       "createdAt": "2026-08-04T05:33:09.702Z",
       "updatedAt": "2026-08-04T05:33:35.385Z",
       "completedAt": "2026-08-04T05:33:35.385Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_95c03a47e6d7117e1c",
+      "planId": "fpl_95c03a47e6d7117e1c",
+      "quoteId": "fqt_1786720949460_dv1bkne",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786720949460_dv1bkne:full",
+      "requestHash": "ac2160f1a8214756a8722091e0bd08a0492899f07b87731d7b532ed4f002b11d",
+      "quotePurpose": "full",
+      "setupFingerprint": "1e71e9789be3b7c5b27fa677fb504c8af1601dcea99cb2b711a6f5f5b7e64175",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786720121637_ux9najgi",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 114,
+        "maximumCredits": 114,
+        "breakdown": {
+          "generationCredits": 94,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 114
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_95c03a47e6d7117e1c_1",
+          "reservationId": "rsv_1786720954045_0_use7gq",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_95c03a47e6d7117e1c_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "26.4",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-14T15:22:34.067Z",
+      "updatedAt": "2026-08-14T15:23:01.397Z",
+      "completedAt": "2026-08-14T15:23:01.397Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_55302eaf76143aaf36",
+      "planId": "fpl_55302eaf76143aaf36",
+      "quoteId": "fqt_1786721287793_698rd08",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786721287793_698rd08:full",
+      "requestHash": "935fd8370d8b94971177abe4e0e4ade093f1b576b268408556afeb96ff563539",
+      "quotePurpose": "full",
+      "setupFingerprint": "bb6040456afd819c2c028aa3e1e217ab82c8814e137d134b2bdfbb4041507a76",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786720121637_ux9najgi",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "operation_only",
+        "promptStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 69,
+        "maximumCredits": 69,
+        "breakdown": {
+          "generationCredits": 49,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 69
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_55302eaf76143aaf36_1",
+          "reservationId": "rsv_1786721289313_0_a90xm1",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_55302eaf76143aaf36_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "10.7",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-14T15:28:09.334Z",
+      "updatedAt": "2026-08-14T15:28:21.522Z",
+      "completedAt": "2026-08-14T15:28:21.522Z"
     }
   ]
 }

@@ -712,7 +712,7 @@ rows before its Fashion-readiness actions:
 
 ```text
 Sharing status
-  public | unlisted | members_only | private
+  setup_required | public | unlisted | members_only | private
 
 Fashion readiness
   not_prepared | pending | processing | review_required | active | failed |
@@ -720,9 +720,10 @@ Fashion readiness
 ```
 
 Each row shows a concise human-readable state and one short explanation. A
-published Community listing must never be described as Fashion-ready merely
-because it has been shared. A private listing is described as not shared even
-when its immutable Template version exists.
+reusable Template begins as the owner's `setup_required` draft and is not
+discoverable or usable by other actors. It becomes a published Community
+listing only after the creator approves an active Pose Proxy. A private listing
+is described as not shared even when its immutable Template version exists.
 
 Readiness interaction follows the existing estimate/reservation pipeline:
 
@@ -1496,8 +1497,9 @@ never overwritten in place.
 ### B.2 Generation process flow
 
 ```text
-1. Creator publishes a normal reusable Template
-   -> visible human preview remains the public marketing image
+1. Creator saves a reusable Template draft
+   -> visible human preview remains the owner-visible marketing image
+   -> the draft is absent from public discovery and Template use
 
 2. Creator opens Edit Template -> Prepare reusable pose
    -> POST /api/templates/:templateId/pose-proxy/estimate
@@ -1520,6 +1522,11 @@ never overwritten in place.
    -> POST /api/templates/:templateId/pose-proxy/prepare
    -> server atomically creates one TemplatePoseProxy record
    -> duplicate concurrent requests converge on that record
+
+6A. Creator reviews and approves the prepared Pose Proxy
+   -> the same Community post changes from draft to published
+   -> the public marketing image remains the human Scene preview
+   -> no duplicate Template, version or post is created
 
 7. Credit reservation
    -> requestId  = req_pose_proxy_<token>

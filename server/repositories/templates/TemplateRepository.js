@@ -103,6 +103,33 @@ export class TemplateRepository {
     }
     return updated;
   }
+
+  async updatePublishedSettings(templateId, input = {}, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const updated = await updateTemplateRecord(this.templatesFile, templateId, current => {
+      if (current.ownerUserId !== actor.userId || current.status !== 'published') return current;
+      return {
+        ...current,
+        visibility: input.visibility === undefined
+          ? current.visibility
+          : normalizeVisibility(input.visibility, current.visibility),
+        pricing: input.pricing === undefined
+          ? current.pricing
+          : normalizePricing(input.pricing),
+        updatedAt: new Date().toISOString()
+      };
+    });
+    if (!updated || updated.ownerUserId !== actor.userId || updated.status !== 'published') {
+      throw new RepositoryContractError('template_not_found', 'Template not found.', 404);
+    }
+    return updated;
+  }
+}
+
+function normalizeVisibility(value, fallback = VISIBILITY.PRIVATE) {
+  return [VISIBILITY.PUBLIC, VISIBILITY.UNLISTED, VISIBILITY.PRIVATE].includes(value)
+    ? value
+    : fallback;
 }
 
 function normalizePricing(value = {}) {

@@ -44,6 +44,8 @@ export function updateCommunityPostPresentation(
     description: string;
     customTags: string[];
     visibility: 'public' | 'unlisted' | 'private';
+    promptVisibility?: 'full' | 'remix_only';
+    templateAccessCredits?: number;
   }
 ) {
   return apiRequest(`/api/scene-templates/shared/${encodeURIComponent(postId)}`, {

@@ -32,10 +32,11 @@ export function buildCommunityPostPublicView(post = {}) {
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
     presentationUrls: (post.thumbnailUrl || post.imageUrl) ? {
-      templateCard: communityPresentationUrl(post.id, 'template-card-person-focus'),
+      templateCard: communityPresentationUrl(post.id, 'template-card-person-focus-v2'),
+      templateDetail: communityPresentationUrl(post.id, 'template-detail-person-focus-v1'),
       profileTemplateSquare: communityPresentationUrl(
         post.id,
-        'profile-template-square-person-focus'
+        'profile-template-square-person-focus-v2'
       )
     } : {},
     officialTags: stringArray(post.officialTags),
@@ -53,8 +54,10 @@ export function buildCommunityPostPublicView(post = {}) {
       post.providerModelSnapshot || snapshot?.providerModelSnapshot
     ),
     generationMetadata: publicGenerationMetadata(post, snapshot),
-    remixAvailability: post.reusePolicy === 'remix_allowed',
+    remixAvailability: ['active', 'published'].includes(post.status)
+      && post.reusePolicy === 'remix_allowed',
     templateAvailability: Boolean(snapshot)
+      && ['active', 'published'].includes(post.status)
       && post.reusePolicy !== 'view_only'
       && promptVisibility !== 'private',
     templateId: post.templateId || null,
