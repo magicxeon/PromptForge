@@ -239,5 +239,23 @@
       "neutral"
     ],
     "enabled": true
+  },
+  {
+    "id": "lips.013",
+    "category": "lips",
+    "label": { "en": "Clean Defined Lips", "th": "ริมฝีปากได้รูปคมสะอาด" },
+    "ui": { "control": "select", "group": "Lips" },
+    "prompt": { "default": "clean defined masculine lips with a natural balanced contour" },
+    "tags": ["lips", "vertical-drama-lead", "adult-male"],
+    "enabled": true
+  },
+  {
+    "id": "lips.014",
+    "category": "lips",
+    "label": { "en": "Soft Defined Bow Lips", "th": "ริมฝีปากทรงกระจับละมุน" },
+    "ui": { "control": "select", "group": "Lips" },
+    "prompt": { "default": "soft defined feminine lips with a natural cupid's bow and balanced fullness" },
+    "tags": ["lips", "vertical-drama-lead", "adult-female"],
+    "enabled": true
   }
 ]

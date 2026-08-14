@@ -13,6 +13,7 @@ export const visualManifestItemSchema = z.object({
   attributeId: z.string().optional(),
   slug: z.string(),
   focalPoint: z.string().optional(),
+  recolorMode: z.enum(['mask', 'none']).optional(),
   alt: localizedTextSchema.default({}),
   swatch: z.object({
     colors: z.array(z.string()).default([]),
@@ -26,6 +27,7 @@ export const visualManifestSchema = z.object({
   manifestId: z.string(),
   fieldId: z.string(),
   visualStyleVersion: z.string().optional(),
+  recolorMode: z.enum(['mask', 'none']).optional(),
   items: z.array(visualManifestItemSchema).default([])
 }).passthrough();
 

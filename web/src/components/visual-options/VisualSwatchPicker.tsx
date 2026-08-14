@@ -16,9 +16,11 @@ export function VisualSwatchPicker({
   disabled?: boolean;
   onChange: (value: AttributeSelection | null) => void;
 }) {
+  const items = [...presentation.items].sort((left, right) => localized(left.option.label)
+    .localeCompare(localized(right.option.label), 'en', { sensitivity: 'base', numeric: true }));
   return (
     <VisualOptionGrid variant="swatch" className="visual-swatch-picker">
-      {presentation.items.map(item => {
+      {items.map(item => {
         const selected = value?.id === item.option.id;
         const colors = item.colors || ['#596174', '#a8afc7'];
         return (

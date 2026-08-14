@@ -78,12 +78,15 @@ export class CharacterProfileService {
       characterSheetConfig: source.characterSheetConfig || null,
       sourceOwnership: source.sourceOwnership || null
     });
+    const canonicalHeadshotAssetId = resolveSourceHeadshotAssetId(source);
     const version = await this.versionRepository.create({
       characterProfileId: profile.id,
       characterType,
       structuredCharacterSnapshot,
       identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
       sourceGenerationResultIds: [source.id],
+      canonicalHeadshotAssetId,
+      canonicalFaceAssetId: canonicalHeadshotAssetId,
       canonicalCharacterSheetAssetId: source.id
     }, actor);
     const reviewVersion = await attachInitialCastingCandidate({
@@ -259,12 +262,15 @@ export class CharacterProfileService {
       characterSheetConfig: source.characterSheetConfig || null,
       sourceOwnership: source.sourceOwnership || null
     });
+    const canonicalHeadshotAssetId = resolveSourceHeadshotAssetId(source);
     const version = await this.versionRepository.create({
       characterProfileId: profile.id,
       characterType: nextCharacterType,
       structuredCharacterSnapshot,
       identityMetadata: deriveCharacterIdentityMetadata(structuredCharacterSnapshot),
       sourceGenerationResultIds: [source.id],
+      canonicalHeadshotAssetId,
+      canonicalFaceAssetId: canonicalHeadshotAssetId,
       canonicalCharacterSheetAssetId: source.id
     }, actor);
     const reviewVersion = await attachInitialCastingCandidate({
@@ -345,6 +351,8 @@ export class CharacterProfileService {
         sourceVersion.structuredCharacterSnapshot
       ),
       sourceGenerationResultIds: sourceVersion.sourceGenerationResultIds,
+      canonicalHeadshotAssetId: sourceVersion.canonicalHeadshotAssetId,
+      canonicalFaceAssetId: sourceVersion.canonicalFaceAssetId,
       canonicalCharacterSheetAssetId: sourceVersion.canonicalCharacterSheetAssetId
     }, actor);
     const updated = await this.profileRepository.updateSystem(profile.id, {
@@ -432,6 +440,16 @@ export class CharacterProfileService {
 }
 
 export const characterProfileService = new CharacterProfileService();
+
+function resolveSourceHeadshotAssetId(source = {}) {
+  const candidates = [
+    ...(Array.isArray(source.characterSheetConfig?.sourceHeadshotIds)
+      ? source.characterSheetConfig.sourceHeadshotIds
+      : []),
+    ...(Array.isArray(source.referencedFaceJobIds) ? source.referencedFaceJobIds : [])
+  ];
+  return candidates.find(value => typeof value === 'string' && value.trim()) || null;
+}
 
 async function attachInitialCastingCandidate({
   version,

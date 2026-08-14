@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FaceReferenceHandoffService } from '../server/domain/generation/FaceReferenceHandoffService.js';
+import { normalizeGenerationContext } from '../server/domain/generation/generationRequestService.js';
 
 const owner = {
   userId: 'usr_owner',
@@ -87,4 +88,31 @@ test('public reusable Face post permits another actor while view-only does not',
     }, viewer),
     error => error.code === 'face_reference_reuse_unavailable'
   );
+});
+
+test('authorized Face handoff persists its source Job ID into Character Sheet lineage', async () => {
+  const service = new FaceReferenceHandoffService({
+    generationRepository: {
+      findByIdForOwner: async id => id === headshot.id ? headshot : null
+    },
+    postRepository: { findById: async () => null },
+    now: () => Date.now(),
+    secret: 'local-face-reference-handoff'
+  });
+  const handoff = await service.create({
+    sourceType: 'generation',
+    sourceId: headshot.id,
+    destination: 'character_sheet'
+  }, owner);
+
+  const context = normalizeGenerationContext({
+    mode: 'character-sheet',
+    characterType: 'reusable_model',
+    faceReferenceImageA: headshot.imageUrl,
+    faceReferenceContext: { authorizationToken: handoff.authorizationToken },
+    imageReferences: { faceMatch: true }
+  }, owner);
+
+  assert.deepEqual(context.faceReferenceJobIds, [headshot.id]);
+  assert.deepEqual(context.characterSheetConfig.sourceHeadshotIds, [headshot.id]);
 });

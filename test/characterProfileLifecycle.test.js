@@ -119,6 +119,7 @@ test('canonical Reusable Model source enters review without a second generation'
     characterSheetConfig: {
       version: 1,
       characterType: 'reusable_model',
+      sourceHeadshotIds: ['job_face_source'],
       castingCandidate: true,
       layout: { type: 'character-casting-three-view-v4' },
       castingLayoutVersion: 'character-casting-three-view-v4',
@@ -149,6 +150,8 @@ test('canonical Reusable Model source enters review without a second generation'
   assert.equal(created.versions[0].status, 'review');
   assert.equal(created.versions[0].castingExportGenerationResultId, sourceResult.id);
   assert.equal(created.versions[0].canonicalCastingExportAssetId, sourceResult.id);
+  assert.equal(created.versions[0].canonicalHeadshotAssetId, 'job_face_source');
+  assert.equal(created.versions[0].canonicalFaceAssetId, 'job_face_source');
   assert.equal(created.versions[0].castingExportLayoutVersion, 'character-casting-three-view-v4');
   assert.equal(created.versions[0].castingUniformPolicyVersion, 'casting-uniform-gray-grid-v7');
   assert.equal(

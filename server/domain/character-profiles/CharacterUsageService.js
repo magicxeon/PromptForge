@@ -88,6 +88,7 @@ export class CharacterUsageService {
         canonicalThreeViewAssetId: canonicalAssetId,
         canonicalFaceAssetId,
         ageRange: identityMetadata.ageRange || null,
+        presentationGender: identityMetadata.presentationGender || null,
         characterType,
         outfitBehavior: capabilities.outfitBehavior,
         identityPolicyVersion: 'character-identity-pack-v2',

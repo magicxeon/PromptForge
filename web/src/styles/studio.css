@@ -1203,10 +1203,10 @@
   position: relative;
   flex: 0 0 auto;
   overflow: hidden;
-  border: 1px solid #252231;
+  border: 1px solid var(--theme-border);
   border-radius: var(--mpf-radius-sm);
-  background: #090810;
-  color: #a8afc7;
+  background: color-mix(in srgb, var(--theme-surface) 86%, var(--theme-canvas));
+  color: var(--theme-text-muted);
   cursor: pointer;
   scroll-snap-align: start;
 }
@@ -1221,10 +1221,10 @@
   justify-items: center;
   gap: 0.35rem;
   padding: 0.62rem 0.45rem 0.5rem;
-  border-color: rgb(255 255 255 / 8%);
+  border-color: var(--theme-border);
   border-radius: 8px;
-  background: rgb(0 0 0 / 24%);
-  color: var(--mpf-text-muted);
+  background: color-mix(in srgb, var(--theme-surface) 86%, var(--theme-canvas));
+  color: var(--theme-text-muted);
   text-align: center;
   transition:
     border-color 180ms ease,
@@ -1245,20 +1245,20 @@
 .visual-swatch-option:focus-visible,
 .visual-text-option:hover,
 .visual-text-option:focus-visible {
-  border-color: rgb(6 182 212 / 38%);
-  background: rgb(6 182 212 / 6%);
-  color: var(--mpf-text);
+  border-color: color-mix(in srgb, var(--theme-primary) 52%, var(--theme-border));
+  background: var(--theme-hover);
+  color: var(--theme-text);
 }
 
 .visual-image-option.is-selected,
 .visual-swatch-option.is-selected,
 .visual-text-option.is-selected {
-  border-color: var(--mpf-cyan);
-  background: linear-gradient(180deg, rgb(6 182 212 / 14%), rgb(139 92 246 / 8%));
-  color: #e8fbff;
+  border-color: var(--theme-primary);
+  background: var(--theme-selected);
+  color: var(--theme-text);
   box-shadow:
-    inset 0 0 0 1px rgb(6 182 212 / 22%),
-    0 0 16px rgb(6 182 212 / 12%);
+    inset 0 0 0 1px color-mix(in srgb, var(--theme-primary) 28%, transparent),
+    0 0 16px color-mix(in srgb, var(--theme-primary) 14%, transparent);
 }
 
 .visual-image-option__media {
@@ -1268,6 +1268,13 @@
   place-items: center;
   overflow: hidden;
   background: transparent;
+}
+
+.visual-image-option__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .visual-option-icon {
@@ -1286,8 +1293,6 @@
 }
 
 .visual-image-picker--large .visual-image-option__media img {
-  width: 100%;
-  height: 100%;
   object-fit: contain;
 }
 
@@ -1306,8 +1311,8 @@
   height: 18px;
   padding: 3px;
   border-radius: 50%;
-  background: var(--mpf-cyan);
-  color: #031017;
+  background: var(--theme-primary);
+  color: var(--theme-on-primary);
 }
 
 .visual-swatch-option {

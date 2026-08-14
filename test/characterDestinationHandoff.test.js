@@ -28,6 +28,13 @@ test('Scene handoff snapshots personality and excludes casting outfit attributes
     canonicalCastingExportAssetId: 'job_casting',
     structuredCharacterSnapshot: {
       selections: {
+        Gender: {
+          group: 'Character',
+          id: 'character.001',
+          label: 'Female',
+          value: 'female woman',
+          tags: ['adult-female']
+        },
         Face: { group: 'Face', id: 'face_1' },
         Body: { group: 'Body', id: 'body_1' },
         Outfit: { group: 'Clothing', id: 'white_uniform' },
@@ -48,6 +55,7 @@ test('Scene handoff snapshots personality and excludes casting outfit attributes
   assert.equal(handoff.personalitySummarySnapshot, profile.personalitySummary);
   assert.equal(handoff.characterReferenceAssetId, 'job_casting');
   assert.equal(handoff.compatibleAttributeSnapshot.Face.id, 'face_1');
+  assert.equal(handoff.compatibleAttributeSnapshot.Gender.id, 'character.001');
   assert.equal(handoff.compatibleAttributeSnapshot.Outfit, undefined);
   assert.equal(handoff.compatibleAttributeSnapshot.Pose, undefined);
   assert.equal(handoff.outfitBehavior, 'replaceable');
@@ -82,6 +90,10 @@ test('server replaces client Character metadata with canonical snapshots before 
             attributeId: 'character.004',
             minimum: 24,
             maximum: 27
+          },
+          presentationGender: {
+            attributeId: 'character.002',
+            value: 'male'
           }
         },
         castingFacePreviewUrl: '/outputs/character-profiles/charprof_1/charver_1/face.webp',
@@ -107,6 +119,10 @@ test('server replaces client Character metadata with canonical snapshots before 
     minimum: 24,
     maximum: 27
   });
+  assert.deepEqual(context.identityPack.presentationGender, {
+    attributeId: 'character.002',
+    value: 'male'
+  });
   assert.equal(context.attribution.ownerUserId, profile.ownerUserId);
   assert.equal(context.authorizedCharacterReferenceAssetId, 'job_casting');
   assert.equal(
@@ -119,7 +135,17 @@ test('server replaces client Character metadata with canonical snapshots before 
   );
   const compiledPrompt = compilePromptFromGenerationContext({
     mode: 'normal',
-    selections: {},
+    selections: {
+      'Body Silhouette': {
+        id: 'body.female',
+        value: 'female-only silhouette that must not compile',
+        prompt: 'female-only silhouette that must not compile',
+        label: 'Female silhouette',
+        group: 'Body',
+        category: 'body',
+        tags: ['female-body-silhouette']
+      }
+    },
     aspectRatio: '1:1',
     imageReferences: {},
     characterProfileContext: context
@@ -127,6 +153,7 @@ test('server replaces client Character metadata with canonical snapshots before 
   assert.match(compiledPrompt, /Warm and confident/);
   assert.match(compiledPrompt, /selected apparent age range of 24-27 years/i);
   assert.doesNotMatch(compiledPrompt, /35-40/);
+  assert.doesNotMatch(compiledPrompt, /female-only silhouette that must not compile/i);
   assert.ok(
     compiledPrompt.lastIndexOf('immutable part of character identity')
       > compiledPrompt.lastIndexOf('Warm and confident'),

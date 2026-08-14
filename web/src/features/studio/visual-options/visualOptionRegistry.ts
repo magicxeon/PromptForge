@@ -20,6 +20,7 @@ type VisualFieldConfig = {
     ReadonlySet<string>
   >>;
   size?: 'compact' | 'large';
+  renderMode?: 'image' | 'mask' | 'manifest';
 };
 
 export type ResolvedVisualOption = {
@@ -30,6 +31,7 @@ export type ResolvedVisualOption = {
   alt?: Record<string, string>;
   colors?: string[];
   pattern?: string;
+  renderMode: 'image' | 'mask';
 };
 
 export type VisualFieldPresentation = {
@@ -47,7 +49,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'face.shape.rectangular': 'face.018',
     'face.shape.heart': 'face.004',
     'face.shape.inverted_triangular': 'face.019',
-    'face.shape.long': 'face.020'
+    'face.shape.long': 'face.020',
+    'face.shape.vertical_drama_male': 'face.021',
+    'face.shape.vertical_drama_female': 'face.022'
   }),
   'Face::Eyes': image('eyes.shape', {
     'eyes.shape.almond': 'eyes.001',
@@ -57,7 +61,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'eyes.shape.phoenix': 'eyes.005',
     'eyes.shape.doe': 'eyes.006',
     'eyes.shape.puppy': 'eyes.007',
-    'eyes.shape.hooded': 'eyes.008'
+    'eyes.shape.hooded': 'eyes.008',
+    'eyes.shape.vertical_drama_male': 'eyes.014',
+    'eyes.shape.vertical_drama_female': 'eyes.015'
   }),
   'Face::Eyebrows': image('eyebrows.shape', {
     'eyebrows.shape.straight': 'eyebrows.001',
@@ -66,7 +72,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'eyebrows.shape.thin': 'eyebrows.004',
     'eyebrows.shape.defined': 'eyebrows.005',
     'eyebrows.shape.well_groomed': 'eyebrows.006',
-    'eyebrows.shape.natural': 'eyebrows.007'
+    'eyebrows.shape.natural': 'eyebrows.007',
+    'eyebrows.shape.vertical_drama_male': 'eyebrows.008',
+    'eyebrows.shape.vertical_drama_female': 'eyebrows.009'
   }),
   'Face::Nose': image('nose.shape', {
     'nose.shape.small_button': 'nose.001',
@@ -74,7 +82,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'nose.shape.delicate_narrow': 'nose.003',
     'nose.shape.soft_rounded_tip': 'nose.004',
     'nose.shape.straight': 'nose.005',
-    'nose.shape.natural': 'nose.006'
+    'nose.shape.natural': 'nose.006',
+    'nose.shape.vertical_drama_male': 'nose.007',
+    'nose.shape.vertical_drama_female': 'nose.008'
   }),
   'Face::Lips': image('lips.shape', {
     'lips.shape.natural': 'lips.001',
@@ -84,7 +94,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     'lips.shape.thin': 'lips.005',
     'lips.shape.heart_shaped': 'lips.010',
     'lips.shape.heavy_upper': 'lips.011',
-    'lips.shape.wide': 'lips.012'
+    'lips.shape.wide': 'lips.012',
+    'lips.shape.vertical_drama_male': 'lips.013',
+    'lips.shape.vertical_drama_female': 'lips.014'
   }),
   'Face::Facial Hair': image('facial_hair.style', {}),
   'Face::Expression': image('expression.face', {
@@ -168,9 +180,9 @@ const visualFields: Record<string, VisualFieldConfig> = {
     variants: {
       female: 'body.silhouette.female',
       male: 'body.silhouette.male'
-    },
-    size: 'large'
+    }
   },
+  'Body::Model Build': image('body.build', {}),
   'Clothing::Outfit Base': {
     kind: 'image',
     fieldId: 'clothing.outfit-base',
@@ -179,7 +191,8 @@ const visualFields: Record<string, VisualFieldConfig> = {
       male: 'clothing.outfit-base.male'
     },
     combineVariantsWhenUnspecified: true,
-    size: 'large'
+    size: 'large',
+    renderMode: 'image'
   },
   'Clothing::Pattern': { kind: 'swatch' },
   'Clothing::Material': { kind: 'swatch' },
@@ -287,7 +300,8 @@ export function resolveVisualPresentation({
         option,
         assetId: `swatch.${option.id}`,
         colors,
-        pattern: swatchPatterns[option.id]
+        pattern: swatchPatterns[option.id],
+        renderMode: 'image' as const
       }] : [];
     });
     return items.length ? { kind: 'swatch', size: 'compact', items } : null;
@@ -297,7 +311,9 @@ export function resolveVisualPresentation({
   const fieldIds = variant && config.variants?.[variant]
     ? [config.variants[variant]]
     : config.combineVariantsWhenUnspecified && config.variants
-      ? Object.values(config.variants)
+      ? [config.fieldId, ...Object.values(config.variants)].filter(
+        (fieldId): fieldId is string => Boolean(fieldId)
+      )
       : config.fieldId
         ? [config.fieldId]
         : [];
@@ -309,30 +325,43 @@ export function resolveVisualPresentation({
 
   const optionsById = new Map(field.options.map(option => [option.id, option]));
   const seenAttributeIds = new Set<string>();
-  const items = fieldManifests.flatMap(manifest => manifest.items).flatMap(item => {
-    const attributeId = item.attributeId
-      || config.optionMap?.[item.optionId]
-      || item.optionId;
-    const presentationOptionIds = variant
-      ? config.presentationOptionIds?.[variant]
-      : undefined;
-    if (presentationOptionIds && !presentationOptionIds.has(attributeId)) {
-      return [];
-    }
-    const option = optionsById.get(attributeId);
-    const imageUrl = preferredImage(item);
-    if (!option || !imageUrl || seenAttributeIds.has(attributeId)) return [];
-    seenAttributeIds.add(attributeId);
-    return [{
-      option,
-      assetId: item.assetId,
-      imageUrl,
-      focalPoint: item.focalPoint,
-      alt: item.alt,
-      colors: item.swatch?.colors,
-      pattern: item.swatch?.pattern
-    }];
-  });
+  const items = fieldManifests
+    .flatMap(manifest => manifest.items.map(item => ({ item, manifest })))
+    .flatMap(({ item, manifest }) => {
+      const attributeId = item.attributeId
+        || config.optionMap?.[item.optionId]
+        || item.optionId;
+      const presentationOptionIds = variant
+        ? config.presentationOptionIds?.[variant]
+        : undefined;
+      if (presentationOptionIds && !presentationOptionIds.has(attributeId)) {
+        return [];
+      }
+      const option = optionsById.get(attributeId);
+      const imageUrl = preferredImage(item);
+      if (!option || !imageUrl || seenAttributeIds.has(attributeId)) return [];
+      seenAttributeIds.add(attributeId);
+      return [{
+        option,
+        assetId: item.assetId,
+        imageUrl,
+        focalPoint: item.focalPoint,
+        alt: item.alt,
+        colors: item.swatch?.colors,
+        pattern: item.swatch?.pattern,
+        renderMode: config.renderMode === 'image'
+          ? 'image' as const
+          : config.renderMode === 'mask'
+            ? 'mask' as const
+            : item.recolorMode === 'mask'
+              ? 'mask' as const
+              : item.recolorMode === 'none'
+                ? 'image' as const
+                : manifest.recolorMode === 'mask'
+                  ? 'mask' as const
+                  : 'image' as const
+      }];
+    });
   return items.length
     ? { kind: 'image', size: config.size || 'compact', items }
     : null;

@@ -3,6 +3,11 @@
   "visualStyleVersion": "character-sheet-illustrated-v1",
   "manifests": [
     {
+      "fieldId": "body.build",
+      "manifestId": "character-sheet.body.body-build",
+      "url": "/assets/visual-character-builder/character-sheet-v1/body/body-build/manifest.json"
+    },
+    {
       "fieldId": "body.silhouette",
       "manifestId": "character-sheet.body.body-silhouette",
       "url": "/assets/visual-character-builder/character-sheet-v1/body/body-silhouette/manifest.json"

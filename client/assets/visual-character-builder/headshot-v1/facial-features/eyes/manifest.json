@@ -150,6 +150,25 @@
         "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/hooded-r1.png",
         "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/hooded-r1.png"
       }
+    },
+    {
+      "assetId": "visual.eyes.shape.vertical-drama-male",
+      "optionId": "eyes.shape.vertical_drama_male",
+      "attributeId": "eyes.014",
+      "slug": "vertical-drama-male",
+      "assetRevision": 3,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Defined deep almond adult masculine eyes",
+        "th": "ดวงตาอัลมอนด์คมลึกแบบนักแสดงนำชาย"
+      },
+      "sourceHash": "4cf41d041bf12e240c0ca598586f8eff5e71243ae6b857bf8ba8da9fcede2df6",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/master/vertical-drama-male-r3.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/preview/vertical-drama-male-r3.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/thumb/vertical-drama-male-r3.png"
+      }
     }
   ]
 }

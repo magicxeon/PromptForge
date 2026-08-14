@@ -61,6 +61,38 @@ test('Character identity metadata derives legacy ranges and rejects malformed st
   }), '');
 });
 
+test('Character identity metadata compacts presentation gender for downstream option policy', () => {
+  const metadata = deriveCharacterIdentityMetadata({
+    selections: {
+      Gender: {
+        id: 'character.002',
+        label: 'Male',
+        value: 'male man',
+        tags: ['adult-male']
+      }
+    }
+  });
+
+  assert.deepEqual(metadata.presentationGender, {
+    attributeId: 'character.002',
+    value: 'male'
+  });
+  assert.deepEqual(normalizeCharacterIdentityMetadata({
+    presentationGender: { attributeId: 'tampered', value: 'unknown' }
+  }, {
+    selections: {
+      Gender: {
+        id: 'character.001',
+        label: 'Female',
+        value: 'female woman'
+      }
+    }
+  }).presentationGender, {
+    attributeId: 'character.001',
+    value: 'female'
+  });
+});
+
 test('Character identity text repairs legacy UTF-8 mojibake before provider compilation', () => {
   const original = 'สุขุม ดูดี เนี๊ยบ รักสะอาด';
   const mojibake = Buffer.from(original, 'utf8').toString('latin1');

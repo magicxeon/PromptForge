@@ -117,8 +117,103 @@ describe('Studio visual option registry', () => {
       gender
     });
 
-    expect(result?.size).toBe('large');
+    expect(result?.size).toBe('compact');
+    expect(result?.items[0]?.renderMode).toBe('image');
     expect(result?.items[0]?.option.id).toBe('body.female_silhouette_01');
+  });
+
+  it('uses the shared compact mask presentation for recolorable Body silhouettes', () => {
+    const bodyField: AttributeField = {
+      name: 'Body Silhouette',
+      control: 'select',
+      group: 'Body',
+      options: [{
+        id: 'body.male_silhouette_01',
+        category: 'body',
+        subcategory: 'Body Shape',
+        label: 'Lean slim',
+        group: 'Body',
+        prompt: 'lean slim body silhouette',
+        tags: ['body']
+      }]
+    };
+    const manifest = createManifest({
+      fieldId: 'body.silhouette.male',
+      optionId: 'body.silhouette.male.lean_slim',
+      attributeId: 'body.male_silhouette_01',
+      imageUrl: '/assets/visual-character-builder/character-sheet-v1/body/body-silhouette-male/thumb/male-lean-slim-r1.png'
+    });
+    manifest.recolorMode = 'mask';
+
+    const result = resolveVisualPresentation({
+      field: bodyField,
+      manifests: { 'body.silhouette.male': manifest },
+      gender: selection('gender.male', 'Male')
+    });
+
+    expect(result).toMatchObject({
+      kind: 'image',
+      size: 'compact',
+      items: [{ renderMode: 'mask' }]
+    });
+  });
+
+  it('uses only product-approved Vertical Drama visuals and leaves missing options text-only', () => {
+    const faceManifest = createManifest({
+      fieldId: 'face.shape',
+      optionId: 'face.shape.vertical_drama_male',
+      imageUrl: '/assets/visual-character-builder/headshot-v1/product-approved/vertical-drama-lead-r3/preview/sculpted-tapered-face-r3.png'
+    });
+    faceManifest.items[0]!.recolorMode = 'mask';
+    faceManifest.items[0]!.attributeId = 'face.021';
+    faceManifest.recolorMode = 'mask';
+    const face = resolveVisualPresentation({
+      field: {
+        name: 'Face Shape',
+        control: 'visual-select',
+        group: 'Face',
+        options: [{
+          id: 'face.021',
+          category: 'face',
+          subcategory: 'Face Shape',
+          label: 'Sculpted Tapered Face',
+          group: 'Face',
+          prompt: 'adult masculine tapered face',
+          tags: ['vertical-drama-lead', 'adult-male']
+        }]
+      },
+      manifests: { 'face.shape': faceManifest }
+    });
+    expect(face?.items[0]).toMatchObject({
+      option: { id: 'face.021' },
+      renderMode: 'mask'
+    });
+
+    const buildManifest = createManifest({
+      fieldId: 'body.build',
+      optionId: 'body.build.vertical-drama-male-lead',
+      attributeId: 'body.build.vertical-drama-male-lead',
+      imageUrl: '/assets/visual-character-builder/character-sheet-v1/body/body-build/thumb/vertical-drama-male-r1.svg'
+    });
+    buildManifest.items = [];
+    const build = resolveVisualPresentation({
+      field: {
+        name: 'Model Build',
+        control: 'visual-select',
+        group: 'Body',
+        options: [{
+          id: 'body.build.vertical-drama-male-lead',
+          category: 'body',
+          subcategory: 'Model Build',
+          label: 'Lean Broad-shouldered Lead Build',
+          group: 'Body',
+          prompt: 'lean adult leading-man build',
+          tags: ['vertical-drama-lead', 'adult-male']
+        }]
+      },
+      manifests: { 'body.build': buildManifest }
+    });
+    expect(build).toBeNull();
   });
 
   it('shows Character Sheet outfit visuals in Scene Builder before presentation is known', () => {
@@ -155,6 +250,8 @@ describe('Studio visual option registry', () => {
       'outfit.base.female.square_neck_knit_tailored_trousers',
       'outfit.base.male.chore_jacket_chinos'
     ]);
+    expect(result?.size).toBe('large');
+    expect(result?.items.every(item => item.renderMode === 'image')).toBe(true);
     expect(resolveVisualPresentation({
       field,
       manifests: {
@@ -165,6 +262,32 @@ describe('Studio visual option registry', () => {
     })?.items.map(item => item.option.id)).toEqual([
       'outfit.base.male.chore_jacket_chinos'
     ]);
+  });
+
+  it('keeps neutral Outfit Base visuals when presentation-specific options are filtered out', () => {
+    const neutralId = 'outfit.base.unisex.tshirt_wide_jeans';
+    const field: AttributeField = {
+      name: 'Outfit Base',
+      control: 'select',
+      group: 'Clothing',
+      options: [outfitOption(neutralId)]
+    };
+    const neutral = createManifest({
+      fieldId: 'clothing.outfit-base',
+      optionId: neutralId,
+      imageUrl: '/assets/visual-character-builder/character-sheet-v1/clothing/outfit-base/preview/unisex-tshirt-wide-jeans-r1.png'
+    });
+
+    const result = resolveVisualPresentation({
+      field,
+      manifests: { 'clothing.outfit-base': neutral }
+    });
+
+    expect(result).toMatchObject({
+      kind: 'image',
+      size: 'large',
+      items: [{ option: { id: neutralId } }]
+    });
   });
 
   it('renders Clothing Pattern and Material fields as semantic swatches', () => {

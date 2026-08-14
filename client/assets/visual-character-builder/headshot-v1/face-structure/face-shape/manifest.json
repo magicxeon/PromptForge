@@ -150,6 +150,25 @@
         "preview": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/preview/long-r1.png",
         "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/thumb/long-r1.png"
       }
+    },
+    {
+      "assetId": "visual.face.shape.vertical-drama-male",
+      "optionId": "face.shape.vertical_drama_male",
+      "attributeId": "face.021",
+      "slug": "vertical-drama-male",
+      "assetRevision": 3,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Sculpted tapered adult masculine face outline",
+        "th": "เส้นโครงหน้าคมเรียวแบบนักแสดงนำชาย"
+      },
+      "sourceHash": "90c7380f6f087452cab73556a5e348258a6a2f13cbc69938e4c857c3baee8362",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/master/vertical-drama-male-r3.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/preview/vertical-drama-male-r3.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/thumb/vertical-drama-male-r3.png"
+      }
     }
   ]
 }

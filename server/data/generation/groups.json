@@ -1,6 +1,403 @@
 [
   {
     "schemaVersion": 1,
+    "id": "ggrp_1786666392870_n4wfd4v7",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1786666386847_zxug6vkg",
+    "estimateId": "est_1786666386254_q4dxgrf",
+    "requestedOutputCount": 2,
+    "status": "completed",
+    "childJobIds": [
+      "job_1786666392870_lb7306mtg",
+      "job_1786666392870_z51ep9zi3"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "jobId": "job_1786666392870_lb7306mtg",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786666392870_lb7306mtg.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "7.3",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 1,
+          "providerMs": 7306,
+          "outputPersistenceMs": 248,
+          "totalMs": 7660
+        }
+      },
+      {
+        "outputIndex": 1,
+        "jobId": "job_1786666392870_z51ep9zi3",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786666392870_z51ep9zi3.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "7.2",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 0,
+          "providerMs": 7233,
+          "outputPersistenceMs": 226,
+          "totalMs": 7553
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-14T00:13:12.904Z",
+    "updatedAt": "2026-08-14T00:13:20.571Z",
+    "completedAt": "2026-08-14T00:13:20.571Z"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "ggrp_1786638673714_rnbtwhrg",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1786638667631_tu5yb2eo",
+    "estimateId": "est_1786638667040_43kcd88",
+    "requestedOutputCount": 2,
+    "status": "completed",
+    "childJobIds": [
+      "job_1786638673714_15vpl5w2z",
+      "job_1786638673714_3bp0bz2bj"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "jobId": "job_1786638673714_15vpl5w2z",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638673714_15vpl5w2z.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "5.9",
+          "width": 1024,
+          "height": 1024
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 1,
+          "providerMs": 5923,
+          "outputPersistenceMs": 209,
+          "totalMs": 6223
+        }
+      },
+      {
+        "outputIndex": 1,
+        "jobId": "job_1786638673714_3bp0bz2bj",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638673714_3bp0bz2bj.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "6.4",
+          "width": 1024,
+          "height": 1024
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 0,
+          "providerMs": 6442,
+          "outputPersistenceMs": 199,
+          "totalMs": 6726
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-13T16:31:13.747Z",
+    "updatedAt": "2026-08-13T16:31:20.481Z",
+    "completedAt": "2026-08-13T16:31:20.481Z"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "ggrp_1786638517352_c1upcd89",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1786638512313_91cogzm5",
+    "estimateId": "est_1786638511732_k3xu1hc",
+    "requestedOutputCount": 2,
+    "status": "completed",
+    "childJobIds": [
+      "job_1786638517352_g8misc9lq",
+      "job_1786638517352_kvcnesyc0"
+    ],
+    "children": [
+      {
+        "jobId": "job_1786638517352_g8misc9lq",
+        "outputIndex": 0,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638517352_g8misc9lq.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "7.5",
+          "width": 1024,
+          "height": 1024
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 1,
+          "providerMs": 7451,
+          "outputPersistenceMs": 211,
+          "totalMs": 7752
+        }
+      },
+      {
+        "jobId": "job_1786638517352_kvcnesyc0",
+        "outputIndex": 1,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638517352_kvcnesyc0.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "7.2",
+          "width": 1024,
+          "height": 1024
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 0,
+          "providerMs": 7158,
+          "outputPersistenceMs": 193,
+          "totalMs": 7440
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-13T16:28:37.388Z",
+    "updatedAt": "2026-08-13T16:28:45.144Z",
+    "completedAt": "2026-08-13T16:28:45.144Z"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "ggrp_1786638322126_u6wgb8t4",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1786638314407_71v40noa",
+    "estimateId": "est_1786638313815_qcovm02",
+    "requestedOutputCount": 2,
+    "status": "completed",
+    "childJobIds": [
+      "job_1786638322126_tbjfmpkgx",
+      "job_1786638322126_tc9aj32bg"
+    ],
+    "children": [
+      {
+        "outputIndex": 0,
+        "jobId": "job_1786638322126_tbjfmpkgx",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638322126_tbjfmpkgx.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "6.3",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 1,
+          "providerMs": 6348,
+          "outputPersistenceMs": 229,
+          "totalMs": 6669
+        }
+      },
+      {
+        "outputIndex": 1,
+        "jobId": "job_1786638322126_tc9aj32bg",
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638322126_tc9aj32bg.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "6.7",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 1,
+          "providerMs": 6707,
+          "outputPersistenceMs": 206,
+          "totalMs": 7002
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-13T16:25:22.158Z",
+    "updatedAt": "2026-08-13T16:25:29.170Z",
+    "completedAt": "2026-08-13T16:25:29.170Z"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "ggrp_1786638211117_lvjczmj7",
+    "actorUserId": "usr_alice",
+    "actorUsername": "user_alice",
+    "requestId": "gen_1786638204526_1ggn51ee",
+    "estimateId": "est_1786638203936_p0i7p4i",
+    "requestedOutputCount": 3,
+    "status": "completed",
+    "childJobIds": [
+      "job_1786638211117_p2eh2qln4",
+      "job_1786638211117_nqa8fksy1",
+      "job_1786638211117_qzq94sn6s"
+    ],
+    "children": [
+      {
+        "jobId": "job_1786638211117_p2eh2qln4",
+        "outputIndex": 0,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638211117_p2eh2qln4.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "7.0",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 0,
+          "providerMs": 7004,
+          "outputPersistenceMs": 217,
+          "totalMs": 7310
+        }
+      },
+      {
+        "jobId": "job_1786638211117_nqa8fksy1",
+        "outputIndex": 1,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638211117_nqa8fksy1.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "6.7",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 1,
+          "providerMs": 6694,
+          "outputPersistenceMs": 210,
+          "totalMs": 7006
+        }
+      },
+      {
+        "jobId": "job_1786638211117_qzq94sn6s",
+        "outputIndex": 2,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1786638211117_qzq94sn6s.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "6.7",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 7006,
+          "referenceProcessingMs": 1,
+          "providerMs": 6726,
+          "outputPersistenceMs": 212,
+          "totalMs": 14048
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 3,
+    "failedCount": 0,
+    "createdAt": "2026-08-13T16:23:31.149Z",
+    "updatedAt": "2026-08-13T16:23:45.208Z",
+    "completedAt": "2026-08-13T16:23:45.208Z"
+  },
+  {
+    "schemaVersion": 1,
     "id": "ggrp_1786278938626_9g2d2ews",
     "actorUserId": "usr_alice",
     "actorUsername": "user_alice",

@@ -554,6 +554,14 @@ Scene Builder uses one-open-section accordion behavior:
   category when all required choices are complete.
 - Keyboard activation, focus visibility and reduced-motion behavior are
   required.
+- After a category heading is activated, inspect the resulting accordion
+  state. Only when that category finishes expanded should the UI scroll its
+  heading to the start of the viewport and move keyboard focus to the heading.
+  Collapsing an already expanded category must not scroll or move focus. The
+  expanded path uses the same shared progression routine as `Next`;
+  reduced-motion preference changes smooth scrolling to immediate scrolling.
+- The shared `GuidedAttributeForm` regression suite must cover both navigation
+  paths: advancing with `Next` and directly selecting a collapsed category.
 
 The category sequence is mode-policy data, not hard-coded separately in each
 accordion component.

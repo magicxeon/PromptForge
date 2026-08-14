@@ -12,7 +12,8 @@ import {
   createCustomSelection,
   createSelection,
   DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
-  localized
+  localized,
+  sortAttributeOptionsByLabel
 } from '../../features/studio/attributes/attributeModel';
 import type { VisualFieldPresentation } from '../../features/studio/visual-options/visualOptionRegistry';
 import { VisualImagePicker } from './VisualImagePicker';
@@ -86,6 +87,7 @@ export function VisualOptionPicker({
   const customTotalTooLong = projectedCustomTotal
     > customInputLimits.maxCharactersTotal;
   const customInputInvalid = customFieldTooLong || customTotalTooLong;
+  const sortedOptions = sortAttributeOptionsByLabel(field.options);
 
   function submitCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -115,12 +117,12 @@ export function VisualOptionPicker({
               return;
             }
             setShowCustom(false);
-            const option = field.options.find(item => item.id === event.target.value);
+            const option = sortedOptions.find(item => item.id === event.target.value);
             onChange(option ? createSelection(option) : null);
           }}
         >
           <option value="">{`${t('ui.visual.select')} ${field.name}`}</option>
-          {field.options.map(option => (
+          {sortedOptions.map(option => (
             <option key={option.id} value={option.id}>{localized(option.label)}</option>
           ))}
           {hasCustomColorControl ? null : (

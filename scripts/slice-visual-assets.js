@@ -7,9 +7,20 @@ const __filename = fileURLToPath(import.meta.url);
 const ROOT_DIR = path.resolve(path.dirname(__filename), '..');
 const AUTHORING_DIR = path.join(ROOT_DIR, 'visual-assets/character-builder');
 const RUNTIME_ROOT = path.join(ROOT_DIR, 'client/assets/visual-character-builder');
+const RUNTIME_EXTENSION_FILE = path.join(
+  AUTHORING_DIR,
+  'runtime-manifest-extensions.json'
+);
+const RUNTIME_MANIFEST_REVISION = '3';
 const ATTRIBUTE_FILES = [
+  path.join(ROOT_DIR, 'attributes/002-face.json'),
+  path.join(ROOT_DIR, 'attributes/003-eyes.json'),
+  path.join(ROOT_DIR, 'attributes/004-eyebrows.json'),
+  path.join(ROOT_DIR, 'attributes/005-nose.json'),
+  path.join(ROOT_DIR, 'attributes/006-lips.json'),
   path.join(ROOT_DIR, 'attributes/009-body.json'),
   path.join(ROOT_DIR, 'attributes/010-clothing.json'),
+  path.join(ROOT_DIR, 'attributes/024-fashion-commerce.json'),
   path.join(ROOT_DIR, 'attributes/025-facial-hair.json')
 ];
 
@@ -213,11 +224,18 @@ export function parseArgs(argv) {
         : 'face.shape',
     check: argv.includes('--check'),
     slice: argv.includes('--slice'),
+    extensions: argv.includes('--extensions'),
     contactSheet: argv.includes('--contact-sheet') || argv.includes('--slice')
   };
 }
 
 export async function run(options = parseArgs(process.argv.slice(2))) {
+  if (options.extensions) {
+    const report = await materializeAllRuntimeExtensions();
+    printReport(report);
+    return report;
+  }
+
   const groupedFieldIds = FIELD_GROUPS[options.fieldId];
   if (groupedFieldIds) {
     const reports = [];
@@ -257,6 +275,40 @@ export async function run(options = parseArgs(process.argv.slice(2))) {
 
   printReport(report);
   return report;
+}
+
+async function materializeAllRuntimeExtensions() {
+  const sharp = (await import('sharp')).default;
+  const extensionDocument = await readJson(RUNTIME_EXTENSION_FILE);
+  const reports = [];
+
+  for (const fieldId of Object.keys(extensionDocument.fields || {})) {
+    const manifestPath = FIELD_MANIFESTS[fieldId];
+    if (!manifestPath) throw new Error(`Unknown extension visual field: ${fieldId}`);
+    const manifest = await readJson(manifestPath);
+    const paths = resolveManifestPaths(manifest);
+    const runtimeManifestPath = path.join(paths.runtimeDirectory, 'manifest.json');
+    if (!await fileExists(runtimeManifestPath)) {
+      throw new Error(`${fieldId} runtime manifest must exist before importing approved visuals.`);
+    }
+
+    const runtimeManifest = await readJson(runtimeManifestPath);
+    const extensionResult = await materializeRuntimeExtensionItems({ sharp, manifest, paths });
+    const extensionOptionIds = new Set(extensionResult.items.map(item => item.optionId));
+    runtimeManifest.items = [
+      ...(runtimeManifest.items || []).filter(item => !extensionOptionIds.has(item.optionId)),
+      ...extensionResult.items
+    ];
+    await atomicWriteJson(runtimeManifestPath, runtimeManifest);
+    reports.push({
+      fieldId,
+      runtimeManifest: path.relative(ROOT_DIR, runtimeManifestPath),
+      outputs: extensionResult.outputs
+    });
+  }
+
+  await writeManifestIndex('headshot-v1');
+  return { operation: 'approved-visual-import', ok: true, reports };
 }
 
 function resolveManifestPaths(manifest) {
@@ -426,7 +478,7 @@ async function sliceManifest(manifest, paths) {
     runtimeItems.push({
       assetId: item.assetId,
       optionId: item.optionId,
-      attributeId: item.attributeId || null,
+      ...(item.attributeId ? { attributeId: item.attributeId } : {}),
       slug: item.slug,
       assetRevision: item.assetRevision,
       recolorMode: manifest.recolorMode,
@@ -437,6 +489,14 @@ async function sliceManifest(manifest, paths) {
     });
   }
 
+  const extensionResult = await materializeRuntimeExtensionItems({
+    sharp,
+    manifest,
+    paths
+  });
+  const extensionItems = extensionResult.items;
+  outputs.push(...extensionResult.outputs);
+  const generatedOptionIds = new Set(runtimeItems.map(item => item.optionId));
   const runtimeManifest = {
     schemaVersion: 1,
     manifestId: manifest.manifestId,
@@ -445,7 +505,10 @@ async function sliceManifest(manifest, paths) {
     visualStyleVersion: manifest.visualStyleVersion,
     assetFamily: manifest.assetFamily,
     recolorMode: manifest.recolorMode,
-    items: runtimeItems
+    items: [
+      ...runtimeItems,
+      ...extensionItems.filter(item => !generatedOptionIds.has(item.optionId))
+    ]
   };
   const runtimeManifestPath = path.join(paths.runtimeDirectory, 'manifest.json');
   await atomicWriteJson(runtimeManifestPath, runtimeManifest);
@@ -620,7 +683,7 @@ async function writeManifestIndex(style) {
     manifests.push({
       fieldId: runtimeManifest.fieldId || manifest.fieldId,
       manifestId: runtimeManifest.manifestId || manifest.manifestId,
-      url: `/assets/visual-character-builder/${style}/${manifest.sectionId}/${manifest.folder}/manifest.json`
+      url: `/assets/visual-character-builder/${style}/${manifest.sectionId}/${manifest.folder}/manifest.json?v=${RUNTIME_MANIFEST_REVISION}`
     });
   }
   const index = {
@@ -657,12 +720,86 @@ async function readKnownAttributeIds() {
   const ids = new Set();
   for (const filename of ATTRIBUTE_FILES) {
     if (!await fileExists(filename)) continue;
-    const items = await readJson(filename);
-    for (const item of items || []) {
+    const document = await readJson(filename);
+    const items = Array.isArray(document) ? document : document.entries || [];
+    for (const item of items) {
       if (item?.id) ids.add(item.id);
     }
   }
   return ids;
+}
+
+async function readRuntimeExtensionItems(fieldId) {
+  if (!await fileExists(RUNTIME_EXTENSION_FILE)) return [];
+  const document = await readJson(RUNTIME_EXTENSION_FILE);
+  const items = document.fields?.[fieldId] || [];
+  return Array.isArray(items) ? items : [];
+}
+
+async function materializeRuntimeExtensionItems({ sharp, manifest, paths }) {
+  const extensionItems = await readRuntimeExtensionItems(manifest.fieldId);
+  const items = [];
+  const outputs = [];
+
+  for (const item of extensionItems) {
+    const sourceFilename = item.source?.filename;
+    if (!sourceFilename) {
+      items.push(item);
+      continue;
+    }
+
+    const sourcePath = path.resolve(AUTHORING_DIR, sourceFilename);
+    if (!sourcePath.startsWith(`${AUTHORING_DIR}${path.sep}`)) {
+      throw new Error(`${item.optionId} has an unsafe extension source path.`);
+    }
+    if (!await fileExists(sourcePath)) {
+      throw new Error(`${item.optionId} extension source is missing: ${sourcePath}`);
+    }
+    if (item.source.processing !== 'line-art-mask') {
+      throw new Error(`${item.optionId} uses unsupported extension processing '${item.source.processing}'.`);
+    }
+
+    const extracted = await sharp(sourcePath)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const alphaBuffer = whiteToAlpha(extracted.data, extracted.info);
+    const baseProfileName = getBaseRuntimeProfileName(manifest.runtimeProfiles);
+    const baseProfile = manifest.runtimeProfiles[baseProfileName];
+    const baseBuffer = await normalizeIcon(sharp, alphaBuffer, extracted.info, baseProfile)
+      .png()
+      .toBuffer();
+    const runtimeAssets = {};
+
+    for (const [profileName, profile] of Object.entries(manifest.runtimeProfiles)) {
+      const filename = `${item.slug}-r${item.assetRevision}.png`;
+      const outputPath = path.join(paths.runtimeDirectory, profileName, filename);
+      const buffer = profileName === baseProfileName
+        ? baseBuffer
+        : await sharp(baseBuffer)
+          .resize({
+            width: profile.width,
+            height: profile.height,
+            fit: 'contain',
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+          })
+          .png()
+          .toBuffer();
+      await atomicWriteFile(outputPath, buffer);
+      runtimeAssets[profileName] = publicAssetUrl(paths, profileName, filename);
+      outputs.push(path.relative(ROOT_DIR, outputPath));
+    }
+
+    const { source: _source, assets: _assets, ...runtimeItem } = item;
+    items.push({
+      ...runtimeItem,
+      recolorMode: 'mask',
+      sourceHash: sha256(baseBuffer),
+      assets: runtimeAssets
+    });
+  }
+
+  return { items, outputs };
 }
 
 async function fileExists(filename) {

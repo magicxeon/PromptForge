@@ -1,5 +1,894 @@
 [
   {
+    "characterProfileId": "charprof_1786685229618_e6nbhedt",
+    "versionNumber": 1,
+    "sourceMode": "character-sheet",
+    "characterType": "reusable_model",
+    "structuredCharacterSnapshot": {
+      "selections": {
+        "Gender": {
+          "id": "character.002",
+          "value": "male",
+          "label": "Male",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Age": {
+          "id": "character.004_e20",
+          "value": "21-year-old young adult",
+          "label": "Early Twenties (20-23)",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Ethnicity": {
+          "id": "character.010",
+          "value": "chinese ethnicity",
+          "label": "Chinese",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "chinese"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color": {
+          "id": "hair_014",
+          "value": "dark brown hair",
+          "label": "Dark Brown",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "color"
+          ],
+          "gptPositiveWords": []
+        },
+        "Tone": {
+          "id": "skin.tone_01",
+          "value": "fair skin",
+          "label": "Fair skin",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "tone",
+            "fair"
+          ],
+          "gptPositiveWords": []
+        },
+        "Skin Texture": {
+          "id": "skin.text_01",
+          "value": "natural skin texture with visible skin pores and fine details",
+          "label": "Natural Skin Texture",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "texture",
+            "natural"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Length": {
+          "id": "hair_002",
+          "value": "short hair",
+          "label": "Short Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "length"
+          ],
+          "gptPositiveWords": []
+        },
+        "Makeup": {
+          "id": "skin.makeup_02",
+          "value": "soft peach makeup style",
+          "label": "Soft K-Beauty Makeup",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "makeup",
+            "k-beauty",
+            "asian"
+          ],
+          "gptPositiveWords": []
+        },
+        "Freckles": {
+          "id": "skin.freckles_01",
+          "value": "even skin with no freckles",
+          "label": "No Freckles",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "freckles",
+            "none"
+          ],
+          "gptPositiveWords": []
+        },
+        "Cut / Style": {
+          "id": "hair_031",
+          "value": "undercut hairstyle",
+          "label": "Undercut",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "style"
+          ],
+          "gptPositiveWords": []
+        },
+        "Model Build": {
+          "id": "body.build.vertical-drama-male-lead",
+          "value": "lean adult leading-man build with a naturally broad shoulder frame, a proportionate chest, a narrow athletic waist, and long proportional limbs while preserving the separately selected body silhouette",
+          "label": "Lean Broad-shouldered Lead Build",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-male"
+          ],
+          "gptPositiveWords": []
+        },
+        "Body Silhouette": {
+          "id": "body.silhouette.vertical-drama-male-lead",
+          "value": "anatomically natural masculine upper-body V taper with broad shoulders, a proportionate chest, and narrower waist and hips, preserving balanced legs and realistic posture",
+          "label": "Tapered Leading-man Silhouette",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-male"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "characterSheetConfig": {
+        "version": 1,
+        "mode": "character-sheet",
+        "characterType": "reusable_model",
+        "sourceHeadshotIds": [
+          "job_1786684690343_rpw8e4jjd"
+        ],
+        "identitySelectionIds": {
+          "Gender": "character.002",
+          "Age": "character.004_e20",
+          "Ethnicity": "character.010",
+          "Color": "hair_014",
+          "Tone": "skin.tone_01",
+          "Skin Texture": "skin.text_01",
+          "Expression": "expression.004",
+          "Length": "hair_002",
+          "Makeup": "skin.makeup_02",
+          "Freckles": "skin.freckles_01",
+          "Cut / Style": "hair_031"
+        },
+        "bodySelectionIds": {
+          "Model Build": "body.build.vertical-drama-male-lead",
+          "Body Silhouette": "body.silhouette.vertical-drama-male-lead"
+        },
+        "outfitSource": {
+          "type": "baseline",
+          "frontReferenceIds": [],
+          "backReferenceIds": []
+        },
+        "outfitReferenceOverrides": {
+          "enabled": false,
+          "primaryColor": false,
+          "secondaryColor": false,
+          "pattern": false,
+          "material": false
+        },
+        "outfitSelectionIds": {},
+        "layout": {
+          "type": "character-casting-three-view-v5"
+        },
+        "castingCandidate": true,
+        "castingLayoutVersion": "character-casting-three-view-v5",
+        "uniformPolicyVersion": "casting-uniform-gray-grid-v7",
+        "aspectRatio": "1:1",
+        "outputCount": 1,
+        "sourceOwnership": null
+      },
+      "sourceOwnership": null
+    },
+    "identityMetadata": {
+      "ageRange": {
+        "attributeId": "character.004_e20",
+        "minimum": 20,
+        "maximum": 23
+      }
+    },
+    "sourceGenerationResultIds": [
+      "job_1786685014497_k6bocmq1c"
+    ],
+    "canonicalHeadshotAssetId": "job_1786684690343_rpw8e4jjd",
+    "canonicalFaceAssetId": "job_1786684690343_rpw8e4jjd",
+    "canonicalCharacterSheetAssetId": "job_1786685014497_k6bocmq1c",
+    "canonicalThreeViewAssetId": "job_1786685014497_k6bocmq1c",
+    "canonicalCastingExportAssetId": "job_1786685014497_k6bocmq1c",
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1786685229618_e6nbhedt/charver_1786685229636_j88fhumh/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1786685229618_e6nbhedt/charver_1786685229636_j88fhumh/face.webp",
+    "castingExportGenerationResultId": "job_1786685014497_k6bocmq1c",
+    "castingExportLayoutVersion": "character-casting-three-view-v5",
+    "castingUniformPolicyVersion": "casting-uniform-gray-grid-v7",
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "resolution": null,
+      "providerConfigVersion": 1
+    },
+    "promptSnapshotHash": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-14T05:27:11.430Z",
+    "id": "charver_1786685229636_j88fhumh",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-08-14T05:27:09.636Z",
+    "updatedAt": "2026-08-14T05:27:11.430Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "characterProfileId": "charprof_1786680491425_6vauj6pi",
+    "versionNumber": 1,
+    "sourceMode": "character-sheet",
+    "characterType": "reusable_model",
+    "structuredCharacterSnapshot": {
+      "selections": {
+        "Gender": {
+          "id": "character.001",
+          "value": "female",
+          "label": "Female",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Age": {
+          "id": "character.004_e20",
+          "value": "21-year-old young adult",
+          "label": "Early Twenties (20-23)",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Ethnicity": {
+          "id": "character.010",
+          "value": "chinese ethnicity",
+          "label": "Chinese",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "chinese"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color": {
+          "id": "hair_014",
+          "value": "dark brown hair",
+          "label": "Dark Brown",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "color"
+          ],
+          "gptPositiveWords": []
+        },
+        "Tone": {
+          "id": "skin.tone_02",
+          "value": "very fair neutral skin tone",
+          "label": "Porcelain skin",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "tone",
+            "porcelain"
+          ],
+          "gptPositiveWords": []
+        },
+        "Skin Texture": {
+          "id": "skin.text_01",
+          "value": "natural skin texture with visible skin pores and fine details",
+          "label": "Natural Skin Texture",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "texture",
+            "natural"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Length": {
+          "id": "hair_003",
+          "value": "long hair",
+          "label": "Long Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "length"
+          ],
+          "gptPositiveWords": []
+        },
+        "Texture": {
+          "id": "hair.text_01",
+          "value": "silky smooth hair",
+          "label": "Silky Smooth Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "texture"
+          ],
+          "gptPositiveWords": []
+        },
+        "Parting / Fringe": {
+          "id": "hair_038",
+          "value": "side-parted hair, no bangs",
+          "label": "Side Parting",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "bangs",
+            "parting"
+          ],
+          "gptPositiveWords": []
+        },
+        "Makeup": {
+          "id": "skin.makeup_02",
+          "value": "soft peach makeup style",
+          "label": "Soft K-Beauty Makeup",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "makeup",
+            "k-beauty",
+            "asian"
+          ],
+          "gptPositiveWords": []
+        },
+        "Freckles": {
+          "id": "skin.freckles_01",
+          "value": "even skin with no freckles",
+          "label": "No Freckles",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "freckles",
+            "none"
+          ],
+          "gptPositiveWords": []
+        },
+        "Beauty": {
+          "id": "custom.beauty",
+          "value": "Chinese Lead actress",
+          "label": "Chinese Lead actress",
+          "isCustom": true,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Finish": {
+          "id": "hair_017",
+          "value": "glossy healthy hair",
+          "label": "Glossy",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "finish"
+          ],
+          "gptPositiveWords": []
+        },
+        "Model Build": {
+          "id": "body.build.vertical-drama-female-lead",
+          "value": "elegant slender adult leading-woman build with a narrow balanced frame, graceful shoulders, and long proportional limbs while preserving the separately selected body silhouette",
+          "label": "Elegant Slender Lead Build",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-female"
+          ],
+          "gptPositiveWords": []
+        },
+        "Body Silhouette": {
+          "id": "body.silhouette.vertical-drama-female-lead",
+          "value": "anatomically natural feminine silhouette with balanced curves, a gently defined waist, proportionate upper torso and hips, and an elegant continuous body line without exaggeration",
+          "label": "Balanced Leading-woman Silhouette",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-female"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "characterSheetConfig": {
+        "version": 1,
+        "mode": "character-sheet",
+        "characterType": "reusable_model",
+        "sourceHeadshotIds": [
+          "job_1786677761105_7ct2jhrk3"
+        ],
+        "identitySelectionIds": {
+          "Gender": "character.001",
+          "Age": "character.004_e20",
+          "Ethnicity": "character.010",
+          "Color": "hair_014",
+          "Tone": "skin.tone_02",
+          "Skin Texture": "skin.text_01",
+          "Expression": "expression.004",
+          "Length": "hair_003",
+          "Texture": "hair.text_01",
+          "Parting / Fringe": "hair_038",
+          "Makeup": "skin.makeup_02",
+          "Freckles": "skin.freckles_01",
+          "Finish": "hair_017"
+        },
+        "bodySelectionIds": {
+          "Model Build": "body.build.vertical-drama-female-lead",
+          "Body Silhouette": "body.silhouette.vertical-drama-female-lead"
+        },
+        "outfitSource": {
+          "type": "baseline",
+          "frontReferenceIds": [],
+          "backReferenceIds": []
+        },
+        "outfitReferenceOverrides": {
+          "enabled": false,
+          "primaryColor": false,
+          "secondaryColor": false,
+          "pattern": false,
+          "material": false
+        },
+        "outfitSelectionIds": {},
+        "layout": {
+          "type": "character-casting-three-view-v5"
+        },
+        "castingCandidate": true,
+        "castingLayoutVersion": "character-casting-three-view-v5",
+        "uniformPolicyVersion": "casting-uniform-gray-grid-v7",
+        "aspectRatio": "1:1",
+        "outputCount": 1,
+        "sourceOwnership": null
+      },
+      "sourceOwnership": null
+    },
+    "identityMetadata": {
+      "ageRange": {
+        "attributeId": "character.004_e20",
+        "minimum": 20,
+        "maximum": 23
+      }
+    },
+    "sourceGenerationResultIds": [
+      "job_1786680372576_4txu94r4q"
+    ],
+    "canonicalHeadshotAssetId": "job_1786677761105_7ct2jhrk3",
+    "canonicalFaceAssetId": "job_1786677761105_7ct2jhrk3",
+    "canonicalCharacterSheetAssetId": "job_1786680372576_4txu94r4q",
+    "canonicalThreeViewAssetId": "job_1786680372576_4txu94r4q",
+    "canonicalCastingExportAssetId": "job_1786680372576_4txu94r4q",
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1786680491425_6vauj6pi/charver_1786680491430_eln967ep/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1786680491425_6vauj6pi/charver_1786680491430_eln967ep/face.webp",
+    "castingExportGenerationResultId": "job_1786680372576_4txu94r4q",
+    "castingExportLayoutVersion": "character-casting-three-view-v5",
+    "castingUniformPolicyVersion": "casting-uniform-gray-grid-v7",
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "resolution": null,
+      "providerConfigVersion": 1
+    },
+    "promptSnapshotHash": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-14T04:08:13.147Z",
+    "id": "charver_1786680491430_eln967ep",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-08-14T04:08:11.430Z",
+    "updatedAt": "2026-08-14T04:08:13.147Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "characterProfileId": "charprof_1786678978650_uwpiv6u8",
+    "versionNumber": 1,
+    "sourceMode": "character-sheet",
+    "characterType": "reusable_model",
+    "structuredCharacterSnapshot": {
+      "selections": {
+        "Gender": {
+          "id": "character.001",
+          "value": "female",
+          "label": "Female",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Age": {
+          "id": "character.004_e20",
+          "value": "21-year-old young adult",
+          "label": "Early Twenties (20-23)",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Ethnicity": {
+          "id": "character.010",
+          "value": "chinese ethnicity",
+          "label": "Chinese",
+          "isCustom": false,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character",
+            "chinese"
+          ],
+          "gptPositiveWords": []
+        },
+        "Color": {
+          "id": "hair_014",
+          "value": "dark brown hair",
+          "label": "Dark Brown",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "color"
+          ],
+          "gptPositiveWords": []
+        },
+        "Tone": {
+          "id": "skin.tone_02",
+          "value": "very fair neutral skin tone",
+          "label": "Porcelain skin",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "tone",
+            "porcelain"
+          ],
+          "gptPositiveWords": []
+        },
+        "Skin Texture": {
+          "id": "skin.text_01",
+          "value": "natural skin texture with visible skin pores and fine details",
+          "label": "Natural Skin Texture",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "texture",
+            "natural"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.004",
+          "value": "subtle friendly smile",
+          "label": "Soft Friendly Smile",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "smile",
+            "friendly"
+          ],
+          "gptPositiveWords": []
+        },
+        "Length": {
+          "id": "hair_003",
+          "value": "long hair",
+          "label": "Long Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "length"
+          ],
+          "gptPositiveWords": []
+        },
+        "Texture": {
+          "id": "hair.text_01",
+          "value": "silky smooth hair",
+          "label": "Silky Smooth Hair",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "texture"
+          ],
+          "gptPositiveWords": []
+        },
+        "Parting / Fringe": {
+          "id": "hair_038",
+          "value": "side-parted hair, no bangs",
+          "label": "Side Parting",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "bangs",
+            "parting"
+          ],
+          "gptPositiveWords": []
+        },
+        "Makeup": {
+          "id": "skin.makeup_02",
+          "value": "soft peach makeup style",
+          "label": "Soft K-Beauty Makeup",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "makeup",
+            "k-beauty",
+            "asian"
+          ],
+          "gptPositiveWords": []
+        },
+        "Freckles": {
+          "id": "skin.freckles_01",
+          "value": "even skin with no freckles",
+          "label": "No Freckles",
+          "isCustom": false,
+          "group": "Skin",
+          "category": "skin",
+          "tags": [
+            "skin",
+            "freckles",
+            "none"
+          ],
+          "gptPositiveWords": []
+        },
+        "Beauty": {
+          "id": "custom.beauty",
+          "value": "Chinese Lead actress",
+          "label": "Chinese Lead actress",
+          "isCustom": true,
+          "group": "Character",
+          "category": "character",
+          "tags": [
+            "character"
+          ],
+          "gptPositiveWords": []
+        },
+        "Finish": {
+          "id": "hair_017",
+          "value": "glossy healthy hair",
+          "label": "Glossy",
+          "isCustom": false,
+          "group": "Hair",
+          "category": "hair",
+          "tags": [
+            "finish"
+          ],
+          "gptPositiveWords": []
+        },
+        "Model Build": {
+          "id": "body.build.vertical-drama-female-lead",
+          "value": "elegant slender adult leading-woman build with a narrow balanced frame, graceful shoulders, and long proportional limbs while preserving the separately selected body silhouette",
+          "label": "Elegant Slender Lead Build",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-female"
+          ],
+          "gptPositiveWords": []
+        },
+        "Body Silhouette": {
+          "id": "body.silhouette.vertical-drama-female-lead",
+          "value": "anatomically natural feminine silhouette with balanced curves, a gently defined waist, proportionate upper torso and hips, and an elegant continuous body line without exaggeration",
+          "label": "Balanced Leading-woman Silhouette",
+          "isCustom": false,
+          "group": "Body",
+          "category": "body",
+          "tags": [
+            "body",
+            "fashion",
+            "vertical-drama-lead",
+            "adult-female"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "characterSheetConfig": {
+        "version": 1,
+        "mode": "character-sheet",
+        "characterType": "reusable_model",
+        "sourceHeadshotIds": [],
+        "identitySelectionIds": {
+          "Gender": "character.001",
+          "Age": "character.004_e20",
+          "Ethnicity": "character.010",
+          "Color": "hair_014",
+          "Tone": "skin.tone_02",
+          "Skin Texture": "skin.text_01",
+          "Expression": "expression.004",
+          "Length": "hair_003",
+          "Texture": "hair.text_01",
+          "Parting / Fringe": "hair_038",
+          "Makeup": "skin.makeup_02",
+          "Freckles": "skin.freckles_01",
+          "Finish": "hair_017"
+        },
+        "bodySelectionIds": {
+          "Model Build": "body.build.vertical-drama-female-lead",
+          "Body Silhouette": "body.silhouette.vertical-drama-female-lead"
+        },
+        "outfitSource": {
+          "type": "baseline",
+          "frontReferenceIds": [],
+          "backReferenceIds": []
+        },
+        "outfitReferenceOverrides": {
+          "enabled": false,
+          "primaryColor": false,
+          "secondaryColor": false,
+          "pattern": false,
+          "material": false
+        },
+        "outfitSelectionIds": {},
+        "layout": {
+          "type": "character-casting-three-view-v5"
+        },
+        "castingCandidate": true,
+        "castingLayoutVersion": "character-casting-three-view-v5",
+        "uniformPolicyVersion": "casting-uniform-gray-grid-v7",
+        "aspectRatio": "1:1",
+        "outputCount": 1,
+        "sourceOwnership": null
+      },
+      "sourceOwnership": null
+    },
+    "identityMetadata": {
+      "ageRange": {
+        "attributeId": "character.004_e20",
+        "minimum": 20,
+        "maximum": 23
+      }
+    },
+    "sourceGenerationResultIds": [
+      "job_1786678828852_u85246g10"
+    ],
+    "canonicalHeadshotAssetId": null,
+    "canonicalFaceAssetId": "/outputs/character-profiles/charprof_1786678978650_uwpiv6u8/charver_1786678978658_8is52ngb/face.webp",
+    "canonicalCharacterSheetAssetId": "job_1786678828852_u85246g10",
+    "canonicalThreeViewAssetId": "job_1786678828852_u85246g10",
+    "canonicalCastingExportAssetId": "job_1786678828852_u85246g10",
+    "castingFrontPreviewUrl": "/outputs/character-profiles/charprof_1786678978650_uwpiv6u8/charver_1786678978658_8is52ngb/front.webp",
+    "castingFacePreviewUrl": "/outputs/character-profiles/charprof_1786678978650_uwpiv6u8/charver_1786678978658_8is52ngb/face.webp",
+    "castingExportGenerationResultId": "job_1786678828852_u85246g10",
+    "castingExportLayoutVersion": "character-casting-three-view-v5",
+    "castingUniformPolicyVersion": "casting-uniform-gray-grid-v7",
+    "providerModelSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "resolution": null,
+      "providerConfigVersion": 1
+    },
+    "promptSnapshotHash": null,
+    "consentDeclarationVersion": "react-character-consent-v1",
+    "approvedAt": "2026-08-14T03:43:02.423Z",
+    "id": "charver_1786678978658_8is52ngb",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "approved",
+    "createdAt": "2026-08-14T03:42:58.657Z",
+    "updatedAt": "2026-08-14T03:43:02.423Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "characterProfileId": "charprof_1786369833985_xw1av5dv",
     "versionNumber": 1,
     "sourceMode": "character-sheet",

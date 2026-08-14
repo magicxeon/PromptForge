@@ -21,6 +21,7 @@ import {
   compileSelectionPreview,
   normalizeAttributeGroups,
   reconcileSelectionsWithCatalog,
+  reconcileSelectionsWithApplicability,
   type AttributeSelection
 } from '../attributes/attributeModel';
 import { GuidedAttributeForm } from '../components/GuidedAttributeForm';
@@ -218,7 +219,10 @@ export function StudioRoute() {
   );
   useEffect(() => {
     if (!groups.length) return;
-    setSelections(current => reconcileSelectionsWithCatalog(current, groups));
+    setSelections(current => {
+      const catalogSelections = reconcileSelectionsWithCatalog(current, groups);
+      return reconcileSelectionsWithApplicability(catalogSelections, groups);
+    });
   }, [groups, selections]);
   const visibleGroups = useMemo(
     () => visibleStudioGroups(groups, mode, characterType),

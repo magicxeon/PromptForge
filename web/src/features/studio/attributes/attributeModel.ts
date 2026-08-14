@@ -55,23 +55,57 @@ export function isAdultMalePresentation(
   return !numericAge || Number(numericAge) >= 18;
 }
 
-export function filterApplicableAttributeGroups(
-  groups: AttributeGroup[],
+export function isAdultPresentation(
   selections: Record<string, AttributeSelection>
 ) {
-  const gender = resolvePresentationGender(selections.Gender);
-  const adultMale = isAdultMalePresentation(selections);
+  const age = selectionEvidence(selections.Age);
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
+function isOptionApplicable(
+  option: AttributeOption,
+  selections: Record<string, AttributeSelection>,
+  gender: 'female' | 'male' | null
+) {
+  const tags = normalizeTags(option.tags);
+  const maleOnly = tags.some(tag => PRESENTATION_TAGS.male.has(tag));
+  const femaleOnly = tags.some(tag => PRESENTATION_TAGS.female.has(tag));
+  if (!maleOnly && !femaleOnly) return true;
+  if (!isAdultPresentation(selections)) return false;
+  if (!gender) return false;
+  return maleOnly ? gender === 'male' : gender === 'female';
+}
+
+export function filterApplicableAttributeGroups(
+  groups: AttributeGroup[],
+  selections: Record<string, AttributeSelection>,
+  presentationGender?: AttributeSelection
+) {
+  const effectiveSelections = withPresentationGender(selections, presentationGender);
+  const gender = resolvePresentationGender(effectiveSelections.Gender);
+  const adultMale = isAdultMalePresentation(effectiveSelections);
   return groups.flatMap(group => {
     const fields = group.fields.flatMap(field => {
       if (field.group === 'Face' && field.name === 'Facial Hair' && !adultMale) return [];
+      const applicableOptions = field.options.filter(option =>
+        isOptionApplicable(option, effectiveSelections, gender)
+      );
       if (field.group !== 'Clothing' || field.name !== 'Outfit Base' || !gender) {
-        return [field];
+        return applicableOptions.length
+          ? [{ ...field, options: sortAttributeOptionsByLabel(applicableOptions) }]
+          : [];
       }
       const genderTag = `outfit-base-${gender}`;
-      return [{
+      const options = applicableOptions.filter(option =>
+        normalizeTags(option.tags).includes(genderTag)
+      );
+      return options.length ? [{
         ...field,
-        options: field.options.filter(option => option.tags.includes(genderTag))
-      }];
+        options: sortAttributeOptionsByLabel(options)
+      }] : [];
     });
     return fields.length ? [{ ...group, fields }] : [];
   });
@@ -103,7 +137,9 @@ const legacySubcategoryByCategory: Record<string, string> = {
 const subcategoryAliasesByField: Record<string, readonly string[]> = {
   'Hair::Cut / Style': ['Cut / Style', 'Style'],
   'Hair::Texture': ['Texture', 'Hair Texture'],
-  'Hair::Parting / Fringe': ['Parting / Fringe', 'Bangs']
+  'Hair::Parting / Fringe': ['Parting / Fringe', 'Bangs'],
+  'Body::Model Build': ['Model Build', 'Build'],
+  'Body::Body Silhouette': ['Body Silhouette', 'Body Shape']
 };
 
 const nativeControlOnlyFields = new Set([
@@ -150,7 +186,7 @@ export function createSelection(option: AttributeOption): AttributeSelection {
     isCustom: false,
     group: option.group,
     category: option.category,
-    tags: option.tags,
+    tags: normalizeTags(option.tags),
     gptPositiveWords: []
   };
 }
@@ -203,7 +239,7 @@ export function reconcileSelectionsWithCatalog(
       && selection.label === current.label
       && selection.group === current.group
       && selection.category === current.category
-      && arraysEqual(selection.tags, current.tags)
+      && arraysEqual(normalizeTags(selection.tags), current.tags)
     ) {
       return [fieldName, selection];
     }
@@ -215,6 +251,29 @@ export function reconcileSelectionsWithCatalog(
     : selections;
 }
 
+export function reconcileSelectionsWithApplicability(
+  selections: Record<string, AttributeSelection>,
+  groups: AttributeGroup[],
+  presentationGender?: AttributeSelection
+) {
+  const effectiveSelections = withPresentationGender(selections, presentationGender);
+  const gender = resolvePresentationGender(effectiveSelections.Gender);
+  let changed = false;
+  const next = { ...selections };
+  for (const group of groups) {
+    for (const field of group.fields) {
+      const selection = next[field.name];
+      if (!selection || selection.isCustom || selection.id.startsWith('custom.')) continue;
+      const option = field.options.find(candidate => candidate.id === selection.id);
+      if (option && !isOptionApplicable(option, effectiveSelections, gender)) {
+        delete next[field.name];
+        changed = true;
+      }
+    }
+  }
+  return changed ? next : selections;
+}
+
 export function compileSelectionPreview(
   selections: Record<string, AttributeSelection>,
   mode: 'headshot' | 'character-sheet' | 'scene',
@@ -223,6 +282,7 @@ export function compileSelectionPreview(
 ) {
   const normalizedColors = createStudioCustomColors(customColors);
   const colorPhrases = compileCustomColorPhrases(normalizedColors);
+  const earlyTwenties = isEarlyTwentiesPresentation(selections);
   const valuesForGroups = (groups: ReadonlySet<string>) =>
     [...new Set(Object.entries(selections)
       .filter(([fieldName, selection]) => (
@@ -234,8 +294,11 @@ export function compileSelectionPreview(
           && (fieldName === 'Primary Color' || fieldName === 'Secondary Color')
           && colorPhrases.garment.length)
       ))
-      .map(([, selection]) => selection)
-      .map(selection => selection.value)
+      .map(([fieldName, selection]) => normalizeAgeSensitivePrompt(
+        fieldName,
+        selection.value,
+        earlyTwenties
+      ))
       .filter(Boolean))];
 
   if (mode === 'scene') {
@@ -266,6 +329,8 @@ export function compileSelectionPreview(
     return [
       'headshot portrait',
       ...valuesForGroups(new Set(['Character', 'Face', 'Hair', 'Skin'])),
+      ...(earlyTwenties ? [earlyTwentiesFaceDirection] : []),
+      ...(shouldDefaultToCleanShaven(selections) ? [cleanShavenDirection] : []),
       ...colorPhrases.hair,
       'showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head',
       'on a solid pure white background',
@@ -308,6 +373,8 @@ export function compileSelectionPreview(
     'complete head-to-feet figure in every view at the same scale with generous clear margins, neutral upright standing pose',
     'realistic adult fashion-model proportions with a naturally proportioned head-to-body relationship of approximately 1:7.5 to 1:8, a full-length torso, and naturally long legs; never an oversized head, shortened torso, compressed legs, childlike anatomy, doll-like anatomy, chibi, or caricature',
     ...identityAndBody,
+    ...(earlyTwenties ? [earlyTwentiesFaceDirection] : []),
+    ...(shouldDefaultToCleanShaven(selections) ? [cleanShavenDirection] : []),
     ...colorPhrases.hair,
     ...styledClothing,
     ...(characterType === 'styled_character' ? colorPhrases.garment : []),
@@ -324,9 +391,41 @@ export function compileSelectionPreview(
     .trim();
 }
 
+const earlyTwentiesFaceDirection = 'unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks';
+const cleanShavenDirection = 'clean-shaven face with no moustache, beard, or stubble';
+
+function isEarlyTwentiesPresentation(
+  selections: Record<string, AttributeSelection>
+) {
+  const evidence = selectionEvidence(selections.Age);
+  return /character\.004_e20|early twenties|20-23|21-year-old|21 years old/.test(evidence);
+}
+
+function normalizeAgeSensitivePrompt(
+  fieldName: string,
+  value: string,
+  earlyTwenties: boolean
+) {
+  if (!earlyTwenties || fieldName !== 'Beauty') return value;
+  return value
+    .replace(/mature face exhibiting sophisticated elegance/gi, 'refined sophisticated elegance appropriate to an early-twenties adult')
+    .replace(/mature sophisticated elegance/gi, 'refined sophisticated elegance appropriate to an early-twenties adult');
+}
+
+function shouldDefaultToCleanShaven(
+  selections: Record<string, AttributeSelection>
+) {
+  return isAdultMalePresentation(selections) && !selections['Facial Hair'];
+}
+
 function resolveCastingPresentation(selections: Record<string, AttributeSelection>) {
   const evidence = Object.values(selections)
-    .flatMap(selection => [selection.id, selection.value, selection.label, ...selection.tags])
+    .flatMap(selection => [
+      selection.id,
+      selection.value,
+      selection.label,
+      ...normalizeTags(selection.tags)
+    ])
     .join(' ')
     .toLowerCase();
   if (/\b(female|woman|women|girl)\b/.test(evidence)) return 'female';
@@ -343,12 +442,30 @@ function resolvePresentationGender(selection?: AttributeSelection) {
 
 function selectionEvidence(selection?: AttributeSelection) {
   return selection
-    ? [selection.id, selection.value, selection.label, ...selection.tags].join(' ').toLowerCase()
+    ? [
+      selection.id,
+      selection.value,
+      selection.label,
+      ...normalizeTags(selection.tags)
+    ].join(' ').toLowerCase()
     : '';
+}
+
+function normalizeTags(tags?: readonly string[]) {
+  return Array.isArray(tags)
+    ? tags.filter((tag): tag is string => typeof tag === 'string')
+    : [];
 }
 
 export function localized(value: string | Record<string, string>) {
   return typeof value === 'string' ? value : value.en || value.th || Object.values(value)[0] || '';
+}
+
+export function sortAttributeOptionsByLabel(options: readonly AttributeOption[]) {
+  return [...options].sort((left, right) => ATTRIBUTE_LABEL_COLLATOR.compare(
+    localized(left.label),
+    localized(right.label)
+  ));
 }
 
 function arraysEqual(left: string[], right: string[]) {
@@ -391,4 +508,23 @@ function isStringRecord(value: unknown): value is Record<string, string> {
 
 function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+const PRESENTATION_TAGS = Object.freeze({
+  male: new Set(['adult-male', 'male-body-silhouette', 'outfit-base-male']),
+  female: new Set(['adult-female', 'female-body-silhouette', 'outfit-base-female'])
+});
+
+const ATTRIBUTE_LABEL_COLLATOR = new Intl.Collator('en', {
+  sensitivity: 'base',
+  numeric: true
+});
+
+function withPresentationGender(
+  selections: Record<string, AttributeSelection>,
+  presentationGender?: AttributeSelection
+) {
+  return presentationGender
+    ? { ...selections, Gender: presentationGender }
+    : selections;
 }

@@ -84,6 +84,7 @@ import {
   normalizeScenePoseStyles,
   type ScenePoseControlMode
 } from '../scenePoseRecipeModel';
+import { resolveCharacterPresentationGender } from '../characterPresentationModel';
 
 type AuthoringMode = 'guided' | 'manual';
 const FEATURE = 'scene-builder';
@@ -152,6 +153,9 @@ export function SceneBuilderRoute() {
   );
   const [characterProfileContext, setCharacterProfileContext] = useState<Record<string, unknown> | null>(
     initialHandoff.characterProfileContext
+  );
+  const [characterPresentationGender, setCharacterPresentationGender] = useState<AttributeSelection | undefined>(
+    initialHandoff.characterPresentationGender
   );
   const [faceReferenceContext, setFaceReferenceContext] = useState<
     { authorizationToken: string; expiresAt?: string } | null
@@ -264,6 +268,7 @@ export function SceneBuilderRoute() {
       setReferences({});
       setCharacterOutfitBehavior('preserve');
       setCharacterProfileContext(null);
+      setCharacterPresentationGender(undefined);
       setFaceReferenceContext(null);
       setMode(next.snapshot.authoringMode);
       setPoseControlMode(next.snapshot.poseControlMode || 'advanced');
@@ -349,6 +354,7 @@ export function SceneBuilderRoute() {
     setReferences({});
     setCharacterOutfitBehavior('preserve');
     setCharacterProfileContext(null);
+    setCharacterPresentationGender(undefined);
     setFaceReferenceContext(null);
   }, [actor?.userId]);
 
@@ -385,6 +391,7 @@ export function SceneBuilderRoute() {
       }));
       setCharacterOutfitBehavior(next.characterOutfitBehavior);
       setCharacterProfileContext(next.characterProfileContext);
+      setCharacterPresentationGender(next.characterPresentationGender);
       setFaceReferenceContext(null);
     }
     if (next.hasFaceHandoff) {
@@ -395,6 +402,7 @@ export function SceneBuilderRoute() {
       }));
       setCharacterOutfitBehavior('preserve');
       setCharacterProfileContext(null);
+      setCharacterPresentationGender(undefined);
       setFaceReferenceContext(next.faceReferenceContext);
     }
   }, [location.key]);
@@ -497,6 +505,7 @@ export function SceneBuilderRoute() {
           if (next.character_reference !== references.character_reference) {
             setCharacterOutfitBehavior('replaceable');
             setCharacterProfileContext(null);
+            setCharacterPresentationGender(undefined);
           }
           setReferences(next);
         }}
@@ -627,6 +636,7 @@ export function SceneBuilderRoute() {
               characterType="styled_character"
               manifests={visualManifests.data}
               selections={selections}
+              presentationGender={characterPresentationGender}
               customColors={customColors}
               customInputLimits={bundle.data?.inputPolicy?.customAttribute}
               references={references}
@@ -678,6 +688,7 @@ export function SceneBuilderRoute() {
                     item.characterSheetConfig?.characterType
                   ));
                   setCharacterProfileContext(null);
+                  setCharacterPresentationGender(resolveCharacterPresentationGender(item));
                 }
                 setReferences(current => ({ ...current, [role]: imageUrl }));
               }}
@@ -702,6 +713,7 @@ export function SceneBuilderRoute() {
               setReferences({});
               setCharacterOutfitBehavior('preserve');
               setCharacterProfileContext(null);
+              setCharacterPresentationGender(undefined);
             }}
             onRandomize={() => {
               setSelections(randomizeStudioSelections(
@@ -893,6 +905,7 @@ function loadSceneHandoff(routeState: unknown = null): {
   references: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior: CharacterOutfitBehavior;
   characterProfileContext: Record<string, unknown> | null;
+  characterPresentationGender: AttributeSelection | undefined;
   faceReferenceContext: { authorizationToken: string; expiresAt?: string } | null;
 } {
   const empty = {
@@ -905,6 +918,7 @@ function loadSceneHandoff(routeState: unknown = null): {
     references: {},
     characterOutfitBehavior: 'preserve' as CharacterOutfitBehavior,
     characterProfileContext: null,
+    characterPresentationGender: undefined,
     faceReferenceContext: null
   };
   try {
@@ -951,6 +965,7 @@ function loadSceneHandoff(routeState: unknown = null): {
           ? 'replaceable'
           : 'preserve',
       characterProfileContext: characterPayload?.characterProfileContext || null,
+      characterPresentationGender: resolveCharacterPresentationGender(characterPayload),
       faceReferenceContext: face
         ? { authorizationToken: face.authorizationToken, expiresAt: face.expiresAt }
         : null

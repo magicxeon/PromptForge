@@ -42,19 +42,76 @@ function specifiesFootwear(clothingPrompt) {
     .test(clothingPrompt || "");
 }
 
-function isAdultMaleFacialHairSelectionAllowed(selections) {
-  const evidence = selection => selection
-    ? [selection.id, selection.value, selection.label, ...(selection.tags || [])].join(" ").toLowerCase()
+function selectionEvidence(selection) {
+  return selection
+    ? [selection.id, selection.value, selection.label, ...(selection.tags || [])]
+      .join(" ")
+      .toLowerCase()
     : "";
-  const gender = evidence(selections?.Gender);
-  if (!/\b(male|man|men)\b/.test(gender) || /\b(female|woman|women|child|girl|boy)\b/.test(gender)) {
+}
+
+function isAdultMaleFacialHairSelectionAllowed(selections, presentationOverride = null) {
+  const gender = normalizePresentationOverride(presentationOverride)
+    || presentationGender(selections);
+  if (gender !== "male") {
     return false;
   }
-  const age = evidence(selections?.Age);
+  const age = selectionEvidence(selections?.Age);
   if (!age) return true;
   if (/\b(child|minor|underage)\b/.test(age)) return false;
   const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
   return !numericAge || Number(numericAge) >= 18;
+}
+
+function isAdultPresentation(selections) {
+  const age = selections?.Age
+    ? [selections.Age.id, selections.Age.value, selections.Age.label, ...(selections.Age.tags || [])]
+      .join(" ").toLowerCase()
+    : "";
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
+function presentationGender(selections) {
+  const gender = selections?.Gender
+    ? [selections.Gender.id, selections.Gender.value, selections.Gender.label, ...(selections.Gender.tags || [])]
+      .join(" ").toLowerCase()
+    : "";
+  if (/\b(female|woman|women)\b/.test(gender)) return "female";
+  if (/\b(male|man|men)\b/.test(gender)) return "male";
+  return null;
+}
+
+function isEarlyTwentiesPresentation(selections) {
+  const age = selectionEvidence(selections?.Age);
+  return /character\.004_e20|early twenties|20-23|21-year-old|21 years old/.test(age);
+}
+
+function normalizeAgeSensitiveBeauty(value, selections) {
+  const normalized = String(value || "");
+  if (!isEarlyTwentiesPresentation(selections)) return normalized;
+  return normalized
+    .replace(/mature face exhibiting sophisticated elegance/gi, "refined sophisticated elegance appropriate to an early-twenties adult")
+    .replace(/mature sophisticated elegance/gi, "refined sophisticated elegance appropriate to an early-twenties adult");
+}
+
+function removeInapplicableSelections(selections, presentationOverride = null) {
+  const gender = normalizePresentationOverride(presentationOverride)
+    || presentationGender(selections);
+  const adult = isAdultPresentation(selections);
+  Object.keys(selections).forEach(fieldName => {
+    const tags = (selections[fieldName]?.tags || []).map(tag => String(tag).toLowerCase());
+    const maleOnly = tags.some(tag => PRESENTATION_TAGS.male.has(tag));
+    const femaleOnly = tags.some(tag => PRESENTATION_TAGS.female.has(tag));
+    if (
+      (maleOnly && (!adult || gender !== "male"))
+      || (femaleOnly && (!adult || gender !== "female"))
+    ) {
+      delete selections[fieldName];
+    }
+  });
 }
 
 const CATEGORY_PRIORITIES = {
@@ -317,7 +374,10 @@ function buildCleanPromptSegments(activeSelections, getValue) {
     normalizeIdentityPhrase(valuesByField["Ethnicity"], "Ethnicity"),
     /natural face|natural look|minimal makeup|zero or minimal makeup/i.test(valuesByField["Beauty"] || "")
       ? ""
-      : valuesByField["Beauty"]
+      : normalizeAgeSensitiveBeauty(valuesByField["Beauty"], activeSelections),
+    isEarlyTwentiesPresentation(activeSelections)
+      ? "unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks"
+      : ""
   ].filter(Boolean)).join(", ");
 
   const faceStructure = valuesByField["Face Shape"] || "";
@@ -326,7 +386,10 @@ function buildCleanPromptSegments(activeSelections, getValue) {
     valuesByField["Eyebrows"],
     valuesByField["Nose"],
     valuesByField["Lips"],
-    valuesByField["Facial Hair"]
+    valuesByField["Facial Hair"],
+    isAdultMaleFacialHairSelectionAllowed(activeSelections) && !valuesByField["Facial Hair"]
+      ? "clean-shaven face with no moustache, beard, or stubble"
+      : ""
   ].filter(Boolean)).join(", ");
 
   return {
@@ -361,7 +424,8 @@ export function compilePromptOnServer(
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
   delete activeSelections["Reference Image"];
-  if (!isAdultMaleFacialHairSelectionAllowed(activeSelections)) {
+  removeInapplicableSelections(activeSelections, options.presentationGender);
+  if (!isAdultMaleFacialHairSelectionAllowed(activeSelections, options.presentationGender)) {
     delete activeSelections["Facial Hair"];
   }
   const referenceOwnsAppearance = mode === "normal"
@@ -714,4 +778,18 @@ export function compilePromptOnServer(
   }
 
   return prompt;
+}
+
+const PRESENTATION_TAGS = Object.freeze({
+  male: new Set(["adult-male", "male-body-silhouette", "outfit-base-male"]),
+  female: new Set(["adult-female", "female-body-silhouette", "outfit-base-female"])
+});
+
+function normalizePresentationOverride(value) {
+  if (value === "female" || value === "male") return value;
+  if (value && typeof value === "object"
+    && (value.value === "female" || value.value === "male")) {
+    return value.value;
+  }
+  return null;
 }

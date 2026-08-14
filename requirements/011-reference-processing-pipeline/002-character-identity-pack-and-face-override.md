@@ -235,6 +235,91 @@ Generation entry points:
 - `scripts/migrate-character-identity-packs.mjs` performs an idempotent metadata
   migration only; it never requests a paid AI asset.
 
+## 12. Face Handoff Lineage Regression
+
+Manual closure run TC1 exposed a lineage gap between Face Creation and
+Character Profile creation. The Character Sheet provider received the Face
+image, but the actor-bound handoff Job ID was retained only as authorization
+metadata and was not copied into `characterSheetConfig.sourceHeadshotIds`.
+Character approval then treated a low-resolution crop from the three-view sheet
+as the canonical face even though the original owned Face output was trusted
+and available.
+
+Required behavior:
+
+- an authorized Face handoff contributes its generation Job ID to the effective
+  `faceReferenceJobIds` and Character Sheet `sourceHeadshotIds`;
+- Character Profile creation and new identity-version creation select the first
+  trusted source Headshot Job as `canonicalHeadshotAssetId` and
+  `canonicalFaceAssetId`;
+- a three-view face crop remains a display/review fallback only and must not
+  replace a trusted Face Creation source;
+- Character conversion carries existing canonical face lineage forward; and
+- regression tests cover both handoff-to-Character-Sheet persistence and
+  Character-Sheet-to-Character-Version canonical face selection.
+
+Observed closure run IDs:
+
+```text
+Face Job: job_1786677761105_7ct2jhrk3
+Character Job: job_1786678828852_u85246g10
+Character Profile: charprof_1786678978650_uwpiv6u8
+Character Version: charver_1786678978658_8is52ngb
+Scene Job: job_1786679207610_5p6o0zd66
+```
+
+The Scene prompt included the 20-23 age directive and Reference Processing
+dispatched two roles. The failed identity/age result was therefore attributed
+to the wrong canonical face source, not a missing age prompt or missing Scene
+reference count.
+
 Automated coverage was added to `test/playgroundReferenceRoles.test.js` for the
 system-pack role exception, default canonical face, explicit override and
 structured face/body authority contract.
+
+## 13. Character Presentation Option Projection
+
+Selecting a Character Reference must also constrain guided Attribute choices
+to the Character's recorded presentation where the catalog explicitly marks an
+option as male- or female-specific.
+
+- Character Profile handoff uses `compatibleAttributeSnapshot.Gender` from the
+  approved immutable Character version.
+- A Character Sheet selected from owned History may use its recorded
+  `selections.Gender` value.
+- The projection filters both text dropdowns and Visual Character cards through
+  the same shared Attribute model.
+- Gender-specific applicability includes `adult-male`, `adult-female`,
+  `male-body-silhouette`, `female-body-silhouette`, `outfit-base-male` and
+  `outfit-base-female` catalog tags.
+- A selected stale option that conflicts with the new Character presentation
+  is cleared through the existing reconciliation path.
+- A raw uploaded Character image without trusted presentation metadata must not
+  be classified from pixels or filenames. Only neutral options remain
+  available until an authorized Character/Profile source supplies metadata.
+- Options in every text dropdown and matching Visual Character collection are
+  presented alphabetically by their visible label. Sorting is a view concern;
+  it never mutates catalog order, prompt order, IDs or saved selections.
+
+Acceptance coverage must prove male/female Character projection, stale
+selection cleanup, alphabetical dropdown order and matching alphabetical visual
+card order.
+
+Implementation record:
+
+- approved Character versions compact their selected Gender into immutable
+  `identityMetadata.presentationGender` for downstream policy enforcement;
+- Scene Builder resolves the same presentation from an approved Character
+  handoff or an owned Character Sheet History item without classifying image
+  pixels;
+- the shared Guided Attribute Form filters dropdowns and Visual Character cards,
+  clears stale incompatible selections and presents visible labels in
+  alphabetical order without mutating catalog order; and
+- the neutral `Outfit Base` visual manifest remains available before trusted
+  presentation metadata is known, while male/female manifests are selected once
+  Character presentation is resolved; this invariant is covered by a registry
+  regression test so filtering cannot silently remove the existing visual row;
+  and
+- server prompt compilation applies the canonical Character presentation again,
+  preventing a stale or tampered client selection from adding an incompatible
+  gender-specific phrase to the provider prompt.

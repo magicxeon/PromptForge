@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "description": "Product-approved line art normalized into theme-aware runtime masks by the Sharp slicing pipeline; options without an approved source remain text-only.",
+  "fields": {
+    "face.shape": [
+      {"assetId":"visual.face.shape.vertical-drama-male","optionId":"face.shape.vertical_drama_male","attributeId":"face.021","slug":"vertical-drama-male","assetRevision":3,"recolorMode":"mask","focalPoint":"50% 50%","alt":{"en":"Sculpted tapered adult masculine face outline","th":"เส้นโครงหน้าคมเรียวแบบนักแสดงนำชาย"},"source":{"filename":"source-sets/headshot-v1/product-approved/vertical-drama-lead-r3/sculpted-tapered-face-r3.png","processing":"line-art-mask"}}
+    ],
+    "eyes.shape": [
+      {"assetId":"visual.eyes.shape.vertical-drama-male","optionId":"eyes.shape.vertical_drama_male","attributeId":"eyes.014","slug":"vertical-drama-male","assetRevision":3,"recolorMode":"mask","focalPoint":"50% 50%","alt":{"en":"Defined deep almond adult masculine eyes","th":"ดวงตาอัลมอนด์คมลึกแบบนักแสดงนำชาย"},"source":{"filename":"source-sets/headshot-v1/product-approved/vertical-drama-lead-r3/defined-deep-almond-eyes-r3.png","processing":"line-art-mask"}}
+    ],
+    "eyebrows.shape": [
+      {"assetId":"visual.eyebrows.shape.vertical-drama-male","optionId":"eyebrows.shape.vertical_drama_male","attributeId":"eyebrows.008","slug":"vertical-drama-male","assetRevision":3,"recolorMode":"mask","focalPoint":"50% 50%","alt":{"en":"Structured straight adult masculine eyebrows","th":"คิ้วตรงคมแบบนักแสดงนำชาย"},"source":{"filename":"source-sets/headshot-v1/product-approved/vertical-drama-lead-r3/structured-straight-brows-r3.png","processing":"line-art-mask"}}
+    ],
+    "nose.shape": [
+      {"assetId":"visual.nose.shape.vertical-drama-male","optionId":"nose.shape.vertical_drama_male","attributeId":"nose.007","slug":"vertical-drama-male","assetRevision":3,"recolorMode":"mask","focalPoint":"50% 50%","alt":{"en":"Sculpted straight adult masculine nose","th":"สันจมูกตรงคมแบบนักแสดงนำชาย"},"source":{"filename":"source-sets/headshot-v1/product-approved/vertical-drama-lead-r3/sculpted-straight-bridge-r3.png","processing":"line-art-mask"}}
+    ],
+    "lips.shape": [
+      {"assetId":"visual.lips.shape.vertical-drama-male","optionId":"lips.shape.vertical_drama_male","attributeId":"lips.013","slug":"vertical-drama-male","assetRevision":3,"recolorMode":"mask","focalPoint":"50% 50%","alt":{"en":"Clean defined adult masculine lips","th":"ริมฝีปากได้รูปแบบนักแสดงนำชาย"},"source":{"filename":"source-sets/headshot-v1/product-approved/vertical-drama-lead-r3/clean-defined-lips-r3.png","processing":"line-art-mask"}}
+    ]
+  }
+}

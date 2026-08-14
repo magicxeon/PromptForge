@@ -102,3 +102,14 @@ Deferred:
   - full-figured / plus natural silhouette
 - Wired `Body > Body Silhouette` to the shared visual-card picker.
 - Added Body field subcategory aliases so `Body Silhouette` resolves existing `Body Shape` options.
+- Restored the React attribute normalizer aliases after regression: canonical
+  `Body Silhouette` resolves both `Body Silhouette` and legacy `Body Shape`,
+  while canonical `Model Build` resolves both `Model Build` and legacy `Build`.
+  This keeps the published female/male Body visual manifests connected without
+  renaming or duplicating the existing catalog records.
+- Restored the original compact visual-card presentation for Body Silhouette.
+  The shared visual picker now reads each manifest's `recolorMode`: silhouette
+  masks use the same theme-aware card, selection, and icon treatment as Hair
+  visuals, while photographic Outfit assets keep their full-color large-card
+  presentation. No Body-only rendering component or fixed dark/light color is
+  introduced.

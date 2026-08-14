@@ -26,6 +26,7 @@
     "visual-assets:check": "node scripts/slice-visual-assets.js --check",
     "visual-assets:check:character-sheet": "node scripts/slice-visual-assets.js --check --field=character-sheet",
     "visual-assets:slice": "node scripts/slice-visual-assets.js --slice",
+    "visual-assets:import-approved": "node scripts/slice-visual-assets.js --extensions",
     "visual-assets:slice:character-sheet": "node scripts/slice-visual-assets.js --slice --field=character-sheet",
     "visual-assets:contact-sheet": "node scripts/slice-visual-assets.js --contact-sheet"
   },

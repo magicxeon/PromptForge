@@ -12,7 +12,7 @@ import {
   countCustomSelectionCharacters,
   DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
   filterApplicableAttributeGroups,
-  isAdultMalePresentation
+  reconcileSelectionsWithApplicability
 } from '../attributes/attributeModel';
 import type { VisualManifest } from '../schemas/visualManifestSchemas';
 import { resolveVisualPresentation } from '../visual-options/visualOptionRegistry';
@@ -32,6 +32,7 @@ export function GuidedAttributeForm({
   characterType,
   manifests,
   selections,
+  presentationGender,
   customColors,
   references = {},
   characterOutfitBehavior = 'preserve',
@@ -53,6 +54,7 @@ export function GuidedAttributeForm({
   characterType: 'reusable_model' | 'styled_character';
   manifests?: Record<string, VisualManifest>;
   selections: Record<string, AttributeSelection>;
+  presentationGender?: AttributeSelection;
   customColors: StudioCustomColors;
   references?: Partial<Record<GenerationReferenceRole, string>>;
   characterOutfitBehavior?: CharacterOutfitBehavior;
@@ -73,7 +75,8 @@ export function GuidedAttributeForm({
   const visible = useMemo(
     () => filterApplicableAttributeGroups(
       visibleStudioGroups(groups, mode, characterType),
-      selections
+      selections,
+      presentationGender
     )
       .filter(group => !includedGroups || includedGroups.has(group.group))
       .map(group => ({
@@ -91,10 +94,21 @@ export function GuidedAttributeForm({
           })
       }))
       .filter(group => group.fields.length > 0),
-    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField, selections]
+    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField, presentationGender, selections]
   );
   const [openGroup, setOpenGroup] = useState<string | null>(visible[0]?.group || null);
   const groupRefs = useRef(new Map<string, HTMLDetailsElement>());
+  const pendingFocusGroup = useRef<string | null>(null);
+  const scrollAndFocusGroup = (groupName: string) => {
+    window.setTimeout(() => {
+      const target = groupRefs.current.get(groupName);
+      target?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+      });
+      target?.querySelector('summary')?.focus();
+    }, 0);
+  };
   useEffect(() => {
     if (!singleOpen) return;
     if (!openGroup || !visible.some(group => group.group === openGroup)) {
@@ -102,12 +116,14 @@ export function GuidedAttributeForm({
     }
   }, [openGroup, singleOpen, visible]);
   useEffect(() => {
-    if (!selections['Facial Hair'] || isAdultMalePresentation(selections)) return;
-    const next = { ...selections };
-    delete next['Facial Hair'];
-    onChange(next);
-  }, [onChange, selections]);
-  const gender = selections.Gender;
+    const next = reconcileSelectionsWithApplicability(
+      selections,
+      groups,
+      presentationGender
+    );
+    if (next !== selections) onChange(next);
+  }, [groups, onChange, presentationGender, selections]);
+  const gender = presentationGender || selections.Gender;
   const customCharacterCount = countCustomSelectionCharacters(selections);
   const selectableGroupNames = useMemo(() => new Set(
     visible
@@ -134,11 +150,22 @@ export function GuidedAttributeForm({
             }}
             open={singleOpen ? openGroup === group.group : groupIndex < 2}
             onToggle={event => {
-              if (singleOpen && event.currentTarget.open) setOpenGroup(group.group);
+              if (!singleOpen || !event.currentTarget.open) return;
+              setOpenGroup(group.group);
+              if (pendingFocusGroup.current === group.group) {
+                pendingFocusGroup.current = null;
+                scrollAndFocusGroup(group.group);
+              }
             }}
             className="studio-attribute-group"
           >
-          <summary>
+          <summary
+            onClick={() => {
+              pendingFocusGroup.current = singleOpen && openGroup !== group.group
+                ? group.group
+                : null;
+            }}
+          >
             <span>{group.group}</span>
             <small>{group.fields.filter(field => selections[field.name]).length}/{group.fields.length}</small>
           </summary>
@@ -188,15 +215,8 @@ export function GuidedAttributeForm({
                   icon={nextGroup ? <ArrowRight aria-hidden="true" /> : undefined}
                   onClick={() => {
                     if (!nextGroup) return;
+                    pendingFocusGroup.current = nextGroup.group;
                     setOpenGroup(nextGroup.group);
-                    window.setTimeout(() => {
-                      const target = groupRefs.current.get(nextGroup.group);
-                      target?.scrollIntoView({
-                        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-                        block: 'start'
-                      });
-                      target?.querySelector('summary')?.focus();
-                    }, 0);
                   }}
                 >
                   {nextGroup

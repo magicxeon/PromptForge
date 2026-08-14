@@ -5,7 +5,7 @@ import {
 } from '../schemas/visualManifestSchemas';
 
 const HEADSHOT_INDEX =
-  '/assets/visual-character-builder/headshot-v1/manifest.index.json';
+  '/assets/visual-character-builder/headshot-v1/manifest.index.json?v=3';
 const CHARACTER_SHEET_INDEX =
   '/assets/visual-character-builder/character-sheet-v1/manifest.index.json';
 const SAFE_ASSET_PREFIX = '/assets/visual-character-builder/';

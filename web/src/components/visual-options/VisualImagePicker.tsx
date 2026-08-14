@@ -19,12 +19,14 @@ export function VisualImagePicker({
 }) {
   const { i18n } = useTranslation();
   const locale = (i18n.resolvedLanguage || 'en').split('-')[0] || 'en';
+  const items = [...presentation.items].sort((left, right) => localized(left.option.label)
+    .localeCompare(localized(right.option.label), 'en', { sensitivity: 'base', numeric: true }));
   return (
     <VisualOptionGrid
       variant={presentation.size}
       className={`visual-image-picker visual-image-picker--${presentation.size}`}
     >
-      {presentation.items.map(item => {
+      {items.map(item => {
         const selected = value?.id === item.option.id;
         const alt = item.alt?.[locale] || item.alt?.en || localized(item.option.label);
         return (
@@ -41,7 +43,7 @@ export function VisualImagePicker({
               className="visual-image-option__media"
               title={alt}
             >
-              {presentation.size === 'compact' ? (
+              {item.renderMode === 'mask' ? (
                 <span
                   className="visual-option-icon"
                   aria-hidden="true"

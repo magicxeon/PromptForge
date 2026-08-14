@@ -1,5 +1,128 @@
 [
   {
+    "displayName": "บักป๊อม",
+    "description": "ป้อม ทดสอบ",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786685014497_k6bocmq1c",
+    "previewImageAssetId": "job_1786685014497_k6bocmq1c",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786685229618_e6nbhedt",
+    "characterProfileVersionId": "charver_1786685229636_j88fhumh",
+    "personalitySummary": "",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786685014497_k6bocmq1c",
+    "canonicalCharacterSheetAssetId": "job_1786685014497_k6bocmq1c",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786685014497_k6bocmq1c"
+    ],
+    "officialTags": [],
+    "reusePolicy": "use_as_character",
+    "id": "char_1786685231451_3fj2xcmn",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-14T05:27:11.451Z",
+    "updatedAt": "2026-08-14T05:40:00.583Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "displayName": "น้องเหมยอิง",
+    "description": "ทดสอบน้องเหมย",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786680372576_4txu94r4q",
+    "previewImageAssetId": "job_1786680372576_4txu94r4q",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786680491425_6vauj6pi",
+    "characterProfileVersionId": "charver_1786680491430_eln967ep",
+    "personalitySummary": "calm, refined and quietly confident",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786680372576_4txu94r4q",
+    "canonicalCharacterSheetAssetId": "job_1786680372576_4txu94r4q",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786680372576_4txu94r4q"
+    ],
+    "officialTags": [],
+    "reusePolicy": "use_as_character",
+    "id": "char_1786680493165_74xegra0",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-14T04:08:13.165Z",
+    "updatedAt": "2026-08-14T08:21:26.826Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "displayName": "เสี่ยวเหมิน",
+    "description": "ทดสอบ นางเอกใหม่",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786678828852_u85246g10",
+    "previewImageAssetId": "job_1786678828852_u85246g10",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786678978650_uwpiv6u8",
+    "characterProfileVersionId": "charver_1786678978658_8is52ngb",
+    "personalitySummary": "calm, refined and quietly confident",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786678828852_u85246g10",
+    "canonicalCharacterSheetAssetId": "job_1786678828852_u85246g10",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786678828852_u85246g10"
+    ],
+    "officialTags": [],
+    "reusePolicy": "use_as_character",
+    "id": "char_1786678982440_zhktb68o",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "hidden",
+    "createdAt": "2026-08-14T03:43:02.440Z",
+    "updatedAt": "2026-08-14T04:08:46.783Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "บักบอย หนุ่มหน้ามน",
     "description": "บักบอยบ้านอยู่สุริน ชอบกินผักต้มกะ แกงส้ม ขนมจีน",
     "characterType": "reusable_model",

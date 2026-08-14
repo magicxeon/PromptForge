@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "character-sheet.body.body-build",
+  "fieldId": "body.build",
+  "sectionId": "body",
+  "visualStyleVersion": "character-sheet-illustrated-v1",
+  "assetFamily": "illustrated-set",
+  "recolorMode": "mask",
+  "items": []
+}

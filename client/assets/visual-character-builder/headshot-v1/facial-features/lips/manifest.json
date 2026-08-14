@@ -150,6 +150,25 @@
         "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/wide-r1.png",
         "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/wide-r1.png"
       }
+    },
+    {
+      "assetId": "visual.lips.shape.vertical-drama-male",
+      "optionId": "lips.shape.vertical_drama_male",
+      "attributeId": "lips.013",
+      "slug": "vertical-drama-male",
+      "assetRevision": 3,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Clean defined adult masculine lips",
+        "th": "ริมฝีปากได้รูปแบบนักแสดงนำชาย"
+      },
+      "sourceHash": "de968f6d19478df53baed614a3219fbe4c8e1b6d49fc915c4e54798ea3174121",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/lips/master/vertical-drama-male-r3.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/lips/preview/vertical-drama-male-r3.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/lips/thumb/vertical-drama-male-r3.png"
+      }
     }
   ]
 }

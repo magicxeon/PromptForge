@@ -14,14 +14,26 @@ const AGE_RANGE_BY_ATTRIBUTE_ID = Object.freeze({
 export function deriveCharacterIdentityMetadata(structuredCharacterSnapshot = {}) {
   const ageSelection = structuredCharacterSnapshot?.selections?.Age;
   const ageRange = normalizeCharacterAgeRange(ageSelection);
-  return ageRange ? { ageRange } : {};
+  const genderSelection = structuredCharacterSnapshot?.selections?.Gender;
+  const presentationGender = normalizeCharacterPresentationGender(genderSelection);
+  return {
+    ...(ageRange ? { ageRange } : {}),
+    ...(presentationGender ? { presentationGender } : {})
+  };
 }
 
 export function normalizeCharacterIdentityMetadata(value, structuredCharacterSnapshot = {}) {
+  const derived = deriveCharacterIdentityMetadata(structuredCharacterSnapshot);
   const storedAgeRange = normalizeStoredAgeRange(value?.ageRange);
-  return storedAgeRange
-    ? { ageRange: storedAgeRange }
-    : deriveCharacterIdentityMetadata(structuredCharacterSnapshot);
+  const storedPresentationGender = normalizeStoredPresentationGender(value?.presentationGender);
+  return {
+    ...(storedAgeRange || derived.ageRange
+      ? { ageRange: storedAgeRange || derived.ageRange }
+      : {}),
+    ...(storedPresentationGender || derived.presentationGender
+      ? { presentationGender: storedPresentationGender || derived.presentationGender }
+      : {})
+  };
 }
 
 export function compileCharacterAgeRangeDirective(characterProfileContext = {}) {
@@ -97,6 +109,39 @@ function normalizeStoredAgeRange(value) {
       : null,
     minimum,
     maximum
+  };
+}
+
+function normalizeCharacterPresentationGender(selection) {
+  if (!selection || typeof selection !== 'object') return null;
+  const evidence = [
+    selection.id,
+    selection.value,
+    selection.label,
+    ...(Array.isArray(selection.tags) ? selection.tags : [])
+  ].filter(value => typeof value === 'string').join(' ').toLowerCase();
+  const value = /\b(female|woman|women)\b/.test(evidence)
+    ? 'female'
+    : /\b(male|man|men)\b/.test(evidence)
+      ? 'male'
+      : null;
+  if (!value) return null;
+  return {
+    attributeId: typeof selection.id === 'string' && selection.id.trim()
+      ? selection.id.trim()
+      : null,
+    value
+  };
+}
+
+function normalizeStoredPresentationGender(value) {
+  if (!value || typeof value !== 'object') return null;
+  if (value.value !== 'female' && value.value !== 'male') return null;
+  return {
+    attributeId: typeof value.attributeId === 'string' && value.attributeId.trim()
+      ? value.attributeId.trim()
+      : null,
+    value: value.value
   };
 }
 

@@ -113,6 +113,13 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
       faceReferenceJobId
     )
     : null;
+  const authorizedFaceReferenceJobIds = faceReferenceAuthorization
+    ? normalizeReferenceJobIds([faceReferenceAuthorization.jobId])
+    : [];
+  const effectiveFaceReferenceJobIds = normalizeReferenceJobIds([
+    ...(Array.isArray(payload.faceReferenceJobIds) ? payload.faceReferenceJobIds : []),
+    ...authorizedFaceReferenceJobIds
+  ]);
   const hasStyleReference = Boolean(payload.styleReferenceImageA || payload.styleReferenceImageB);
   const hasCharacterReference = Boolean(payload.characterReferenceImageA || payload.characterReferenceImageB);
   const hasOutfitFront = Boolean(payload.outfitReferenceImageFront);
@@ -235,6 +242,7 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
       : null,
     characterSheetConfig: createCharacterSheetConfigSnapshot({
       ...payload,
+      faceReferenceJobIds: effectiveFaceReferenceJobIds,
       mode,
       characterType,
       selections,
@@ -246,9 +254,8 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
         : null
     }),
     characterProfileContext: normalizeCharacterProfileContext(payload.characterProfileContext),
-    authorizedFaceReferenceJobIds: faceReferenceAuthorization
-      ? normalizeReferenceJobIds([faceReferenceAuthorization.jobId])
-      : [],
+    faceReferenceJobIds: effectiveFaceReferenceJobIds,
+    authorizedFaceReferenceJobIds,
     authorizedTemplateReferenceJobIds: normalizeReferenceJobIds(
       payload.authorizedTemplateReferenceJobIds
     ),
@@ -299,6 +306,8 @@ export function compilePromptFromGenerationContext(context) {
       context.outfitReferenceOverrides,
       {
         characterReferenceOutfitBehavior: context.characterReferenceOutfitBehavior,
+        presentationGender:
+          context.characterProfileContext?.identityPack?.presentationGender || null,
         additionalDirection: context.additionalDirection,
         ...(usesCastingLayout
           ? {

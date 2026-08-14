@@ -141,6 +141,8 @@ Start Headshot
 | 010 | Character Reference and Clothing Concept | Future contract only | Headshot MVP accepted |
 | 010-014 | Scene Character Directing and Reference Set | Editable expression with Character Reference, richer pose/environment direction, and future four-image reference set | 010-013 and Scene Builder |
 | 011 | Popular Outfit and Male Facial Hair Visual Expansion | Five additional male outfits, five additional female outfits and five adult male facial-hair styles | 003, 005, 010-011 |
+| 012 | Vertical Drama Lead Attribute and Visual Expansion | Add coordinated leading-character Face, Eyes, Eyebrows, Nose, Lips, Model Build and Body Silhouette options inside existing categories | 001-007, 009, 010-003, 010-006 |
+| 013 | Face to Character to Scene Manual Validation | Five-case MVP closure suite covering female and male identity, explicit Face override, public cross-user reuse and owner-only protection | 012, RPP-002, Scene Builder Requirement 010 |
 
 Do not begin mass asset production before the Face Structure pilot passes its visual review gate.
 
