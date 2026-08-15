@@ -1,24 +1,64 @@
 # Dependencies
 node_modules/
+**/node_modules/
 
-# Local Environment Variables
+# Local environment variables
 .env
+.env.*
+!.env.example
 
-# Backup files
+# Build output and tool caches
+/web/dist/
+/web/dist/*
+/web/.vite/
+*.tsbuildinfo
+.eslintcache
+
+# Test output
+/coverage/
+/web/coverage/
+/test-results/
+/web/test-results/
+/playwright-report/
+/web/playwright-report/
+/blob-report/
+/web/blob-report/
+
+# Backup and temporary files
 *.bak
+*.tmp
+*.temp
+*.swp
+*~
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Editor & OS Specific Files
+# Editor and OS-specific files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-/client/outputs
-/server/migrations
 
+# Runtime/generated project data
+/client/outputs/
+/server/data/generation/output/
+/server/migrations/
+
+# Local working notes and scratch assets
 _concept-idea.txt
+z_continue_here.txt
+_temp/
+
+# Local Prompt Research Lab datasets and generated output
+/lab/**/datasets/source-images/
+/lab/**/datasets/raw-responses/
+/lab/**/evaluations/generated-images/
+/lab/**/evaluations/contact-sheets/
+/lab/**/outputs/
+
+requirements/015-lab-finetune-prompt/street-walk-editorial/*

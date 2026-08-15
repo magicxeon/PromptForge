@@ -371,7 +371,7 @@ Future creator system:
 
 MVP community should start small:
 
-- product home / workflow launcher
+- community-first home with a compact workflow launcher
 - structured freestyle prompt composer
 - public/shared prompt pages
 - creator profile basics
@@ -662,16 +662,18 @@ Near-term:
 
 - stabilize cross-mode handoff UX
 - finish Character Sheet Builder visual controls
+- implement Character Profile, standardized casting export and private handoff
+- implement Fashion Blueprint Simple single-outfit workflow
 - complete body build and sheet layout visual assets
 - refine outfit base visual clarity
 - add seed/randomness control if providers support it
 - improve provider-specific validation
-- clarify Product Home / workflow launcher direction
+- clarify Community Home, Playground and shared generation component direction
 
 Mid-term:
 
 - Story Mode refinement
-- reusable character library
+- public reusable Character library and privacy-safe usage analytics
 - collection workflow
 - prompt/workflow sharing
 - landing page and guided onboarding
@@ -697,3 +699,37 @@ Long-term:
 - photographer style library
 - marketplace export presets
 - durable batch generation and credit ledger
+
+## 20. Current Implementation Phase Index
+
+```text
+003 Visual Character Builder
+  -> 004 Scene Builder
+  -> 005 Community
+  -> 006 Character Profile
+  -> 007 User Profile
+  -> 008 UX/UI Adjustment
+  -> 009 React Frontend Migration
+  -> 010 Fashion Blueprint
+  -> 011 Commercial Platform and Google Cloud migration
+  -> 099 Technical Debt and architecture ownership
+```
+
+Phase responsibilities:
+
+- `006-implementation-character-profile` turns approved Character Sheet outputs
+  into named, versioned and optionally public reusable Characters.
+- `007-implement-user-profile` owns the reusable public/owner Creator Profile.
+- `008-implement-adjusment-ui` owns the approved Momelo navigation and key
+  detail/generation layout references. UI-014 through UI-019 own the canonical
+  Explore/Create/My Library/Profile route consolidation and its E2E gate.
+- `009-migration-to-react` replaces the complete legacy browser client through
+  route-by-route cutover into React, TypeScript and Vite.
+- `010-implementation-fashion-blueprint` owns the short
+  Template-to-Character-to-Outfit-to-Price workflow for e-commerce fashion.
+- `011-implementation-commercial-feature-plan` replaces development adapters
+  with authentication, PostgreSQL, Cloud Storage, durable jobs, payments and
+  Google Cloud operations. It must productionize the Blueprint rather than
+  recreate its UI or plan resolver.
+- `099-technical-dept` remains the canonical architecture and file-placement
+  reference for every implementation phase.

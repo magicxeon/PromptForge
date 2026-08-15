@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review Product UX"
+  short_description: "Validate product flows and shared UI"
+  default_prompt: "Use $review-product-ux to review this workflow for clarity, reuse, accessibility, and regression risk."
+policy:
+  allow_implicit_invocation: true

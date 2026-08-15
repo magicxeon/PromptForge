@@ -4,7 +4,7 @@ dotenv.config();
 
 const { createApp } = await import('./app/createApp.js');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6500;
 const app = createApp();
 
 app.listen(PORT, () => {

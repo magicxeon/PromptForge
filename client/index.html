@@ -15,55 +15,89 @@
 </head>
 
 <body>
+  <a class="application-skip-link" href="#main-content">Skip to main content</a>
   <div class="app-container">
-    <!-- Header -->
-    <header class="app-header glass-card">
+    <header class="app-header">
       <div class="header-main-row">
         <div class="logo-area">
-          <h1>ModelPromptForge</h1>
-          <span class="badge neon-glow-pink">Asian Aesthetic v1.1</span>
+          <a href="/community" data-route="/community" class="application-brand" aria-label="Momelo Home">
+            <span class="application-brand-mark" aria-hidden="true">M</span>
+            <span><strong>momelo</strong><small>Create · Share · Remix</small></span>
+          </a>
         </div>
 
-        <!-- Header Profile & Credit Balance (Pill Selectors - Responsive) -->
-        <div class="header-status-area">
-          <!-- Language Toggle Pill Selector -->
-          <div class="header-toggle-group">
-            <span class="toggle-group-label">Language</span>
-            <div class="pill-selector" id="language-pill-selector">
-              <button class="pill-btn active" data-value="th">TH</button>
-              <button class="pill-btn" data-value="en">EN</button>
-            </div>
-          </div>
+        <div class="global-navigation-search">
+          <span class="global-search-icon" aria-hidden="true">⌕</span>
+          <input id="global-navigation-search" type="search" autocomplete="off"
+            placeholder="Search tools..." aria-label="Search application tools">
+          <div id="global-navigation-search-results" class="global-navigation-search-results"
+            role="listbox" hidden></div>
+        </div>
 
-          <!-- Profile/Role Toggle Dropdown -->
-          <div class="header-toggle-group">
+        <div class="global-create-control" id="global-create-control">
+          <button type="button" id="global-create-trigger" class="global-create-trigger"
+            aria-haspopup="menu" aria-expanded="false">
+            <span aria-hidden="true">＋</span>
+            <span data-global-create-label>Create</span>
+          </button>
+          <div id="global-create-menu" class="global-create-menu" role="menu" hidden></div>
+        </div>
+
+        <div class="header-status-area">
+          <div class="header-toggle-group" id="mock-user-switcher-container">
             <span class="toggle-group-label">Active Mock User</span>
             <select class="custom-select" id="mock-user-select" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; background: rgba(0, 0, 0, 0.2); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; outline: none; cursor: pointer; min-width: 140px;"></select>
+          </div>
+          <div class="account-profile-control" id="account-profile-control">
+            <button type="button" class="account-profile-trigger" id="account-profile-trigger"
+              aria-haspopup="menu" aria-expanded="false">
+              <span class="account-profile-avatar" id="account-profile-avatar" aria-hidden="true">ME</span>
+              <span id="account-profile-name">My profile</span>
+              <span class="account-profile-arrow" aria-hidden="true">&#9662;</span>
+            </button>
+            <div class="account-profile-menu glass-card" id="account-profile-menu" role="menu" hidden>
+              <button type="button" role="menuitem" data-profile-action="view">View profile</button>
+              <button type="button" role="menuitem" data-profile-action="library">My library</button>
+            </div>
           </div>
 
           <div class="credits-display-compact">
             <div class="credits-count-row">
               <span class="credits-count" id="credits-value">20</span>
+              <small id="credits-reserved-value" hidden></small>
               <span class="coin-icon">🪙</span>
               <button id="btn-recharge" class="btn-recharge-compact" title="Recharge 10 Credits">+</button>
             </div>
           </div>
+
+          <div class="header-toggle-group lang-dropdown-wrapper" id="language-selector-wrapper">
+            <div class="lang-dropdown-container" id="language-dropdown-container">
+              <button type="button" class="lang-dropdown-trigger" id="lang-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" title="Switch Language">
+                <span class="lang-icon">🌐</span>
+                <span class="lang-current-code" id="lang-current-code">TH</span>
+                <span class="lang-arrow">▾</span>
+              </button>
+              <div class="lang-dropdown-menu glass-card" id="lang-dropdown-menu" role="listbox" style="display: none;"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <p class="subtitle">Generate high-fidelity, photorealistic prompts from structured attributes safely without
-        policy violations.</p>
     </header>
 
-    <div class="application-nav-shell glass-card">
+    <div class="application-nav-shell">
       <button id="application-menu-button" class="application-menu-button" type="button"
         aria-expanded="false" aria-controls="application-navigation">
-        <span aria-hidden="true">&#9776;</span>
+        <span aria-hidden="true">☰</span>
         <span>Menu</span>
       </button>
       <nav id="application-navigation" class="application-navigation" aria-label="Primary navigation"></nav>
       <button id="application-menu-backdrop" class="application-menu-backdrop" type="button"
         aria-label="Close navigation" hidden></button>
     </div>
+
+    <span id="main-content" class="application-main-anchor" tabindex="-1"></span>
+    <nav id="application-breadcrumbs" class="application-breadcrumbs"
+      aria-label="Breadcrumb" hidden></nav>
 
     <!-- Main Workspace -->
     <main class="app-workspace">
@@ -81,60 +115,8 @@
         </div>
 
         <div class="dashboard-layout-grid">
-          <!-- Viewport Column (Active render screen) -->
-          <div class="viewport-column">
-            <div class="viewport-card-header">
-              <h3>Active Render Screen</h3>
-              <button id="btn-download-image" class="btn-download" title="Download Generated Image"
-                style="display: none;">
-                <span>📥 Download Image</span>
-              </button>
-            </div>
-
-            <div class="viewport-screen" id="viewport-screen">
-              <div class="image-loading-overlay" id="image-loading-overlay">
-                <div class="loading-pulse-ring"></div>
-                <p class="loading-text">Generating character details...</p>
-              </div>
-
-              <div class="viewport-placeholder-content" id="viewport-placeholder">
-                <span class="viewport-placeholder-icon">✨</span>
-                <p class="placeholder-main-text">Ready to render character</p>
-                <p class="sub-placeholder">Configure attributes below and click Generate Image</p>
-              </div>
-
-              <div class="viewport-error-banner" id="viewport-error" style="display: none;">
-                <span class="error-icon">⚠️</span>
-                <div class="error-content">
-                  <p class="error-msg" id="error-message">Generation failed</p>
-                  <details class="error-details" id="error-details" style="display: none;">
-                    <summary>Technical details</summary>
-                    <span id="error-technical-message"></span>
-                  </details>
-                </div>
-              </div>
-
-              <img id="generated-image" src="" alt="Generated Character Output">
-            </div>
-
-            <!-- Loopback viewport controls (Step 9) -->
-            <div class="viewport-actions-row" id="viewport-loopback-actions"
-              style="display: none; gap: 0.5rem; margin-top: 0.5rem; width: 100%;">
-              <button id="btn-viewport-use-face" class="btn-compact-neon btn-use-face-ref"
-                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">👤 Use as Face Ref</button>
-              <button id="btn-viewport-use-style" class="btn-compact-neon btn-use-style-ref"
-                style="flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">🖼️ Use as Style Ref</button>
-              <button id="btn-viewport-use-character" class="btn-compact-neon btn-use-character-ref"
-                style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem;" type="button">📋 Use as Character Ref</button>
-            </div>
-
-            <!-- Telemetry Bar -->
-            <div class="telemetry-bar" id="telemetry-bar" style="display: none;">
-              <div class="telemetry-item"><span class="tel-label">Model:</span> <span id="tel-model">-</span></div>
-              <div class="telemetry-item"><span class="tel-label">Time:</span> <span id="tel-time">-</span></div>
-              <div class="telemetry-item"><span class="tel-label">Aspect:</span> <span id="tel-aspect">-</span></div>
-            </div>
-          </div>
+          <!-- Shared Studio GenerationResultSurface mount -->
+          <div id="studio-generation-result"></div>
 
           <!-- History / Queue Column -->
           <div class="history-column">
@@ -152,6 +134,7 @@
               <span class="collection-count" id="collection-count">0 images</span>
               <button id="btn-new-collection" class="btn-collection-action" type="button">+ New</button>
               <button id="btn-edit-collection" class="btn-collection-action" type="button" disabled>Edit</button>
+              <button id="btn-share-community-collection" class="btn-collection-primary" type="button" hidden>Share</button>
             </div>
 
             <!-- Active Pending Job Queue list -->
@@ -330,95 +313,12 @@
 
           <!-- Step 2 & 3 Group -->
           <div class="step-card step-2-card">
-            <div class="step-header engine-step-header">
-              <div class="step-title-group">
-                <span class="step-badge">Step 2</span>
-                <h3>Engine & Target Output</h3>
-              </div>
-              <div class="comparison-model-actions" aria-label="Model comparison actions">
-                <button id="comparison-active-run-chip" class="comparison-active-run-chip" type="button" hidden>
-                  <span class="comparison-active-dot" aria-hidden="true"></span>
-                  <span id="comparison-active-run-label">Comparison 0/2</span>
-                </button>
-                <button id="btn-toggle-comparison" class="btn-compare-models" type="button"
-                  aria-label="Compare AI Models" aria-pressed="false" title="Compare AI Models">
-                  <span class="compare-icon" aria-hidden="true"><i></i><i></i></span>
-                  <span class="compare-label">Compare</span>
-                  <span id="comparison-slot-badge" class="comparison-slot-badge" hidden>2</span>
-                </button>
-              </div>
+            <div id="studio-engine-target-panel"></div>
+
+            <div class="form-field" style="display: none;">
+              <label for="template-select">Prompt Template</label>
+              <select id="template-select" class="custom-select"></select>
             </div>
-
-            <div class="engine-settings-grid">
-              <div class="form-field">
-                <label for="api-provider-select">Provider Engine</label>
-                <select id="api-provider-select" class="custom-select">
-                  <!-- Dynamically populated from the server provider registry -->
-                </select>
-              </div>
-
-              <div class="form-field">
-                <label for="api-submodel-select">Submodel Version</label>
-                <select id="api-submodel-select" class="custom-select">
-                  <!-- Dynamically populated -->
-                </select>
-                <small id="model-capability-summary" class="field-option-help" aria-live="polite"></small>
-              </div>
-
-              <div id="image-resolution-field" class="form-field" style="display: none;">
-                <label for="image-resolution-select">Output Resolution</label>
-                <select id="image-resolution-select" class="custom-select"></select>
-              </div>
-
-              <div class="form-field" style="display: none;">
-                <label for="template-select">Prompt Template</label>
-                <select id="template-select" class="custom-select">
-                  <!-- Dynamically populated -->
-                </select>
-              </div>
-
-              <!-- Linked Dimension Inputs (Step 7) -->
-              <div class="form-field">
-                <label for="input-width">Width (px)</label>
-                <input type="number" id="input-width" class="custom-select" value="768" min="720" max="4096" step="8">
-              </div>
-
-              <div class="form-field">
-                <label for="input-height">Height (px)</label>
-                <input type="number" id="input-height" class="custom-select" value="1024" min="720" max="4096" step="8">
-              </div>
-
-              <div class="form-field full-width">
-                <label>Aspect Ratio</label>
-                <div class="chip-group" id="aspect-ratio-group">
-                  <button class="option-chip active" data-ratio="6:8">6:8 Portrait</button>
-                  <button class="option-chip" data-ratio="1:1">1:1 Square</button>
-                  <button class="option-chip" data-ratio="9:16">9:16 Mobile</button>
-                  <button class="option-chip" data-ratio="16:9">16:9 Wide</button>
-                  <button class="option-chip" data-ratio="4:5">4:5 Insta</button>
-                </div>
-              </div>
-            </div>
-
-            <section id="comparison-model-tray" class="comparison-model-tray" hidden
-              aria-labelledby="comparison-tray-title">
-              <div class="comparison-tray-header">
-                <div>
-                  <span class="comparison-kicker">FAIR COMPARISON</span>
-                  <h4 id="comparison-tray-title">AI Model Comparison</h4>
-                </div>
-                <span id="comparison-slot-count" class="comparison-slot-count">2 of 4</span>
-              </div>
-              <div id="comparison-slot-list" class="comparison-slot-list"></div>
-              <div class="comparison-tray-footer">
-                <button id="btn-add-comparison-slot" class="btn-neon-outline" type="button">+ Add Model</button>
-                <div class="comparison-estimate-total">
-                  <span>Estimated total</span>
-                  <strong id="comparison-total-credits">2 credits</strong>
-                </div>
-              </div>
-              <p id="comparison-tray-error" class="comparison-inline-error" role="alert"></p>
-            </section>
 
             <div class="matching-options-row">
               <label class="checkbox-container">
@@ -508,7 +408,7 @@
             <!-- Dedicated Generate Action Section (Step 7) -->
             <div class="generate-action-section" style="margin-top: 0.85rem; width: 100%;">
               <button id="btn-generate-image" class="btn-neon-yellow-glow">⚡ Generate Image <span
-                  class="btn-credit-cost-dark">(1 Credit)</span></button>
+                  class="btn-credit-cost-dark" id="btn-credit-estimate">(Estimating...)</span></button>
             </div>
 
             <div class="import-section-studio">
@@ -525,6 +425,14 @@
         </div>
       </section>
     </main>
+
+    <main id="community-home" class="community-home" hidden aria-label="Community home"></main>
+    <main id="community-post-detail" class="community-post-detail" hidden aria-label="Community post detail"></main>
+    <main id="community-character-directory" class="community-character-directory" hidden aria-label="Community Characters"></main>
+    <main id="character-profile-page" class="character-profile-page" hidden aria-label="Character Profile"></main>
+    <main id="creator-profile-page" class="creator-profile-page" hidden aria-label="Creator profile"></main>
+    <main id="playground-page" class="playground-page" hidden aria-label="Playground"></main>
+    <main id="admin-page" class="admin-page" hidden aria-label="Admin and support"></main>
 
     <main id="comparison-dashboard" class="comparison-dashboard" hidden aria-labelledby="comparison-dashboard-title">
       <section class="comparison-dashboard-hero glass-card">
@@ -645,7 +553,8 @@
           <button id="btn-lightbox-add-to-template" class="btn-compact-neon btn-add-to-template-ref"
             style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-cyan); color: #000;" type="button">📥 Add to Template</button>
           <button id="btn-lightbox-share-template" class="btn-compact-neon"
-            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-purple); color: #fff;" type="button">📤 Share Scene Template</button>
+            style="display: none; flex: 1; font-size: 0.72rem; padding: 0.45rem; background: var(--neon-purple); color: #fff;"
+            type="button" data-i18n="community.share.action">Share to Community</button>
         </div>
 
         <a id="lightbox-download-link" href="" download class="btn-lightbox-download">📥 Download Original Image</a>
@@ -763,13 +672,13 @@
     </div>
   </div>
 
-  <!-- Share Template Preview Modal -->
+  <!-- Share Generated Image Preview Modal -->
   <div id="share-template-modal" class="collection-modal app-dialog-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="share-modal-title-text">
-    <div class="collection-modal-card glass-card" style="max-width: 450px; width: 90%;">
+    <div class="collection-modal-card community-share-card glass-card">
       <div class="collection-modal-header">
         <div>
           <span class="collection-kicker" style="font-size: 0.6rem; color: var(--neon-cyan); letter-spacing: 0.1em; text-transform: uppercase;">Model Prompt Forge</span>
-          <h4 id="share-modal-title-text" style="margin-top: 0.25rem; font-size: 1.15rem; font-family: 'Outfit', sans-serif;">Share Scene Template</h4>
+          <h4 id="share-modal-title-text" data-i18n="community.share.heading">Share to Community</h4>
         </div>
       </div>
       <div class="app-dialog-body" style="padding: 1rem 0; text-align: left; display: flex; flex-direction: column; gap: 1rem;">
@@ -777,43 +686,68 @@
           <img id="share-modal-img" src="" alt="Preview Image" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
             <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-              <span class="sub-label">Template Title *</span>
-              <input type="text" id="share-modal-title" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15);" placeholder="Enter title...">
+              <span class="sub-label" data-i18n="community.share.title">Post title *</span>
+              <input type="text" id="share-modal-title" class="custom-select"
+                data-i18n-placeholder="community.share.titlePlaceholder" placeholder="Enter title...">
             </label>
           </div>
         </div>
 
         <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-          <span class="sub-label">Description</span>
-          <textarea id="share-modal-desc" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); height: 60px; font-size: 0.8rem;" placeholder="Brief description of the setup..."></textarea>
+          <span class="sub-label" data-i18n="community.share.description">Description</span>
+          <textarea id="share-modal-desc" class="custom-select"
+            data-i18n-placeholder="community.share.descriptionPlaceholder" placeholder="Describe this image..."></textarea>
         </label>
 
         <label style="display: flex; flex-direction: column; gap: 0.25rem;">
-          <span class="sub-label">Prompt Visibility *</span>
+          <span class="sub-label" data-i18n="community.share.promptVisibility">Prompt visibility *</span>
           <select id="share-modal-visibility" class="custom-select" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15);">
-            <option value="full">Full Prompt (Show prompt text and allow copy)</option>
-            <option value="remix_only">Remix Only (Hide prompt text, allow variables remix)</option>
+            <option value="full" data-i18n="community.share.prompt.full">Full prompt</option>
+            <option value="partial" data-i18n="community.share.prompt.partial">Partial prompt</option>
+            <option value="remix_only" data-i18n="community.share.prompt.remixOnly">Remix only</option>
+            <option value="private" data-i18n="community.share.prompt.private">Private prompt</option>
           </select>
         </label>
-        <p id="share-manual-warning" style="display: none; font-size: 0.72rem; color: var(--neon-gold); margin: 0;">
-          ⚠️ Manual prompts cannot be hidden during remix. Forced visibility: Full Prompt.
+        <p id="share-manual-warning" class="community-share-warning" hidden
+          data-i18n="community.share.remixUnavailable">
+          Remix Only is available for guided Scene Builder templates.
         </p>
 
-        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
-          <span class="sub-label" style="display: block; margin-bottom: 0.25rem; font-weight: bold;">Reference Slot Policies</span>
-          <ul id="share-modal-policies" style="font-size: 0.75rem; margin: 0; padding-left: 1.2rem; color: #ccc;"></ul>
+        <label style="display: flex; flex-direction: column; gap: 0.25rem;">
+          <span class="sub-label" data-i18n="community.share.postVisibility">Post visibility *</span>
+          <select id="share-modal-post-visibility" class="custom-select">
+            <option value="public" data-i18n="community.post.visibility.public">Public</option>
+            <option value="unlisted" data-i18n="community.post.visibility.unlisted">Unlisted</option>
+            <option value="private" data-i18n="community.post.visibility.private">Private</option>
+          </select>
+        </label>
+
+        <div id="share-modal-template-details">
+          <div class="community-share-detail-section">
+            <span class="sub-label" data-i18n="community.share.referencePolicies">Reference slot policies</span>
+            <ul id="share-modal-policies"></ul>
+          </div>
+          <div class="community-share-detail-section">
+            <span class="sub-label" data-i18n="community.share.replaceableParameters">Replaceable parameters</span>
+            <ul id="share-modal-variables"></ul>
+          </div>
         </div>
 
-        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
-          <span class="sub-label" style="display: block; margin-bottom: 0.25rem; font-weight: bold;">Replaceable Parameters</span>
-          <ul id="share-modal-variables" style="font-size: 0.75rem; margin: 0; padding-left: 1.2rem; color: #ccc;"></ul>
-        </div>
+        <section class="community-taxonomy-panel" aria-labelledby="share-taxonomy-title">
+          <div class="community-taxonomy-heading">
+            <span id="share-taxonomy-title" class="sub-label" data-i18n="community.taxonomy.title">Suggested categories</span>
+            <small data-i18n="community.taxonomy.confirmHelp">Confirm the official tags that describe this work.</small>
+          </div>
+          <div id="share-modal-taxonomy-picker"></div>
+        </section>
 
         <div id="share-modal-model-summary" class="sub-label" style="font-size: 0.72rem; color: #888;"></div>
       </div>
       <div class="app-dialog-footer" style="display: flex; gap: 0.55rem; justify-content: flex-end;">
-        <button id="btn-share-modal-cancel" class="btn-compact-neon" type="button" style="background: rgba(255,255,255,0.06); padding: 0.55rem 1.2rem; border-color: rgba(255,255,255,0.15);">Cancel</button>
-        <button id="btn-share-modal-publish" class="btn-compact-neon" type="button" style="background: var(--neon-cyan); color: #000; font-weight: bold; padding: 0.55rem 1.2rem;">Publish</button>
+        <button id="btn-share-modal-cancel" class="btn-compact-neon" type="button"
+          data-i18n="common.action.cancel">Cancel</button>
+        <button id="btn-share-modal-publish" class="btn-compact-neon community-share-publish" type="button"
+          data-i18n="community.share.publish">Publish</button>
       </div>
     </div>
   </div>
@@ -857,6 +791,7 @@
         <span id="comparison-workspace-status" class="comparison-run-status">Queued</span>
       </div>
       <div class="comparison-workspace-actions">
+        <button id="btn-share-community-comparison" class="comparison-tool-button" type="button">Share comparison</button>
         <button id="btn-comparison-history" class="comparison-tool-button" type="button">Previous Sets</button>
         <button id="btn-comparison-add-all" class="comparison-tool-button" type="button">Add All</button>
         <button id="btn-close-comparison-workspace" class="comparison-close-button" type="button"
@@ -887,20 +822,81 @@
 
   <script src="/app-dialog.js"></script>
   <script src="/visual-controls/visualOptionControls.js"></script>
+  <script src="/core/localePreferenceService.js"></script>
+  <script src="/core/i18nService.js"></script>
   <script src="/core/studioState.js"></script>
   <script src="/core/referenceManager.js"></script>
   <script src="/clothing/clothingPromptParts.js"></script>
   <script src="/clothing/clothingOptionRules.js"></script>
+  <script src="/clothing/outfitReferenceController.js"></script>
   <script src="/clothing/clothingVisualConfig.js"></script>
-  <script src="/core/promptCompiler.js"></script>
   <script src="/core/actorContext.js"></script>
   <script src="/core/apiClient.js"></script>
+  <script src="/character-profiles/characterProfileApi.js"></script>
+  <script src="/character-profiles/characterProfileState.js"></script>
+  <script src="/character-profiles/characterTypeControl.js"></script>
+  <script src="/character-profiles/characterHandoff.js"></script>
+  <script src="/character-profiles/characterCastingExport.js"></script>
+  <script src="/character-profiles/characterProfileEditor.js"></script>
+  <script src="/character-profiles/characterProfileViewMode.js"></script>
+  <script src="/character-profiles/characterProfileHero.js"></script>
+  <script src="/character-profiles/characterProfileStats.js"></script>
+  <script src="/character-profiles/characterProfileWorks.js"></script>
+  <script src="/character-profiles/characterSharingPanel.js"></script>
+  <script src="/character-profiles/characterProfilePage.js"></script>
+  <script src="/community/communityFeaturePolicy.js"></script>
+  <script src="/community/communityEngagementApi.js"></script>
+  <script src="/comparisons/comparisonViewModel.js"></script>
+  <script src="/comparisons/comparisonMosaic.js"></script>
+  <script src="/comparisons/comparisonWorkspace.js"></script>
+  <script src="/community/communityGalleryApi.js"></script>
+  <script src="/community/communityTemplateActions.js"></script>
+  <script src="/community/communityComparisonShare.js"></script>
+  <script src="/community/communityFeed.js"></script>
+  <script src="/community/communityPhotoViewer.js"></script>
+  <script src="/community/communityPostDetail.js"></script>
+  <script src="/community/communityCharacterSection.js"></script>
+  <script src="/community/communityCharacterDirectory.js"></script>
+  <script src="/credits/creditApi.js"></script>
+  <script src="/credits/creditEstimateController.js"></script>
+  <script src="/credits/creditBalanceBadge.js"></script>
   <script src="/community/communityMockUserSwitcher.js"></script>
+  <script src="/community/communityCreateLauncher.js"></script>
+  <script src="/community/communityHomePage.js"></script>
+  <script src="/community/communityCreatorApi.js"></script>
+  <script src="/community/communityModerationApi.js"></script>
+  <script src="/community/reportPostDialog.js"></script>
+  <script src="/community/moderationBanner.js"></script>
+  <script src="/community/followButton.js"></script>
+  <script src="/community/creatorPortfolioGrid.js"></script>
+  <script src="/community/creatorProfileComponents.js"></script>
+  <script src="/community/creatorProfileHeader.js"></script>
+  <script src="/community/creatorProfileTabs.js"></script>
+  <script src="/community/creatorProfileOverview.js"></script>
+  <script src="/community/creatorProfileController.js"></script>
+  <script src="/community/accountProfileMenu.js"></script>
+  <script src="/community/communityTaxonomyPicker.js"></script>
+  <script src="/community/communityShareApi.js"></script>
+  <script src="/community/communitySharePreview.js"></script>
+  <script src="/admin/adminApi.js"></script>
+  <script src="/admin/adminPanel.js"></script>
   <script src="/core/persistence.js"></script>
   <script src="/core/formRenderer.js"></script>
   <script src="/core/generationService.js"></script>
+  <script src="/generation-controls/engineTargetComparisonPanel.js"></script>
+  <script src="/generation-controls/promptEditor.js"></script>
+  <script src="/generation-controls/referenceSlotManager.js"></script>
+  <script src="/generation-controls/generationActionBar.js"></script>
+  <script src="/generation-controls/generationResultSurface.js"></script>
+  <script src="/playground/playgroundState.js"></script>
+  <script src="/prompt-composer/promptComposerApi.js"></script>
+  <script src="/prompt-composer/structuredProposalReview.js"></script>
+  <script src="/prompt-composer/promptComposerPanel.js"></script>
+  <script src="/playground/playgroundPage.js"></script>
+  <script src="/playground/playgroundController.js"></script>
   <script src="/core/historyService.js"></script>
   <script src="/core/collectionService.js"></script>
+  <script src="/community/communityCollectionShare.js"></script>
   <script src="/core/lightboxService.js"></script>
   <script src="/core/crossModeHandoff.js"></script>
   <script src="/scene-builder/sceneBuilderState.js"></script>
@@ -913,14 +909,16 @@
   <script src="/scene-builder/sceneVariableControls.js"></script>
   <script src="/scene-builder/sceneReplacementChecklist.js"></script>
   <script src="/scene-builder/sceneHistorySlotPicker.js"></script>
-  <script src="/scene-builder/sceneSharePreview.js"></script>
   <script src="/scene-builder/sharedTemplatesPanel.js"></script>
   <script src="/scene-builder/sceneModeLabels.js"></script>
   <script src="/scene-builder/sceneBuilderController.js"></script>
   <script src="/app.js"></script>
   <script src="/comparison.js"></script>
+  <script src="/shell/navigationConfigService.js"></script>
   <script src="/shell/navigationRegistry.js"></script>
+  <script src="/shell/navigationContext.js"></script>
   <script src="/shell/router.js"></script>
+  <script src="/shell/breadcrumbService.js"></script>
   <script src="/shell/applicationShell.js"></script>
   <script src="/comparisons/comparisonApi.js"></script>
   <script src="/comparisons/comparisonSummaryCard.js"></script>

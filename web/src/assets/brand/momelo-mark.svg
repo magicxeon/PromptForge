@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Momelo</title>
+  <defs>
+    <linearGradient id="momelo-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#04d9ff"/>
+      <stop offset=".5" stop-color="#7659ff"/>
+      <stop offset="1" stop-color="#ff2f91"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M10 51V17.5c0-4.8 5.7-7.2 9.1-3.8L32 26.5l12.9-12.8c3.4-3.4 9.1-1 9.1 3.8V51M10 51h10M44 51h10"
+    fill="none"
+    stroke="url(#momelo-gradient)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="7"
+  />
+  <path d="m43.5 29.5 1.7 4.3 4.3 1.7-4.3 1.7-1.7 4.3-1.7-4.3-4.3-1.7 4.3-1.7z" fill="#fff"/>
+</svg>

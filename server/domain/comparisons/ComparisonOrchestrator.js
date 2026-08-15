@@ -1,40 +1,109 @@
-import { compileGenerationContext, createQueueOptions } from '../generation/generationRequestService.js';
+import {
+  compileGenerationContext
+} from '../generation/generationRequestService.js';
 import { aggregateRunStatus, ComparisonValidator, stripPrivateConfig } from './ComparisonValidator.js';
 import { ComparisonError, ComparisonRepository } from '../../repositories/comparisons/ComparisonRepository.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
+import { templateCoreService as defaultTemplateCoreService } from '../templates/TemplateCoreService.js';
+import { prepareGenerationReferences } from '../generation/prepareGenerationReferences.js';
+import { GenerationApplicationService } from '../generation/GenerationApplicationService.js';
 
 export class ComparisonOrchestrator {
-  constructor({ providerRegistry, queueManager, creditManager, repository = new ComparisonRepository() }) {
+  constructor({
+    providerRegistry,
+    queueManager,
+    creditManager,
+    creditReservation = creditApplicationService,
+    generationApplicationService = null,
+    repository = new ComparisonRepository(),
+    templateCoreService = defaultTemplateCoreService
+  }) {
     this.providerRegistry = providerRegistry;
-    this.queueManager = queueManager;
     this.creditManager = creditManager;
+    this.creditReservation = creditReservation;
     this.repository = repository;
+    this.templateCoreService = templateCoreService;
+    this.generationApplicationService = generationApplicationService
+      || new GenerationApplicationService({
+        providerRegistry,
+        queueManager,
+        templateCoreService,
+        creditService: creditReservation
+      });
     this.validator = new ComparisonValidator({ providerRegistry });
-    this.queueManager.subscribeLifecycle?.(event => this.handleQueueLifecycle(event));
+    this.generationApplicationService.subscribeJobLifecycle?.(
+      event => this.handleQueueLifecycle(event)
+    );
   }
 
   async init() {
     await this.repository.init();
   }
 
-  async estimate(payload, username) {
-    const { context } = compileGenerationContext(payload);
+  async estimate(payload, actor) {
+    const { username, userId } = actor;
+    const { payload: executionPayload } = await this.resolveTemplatePayload(payload, actor);
+    const { context } = compileGenerationContext(executionPayload, actor);
+    await this.processReferencesForSlots(context, payload.slots, actor);
     const slots = this.validator.validateSlots(payload.slots, context);
-    return this.validator.createEstimate(slots, context, username);
+    const templatePricing = await this.templateCoreService.resolvePricing(
+      payload.templateUseSessionId,
+      actor,
+      1
+    );
+    const pricedSlots = await Promise.all(slots.map(async slot => {
+      const estimate = await this.creditReservation.estimate({
+        userId,
+        routingMode: 'advanced',
+        qualityTier: 'standard',
+        generationMode: context.mode || 'normal',
+        requestedProviderId: slot.provider,
+        requestedModelId: slot.model,
+        resolution: slot.imageResolution || '1K',
+        aspectRatio: context.aspectRatio,
+        referenceCount: context.referenceCount,
+        referenceProcessingPlanFingerprint:
+          context.referenceProcessing?.planFingerprint || null,
+        outputCount: 1,
+        templateUseSessionId: payload.templateUseSessionId || null,
+        templatePricing
+      });
+      return { ...slot, estimateId: estimate.estimateId, estimatedCredit: estimate.estimatedCredits, estimateExpiresAt: estimate.expiresAt };
+    }));
+    return this.validator.createEstimate(pricedSlots, context, userId);
   }
 
-  async create(payload, username) {
-    const { context, compiledPrompt } = compileGenerationContext(payload);
+  async create(payload, actor) {
+    const { username, userId } = actor;
+    const {
+      payload: executionPayload,
+      templateExecution
+    } = await this.resolveTemplatePayload(payload, actor);
+    const { context } = compileGenerationContext(executionPayload, actor);
+    await this.processReferencesForSlots(context, payload.slots, actor);
+    const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const slots = this.validator.validateSlots(payload.slots, context);
+    const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
+    const pricedSlots = slots.map(slot => {
+      const clientEstimate = clientEstimates.get(slot.id);
+      if (!clientEstimate?.estimateId || !Number.isInteger(Number(clientEstimate.estimatedCredit))) {
+        throw new ComparisonError('estimate_changed', 'Every comparison slot requires a current server estimate.');
+      }
+      return { ...slot, estimateId: clientEstimate.estimateId, estimatedCredit: Number(clientEstimate.estimatedCredit), estimateExpiresAt: clientEstimate.estimateExpiresAt || null };
+    });
     const confirmedEstimate = {
-      slots: slots.map(stripPrivateConfig),
-      estimatedTotalCredit: slots.reduce((total, slot) => total + slot.estimatedCredit, 0),
+      slots: pricedSlots.map(stripPrivateConfig),
+      estimatedTotalCredit: pricedSlots.reduce((total, slot) => total + slot.estimatedCredit, 0),
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       expiresAt: Number(payload.estimateExpiresAt || 0)
     };
-    this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, username);
-    await this.creditManager.assertBalance(username, confirmedEstimate.estimatedTotalCredit);
+    this.validator.verifyEstimate(payload.estimateToken, confirmedEstimate, context, userId);
+    const promptExecution = await this.generationApplicationService.compilePromptForExecution(
+      context,
+      { requestId: idempotencyKey }
+    );
+    const compiledPrompt = promptExecution.prompt;
 
-    const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
     const timestamp = Date.now();
     const draftRun = {
       idempotencyKey,
@@ -45,9 +114,11 @@ export class ComparisonOrchestrator {
       actualTotalCredit: 0,
       providerConfigVersion: this.providerRegistry.getConfigVersion(),
       promptCompilerVersion: 1,
+      promptRefinement: promptExecution.metadata,
       createdAt: timestamp,
       completedAt: null,
-      slots: slots.map(slot => ({
+      payerUserId: userId,
+      slots: pricedSlots.map(slot => ({
         ...stripPrivateConfig(slot),
         submittedPrompt: compiledPrompt,
         jobId: null,
@@ -58,6 +129,7 @@ export class ComparisonOrchestrator {
       }))
     };
     const created = await this.repository.createSetWithRun({
+      ownerUserId: userId,
       username,
       name: normalizeName(payload.name),
       description: normalizeDescription(payload.description),
@@ -70,23 +142,81 @@ export class ComparisonOrchestrator {
     const runId = created.run.id;
     const enqueuedSlots = [];
     try {
-      for (const slot of slots) {
-        const stream = this.providerRegistry.shouldStream(slot.providerConfig, slot.modelConfig, payload.stream !== false);
-        const jobId = this.queueManager.enqueue(slot.provider, slot.model, compiledPrompt, createQueueOptions(context, {
-          username,
-          stream,
+      for (const slot of pricedSlots) {
+        const submitted = await this.generationApplicationService.submitPreparedOperation({
+          providerId: slot.provider,
+          modelId: slot.model,
+          estimateId: slot.estimateId,
+          requestId: `${idempotencyKey}:${slot.id}`,
+          payerUserId: userId,
+          payerUsername: username,
+          context,
+          compiledPrompt,
+          streamRequested: payload.stream !== false,
           modelConfig: slot.modelConfig,
-          providerConfigVersion: this.providerRegistry.getConfigVersion(),
-          creditCost: slot.estimatedCredit,
-          imageResolution: slot.imageResolution,
-          comparison: { setId, runId, slotId: slot.id }
-        }));
-        enqueuedSlots.push({ slotId: slot.id, jobId, providerStreaming: stream });
+          providerConfig: slot.providerConfig,
+          generationRequest: {
+            requestedProviderId: slot.provider, requestedModelId: slot.model, resolution: slot.imageResolution || '1K',
+            aspectRatio: context.aspectRatio,
+            quality: null, referenceCount: context.referenceCount,
+            referenceProcessingPlanFingerprint:
+              context.referenceProcessing?.planFingerprint || null,
+            outputCount: 1, routingMode: 'advanced',
+            qualityTier: 'standard', generationMode: context.mode || 'normal',
+            templateUseSessionId: payload.templateUseSessionId || null,
+            requestId: `${idempotencyKey}:${slot.id}`
+          },
+          reservationMetadata: {
+            comparisonSetId: setId,
+            comparisonRunId: runId,
+            relatedTemplateId: templateExecution?.template.id || null,
+            templateVersionId: templateExecution?.version.id || null,
+            templateUseSessionId: templateExecution?.session.id || null,
+            sourceCommunityPostId: templateExecution?.session.sourceCommunityPostId || null
+          },
+          beforeEnqueue: templateExecution
+            ? jobId => this.templateCoreService.attachGeneration(
+              templateExecution.session.id,
+              actor,
+              jobId
+            )
+            : null,
+          queueOptionOverrides: {
+            imageResolution: slot.imageResolution,
+            comparison: { setId, runId, slotId: slot.id },
+            templateUseContext: templateExecution
+              ? {
+                templateId: templateExecution.template.id,
+                templateVersionId: templateExecution.version.id,
+                templateTitle: templateExecution.template.title,
+                templateOwnerUsername: templateExecution.template.ownerUsername,
+                templateUseSessionId: templateExecution.session.id,
+                sourceCommunityPostId: templateExecution.session.sourceCommunityPostId,
+                replacementSummary: templateExecution.replacementSummary
+              }
+              : null,
+            promptRefinement: promptExecution.metadata
+          },
+          promptRefinementAudit: promptExecution.audit
+        });
+        const enqueuedSlot = {
+          slotId: slot.id,
+          jobId: submitted.jobId,
+          reservationId: submitted.reservation.reservationId,
+          providerStreaming: submitted.providerStreaming
+        };
+        enqueuedSlots.push(enqueuedSlot);
+        await this.repository.updateRun(setId, runId, targetRun => {
+          const targetSlot = targetRun.slots.find(item => item.id === slot.id);
+          if (!targetSlot) return;
+          targetSlot.jobId ||= submitted.jobId;
+          targetSlot.reservationId ||= submitted.reservation.reservationId;
+        });
       }
       const run = await this.repository.updateRun(setId, runId, targetRun => {
         targetRun.slots.forEach(slot => {
           const enqueued = enqueuedSlots.find(item => item.slotId === slot.id);
-          if (enqueued) slot.jobId = enqueued.jobId;
+          if (enqueued) { slot.jobId = enqueued.jobId; slot.reservationId = enqueued.reservationId; }
         });
       });
       return this.createResponse(created.set, run, false, enqueuedSlots);
@@ -102,25 +232,48 @@ export class ComparisonOrchestrator {
     }
   }
 
-  async list(username, query = {}) {
-    return this.repository.listPage(username, query);
+  async list(actor, query = {}) {
+    return this.repository.listPage(actor, query);
   }
 
-  async get(setId, username) {
-    let set = await this.repository.get(setId, username);
-    for (const run of set.runs) await this.reconcileRun(set.id, run, set.username);
-    set = await this.repository.get(setId, username);
-    return this.hydrateSetFromHistory(set);
+  async get(setId, actor) {
+    let set = await this.repository.get(setId, actor);
+    for (const run of set.runs) await this.reconcileRun(set.id, run);
+    set = await this.repository.get(setId, actor);
+    return this.hydrateSetFromHistory(set, actor);
   }
 
-  async hydrateSetFromHistory(set) {
+  async hydrateSetFromHistory(set, actor) {
     const history = await this.repository.readHistory();
-    const historyById = new Map(history.map(item => [item.id, item]));
+    const historyById = new Map(
+      history
+        .filter(item => {
+          if (item.ownerUserId && actor.userId) return item.ownerUserId === actor.userId;
+          return (item.ownerUsername || item.username) === actor.username;
+        })
+        .map(item => [item.id, item])
+    );
+    const historyByComparisonSlot = new Map(
+      history
+        .filter(item => {
+          if (item.ownerUserId && actor.userId && item.ownerUserId !== actor.userId) return false;
+          if (!item.ownerUserId && (item.ownerUsername || item.username) !== actor.username) return false;
+          return item.comparisonSetId === set.id
+            && item.comparisonRunId
+            && item.comparisonSlotId;
+        })
+        .map(item => [
+          comparisonSlotKey(item.comparisonRunId, item.comparisonSlotId),
+          item
+        ])
+    );
     const hydrated = structuredClone(set);
     hydrated.runs?.forEach(run => {
       run.slots?.forEach(slot => {
-        const historyItem = historyById.get(slot.jobId);
+        const historyItem = historyById.get(slot.jobId)
+          || historyByComparisonSlot.get(comparisonSlotKey(run.id, slot.id));
         if (!historyItem) return;
+        slot.jobId ||= historyItem.id;
         slot.result = {
           ...(slot.result || {}),
           imageUrl: slot.result?.imageUrl || historyItem.imageUrl || null,
@@ -142,47 +295,78 @@ export class ComparisonOrchestrator {
     return hydrated;
   }
 
-  update(setId, username, payload) {
-    return this.repository.updateSet(setId, username, payload);
+  update(setId, actor, payload) {
+    return this.repository.updateSet(setId, actor, payload);
   }
 
-  remove(setId, username) {
-    return this.repository.remove(setId, username);
+  remove(setId, actor) {
+    return this.repository.remove(setId, actor);
   }
 
-  setWinner(setId, username, jobId) {
-    return this.repository.setWinner(setId, username, jobId || null);
+  setWinner(setId, actor, jobId) {
+    return this.repository.setWinner(setId, actor, jobId || null);
   }
 
   removeHistoryJob(jobId) {
     return this.repository.removeHistoryJob(jobId);
   }
 
-  async reconcileRun(setId, run, username) {
+  async reconcileRun(setId, run) {
+    const history = await this.repository.readHistory();
+    const historyByComparisonSlot = new Map(
+      history
+        .filter(item =>
+          item.comparisonSetId === setId
+          && item.comparisonRunId === run.id
+          && item.comparisonSlotId
+        )
+        .map(item => [comparisonSlotKey(item.comparisonRunId, item.comparisonSlotId), item])
+    );
     const statuses = await Promise.all(run.slots.map(slot =>
-      slot.jobId ? this.queueManager.getJobStatus(slot.jobId) : null
+      slot.jobId ? this.generationApplicationService.getJobStatus(slot.jobId) : null
     ));
     const lostSlots = run.slots.filter((slot, index) =>
       slot.jobId
       && !statuses[index]
+      && !historyByComparisonSlot.has(comparisonSlotKey(run.id, slot.id))
       && (
         ['queued', 'processing', 'streaming'].includes(slot.status)
         || slot.error?.code === 'job_state_lost'
       )
     );
-    await Promise.all(lostSlots.map(slot => this.creditManager.refundLostJob(
-      username,
-      slot.jobId,
-      { comparisonSetId: setId, comparisonRunId: run.id }
-    )));
+    await Promise.all(lostSlots.map(slot => {
+      if (!slot.reservationId || !run.payerUserId) return Promise.resolve();
+      return this.creditReservation.refundForJob({
+        userId: run.payerUserId,
+        reservationId: slot.reservationId,
+        jobId: slot.jobId,
+        reasonCode: 'job_state_lost',
+        metadata: { comparisonSetId: setId, comparisonRunId: run.id }
+      }).catch(error => console.warn(`[Comparison] Lost-job refund failed for ${slot.jobId}:`, error.message));
+    }));
     const costs = await this.creditManager.getNetJobCosts(run.slots.map(slot => slot.jobId).filter(Boolean));
     await this.repository.updateRun(setId, run.id, targetRun => {
       targetRun.slots.forEach((slot, index) => {
         const status = statuses[index];
+        const historyItem = historyByComparisonSlot.get(comparisonSlotKey(targetRun.id, slot.id));
         if (status) {
           slot.status = status.status;
           slot.result = status.result || slot.result;
           slot.error = status.error || null;
+        } else if (historyItem?.imageUrl) {
+          slot.jobId ||= historyItem.id;
+          slot.status = 'completed';
+          slot.result = {
+            ...(slot.result || {}),
+            imageUrl: slot.result?.imageUrl || historyItem.imageUrl,
+            usage: slot.result?.usage || historyItem.usage || null,
+            mimeType: slot.result?.mimeType || historyItem.mimeType || null,
+            generationDuration: slot.result?.generationDuration
+              || historyItem.generationDuration
+              || null
+          };
+          slot.thumbnailUrl ||= historyItem.thumbnailUrl || null;
+          slot.error = null;
         } else if (slot.jobId && ['queued', 'processing', 'streaming'].includes(slot.status)) {
           slot.status = 'failed';
           slot.error = {
@@ -239,6 +423,60 @@ export class ComparisonOrchestrator {
       }))
     };
   }
+
+  async resolveTemplatePayload(payload, actor) {
+    if (!payload.templateUseSessionId) return { payload, templateExecution: null };
+    const templateExecution = await this.templateCoreService.resolveSession(
+      payload.templateUseSessionId,
+      actor,
+      payload.templateReplacements || {}
+    );
+    return {
+      templateExecution,
+      payload: {
+        ...payload,
+        sceneTemplateSnapshot: templateExecution.executionSnapshot,
+        selections: templateExecution.executionSnapshot.structuredSelectionsSnapshot || {},
+        additionalDirection:
+          templateExecution.executionSnapshot.additionalDirectionSnapshot || '',
+        sceneBuilder: {
+          ...(payload.sceneBuilder || {}),
+          authoringMode: templateExecution.executionSnapshot.authoringMode || 'guided',
+          manualPromptText: templateExecution.executionSnapshot.manualPromptSnapshot
+            || templateExecution.executionSnapshot.finalPromptSnapshot
+            || ''
+        },
+        templateBaselineReference: templateExecution.baselineReference?.imageUrl || null,
+        authorizedTemplateReferenceJobIds:
+          templateExecution.baselineReference?.sourceGenerationId
+            ? [templateExecution.baselineReference.sourceGenerationId]
+            : []
+      }
+    };
+  }
+
+  async processReferencesForSlots(context, slots, actor) {
+    const selections = (slots || []).map(slot =>
+      this.providerRegistry.resolveSelection(slot.provider, slot.model)
+    );
+    const first = selections[0];
+    if (!first) return null;
+    const maximums = selections.map(selection =>
+      Number(selection.model.capabilities?.maxReferenceImages || 0)
+    );
+    return prepareGenerationReferences(context, {
+      actorContext: actor,
+      providerId: first.provider.id,
+      modelId: first.model.id,
+      modelConfig: {
+        ...first.model,
+        capabilities: {
+          ...first.model.capabilities,
+          maxReferenceImages: Math.min(...maximums)
+        }
+      }
+    });
+  }
 }
 
 function normalizeIdempotencyKey(value) {
@@ -268,6 +506,7 @@ function createConfigurationSnapshot(context) {
     aspectRatio: context.aspectRatio,
     imageResolution: context.imageResolution || null,
     imageReferences: structuredClone(context.imageReferences || {}),
+    referenceProcessingLineage: structuredClone(context.referenceProcessingLineage || null),
     sourceOwnership: structuredClone(context.sourceOwnership || null),
     referenceJobIds: {
       face: [...(context.faceReferenceJobIds || [])],
@@ -278,4 +517,8 @@ function createConfigurationSnapshot(context) {
     customColors: structuredClone(context.customColors || {}),
     isGptSafe: context.isGptSafe === true
   };
+}
+
+function comparisonSlotKey(runId, slotId) {
+  return `${String(runId || '')}:${String(slotId || '')}`;
 }

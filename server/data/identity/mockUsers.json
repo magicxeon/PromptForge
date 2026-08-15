@@ -53,6 +53,19 @@
   },
   {
     "schemaVersion": 1,
+    "id": "usr_support",
+    "username": "support_demo",
+    "displayName": "Support Demo",
+    "role": "support",
+    "activeCreatorProfileId": null,
+    "creditBalanceSeed": 0,
+    "status": "active",
+    "featureFlags": ["community_mvp", "admin_tools"],
+    "createdAt": "2026-07-26T00:00:00.000Z",
+    "updatedAt": "2026-07-26T00:00:00.000Z"
+  },
+  {
+    "schemaVersion": 1,
     "id": "usr_disabled",
     "username": "user_disabled",
     "displayName": "Disabled User",

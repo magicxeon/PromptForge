@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "prompt-coverage-v1",
+  "styleFamily": "architectural-lean",
+  "stage1Prompt": "datasets/stage-1-prompts/architectural-lean.md",
+  "stage2Extraction": "datasets/stage-2-extractions/architectural-lean.json",
+  "correct": ["physical architecture contact", "asymmetric weight", "restrained hands", "full-body and three-quarter variants", "soft and hard daylight variants"],
+  "missing": ["transit and scaffolding are minority environment variants", "reading prop appears in one outlier"],
+  "invented": [],
+  "contradictory": [],
+  "lowConfidence": ["lens character", "whether tree contact belongs in the same production preset"],
+  "verdict": "Stage 1 is representative after outlier exclusion."
+}

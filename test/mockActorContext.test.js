@@ -11,6 +11,14 @@ test('MockUserRepository resolves usr_demo properties correctly', async () => {
   assert.equal(user.role, 'user');
 });
 
+test('MockUserRepository exposes support actor for backoffice permission testing', async () => {
+  const user = await mockUserRepo.findById('usr_support');
+  assert.ok(user);
+  assert.equal(user.username, 'support_demo');
+  assert.equal(user.role, 'support');
+  assert.equal(user.status, 'active');
+});
+
 test('MockUserRepository constructs ActorContext with correct shape', async () => {
   const user = await mockUserRepo.findById('usr_alice');
   assert.ok(user);

@@ -1,0 +1,18 @@
+{
+  "promptComposer.kicker": "PROMPT COMPOSER",
+  "promptComposer.title": "アイデアから始める",
+  "promptComposer.description": "作りたい画像を説明してください。Studio にある選択肢だけを提案します。",
+  "promptComposer.placeholder": "例: カフェでドレスを着たファッションモデル、商業ポートレート",
+  "promptComposer.inputLabel": "画像のアイデアを説明",
+  "promptComposer.action.compose": "提案を作成",
+  "promptComposer.status.composing": "提案を準備中...",
+  "promptComposer.error.short": "提案を作成する前に、もう少し詳しく入力してください。",
+  "promptComposer.error.unavailable": "Prompt Composer は利用できません。",
+  "promptComposer.review.kicker": "提案の準備完了",
+  "promptComposer.review.title": "対応する選択肢を確認",
+  "promptComposer.review.mapped": "既存の Studio 選択肢のみを対応付けました。使用前に確認できます。",
+  "promptComposer.review.unmapped": "公式選択肢は仮定していません。アイデアは自由形式の prompt として利用できます。",
+  "promptComposer.review.reviewSuggested": "確認を推奨",
+  "promptComposer.action.usePrompt": "Playground prompt に使用",
+  "promptComposer.action.applyStudio": "Studio に選択肢を適用"
+}

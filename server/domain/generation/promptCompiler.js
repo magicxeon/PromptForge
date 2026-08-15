@@ -11,14 +11,115 @@ const TAG_CONFLICT_RULES = [
   ["day", "night"],
   ["summer", "winter"],
   ["modern", "vintage"],
-  ["cyberpunk", "traditional"]
+  ["cyberpunk", "traditional"],
+  ["smile", "serious"],
+  ["smile", "neutral"],
+  ["direct gaze", "look away"]
 ];
+
+function isSceneExpressionSelection(fieldName, selection) {
+  return fieldName === "Expression"
+    && selection?.group === "Face"
+    && selection?.category === "expression";
+}
+
+function requestsFullBodyScene(activeSelections, ...fallbackSegments) {
+  const fullBodyPattern = /\b(?:full[- ]body|head[- ]to[- ]toe|head[- ]to[- ]feet|complete (?:full )?body)\b/i;
+  const framingSelection = activeSelections?.Framing;
+  if (framingSelection) {
+    return fullBodyPattern.test([
+      framingSelection.id,
+      framingSelection.value,
+      framingSelection.prompt,
+      framingSelection.label
+    ].filter(Boolean).join(" "));
+  }
+  return fullBodyPattern.test(fallbackSegments.filter(Boolean).join(" "));
+}
+
+function specifiesFootwear(clothingPrompt) {
+  return /\b(?:footwear|shoes?|sneakers?|boots?|heels?|loafers?|sandals?|pumps?|flats?|mules?|oxfords?|slippers?|barefoot|bare feet|unshod)\b/i
+    .test(clothingPrompt || "");
+}
+
+function selectionEvidence(selection) {
+  return selection
+    ? [selection.id, selection.value, selection.label, ...(selection.tags || [])]
+      .join(" ")
+      .toLowerCase()
+    : "";
+}
+
+function isAdultMaleFacialHairSelectionAllowed(selections, presentationOverride = null) {
+  const gender = normalizePresentationOverride(presentationOverride)
+    || presentationGender(selections);
+  if (gender !== "male") {
+    return false;
+  }
+  const age = selectionEvidence(selections?.Age);
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
+function isAdultPresentation(selections) {
+  const age = selections?.Age
+    ? [selections.Age.id, selections.Age.value, selections.Age.label, ...(selections.Age.tags || [])]
+      .join(" ").toLowerCase()
+    : "";
+  if (!age) return true;
+  if (/\b(child|minor|underage)\b/.test(age)) return false;
+  const numericAge = age.match(/\b(\d{1,2})\b/)?.[1];
+  return !numericAge || Number(numericAge) >= 18;
+}
+
+function presentationGender(selections) {
+  const gender = selections?.Gender
+    ? [selections.Gender.id, selections.Gender.value, selections.Gender.label, ...(selections.Gender.tags || [])]
+      .join(" ").toLowerCase()
+    : "";
+  if (/\b(female|woman|women)\b/.test(gender)) return "female";
+  if (/\b(male|man|men)\b/.test(gender)) return "male";
+  return null;
+}
+
+function isEarlyTwentiesPresentation(selections) {
+  const age = selectionEvidence(selections?.Age);
+  return /character\.004_e20|early twenties|20-23|21-year-old|21 years old/.test(age);
+}
+
+function normalizeAgeSensitiveBeauty(value, selections) {
+  const normalized = String(value || "");
+  if (!isEarlyTwentiesPresentation(selections)) return normalized;
+  return normalized
+    .replace(/mature face exhibiting sophisticated elegance/gi, "refined sophisticated elegance appropriate to an early-twenties adult")
+    .replace(/mature sophisticated elegance/gi, "refined sophisticated elegance appropriate to an early-twenties adult");
+}
+
+function removeInapplicableSelections(selections, presentationOverride = null) {
+  const gender = normalizePresentationOverride(presentationOverride)
+    || presentationGender(selections);
+  const adult = isAdultPresentation(selections);
+  Object.keys(selections).forEach(fieldName => {
+    const tags = (selections[fieldName]?.tags || []).map(tag => String(tag).toLowerCase());
+    const maleOnly = tags.some(tag => PRESENTATION_TAGS.male.has(tag));
+    const femaleOnly = tags.some(tag => PRESENTATION_TAGS.female.has(tag));
+    if (
+      (maleOnly && (!adult || gender !== "male"))
+      || (femaleOnly && (!adult || gender !== "female"))
+    ) {
+      delete selections[fieldName];
+    }
+  });
+}
 
 const CATEGORY_PRIORITIES = {
   "environment": 100,
   "lighting": 90,
   "camera": 80,
   "clothing": 70,
+  "expression": 65,
   "pose": 60,
   "quality": 50,
   "nsfw": 40,
@@ -31,9 +132,9 @@ const CATEGORY_PRIORITIES = {
 
 const FIELD_TO_CATEGORY_MAP = {
   "Gender": "character", "Age": "character", "Ethnicity": "character", "Beauty": "character", "Fashion Direction": "fashion_direction",
-  "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Smile": "lips", "Expression": "expression",
+  "Face Shape": "face", "Eyes": "eyes", "Eyebrows": "eyebrows", "Nose": "nose", "Lips": "lips", "Facial Hair": "facial_hair", "Smile": "lips", "Expression": "expression",
   "Length": "hair", "Style": "hair", "Texture": "hair", "Color": "hair", "Bangs": "hair", "Cut / Style": "hair", "Parting / Fringe": "hair", "Finish": "hair",
-  "Tone": "skin", "Texture": "skin", "Makeup": "skin", "Freckles": "skin",
+  "Tone": "skin", "Skin Texture": "skin", "Makeup": "skin", "Freckles": "skin",
   "Height": "body", "Body Shape": "body", "Build": "body", "Hands": "body", "Legs": "body", "Height Impression": "body", "Model Build": "body", "Body Silhouette": "body", "Sheet Layout": "body",
   "Top": "clothing", "Bottom": "clothing", "Dress": "clothing", "Shoes": "clothing", "Accessories": "clothing", "Outfit Base": "clothing", "Outfit Preset": "clothing", "Primary Color": "clothing", "Secondary Color": "clothing", "Pattern": "clothing", "Material": "clothing", "Product Type": "clothing", "Garment Silhouette": "clothing", "Material / Surface": "clothing", "Construction / Detail": "clothing", "Styling": "clothing",
   "Standing": "pose", "Sitting": "pose", "Walking": "pose", "Hand Position": "pose", "Eye Contact": "pose", "Pose Intent": "pose", "Fashion Hand Position": "pose", "Fashion Gaze": "pose",
@@ -165,13 +266,17 @@ function compactHairSegment(valuesByField) {
   const finish = normalizeHairPhrase(valuesByField["Finish"]);
   const lengthAdjective = getHairAdjective(length);
   const colorAdjective = getHairAdjective(color);
+  const hasCustomColorDirective =
+    /\bbase hair color\b|\bdimensional hair highlights\b/i.test(color);
 
   let base = cutStyle || legacyStyle || length || "";
   if (length && base && lengthAdjective && !base.toLowerCase().includes(lengthAdjective.toLowerCase())) {
     base = `${length}, ${base}`;
   }
   if (color && base) {
-    if (colorAdjective && !base.toLowerCase().includes(colorAdjective.toLowerCase())) {
+    if (hasCustomColorDirective) {
+      base = `${base}, ${color}`;
+    } else if (colorAdjective && !base.toLowerCase().includes(colorAdjective.toLowerCase())) {
       if (/\bcrew cut hairstyle\b/i.test(base)) {
         base = base.replace(/\bcrew cut hairstyle\b/i, `${colorAdjective} crew cut hairstyle`);
       } else if (/\bhairstyle\b/i.test(base)) {
@@ -269,7 +374,10 @@ function buildCleanPromptSegments(activeSelections, getValue) {
     normalizeIdentityPhrase(valuesByField["Ethnicity"], "Ethnicity"),
     /natural face|natural look|minimal makeup|zero or minimal makeup/i.test(valuesByField["Beauty"] || "")
       ? ""
-      : valuesByField["Beauty"]
+      : normalizeAgeSensitiveBeauty(valuesByField["Beauty"], activeSelections),
+    isEarlyTwentiesPresentation(activeSelections)
+      ? "unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks"
+      : ""
   ].filter(Boolean)).join(", ");
 
   const faceStructure = valuesByField["Face Shape"] || "";
@@ -277,7 +385,11 @@ function buildCleanPromptSegments(activeSelections, getValue) {
     valuesByField["Eyes"],
     valuesByField["Eyebrows"],
     valuesByField["Nose"],
-    valuesByField["Lips"]
+    valuesByField["Lips"],
+    valuesByField["Facial Hair"],
+    isAdultMaleFacialHairSelectionAllowed(activeSelections) && !valuesByField["Facial Hair"]
+      ? "clean-shaven face with no moustache, beard, or stubble"
+      : ""
   ].filter(Boolean)).join(", ");
 
   return {
@@ -292,19 +404,47 @@ function buildCleanPromptSegments(activeSelections, getValue) {
   };
 }
 
-export function compilePromptOnServer(selections, aspectRatio, imageReferences, mode, templateName = "portrait", isGptSafe = false, customColors = null) {
+export function compilePromptOnServer(
+  selections,
+  aspectRatio,
+  imageReferences,
+  mode,
+  templateName = "portrait",
+  isGptSafe = false,
+  customColors = null,
+  outfitReferenceOverrides = null,
+  options = {}
+) {
   const templateStr = templates[templateName] || templates["portrait"] || "{subject}, {appearance}, {clothing}, {pose}, {environment}, {lighting}, {camera}, {quality}";
+  const additionalDirection = typeof options.additionalDirection === "string"
+    && options.additionalDirection.trim()
+    ? `Additional creator direction, apply only where compatible with all locked mode, reference, safety, and provider constraints: ${options.additionalDirection.trim()}`
+    : "";
 
   // Clone selections
   const activeSelections = JSON.parse(JSON.stringify(selections));
   delete activeSelections["Reference Image"];
+  removeInapplicableSelections(activeSelections, options.presentationGender);
+  if (!isAdultMaleFacialHairSelectionAllowed(activeSelections, options.presentationGender)) {
+    delete activeSelections["Facial Hair"];
+  }
   const referenceOwnsAppearance = mode === "normal"
     && imageReferences?.characterReference
     && !imageReferences?.characterOverrides;
+  const characterClothingIsReplaceable = referenceOwnsAppearance
+    && options.characterReferenceOutfitBehavior === "replaceable"
+    && imageReferences?.outfitReference !== true;
   if (referenceOwnsAppearance) {
-    const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body", "Clothing"]);
+    const referenceOwnedGroups = new Set(["Character", "Face", "Hair", "Skin", "Body"]);
+    if (!characterClothingIsReplaceable) {
+      referenceOwnedGroups.add("Clothing");
+    }
     Object.keys(activeSelections).forEach(fieldName => {
-      if (referenceOwnedGroups.has(activeSelections[fieldName]?.group)) {
+      const selection = activeSelections[fieldName];
+
+      if (isSceneExpressionSelection(fieldName, selection)) return;
+
+      if (referenceOwnedGroups.has(selection?.group)) {
         delete activeSelections[fieldName];
       }
     });
@@ -324,7 +464,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     }
   }
   ["Top", "Bottom", "Dress", "Shoes", "Product Type", "Primary Color", "Secondary Color"].forEach(field => {
-    if (!referenceOwnsAppearance && customColors && customColors[field] && customColors[field].enabled) {
+    if ((!referenceOwnsAppearance || characterClothingIsReplaceable) && customColors && customColors[field] && customColors[field].enabled) {
       if (!activeSelections[field]) {
         const isModularColor = field === "Primary Color" || field === "Secondary Color";
         activeSelections[field] = {
@@ -349,22 +489,25 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       if (fieldName === "Color") {
         if (cfg.enabled || cfg.highlightEnabled) {
           let parts = [];
-          if (baseVal && baseVal.trim() !== "") {
+          if (cfg.enabled && cfg.base) {
+            parts.push(`base hair color ${cfg.base}`);
+          } else if (baseVal && baseVal.trim() !== "") {
             parts.push(baseVal);
           } else {
             parts.push("hair");
           }
-          if (cfg.enabled) {
-            parts.push(`colored in ${cfg.base}`);
-          }
-          if (cfg.highlightEnabled) {
-            parts.push(`accented with custom highlights in ${cfg.highlight}`);
+          if (cfg.highlightEnabled && cfg.highlight) {
+            parts.push(
+              `dimensional hair highlights in ${cfg.highlight}, blended naturally through the hair strands`
+            );
           }
           return parts.join(", ");
         }
       } else if (fieldName === "Primary Color" || fieldName === "Secondary Color") {
         if (cfg.enabled && cfg.color) {
-          return cfg.color;
+          return fieldName === "Primary Color"
+            ? `dominant garment tone ${cfg.color}`
+            : `coordinating accent garment tone ${cfg.color}, harmonized naturally with the dominant garment tone`;
         }
       } else {
         if (cfg.enabled && baseVal && baseVal.trim() !== "") {
@@ -379,7 +522,14 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     // Check if overridden by Image Reference Options
     if (groupName.toLowerCase() === "face") {
       if (imageReferences && imageReferences.faceMatch) {
-        return "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, and skin tone while allowing subtle natural variations from facial expression, camera perspective, lighting, and lens characteristics. Prioritize identity preservation over exact geometric matching.";
+        const expressionSelection = activeSelections["Expression"];
+        const expression = isSceneExpressionSelection("Expression", expressionSelection)
+          ? getPromptValueWithColor(expressionSelection, "Expression")
+          : "";
+        return [
+          "Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, skin tone, facial maturity, and apparent age while allowing only subtle natural variations from expression, camera perspective, lighting, and lens characteristics. Those variations must not invent age-related facial features absent from the reference. Prioritize identity preservation over exact geometric matching.",
+          expression
+        ].filter(Boolean).join(", ");
       }
     }
     if (groupName.toLowerCase() === "clothing") {
@@ -392,13 +542,10 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       if (mode === "normal" && imageReferences?.outfitReference) {
         return "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
       }
-      if (imageReferences && imageReferences.styleMatch && !referenceOwnsAppearance) {
-        return "matching the style, colors, and clothing outfit from the original uploaded image";
-      }
     }
     if (groupName.toLowerCase() === "pose") {
       if (imageReferences && imageReferences.poseMatch) {
-        return "with the identical posing and image composition as the original uploaded file";
+        return "preserve the pose and composition intent while adapting naturally to the character's anatomy, outfit, and environment";
       }
     }
 
@@ -438,11 +585,21 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   };
 
   const getCharacterSheetLayoutSegment = () => {
-    const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
+    if (typeof options.characterSheetLayoutOverride === "string"
+      && options.characterSheetLayoutOverride.trim()) {
+      return options.characterSheetLayoutOverride.trim();
+    }
+    const canonicalLayout = [
+      "professional full-body character model sheet showing exactly three clearly separated equal views of the same character in one horizontal row",
+      "ordered left to right: front view facing directly toward the camera, exact side profile facing toward the viewer right, and back view facing directly away from the camera",
+      "in the side profile the face, nose, chest, hips, knees, and toes all point toward the viewer right; keep the head aligned with the torso and never turn it toward the camera or opposite the body",
+      "complete head-to-feet figure in every view at the same scale with generous clear margins above the hair and below the feet",
+      "unlabeled image only with no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark"
+    ].join(", ");
     const selectedLayout = getPromptValueWithColor(activeSelections["Sheet Layout"], "Sheet Layout");
     return selectedLayout && selectedLayout.trim() !== ""
-      ? `character model sheet, character design sheet, ${selectedLayout}`
-      : defaultLayout;
+      ? `${canonicalLayout}, apply this additional sheet presentation direction: ${selectedLayout}`
+      : canonicalLayout;
   };
 
   // Compile individual templates
@@ -479,7 +636,15 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
 
   let fullAppearance = [appearance, hair, skin].filter(s => s !== "").join(", ");
   let clothing = mode === "character-sheet"
-    ? compileClothingPromptParts(activeSelections, imageReferences, mode)
+    ? (options.omitCharacterSheetClothing
+      ? ""
+      : compileClothingPromptParts(
+        activeSelections,
+        imageReferences,
+        mode,
+        outfitReferenceOverrides,
+        customColors
+      ))
     : compileGroupSegment("Clothing");
   let pose = compileGroupSegment("Pose");
   let fashionDirection = compileGroupSegment("Fashion Direction");
@@ -504,6 +669,7 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
       appearance,
       hair,
       skin,
+      additionalDirection,
       "showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head",
       "on a solid pure white background",
       "photorealistic photography",
@@ -514,36 +680,76 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
     prompt = elements.join(", ");
   } else if (mode === "character-sheet") {
     let sheetLayout = getCharacterSheetLayoutSegment();
-    let elements = [
-      sheetLayout,
-      fullSubject,
-      appearance,
-      hair,
-      skin,
-      clothing,
-      "on a solid pure white background",
-      "photorealistic photography",
-      "realistic camera imperfections",
-      camera,
-      quality
-    ].filter(s => s && s.toString().trim() !== "");
+    const completeCastingPolicy = typeof options.characterSheetLayoutOverride === "string"
+      && options.characterSheetLayoutOverride.trim() !== ""
+      && options.omitCharacterSheetClothing === true;
+    let elements = (completeCastingPolicy
+      ? [
+        sheetLayout,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        additionalDirection,
+        camera,
+        quality
+      ]
+      : [
+        sheetLayout,
+        fullSubject,
+        appearance,
+        hair,
+        skin,
+        clothing,
+        additionalDirection,
+        "on a solid pure white background",
+        "unlabeled image only, no text, captions, words, letters, panel titles, arrows, numbers, borders, dividers, logos, or watermark",
+        "photorealistic photography",
+        "realistic camera imperfections",
+        camera,
+        quality
+      ]).filter(s => s && s.toString().trim() !== "");
     prompt = elements.join(", ");
   } else {
     const characterReferenceText = imageReferences?.characterReference
       ? (imageReferences?.characterOverrides
         ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-        : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
+        : (imageReferences?.outfitReference
+          ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+          : options.characterReferenceOutfitBehavior === "replaceable"
+            ? "Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing any casting uniform visible in that reference with the selected clothing direction"
+            : "Preserve the character identity, skin tone, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
       : "";
-    prompt = templateStr
+    const styleReferenceText = imageReferences?.styleMatch
+      ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
+      : "";
+    const fullBodyScene = requestsFullBodyScene(activeSelections, pose, camera);
+    const fullBodyFramingDirective = fullBodyScene
+      ? "For this full-body photograph, keep the complete subject visible from the top of the hair through both feet without cropping the head, hair, hands, arms, legs, ankles, footwear, or any other body part; leave a clear safety margin around the complete silhouette with visible space above the hair, below the feet, and at both sides"
+      : "";
+    const footwearDirective = fullBodyScene && !specifiesFootwear(clothing)
+      ? "If footwear is not otherwise specified by the clothing direction or visibly supplied by an outfit reference, select simple coherent footwear appropriate to the outfit, environment, and action; keep both shoes fully visible and do not add unrelated accessories"
+      : "";
+    const scenePrompt = templateStr
       .replace("{subject}", fullSubject)
       .replace("{appearance}", fullAppearance)
       .replace("{clothing}", clothing)
       .replace("{nsfw}", nsfw)
-      .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
+      .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
       .replace("{environment}", environment)
       .replace("{lighting}", lighting)
       .replace("{camera}", camera)
       .replace("{quality}", quality);
+    prompt = [
+      characterReferenceText,
+      styleReferenceText,
+      scenePrompt,
+      fullBodyFramingDirective,
+      footwearDirective,
+      additionalDirection
+    ]
+      .filter(s => s !== "")
+      .join(", ");
   }
 
   // Clean double commas and spaces
@@ -572,4 +778,18 @@ export function compilePromptOnServer(selections, aspectRatio, imageReferences, 
   }
 
   return prompt;
+}
+
+const PRESENTATION_TAGS = Object.freeze({
+  male: new Set(["adult-male", "male-body-silhouette", "outfit-base-male"]),
+  female: new Set(["adult-female", "female-body-silhouette", "outfit-base-female"])
+});
+
+function normalizePresentationOverride(value) {
+  if (value === "female" || value === "male") return value;
+  if (value && typeof value === "object"
+    && (value.value === "female" || value.value === "male")) {
+    return value.value;
+  }
+  return null;
 }

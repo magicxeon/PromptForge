@@ -189,7 +189,17 @@ visibilityPolicySnapshot
 createdFromGenerationId
 ```
 
-### 10.5 Concerns For Implementing Agents
+### 10.5 Legacy Reference Slot Normalization
+
+During migration, a replacement flow may submit a reference slot as a direct
+string path instead of the canonical slot object. Server boundaries that read or
+sanitize a Scene Template snapshot must normalize this shorthand to an internal
+slot object before applying ownership policy. A string slot must never be
+mutated directly, and cross-owner sanitization must still remove its consumable
+path unless an explicit reusable-reference policy is present. The caller's
+snapshot must remain unchanged.
+
+### 10.6 Concerns For Implementing Agents
 
 - Keep serializer and hydrator pure.
 - Never include private base64 images inside a public snapshot.

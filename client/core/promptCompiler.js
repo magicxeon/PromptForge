@@ -462,14 +462,12 @@
           const txt = "matching the clothing outfit from the uploaded outfit reference, preserving garment silhouette, colors, fabric texture, and visible styling details";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
         }
-        if (state.imageReferences.styleMatch && !referenceOwnsAppearance) {
-          const txt = "matching the style, colors, and clothing outfit from the original uploaded image";
-          return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
-        }
       }
       if (groupName.toLowerCase() === "pose") {
         if (state.imageReferences.poseMatch) {
-          const txt = "with the identical posing and image composition as the original uploaded file";
+          const txt =
+            "preserve the pose and composition intent while adapting naturally " +
+            "to the character's anatomy, outfit, and environment";
           return cleanTextOnly ? txt : `<span class="token-reference">${txt}</span>`;
         }
       }
@@ -517,6 +515,12 @@
     };
 
     const getCharacterSheetLayoutSegment = () => {
+      const reusableModel = state.characterType !== "styled_character";
+      if (reusableModel) {
+        const fixedLayout = window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING?.promptDirective
+          || "professional full-body reusable character casting sheet showing exactly three views side by side in one row, front view, exact side profile and back view, complete head-to-feet figure in every view with clear margins";
+        return cleanTextOnly ? fixedLayout : `<span class="token-pose">${fixedLayout}</span>`;
+      }
       const defaultLayout = "character model sheet, character design sheet, showing front view, side view, and back view of the same character, full-body view, standing straight in a neutral pose";
       const selectedLayout = getPromptValueForSelection(activeSelections["Sheet Layout"], "Sheet Layout");
       const layoutText = selectedLayout && selectedLayout.trim() !== ""
@@ -578,7 +582,16 @@
           };
         }
       });
-      const rawClothingText = window.ModelPromptForgeClothingPromptParts.compileClothingPromptParts(selectionsMap, state.imageReferences, state.mode);
+      const rawClothingText = window.ModelPromptForgeClothingPromptParts.compileClothingPromptParts(
+        selectionsMap,
+        {
+          ...state.imageReferences,
+          outfitReferenceImageFront: state.outfitReferenceImageFront,
+          outfitReferenceImageBack: state.outfitReferenceImageBack
+        },
+        state.mode,
+        state.outfitReferenceOverrides
+      );
       clothing = cleanTextOnly ? rawClothingText : `<span class="token-clothing">${rawClothingText}</span>`;
     } else {
       clothing = compileGroupSegment("Clothing", "token-clothing");
@@ -621,13 +634,20 @@
       prompt = elements.join(", ");
     } else if (state.mode === "character-sheet") {
       let sheetLayout = getCharacterSheetLayoutSegment();
+      const reusableModel = state.characterType !== "styled_character";
+      const characterTypeDirection = reusableModel
+        ? (cleanTextOnly
+          ? "reusable character model wearing an opaque modest fitted white casting uniform with a fitted white top and full-length white bottoms, never underwear, lingerie, swimwear, or transparent fabric"
+          : '<span class="token-reference">reusable character model wearing an opaque modest fitted white casting uniform with a fitted white top and full-length white bottoms, never underwear, lingerie, swimwear, or transparent fabric</span>')
+        : "";
       let elements = [
         sheetLayout,
+        characterTypeDirection,
         fullSubject,
         appearance,
         hair,
         skin,
-        clothing,
+        reusableModel ? "" : clothing,
         cleanTextOnly ? "on a solid pure white background" : `<span class="token-pose">on a solid pure white background</span>`,
         cleanTextOnly ? "photorealistic photography" : `<span class="token-lighting">photorealistic photography</span>`,
         cleanTextOnly ? "realistic camera imperfections" : `<span class="token-lighting">realistic camera imperfections</span>`,
@@ -640,21 +660,31 @@
         ? (cleanTextOnly
           ? (state.characterReferenceOverrides
             ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")
+            : (state.imageReferences.outfitReference
+              ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+              : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"))
           : `<span class="token-reference">${state.characterReferenceOverrides
             ? "Preserve the recognizable character identity from the uploaded reference while applying the explicitly selected character styling overrides"
-            : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene"}</span>`)
+            : (state.imageReferences.outfitReference
+              ? "Preserve the character identity, body proportions, and hairstyle from the uploaded character reference while replacing its clothing with the uploaded outfit reference"
+              : "Preserve the character identity, body proportions, hairstyle, and clothing details from the uploaded character reference while adapting only the pose and scene")}</span>`)
         : "";
-      prompt = templateStr
+      const styleReferenceDirection = state.imageReferences.styleMatch
+        ? (cleanTextOnly
+          ? "Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content"
+          : '<span class="token-reference">Use the style reference only for lighting, palette, contrast, texture, camera or rendering treatment, and visual mood; do not copy its identity, body, pose, garment design, or scene content</span>')
+        : "";
+      const scenePrompt = templateStr
         .replace("{subject}", fullSubject)
         .replace("{appearance}", fullAppearance)
         .replace("{clothing}", clothing)
         .replace("{nsfw}", nsfw)
-        .replace("{pose}", [characterReferenceText, pose, sceneContext].filter(s => s !== "").join(", "))
+        .replace("{pose}", [pose, sceneContext].filter(s => s !== "").join(", "))
         .replace("{environment}", environment)
         .replace("{lighting}", lighting)
         .replace("{camera}", camera)
         .replace("{quality}", quality);
+      prompt = [characterReferenceText, styleReferenceDirection, scenePrompt].filter(s => s !== "").join(", ");
     }
 
     prompt = prompt.replace(/,(\s*,)+/g, ",");

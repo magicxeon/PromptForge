@@ -104,6 +104,66 @@
       "focalPoint": "50% 52%",
       "alt": { "en": "Male Thai linen shirt and relaxed pants outfit icon", "th": "Male Thai linen shirt and relaxed pants outfit icon" },
       "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.chore_jacket_chinos",
+      "optionId": "outfit.base.male.chore_jacket_chinos",
+      "attributeId": "outfit.base.male.chore_jacket_chinos",
+      "slug": "male-chore-jacket-chinos",
+      "row": 1, "column": 1,
+      "sourceSheet": { "folder": "../outfit/outfit-base-male", "filename": "outfit-base-male-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male chore jacket and chinos outfit icon", "th": "ชุดผู้ชายแจ็กเก็ตชอร์และกางเกงชิโน" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.overshirt_pleated_trousers",
+      "optionId": "outfit.base.male.overshirt_pleated_trousers",
+      "attributeId": "outfit.base.male.overshirt_pleated_trousers",
+      "slug": "male-overshirt-pleated-trousers",
+      "row": 1, "column": 2,
+      "sourceSheet": { "folder": "../outfit/outfit-base-male", "filename": "outfit-base-male-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male overshirt and pleated trousers outfit icon", "th": "ชุดผู้ชายโอเวอร์เชิ้ตและกางเกงพลีต" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.minimal_bomber_tapered_pants",
+      "optionId": "outfit.base.male.minimal_bomber_tapered_pants",
+      "attributeId": "outfit.base.male.minimal_bomber_tapered_pants",
+      "slug": "male-minimal-bomber-tapered-pants",
+      "row": 1, "column": 3,
+      "sourceSheet": { "folder": "../outfit/outfit-base-male", "filename": "outfit-base-male-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male minimal bomber and tapered pants outfit icon", "th": "ชุดผู้ชายบอมเบอร์มินิมอลและกางเกงขาเรียว" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.denim_jacket_wide_trousers",
+      "optionId": "outfit.base.male.denim_jacket_wide_trousers",
+      "attributeId": "outfit.base.male.denim_jacket_wide_trousers",
+      "slug": "male-denim-jacket-wide-trousers",
+      "row": 1, "column": 4,
+      "sourceSheet": { "folder": "../outfit/outfit-base-male", "filename": "outfit-base-male-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male denim jacket and wide trousers outfit icon", "th": "ชุดผู้ชายแจ็กเก็ตเดนิมและกางเกงขากว้าง" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.male.camp_collar_tailored_shorts",
+      "optionId": "outfit.base.male.camp_collar_tailored_shorts",
+      "attributeId": "outfit.base.male.camp_collar_tailored_shorts",
+      "slug": "male-camp-collar-tailored-shorts",
+      "row": 1, "column": 5,
+      "sourceSheet": { "folder": "../outfit/outfit-base-male", "filename": "outfit-base-male-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Male camp-collar shirt and tailored shorts outfit icon", "th": "ชุดผู้ชายเสื้อคอแคมป์และกางเกงขาสั้นเทเลอร์" },
+      "reviewStatus": "source-selected"
     }
   ]
 }

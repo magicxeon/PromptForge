@@ -1,0 +1,8 @@
+{
+  "credits.balance": "クレジット残高: {count}",
+  "credits.recharge": "チャージ",
+  "credits.rechargeTitle": "10クレジットをチャージ",
+  "credits.costOne": "1 クレジット",
+  "credits.costMany": "{count} クレジット",
+  "credits.insufficient": "クレジットが不足しています。必要: {required}、利用可能: {available}"
+}

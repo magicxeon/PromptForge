@@ -1,9 +1,34 @@
 # Community-09 User Gallery, Character Showcase and Template Handoff
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented for internal validation - Node and browser acceptance pending
 **Feature type:** User-curated gallery, reusable character assets and Scene Builder handoff  
 **Depends on:** Community-04 Share Generated Image and Prompt Snapshot, Community-05 Explore/Post Detail/Remix, Community-06 Creator Profile, Scene Builder template contract  
 **Created:** 2026-07-19
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  OPEN
+Exposure     INTERNAL
+```
+
+Gallery and character repository contracts are validated. Community-04 and
+Community-06 contracts are stable, and Community-05 now owns the public detail
+surface. The internal workflow may therefore be implemented.
+
+When opened, Community-09 owns curated gallery membership, character asset
+metadata and Scene Builder handoff only. It must reference canonical Community
+posts and generation assets, store no Base64, and reuse the existing Scene
+Builder serializer, hydrator, variable resolver, reference policy and generation
+pipeline.
+
+Keep marketplace, licensing, revenue sharing, original-file download and a
+second post/template store closed.
 
 ## 1. Business Requirement
 
@@ -183,12 +208,12 @@ client/community/communityGalleryCard.js
 client/community/communityCharacterTab.js
 client/community/communityTemplateActions.js
 client/community/communitySceneBuilderHandoff.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/CommunityTemplatePolicyService.js
-server/community/CommunitySceneBuilderHandoffService.js
-server/community/routes/galleryRoutes.js
-server/community/routes/characterRoutes.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/domain/community/CommunityTemplatePolicyService.js
+server/domain/community/CommunitySceneBuilderHandoffService.js
+server/app/routes/communityGalleryRoutes.js
+server/app/routes/communityCharacterRoutes.js
 ```
 
 Client integration:
@@ -281,14 +306,17 @@ client/community/communityGalleryCard.js
 client/community/communityCharacterTab.js
 client/community/communityTemplateActions.js
 client/community/communitySceneBuilderHandoff.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/CommunityTemplatePolicyService.js
-server/community/CommunitySceneBuilderHandoffService.js
-server/community/routes/galleryRoutes.js
-server/community/routes/characterRoutes.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/domain/community/CommunityTemplatePolicyService.js
+server/domain/community/CommunitySceneBuilderHandoffService.js
+server/app/routes/communityGalleryRoutes.js
+server/app/routes/communityCharacterRoutes.js
 test/communityGalleryHandoff.test.js
 ```
+
+The two repository files already exist as database-ready contracts. Extend
+those canonical modules when this gate opens; do not create replacements.
 
 ### Process
 
@@ -305,3 +333,84 @@ test/communityGalleryHandoff.test.js
 - Bob cannot see Alice private gallery record.
 - Bob using Alice character receives required replacement for private face reference.
 - Handoff payload contains no base64 or private provider payload.
+
+## 11. Current Contract Implementation
+
+This delivery closes the repository-contract portion allowed by the current
+gate. It does not open Gallery navigation, public Character UI, or Scene Builder
+handoff endpoints before Community-05.
+
+Implemented repository behavior:
+
+```text
+CommunityGalleryRepository
+- owner-scoped list for curated records
+- public list and public detail return safe summaries
+- canonical gallery reuse policy normalization
+- source post/generation/asset metadata remains server-side
+
+CommunityCharacterRepository
+- canonical character types:
+  headshot_only | full_character | face_and_outfit
+- canonical face/outfit reference policy normalization
+- owner-scoped list
+- public list and detail convert all non-reusable references to replace_required
+```
+
+Public summary responses intentionally omit:
+
+```text
+sceneBuilderHandoffSnapshot
+sourceGenerationResultId
+raw reference values
+embedded Base64 data
+```
+
+The internal repository record retains the sanitized handoff snapshot so the
+future `CommunitySceneBuilderHandoffService` can apply ownership and reuse
+policy before constructing a handoff.
+
+Validation is owned by:
+
+```text
+test/communityGalleryCharacterContracts.test.js
+test/deferredRepositoryContracts.test.js
+scripts/test-community-09-11.bat
+scripts/test-community-00-009-to-11.bat
+```
+
+The previously closed route, UI and handoff work is now implemented through the
+canonical Community capability:
+
+```text
+server/domain/community/CommunityGalleryService.js
+server/app/routes/communityGalleryRoutes.js
+client/community/communityGalleryApi.js
+client/community/communityTemplateActions.js
+client/community/creatorProfilePage.js
+```
+
+Gallery and Character records reference the source Community post and do not
+copy image bytes. Their media endpoints proxy the source post after visibility
+checks. Public handoff sanitizes reference slots again for the active viewer;
+private face/outfit policies become required replacements.
+
+`community.galleryEnabled` is enabled for local internal validation. Production
+exposure remains blocked by the conditions in Community-08.
+
+## 12. Commercial-Phase Exit Scope
+
+Before entering the database-backed Commercial phase, the JSON MVP must prove:
+
+1. An owner can curate an existing owned Community post into Gallery without
+   copying image bytes.
+2. Creator Profile can display Gallery and Character sections only when
+   `community.galleryEnabled` is enabled.
+3. A Gallery item can use a template only when its reuse policy and sanitized
+   snapshot allow it.
+4. Character handoff converts private face/outfit references to required
+   replacements.
+5. APIs use actor context and repository interfaces so Commercial replaces
+   adapters rather than client/domain contracts.
+6. Public responses contain no Base64, provider secrets, raw private source
+   paths or owner-only references.

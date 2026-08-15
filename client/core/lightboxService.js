@@ -4,6 +4,39 @@
 (() => {
   const state = window.state;
   let lightboxImageLoadToken = 0;
+  let lightboxEventsBound = false;
+
+  function initializeLightboxEvents() {
+    if (lightboxEventsBound) return;
+    const modal = document.getElementById("lightbox-modal");
+    if (!modal) return;
+    lightboxEventsBound = true;
+
+    document.getElementById("lightbox-close")?.addEventListener("click", () => closeLightbox());
+    document.getElementById("lightbox-previous")?.addEventListener("click", () => navigateLightbox(-1));
+    document.getElementById("lightbox-next")?.addEventListener("click", () => navigateLightbox(1));
+    modal.addEventListener("click", event => {
+      if (event.target === modal) closeLightbox();
+    });
+  document.addEventListener("keydown", event => {
+    if (modal.style.display === "none") return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      closeLightbox();
+      return;
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      navigateLightbox(-1);
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      navigateLightbox(1);
+    }
+  });
+  }
 
   function createLightboxBrowseContext(item) {
     const visibleItems = window.getVisibleHistoryItems ? window.getVisibleHistoryItems() : [];
@@ -69,7 +102,7 @@
     if (!context) return;
     [context.activeIndex - 1, context.activeIndex + 1].forEach(index => {
       const id = context.itemIds[index];
-      const item = id ? state.history.find(entry => entry.id === id) : null;
+      const item = context.items?.[index] || (id ? state.history.find(entry => entry.id === id) : null);
       if (item?.imageUrl) {
         const preload = new Image();
         preload.src = item.imageUrl;
@@ -134,7 +167,8 @@
     if (!context || ![-1, 1].includes(direction)) return false;
     const nextIndex = context.activeIndex + direction;
     if (nextIndex < 0 || nextIndex >= context.itemIds.length) return false;
-    const nextItem = state.history.find(entry => entry.id === context.itemIds[nextIndex]);
+    const nextItem = context.items?.[nextIndex]
+      || state.history.find(entry => entry.id === context.itemIds[nextIndex]);
     if (!nextItem) {
       syncOpenLightboxContext();
       return false;
@@ -170,6 +204,12 @@
       const activeItem = state.history.find(entry => entry.id === activeId);
       if (activeItem) renderLightboxItem(activeItem);
       else closeLightbox();
+      return;
+    }
+    if (context.source === "comparison" || context.source === "community") {
+      const activeItem = context.items?.find(entry => entry.id === activeId);
+      if (activeItem) renderLightboxItem(activeItem);
+      else closeLightbox({ restoreFocus: false });
       return;
     }
     if (context.source === "collection" && window.getCollectionById && !window.getCollectionById(context.collectionId)) {
@@ -208,7 +248,10 @@
     modal.activeItem = item;
 
     setLightboxImage(item);
-    title.textContent = `Generation Reference #${item.id.substring(4, 9)}`;
+    const isCommunityPublic = item.isCommunityPublic === true;
+    title.textContent = isCommunityPublic
+      ? (item.communityPost?.title || "Community image")
+      : `Generation Reference #${item.id.substring(4, 9)}`;
     promptTxt.textContent = item.prompt;
     engine.textContent = item.provider ? item.provider.toUpperCase() : "N/A";
     model.textContent = item.submodel || "N/A";
@@ -220,7 +263,12 @@
     dlLink.href = item.imageUrl;
     const outputExtension = item.imageUrl?.match(/\.([a-z0-9]+)(?:\?|$)/i)?.[1] || "png";
     dlLink.download = `modelpromptforge-generation-${item.id}.${outputExtension}`;
-    if (window.renderLightboxCollections) window.renderLightboxCollections(item.id);
+    dlLink.hidden = isCommunityPublic;
+    const collections = document.getElementById("lightbox-collections");
+    if (collections) collections.hidden = isCommunityPublic;
+    if (!isCommunityPublic && window.renderLightboxCollections) {
+      window.renderLightboxCollections(item.id);
+    }
 
     if (lineageContainer && lineageList) {
       lineageList.innerHTML = "";
@@ -310,7 +358,13 @@
 
     const btnUseTemplate = document.getElementById("btn-lightbox-use-template");
     if (btnUseTemplate) {
-      if (item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object") {
+      if (isCommunityPublic && item.communityPost?.templateAvailability) {
+        btnUseTemplate.style.display = "block";
+        btnUseTemplate.onclick = () => {
+          closeLightbox();
+          window.ModelPromptForgeCommunityTemplateActions?.usePostTemplate?.(item.id);
+        };
+      } else if (item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object") {
         btnUseTemplate.style.display = "block";
         btnUseTemplate.onclick = () => {
           closeLightbox();
@@ -329,7 +383,8 @@
 
     const btnAddToTemplate = document.getElementById("btn-lightbox-add-to-template");
     if (btnAddToTemplate) {
-      const isTemplateActive = window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive?.();
+      const isTemplateActive = !isCommunityPublic
+        && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive?.();
       if (isTemplateActive) {
         btnAddToTemplate.style.display = "block";
         btnAddToTemplate.onclick = () => {
@@ -345,14 +400,21 @@
 
     const btnShareTemplate = document.getElementById("btn-lightbox-share-template");
     if (btnShareTemplate) {
-      const hasTemplate = item.sceneTemplateSnapshot && typeof item.sceneTemplateSnapshot === "object";
-      const isOwner = !item.username || item.username === (window.state?.username || 'user_demo');
-      if (hasTemplate && isOwner) {
+      const sharingEnabled = window.ModelPromptForgeCommunityFeatures?.isEnabled?.(
+        'community.shareEnabled',
+        { defaultValue: false }
+      ) === true;
+      const activeUserId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.();
+      const isOwner = item.ownerUserId
+        ? item.ownerUserId === activeUserId
+        : (!item.username || item.username === (window.state?.username || 'user_demo'));
+      const isCompleted = !item.status || item.status === "completed";
+      if (!isCommunityPublic && sharingEnabled && isOwner && isCompleted && item.id && item.imageUrl) {
         btnShareTemplate.style.display = "block";
         btnShareTemplate.onclick = () => {
-          if (window.ModelPromptForgeSceneSharePreview?.openSharePreview) {
-            window.ModelPromptForgeSceneSharePreview.openSharePreview(item.id);
-          }
+          window.ModelPromptForgeCommunitySharePreview?.openSharePreview?.(item.id, {
+            triggerElement: btnShareTemplate
+          });
         };
       } else {
         btnShareTemplate.style.display = "none";
@@ -360,7 +422,16 @@
       }
     }
 
-    if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
+    if (isCommunityPublic) {
+      [
+        "btn-lightbox-use-face",
+        "btn-lightbox-use-style",
+        "btn-lightbox-use-character"
+      ].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.style.display = "none";
+      });
+    } else if (window.ModelPromptForgeCrossModeHandoff?.renderLightboxHandoffActions) {
       window.ModelPromptForgeCrossModeHandoff.renderLightboxHandoffActions(item);
     }
 
@@ -370,6 +441,8 @@
 
   // Expose to window
   window.createLightboxBrowseContext = createLightboxBrowseContext;
+  initializeLightboxEvents();
+
   window.updateLightboxNavigationLabels = updateLightboxNavigationLabels;
   window.renderLightboxNavigation = renderLightboxNavigation;
   window.preloadLightboxNeighbors = preloadLightboxNeighbors;

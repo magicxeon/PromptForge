@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { isOpenAIAPIStreamingEnabled } from '../server/providers/OpenAIProvider.js';
+import {
+  isOpenAIAPIStreamingEnabled,
+  OpenAIProvider
+} from '../server/providers/OpenAIProvider.js';
 
 test('OpenAI image streaming defaults to enabled when unset', () => {
   const original = process.env.ENABLE_OPENAI_API_STREAMING;
@@ -36,4 +39,13 @@ test('OpenAI image streaming parses true and false strictly', () => {
       process.env.ENABLE_OPENAI_API_STREAMING = original;
     }
   }
+});
+
+test('OpenAI input fidelity is sent only to models that support it', () => {
+  const provider = new OpenAIProvider('test-key');
+  assert.equal(provider.supportsInputFidelity('gpt-image-1'), true);
+  assert.equal(provider.supportsInputFidelity('gpt-image-1.5'), true);
+  assert.equal(provider.supportsInputFidelity('gpt-image-1-mini'), false);
+  assert.equal(provider.supportsInputFidelity('gpt-image-2'), false);
+  assert.equal(provider.supportsInputFidelity('gpt-image-2-preview'), false);
 });

@@ -5,6 +5,11 @@
   async function refreshSharedTemplates() {
     const listContainer = document.getElementById('shared-templates-list');
     if (!listContainer) return;
+    await window.ModelPromptForgeCommunityFeatures?.initialize?.();
+    if (window.ModelPromptForgeCommunityFeatures?.isEnabled?.('community.enabled') !== true) {
+      listContainer.replaceChildren();
+      return;
+    }
 
     try {
       const apiFetch = window.ModelPromptForgeApiClient?.apiFetch || fetch;
@@ -12,7 +17,7 @@
       if (!res.ok) throw new Error('Failed to fetch shared templates');
 
       const posts = await res.json();
-      renderSharedTemplatesList(posts);
+      renderSharedTemplatesList((posts || []).filter(post => post.templateAvailability === true));
 
     } catch (err) {
       console.error('[Shared Templates] Error refreshing list:', err);
@@ -40,7 +45,7 @@
       card.style.border = '1px solid rgba(255, 255, 255, 0.05)';
       card.style.background = 'rgba(255, 255, 255, 0.02)';
       card.style.transition = 'all 0.2s ease';
-      card.title = `${post.title}\nCreator: ${post.ownerUsername}`;
+      card.title = `${post.title}\nCreator: ${post.creator?.displayName || post.creator?.username || 'Creator'}`;
 
       card.addEventListener('mouseenter', () => {
         card.style.borderColor = 'var(--neon-cyan)';
@@ -94,7 +99,7 @@
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || 'Failed to load template payload');
+        throw new Error(readErrorMessage(errData, 'Failed to load template payload'));
       }
 
       const payload = await res.json();
@@ -121,6 +126,12 @@
       refreshBtn.addEventListener('click', refreshSharedTemplates);
     }
     refreshSharedTemplates();
+  }
+
+  function readErrorMessage(payload, fallback) {
+    return typeof payload?.error === 'object'
+      ? payload.error.message || fallback
+      : payload?.error || fallback;
   }
 
   window.ModelPromptForgeSharedTemplatesPanel = {

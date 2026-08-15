@@ -52,12 +52,12 @@ export class ComparisonRepository {
     return run;
   }
 
-  async list(username) {
-    const page = await this.listPage(username, { limit: 50 });
+  async list(owner) {
+    const page = await this.listPage(owner, { limit: 50 });
     return page.items;
   }
 
-  async listPage(username, {
+  async listPage(owner, {
     cursor = null,
     limit = 24,
     search = '',
@@ -67,24 +67,36 @@ export class ComparisonRepository {
     const data = await this.readData();
     const safeLimit = Math.min(50, Math.max(1, Number(limit) || 24));
     const normalizedSearch = String(search || '').trim().toLowerCase();
-    const scope = JSON.stringify({ username, search: normalizedSearch, status, dateRange });
+    const normalizedOwner = normalizeOwner(owner);
+    const scope = JSON.stringify({ ownerUserId: normalizedOwner.userId, username: normalizedOwner.username, search: normalizedSearch, status, dateRange });
     const decodedCursor = cursor ? this.decodeCursor(cursor, scope) : null;
     const cutoff = getDateCutoff(dateRange);
     const history = await this.readHistory();
-    const historyById = new Map(history.map(item => [item.id, item]));
-    let sets = data.sets.filter(set => set.username === username);
+    const historyById = new Map(
+      history
+        .filter(item => isHistoryOwnedBy(item, normalizedOwner))
+        .map(item => [item.id, item])
+    );
+    let sets = data.sets.filter(set => isOwnedBy(set, normalizedOwner));
     if (normalizedSearch) {
       sets = sets.filter(set => getComparisonSearchText(set).includes(normalizedSearch));
     }
-    if (status !== 'all') sets = sets.filter(set => matchesComparisonStatus(set.runs[0]?.status, status));
+    if (status !== 'all') {
+      sets = sets.filter(set =>
+        matchesComparisonStatus(getComparisonRunStatus(findNewestRun(set.runs)), status)
+      );
+    }
     if (cutoff) sets = sets.filter(set => Number(set.updatedAt || 0) >= cutoff);
     sets.sort(compareSets);
     if (decodedCursor) sets = sets.filter(set => compareSets(set, decodedCursor) > 0);
     const pageSets = sets.slice(0, safeLimit);
     const hasMore = sets.length > safeLimit;
     const items = pageSets.map(set => {
-      const latestRun = set.runs[0] || null;
-      const completedSlots = latestRun?.slots?.filter(slot => slot.status === 'completed') || [];
+      const latestRun = findNewestRun(set.runs);
+      const completedSlots = latestRun?.slots?.filter(slot =>
+        ['completed', 'succeeded'].includes(String(slot.status || '').toLowerCase())
+      ) || [];
+      const aggregateStatus = getComparisonRunStatus(latestRun);
       return {
         id: set.id,
         name: set.name,
@@ -94,12 +106,12 @@ export class ComparisonRepository {
         createdAt: set.createdAt,
         updatedAt: set.updatedAt,
         runCount: set.runs.length,
-        status: latestRun?.status || 'draft',
+        status: aggregateStatus,
         completedCount: completedSlots.length,
         slotCount: latestRun?.slots?.length || 0,
         providers: [...new Set(latestRun?.slots?.map(slot => slot.provider) || [])],
         models: [...new Set(latestRun?.slots?.map(slot => slot.model) || [])],
-        previewImages: completedSlots.slice(0, 3).map(slot => {
+        previewImages: completedSlots.slice(0, 4).map(slot => {
           const historyItem = historyById.get(slot.jobId);
           return {
             jobId: slot.jobId,
@@ -111,12 +123,12 @@ export class ComparisonRepository {
         }),
         latestRun: latestRun ? {
           id: latestRun.id,
-          status: latestRun.status,
+          status: aggregateStatus,
           estimatedTotalCredit: latestRun.estimatedTotalCredit,
           actualTotalCredit: latestRun.actualTotalCredit,
           createdAt: latestRun.createdAt,
           completedAt: latestRun.completedAt,
-          slotCount: latestRun.slots.length
+          slotCount: latestRun.slots?.length || 0
         } : null
       };
     });
@@ -161,17 +173,17 @@ export class ComparisonRepository {
     }
   }
 
-  async get(setId, username) {
+  async get(setId, owner) {
     const data = await this.readData();
     const set = this.getSetOrThrow(data, setId);
-    if (set.username !== username) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
+    if (!isOwnedBy(set, normalizeOwner(owner))) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
     return structuredClone(set);
   }
 
-  async createSetWithRun({ username, name, description, idempotencyKey, run }) {
+  async createSetWithRun({ ownerUserId = null, username, name, description, idempotencyKey, run }) {
     return this.mutate(async data => {
       const existing = data.sets.find(set =>
-        set.username === username && set.runs.some(item => item.idempotencyKey === idempotencyKey)
+        isOwnedBy(set, { userId: ownerUserId, username }) && set.runs.some(item => item.idempotencyKey === idempotencyKey)
       );
       if (existing) {
         return {
@@ -183,6 +195,7 @@ export class ComparisonRepository {
       const timestamp = Date.now();
       const set = {
         id: `cmp_set_${timestamp}_${Math.random().toString(36).slice(2, 8)}`,
+        ownerUserId,
         username,
         name,
         description,
@@ -207,21 +220,21 @@ export class ComparisonRepository {
     });
   }
 
-  async updateSet(setId, username, payload) {
+  async updateSet(setId, owner, payload) {
     return this.mutate(async data => {
       const set = this.getSetOrThrow(data, setId);
-      if (set.username !== username) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
-      if (payload.name !== undefined) set.name = normalizeText(payload.name, 'name', 100, true);
+      if (!isOwnedBy(set, normalizeOwner(owner))) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
+      if (payload.name !== undefined) set.name = normalizeText(payload.name, 'name', 120, true);
       if (payload.description !== undefined) set.description = normalizeText(payload.description, 'description', 1000);
       set.updatedAt = Date.now();
       return structuredClone(set);
     });
   }
 
-  async setWinner(setId, username, jobId) {
+  async setWinner(setId, owner, jobId) {
     return this.mutate(async data => {
       const set = this.getSetOrThrow(data, setId);
-      if (set.username !== username) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
+      if (!isOwnedBy(set, normalizeOwner(owner))) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
       const completedJobIds = set.runs.flatMap(run => run.slots)
         .filter(slot => slot.status === 'completed')
         .map(slot => slot.jobId);
@@ -234,10 +247,10 @@ export class ComparisonRepository {
     });
   }
 
-  async remove(setId, username) {
+  async remove(setId, owner) {
     return this.mutate(async data => {
       const set = this.getSetOrThrow(data, setId);
-      if (set.username !== username) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
+      if (!isOwnedBy(set, normalizeOwner(owner))) throw new ComparisonError('comparison_forbidden', 'Comparison Set is not available.', 403);
       data.sets = data.sets.filter(item => item.id !== setId);
       return { success: true };
     });
@@ -257,7 +270,56 @@ export class ComparisonRepository {
   }
 }
 
+function normalizeOwner(owner) {
+  if (typeof owner === 'string') return { userId: null, username: owner };
+  return {
+    userId: owner?.userId || owner?.ownerUserId || null,
+    username: owner?.username || owner?.ownerUsername || null
+  };
+}
 
+function isOwnedBy(set, owner) {
+  if (set.ownerUserId && owner.userId) return set.ownerUserId === owner.userId;
+  return Boolean(set.username && owner.username && set.username === owner.username);
+}
+
+function isHistoryOwnedBy(item, owner) {
+  if (item.ownerUserId && owner.userId) return item.ownerUserId === owner.userId;
+  const username = item.ownerUsername || item.username || null;
+  return Boolean(username && owner.username && username === owner.username);
+}
+
+function findNewestRun(runs) {
+  if (!Array.isArray(runs)) return null;
+  return runs.reduce((newest, candidate) => {
+    if (!newest) return candidate;
+    return Number(candidate.createdAt || 0) > Number(newest.createdAt || 0)
+      ? candidate
+      : newest;
+  }, null);
+}
+
+function getComparisonRunStatus(run) {
+  if (!run) return 'draft';
+  const slots = Array.isArray(run.slots) ? run.slots : [];
+  if (!slots.length) return String(run.status || 'draft').toLowerCase();
+  const statuses = slots.map(slot => String(slot.status || '').toLowerCase());
+  const terminalStatuses = new Set(['completed', 'succeeded', 'failed', 'cancelled']);
+  const allTerminal = statuses.every(status => terminalStatuses.has(status));
+  const completedCount = statuses.filter(status =>
+    status === 'completed' || status === 'succeeded'
+  ).length;
+
+  if (allTerminal && completedCount === statuses.length) return 'completed';
+  if (allTerminal && completedCount > 0) return 'partially_completed';
+  if (allTerminal) return 'failed';
+  if (statuses.some(status =>
+    ['processing', 'streaming', 'generating', 'running'].includes(status)
+  )) {
+    return 'processing';
+  }
+  return 'queued';
+}
 
 function compareSets(a, b) {
   const updatedDifference = Number(b.updatedAt || 0) - Number(a.updatedAt || 0);

@@ -1,4 +1,5 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 const XAI_BASE_URL = 'https://api.x.ai/v1';
 const MAX_REFERENCE_BYTES = 20 * 1024 * 1024;
@@ -86,16 +87,7 @@ export class GrokImagineProvider extends BaseProvider {
 
     const model = options.submodel || this.providerConfig.defaultModel || 'grok-imagine-image-quality';
     const modelConfig = options.modelConfig || this.providerConfig.models?.find(entry => entry.id === model) || {};
-    const references = [
-      options.resolvedCharacterReferenceImageA,
-      options.resolvedCharacterReferenceImageB,
-      options.resolvedOutfitReferenceImageFront,
-      options.resolvedOutfitReferenceImageBack,
-      options.resolvedFaceReferenceImageA,
-      options.resolvedFaceReferenceImageB,
-      options.resolvedStyleReferenceImageA,
-      options.resolvedStyleReferenceImageB
-    ].filter(Boolean);
+    const references = getResolvedReferenceImages(options);
     const maxReferences = Number(modelConfig.capabilities?.maxReferenceImages || 0);
     if (references.length > maxReferences) {
       throw this.createError('invalid_request', `${model} supports up to ${maxReferences} unique reference images.`, false);

@@ -23,6 +23,7 @@
     state.characterReferenceJobIds = [];
     state.imageReferences.characterReference = false;
     state.characterReferenceOverrides = false;
+    window.ModelPromptForgeCharacterHandoff?.clear?.();
     const checkbox = document.getElementById("story-use-character-reference");
     const fileInput = document.getElementById("character-reference-file");
     if (checkbox) checkbox.checked = false;
@@ -38,6 +39,13 @@
     state.outfitReferenceImageBack = null;
     state.outfitReferenceJobIds = [];
     state.imageReferences.outfitReference = false;
+    state.outfitReferenceOverrides = window.ModelPromptForgeOutfitReferenceController?.normalizeOverrides?.(null) || {
+      enabled: false,
+      primaryColor: false,
+      secondaryColor: false,
+      pattern: false,
+      material: false
+    };
     const frontFileInput = document.getElementById("outfit-front-file");
     const backFileInput = document.getElementById("outfit-back-file");
     if (frontFileInput) frontFileInput.value = "";
@@ -46,6 +54,31 @@
       updateReferencePreviewsUI();
       updateCharacterSheetSourceStatus();
     }
+  }
+
+  async function optimizeReferenceUpload(file, { maxEdge = 1800, quality = 0.88 } = {}) {
+    if (!file || !/^image\/(png|jpeg|webp)$/i.test(file.type)) {
+      throw new Error("Choose a PNG, JPEG, or WebP image.");
+    }
+    if (typeof createImageBitmap !== "function") {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = event => resolve(String(event.target?.result || ""));
+        reader.onerror = () => reject(reader.error || new Error("Unable to read reference image."));
+        reader.readAsDataURL(file);
+      });
+    }
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d", { alpha: false });
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    return canvas.toDataURL("image/jpeg", quality);
   }
 
   function isStoryCharacterReferenceActive() {
@@ -63,7 +96,10 @@
     const hasClothingSelection = Object.values(selections).some(selection => selection?.group === "Clothing");
     const hasOutfitReference = state.mode === "character-sheet"
       && state.imageReferences.outfitReference === true
-      && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
+      && Boolean(state.outfitReferenceImageFront);
+    const hasBackOnlyOutfitReference = state.mode === "character-sheet"
+      && !state.outfitReferenceImageFront
+      && Boolean(state.outfitReferenceImageBack);
     const layoutSelection = selections["Sheet Layout"];
     const layoutItem = layoutSelection && !layoutSelection.isCustom
       ? state.library.find(item => item.id === layoutSelection.id)
@@ -84,10 +120,14 @@
         owns: ["body silhouette", "proportion"]
       },
       outfit: {
-        source: hasOutfitReference
+        source: hasBackOnlyOutfitReference
+          ? "outfit-back-reference-incomplete"
+          : hasOutfitReference
           ? (state.outfitReferenceImageBack ? "outfit-front-back-reference" : "outfit-front-reference")
           : (hasClothingSelection ? "outfit-preset-selections" : "character-sheet-baseline"),
-        label: hasOutfitReference
+        label: hasBackOnlyOutfitReference
+          ? "Back Upload (Front required)"
+          : hasOutfitReference
           ? (state.outfitReferenceImageBack ? "Front/Back Upload" : "Front Upload")
           : (hasClothingSelection ? "Outfit preset selections" : "Character Sheet Baseline"),
         owns: ["outfit", "garment silhouette", "colors", "visible details"]
@@ -122,7 +162,9 @@
     if (!isStoryCharacterReferenceActive() || state.characterReferenceOverrides) return;
 
     Object.keys(activeSelections).forEach(fieldName => {
-      if (REFERENCE_OWNED_GROUPS.has(activeSelections[fieldName]?.group)) {
+      const selection = activeSelections[fieldName];
+      if (fieldName === "Expression" && selection?.group === "Face" && selection?.category === "expression") return;
+      if (REFERENCE_OWNED_GROUPS.has(selection?.group)) {
         delete activeSelections[fieldName];
       }
     });
@@ -135,6 +177,11 @@
       if (!REFERENCE_OWNED_GROUPS.has(groupName)) return;
       const fieldName = select.getAttribute("data-field");
       const formField = select.closest(".form-field");
+      if (fieldName === "Expression" && groupName === "Face") {
+        select.disabled = false;
+        if (formField) formField.classList.remove("reference-owned");
+        return;
+      }
       select.disabled = isReferenceOwned
         || (state.imageReferences.faceMatch && FACE_MATCH_OWNED_FIELDS.has(fieldName));
       if (formField) formField.classList.toggle("reference-owned", isReferenceOwned);
@@ -440,6 +487,7 @@
 
   function assignCharacterReference(imageSrc, jobId = null) {
     if (state.mode !== "normal") return;
+    window.ModelPromptForgeCharacterHandoff?.clear?.();
     const cleanedSrc = cleanReferenceImageSrc(imageSrc);
     if (!state.characterReferenceImageA) {
       state.characterReferenceImageA = cleanedSrc;
@@ -483,6 +531,7 @@
   window.clearFaceReferenceState = clearFaceReferenceState;
   window.clearCharacterReferenceState = clearCharacterReferenceState;
   window.clearOutfitReferenceState = clearOutfitReferenceState;
+  window.optimizeReferenceUpload = optimizeReferenceUpload;
   window.isStoryCharacterReferenceActive = isStoryCharacterReferenceActive;
   window.getCharacterSheetSourceOwnership = getCharacterSheetSourceOwnership;
   window.updateCharacterSheetSourceStatus = updateCharacterSheetSourceStatus;

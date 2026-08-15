@@ -63,6 +63,7 @@
     if (manualPromptContainer) manualPromptContainer.style.display = "none";
     if (replacementPanel) replacementPanel.style.display = "block";
     if (modeTabs) modeTabs.style.opacity = "0.4"; // indicate read-only state
+    setStandardReferenceControlsVisibility(false);
 
     // Render variables list
     renderChecklist();
@@ -88,6 +89,7 @@
 
     if (replacementPanel) replacementPanel.style.display = "none";
     if (modeTabs) modeTabs.style.opacity = "1";
+    setStandardReferenceControlsVisibility(true);
 
     // Show appropriate form based on authoring mode
     if (window.state.sceneBuilder?.authoringMode === "manual") {
@@ -186,6 +188,20 @@
     );
 
     return resolverResult;
+  }
+
+  function setStandardReferenceControlsVisibility(isVisible) {
+    const matchingOptions = document.querySelector(".matching-options-row");
+    const faceUpload = document.getElementById("face-match-upload-container");
+    const characterUpload = document.getElementById("image-upload-container");
+
+    if (matchingOptions) matchingOptions.style.display = isVisible ? "" : "none";
+    if (characterUpload) {
+      characterUpload.style.display = isVisible && window.state?.mode === "normal" ? "block" : "none";
+    }
+    if (faceUpload) {
+      faceUpload.style.display = isVisible && window.state?.imageReferences?.faceMatch ? "block" : "none";
+    }
   }
 
   // Expose to window

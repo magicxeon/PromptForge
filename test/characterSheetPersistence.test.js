@@ -8,6 +8,7 @@ import {
 test('creates a semantic Character Sheet configuration snapshot without raw outfit images', () => {
   const context = normalizeGenerationContext({
     mode: 'character-sheet',
+    characterType: 'styled_character',
     selections: {
       Gender: { id: 'char.gender_01', group: 'Character' },
       'Face Shape': { id: 'face.002', group: 'Face' },
@@ -31,6 +32,7 @@ test('creates a semantic Character Sheet configuration snapshot without raw outf
   });
 
   assert.equal(context.characterSheetConfig.version, 1);
+  assert.equal(context.characterSheetConfig.characterType, 'styled_character');
   assert.deepEqual(context.characterSheetConfig.sourceHeadshotIds, ['job_headshot']);
   assert.equal(context.characterSheetConfig.identitySelectionIds.Gender, 'char.gender_01');
   assert.equal(context.characterSheetConfig.identitySelectionIds['Face Shape'], 'face.002');

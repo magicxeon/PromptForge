@@ -104,6 +104,66 @@
       "focalPoint": "50% 52%",
       "alt": { "en": "Female Thai linen blouse and wrap skirt outfit icon", "th": "Female Thai linen blouse and wrap skirt outfit icon" },
       "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.square_neck_knit_tailored_trousers",
+      "optionId": "outfit.base.female.square_neck_knit_tailored_trousers",
+      "attributeId": "outfit.base.female.square_neck_knit_tailored_trousers",
+      "slug": "female-square-neck-knit-tailored-trousers",
+      "row": 1, "column": 1,
+      "sourceSheet": { "folder": "../outfit/outfit-base-female", "filename": "outfit-base-female-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female square-neck knit and tailored trousers outfit icon", "th": "ชุดผู้หญิงเสื้อถักคอเหลี่ยมและกางเกงเทเลอร์" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.oversized_blazer_tailored_shorts",
+      "optionId": "outfit.base.female.oversized_blazer_tailored_shorts",
+      "attributeId": "outfit.base.female.oversized_blazer_tailored_shorts",
+      "slug": "female-oversized-blazer-tailored-shorts",
+      "row": 1, "column": 2,
+      "sourceSheet": { "folder": "../outfit/outfit-base-female", "filename": "outfit-base-female-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female oversized blazer and tailored shorts outfit icon", "th": "ชุดผู้หญิงเบลเซอร์โอเวอร์ไซซ์และกางเกงขาสั้นเทเลอร์" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.cropped_cardigan_bias_midi_skirt",
+      "optionId": "outfit.base.female.cropped_cardigan_bias_midi_skirt",
+      "attributeId": "outfit.base.female.cropped_cardigan_bias_midi_skirt",
+      "slug": "female-cropped-cardigan-bias-midi-skirt",
+      "row": 1, "column": 3,
+      "sourceSheet": { "folder": "../outfit/outfit-base-female", "filename": "outfit-base-female-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female cropped cardigan and bias-cut midi skirt outfit icon", "th": "ชุดผู้หญิงคาร์ดิแกนเอวลอยและกระโปรงมิดี้ตัดเฉลียง" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.denim_jacket_wide_trousers",
+      "optionId": "outfit.base.female.denim_jacket_wide_trousers",
+      "attributeId": "outfit.base.female.denim_jacket_wide_trousers",
+      "slug": "female-denim-jacket-wide-trousers",
+      "row": 1, "column": 4,
+      "sourceSheet": { "folder": "../outfit/outfit-base-female", "filename": "outfit-base-female-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female denim jacket and wide trousers outfit icon", "th": "ชุดผู้หญิงแจ็กเก็ตเดนิมและกางเกงขากว้าง" },
+      "reviewStatus": "source-selected"
+    },
+    {
+      "assetId": "visual.clothing.outfit_base.female.sleeveless_knit_pleated_midi_skirt",
+      "optionId": "outfit.base.female.sleeveless_knit_pleated_midi_skirt",
+      "attributeId": "outfit.base.female.sleeveless_knit_pleated_midi_skirt",
+      "slug": "female-sleeveless-knit-pleated-midi-skirt",
+      "row": 1, "column": 5,
+      "sourceSheet": { "folder": "../outfit/outfit-base-female", "filename": "outfit-base-female-popular-r2.png", "revision": 2, "rows": 1, "columns": 5, "sliceStrategy": "grid" },
+      "sourceBounds": null, "assetRevision": 1, "overrideFilename": null,
+      "focalPoint": "50% 52%",
+      "alt": { "en": "Female sleeveless knit and pleated midi skirt outfit icon", "th": "ชุดผู้หญิงเสื้อถักแขนกุดและกระโปรงมิดี้พลีต" },
+      "reviewStatus": "source-selected"
     }
   ]
 }

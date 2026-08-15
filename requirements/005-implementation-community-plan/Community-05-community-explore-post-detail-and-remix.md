@@ -1,9 +1,78 @@
 # Community-05 Community Explore, Post Detail and Remix
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented for internal validation - Node and browser acceptance pending
 **Feature type:** Public discovery and generation reuse  
-**Depends on:** Community-03, Community-04, Studio route integration  
+**Depends on:** Community-03, Community-04, Community-12 engagement contract, Studio route integration
 **Created:** 2026-07-15
+
+**Presentation extension:** Grouped comparison cards, shared private/public
+comparison workspace, media activation, creator emphasis and comparison voting
+presentation are specified in
+`Community-05-001-shared-media-and-comparison-presentation.md`.
+
+Opaque cursor pagination, progressive loading, deterministic ranking windows,
+and visible facet-count removal are specified in
+`Community-05-002-community-feed-cursor-pagination.md`.
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  OPEN
+Exposure     INTERNAL
+```
+
+Agents may refine feed/detail read models and client consumption contracts now.
+Do not implement authoritative reactions, comments, votes, ranking or moderation
+inside Community-05. Community-12 owns engagement and ranking; Community-07 owns
+reporting, moderation status and feed eligibility; Community-06 owns creator
+profiles and follows.
+
+Community-05 is now `OPEN` because those three server contracts and tests have
+passed. Its implementation assembles their APIs into Explore, Post Detail and
+Remix without introducing replacement repositories or formulas.
+
+### 0.1 Current Internal Delivery
+
+Implemented:
+
+- Public image cards on `/community`.
+- Latest, Trending Week, Trending Month and Top Year queries.
+- Safe public media URLs through the existing Community media access endpoint.
+- Loading, empty, unavailable-image and retry states.
+- Responsive desktop/mobile feed layout.
+
+Current validation remainder in Community-05:
+
+- Browser E2E for search, taxonomy filters and creator deep links.
+- Browser E2E for shared comparison zoom/pan, engagement and permission states.
+- Remix handoff acceptance from every eligible public post type.
+
+Canonical client owner:
+
+```text
+client/community/communityFeed.js
+```
+
+The feed consumes `client/community/communityEngagementApi.js`; it does not
+calculate ranking or persist engagement in the browser.
+
+Server exposure is governed by:
+
+```text
+server/config/community-feature-flags.json
+server/domain/community/CommunityFeaturePolicyService.js
+GET /api/community/features
+```
+
+Community-05 routes must call the server policy. Hiding navigation or controls
+without rejecting disabled server operations is not sufficient. Until the
+development gate opens, `community.exploreEnabled` and
+`community.engagementEnabled` remain false.
 
 ## 1. Objective
 
@@ -23,29 +92,55 @@ Route names may follow the final router convention, but post detail and remix mu
 
 ## 3. Explore Feed MVP
 
+### 3.0 Three-Layer Community Discovery Contract
+
+Community discovery exposes three independent layers:
+
+```text
+Layer 1 - Post type
+  all | image | template | comparison
+
+Layer 2 - Official taxonomy category
+  values loaded from GET /api/community/taxonomy
+
+Layer 3 - Sort/ranking window
+  latest | trending/week | trending/month | top/year
+```
+
+`character` is not a generic Community post type. Reusable characters belong to
+Community-09 Gallery/Character surfaces. Official categories may be visible
+with a zero count so the MVP layout can be reviewed, but post cards must always
+come from real public records rather than fabricated runtime posts.
+
+Card interaction:
+
+- Image click opens the shared full-size viewer.
+- Card title/detail action opens `/community/:postId`.
+- Template cards expose `Use Template` only when policy permits it.
+- Comparison cards expose voting only when a sanitized public comparison
+  snapshot is available.
+- Cards never expose raw output paths, private prompts or private references.
+
 Feed capabilities:
 
 - Latest public posts.
 - Filter by official taxonomy.
 - Search title, creator display name and custom tags.
-- Trending Today.
 - Trending Week.
+- Top/Trending Month.
+- Top/Trending Year.
 - Simple pagination or infinite load using shared list infrastructure.
 
 Deferred:
 
 - Personalized recommendation feed.
 - Advanced ranking by creator reputation.
-- Comment activity ranking.
 - Paid/member-only feed.
 
 ## 4. Trending Rules
 
-MVP trending score may use:
-
-```text
-views + likes + saves + remix clicks
-```
+MVP feed consumes the versioned `community_engagement_v1` score defined by
+Community-12. This requirement does not own weights or calculate scores.
 
 Ranking must exclude:
 
@@ -57,12 +152,14 @@ Ranking must exclude:
 Use time windows:
 
 ```text
-today
-7_days
-30_days later
+week
+month
+year
 ```
 
-Daily and weekly are required for MVP; monthly can be added after feed volume exists.
+Ranking calculation, eligibility, deduplication and version metadata are owned
+by Community-12. Community-05 sends `sort=top|trending` and
+`period=week|month|year`; it must not recalculate scores in the browser.
 
 ## 5. Post Detail
 
@@ -75,6 +172,7 @@ Show:
 - Prompt according to visibility.
 - Provider/model summary.
 - Like/save actions.
+- Flat comment thread and report actions.
 - `Use / Remix Prompt` action.
 
 Do not show:
@@ -103,19 +201,187 @@ Fallback behavior:
 
 ## 7. Engagement Actions
 
-MVP actions:
+Base image-post MVP actions:
 
 - Like/unlike.
 - Save/bookmark.
+- Flat comments and comment reporting.
 - Remix click event.
 - Follow creator from post detail.
 
-Comments and voting separate from likes are deferred.
+The same likes, saves and flat comments apply to image, template and comparison
+posts through Community-12. Comparison-specific voting is defined in Section
+7.1. Nested replies and comment reactions remain deferred.
+
+### 7.1 Comparison Post Voting and Comments
+
+Community must support a distinct `comparison` post type for a shared model
+comparison. Its purpose is to invite a useful human judgment such as which
+result best follows a particular prompt, preserves identity, renders clothing,
+or looks most realistic. It must not present a vote total as a universal claim
+that one provider or model is objectively better.
+
+#### Business Requirement
+
+- A creator can publish either one selected comparison result as a normal image
+  post, or publish the complete comparison as a `comparison` post.
+- A comparison post shows the selected criteria, the same public-safe prompt
+  snapshot and generation context for every visible slot.
+- A signed-in actor may choose one winning slot per comparison post. Choosing a
+  different slot replaces the prior vote; choosing the same slot again removes
+  it. The post owner cannot vote on their own comparison.
+- A signed-in actor can create a text comment, delete their own comment and
+  report another comment. Nested replies, reactions on comments and creator
+  rating leaderboards are deferred.
+- Public counters show total votes, vote count by slot and comment count.
+- The creator may select `public`, `unlisted` or `private` visibility before
+  publication. Only public posts participate in engagement and trending.
+
+#### Comparison Snapshot Contract
+
+```text
+CommunityPost
+- postType: image | template | comparison
+- comparisonSnapshot: null | ComparisonPostSnapshot
+- engagementSummary
+
+ComparisonPostSnapshot
+- schemaVersion
+- sourceComparisonSetId
+- promptVisibility
+- publicPromptSnapshot
+- criteria[]
+- slots[]
+  - slotId
+  - displayOrder
+  - providerDisplayName
+  - modelDisplayName
+  - publicImageAssetId
+  - publicThumbnailAssetId
+  - generationSettingsSnapshot
+- creatorSelectedWinnerSlotId
+- createdAt
+
+ComparisonVote
+- id
+- postId
+- slotId
+- actorUserId
+- createdAt
+- updatedAt
+
+CommunityComment
+- id
+- postId
+- actorUserId
+- body
+- status: active | hidden | removed
+- createdAt
+- updatedAt
+- deletedAt
+```
+
+`ComparisonPostSnapshot` is immutable after publish. It must reuse the
+sanitized public asset/reference rules from Community-04 and
+Community-00-004. It must never store provider keys, raw provider payloads,
+private reference URLs, credit data or a private source image identifier.
+
+#### System Design and Integrity Rules
+
+1. The server derives eligible slots from a completed comparison set owned by
+   the actor; the browser must not submit arbitrary image URLs or vote counts.
+2. Vote uniqueness is `(postId, actorUserId)`. Repository writes must be atomic
+   so concurrent updates cannot create two votes for one actor.
+3. The public read model exposes only aggregate vote counts and the viewer's
+   own `viewerVoteSlotId`; it does not expose a voter list in MVP.
+4. Comments are plain text with a bounded length, server-side normalization and
+   HTML escaping on display. Rendering user comment HTML is prohibited.
+5. Comment and vote mutations require actor context and create an audit event.
+   The report flow delegates to the Community-07 moderation contract.
+6. Private, unlisted, hidden, removed or inaccessible posts reject public
+   votes/comments. A change to hidden/removed recalculates public aggregates.
+7. Trending may include qualified comparison votes and comments only after
+   basic anti-abuse rate limiting exists. MVP ranking uses small bounded weights
+   and must retain the post's original provider/model context.
+
+#### UI Behavior
+
+- Comparison cards show a single `Vote for this result` affordance. The active
+  choice is visually clear and can be changed without a confirmation dialog.
+- The score summary appears under the result cards as counts, not a fabricated
+  percentage quality score.
+- The post detail page has a compact comment composer, chronological comment
+  list and a report action on each visible comment.
+- Share Preview asks for title, description, prompt visibility and optional
+  comparison criteria before publish. It must warn when a slot cannot be made
+  public due to reference ownership policy.
+
+#### Implementation Plan
+
+Client ownership:
+
+```text
+client/community/communityComparisonPost.js
+client/community/communityComparisonEngagement.js
+client/community/communityCommentThread.js
+client/community/communityApi.js
+client/comparisons/comparisonDashboard.js
+client/core/lightboxService.js
+```
+
+Community-05 server consumers:
+
+```text
+server/app/routes/communityRoutes.js
+server/domain/community/CommunityComparisonShareService.js
+server/repositories/community/CommunityPostRepository.js
+```
+
+Canonical Community-12 owners used by this UI:
+
+```text
+server/domain/community/CommunityEngagementService.js
+server/repositories/community/CommunityComparisonVoteRepository.js
+server/repositories/community/CommunityCommentRepository.js
+server/repositories/community/CommunityEngagementEventRepository.js
+server/domain/community/CommunityRankingService.js
+```
+
+Community-05 must not create fallback vote, comment, counter or ranking stores
+when a Community-12 module is missing. Keep the action hidden until its owner is
+available.
+
+Process:
+
+1. Creator opens a completed comparison and chooses `Share comparison`.
+2. Server creates a sanitized comparison draft from owned completed slots.
+3. Creator supplies presentation data and criteria, then publishes an immutable
+   snapshot.
+4. Viewer opens the public post, votes for one eligible slot and/or posts a
+   comment.
+5. Server atomically updates the engagement repositories, audit event and the
+   post read-model aggregate.
+6. `Use Template` remains governed by the existing snapshot/reference policy;
+   voting and commenting never grant access to private source assets.
+7. Vote and comment events feed Community-12 aggregates; this section does not
+   define a second score or counter store.
+
+Testing:
+
+- Owner can publish a comparison only from an owned, completed set.
+- Private reference slots are removed from the public comparison snapshot.
+- An actor can hold only one vote per comparison and cannot vote on their own
+  post.
+- Changing a vote updates counts without duplication.
+- Public post detail returns aggregate counts and viewer vote, never voter IDs.
+- Comment validation rejects blank, oversized and unsafe rendered content.
+- Hidden/removed posts reject new votes/comments and disappear from public feed.
 
 ## 8. Acceptance Criteria
 
 - Public posts can be browsed by latest and official taxonomy.
 - Trending excludes low-confidence and moderated posts.
+- Week, month and year controls return server-calculated ranking metadata.
 - Post detail respects prompt visibility settings.
 - Remix opens Studio with a usable prefilled config.
 - Provider/model fallback is handled without breaking the flow.
@@ -137,11 +403,13 @@ client/community/communityRemixActions.js
 client/community/communityApi.js
 client/scene-builder/sceneTemplateHydrator.js
 client/scene-builder/sceneReplacementChecklist.js
-server/community/CommunityFeedService.js
-server/community/CommunityRemixService.js
-server/community/CommunityEventRepository.js
-server/community/communityRoutes.js
+server/domain/community/CommunityFeedService.js
+server/domain/community/CommunityRemixService.js
+server/app/routes/communityRoutes.js
 ```
+
+`CommunityRankingService` and engagement repositories are intentionally absent
+from this list because Community-12 owns them.
 
 ### Process
 
@@ -159,4 +427,140 @@ server/community/communityRoutes.js
 - Use Template opens Scene Builder checklist.
 - Missing required replacement blocks generation.
 - Provider unavailable state shows warning or asks user to select an available model.
+
+## 10. Internal Implementation Delivered
+
+This delivery implements the three-layer Community discovery surface:
+
+```text
+Layer 1  post type: all | image | template | comparison | collection
+Layer 2  official taxonomy categories from /api/community/taxonomy
+Layer 3  latest | trending week | trending month | top year
+```
+
+Implemented modules:
+
+```text
+client/community/communityFeed.js
+client/community/communityPostDetail.js
+client/community/communityTemplateActions.js
+client/community/communityComparisonShare.js
+server/domain/community/CommunityRankingService.js
+server/domain/community/CommunityComparisonShareService.js
+server/app/routes/communityEngagementRoutes.js
+server/app/routes/communityComparisonRoutes.js
+```
+
+The post detail owns public image viewing, prompt visibility, Like, Save,
+comments, report, template handoff and comparison voting. Public comparison
+slot images are served through post/slot proxy endpoints; responses expose no
+generation job IDs or raw `/outputs` paths.
+
+The requirement remains pending validation until the Community readiness batch
+and browser acceptance scenarios pass.
+
+## 11. Collection Sharing Completion
+
+Community Explore also supports a fourth content type, `collection`. This does
+not change the three discovery layers: `collection` is one value in Layer 1.
+
+### Business Requirement
+
+- An owner can share a non-empty private Collection from Image History.
+- Sharing creates an immutable public snapshot; it never changes the source
+  Collection visibility and never grants another actor access to private
+  History.
+- The snapshot preserves Collection title, description, cover and image order.
+- Community users can open the Collection post, browse every available image in
+  the shared snapshot, Like, Save, Comment and Report it.
+- Collection sharing is not the deferred Collection marketplace. It does not
+  sell content, expose source files or make private collection membership
+  editable by viewers.
+
+### Public Data Contract
+
+```text
+CommunityPost.postType = collection
+CommunityPost.sourceCollectionId          internal only
+CommunityPost.collectionSnapshot:
+  schemaVersion
+  itemCount
+  items[]:
+    itemId                                public opaque snapshot ID
+    imageUrl                              internal local source only
+    thumbnailUrl                          internal local source only
+    providerDisplayName
+    modelDisplayName
+    createdAt
+
+PublicCommunityPost.collectionSnapshot:
+  itemCount
+  items[]:
+    itemId
+    imageUrl = /api/community/posts/:postId/collection-items/:itemId/image
+    thumbnailUrl = /api/community/posts/:postId/collection-items/:itemId/thumbnail
+    providerDisplayName
+    modelDisplayName
+    createdAt
+```
+
+The public response must not include Collection `jobIds`, `sourceCollectionId`,
+generation IDs, raw `/outputs/...` paths, prompts or private references.
+
+### Software Design
+
+```text
+CollectionRepository
+  -> CommunityCollectionShareService
+  -> CommunityPostRepository
+  -> communityPostPublicView
+  -> CommunityRankingService
+
+Collection toolbar
+  -> communityCollectionShare.js
+  -> POST /api/community/collections/:collectionId/publish
+  -> /community/:postId
+```
+
+Canonical files:
+
+```text
+server/domain/community/CommunityCollectionShareService.js
+server/app/routes/communityCollectionRoutes.js
+server/domain/community/CommunityPostAccessService.js
+server/domain/community/communityPostPublicView.js
+server/repositories/recordNormalizer.js
+client/community/communityCollectionShare.js
+client/community/communityFeed.js
+client/community/communityPostDetail.js
+client/core/collectionService.js
+```
+
+### Implementation Plan
+
+1. Resolve the Collection through `CollectionRepository.findByIdForOwner`
+   using `req.actorContext.userId`.
+2. Resolve every member through `GenerationResultRepository.findByIdForOwner`.
+   Reject an empty Collection and omit orphaned/unowned members.
+3. Build an immutable ordered snapshot with opaque item IDs and no prompt or
+   reference data.
+4. Persist one public Community post whose cover uses the selected Collection
+   cover or the first valid member.
+5. Serve cover and item media through Community proxy routes that repeat public
+   post visibility checks.
+6. Add `collection` to post normalization, feed facets, filters and public view.
+7. Add a Share action beside Edit in the Collection toolbar. Hide/disable it
+   for `All Images`, empty Collections and disabled Community sharing.
+8. Render Collection post detail as an image grid and open its members in the
+   existing Community Lightbox browse context.
+
+### Testing
+
+- Another actor cannot publish an owner's Collection.
+- Empty and orphan-only Collections are rejected.
+- Public JSON contains no job IDs, raw output paths or source Collection ID.
+- Collection item proxies reject private, hidden and removed posts.
+- Feed filtering and facets include `collection`.
+- Direct post detail preserves image order and Lightbox navigation.
+- Existing Image, Template and Comparison behavior remains unchanged.
 

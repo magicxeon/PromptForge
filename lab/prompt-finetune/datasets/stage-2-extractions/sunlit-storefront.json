@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "fashion-style-family-extraction-v1",
+  "styleFamily": "sunlit-storefront",
+  "sampleCount": 13,
+  "method": {
+    "stage": "stage-2",
+    "authority": "original-images",
+    "stage1UsedAsEvidence": false,
+    "aggregation": "human-reviewed style-family summary"
+  },
+  "classification": {
+    "recipeRole": ["environment", "lighting", "relaxed-stance"],
+    "clusterHealth": "moderate; storefront core mixed with street, interior, and logo-heavy samples"
+  },
+  "fashionIntent": {"primary": "approachable street-fashion or social-commerce look", "commercialRead": "lookbook and creator content"},
+  "subject": {"count": 1, "expression": "natural neutral or soft smile", "wardrobeTreatment": "full outfit remains readable"},
+  "pose": {
+    "invariants": ["relaxed asymmetric weight", "restrained hand action", "natural standing balance"],
+    "variations": ["hand in pocket", "both hands in pockets", "one hand near hair", "light ankle cross", "calm frontal stance"],
+    "avoid": ["invented bag or drink", "fashion pose disconnected from the environment"]
+  },
+  "camera": {
+    "shotSize": ["full-body", "three-quarter"],
+    "height": "eye-level",
+    "angle": "frontal to modest three-quarter",
+    "lensCharacter": "natural perspective; mild portrait compression"
+  },
+  "composition": {
+    "invariants": ["storefront or urban facade remains recognizable", "subject remains primary"],
+    "variations": ["centered", "rule-of-thirds", "doorway frame", "wall plane"]
+  },
+  "lighting": {
+    "source": "direct or dappled daylight",
+    "direction": "side-front, back-side, or overhead-side with physically matching shadows",
+    "quality": ["hard sun", "open shade with sun accents"],
+    "subjectIllumination": "sunlight or edge light reaches the subject, not only the background",
+    "shadowPattern": "facade, foliage, or pavement shadows remain motivated"
+  },
+  "environment": {
+    "invariants": ["real doorway, window, facade, or pavement depth"],
+    "variations": ["cafe", "small retail facade", "urban glass frontage", "textured shop wall"]
+  },
+  "capture": {"texture": "street photography with polished fashion control", "depth": "context legible but secondary"},
+  "qualityFlags": [
+    "samples 002, 004, 005, 006, 008, 009, 010, 012, and 013 contain visible text or logos",
+    "sample 005 contains a visible publication watermark",
+    "samples 001 and 013 are not clear exterior storefront examples"
+  ],
+  "confidence": {"pose": 0.82, "camera": 0.86, "lighting": 0.88, "environment": 0.8},
+  "sampleDisposition": [
+    {"sampleId": "sunlit-storefront-001", "role": "outlier", "notes": "interior architectural lean rather than storefront"},
+    {"sampleId": "sunlit-storefront-002", "role": "core", "notes": "cafe facade; visible sign text and bag"},
+    {"sampleId": "sunlit-storefront-003", "role": "outlier", "notes": "logo-heavy and tighter crop"},
+    {"sampleId": "sunlit-storefront-004", "role": "core", "notes": "dappled cafe light; drink and signs are not invariants"},
+    {"sampleId": "sunlit-storefront-005", "role": "blocked", "notes": "visible publication watermark and branding"},
+    {"sampleId": "sunlit-storefront-006", "role": "core", "notes": "clean storefront full-body stance"},
+    {"sampleId": "sunlit-storefront-007", "role": "variation", "notes": "urban street sun rather than storefront"},
+    {"sampleId": "sunlit-storefront-008", "role": "outlier", "notes": "decorative wall and flat light"},
+    {"sampleId": "sunlit-storefront-009", "role": "variation", "notes": "urban street backlight"},
+    {"sampleId": "sunlit-storefront-010", "role": "core", "notes": "flower-shop facade and controlled sunlight"},
+    {"sampleId": "sunlit-storefront-011", "role": "variation", "notes": "three-quarter crop and prop-led gesture"},
+    {"sampleId": "sunlit-storefront-012", "role": "core", "notes": "storefront depth and dappled daylight"},
+    {"sampleId": "sunlit-storefront-013", "role": "outlier", "notes": "interior cafe wall with large text graphics"}
+  ]
+}

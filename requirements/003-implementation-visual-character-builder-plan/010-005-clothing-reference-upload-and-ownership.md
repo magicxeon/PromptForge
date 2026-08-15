@@ -1,8 +1,14 @@
 # 010-005 Outfit Reference Front/Back Upload
 
-**Status:** Implemented - Baseline  
-**Parent:** `010-character-reference-clothing-concept.md`  
+**Status:** Implemented - Front/Back Flow Complete, Awaiting Browser Verification
+**Parent:** `010-character-reference-clothing-concept.md`
 **Depends on:** 010-002, provider capability contracts
+
+## Sub Requirements
+
+| File | Purpose |
+| --- | --- |
+| `010-005-001-outfit-reference-ui-and-customization-flow.md` | Move the Front/Back reference UI to the top of Clothing, guarantee payload attachment, and expose only explicit reference-safe overrides |
 
 ## Objective
 

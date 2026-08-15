@@ -1,67 +1,75 @@
-/**
- * ModelPromptForge - Scene Template Snapshot Sanitizer
- */
+import {
+  getReferenceSharePolicy,
+  isOwner,
+  isReferenceReusableByViewer
+} from './sceneReferenceSlotPolicy.js';
 
-import { isReferenceReusableByViewer } from './sceneReferenceSlotPolicy.js';
-
 /**
- * Sanitize a template snapshot for public/cross-user sharing, stripping unauthorized reference assets.
+ * Sanitizes a Scene Template snapshot before it crosses an ownership boundary.
+ * `shared_preview_only` retains only a thumbnail for UI preview, never an image URL
+ * or source identifier that a provider request could consume.
  */
-export function sanitizeReferenceSlotsForPublic(snapshot, viewerContext = {}, ownerUsername = null) {
+export function sanitizeReferenceSlotsForPublic(snapshot, viewerContext = {}, ownerIdentity = null) {
   if (!snapshot || typeof snapshot !== 'object') return snapshot;
-  
-  const isOwner = viewerContext.username && viewerContext.username === ownerUsername;
-  if (isOwner) return snapshot; // Owner has full access, no sanitization needed
+  if (isOwner(viewerContext, ownerIdentity)) return structuredClone(snapshot);
 
-  const clone = JSON.parse(JSON.stringify(snapshot));
+  const clone = structuredClone(snapshot);
   const mapping = clone.referenceSlotMapping || {};
 
-  // 1. Sanitize referenceSlotMapping to avoid leaks of sourceAssetId/sourceJobId/imageUrl
-  Object.entries(mapping).forEach(([slotId, slot]) => {
-    const policy = slot.sharePolicy || slot.policy || 'required_user_replacement';
-    const reuseAllowed = isReferenceReusableByViewer(slot, viewerContext, ownerUsername);
-    const previewAllowed = reuseAllowed || policy === 'shared_preview_only';
+  Object.entries(mapping).forEach(([slotId, rawSlot]) => {
+    const slot = normalizeReferenceSlot(rawSlot);
+    mapping[slotId] = slot;
+    const policy = getReferenceSharePolicy(slotId, slot);
+    const reuseAllowed = isReferenceReusableByViewer(slot, viewerContext, ownerIdentity);
+    const previewAllowed = policy === 'shared_preview_only' || reuseAllowed;
 
+    slot.sharePolicy = policy;
     slot.reuseAllowed = reuseAllowed;
     slot.previewAllowed = previewAllowed;
 
     if (!reuseAllowed) {
       delete slot.sourceAssetId;
       delete slot.sourceJobId;
+      delete slot.assetId;
+      delete slot.jobId;
       delete slot.imageUrl;
+      delete slot.value;
+      delete slot.defaultValue;
       delete slot.provider;
       delete slot.submodel;
       delete slot.source;
-
-      if (!previewAllowed) {
-        delete slot.thumbnailUrl;
-      }
     }
+    if (!previewAllowed || policy === 'not_shared') delete slot.thumbnailUrl;
   });
 
-  // 2. Sanitize replaceableVariables defaultValue
   if (Array.isArray(clone.replaceableVariables)) {
     clone.replaceableVariables.forEach(variable => {
-      if (variable.type === 'reference_image') {
-        const slot = mapping[variable.id] || {};
-        const policy = slot.sharePolicy || slot.policy || 'required_user_replacement';
+      if (variable.type !== 'reference_image') return;
+      const slot = mapping[variable.id] || {};
+      const policy = getReferenceSharePolicy(variable.id, slot);
+      const reuseAllowed = isReferenceReusableByViewer(slot, viewerContext, ownerIdentity);
 
-        const reuseAllowed = isReferenceReusableByViewer(slot, viewerContext, ownerUsername);
-        const previewAllowed = reuseAllowed || policy === 'shared_preview_only';
-
-        if (!reuseAllowed) {
-          if (previewAllowed && variable.defaultValue && typeof variable.defaultValue === 'object') {
-            // Put preview image in separate previewValue field, and nullify defaultValue
-            variable.previewValue = {
-              imageUrl: variable.defaultValue.imageUrl || '',
-              thumbnailUrl: variable.defaultValue.thumbnailUrl || ''
-            };
-          }
-          variable.defaultValue = null;
-        }
+      if (reuseAllowed) return;
+      if (policy === 'shared_preview_only') {
+        const thumbnailUrl = slot.thumbnailUrl || variable.defaultValue?.thumbnailUrl || null;
+        variable.previewValue = thumbnailUrl ? { thumbnailUrl } : null;
+      } else {
+        delete variable.previewValue;
       }
+      variable.defaultValue = null;
     });
   }
 
   return clone;
+}
+
+function normalizeReferenceSlot(slot) {
+  if (slot && typeof slot === 'object' && !Array.isArray(slot)) return slot;
+  if (typeof slot === 'string' && slot.trim()) {
+    return {
+      value: slot.trim(),
+      imageUrl: slot.trim()
+    };
+  }
+  return {};
 }

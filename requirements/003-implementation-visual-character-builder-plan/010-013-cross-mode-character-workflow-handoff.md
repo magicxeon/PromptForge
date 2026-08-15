@@ -655,3 +655,16 @@ Defer:
 - Handoff updates mode, references, prompt preview, and scroll position.
 - Unsupported image-reference providers do not break the workflow.
 - Handoff metadata is available in history or generation metadata for future lineage features.
+## React SPA Re-Hydration Guard (2026-07-29)
+
+React Router navigation may reuse an already-mounted Scene Builder route.
+Therefore Scene Builder must not consume Character, Face, or Scene Template
+handoffs only during initial component construction.
+
+- Observe `location.key` and consume a newly written actor-scoped handoff after
+  each in-app navigation.
+- Apply Character Reference URL, reusable/styled outfit behavior, profile
+  context, and optional template state before the reference section is shown.
+- Keep handoffs one-time and actor-scoped.
+- A full browser refresh must not be required for `Build a Scene` to display the
+  selected Character Reference.

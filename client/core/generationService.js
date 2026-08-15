@@ -31,7 +31,87 @@
     return window.generatePromptText ? window.generatePromptText(true) : "";
   }
 
+  function getGenerationPricingInputs(payload = null) {
+    const request = payload || getGenerationRequestPayload();
+    const reusableCharacterSheet = request.mode === 'character-sheet'
+      && request.characterType !== 'styled_character';
+    const castingPolicy = window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING;
+    const references = [
+      request.faceReferenceImageA, request.faceReferenceImageB,
+      request.styleReferenceImageA, request.styleReferenceImageB,
+      request.characterReferenceImageA, request.characterReferenceImageB,
+      request.outfitReferenceImageFront, request.outfitReferenceImageBack
+    ].filter(Boolean);
+
+    return {
+      routingMode: 'advanced',
+      qualityTier: 'standard',
+      generationMode: request.generationSurface === 'playground' ? 'playground' : (request.mode || 'scene'),
+      requestedProviderId: request.provider,
+      requestedModelId: request.submodel,
+      resolution: request.imageResolution || '1K',
+      aspectRatio: reusableCharacterSheet
+        ? (castingPolicy?.aspectRatio || '6:8')
+        : (request.aspectRatio || state.aspectRatio || '1:1'),
+      quality: document.getElementById('image-quality-select')?.value || null,
+      referenceCount: new Set(references).size,
+      outputCount: reusableCharacterSheet
+        ? 1
+        : Number(request.outputCount || document.getElementById('output-count-select')?.value || 1)
+    };
+  }
+
+  function renderCreditEstimate(state) {
+    const cost = document.getElementById('btn-credit-estimate')
+      || document.querySelector('#btn-generate-image .btn-credit-cost-dark');
+    const button = document.getElementById('btn-generate-image');
+    if (!cost || !button) return;
+    if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+      cost.textContent = '(See comparison total above)';
+      button.disabled = false;
+      button.title = 'Comparison credits are estimated from the selected comparison slots.';
+      return;
+    }
+    if (state.isLoading) {
+      cost.textContent = '(Estimating...)';
+      return;
+    }
+    if (state.estimate) {
+      const credits = state.estimate.estimatedCredits;
+      cost.textContent = `(${credits} Credit${credits === 1 ? '' : 's'})`;
+      button.disabled = false;
+      button.title = '';
+      return;
+    }
+    cost.textContent = state.error ? '(Pricing unavailable)' : '(Estimate required)';
+    button.disabled = false; // Click resolves/retries the estimate and shows the server error.
+    button.title = state.error?.message || 'Credit estimate will be calculated before generation.';
+  }
+
+  let estimateRefreshTimer = null;
+  function refreshGenerationCreditEstimate({ debounce = false } = {}) {
+    if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+      renderCreditEstimate(window.creditEstimateController?.getState?.() || {});
+      return Promise.resolve(null);
+    }
+    if (window.ModelPromptForgeComparison?.isActive?.()) return Promise.resolve(null);
+    const run = async () => {
+      const inputs = getGenerationPricingInputs();
+      if (!inputs.requestedProviderId || !inputs.requestedModelId) {
+        window.creditEstimateController?.invalidate();
+        return null;
+      }
+      return window.creditEstimateController?.updateEstimate(inputs);
+    };
+    if (!debounce) return run();
+    clearTimeout(estimateRefreshTimer);
+    return new Promise(resolve => {
+      estimateRefreshTimer = setTimeout(() => { void run().then(resolve); }, 120);
+    });
+  }
+
   function getGenerationRequestPayload() {
+    const isPlaygroundSurface = state.generationSurface === 'playground';
     const sourceOwnership = state.mode === "character-sheet"
       ? (window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null)
       : null;
@@ -51,6 +131,14 @@
 
     const isTemplateActive = state.mode === "normal" && window.ModelPromptForgeSceneReplacementChecklist?.isTemplateWorkflowActive();
     if (isTemplateActive) {
+      imageReferences = {
+        faceMatch: false,
+        styleMatch: false,
+        poseMatch: false,
+        characterReference: false,
+        outfitReference: false,
+        characterOverrides: false
+      };
       const resolved = window.ModelPromptForgeSceneReplacementChecklist.getResolvedPayload();
       if (resolved && resolved.success && resolved.patch) {
         selections = { ...selections, ...resolved.patch.selections };
@@ -62,21 +150,44 @@
         if (refs.outfit_front_reference) outfitReferenceImageFront = refs.outfit_front_reference;
         if (refs.outfit_back_reference) outfitReferenceImageBack = refs.outfit_back_reference;
 
-        // Force enable references based on template mapping
         const mapping = window.ModelPromptForgeSceneReplacementChecklist.getActiveTemplateSnapshot()?.referenceSlotMapping || {};
-        if (mapping.face_reference) imageReferences.faceMatch = true;
-        if (mapping.character_reference) imageReferences.characterReference = true;
-        if (mapping.style_reference) imageReferences.styleMatch = true;
-        if (mapping.outfit_front_reference || mapping.outfit_back_reference) imageReferences.outfitReference = true;
+        if (mapping.face_reference) {
+          imageReferences.faceMatch = Boolean(faceReferenceImageA || faceReferenceImageB);
+        }
+        if (mapping.character_reference) {
+          imageReferences.characterReference = Boolean(characterReferenceImageA || characterReferenceImageB);
+        }
+        if (mapping.style_reference) {
+          imageReferences.styleMatch = Boolean(styleReferenceImageA || styleReferenceImageB);
+        }
+        if (mapping.outfit_front_reference || mapping.outfit_back_reference) {
+          imageReferences.outfitReference = Boolean(outfitReferenceImageFront);
+        }
+      }
+    }
+
+    if (state.mode === "character-sheet") {
+      const characterType = window.ModelPromptForgeCharacterTypeControl
+        ?.normalizeType?.(state.characterType) || "reusable_model";
+      imageReferences.outfitReference = characterType === "styled_character"
+        && Boolean(outfitReferenceImageFront);
+      if (characterType === "reusable_model") {
+        outfitReferenceImageFront = null;
+        outfitReferenceImageBack = null;
+        selections = Object.fromEntries(Object.entries(selections || {}).filter(([fieldName, selection]) =>
+          selection?.group !== "Clothing" && fieldName !== "Sheet Layout"
+        ));
       }
     }
 
     const isCharacterRefActive = (window.isStoryCharacterReferenceActive && window.isStoryCharacterReferenceActive())
-      || (isTemplateActive && imageReferences.characterReference && Boolean(characterReferenceImageA || characterReferenceImageB));
+      || ((isTemplateActive || isPlaygroundSurface)
+        && imageReferences.characterReference
+        && Boolean(characterReferenceImageA || characterReferenceImageB));
 
     const submittedReferenceJobIds = {
       face: imageReferences.faceMatch ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.faceReferenceJobIds) : state.faceReferenceJobIds) : [],
-      outfit: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference
+      outfit: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference
         ? (window.uniqueReferenceJobIds ? window.uniqueReferenceJobIds(state.outfitReferenceJobIds) : state.outfitReferenceJobIds)
         : [],
       style: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
@@ -87,7 +198,6 @@
         : []
     };
 
-    // Swap state temporarily to compile final prompt matching resolved selections/colors
     const oldSelections = state.selections;
     const oldCustomColors = state.customColors;
     const oldImageReferences = state.imageReferences;
@@ -111,15 +221,29 @@
       state.characterReferenceImageB = oldCharacterRefImageB;
     }
 
-    return {
+    const payload = {
       provider: document.getElementById("api-provider-select")?.value || null,
       submodel: document.getElementById("api-submodel-select")?.value || null,
       imageResolution: getSelectedImageResolution(),
       selections,
-      aspectRatio: state.aspectRatio,
+      aspectRatio: state.mode === "character-sheet"
+        && (window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType) || "reusable_model") === "reusable_model"
+          ? (window.ModelPromptForgeCharacterTypeControl?.REUSABLE_CASTING?.aspectRatio || "6:8")
+          : state.aspectRatio,
+      outputCount: state.mode === "character-sheet"
+        && (window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType) || "reusable_model") === "reusable_model"
+          ? 1
+          : Number(document.getElementById("output-count-select")?.value || 1),
       imageReferences,
+      outfitReferenceOverrides: window.ModelPromptForgeOutfitReferenceController
+        ?.normalizeOverrides?.(state.outfitReferenceOverrides) || state.outfitReferenceOverrides,
       sourceOwnership,
       mode: state.mode,
+      characterType: state.mode === "character-sheet"
+        ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType)
+          || "reusable_model"
+        : null,
+      generationSurface: isPlaygroundSurface ? 'playground' : 'studio',
       sceneBuilder: state.mode === "normal"
         ? {
             authoringMode: state.sceneBuilder?.authoringMode === "manual" ? "manual" : "guided",
@@ -170,8 +294,8 @@
       faceReferenceImageA: imageReferences.faceMatch ? faceReferenceImageA : null,
       faceReferenceImageB: imageReferences.faceMatch ? faceReferenceImageB : null,
       faceReferenceJobIds: submittedReferenceJobIds.face,
-      outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
-      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive) && imageReferences.outfitReference ? outfitReferenceImageBack : null,
+      outfitReferenceImageFront: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference ? outfitReferenceImageFront : null,
+      outfitReferenceImageBack: (state.mode === "character-sheet" || isTemplateActive || isPlaygroundSurface) && imageReferences.outfitReference && outfitReferenceImageFront ? outfitReferenceImageBack : null,
       outfitReferenceJobIds: submittedReferenceJobIds.outfit,
       styleReferenceImageA: state.mode === "normal" && (imageReferences.styleMatch || imageReferences.poseMatch)
         ? styleReferenceImageA : null,
@@ -182,8 +306,10 @@
       characterReferenceImageB: isCharacterRefActive ? characterReferenceImageB : null,
       characterReferenceJobIds: submittedReferenceJobIds.character,
       customColors,
-      adminPromptOverride: state.userRole === "admin" ? finalPrompt : null
+      adminPromptOverride: state.userRole === "admin" ? finalPrompt : null,
+      estimateId: window.creditEstimateController?.getState()?.estimate?.estimateId || null
     };
+    return window.ModelPromptForgeCharacterCastingExport?.enrichGenerationPayload?.(payload) || payload;
   }
 
   function populateProviderList(preferredProvider = null) {
@@ -249,7 +375,7 @@
       if (!model) {
         capabilitySummary.textContent = "";
       } else {
-        const credits = Number(model.estimatedCredits || 1);
+        const credits = Number(window.creditEstimateController?.getState?.().estimate?.estimatedCredits || model.estimatedCredits || 0);
         const creditText = state.language === "th"
           ? `${credits} เครดิต`
           : `${credits} credit${credits === 1 ? "" : "s"}`;
@@ -263,6 +389,7 @@
     }
     updateAspectRatioCapabilityUI();
     updateImageResolutionControl();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
 
     const refFace = document.getElementById("ref-face-match");
     const refStyle = document.getElementById("ref-style-match");
@@ -412,6 +539,10 @@
           ? `โมเดลที่เลือกไม่รองรับอัตราส่วน ${ratio}`
           : `The selected model does not support ${ratio}.`);
     });
+    window.ModelPromptForgeCharacterTypeControl?.applyOutputPolicy?.({
+      root: document,
+      state
+    });
   }
 
   async function updateCredits() {
@@ -506,6 +637,8 @@
   window.getSelectedImageResolution = getSelectedImageResolution;
   window.getEditablePromptText = getEditablePromptText;
   window.getGenerationRequestPayload = getGenerationRequestPayload;
+  window.getGenerationPricingInputs = getGenerationPricingInputs;
+  window.refreshGenerationCreditEstimate = refreshGenerationCreditEstimate;
   window.populateProviderList = populateProviderList;
   window.updateSubmodelList = updateSubmodelList;
   window.usesProviderResolutionPreset = usesProviderResolutionPreset;
@@ -515,4 +648,14 @@
   window.updateAspectRatioCapabilityUI = updateAspectRatioCapabilityUI;
   window.updateCredits = updateCredits;
   window.randomizePresetSelections = randomizePresetSelections;
+
+  window.creditEstimateController?.subscribe(renderCreditEstimate);
+  document.addEventListener('change', event => {
+    if (event.target.closest?.('#creative-configurator, #image-resolution-field, #api-provider-select, #api-submodel-select')) {
+      void refreshGenerationCreditEstimate({ debounce: true });
+    }
+  });
+  window.addEventListener('modelpromptforge:ready', () => {
+    void refreshGenerationCreditEstimate();
+  });
 })();

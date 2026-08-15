@@ -132,6 +132,25 @@
         "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/natural-r1.png",
         "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/natural-r1.png"
       }
+    },
+    {
+      "assetId": "visual.eyebrows.shape.vertical-drama-male",
+      "optionId": "eyebrows.shape.vertical_drama_male",
+      "attributeId": "eyebrows.008",
+      "slug": "vertical-drama-male",
+      "assetRevision": 3,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Structured straight adult masculine eyebrows",
+        "th": "คิ้วตรงคมแบบนักแสดงนำชาย"
+      },
+      "sourceHash": "e2c8041955367c058024e0ca5e9180ff7f99196ffb4b8c1b61f985410db81688",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/master/vertical-drama-male-r3.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/preview/vertical-drama-male-r3.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/thumb/vertical-drama-male-r3.png"
+      }
     }
   ]
 }

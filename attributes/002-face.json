@@ -400,5 +400,23 @@
       "face"
     ],
     "enabled": true
+  },
+  {
+    "id": "face.021",
+    "category": "face",
+    "label": { "en": "Sculpted Tapered Face", "th": "โครงหน้าคมเรียวแบบนักแสดงนำ" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": { "default": "adult masculine face with defined cheekbones, a clean structured jaw, and a naturally tapered chin" },
+    "tags": ["face", "vertical-drama-lead", "adult-male"],
+    "enabled": true
+  },
+  {
+    "id": "face.022",
+    "category": "face",
+    "label": { "en": "Refined Soft Tapered Face", "th": "โครงหน้าละมุนเรียวแบบนักแสดงนำ" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": { "default": "adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin" },
+    "tags": ["face", "vertical-drama-lead", "adult-female"],
+    "enabled": true
   }
 ]

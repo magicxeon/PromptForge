@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://momelo.local/schemas/reference-processing-policy.schema.json",
+  "title": "Reference Processing Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "policyVersion",
+    "defaultFallbackMode",
+    "defaultReferenceOrder",
+    "domainPriorities",
+    "roles",
+    "directives",
+    "providerOverrides"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "policyVersion": { "type": "string", "minLength": 1 },
+    "defaultFallbackMode": { "enum": ["safe_deterministic", "reject"] },
+    "defaultReferenceOrder": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "domainPriorities": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": { "type": "string" }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "intent",
+          "allowedSourceKinds",
+          "preserveTraits",
+          "suppressTraits",
+          "authorityDomains",
+          "ownedAttributeGroups",
+          "editableAttributeFields",
+          "processors",
+          "directiveId"
+        ],
+        "properties": {
+          "intent": { "type": "string", "minLength": 1 },
+          "allowedSourceKinds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["asset", "history", "template", "character"] }
+          },
+          "preserveTraits": { "type": "array", "items": { "type": "string" } },
+          "suppressTraits": { "type": "array", "items": { "type": "string" } },
+          "authorityDomains": { "type": "array", "items": { "type": "string" } },
+          "ownedAttributeGroups": { "type": "array", "items": { "type": "string" } },
+          "editableAttributeFields": { "type": "array", "items": { "type": "string" } },
+          "processors": { "type": "array", "items": { "type": "string" } },
+          "scopeOptions": { "type": "array", "items": { "type": "string" } },
+          "defaultScope": { "type": "string" },
+          "minimumConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "directiveId": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "directives": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["base"],
+        "properties": {
+          "base": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": { "type": "string" }
+      }
+    },
+    "providerOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["referenceOrder", "directiveSuffixIds"],
+        "properties": {
+          "referenceOrder": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string" }
+          },
+          "directiveSuffixIds": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string" }
+          },
+          "dispatchRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "when", "suppressRoles"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "when": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["generationSurfaces", "allRoles"],
+                  "properties": {
+                    "generationSurfaces": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "allRoles": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "anyRoles": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                },
+                "suppressRoles": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          },
+          "structuredBrief": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "generationSurfaces",
+              "requiredRoles",
+              "task",
+              "templateDirection",
+              "characterIdentity",
+              "outfitTransfer",
+              "output"
+            ],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "generationSurfaces": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string" }
+              },
+              "requiredRoles": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "type": "string" }
+              },
+              "task": { "type": "string", "minLength": 1 },
+              "templateDirection": { "$ref": "#/$defs/briefSection" },
+              "characterIdentity": { "$ref": "#/$defs/briefSection" },
+              "outfitTransfer": { "$ref": "#/$defs/briefSection" },
+              "output": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "subjectCount",
+                  "singleFullFramePhoto",
+                  "fullBodyVisible",
+                  "prohibit"
+                ],
+                "properties": {
+                  "subjectCount": { "type": "integer", "minimum": 1 },
+                  "singleFullFramePhoto": { "type": "boolean" },
+                  "fullBodyVisible": { "type": "boolean" },
+                  "prohibit": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "briefSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority", "preserve", "ignore"],
+      "properties": {
+        "authority": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "instruction": { "type": "string" },
+        "preserve": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ignore": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

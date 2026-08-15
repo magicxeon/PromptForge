@@ -174,7 +174,10 @@ window.TAG_CONFLICT_RULES = [
   ["day", "night"],
   ["summer", "winter"],
   ["modern", "vintage"],
-  ["cyberpunk", "traditional"]
+  ["cyberpunk", "traditional"],
+  ["smile", "serious"],
+  ["smile", "neutral"],
+  ["direct gaze", "look away"]
 ];
 
 window.CATEGORY_PRIORITIES = {
@@ -182,6 +185,7 @@ window.CATEGORY_PRIORITIES = {
   "lighting": 90,
   "camera": 80,
   "clothing": 70,
+  "expression": 65,
   "pose": 60,
   "quality": 50,
   "nsfw": 40,
@@ -240,11 +244,19 @@ window.state = {
   outfitReferenceImageFront: null,
   outfitReferenceImageBack: null,
   outfitReferenceJobIds: [],
+  outfitReferenceOverrides: {
+    enabled: false,
+    primaryColor: false,
+    secondaryColor: false,
+    pattern: false,
+    material: false
+  },
   characterReferenceOverrides: false,
   hasInitializedHistoryCollapse: false,
   language: "th",
   aspectRatio: "6:8",
   mode: "normal",
+  characterType: "reusable_model",
   userRole: "user",
   username: "user_demo",
   activeJobId: null,
@@ -286,6 +298,9 @@ window.state = {
 
 // Retrieve localized label with backward compatibility fallback
 window.getLocalizedLabel = function(labelObj) {
+  if (window.ModelPromptForgeI18n?.getLocalizedLabel) {
+    return window.ModelPromptForgeI18n.getLocalizedLabel(labelObj);
+  }
   if (typeof labelObj === 'object' && labelObj !== null) {
     return labelObj[window.state.language] || labelObj['en'] || '';
   }

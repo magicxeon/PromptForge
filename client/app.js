@@ -74,7 +74,12 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initApp() {
   state.isRestoringState = true; // Block any auto-saving during initialization race conditions (Step 12)
   try {
-    state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
+    if (window.ModelPromptForgeI18n?.initialize) {
+      await window.ModelPromptForgeI18n.initialize();
+      state.language = window.ModelPromptForgeI18n.getLocale();
+    } else {
+      state.language = localStorage.getItem('model_prompt_forge_language') || state.language;
+    }
     const [response, providerResponse] = await Promise.all([
       fetch("/api/attributes/bundle"),
       fetch("/api/providers")
@@ -87,24 +92,60 @@ async function initApp() {
     if (!state.providerCatalog?.providers?.length) {
       throw new Error("No configured image providers are available.");
     }
+    if (!Array.isArray(bundle?.schema) || !Array.isArray(bundle?.library)) {
+      throw new Error("Attribute bundle is missing its schema or option library.");
+    }
 
     state.schema = bundle.schema;
-    state.templates = bundle.templates;
-    state.order = bundle.order;
+    state.templates = bundle.templates || {};
+    state.order = Array.isArray(bundle.order) ? bundle.order : [];
     state.library = bundle.library;
-    state.presets = bundle.presets;
+    state.presets = bundle.presets || {};
     await loadVisualAssetManifests();
 
-    // Populate templates select
-    const templateSelect = document.getElementById("template-select");
-    templateSelect.innerHTML = "";
-    Object.keys(state.templates).forEach((key, index) => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = key.charAt(0).toUpperCase() + key.slice(1) + " Layout";
-      if (index === 0) option.selected = true;
-      templateSelect.appendChild(option);
+    window.ModelPromptForgeStudioEngineTargetPanel?.destroy?.();
+    window.ModelPromptForgeStudioEngineTargetPanel = window.ModelPromptForgeGenerationControls
+      ?.createEngineTargetComparisonPanel?.({
+        mount: document.getElementById('studio-engine-target-panel'),
+        getCatalog: () => state.providerCatalog,
+        options: {
+          showStepBadge: true,
+          stepLabel: 'Step 2',
+          showComparison: true,
+          showActiveRun: true,
+          showResolution: true,
+          showDimensions: true,
+          showAspectRatio: true,
+          legacyStudioIds: true
+        },
+        getComparisonEstimate: ({ slots }) => window.ModelPromptForgeComparison?.estimateForPayload?.({
+          ...getGenerationRequestPayload(),
+          slots
+        }),
+        onComparisonModeChange: () => { void window.refreshGenerationCreditEstimate?.(); },
+        onComparisonSubmit: ({ slots }) => window.ModelPromptForgeComparison?.startFromExternal?.(slots)
+      });
+    if (!window.ModelPromptForgeStudioEngineTargetPanel) {
+      throw new Error('Engine & Target Output component is unavailable.');
+    }
+
+    window.ModelPromptForgeStudioGenerationResultSurface?.destroy?.();
+    window.ModelPromptForgeStudioGenerationResultSurface = window.ModelPromptForgeGenerationControls
+      ?.createGenerationResultSurface?.({
+        mount: document.getElementById('studio-generation-result'),
+        surface: 'studio',
+        legacyStudioIds: true,
+        showRecentRenders: false
+      });
+    if (!window.ModelPromptForgeStudioGenerationResultSurface) {
+      throw new Error('Generation result component is unavailable.');
+    }
+
+    populateProviderList();
+    document.querySelectorAll('#language-pill-selector .pill-btn').forEach(button => {
+      button.classList.toggle('active', button.getAttribute('data-value') === state.language);
     });
+    updateSubmodelList();
 
     renderForm();
     populateProviderList();
@@ -113,6 +154,7 @@ async function initApp() {
     });
     updateSubmodelList();
     bindEvents();
+    window.ModelPromptForgeOutfitReferenceController?.initOutfitReferenceController?.();
     initializeCollectionsUI();
     initializeScrollToViewport();
     initializeAutoExpandConfigurator();
@@ -131,6 +173,7 @@ async function initApp() {
 
     // Restore persisted state for initial mode (Step 12)
     restoreCurrentModeState();
+    rerenderDynamicForm({ preserveOpenAccordions: false });
 
     if (window.ModelPromptForgeSceneBuilder?.init) {
       window.ModelPromptForgeSceneBuilder.init();
@@ -139,7 +182,10 @@ async function initApp() {
     enforceModeReferencePolicy({ updateUI: false });
     toggleUIForMode();
     updateReferencePreviewsUI();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
+    await window.ModelPromptForgeMockUserSwitcher?.init?.();
     updateCredits();
+    void window.refreshGenerationCreditEstimate?.();
 
     state.isRestoringState = false; // Safe to auto-save now
 
@@ -153,7 +199,7 @@ async function initApp() {
       getUserRole: () => state.userRole,
       getGenerationPayload: getGenerationRequestPayload,
       validateForm,
-      openLightbox: item => openLightbox(item),
+      openLightbox: (item, options) => openLightbox(item, options),
       openCollectionPicker: jobId => openMembershipModal(jobId),
       useAsFaceReference: (imageUrl, jobId) => assignFaceReference(imageUrl, jobId),
       useAsStyleReference: (imageUrl, jobId) => assignStyleReference(imageUrl, jobId),
@@ -230,6 +276,14 @@ function validateForm() {
   }
 
   const activeModel = getActiveModelConfig();
+  const outfitValidation = window.ModelPromptForgeOutfitReferenceController
+    ?.validateOutfitReferenceState?.(activeModel);
+  if (outfitValidation && !outfitValidation.valid) {
+    const panel = document.getElementById("outfit-reference-upload-container");
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
+    void AppDialog.alert(outfitValidation.message, { title: "Outfit Reference" });
+    return false;
+  }
   if (activeModel) {
     const capabilities = activeModel.capabilities || {};
     const activeReferences = [
@@ -259,6 +313,9 @@ function validateForm() {
     { field: "Ethnicity", group: "Character" },
     { field: "Gender", group: "Character" }
   ];
+  if (state.mode === "normal" && state.sceneBuilder?.authoringMode === "manual") {
+    return true;
+  }
   const characterReferenceOwnsIdentity = isStoryCharacterReferenceActive()
     && !state.characterReferenceOverrides;
 
@@ -488,51 +545,11 @@ function bindEvents() {
     });
   }
 
-  const readOutfitReferenceFile = (file, slot) => {
-    if (!file || state.mode !== "character-sheet") return;
-    const reader = new FileReader();
-    reader.onload = (loadEvent) => {
-      const base64 = loadEvent.target.result.split(',')[1];
-      if (slot === "front") {
-        state.outfitReferenceImageFront = base64;
-        state.outfitReferenceJobIds[0] = null;
-      } else {
-        state.outfitReferenceImageBack = base64;
-        state.outfitReferenceJobIds[1] = null;
-      }
-      state.imageReferences.outfitReference = Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
-      updateReferencePreviewsUI();
-      updateCharacterSheetSourceStatus();
-      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
-        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
-      }
-      updatePromptPreview();
-    };
-    reader.readAsDataURL(file);
-  };
-
-  document.addEventListener("change", (event) => {
-    if (event.target?.id === "outfit-front-file") {
-      readOutfitReferenceFile(event.target.files[0], "front");
-      event.target.value = "";
-    } else if (event.target?.id === "outfit-back-file") {
-      readOutfitReferenceFile(event.target.files[0], "back");
-      event.target.value = "";
-    }
-  });
-
   // Handle slot close/clear button clicks (Step 9)
   document.addEventListener("click", (e) => {
-    if (e.target?.id === "btn-clear-outfit-reference") {
-      clearOutfitReferenceState();
-      if (window.ModelPromptForgeClothingOptionRules?.applyClothingVisibilityRules) {
-        window.ModelPromptForgeClothingOptionRules.applyClothingVisibilityRules();
-      }
-      updatePromptPreview();
-      return;
-    }
     if (e.target.classList.contains("btn-clear-slot")) {
       const slot = e.target.getAttribute("data-slot");
+      if (slot === "outfitFront" || slot === "outfitBack") return;
       if (slot === "faceA") {
         state.faceReferenceImageA = null;
         state.faceReferenceJobIds[0] = null;
@@ -551,18 +568,10 @@ function bindEvents() {
       } else if (slot === "characterB") {
         state.characterReferenceImageB = null;
         state.characterReferenceJobIds[1] = null;
-      } else if (slot === "outfitFront") {
-        state.outfitReferenceImageFront = null;
-        state.outfitReferenceJobIds[0] = null;
-      } else if (slot === "outfitBack") {
-        state.outfitReferenceImageBack = null;
-        state.outfitReferenceJobIds[1] = null;
       }
       if (!state.characterReferenceImageA && !state.characterReferenceImageB) {
         clearCharacterReferenceState({ updateUI: false });
       }
-      state.imageReferences.outfitReference = state.mode === "character-sheet"
-        && Boolean(state.outfitReferenceImageFront || state.outfitReferenceImageBack);
       updateReferencePreviewsUI();
       refreshReferenceAuthorityUI();
       updatePromptPreview();
@@ -635,82 +644,29 @@ function bindEvents() {
 
   if (toggleNsfw) toggleNsfw.addEventListener("change", updateNsfwState);
 
-  // Language Selector Pill Toggles (Step 8)
-  const languagePills = document.querySelectorAll("#language-pill-selector .pill-btn");
-  languagePills.forEach(btn => {
-    btn.addEventListener("click", () => {
-      languagePills.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      const newLang = btn.getAttribute("data-value");
-      if (state.language !== newLang) {
-        const openAccordionIds = [...document.querySelectorAll('#form-container .accordion.active')]
-          .map(accordion => accordion.id)
-          .filter(Boolean);
-        state.language = newLang;
-        localStorage.setItem('model_prompt_forge_language', newLang);
-        const currentProvider = document.getElementById("api-provider-select")?.value;
-        const currentModel = document.getElementById("api-submodel-select")?.value;
-        populateProviderList(currentProvider);
-        updateSubmodelList(currentModel);
-        renderForm();
-        bindDynamicFormEvents();
-        restoreSelectionsToUI();
-        openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
-        updateColorPickerUI();
-        enforceModeReferencePolicy({ updateUI: false });
-        toggleUIForMode();
-        refreshReferenceAuthorityUI();
-        updateReferencePreviewsUI();
-        updateLightboxNavigationLabels();
-        updatePromptPreview();
-      }
-    });
+  // Language Change Subscriber
+  window.addEventListener('modelpromptforge:languagechange', (event) => {
+    const newLang = event.detail.locale;
+    const openAccordionIds = [...document.querySelectorAll('#form-container .accordion.active')]
+      .map(accordion => accordion.id)
+      .filter(Boolean);
+    state.language = newLang;
+    const currentProvider = document.getElementById("api-provider-select")?.value;
+    const currentModel = document.getElementById("api-submodel-select")?.value;
+    populateProviderList(currentProvider);
+    updateSubmodelList(currentModel);
+    renderForm();
+    bindDynamicFormEvents();
+    restoreSelectionsToUI();
+    openAccordionIds.forEach(id => document.getElementById(id)?.classList.add('active'));
+    updateColorPickerUI();
+    enforceModeReferencePolicy({ updateUI: false });
+    toggleUIForMode();
+    refreshReferenceAuthorityUI();
+    updateReferencePreviewsUI();
+    updateLightboxNavigationLabels();
+    updatePromptPreview();
   });
-
-  // Initialize Mock User Switcher UI
-  if (window.ModelPromptForgeMockUserSwitcher?.init) {
-    window.ModelPromptForgeMockUserSwitcher.init();
-  }
-
-  // Simulated Credits Top-up
-  const btnRecharge = document.getElementById("btn-recharge");
-  if (btnRecharge) {
-    btnRecharge.addEventListener("click", async () => {
-      try {
-        const response = await apiFetch('/api/credits/recharge', {
-          method: 'POST',
-          body: {}
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Recharge failed");
-
-        // Update balance display
-        document.getElementById("credits-value").textContent = data.credits;
-        const balanceEl = document.getElementById("credits-value");
-        balanceEl.style.color = "#10b981"; // green flash
-        setTimeout(() => { balanceEl.style.color = ""; }, 1000);
-      } catch (err) {
-        void AppDialog.alert("Failed to recharge credits: " + err.message, { title: "Recharge Failed" });
-      }
-    });
-  }
-
-  // Download Generated Image Button
-  const btnDownloadImage = document.getElementById("btn-download-image");
-  if (btnDownloadImage) {
-    btnDownloadImage.addEventListener("click", () => {
-      const img = document.getElementById("generated-image");
-      if (!img || !img.src) return;
-
-      const a = document.createElement("a");
-      a.href = img.src;
-      a.download = `modelpromptforge-generation-${Date.now()}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    });
-  }
 
   // Panel Collapsible Actions
   const btnToggleDashboard = document.getElementById("btn-toggle-dashboard");
@@ -737,48 +693,6 @@ function bindEvents() {
     });
   }
 
-  // Lightbox close button
-  const lightboxModal = document.getElementById("lightbox-modal");
-  const lightboxClose = document.getElementById("lightbox-close");
-  if (lightboxClose && lightboxModal) {
-    lightboxClose.addEventListener("click", closeLightbox);
-    lightboxModal.addEventListener("click", (e) => {
-      if (e.target === lightboxModal) {
-        closeLightbox();
-      }
-    });
-    document.getElementById("lightbox-previous")?.addEventListener("click", () => navigateLightbox(-1));
-    document.getElementById("lightbox-next")?.addEventListener("click", () => navigateLightbox(1));
-    document.addEventListener("keydown", event => {
-      if (lightboxModal.style.display === "none") return;
-      if (document.querySelector('.collection-modal[style*="display: flex"]')) return;
-      const target = event.target;
-      if (target?.matches?.('input, textarea, select, [contenteditable="true"]')) return;
-      if (event.key === "Tab") {
-        const focusable = [...lightboxModal.querySelectorAll('button:not([hidden]), a[href]')]
-          .filter(element => !element.disabled && element.getClientRects().length > 0);
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      } else if (event.key === "Escape") {
-        event.preventDefault();
-        closeLightbox();
-      } else if (event.key === "ArrowLeft") {
-        if (navigateLightbox(-1)) event.preventDefault();
-      } else if (event.key === "ArrowRight") {
-        if (navigateLightbox(1)) event.preventDefault();
-      }
-    });
-  }
-
-  // Viewport Loopback action listeners (Step 9)
   const btnViewportUseFace = document.getElementById("btn-viewport-use-face");
   const btnViewportUseStyle = document.getElementById("btn-viewport-use-style");
   const btnViewportUseCharacter = document.getElementById("btn-viewport-use-character");
@@ -790,6 +704,8 @@ function bindEvents() {
         const meta = state.activeViewportJobMeta;
         if (meta && meta.mode === "headshot") {
           window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(meta, "build-character");
+        } else if (meta && meta.mode === "character-sheet") {
+          window.ModelPromptForgeCharacterProfileEditor?.openCreate?.(meta);
         } else {
           assignFaceReference(img.src, state.activeJobId);
           btnViewportUseFace.textContent = "👤 Face Locked!";
@@ -830,15 +746,23 @@ function bindEvents() {
   const btnLightboxUseFace = document.getElementById("btn-lightbox-use-face");
   const btnLightboxUseStyle = document.getElementById("btn-lightbox-use-style");
   const btnLightboxUseCharacter = document.getElementById("btn-lightbox-use-character");
+  const getOpenLightboxModal = () => {
+    const modal = document.getElementById("lightbox-modal");
+    return modal && modal.style.display !== "none" ? modal : null;
+  };
 
   if (btnLightboxUseFace) {
     btnLightboxUseFace.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         if (activeItem && activeItem.mode === "headshot") {
           closeLightbox();
           window.ModelPromptForgeCrossModeHandoff?.showHandoffConfirmation(activeItem, "build-character");
+        } else if (activeItem && activeItem.mode === "character-sheet") {
+          closeLightbox();
+          window.ModelPromptForgeCharacterProfileEditor?.openCreate?.(activeItem);
         } else {
           assignFaceReference(img.src, activeItem ? activeItem.id : null);
           closeLightbox();
@@ -850,7 +774,8 @@ function bindEvents() {
   if (btnLightboxUseStyle) {
     btnLightboxUseStyle.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         assignStyleReference(img.src, activeItem ? activeItem.id : null);
         closeLightbox();
@@ -861,7 +786,8 @@ function bindEvents() {
   if (btnLightboxUseCharacter) {
     btnLightboxUseCharacter.addEventListener("click", () => {
       const img = document.getElementById("lightbox-image");
-      if (img && img.src && lightboxModal.style.display !== "none") {
+      const lightboxModal = getOpenLightboxModal();
+      if (img && img.src && lightboxModal) {
         const activeItem = lightboxModal.activeItem;
         if (activeItem && activeItem.mode === "character-sheet") {
           closeLightbox();
@@ -878,8 +804,8 @@ function bindEvents() {
   const btnGenerateImage = document.getElementById("btn-generate-image");
   if (btnGenerateImage) {
     btnGenerateImage.addEventListener("click", async () => {
-      if (window.ModelPromptForgeComparison?.isActive()) {
-        await window.ModelPromptForgeComparison.generate();
+      if (window.ModelPromptForgeStudioEngineTargetPanel?.isComparisonActive?.()) {
+        await window.ModelPromptForgeStudioEngineTargetPanel.submitComparison();
         return;
       }
       const provider = document.getElementById("api-provider-select").value;
@@ -891,6 +817,12 @@ function bindEvents() {
       const telemetryBar = document.getElementById("telemetry-bar");
       const btnDownload = document.getElementById("btn-download-image");
       const queueList = document.getElementById("active-queue-list");
+      const generationSurface = state.generationSurface === 'playground' ? 'playground' : 'studio';
+      const publishGenerationStatus = (type, detail = {}) => {
+        document.dispatchEvent(new CustomEvent('modelpromptforge:generation-status', {
+          detail: { type, surface: generationSurface, ...detail }
+        }));
+      };
 
       if (!validateForm()) {
         return;
@@ -922,7 +854,11 @@ function bindEvents() {
       if (btnFloatingConfig) {
         btnFloatingConfig.style.display = "block";
       }
-      scrollToActiveRenderScreen();
+      if (generationSurface === 'playground') {
+        document.getElementById('playground-generation-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        scrollToActiveRenderScreen();
+      }
 
       const startTime = performance.now();
       const generationActorId = getActiveActorId();
@@ -930,6 +866,16 @@ function bindEvents() {
 
       try {
         const generationPayload = getGenerationRequestPayload();
+        publishGenerationStatus('submitted', { provider, submodel });
+        const pricingInputs = window.getGenerationPricingInputs?.(generationPayload);
+        const estimate = await window.creditEstimateController?.ensureEstimate(pricingInputs);
+        if (!estimate) {
+          const pricingError = window.creditEstimateController?.getState?.().error;
+          throw new Error(pricingError?.message || 'Credit pricing is unavailable for this generation request.');
+        }
+        generationPayload.estimateId = estimate.estimateId;
+        generationPayload.requestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        Object.assign(generationPayload, pricingInputs);
         const submittedReferenceJobIds = {
           face: generationPayload.faceReferenceJobIds,
           style: generationPayload.styleReferenceJobIds,
@@ -947,10 +893,19 @@ function bindEvents() {
 
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || "Generation failed");
+          const serverError = data?.error;
+          const message = typeof serverError === "string"
+            ? serverError
+            : serverError?.message || data?.message || "Generation failed";
+          const error = new Error(message);
+          error.code = serverError?.code || data?.code || null;
+          error.details = serverError?.details || data?.details || null;
+          throw error;
         }
 
         const jobId = data.jobId;
+        void window.creditBalanceBadge?.refresh?.();
+        publishGenerationStatus('queued', { jobId, provider, submodel });
 
         const jobCard = document.createElement("div");
         jobCard.className = "queue-item";
@@ -982,8 +937,19 @@ function bindEvents() {
                 jobCard.remove();
                 return;
               }
-              const statusResponse = await apiFetch(`/api/jobs/${jobId}`);
-              if (!statusResponse.ok) return;
+              const statusResponse = await apiFetch(appendActorQuery(`/api/jobs/${jobId}`));
+              if (!statusResponse.ok) {
+                if (statusResponse.status === 404) {
+                  sseSource.dispatchEvent(new MessageEvent('job.failed', {
+                    data: JSON.stringify({
+                      code: 'job_status_not_found',
+                      message: 'Generation status is no longer available. The local server may have restarted before this job finished.'
+                    })
+                  }));
+                  return;
+                }
+                throw new Error(`Unable to read generation status (${statusResponse.status}).`);
+              }
               const statusPayload = await statusResponse.json();
 
               if (statusPayload.status === 'completed') {
@@ -1033,6 +999,12 @@ function bindEvents() {
             loader.style.display = "none";
             img.src = `data:image/png;base64,${payload.b64_json}`;
             img.style.display = "block";
+            publishGenerationStatus('partial', {
+              jobId,
+              imageUrl: `data:image/png;base64,${payload.b64_json}`,
+              provider,
+              submodel
+            });
           }
         };
 
@@ -1065,12 +1037,14 @@ function bindEvents() {
 
           const jobMeta = {
             id: jobId,
-            prompt: getEditablePromptText(),
+            prompt: generationPayload.sceneBuilder?.manualPromptText || generationPayload.adminPromptOverride || getEditablePromptText(),
             imageUrl: finalImgSrc,
             timestamp: Date.now(),
             provider,
             submodel,
             mode: generationPayload.mode,
+            characterType: generationPayload.characterType || null,
+            generationSurface,
             selections: JSON.parse(JSON.stringify(generationPayload.selections || {})),
             referencedFaceJobIds: submittedReferenceJobIds.face,
             referencedStyleJobIds: submittedReferenceJobIds.style,
@@ -1079,6 +1053,10 @@ function bindEvents() {
             generationDuration: durationSec
           };
           state.activeViewportJobMeta = jobMeta;
+          publishGenerationStatus('completed', { jobId, job: jobMeta });
+          window.dispatchEvent(new CustomEvent('modelpromptforge:generationcompleted', {
+            detail: { job: jobMeta, request: generationPayload }
+          }));
 
           img.onclick = () => openLightbox(jobMeta);
 
@@ -1166,6 +1144,10 @@ function bindEvents() {
           }
           placeholder.style.display = "flex";
           updateCredits();
+          publishGenerationStatus('failed', {
+            jobId,
+            error: { message: errorMsg, technicalMessage }
+          });
         });
 
         if (data.providerStreaming === true) {
@@ -1176,7 +1158,26 @@ function bindEvents() {
         loader.style.display = "none";
         errBanner.style.display = "flex";
         document.getElementById("error-message").textContent = err.message;
+        const errorDetails = document.getElementById("error-details");
+        const errorTechnicalMessage = document.getElementById("error-technical-message");
+        if (errorDetails && errorTechnicalMessage) {
+          const mismatchText = Array.isArray(err.details?.mismatches)
+            ? err.details.mismatches
+              .map(item => `${item.field}: estimated=${item.expected}, submitted=${item.actual}`)
+              .join(" | ")
+            : "";
+          const technicalMessage = [
+            err.code ? `Code: ${err.code}` : "",
+            mismatchText
+          ].filter(Boolean).join(" | ");
+          errorDetails.open = false;
+          errorDetails.style.display = technicalMessage ? "block" : "none";
+          errorTechnicalMessage.textContent = technicalMessage;
+        }
         placeholder.style.display = "flex";
+        publishGenerationStatus('failed', {
+          error: { message: err.message, code: err.code || null, details: err.details || null }
+        });
       }
     });
   }
@@ -1436,6 +1437,12 @@ function toggleUIForMode() {
   if (window.ModelPromptForgeSceneBuilder?.updateUi) {
     window.ModelPromptForgeSceneBuilder.updateUi();
   }
+  window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
+  window.ModelPromptForgeCharacterTypeControl?.applyCharacterSheetPolicy?.({
+    root: document,
+    state,
+    clearIncompatible: false
+  });
 }
 
 function updatePromptPreview() {

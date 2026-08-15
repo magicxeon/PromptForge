@@ -258,5 +258,23 @@
       "eyes"
     ],
     "enabled": true
+  },
+  {
+    "id": "eyes.014",
+    "category": "eyes",
+    "label": { "en": "Defined Deep Almond Eyes", "th": "ดวงตาอัลมอนด์คมลึก" },
+    "ui": { "control": "select", "group": "Eyes" },
+    "prompt": { "default": "defined deep-set almond eyes with a steady camera-readable gaze" },
+    "tags": ["eyes", "vertical-drama-lead", "adult-male"],
+    "enabled": true
+  },
+  {
+    "id": "eyes.015",
+    "category": "eyes",
+    "label": { "en": "Expressive Refined Almond Eyes", "th": "ดวงตาอัลมอนด์ละมุนมีมิติ" },
+    "ui": { "control": "select", "group": "Eyes" },
+    "prompt": { "default": "expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze" },
+    "tags": ["eyes", "vertical-drama-lead", "adult-female"],
+    "enabled": true
   }
 ]

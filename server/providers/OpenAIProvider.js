@@ -1,4 +1,5 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
 
 export function isOpenAIAPIStreamingEnabled() {
   const value = process.env.ENABLE_OPENAI_API_STREAMING;
@@ -57,16 +58,7 @@ export class OpenAIProvider extends BaseProvider {
       throw new Error('Prompt must be a non-empty string.');
     }
 
-    const referenceImages = [
-      options.resolvedCharacterReferenceImageA,
-      options.resolvedCharacterReferenceImageB,
-      options.resolvedOutfitReferenceImageFront,
-      options.resolvedOutfitReferenceImageBack,
-      options.resolvedFaceReferenceImageA,
-      options.resolvedFaceReferenceImageB,
-      options.resolvedStyleReferenceImageA,
-      options.resolvedStyleReferenceImageB
-    ].filter(Boolean);
+    const referenceImages = getResolvedReferenceImages(options);
 
     const hasReferenceImages = referenceImages.length > 0;
 
@@ -218,11 +210,8 @@ export class OpenAIProvider extends BaseProvider {
         options.outputFormat || 'png'
       );
 
-      /*
-       * Useful for identity preservation and face references.
-       * Not supported by gpt-image-1-mini.
-       */
-      if (model !== 'gpt-image-1-mini') {
+      /* Useful for identity preservation on models that expose the option. */
+      if (this.supportsInputFidelity(model)) {
         formData.append(
           'input_fidelity',
           options.inputFidelity || 'high'
@@ -353,6 +342,13 @@ export class OpenAIProvider extends BaseProvider {
     );
   }
 
+  supportsInputFidelity(model) {
+    return this.isGPTImageModel(model)
+      && model !== 'gpt-image-1-mini'
+      && model !== 'gpt-image-2'
+      && !model.startsWith('gpt-image-2-');
+  }
+
 
   /**
    * Convert a Base64 string or Base64 data URL to a Blob.
@@ -469,16 +465,7 @@ export class OpenAIProvider extends BaseProvider {
       throw new Error('Prompt must be a non-empty string.');
     }
 
-    const referenceImages = [
-      options.resolvedCharacterReferenceImageA,
-      options.resolvedCharacterReferenceImageB,
-      options.resolvedOutfitReferenceImageFront,
-      options.resolvedOutfitReferenceImageBack,
-      options.resolvedFaceReferenceImageA,
-      options.resolvedFaceReferenceImageB,
-      options.resolvedStyleReferenceImageA,
-      options.resolvedStyleReferenceImageB
-    ].filter(Boolean);
+    const referenceImages = getResolvedReferenceImages(options);
 
     const hasReferenceImages = referenceImages.length > 0;
 
@@ -647,11 +634,7 @@ export class OpenAIProvider extends BaseProvider {
       );
     });
 
-    /*
-     * Improves preservation of faces, logos, and input details.
-     * Not supported by gpt-image-1-mini.
-     */
-    if (model !== 'gpt-image-1-mini') {
+    if (this.supportsInputFidelity(model)) {
       formData.append(
         'input_fidelity',
         options.inputFidelity || 'high'

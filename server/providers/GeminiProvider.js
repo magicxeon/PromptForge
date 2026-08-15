@@ -1,4 +1,97 @@
 import { BaseProvider } from './BaseProvider.js';
+import { getResolvedReferenceImages } from './resolvedReferenceImages.js';
+
+const GEMINI_PRO_IMAGE_MODEL = 'gemini-3-pro-image';
+
+const REFERENCE_ROLE_LABELS = Object.freeze({
+  template_baseline: 'POSE PROXY',
+  character_reference: 'CHARACTER IDENTITY',
+  outfit_front: 'OUTFIT PRODUCT',
+  outfit_back: 'OUTFIT PRODUCT BACK VIEW',
+  face_reference: 'FACE IDENTITY',
+  style_reference: 'VISUAL STYLE',
+  pose_reference: 'POSE REFERENCE'
+});
+
+const GEMINI_PRO_ROLE_PRIORITY = Object.freeze({
+  face_reference: 0,
+  character_reference: 1,
+  outfit_front: 2,
+  outfit_back: 3,
+  template_baseline: 4,
+  pose_reference: 5,
+  environment_reference: 6,
+  product_reference: 7,
+  style_reference: 8
+});
+
+function referenceLabel(manifestEntry, index) {
+  const roles = Array.isArray(manifestEntry?.roles) ? manifestEntry.roles : [];
+  const labels = roles.map(role => REFERENCE_ROLE_LABELS[role]).filter(Boolean);
+  return `IMAGE_${index} - ${labels.length ? labels.join(' + ') : 'REFERENCE IMAGE'}`;
+}
+
+function geminiProReferencePriority(manifestEntry) {
+  const roles = Array.isArray(manifestEntry?.roles) ? manifestEntry.roles : [];
+  return roles.reduce(
+    (priority, role) => Math.min(priority, GEMINI_PRO_ROLE_PRIORITY[role] ?? 999),
+    999
+  );
+}
+
+function orderGeminiProReferences(referenceImages, referenceRoleManifest) {
+  return referenceImages
+    .map((referenceImage, originalIndex) => {
+      const manifestEntry = Array.isArray(referenceRoleManifest)
+        ? referenceRoleManifest.find(entry => Number(entry?.index) === originalIndex + 1)
+        : null;
+      return { referenceImage, originalIndex, manifestEntry };
+    })
+    .sort((a, b) =>
+      geminiProReferencePriority(a.manifestEntry)
+      - geminiProReferencePriority(b.manifestEntry)
+      || a.originalIndex - b.originalIndex
+    );
+}
+
+function remapPromptImageIndexes(prompt, orderedReferences) {
+  const newIndexByOriginalIndex = new Map(
+    orderedReferences.map((reference, newIndex) => [reference.originalIndex, newIndex])
+  );
+  return String(prompt || '').replace(/\bIMAGE_(\d+)\b/g, (token, rawIndex) => {
+    const newIndex = newIndexByOriginalIndex.get(Number(rawIndex));
+    return newIndex === undefined ? token : `IMAGE_${newIndex}`;
+  });
+}
+
+function createGeminiProInput(prompt, referenceImages, referenceRoleManifest, normalizeImage) {
+  const orderedReferences = orderGeminiProReferences(referenceImages, referenceRoleManifest);
+  const input = [{
+    type: 'text',
+    text: [
+      'REFERENCE AUTHORITY CONTRACT',
+      'Each following image has exactly one declared authority role.',
+      'Never infer identity, body, garment, pose, environment, or style from a different role.'
+    ].join('\n')
+  }];
+  orderedReferences.forEach((reference, index) => {
+    const image = normalizeImage(reference.referenceImage);
+    const manifestEntry = Array.isArray(referenceRoleManifest)
+      ? reference.manifestEntry
+      : null;
+    input.push({ type: 'text', text: referenceLabel(manifestEntry, index) });
+    input.push({ type: 'image', mime_type: image.mimeType, data: image.data });
+  });
+  input.push({
+    type: 'text',
+    text: [
+      'FINAL EXECUTION INSTRUCTION',
+      remapPromptImageIndexes(prompt, orderedReferences),
+      'Use every labeled image only for its assigned authority. Return only the requested final image.'
+    ].join('\n')
+  });
+  return input;
+}
 
 export class GeminiProvider extends BaseProvider {
   /**
@@ -48,90 +141,34 @@ export class GeminiProvider extends BaseProvider {
       // Nano Banana 2 Lite only supports 1K resolution
       let imageSize = '1K';
       if (submodel !== 'gemini-3.1-flash-lite-image') {
-        imageSize = options.imageSize || '1K'; // can be '1K', '2K', '4K', '0.5K'
+        imageSize = options.imageResolution || options.imageSize || '1K'; // can be '1K', '2K', '4K', '0.5K'
       }
 
-      const input = [
-        {
-          type: 'text',
-          text: prompt
-        }
-      ];
+      let input = [{ type: 'text', text: prompt }];
 
-      // Character sheets come first so the prompt can treat them as the primary design reference.
+      // The immutable processing plan owns reference order; Pro also receives adjacent semantic labels.
       const normalizeImage = (value) => {
         const match = typeof value === 'string' ? value.match(/^data:(image\/[a-z0-9.+-]+);base64,(.+)$/is) : null;
         return match ? { mimeType: match[1], data: match[2] } : { mimeType: 'image/png', data: value };
       };
 
-      if (options.resolvedCharacterReferenceImageA) {
-        const image = normalizeImage(options.resolvedCharacterReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedCharacterReferenceImageB) {
-        const image = normalizeImage(options.resolvedCharacterReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      if (options.resolvedOutfitReferenceImageFront) {
-        const image = normalizeImage(options.resolvedOutfitReferenceImageFront);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedOutfitReferenceImageBack) {
-        const image = normalizeImage(options.resolvedOutfitReferenceImageBack);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      // Append style/character references if provided (Slot A & Slot B) (Step 9)
-      if (options.resolvedStyleReferenceImageA) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedStyleReferenceImageB) {
-        const image = normalizeImage(options.resolvedStyleReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-
-      // Append face references if provided (Slot A & Slot B) (Step 9)
-      if (options.resolvedFaceReferenceImageA) {
-        const image = normalizeImage(options.resolvedFaceReferenceImageA);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
-      }
-      if (options.resolvedFaceReferenceImageB) {
-        const image = normalizeImage(options.resolvedFaceReferenceImageB);
-        input.push({
-          type: 'image',
-          mime_type: image.mimeType,
-          data: image.data
-        });
+      const referenceImages = getResolvedReferenceImages(options);
+      if (submodel === GEMINI_PRO_IMAGE_MODEL && referenceImages.length) {
+        input = createGeminiProInput(
+          prompt,
+          referenceImages,
+          options.referenceRoleManifest,
+          normalizeImage
+        );
+      } else {
+        for (const referenceImage of referenceImages) {
+          const image = normalizeImage(referenceImage);
+          input.push({
+            type: 'image',
+            mime_type: image.mimeType,
+            data: image.data
+          });
+        }
       }
 
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/interactions?key=${this.apiKey}`, {
@@ -161,10 +198,12 @@ export class GeminiProvider extends BaseProvider {
       if (data.steps && Array.isArray(data.steps)) {
         for (const step of data.steps) {
           if (step.type === 'model_output' && step.content) {
-            const imageBlock = step.content.find(block => block.type === 'image');
-            if (imageBlock && imageBlock.data) {
-              base64Bytes = imageBlock.data;
-              break;
+            const imageBlocks = step.content.filter(block => block.type === 'image' && block.data);
+            if (imageBlocks.length) {
+              base64Bytes = submodel === GEMINI_PRO_IMAGE_MODEL
+                ? imageBlocks.at(-1).data
+                : imageBlocks[0].data;
+              if (submodel !== GEMINI_PRO_IMAGE_MODEL) break;
             }
           }
         }

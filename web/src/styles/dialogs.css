@@ -1,0 +1,17 @@
+.app-nested-dialog__overlay {
+  z-index: 160;
+}
+
+.app-nested-dialog__content {
+  z-index: 161;
+  border-radius: var(--mpf-radius-md);
+}
+
+.app-confirm-dialog__overlay {
+  z-index: 200;
+}
+
+.app-confirm-dialog__content {
+  z-index: 201;
+  border-radius: var(--mpf-radius-md);
+}

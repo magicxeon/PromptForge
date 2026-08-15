@@ -1,9 +1,40 @@
 # Community-11 Credit Deduction and Provider Routing Foundation
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Credit integration complete - validated 2026-07-26; provider auto-routing deferred
 **Feature type:** Billing foundation, credit ledger and future provider routing contract  
 **Depends on:** Provider registry, generation queue, `requirements/000-business-overview/03-ai-provider-costs-and-credits.md`  
 **Created:** 2026-07-19
+
+## 0. Delivery Gate
+
+Credit implementation ownership belongs to
+`Community-00-005-credit-ledger-mock-and-generation-billing.md` and the
+canonical credit domain. This requirement remains the feature-level integration
+and future routing contract.
+
+Current gates:
+
+```text
+Credit lifecycle          VERIFY_ONLY
+Advanced explicit choice  OPEN through existing provider/model controls
+Automatic Simple routing  CLOSED
+Exposure                  INTERNAL or PRIVATE_BETA with generation
+```
+
+Allowed work:
+
+- Verify Community remix/template requests use the canonical estimate,
+  reservation, capture/refund and idempotency lifecycle.
+- Keep routing request/result contracts compatible with provider capabilities.
+- Close mismatches between displayed estimate and submitted request.
+
+Forbidden work:
+
+- A second credit ledger, pricing table, reservation service or generation
+  endpoint.
+- Client-owned pricing or direct Community credit mutation.
+- Automatic provider selection, dynamic price ingestion, checkout,
+  subscriptions or revenue sharing in this phase.
 
 ## 1. Business Requirement
 
@@ -119,8 +150,8 @@ ProviderRoutingResult
 
 Credit deduction must integrate with:
 
-- `server/generationRequestService.js`
-- `server/queueManager.js`
+- `server/domain/generation/generationRequestService.js`
+- `server/domain/generation/QueueManager.js`
 - provider registry/model capability catalog
 - Scene Builder template generation
 - Community `Use Template` / remix generation
@@ -133,15 +164,15 @@ Community must not deduct credits directly. It creates a generation request and 
 ### Server Files
 
 ```text
-server/credits/CreditLedgerRepository.js
-server/credits/CreditBalanceService.js
-server/credits/CreditPolicyService.js
-server/credits/CreditReservationService.js
-server/credits/creditRoutes.js
-server/routing/ProviderRoutingPolicyService.js
-server/routing/providerRoutingContracts.js
-server/generationRequestService.js
-server/queueManager.js
+server/repositories/credits/CreditLedgerRepository.js
+server/repositories/credits/CreditAccountRepository.js
+server/domain/credits/CreditPricingPolicyService.js
+server/domain/credits/CreditReservationService.js
+server/app/routes/creditRoutes.js
+server/domain/routing/ProviderRoutingPolicyService.js
+server/domain/routing/providerRoutingContracts.js
+server/domain/generation/generationRequestService.js
+server/domain/generation/QueueManager.js
 ```
 
 ### Client Files
@@ -201,14 +232,57 @@ Manual:
 - Advanced provider selection remains user-controlled.
 - Community remix generation pays from the active user's balance.
 
-### Proposed Changes
+### Verification and Deferred Changes
 
-- Add credit ledger repository and service.
-- Add estimate/reserve/capture/refund API.
-- Add generation request lifecycle hooks.
-- Add UI credit estimate near Generate buttons.
-- Add provider routing contracts and static policy file.
+- Verify the existing credit repository, pricing, reservation and generation
+  lifecycle from Community entry points.
+- Fix integration mismatches in canonical modules only.
+- Keep UI estimates sourced from server pricing policy.
+- Add provider-routing interfaces only when a concrete consumer requires them.
+- Do not enable automatic routing in this phase.
 
 ### Release Gate
 
 Do not enable public Community remix until generation requests have a credit reservation path and technical failures can refund credits.
+
+## 10. Current Verification Scope
+
+No Community-specific ledger, pricing service, reservation service or
+generation endpoint was introduced. Community template/remix generation
+continues through the canonical generation request:
+
+```text
+client/core/generationService.js
+-> POST /api/generate
+-> server/app/routes/generationRoutes.js
+-> CreditReservationService.validateAndReserveForRequest()
+-> QueueManager
+-> captureForJob() | refundForJob()
+```
+
+The active `ActorContext.userId` is the payer. Template ownership does not
+change the payer, so Bob using Alice's template reserves and captures or refunds
+Bob's credits only.
+
+Current routing behavior:
+
+```text
+Advanced explicit provider/model selection  enabled
+Simple routing contract                     documented only
+Automatic provider/model selection          disabled
+Dynamic price ingestion                     disabled
+```
+
+Validation is included in:
+
+```text
+test/creditGenerationBilling.test.js
+test/creditReservationService.test.js
+test/creditPricingPolicy.test.js
+scripts/test-community-09-11.bat
+scripts/test-community-00-009-to-11.bat
+```
+
+Automatic Simple routing must not be enabled until a later requirement defines
+a concrete routing consumer, fallback policy, observability, and cost-quality
+decision rules.

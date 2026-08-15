@@ -1,0 +1,18 @@
+{
+  "promptComposer.kicker": "PROMPT COMPOSER",
+  "promptComposer.title": "เริ่มจากไอเดียของคุณ",
+  "promptComposer.description": "อธิบายภาพที่ต้องการ แล้วระบบจะแนะนำเฉพาะตัวเลือกที่มีอยู่จริงใน Studio",
+  "promptComposer.placeholder": "ตัวอย่าง: นางแบบแฟชั่นในคาเฟ่ใส่เดรส ถ่ายภาพเชิงพาณิชย์",
+  "promptComposer.inputLabel": "อธิบายไอเดียภาพของคุณ",
+  "promptComposer.action.compose": "สร้างข้อเสนอ",
+  "promptComposer.status.composing": "กำลังเตรียมข้อเสนอ...",
+  "promptComposer.error.short": "โปรดใส่รายละเอียดเพิ่มเติมก่อนสร้างข้อเสนอ",
+  "promptComposer.error.unavailable": "Prompt Composer ไม่พร้อมใช้งาน",
+  "promptComposer.review.kicker": "ข้อเสนอพร้อมแล้ว",
+  "promptComposer.review.title": "ตรวจสอบตัวเลือกที่รองรับ",
+  "promptComposer.review.mapped": "ระบบจับคู่เฉพาะตัวเลือกที่มีอยู่ใน Studio คุณตรวจสอบก่อนนำไปใช้ได้",
+  "promptComposer.review.unmapped": "ระบบไม่ได้สมมติตัวเลือกใหม่ ไอเดียของคุณยังใช้เป็น prompt อิสระได้",
+  "promptComposer.review.reviewSuggested": "แนะนำให้ตรวจสอบ",
+  "promptComposer.action.usePrompt": "ใช้ใน prompt ของ Playground",
+  "promptComposer.action.applyStudio": "นำตัวเลือกไปใช้ใน Studio"
+}

@@ -943,7 +943,7 @@
     },
     "prompt": {
       "default": "slightly low angle",
-      "gpt-image": "medium close-up shot captured from a slightly low camera angle, highlighting posture",
+      "gpt-image": "shot from a slightly low camera angle highlighting posture while preserving the separately selected framing",
       "gpt-image-safe": "shot captured from a slightly low camera angle highlighting posture",
       "gpt-image-positive": "low-angle portrait, majestic posture, high-fashion framing"
     },
@@ -976,6 +976,32 @@
       "camera",
       "perspective",
       "high angle"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.perspective_04",
+    "category": "camera",
+    "subcategory": "Perspective",
+    "label": {
+      "en": "Pronounced Campaign Low Angle",
+      "th": "มุมเสยแคมเปญชัดเจน"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "a clearly pronounced upward campaign angle from a camera positioned around knee-to-low-waist height and tilted approximately fifteen to twenty-five degrees upward, close enough for the subject to dominate the frame while tall architecture and open sky rise behind, preserving anatomically credible facial, torso, hand, and leg proportions without an oversized shoe, stretched limb, or tiny head",
+      "gpt-image": "pronounced campaign low angle from knee-to-low-waist camera height, lens tilted fifteen to twenty-five degrees upward, dominant nearby subject with tall architecture and visible sky behind, anatomically credible proportions without oversized foreground limbs",
+      "gpt-image-safe": "clear upward campaign camera angle with a nearby dominant subject, rising architecture and visible sky"
+    },
+    "tags": [
+      "camera",
+      "perspective",
+      "low angle",
+      "campaign",
+      "professional"
     ],
     "enabled": true
   },
@@ -1026,6 +1052,58 @@
       "camera",
       "composition",
       "symmetrical"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.composition_03",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": {
+      "en": "Central Movement Corridor",
+      "th": "แนวการเคลื่อนไหวกึ่งกลางภาพ"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "central movement-corridor composition with the subject's visual center held at approximately fifty percent of the frame width, allowing only a small five-percent lateral variation while street and architectural leading lines create movement around the subject rather than pushing the subject toward either edge",
+      "gpt-image": "central movement-corridor composition, subject visual center at approximately fifty percent frame width with no more than five-percent lateral variation, urban leading lines provide motion without moving the subject to an outer third",
+      "gpt-image-safe": "center the moving subject horizontally while urban leading lines create depth around the subject"
+    },
+    "tags": [
+      "camera",
+      "composition",
+      "street-style",
+      "movement",
+      "centered"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "camera.composition_04",
+    "category": "camera",
+    "subcategory": "Composition",
+    "label": {
+      "en": "Rising Architectural Hero",
+      "th": "ฮีโร่กับสถาปัตยกรรมแนวสูง"
+    },
+    "ui": {
+      "control": "select",
+      "group": "Camera"
+    },
+    "prompt": {
+      "default": "rising architectural hero composition with the nearby subject occupying the lower and central visual field, real glass-building edges and facade lines converging upward behind the subject toward a visible area of sky, enough upper-frame space to communicate height but not so much that the subject appears small or distant",
+      "gpt-image": "nearby dominant subject in the lower-central frame, real glass-building lines converge upward toward visible sky, controlled upper space conveys height without shrinking the subject",
+      "gpt-image-safe": "dominant nearby subject with high-rise lines rising toward visible sky"
+    },
+    "tags": [
+      "camera",
+      "composition",
+      "campaign",
+      "architecture",
+      "low angle"
     ],
     "enabled": true
   },
@@ -1164,6 +1242,34 @@
       "gpt-image-safe": "environmental portrait balancing the subject with meaningful surroundings"
     },
     "tags": ["camera", "framing", "environmental portrait", "scenery"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_10",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Full-body Street Editorial", "th": "เต็มตัวแบบสตรีตเอดิทอเรียล" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "vertical full-body street-editorial framing with one moving subject occupying approximately seventy-eight to eighty-six percent of the frame height; preserve visible space of roughly four to seven percent below the lowest point of both pieces of footwear and a comfortable margin above every strand of hair, keep the complete silhouette inside both side edges, and never crop or nearly touch the frame with the head, hair, hands, legs, ankles, heels, toes, or footwear",
+      "gpt-image": "vertical full-body street-editorial framing, one moving subject occupies about seventy-eight to eighty-six percent of frame height, both shoes fully visible with four-to-seven percent clear ground below them and safe space above the hair and beside the silhouette",
+      "gpt-image-safe": "complete vertical full-body street framing with clear space below both shoes, above the hair, and beside the silhouette"
+    },
+    "tags": ["camera", "framing", "full body", "street-style", "footwear-safe"],
+    "enabled": true
+  },
+  {
+    "id": "camera.framing_11",
+    "category": "camera_framing",
+    "subcategory": "Framing",
+    "label": { "en": "Close Campaign Hero", "th": "แคมเปญฮีโร่ระยะใกล้" },
+    "ui": { "control": "select", "group": "Camera" },
+    "prompt": {
+      "default": "close vertical campaign-hero framing with one subject occupying approximately eighty-six to ninety-two percent of the frame height, retaining a complete readable fashion silhouette and safe margins around the head and body while bringing the face and garment materially closer than an environmental portrait; do not reduce the subject to a small figure inside a large architectural scene",
+      "gpt-image": "close vertical campaign-hero framing, subject occupies about eighty-six to ninety-two percent of frame height with safe head and body margins, face and garment noticeably closer than an environmental portrait",
+      "gpt-image-safe": "close dominant campaign subject with safe margins and a clearly readable fashion silhouette"
+    },
+    "tags": ["camera", "framing", "campaign", "hero", "close", "professional"],
     "enabled": true
   },
   {

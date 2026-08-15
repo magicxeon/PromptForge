@@ -5,52 +5,57 @@
     {
       "fieldId": "face.shape",
       "manifestId": "headshot.face-structure.face-shape",
-      "url": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/face-structure/face-shape/manifest.json?v=3"
     },
     {
       "fieldId": "eyes.shape",
       "manifestId": "headshot.facial-features.eyes",
-      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyes/manifest.json?v=3"
     },
     {
       "fieldId": "eyebrows.shape",
       "manifestId": "headshot.facial-features.eyebrows",
-      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/eyebrows/manifest.json?v=3"
     },
     {
       "fieldId": "nose.shape",
       "manifestId": "headshot.facial-features.nose",
-      "url": "/assets/visual-character-builder/headshot-v1/facial-features/nose/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/nose/manifest.json?v=3"
     },
     {
       "fieldId": "lips.shape",
       "manifestId": "headshot.facial-features.lips",
-      "url": "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/lips/manifest.json?v=3"
+    },
+    {
+      "fieldId": "facial_hair.style",
+      "manifestId": "headshot.facial-features.facial-hair",
+      "url": "/assets/visual-character-builder/headshot-v1/facial-features/facial-hair/manifest.json?v=3"
     },
     {
       "fieldId": "expression.face",
       "manifestId": "headshot.expression.face-expression",
-      "url": "/assets/visual-character-builder/headshot-v1/expression/face-expression/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/expression/face-expression/manifest.json?v=3"
     },
     {
       "fieldId": "hair.length",
       "manifestId": "headshot.hair.length",
-      "url": "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/hair/length/manifest.json?v=3"
     },
     {
       "fieldId": "hair.cut_style",
       "manifestId": "headshot.hair.cut-style",
-      "url": "/assets/visual-character-builder/headshot-v1/hair/cut-style/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/hair/cut-style/manifest.json?v=3"
     },
     {
       "fieldId": "hair.texture",
       "manifestId": "headshot.hair.texture",
-      "url": "/assets/visual-character-builder/headshot-v1/hair/texture/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/hair/texture/manifest.json?v=3"
     },
     {
       "fieldId": "hair.parting_fringe",
       "manifestId": "headshot.hair.parting-fringe",
-      "url": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/manifest.json"
+      "url": "/assets/visual-character-builder/headshot-v1/hair/parting-fringe/manifest.json?v=3"
     }
   ]
 }

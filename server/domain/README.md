@@ -11,6 +11,8 @@
 | `comparisons/` | Comparison orchestration and validation |
 | `credits/` | Credit balance, deduction, refund and ledger behavior |
 | `generation/` | Queue processing, prompt compilation, reference resolution, image utilities and thumbnails |
+| `reference-processing/` | Config-driven reference role authority, deterministic preprocessing, provider ordering and safe lineage |
+| `assets/` | Shared reference-asset behavior and allowlisted image-presentation profiles |
 | `identity/` | Actor context helpers |
 | `scene-templates/` | Scene Template snapshot, variable, slot and privacy rules |
 
@@ -21,7 +23,18 @@ Domain modules should depend on repository contracts or shared repository helper
 Approved local bridge examples:
 
 - `generation/QueueManager.js` writes image binaries to `client/outputs/` because provider output files are static assets.
-- `generation/thumbnailService.js` writes thumbnail files under `client/outputs/thumbnails/`.
+- `generation/thumbnailService.js` writes the single derived `preview-v1`
+  profile under `client/outputs/thumbnails/`. The legacy directory and
+  `thumbnailUrl` field names remain compatibility contracts; detail,
+  fullscreen and download surfaces continue to use the uncropped original.
+- `assets/ImagePresentationService.js` renders bounded, in-memory-cached
+  presentation variants from authorized local media. Profile dimensions and
+  Sharp operations are server allowlists; browser callers cannot supply raw
+  resize/crop options. Current versioned Template card, profile-square and
+  detail profiles use deterministic top-biased Sharp cropping so a portrait
+  subject's face is not displaced by high-contrast clothing or scenery. Legacy
+  unversioned profiles remain readable for compatibility and `preview-v1`
+  remains unchanged.
 
 JSON state must go through repositories or `server/repositories/json/jsonFileStore.js`.
 

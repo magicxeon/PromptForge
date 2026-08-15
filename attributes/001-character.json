@@ -75,8 +75,8 @@
       "group": "Character"
     },
     "prompt": {
-      "default": "teenager aged 18",
-      "gpt-image": "teenager in late teens around 18 years old"
+      "default": "18-year-old young adult",
+      "gpt-image": "18-year-old young adult"
     },
     "tags": [
       "character"
@@ -639,8 +639,8 @@
       "group": "Character"
     },
     "prompt": {
-      "default": "cute doll-like Asian features",
-      "gpt-image": "cute doll-like Asian face, extremely adorable and pretty"
+      "default": "soft youthful Asian facial features with natural human proportions",
+      "gpt-image": "soft youthful Asian facial features with natural human proportions"
     },
     "tags": [
       "character",

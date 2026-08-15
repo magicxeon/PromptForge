@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "fashion-style-family-extraction-v1",
+  "styleFamily": "soft-character-portrait",
+  "sampleCount": 14,
+  "method": {
+    "stage": "stage-2",
+    "authority": "original-images",
+    "stage1UsedAsEvidence": false,
+    "aggregation": "human-reviewed style-family summary"
+  },
+  "classification": {
+    "recipeRole": ["beauty-portrait", "identity-presentation"],
+    "clusterHealth": "visually coherent beauty family but mislabeled for the current product recipe"
+  },
+  "fashionIntent": {"primary": "soft beauty or identity portrait", "commercialRead": "beauty, profile, or editorial headshot"},
+  "subject": {"count": 1, "expression": "neutral to gentle smile", "gaze": "direct or near-direct"},
+  "pose": {
+    "invariants": ["face is the primary anchor", "head remains close to frontal or gentle three-quarter"],
+    "variations": ["shoulders angled", "head tilted", "one restrained hand near face", "near-frontal headshot"],
+    "avoid": ["passport stiffness", "hands covering identity features"]
+  },
+  "camera": {
+    "shotSize": ["beauty close-up", "head-and-shoulders", "upper torso"],
+    "height": "eye-level",
+    "angle": "frontal to gentle three-quarter",
+    "lensCharacter": "compressed portrait perspective and shallow depth"
+  },
+  "composition": {
+    "invariants": ["eyes and face dominate", "clean margin around hair"],
+    "variations": ["centered", "slight rule-of-thirds"]
+  },
+  "lighting": {
+    "source": ["window daylight", "large diffused source", "soft studio source"],
+    "direction": "frontal-side or side-front",
+    "quality": "soft with gentle highlight roll-off",
+    "subjectIllumination": "clear catchlights and readable skin texture",
+    "shadowPattern": "optional restrained window pattern"
+  },
+  "environment": {
+    "invariants": ["simple background"],
+    "variations": ["neutral seamless", "soft interior blur", "warm solid color"]
+  },
+  "capture": {"depth": "shallow", "retouching": "several samples appear heavily retouched or synthetic"},
+  "qualityFlags": [
+    "sample 009 contains visible editorial text",
+    "the set does not support a full-body or environmental character portrait",
+    "synthetic-looking skin in several samples can bias the recipe away from realism"
+  ],
+  "confidence": {"pose": 0.88, "camera": 0.94, "lighting": 0.88, "environment": 0.74},
+  "sampleDisposition": [
+    {"sampleId": "soft-character-portrait-001", "role": "core", "notes": "soft close beauty portrait"},
+    {"sampleId": "soft-character-portrait-002", "role": "core", "notes": "three-quarter face with window light"},
+    {"sampleId": "soft-character-portrait-003", "role": "outlier", "notes": "clinical centered headshot"},
+    {"sampleId": "soft-character-portrait-004", "role": "variation", "notes": "wall contact and hand gesture"},
+    {"sampleId": "soft-character-portrait-005", "role": "core", "notes": "directional interior portrait"},
+    {"sampleId": "soft-character-portrait-006", "role": "variation", "notes": "high-key seamless beauty"},
+    {"sampleId": "soft-character-portrait-007", "role": "outlier", "notes": "solid-color commercial headshot and broad smile"},
+    {"sampleId": "soft-character-portrait-008", "role": "variation", "notes": "cafe background and broad smile"},
+    {"sampleId": "soft-character-portrait-009", "role": "blocked", "notes": "visible editorial text"},
+    {"sampleId": "soft-character-portrait-010", "role": "core", "notes": "soft window portrait with real context"},
+    {"sampleId": "soft-character-portrait-011", "role": "core", "notes": "identity-first shallow-depth portrait"},
+    {"sampleId": "soft-character-portrait-012", "role": "core", "notes": "high-key window portrait"},
+    {"sampleId": "soft-character-portrait-013", "role": "outlier", "notes": "hard studio beauty and strong styling"},
+    {"sampleId": "soft-character-portrait-014", "role": "variation", "notes": "window-shadow beauty close-up"}
+  ]
+}

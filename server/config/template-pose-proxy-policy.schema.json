@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["policyVersion", "providerId", "modelId", "processorStrategyVersion", "operationPurpose", "resolution", "aspectRatio", "prompt"],
+  "properties": {
+    "policyVersion": { "type": "string" },
+    "providerId": { "type": "string" },
+    "modelId": { "type": "string" },
+    "processorStrategyVersion": { "type": "string" },
+    "operationPurpose": { "const": "template_pose_proxy_prepare" },
+    "resolution": { "type": "string" },
+    "aspectRatio": { "type": "string" },
+    "prompt": { "type": "string", "minLength": 100 },
+    "promptProfiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "modelId", "processorStrategyVersion", "outputRepresentation", "prompt"],
+        "properties": {
+          "providerId": { "type": "string", "minLength": 1 },
+          "modelId": { "type": "string", "minLength": 1 },
+          "processorStrategyVersion": { "type": "string", "minLength": 1 },
+          "outputRepresentation": { "enum": ["matte_mannequin", "technical_pose_wireframe"] },
+          "prompt": { "type": "string", "minLength": 100 }
+        }
+      }
+    },
+    "automaticFallbacks": { "type": "array", "maxItems": 0 }
+  }
+}

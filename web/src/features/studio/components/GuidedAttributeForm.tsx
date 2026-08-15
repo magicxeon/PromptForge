@@ -1,0 +1,234 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '../../../components/ui/Button';
+import { VisualOptionPicker } from '../../../components/visual-options/VisualOptionPicker';
+import type {
+  AttributeGroup,
+  AttributeSelection,
+  CustomAttributeInputLimits
+} from '../attributes/attributeModel';
+import {
+  countCustomSelectionCharacters,
+  DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
+  filterApplicableAttributeGroups,
+  reconcileSelectionsWithApplicability
+} from '../attributes/attributeModel';
+import type { VisualManifest } from '../schemas/visualManifestSchemas';
+import { resolveVisualPresentation } from '../visual-options/visualOptionRegistry';
+import {
+  visibleStudioGroups,
+  type GuidedStudioMode
+} from '../studioModePolicy';
+import type { GenerationReferenceRole } from '../../generation/api/generationApi';
+import { resolveFieldReferenceAuthority } from '../referenceAuthorityPolicy';
+import type { CharacterOutfitBehavior } from '../referenceAuthorityPolicy';
+import type { StudioCustomColors } from '../attributes/customColorModel';
+import type { ReferenceAuthorityProjection } from '../../generation/schemas/generationSchemas';
+
+export function GuidedAttributeForm({
+  groups,
+  mode,
+  characterType,
+  manifests,
+  selections,
+  presentationGender,
+  customColors,
+  references = {},
+  characterOutfitBehavior = 'preserve',
+  authorityProjection,
+  lockedFields = [],
+  editableFields,
+  includedGroups,
+  excludedFields,
+  optionIdsByField,
+  singleOpen = false,
+  showNextActions = false,
+  customInputLimits = DEFAULT_CUSTOM_ATTRIBUTE_INPUT_LIMITS,
+  onLockChange,
+  onCustomColorsChange,
+  onChange
+}: {
+  groups: AttributeGroup[];
+  mode: GuidedStudioMode;
+  characterType: 'reusable_model' | 'styled_character';
+  manifests?: Record<string, VisualManifest>;
+  selections: Record<string, AttributeSelection>;
+  presentationGender?: AttributeSelection;
+  customColors: StudioCustomColors;
+  references?: Partial<Record<GenerationReferenceRole, string>>;
+  characterOutfitBehavior?: CharacterOutfitBehavior;
+  authorityProjection?: ReferenceAuthorityProjection | null;
+  lockedFields?: string[];
+  editableFields?: ReadonlySet<string>;
+  includedGroups?: ReadonlySet<string>;
+  excludedFields?: ReadonlySet<string>;
+  optionIdsByField?: ReadonlyMap<string, ReadonlySet<string>>;
+  singleOpen?: boolean;
+  showNextActions?: boolean;
+  customInputLimits?: CustomAttributeInputLimits;
+  onLockChange?: (fieldName: string, locked: boolean) => void;
+  onCustomColorsChange: (colors: StudioCustomColors) => void;
+  onChange: (value: Record<string, AttributeSelection>) => void;
+}) {
+  const { t } = useTranslation('react-ui');
+  const visible = useMemo(
+    () => filterApplicableAttributeGroups(
+      visibleStudioGroups(groups, mode, characterType),
+      selections,
+      presentationGender
+    )
+      .filter(group => !includedGroups || includedGroups.has(group.group))
+      .map(group => ({
+        ...group,
+        fields: group.fields
+          .filter(field =>
+            (!editableFields || editableFields.has(field.name))
+            && !excludedFields?.has(field.name)
+          )
+          .map(field => {
+            const allowedOptionIds = optionIdsByField?.get(field.name);
+            return allowedOptionIds
+              ? { ...field, options: field.options.filter(option => allowedOptionIds.has(option.id)) }
+              : field;
+          })
+      }))
+      .filter(group => group.fields.length > 0),
+    [characterType, editableFields, excludedFields, groups, includedGroups, mode, optionIdsByField, presentationGender, selections]
+  );
+  const [openGroup, setOpenGroup] = useState<string | null>(visible[0]?.group || null);
+  const groupRefs = useRef(new Map<string, HTMLDetailsElement>());
+  const pendingFocusGroup = useRef<string | null>(null);
+  const scrollAndFocusGroup = (groupName: string) => {
+    window.setTimeout(() => {
+      const target = groupRefs.current.get(groupName);
+      target?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+      });
+      target?.querySelector('summary')?.focus();
+    }, 0);
+  };
+  useEffect(() => {
+    if (!singleOpen) return;
+    if (!openGroup || !visible.some(group => group.group === openGroup)) {
+      setOpenGroup(visible[0]?.group || null);
+    }
+  }, [openGroup, singleOpen, visible]);
+  useEffect(() => {
+    const next = reconcileSelectionsWithApplicability(
+      selections,
+      groups,
+      presentationGender
+    );
+    if (next !== selections) onChange(next);
+  }, [groups, onChange, presentationGender, selections]);
+  const gender = presentationGender || selections.Gender;
+  const customCharacterCount = countCustomSelectionCharacters(selections);
+  const selectableGroupNames = useMemo(() => new Set(
+    visible
+      .filter(group => group.fields.some(field => !resolveFieldReferenceAuthority(
+        field,
+        references,
+        characterOutfitBehavior,
+        authorityProjection
+      )))
+      .map(group => group.group)
+  ), [authorityProjection, characterOutfitBehavior, references, visible]);
+  return (
+    <div className="studio-attribute-groups">
+      {visible.map((group, groupIndex) => {
+        const nextGroup = visible
+          .slice(groupIndex + 1)
+          .find(candidate => selectableGroupNames.has(candidate.group));
+        return (
+          <details
+            key={group.group}
+            ref={element => {
+              if (element) groupRefs.current.set(group.group, element);
+              else groupRefs.current.delete(group.group);
+            }}
+            open={singleOpen ? openGroup === group.group : groupIndex < 2}
+            onToggle={event => {
+              if (!singleOpen || !event.currentTarget.open) return;
+              setOpenGroup(group.group);
+              if (pendingFocusGroup.current === group.group) {
+                pendingFocusGroup.current = null;
+                scrollAndFocusGroup(group.group);
+              }
+            }}
+            className="studio-attribute-group"
+          >
+          <summary
+            onClick={() => {
+              pendingFocusGroup.current = singleOpen && openGroup !== group.group
+                ? group.group
+                : null;
+            }}
+          >
+            <span>{group.group}</span>
+            <small>{group.fields.filter(field => selections[field.name]).length}/{group.fields.length}</small>
+          </summary>
+          <div className="studio-attribute-group__fields">
+            {group.fields.map(field => {
+              const authority = resolveFieldReferenceAuthority(
+                field,
+                references,
+                characterOutfitBehavior,
+                authorityProjection
+              );
+              return (
+                <VisualOptionPicker
+                  key={field.name}
+                  field={field}
+                  value={selections[field.name]}
+                  visual={resolveVisualPresentation({
+                    field,
+                    manifests: manifests || {},
+                    gender
+                  })}
+                  disabled={Boolean(authority)}
+                  disabledReason={authority
+                    ? `ui.visual.referenceAuthority.${authority}`
+                    : undefined}
+                  locked={lockedFields.includes(field.name)}
+                  customColors={customColors}
+                  customCharacterCount={customCharacterCount}
+                  customInputLimits={customInputLimits}
+                  onLockChange={locked => onLockChange?.(field.name, locked)}
+                  onCustomColorsChange={onCustomColorsChange}
+                  onChange={selection => {
+                    const next = { ...selections };
+                    if (selection) next[field.name] = selection;
+                    else delete next[field.name];
+                    onChange(next);
+                  }}
+                />
+              );
+            })}
+            {showNextActions ? (
+              <div className="studio-attribute-group__next">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!nextGroup}
+                  icon={nextGroup ? <ArrowRight aria-hidden="true" /> : undefined}
+                  onClick={() => {
+                    if (!nextGroup) return;
+                    pendingFocusGroup.current = nextGroup.group;
+                    setOpenGroup(nextGroup.group);
+                  }}
+                >
+                  {nextGroup
+                    ? t('ui.studio.nextSettings')
+                    : t('ui.studio.settingsComplete')}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+          </details>
+        );
+      })}
+    </div>
+  );
+}

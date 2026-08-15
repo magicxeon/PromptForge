@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "prompt-coverage-v1",
+  "styleFamily": "soft-character-portrait",
+  "stage1Prompt": "datasets/stage-1-prompts/soft-character-portrait.md",
+  "stage2Extraction": "datasets/stage-2-extractions/soft-character-portrait.json",
+  "correct": ["identity-first close portrait", "direct or near-direct gaze", "soft directional source", "shallow depth", "simple background"],
+  "missing": ["dataset does not contain enough environmental Character portraits", "several samples are highly retouched or synthetic"],
+  "invented": [],
+  "contradictory": ["the folder name implies the existing Scene Builder environmental portrait, but the images describe beauty close-ups"],
+  "lowConfidence": ["natural skin realism baseline", "whether broad-smile commercial headshots belong in the same family"],
+  "verdict": "Do not replace the production Soft Character Portrait recipe with this dataset. Rename or expand first."
+}

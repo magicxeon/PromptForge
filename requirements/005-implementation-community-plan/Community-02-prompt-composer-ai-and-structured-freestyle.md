@@ -1,6 +1,6 @@
 # Community-02 Prompt Composer AI and Structured Freestyle
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented - Pending Validation
 **Feature type:** Prompt intelligence and config prefill  
 **Depends on:** Visual Character Builder schema, model/provider gateway, shared audit  
 **Created:** 2026-07-15
@@ -110,19 +110,25 @@ Exact field IDs must align with the Visual Character Builder schema.
 - Composer output must map into existing attribute/schema fields and must not invent official options.
 - Composer cost must route through the future credit policy if paid models are used.
 
-### Proposed Files
+### Implemented Files and Ownership
 
 ```text
 client/prompt-composer/promptComposerPanel.js
 client/prompt-composer/promptComposerApi.js
 client/prompt-composer/structuredProposalReview.js
-client/core/promptCompiler.js
-client/core/studioState.js
-server/promptComposer/PromptComposerService.js
-server/promptComposer/PromptComposerMapper.js
-server/promptComposer/promptComposerRoutes.js
-server/taxonomy/CommunityClassificationService.js
+client/playground/playgroundPage.js
+client/playground/playgroundController.js
+client/i18n/locales/<locale>/prompt-composer.json
+server/domain/prompt-composer/PromptComposerService.js
+server/domain/prompt-composer/PromptComposerMapper.js
+server/app/routes/promptComposerRoutes.js
+server/app/createApp.js
+test/promptComposerMapper.test.js
 ```
+
+The existing `client/core/promptCompiler.js` and `server/domain/generation/promptCompiler.js`
+remain the only final prompt compilers. Composer proposes values only; it does not fork or
+replace the generation prompt pipeline.
 
 ### Input / Process / Output
 
@@ -143,6 +149,31 @@ Process:
 4. Produce suggested taxonomy signals.
 5. Let user review before applying to Studio state.
 
+### MVP Implementation Decision
+
+This delivery deliberately uses `composerMode: "local_rules"`, not an external text-model
+provider. `PromptComposerMapper` scores a small multilingual intent alias set against enabled
+items in the authoritative attributes bundle. A proposed `valueId` must therefore already exist
+in `attributes/*.json`; unsupported wording remains in `customPromptParts.intent` and the
+freeform draft. This prevents the Composer from inventing official dropdown values, avoids an
+unpriced text-model request, and avoids persisting raw prompt text.
+
+`POST /api/prompt-composer/proposals` is actor-scoped through the existing middleware, reads the
+attributes bundle injected by `createApp`, and returns a proposal only. It does not enqueue an
+image, change Studio state, write runtime JSON, charge credits, or add an audit record containing
+the raw freeform text. A future paid provider adapter must preserve this response contract and
+route its billable operation through the credit policy before being enabled.
+
+### UI Apply Contract
+
+1. **Use in Playground prompt** copies only `finalPromptDraft` into actor-scoped Playground
+   state, re-renders the prompt editor, and does not generate.
+2. **Apply selections in Studio** validates every returned `valueId` against the browser's loaded
+   attribute library before assigning `window.state.selections[fieldId]`; invalid or stale values
+   are ignored.
+3. The route changes to `/studio`, restores compatible dropdowns, and refreshes the existing
+   canonical prompt preview. Users retain normal dropdown and custom-text editing control.
+
 Output:
 
 ```text
@@ -160,3 +191,6 @@ StructuredPromptProposal
 - Keep unmapped text as custom prompt part.
 - Reject creation of unofficial official tags.
 - Confirm applying proposal updates Studio state without triggering generation.
+- Confirm an unknown idea produces no unofficial field selection and remains available as the
+  freeform draft.
+- Confirm the localized Prompt Composer catalog has key parity for every enabled locale.

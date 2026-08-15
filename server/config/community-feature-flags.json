@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "community": {
+    "enabled": true,
+    "shareEnabled": true,
+    "exploreEnabled": true,
+    "engagementEnabled": true,
+    "creatorProfilesEnabled": true,
+    "galleryEnabled": true,
+    "characterProfilesEnabled": true,
+    "moderationEnabled": true,
+    "privateBeta": false
+  },
+  "development": {
+    "mockActorSwitcherEnabled": true
+  },
+  "routing": {
+    "automaticSimpleModeEnabled": false
+  }
+}

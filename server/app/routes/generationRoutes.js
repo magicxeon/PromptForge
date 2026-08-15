@@ -1,71 +1,102 @@
-import { compileGenerationContext, createQueueOptions } from '../../domain/generation/generationRequestService.js';
-
 export function registerGenerationRoutes(app, {
-  providerRegistry,
-  queueManager,
-  creditManager,
+  generationApplicationService,
   resolveRequestUsername
 }) {
-  app.post('/api/generate', async (req, res) => {
-    const { provider, submodel } = req.body;
-
+  app.post('/api/generation/prompt-preview', async (req, res) => {
     try {
-      const targetUser = resolveRequestUsername(req, { allowQuery: false });
-      const { provider: providerConfig, model: modelConfig } = providerRegistry.resolveSelection(provider, submodel);
-      const activeProvider = providerConfig.id;
-      const activeSubmodel = modelConfig.id;
-      const creditCost = Number(modelConfig.creditCost || 1);
-
-      await creditManager.assertBalance(targetUser, creditCost);
-      const { context, compiledPrompt } = compileGenerationContext({ ...req.body, userRole: req.userRole });
-      providerRegistry.validateRequest(modelConfig, {
-        aspectRatio: context.aspectRatio,
-        referenceCount: context.referenceCount,
-        imageResolution: context.imageResolution || modelConfig.defaults?.resolution || null
-      });
-
-      const stream = providerRegistry.shouldStream(providerConfig, modelConfig, req.body.stream !== false);
-
-      console.log(`[API Generate] Enqueueing Job. Provider: ${activeProvider}, Model: ${activeSubmodel}, User: ${targetUser}, Stream: ${stream}`);
-
-      const jobId = queueManager.enqueue(activeProvider, activeSubmodel, compiledPrompt, createQueueOptions(context, {
-        username: targetUser,
-        stream,
-        modelConfig,
-        providerConfigVersion: providerRegistry.getConfigVersion(),
-        creditCost
-      }));
-
-      res.json({
-        jobId,
-        status: 'queued',
-        providerStreaming: stream
-      });
+      if (!isPromptPreviewEnabled(req)) {
+        return res.status(404).json({
+          error: { code: 'not_found', message: 'Route not found.' }
+        });
+      }
+      return res.json(await generationApplicationService.preview(
+        req.body || {},
+        req.actorContext,
+        req.userRole
+      ));
     } catch (error) {
-      console.error('Generation enqueuing error:', error);
-      res.status(error.statusCode || 500).json({ error: error.message });
+      return res.status(error.statusCode || 400).json({
+        error: {
+          code: error.code || 'prompt_preview_failed',
+          message: error.message || 'Prompt preview could not be compiled.'
+        }
+      });
+    }
+  });
+
+  app.post('/api/generate', async (req, res) => {
+    try {
+      const result = await generationApplicationService.submit({
+        body: req.body || {},
+        actorContext: req.actorContext,
+        userRole: req.userRole,
+        requestId: req.requestId
+      });
+      return res.json(result);
+    } catch (error) {
+      console.error('[Generation] Enqueue failed:', JSON.stringify({
+        code: error.code || 'generation_enqueue_failed',
+        statusCode: error.statusCode || 500,
+        message: error.message,
+        details: error.details || null
+      }));
+      if (error.toJSON) {
+        return res.status(error.statusCode || 400).json(error.toJSON());
+      }
+      return res.status(error.statusCode || 500).json({
+        error: error.message,
+        ...(error.code ? { code: error.code } : {})
+      });
     }
   });
 
   app.get('/api/jobs/:id', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
     const username = resolveRequestUsername(req, { allowBody: false });
-    const status = await queueManager.getJobStatusForUser(req.params.id, username);
+    const status = await generationApplicationService.getJobStatusForUser(
+      req.params.id,
+      username
+    );
     if (!status) {
+      const knownStatus = await generationApplicationService.getJobStatus(req.params.id);
+      console.warn(
+        `[Jobs] Status unavailable for ${req.params.id}: ${knownStatus ? 'owner mismatch' : 'job missing'} (requester: ${username})`
+      );
       return res.status(404).json({ error: 'Job not found' });
     }
     return res.json(status);
   });
 
+  app.get('/api/generation-groups/:id', async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    const group = await generationApplicationService.getGroupStatusForActor(
+      req.params.id,
+      req.actorContext
+    );
+    if (!group) {
+      return res.status(404).json({
+        error: { code: 'generation_group_not_found', message: 'Generation group not found.' }
+      });
+    }
+    return res.json(group);
+  });
+
   app.get('/api/jobs/:id/stream', (req, res) => {
     const jobId = req.params.id;
     const username = resolveRequestUsername(req, { allowBody: false });
-    const success = queueManager.addListener(jobId, res, username);
+    const success = generationApplicationService.addJobListener(jobId, res, username);
     if (!success) {
       return res.status(404).json({ error: 'Job not found or closed' });
     }
-
     req.on('close', () => {
-      queueManager.removeListener(jobId, res);
+      generationApplicationService.removeJobListener(jobId, res);
     });
   });
+}
+
+function isPromptPreviewEnabled(req) {
+  if (req.actorContext?.role === 'admin' || req.userRole === 'admin') return true;
+  return ['1', 'true', 'yes', 'on'].includes(
+    String(process.env.OVERRIDE_DEBUG_PROMPT || '').trim().toLowerCase()
+  );
 }

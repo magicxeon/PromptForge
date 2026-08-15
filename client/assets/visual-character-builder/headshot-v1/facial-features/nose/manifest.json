@@ -114,6 +114,25 @@
         "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/natural-r1.png",
         "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/natural-r1.png"
       }
+    },
+    {
+      "assetId": "visual.nose.shape.vertical-drama-male",
+      "optionId": "nose.shape.vertical_drama_male",
+      "attributeId": "nose.007",
+      "slug": "vertical-drama-male",
+      "assetRevision": 3,
+      "recolorMode": "mask",
+      "focalPoint": "50% 50%",
+      "alt": {
+        "en": "Sculpted straight adult masculine nose",
+        "th": "สันจมูกตรงคมแบบนักแสดงนำชาย"
+      },
+      "sourceHash": "09c1aa33d31601778f1d71f4dfb1747168be4c916352c30727606a90571a288e",
+      "assets": {
+        "master": "/assets/visual-character-builder/headshot-v1/facial-features/nose/master/vertical-drama-male-r3.png",
+        "preview": "/assets/visual-character-builder/headshot-v1/facial-features/nose/preview/vertical-drama-male-r3.png",
+        "thumb": "/assets/visual-character-builder/headshot-v1/facial-features/nose/thumb/vertical-drama-male-r3.png"
+      }
     }
   ]
 }

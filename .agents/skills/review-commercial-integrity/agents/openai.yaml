@@ -1,0 +1,6 @@
+interface:
+  display_name: "Review Commercial Integrity"
+  short_description: "Protect pricing, credits, and payouts"
+  default_prompt: "Use $review-commercial-integrity to validate this billable workflow and its recovery paths."
+policy:
+  allow_implicit_invocation: true

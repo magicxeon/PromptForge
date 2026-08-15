@@ -1,19 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import path from 'path';
-import { CLIENT_ROOT, PROJECT_ROOT } from '../config/paths.js';
+import { CLIENT_ROOT, OUTPUTS_DIR, PROJECT_ROOT, WEB_DIST_ROOT } from '../config/paths.js';
 import { collectionManager } from '../domain/collections/CollectionManager.js';
 import { getProviderRegistry } from '../providers/ProviderRegistry.js';
 import { queueManager } from '../domain/generation/QueueManager.js';
 import { creditManager } from '../domain/credits/CreditManager.js';
+import { creditApplicationService } from '../domain/credits/CreditApplicationService.js';
 import { ComparisonOrchestrator } from '../domain/comparisons/ComparisonOrchestrator.js';
 import { historyRepository } from '../repositories/generation/HistoryRepository.js';
-import {
-  createSceneShareDraft,
-  publishSceneTemplateShare,
-  communityPostRepo,
-  communityRemixRepo
-} from '../domain/community/CommunityShareService.js';
+import { communityShareService } from '../domain/community/CommunityShareService.js';
 import { actorContextMiddleware } from '../middleware/actorContextMiddleware.js';
 import { mockUserRepo } from '../repositories/identity/MockUserRepository.js';
 import { createAttributesBundleLoader, registerAttributesRoutes } from './routes/attributesRoutes.js';
@@ -24,6 +21,44 @@ import { registerGenerationRoutes } from './routes/generationRoutes.js';
 import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
+import { registerAdminRoutes } from './routes/adminRoutes.js';
+import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
+import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoutes.js';
+import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
+import { communityClassificationService } from '../domain/community/CommunityClassificationService.js';
+import { communityFeaturePolicyService } from '../domain/community/CommunityFeaturePolicyService.js';
+import { creatorProfileService } from '../domain/community/CreatorProfileService.js';
+import { creatorProfilePageService } from '../domain/community/CreatorProfilePageService.js';
+import { registerCommunityCreatorRoutes } from './routes/communityCreatorRoutes.js';
+import { communityModerationService } from '../domain/community/CommunityModerationService.js';
+import { registerCommunityModerationRoutes } from './routes/communityModerationRoutes.js';
+import { communityEngagementService } from '../domain/community/CommunityEngagementService.js';
+import { communityRankingService } from '../domain/community/CommunityRankingService.js';
+import { registerCommunityEngagementRoutes } from './routes/communityEngagementRoutes.js';
+import { communityGalleryService } from '../domain/community/CommunityGalleryService.js';
+import { registerCommunityGalleryRoutes } from './routes/communityGalleryRoutes.js';
+import { communityLaunchReadinessService } from '../domain/community/CommunityLaunchReadinessService.js';
+import { registerCommunityReadinessRoutes } from './routes/communityReadinessRoutes.js';
+import { CommunityComparisonShareService } from '../domain/community/CommunityComparisonShareService.js';
+import { communityPostAccessService } from '../domain/community/CommunityPostAccessService.js';
+import { registerCommunityComparisonRoutes } from './routes/communityComparisonRoutes.js';
+import { communityCollectionShareService } from '../domain/community/CommunityCollectionShareService.js';
+import { registerCommunityCollectionRoutes } from './routes/communityCollectionRoutes.js';
+import { registerCharacterProfileRoutes } from './routes/characterProfileRoutes.js';
+import { characterProfileService } from '../domain/character-profiles/CharacterProfileService.js';
+import { characterCastingExportService } from '../domain/character-profiles/CharacterCastingExportService.js';
+import { characterProfileSharingService } from '../domain/character-profiles/CharacterProfileSharingService.js';
+import { resolveFrontendRoute } from './frontendRouteOwnership.js';
+import { registerFashionBlueprintRoutes } from './routes/fashionBlueprintRoutes.js';
+import { registerReferenceRoutes } from './routes/referenceRoutes.js';
+import { registerReferenceHandoffRoutes } from './routes/referenceHandoffRoutes.js';
+import { faceReferenceHandoffService } from '../domain/generation/FaceReferenceHandoffService.js';
+import { imagePresentationService } from '../domain/assets/ImagePresentationService.js';
+import { templateCoreService } from '../domain/templates/TemplateCoreService.js';
+import { registerTemplateRoutes } from './routes/templateRoutes.js';
+import { TemplatePoseProxyService } from '../domain/template-pose-proxy/TemplatePoseProxyService.js';
+import { GenerationApplicationService } from '../domain/generation/GenerationApplicationService.js';
+import { requestPerformanceMiddleware } from '../middleware/requestPerformanceMiddleware.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -47,17 +82,45 @@ export function resolveRequestUsername(req, {
 export function createApp() {
   const app = express();
   const providerRegistry = getProviderRegistry();
+  const generationApplicationService = new GenerationApplicationService({
+    providerRegistry,
+    queueManager,
+    templateCoreService,
+    creditService: creditApplicationService
+  });
+  const templatePoseProxyService = new TemplatePoseProxyService({
+    providerRegistry,
+    generationApplicationService,
+    onActivated: (input, actorContext) =>
+      communityShareService.activatePreparedTemplate(input, actorContext)
+  });
   const comparisonOrchestrator = new ComparisonOrchestrator({
     providerRegistry,
     queueManager,
-    creditManager
+    creditManager,
+    creditReservation: creditApplicationService,
+    generationApplicationService,
+    templateCoreService
+  });
+  const communityComparisonShareService = new CommunityComparisonShareService({
+    comparisonOrchestrator
   });
   const getAttributesBundle = createAttributesBundleLoader();
+
+  creditApplicationService.reconcileStartupOrphanReservations().catch(err => {
+    console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
+  });
 
   app.use(cors());
   app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '20mb' }));
   app.use(actorContextMiddleware);
-  app.use(express.static(CLIENT_ROOT));
+  app.use(requestPerformanceMiddleware);
+  app.use('/react-assets', express.static(path.join(WEB_DIST_ROOT, 'react-assets')));
+  // React retains only runtime data/media boundaries from the former client
+  // tree. Legacy scripts, HTML and styles are intentionally not web-served.
+  app.use('/assets', express.static(path.join(CLIENT_ROOT, 'assets')));
+  app.use('/i18n', express.static(path.join(CLIENT_ROOT, 'i18n')));
+  app.use('/outputs', express.static(OUTPUTS_DIR));
   app.use('/sub-app-game-character', express.static(path.join(PROJECT_ROOT, 'sub-app-game-character')));
 
   app.use((req, res, next) => {
@@ -73,30 +136,104 @@ export function createApp() {
     providerRegistry,
     queueManager,
     creditManager,
+    creditApplicationService,
+    generationApplicationService,
     collectionManager,
     comparisonOrchestrator,
     historyRepository,
     mockUserRepo,
+    templateCoreService,
+    templatePoseProxyService,
     resolveRequestUsername
   };
 
   registerAttributesRoutes(app, { providerRegistry, getAttributesBundle });
-  registerIdentityRoutes(app, { mockUserRepo });
+  registerPromptComposerRoutes(app, { getAttributesBundle });
+  registerIdentityRoutes(app, {
+    mockUserRepo,
+    communityFeaturePolicyService
+  });
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
-  registerHistoryRoutes(app, sharedDependencies);
-  registerComparisonRoutes(app, sharedDependencies);
-  registerSceneTemplateRoutes(app, {
-    createSceneShareDraft,
-    publishSceneTemplateShare,
-    communityPostRepo,
-    communityRemixRepo,
-    resolveRequestUsername
+  registerFashionBlueprintRoutes(app, sharedDependencies);
+  registerReferenceRoutes(app, sharedDependencies);
+  registerReferenceHandoffRoutes(app, { faceReferenceHandoffService });
+  registerHistoryRoutes(app, {
+    ...sharedDependencies,
+    imagePresentationService
   });
+  registerComparisonRoutes(app, sharedDependencies);
+  registerAdminRoutes(app, {
+    communityFeaturePolicyService,
+    adjustmentService: creditApplicationService
+  });
+  registerCommunityTaxonomyRoutes(app, {
+    communityClassificationService,
+    communityFeaturePolicyService
+  });
+  registerCommunityShareRoutes(app, {
+    communityShareService,
+    communityFeaturePolicyService
+  });
+  registerCommunityCreatorRoutes(app, {
+    creatorProfileService,
+    creatorProfilePageService,
+    communityFeaturePolicyService
+  });
+  registerCommunityModerationRoutes(app, {
+    moderationService: communityModerationService,
+    communityFeaturePolicyService
+  });
+  registerCommunityEngagementRoutes(app, {
+    engagementService: communityEngagementService,
+    rankingService: communityRankingService,
+    moderationService: communityModerationService,
+    communityFeaturePolicyService
+  });
+  registerCharacterProfileRoutes(app, {
+    profileService: characterProfileService,
+    castingExportService: characterCastingExportService,
+    sharingService: characterProfileSharingService,
+    communityFeaturePolicyService
+  });
+  registerCommunityGalleryRoutes(app, {
+    galleryService: communityGalleryService,
+    communityFeaturePolicyService
+  });
+  registerCommunityReadinessRoutes(app, {
+    readinessService: communityLaunchReadinessService,
+    communityFeaturePolicyService
+  });
+  registerCommunityComparisonRoutes(app, {
+    comparisonShareService: communityComparisonShareService,
+    postAccessService: communityPostAccessService,
+    communityFeaturePolicyService,
+    imagePresentationService
+  });
+  registerCommunityCollectionRoutes(app, {
+    collectionShareService: communityCollectionShareService,
+    postAccessService: communityPostAccessService,
+    communityFeaturePolicyService
+  });
+  registerSceneTemplateRoutes(app, {
+    communityShareService,
+    communityFeaturePolicyService,
+    imagePresentationService,
+    templateCoreService,
+    templatePoseProxyService
+  });
+  registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService });
 
-  app.get(['/studio', '/history', '/comparisons', '/comparisons/:setId'], (req, res) => {
-    res.sendFile(path.join(CLIENT_ROOT, 'index.html'));
+  // All registered browser routes are owned by the React SPA.
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    const frontendRoute = resolveFrontendRoute(req.path);
+    if (!frontendRoute.matched) return next();
+    const indexPath = path.join(WEB_DIST_ROOT, 'index.html');
+    if (!fs.existsSync(indexPath)) return next();
+    res.setHeader('x-mpf-frontend-runtime', frontendRoute.runtime);
+    return res.sendFile(indexPath);
   });
 
   app.locals.modelPromptForge = {

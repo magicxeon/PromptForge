@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "fashion-style-family-extraction-v1",
+  "styleFamily": "color-light-editorial",
+  "sampleCount": 7,
+  "method": {
+    "stage": "stage-2",
+    "authority": "original-images",
+    "stage1UsedAsEvidence": false,
+    "aggregation": "human-reviewed style-family summary"
+  },
+  "classification": {
+    "recipeRole": ["lighting-treatment", "color-treatment"],
+    "clusterHealth": "strong lighting family with incompatible crop variants"
+  },
+  "fashionIntent": {
+    "primary": "experimental editorial color-light portrait",
+    "commercialRead": "beauty or campaign treatment, not color-critical ecommerce"
+  },
+  "subject": {"count": 1, "pose": "not controlled by this style family"},
+  "pose": {
+    "invariants": [],
+    "variations": ["standing with hands in pockets", "near-frontal portrait", "strong torso angle"],
+    "avoid": ["binding a specific pose to the lighting treatment"]
+  },
+  "camera": {
+    "shotSize": ["full-body", "three-quarter", "head-and-shoulders", "beauty close-up"],
+    "height": "mostly eye-level",
+    "lensCharacter": "portrait compression in close crops; uncertain in full-body samples"
+  },
+  "composition": {
+    "invariants": ["colored regions remain spatially distinct"],
+    "variations": ["split face", "colored rim", "background wash", "overhead pool of light"]
+  },
+  "lighting": {
+    "source": "two or more deliberately colored sources",
+    "direction": "opposed key and counterlight or separated background wash",
+    "quality": ["hard-edged", "soft saturated"],
+    "subjectIllumination": "face and garment edges remain readable under color",
+    "shadowPattern": "colored shadow separation rather than a uniform tint"
+  },
+  "environment": {
+    "invariants": ["simple studio or dark controlled space"],
+    "variations": ["black field", "colored seamless", "restrained practical lights", "light haze"]
+  },
+  "capture": {"contrast": "medium to high", "exposure": "highlight-controlled with recoverable shadows"},
+  "qualityFlags": ["colored spill can invalidate garment color fidelity", "haze and practical lights are optional, not invariants"],
+  "confidence": {"pose": 0.3, "camera": 0.58, "lighting": 0.96, "environment": 0.82},
+  "sampleDisposition": [
+    {"sampleId": "color-light-editorial-001", "role": "variation", "notes": "full-body overhead warm pool"},
+    {"sampleId": "color-light-editorial-002", "role": "core", "notes": "warm and cyan facial-plane split"},
+    {"sampleId": "color-light-editorial-003", "role": "core", "notes": "red and blue portrait separation"},
+    {"sampleId": "color-light-editorial-004", "role": "core", "notes": "three-quarter fashion frame with practical color"},
+    {"sampleId": "color-light-editorial-005", "role": "core", "notes": "cool and red rim on dark field"},
+    {"sampleId": "color-light-editorial-006", "role": "variation", "notes": "pastel wash and haze"},
+    {"sampleId": "color-light-editorial-007", "role": "variation", "notes": "low viewpoint with haze and three colors"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "studio.viewport.title": "Visual Viewport & Queue",
+  "studio.viewport.subtitle": "ดูสตรีมการสร้างภาพ คิวทำงานเบื้องหลัง และประวัติภาพ",
+  "studio.viewport.placeholderMain": "พร้อมสร้างภาพตัวละคร",
+  "studio.viewport.placeholderSub": "กำหนดคุณสมบัติด้านล่างแล้วคลิกสร้างรูปภาพ",
+  "studio.viewport.useFaceRef": "👤 ล็อคใบหน้า",
+  "studio.viewport.useStyleRef": "🖼️ ล็อคสไตล์ภาพ",
+  "studio.viewport.useCharacterRef": "📋 ใช้เป็นภาพอ้างอิงตัวละคร",
+  "studio.configurator.title": "Studio Creative Configurator",
+  "studio.configurator.subtitle": "กำหนดคุณสมบัติ โหมดการสร้างภาพ และเครื่องมือเลือก Engine/Model",
+  "studio.step1.title": "ตัวเลือกความงามของตัวละคร",
+  "studio.step2.title": "Engine & ผลลัพธ์เป้าหมาย",
+  "studio.step3.title": "สร้างภาพจาก Prompt",
+  "studio.mode.normal": "Scene Builder",
+  "studio.mode.headshot": "Headshot Grid",
+  "studio.mode.characterSheet": "Character Sheet Builder",
+  "studio.action.generate": "⚡ สร้างรูปภาพ",
+  "studio.action.reset": "รีเซ็ตฟอร์ม",
+  "studio.action.surprise": "🎲 สุ่มคุณสมบัติ",
+  "studio.action.export": "ส่งออก Config",
+  "studio.preset.label": "โหลดการตั้งค่าความงามด่วน (Presets)",
+  "studio.preset.load": "โหลด Preset"
+}

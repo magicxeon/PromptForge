@@ -44,7 +44,7 @@
     "subcategory": "Location",
     "prompt": {
       "default": "on an urban street",
-      "gpt-image": "on a bustling urban street, with streetlights and dynamic background depth"
+      "gpt-image": "on a bustling urban street with defined foreground and background depth layers, detailed storefront facades, restrained pedestrian activity, and natural street atmosphere"
     },
     "exclusions": [
       "environment.pop_04",
@@ -125,7 +125,7 @@
     "subcategory": "Location",
     "prompt": {
       "default": "in a cozy modern cafe",
-      "gpt-image": "in a cozy modern cafe with warm wooden decors and soft background chatter"
+      "gpt-image": "in a cozy modern cafe with warm wooden interior surfaces, window-side seating, layered background depth, and restrained customer activity"
     },
     "exclusions": [
       "environment.001",

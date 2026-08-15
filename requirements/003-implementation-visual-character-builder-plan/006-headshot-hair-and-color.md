@@ -77,6 +77,13 @@ Review contact sheet:
 
 Implementation note: the UI field-to-subcategory filter must map `Cut / Style` to `Style`, `Texture` to `Hair Texture`, and `Parting / Fringe` to `Bangs` so hair axes do not fall back to the full hair catalog.
 
+React parity note: `normalizeAttributeGroups()` must preserve those aliases
+when adapting the server attribute bundle. `Hair > Cut / Style` resolves the
+reviewed manifest IDs through the shared visual registry and filters its visual
+cards by the selected Female/Male presentation using the same two eight-option
+sets as Vanilla. Options without reviewed artwork remain accessible in the
+dropdown and must not create blank visual cards.
+
 ## Hair Texture Pilot
 
 The third Hair pilot is `Hair > Texture` using the shared visual-card picker contract. It uses the existing texture attributes from `attributes/008-hair.json`:
@@ -143,6 +150,23 @@ The fifth Hair pilot is `Hair > Color` using a swatch-card picker rather than ra
 
 Color swatches are defined directly in the shared visual control registry because color is better represented by CSS swatches than generated bitmap assets. The existing custom color picker remains available for advanced base/highlight color overrides.
 
+### React Custom Color Contract (2026-07-29)
+
+- `Hair > Color` exposes **Base hair color** and optional **Dimensional
+  highlights** controls.
+- Enabling either custom hair control disables the preset visual color swatches.
+  Custom controls become the sole color authority while length, cut/style,
+  texture and parting remain editable.
+- The actor-scoped draft persists custom color state. `GenerationExperience`
+  and `/api/generate` carry it as `customColors`; the React client must not
+  replace it with an empty object.
+- The canonical compiler omits the preset Hair Color phrase while a custom base
+  or highlight is active.
+- Shared owners are
+  `web/src/components/visual-options/CustomColorControl.tsx` and
+  `web/src/features/studio/attributes/customColorModel.ts`.
+- Studio and Guided Scene use the same control and data contract.
+
 ## Composition Rules
 
 - Length, style, texture and parting are separate semantic axes.
@@ -171,5 +195,7 @@ Color swatches are defined directly in the shared visual control registry becaus
 - Users can change color without changing hairstyle selection.
 - Asset count grows by shape options, not by the Cartesian product of shape and color.
 - Saved configurations preserve separate hair axes.
+- Saved actor drafts preserve custom base and dimensional-highlight colors.
+- Generation payloads and server prompts contain the active custom colors.
 - Prompt output contains no conflicting style, texture or parting instructions.
 

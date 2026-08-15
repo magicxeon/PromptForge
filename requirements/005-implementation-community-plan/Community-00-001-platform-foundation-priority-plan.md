@@ -1,6 +1,6 @@
 # Community-00-001 Platform Foundation Priority Plan
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Active - Foundation 00-002 through 00-009 validated
 **Feature type:** Foundation sequencing and migration guardrails  
 **Depends on:** Scene Builder contracts, current JSON repositories, generation queue  
 **Created:** 2026-07-19
@@ -21,19 +21,27 @@ Do Step 5 in this order:
 00-003 Repository interface and database-ready schema map
 00-004 Ownership, visibility and public snapshot policy
 00-005 Credit ledger mock and generation billing lifecycle
-00-006 Admin/support audit and back-office foundation
-01 Product Home and Workflow Launcher
+00-006 Localization and language extension foundation
+00-007 Community-first shell, Playground and shared generation components
+00-008 Admin/support audit and back-office foundation
+00-009 Feature delivery gates and non-duplication plan
+01 Community Home and Workflow Launcher
 02 Prompt Composer AI and Structured Freestyle
 03 Taxonomy and Auto Classification
 04 Share Generated Image and Prompt Snapshot
+06 Creator Profile and Follow server foundation
+07 Safety, Moderation and Reporting server foundation
+12 Engagement Events, Comments and Ranking Windows
 05 Community Explore, Post Detail and Remix
-06 Creator Profile, Follow and Portfolio
-07 Safety, Moderation and Reporting
-08 MVP Integration and Launch
 09 Gallery, Character Showcase and Scene Builder Handoff
+08 MVP Integration and Launch
+10 Verify Local Mock User and Actor migration seam
+11 Verify Credit integration; keep automatic routing deferred
 ```
 
-This means Community screens may start as thin prototypes, but domain contracts must be stable first.
+This is the implementation order, not a renumbering request. Community screens
+may start as thin hidden prototypes, but domain contracts must be stable first.
+The current development and exposure state is governed by Community-00-009.
 
 ## 3. Foundation Principles
 
@@ -41,9 +49,14 @@ This means Community screens may start as thin prototypes, but domain contracts 
 - Use `userId` and `ownerUserId` as primary identity fields. `username` is display/compatibility only.
 - Every write operation must receive `ActorContext`.
 - Every public API must return sanitized public read models, not raw internal records.
+- Every new user-facing Community string must use the shared localization contract.
 - Credit deduction must live in a central credit service, not in Community UI or Scene Builder.
 - Admin/support actions must be auditable from the beginning.
 - Scene Builder snapshot, reference slot and template hydrator logic must be reused. Do not fork them inside Community.
+- A later numeric requirement must not recreate a capability already owned by a
+  Community-00 foundation requirement.
+- Opening development does not open user exposure; every feature follows the
+  separate exposure gate in Community-00-009.
 
 ## 4. System Design
 
@@ -75,16 +88,16 @@ External Services
 client/core/actorContext.js
 client/core/apiClient.js
 client/community/communityMockUserSwitcher.js
-server/identity/mockActorContext.js
-server/identity/MockUserRepository.js
+server/domain/identity/mockActorContext.js
+server/repositories/identity/MockUserRepository.js
 server/middleware/actorContextMiddleware.js
 server/repositories/BaseRepositoryContract.md
-server/policies/OwnershipPolicyService.js
-server/policies/VisibilityPolicyService.js
-server/credits/CreditLedgerRepository.js
-server/credits/CreditReservationService.js
-server/audit/AuditLogRepository.js
-server/admin/AdminPolicyService.js
+server/domain/policies/OwnershipPolicyService.js
+server/domain/policies/VisibilityPolicyService.js
+server/repositories/credits/CreditLedgerRepository.js
+server/domain/credits/CreditReservationService.js
+server/repositories/audit/AuditLogRepository.js
+server/domain/admin/AdminPolicyService.js
 ```
 
 ## 5. Migration Guardrails
@@ -110,10 +123,12 @@ For every JSON file introduced in Step 5:
 
 ### Proposed Changes
 
-1. Add foundation requirement files 00-002 through 00-006.
+1. Add foundation requirement files 00-002 through 00-008.
 2. Update Community master roadmap to show foundation work before feature work.
 3. Use these contracts as acceptance criteria for later Community tasks.
 4. Do not implement separate Community generation, template or credit logic.
+5. Apply Community-00-009 before assigning any Community-05 through
+   Community-12 implementation task.
 
 ### Testing
 

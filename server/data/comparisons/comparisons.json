@@ -2,6 +2,1708 @@
   "version": 1,
   "sets": [
     {
+      "id": "cmp_set_1786757167604_7fyhdn",
+      "ownerUserId": "usr_bob",
+      "username": "user_bob",
+      "name": "Comparison 2026-08-15",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1786757167604,
+      "updatedAt": 1786757214878,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1786757163677_3cab1sd5",
+          "status": "completed",
+          "sourcePrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "referenceProcessingLineage": {
+              "schemaVersion": 1,
+              "policyVersion": "rpp-2026-08-v6",
+              "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+              "executionMode": "single_stage",
+              "referenceCount": 0,
+              "dispatchRuleIds": [],
+              "suppressedReferenceRoles": [],
+              "references": []
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 125,
+          "actualTotalCredit": 125,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "promptRefinement": {
+            "requested": true,
+            "applied": true,
+            "status": "refined",
+            "provider": "openai",
+            "model": "gpt-5.6-luna",
+            "beforeFingerprint": "8a833f51ecb8286b",
+            "afterFingerprint": "13606b8b8fb6224a",
+            "responseId": "resp_07805eb17aef822c016a7fc02bc28087d0bc92cd5a24a7a96e",
+            "usage": {
+              "inputTokens": 356,
+              "outputTokens": 259,
+              "totalTokens": 615
+            },
+            "latencyMs": 3919,
+            "warnings": [],
+            "changeSummary": [
+              "Removed repetition and tightened phrasing.",
+              "Clarified the contrast between warm fireplace light and cool nighttime cyan tones.",
+              "Preserved the specified subject, pose, environment, lens, photographic effects, atmosphere, aspect ratio, and output count."
+            ],
+            "preservedAuthorities": [
+              "No reference roles were specified.",
+              "Character reference outfit behavior remains preserve.",
+              "Aspect ratio: 6:8.",
+              "Output count: 1."
+            ]
+          },
+          "createdAt": 1786757167602,
+          "completedAt": 1786757214857,
+          "payerUserId": "usr_bob",
+          "slots": [
+            {
+              "id": "slot_1785348253889_qccy30",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_epknjty",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167607_se2tnbmpv",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167607_se2tnbmpv.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "8.4",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167623_d2t0fwt"
+            },
+            {
+              "id": "slot_1785348253889_kr0gtg",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_7uj20h7",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167651_cu4wb82vx",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167651_cu4wb82vx.png",
+                "usage": {
+                  "input_tokens": 115,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 115
+                  },
+                  "output_tokens": 1584,
+                  "output_tokens_details": {
+                    "image_tokens": 1584,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 1699
+                },
+                "mimeType": "image/png",
+                "generationDuration": "24.0",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167684_mpx0x9f"
+            },
+            {
+              "id": "slot_1786757145951_xx9b1k",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-5-0-lite-260128",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 5.0 Lite",
+                "th": "Seedream 5.0 Lite"
+              },
+              "estimatedCredit": 50,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_ae9qhzc",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167716_nnq0xf94i",
+              "status": "completed",
+              "actualCredit": 50,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167716_nnq0xf94i.png",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/png",
+                "generationDuration": "38.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167753_x7ugthi"
+            }
+          ],
+          "id": "cmp_run_1786757167604_57cec8"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785326895180_4jkvr3",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Movie Poster Comparison I",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785326895180,
+      "updatedAt": 1785667085765,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785326895174_2l90y5mw",
+          "status": "completed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785326895178,
+          "completedAt": 1785326944264,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785326865220_ra2hpt",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_surfjev",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895183_maewunhy5",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895183_maewunhy5.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "8.0",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895191_00tws3y"
+            },
+            {
+              "id": "slot_1785326865220_19i163",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_0krf9um",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895264_0knt18mnk",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895264_0knt18mnk.png",
+                "usage": {
+                  "input_tokens": 172,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 172
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6412
+                },
+                "mimeType": "image/png",
+                "generationDuration": "48.7",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895273_10zgxo2"
+            },
+            {
+              "id": "slot_1785326888716_fqmitl",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785326890109_g9sgm1v",
+              "estimateExpiresAt": "2026-07-29T12:23:10.109Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": "job_1785326895298_e5d4p34fu",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785326895298_e5d4p34fu.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "10.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1785326895323_v3qe1s2"
+            }
+          ],
+          "id": "cmp_run_1785326895180_ed743u"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785324894992_9jitkx",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785324894992,
+      "updatedAt": 1785324895012,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785324894984_dsu3ue6h",
+          "status": "failed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785324894990,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785324789780_ixill7",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_2u2c3ab",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324789780_zvsar1",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_i4s5tek",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324859952_hhwjji",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_wl7nep0",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            }
+          ],
+          "id": "cmp_run_1785324894992_wx9mu0"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785324875955_zgmx5s",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785324875955,
+      "updatedAt": 1785324875972,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785324875945_wg70bz0x",
+          "status": "failed",
+          "sourcePrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785324875951,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785324789780_ixill7",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_2u2c3ab",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324789780_zvsar1",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_i4s5tek",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "slot_1785324859952_hhwjji",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785324863538_wl7nep0",
+              "estimateExpiresAt": "2026-07-29T11:49:23.538Z",
+              "submittedPrompt": "A cinematic romantic movie poster featuring a beautiful, cute young woman with a soft smile and wavy hair, wearing an elegant emerald-green trench coat. She is sitting gracefully on a wooden train station bench at twilight. She is holding an open vintage brass pocket watch with both hands; her hands are anatomically flawless with exactly five fingers per hand clearly visible. To her left, exactly three brown leather suitcases are stacked vertically. Resting perfectly on the very top suitcase is a glowing blue crystal rose. Falling gently in the air around her are exactly four yellow autumn leaves. In the softly blurred, misty background, a large illuminated station sign clearly spells the word \"SERENDIPITY\" in crisp, white glowing letters. The scene features soft, dreamy romantic lighting, cinematic color grading, and beautiful rain-streaked bokeh.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            }
+          ],
+          "id": "cmp_run_1785324875955_mbjnvf"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785323229216_70mgz7",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Lady with dog and cat",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785323229216,
+      "updatedAt": 1785667091758,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785323229209_0mzx22os",
+          "status": "completed",
+          "sourcePrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785323229213,
+          "completedAt": 1785323290594,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785323196522_t7lvfy",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_zrs090f",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229220_g923ocoeh",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229220_g923ocoeh.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.9",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229229_s5213fi"
+            },
+            {
+              "id": "slot_1785323196522_kz9pth",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_pqqockm",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229302_w638yypyy",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229302_w638yypyy.png",
+                "usage": {
+                  "input_tokens": 235,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 235
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6475
+                },
+                "mimeType": "image/png",
+                "generationDuration": "61.1",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229309_gu9n70q"
+            },
+            {
+              "id": "slot_1785323219816_gd07rv",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785323224876_eudl51v",
+              "estimateExpiresAt": "2026-07-29T11:22:04.876Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": "job_1785323229337_84yun878a",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785323229337_84yun878a.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "9.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1785323229349_kgaltlr"
+            }
+          ],
+          "id": "cmp_run_1785323229216_rx2s2x"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785313074511_apmq91",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785313074511,
+      "updatedAt": 1785324681176,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785313074495_1xmzqmju",
+          "status": "queued",
+          "sourcePrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785313074499,
+          "completedAt": null,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785312877583_a8984z",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_bjlzz80",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            },
+            {
+              "id": "slot_1785312877583_0peket",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_7d1aihr",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            },
+            {
+              "id": "slot_1785313064074_hn9c23",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785313066274_7tw8pvl",
+              "estimateExpiresAt": "2026-07-29T08:32:46.274Z",
+              "submittedPrompt": "A wide-angle, high-fashion editorial photograph set in a brightly lit, modern industrial studio with exposed dark brick walls. In the center, an elegant elderly Asian female model with deep, striking facial wrinkles and a commanding presence is seated on a minimalist concrete stool. She is wearing a structured, avant-garde oversized black linen suit. She is delicately holding a translucent woven-glass teacup with both hands; her hands are anatomically flawless with exactly five fingers per hand visible. To her immediate left, resting on a stark white marble pedestal table, are exactly three red apples and two green pears arranged as a precise still life. To her right, a small black cat is sleeping soundly underneath a low, clear glass coffee table. Seated directly to the right of that glass table is a golden retriever, looking straight into the camera lens with a calm expression. On the dark brick wall in the background, a vibrant purple neon sign clearly spells the word \"INNOVATION\". The lighting is cinematic and soft, reminiscent of a Vogue cover shoot, with deep contrast, natural skin textures, and clean separation of all elements without any color bleeding.",
+              "jobId": null,
+              "status": "queued",
+              "actualCredit": 0,
+              "result": null,
+              "error": null
+            }
+          ],
+          "id": "cmp_run_1785313074511_nwcwjj"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1785308051174_ml8n8r",
+      "ownerUserId": "usr_alice",
+      "username": "user_alice",
+      "name": "Comparison 2026-07-29",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1785308051174,
+      "updatedAt": 1785324684758,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1785308051165_1o31yyha",
+          "status": "completed",
+          "sourcePrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1785308051170,
+          "completedAt": 1785308103707,
+          "payerUserId": "usr_alice",
+          "slots": [
+            {
+              "id": "slot_1785307409407_lqlehz",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_asq636h",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051180_o2cxw5ogi",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051180_o2cxw5ogi.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.3",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051188_5o08y8k"
+            },
+            {
+              "id": "slot_1785307409407_dc5r4j",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_3kegxyw",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051198_cj0bc8wu7",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051198_cj0bc8wu7.png",
+                "usage": {
+                  "input_tokens": 143,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 143
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6383
+                },
+                "mimeType": "image/png",
+                "generationDuration": "52.2",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051230_iut608r"
+            },
+            {
+              "id": "slot_1785308041574_4mysbe",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1785308044610_id0izph",
+              "estimateExpiresAt": "2026-07-29T07:09:04.610Z",
+              "submittedPrompt": "A wide-angle studio photograph of a brightly lit modern art gallery. In the center of the room, an elderly Asian ceramicist with deep facial wrinkles is sitting on a rustic wooden stool. She is thoughtfully holding a delicate, translucent woven-glass teacup with both hands. Exactly three red apples and two green pears are neatly arranged on a white marble table to her left. To her right, a small black cat is sleeping underneath a glass coffee table, while a golden retriever sits to the right of that table, looking directly at the camera. On the dark brick wall in the background, a purple neon sign spells the word \"INNOVATION\". Natural studio lighting with soft shadows",
+              "jobId": "job_1785308051243_xoobqvr01",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1785308051243_xoobqvr01.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 16464,
+                  "total_tokens": 16464
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "9.0",
+                "width": 3136,
+                "height": 1344
+              },
+              "error": null,
+              "reservationId": "rsv_1785308051270_yhsszk1"
+            }
+          ],
+          "id": "cmp_run_1785308051174_3wf52t"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1784871247627_81eq1w",
+      "username": "user_demo",
+      "name": "AI Model Comparison",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": "job_1784871247629_yq034a9uv",
+      "createdAt": 1784871247627,
+      "updatedAt": 1785229060915,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784871247622_4sllmupg",
+          "status": "completed",
+          "sourcePrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#4a3728",
+                "highlightEnabled": false,
+                "highlight": "#ff00a0"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Primary Color": {
+                "enabled": false,
+                "color": "#111827"
+              },
+              "Secondary Color": {
+                "enabled": false,
+                "color": "#e5e7eb"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 120,
+          "actualTotalCredit": 120,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784871247626,
+          "completedAt": 1784871292978,
+          "payerUserId": "usr_demo",
+          "slots": [
+            {
+              "id": "comparison_slot_1784871221518_x0mf65",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_hmwad3t",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247629_yq034a9uv",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247629_yq034a9uv.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "7.3"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247633_d0pecrv"
+            },
+            {
+              "id": "comparison_slot_1784871221518_a4goir",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_7pizvvd",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247636_eg8pu8t32",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247636_eg8pu8t32.png",
+                "usage": {
+                  "input_tokens": 271,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 271
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6511
+                },
+                "mimeType": "image/png",
+                "generationDuration": "45.2"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247652_31luw95"
+            },
+            {
+              "id": "comparison_slot_1784871233005_jfg5pl",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1784871245229_xm70i69",
+              "estimateExpiresAt": "2026-07-24T05:49:05.229Z",
+              "submittedPrompt": "Create a cinematic fantasy 3D CG animated film still in a vertical 4:5 composition.\n\nShow exactly one young adult female sky guardian standing on a circular floating stone platform above a sea of clouds. She has long silver hair tied in a high ponytail and wears elegant blue-and-gold fantasy armor with a short white cape attached to both shoulders.\n\nShe holds a tall golden staff in her right hand. The top of the staff contains one glowing blue crystal shaped like a diamond. Her left hand is raised with one small orange magical flame floating directly above her open palm.\n\nA small white fox with exactly two tails stands on her left side and looks up at the magical flame. Place one broken stone pillar on the right side of the platform.\n\nBehind the guardian, show a large circular magical portal made of pale-blue light. Three small floating rocks should appear around the portal: two on the left and one on the right.\n\nUse warm sunset light coming from the upper right, cool blue light from the portal, soft volumetric clouds, detailed stylized materials, expressive but natural facial features, clean anatomy, cinematic depth of field, and polished high-end 3D animation rendering.\n\nShow the character from head to boots. No text, logos, watermark, additional characters, extra animals, wings, weapons, or duplicate objects.",
+              "jobId": "job_1784871247655_kbwylj0zh",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1784871247655_kbwylj0zh.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15680,
+                  "total_tokens": 15680
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "12.8"
+              },
+              "error": null,
+              "reservationId": "rsv_1784871247671_bzv772x"
+            }
+          ],
+          "id": "cmp_run_1784871247627_poehyb"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1784867380463_o2ms4e",
+      "username": "user_demo",
+      "name": "Yellow Women Comaprison",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1784867380463,
+      "updatedAt": 1784871017094,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784867380460_aekzqata",
+          "status": "completed",
+          "sourcePrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#4a3728",
+                "highlightEnabled": false,
+                "highlight": "#ff00a0"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Primary Color": {
+                "enabled": false,
+                "color": "#111827"
+              },
+              "Secondary Color": {
+                "enabled": false,
+                "color": "#e5e7eb"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 130,
+          "actualTotalCredit": 130,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784867380462,
+          "completedAt": 1784867427721,
+          "payerUserId": "usr_demo",
+          "slots": [
+            {
+              "id": "playground_slot_1784857858391_vj50b",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-2.5-flash-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana (Legacy)",
+                "th": "Nano Banana (รุ่นเดิม)"
+              },
+              "estimatedCredit": 55,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784867379561_ja8dxh1",
+              "estimateExpiresAt": "2026-07-24T04:44:39.561Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": "job_1784867380465_2gcskqy11",
+              "status": "completed",
+              "actualCredit": 55,
+              "result": {
+                "imageUrl": "/outputs/job_1784867380465_2gcskqy11.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "14.0"
+              },
+              "error": null,
+              "reservationId": "rsv_1784867380468_skf1dcl"
+            },
+            {
+              "id": "playground_slot_1784857858391_dddwk",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784867379561_n272zy3",
+              "estimateExpiresAt": "2026-07-24T04:44:39.561Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": "job_1784867380471_kje7cas84",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1784867380471_kje7cas84.png",
+                "usage": {
+                  "input_tokens": 194,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 194
+                  },
+                  "output_tokens": 6240,
+                  "output_tokens_details": {
+                    "image_tokens": 6240,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 6434
+                },
+                "mimeType": "image/png",
+                "generationDuration": "44.4"
+              },
+              "error": null,
+              "reservationId": "rsv_1784867380493_hr4ji2w"
+            },
+            {
+              "id": "playground_slot_1784857878959_7jnok",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1784867379561_ril6cpx",
+              "estimateExpiresAt": "2026-07-24T04:44:39.561Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": "job_1784867380495_k4tkvr5dz",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1784867380495_k4tkvr5dz.jpg",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15680,
+                  "total_tokens": 15680
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "10.3"
+              },
+              "error": null,
+              "reservationId": "rsv_1784867380509_olyjy90"
+            }
+          ],
+          "id": "cmp_run_1784867380463_bdv0q3"
+        }
+      ]
+    },
+    {
+      "id": "cmp_set_1784867371158_c93xb5",
+      "username": "user_demo",
+      "name": "AI Model Comparison",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1784867371158,
+      "updatedAt": 1785259016590,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1784867371154_q92gypm3",
+          "status": "failed",
+          "sourcePrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "characterReference": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {
+              "Color": {
+                "enabled": false,
+                "base": "#4a3728",
+                "highlightEnabled": false,
+                "highlight": "#ff00a0"
+              },
+              "Top": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Bottom": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Dress": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Shoes": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Product Type": {
+                "enabled": false,
+                "color": "#ffffff"
+              },
+              "Primary Color": {
+                "enabled": false,
+                "color": "#111827"
+              },
+              "Secondary Color": {
+                "enabled": false,
+                "color": "#e5e7eb"
+              }
+            },
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 130,
+          "actualTotalCredit": 0,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "createdAt": 1784867371157,
+          "completedAt": 1784867383229,
+          "payerUserId": "usr_demo",
+          "slots": [
+            {
+              "id": "playground_slot_1784857858391_vj50b",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-2.5-flash-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana (Legacy)",
+                "th": "Nano Banana (รุ่นเดิม)"
+              },
+              "estimatedCredit": 55,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784867369800_6r10xod",
+              "estimateExpiresAt": "2026-07-24T04:44:29.800Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": "job_1784867371160_l8px1uij4",
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "provider": null,
+                "type": null,
+                "code": "credit_operation_already_settled",
+                "message": "Reservation is in terminal state 'refunded'.",
+                "requestId": null,
+                "safetyViolations": [],
+                "retryable": false
+              }
+            },
+            {
+              "id": "playground_slot_1784857858391_dddwk",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1784867369800_gi5g42a",
+              "estimateExpiresAt": "2026-07-24T04:44:29.800Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            },
+            {
+              "id": "playground_slot_1784857878959_7jnok",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-4-0-250828",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 4.0 (Cheapest)",
+                "th": "Seedream 4.0 (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1784867369800_zu6381i",
+              "estimateExpiresAt": "2026-07-24T04:44:29.800Z",
+              "submittedPrompt": "Create a photorealistic full-body commercial fashion photograph in a vertical 4:5 composition.\n\nAn adult Thai woman is standing naturally outside a modern café in Bangkok. She is wearing a mustard-yellow linen blouse tucked into a navy-blue A-line midi skirt, clean white sneakers, and a small red leather shoulder bag worn on her left shoulder.\n\nA teal vintage bicycle is positioned on her right side. Her right hand rests naturally on the bicycle handlebar, while her left hand holds one clear plastic cup of iced coffee with a black straw.\n\nHer body faces the camera, but her eyes look slightly to the right. Place one large potted monstera plant on the left side of the image.\n\nUse warm late-afternoon sunlight, realistic skin texture, natural body proportions, commercial fashion photography, and a clean softly blurred background. Show her entire body and both shoes clearly. No text, logos, watermark, extra people, or additional objects.",
+              "jobId": null,
+              "status": "failed",
+              "actualCredit": 0,
+              "result": null,
+              "error": {
+                "code": "enqueue_failed",
+                "message": "The comparison slot could not be queued."
+              }
+            }
+          ],
+          "id": "cmp_run_1784867371158_1ys4z9"
+        }
+      ]
+    },
+    {
       "id": "cmp_set_1784134732537_meaetl",
       "username": "user_demo",
       "name": "เปรียบเทียบโมเดล AI",
@@ -9,7 +1711,7 @@
       "collectionIds": [],
       "winnerJobId": "job_1784134732540_va0vt3zpm",
       "createdAt": 1784134732537,
-      "updatedAt": 1784485599444,
+      "updatedAt": 1785265358122,
       "runs": [
         {
           "idempotencyKey": "cmp_1784134732529_up8qnqlz",
@@ -378,7 +2080,7 @@
             "isGptSafe": false
           },
           "estimatedTotalCredit": 3,
-          "actualTotalCredit": 3,
+          "actualTotalCredit": 0,
           "providerConfigVersion": 1,
           "promptCompilerVersion": 1,
           "createdAt": 1784134732535,
@@ -403,7 +2105,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732539_6fwwyqmzx",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732539_6fwwyqmzx.png",
                 "usage": {
@@ -435,7 +2137,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732539_nfe82h1h8",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732539_nfe82h1h8.jpg",
                 "usage": {
@@ -465,7 +2167,7 @@
               "submittedPrompt": "headshot portrait, female woman, young adult in early twenties, 21 years old, vietnamese person, elegant facial features, sophisticated and graceful look, soft details, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, smooth straight hair texture, glossy healthy hair, soft curtain fringe framing the face, jet black hair, healthy skin complexion, natural facial blood flow color, organic skin details, milky white skin, smooth porcelain skin with soft cream undertones, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784134732540_va0vt3zpm",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784134732540_va0vt3zpm.png",
                 "usage": {
@@ -499,7 +2201,7 @@
       "collectionIds": [],
       "winnerJobId": "job_1784018588965_nnx9bcch3",
       "createdAt": 1784018588952,
-      "updatedAt": 1784131692469,
+      "updatedAt": 1785265199330,
       "runs": [
         {
           "idempotencyKey": "cmp_1784018588864_ki0y65af",
@@ -869,7 +2571,7 @@
             "isGptSafe": false
           },
           "estimatedTotalCredit": 3,
-          "actualTotalCredit": 3,
+          "actualTotalCredit": 0,
           "providerConfigVersion": 1,
           "promptCompilerVersion": 1,
           "createdAt": 1784018588951,
@@ -892,7 +2594,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784018588964_qzx1wt6n5",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784018588964_qzx1wt6n5.jpg",
                 "usage": {
@@ -920,7 +2622,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784018588965_nnx9bcch3",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784018588965_nnx9bcch3.png",
                 "usage": {
@@ -958,7 +2660,7 @@
               "submittedPrompt": "headshot portrait, female woman, teenager in late teens around 18 years old, thai person, cute doll-like Asian face, extremely adorable and pretty, double eyelids, defined eyebrows, delicate narrow nose, natural lips, neutral expression, subtle warm friendly smile, relaxed lips, eyes showing a gentle sparkle of comfort, long hair, wavy hair, clean polished ponytail, hair kept clear of the garment neckline, soft controlled wave texture, dark brown hair, glossy healthy hair, healthy skin complexion, natural facial blood flow color, organic skin details, porcelain skin, natural look, no makeup, clean skin bare face, authentic facial details, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections, shot on a Canon EOS R5 full-frame digital camera, legendary Canon color science, warm skin tones, crisp details, professional commercial photography rendering, shot on a high-end prime lens, minimal chromatic aberration, maximum sharpness, clear optics, shot on an 85mm portrait focal length, gentle facial compression, extremely flattering portrait perspective, minor chromatic aberration, subtle corner softness, realistic lens optical rendering, avoiding CGI look (Image aspect ratio 6:8)",
               "jobId": "job_1784018588966_3imm3v9z7",
               "status": "completed",
-              "actualCredit": 1,
+              "actualCredit": 0,
               "result": {
                 "imageUrl": "/outputs/job_1784018588966_3imm3v9z7.jpg",
                 "usage": {

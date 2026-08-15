@@ -1,0 +1,5 @@
+{
+  "characterBuilder.identitySource": "アイデンティティソース: 現在のキャラクター選択 • 体型ソース: 視覚属性 • 衣装ソース: シートベースライン",
+  "characterBuilder.faceMatchAuthority": "キャラクター参照オーソリティ",
+  "characterBuilder.enableOverrides": "高度なキャラクターオーバーライドを有効化"
+}

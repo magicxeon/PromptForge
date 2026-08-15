@@ -15,6 +15,13 @@ Define a simple color system for modular Character Sheet clothing that supports 
 | Primary Color | dominant garment color |
 | Secondary Color | trim, accent, or pattern color |
 
+User-facing terminology:
+
+| Data field | UI and prompt terminology |
+| --- | --- |
+| Primary Color | Dominant garment tone |
+| Secondary Color | Accent garment tone |
+
 ## MVP Control
 
 Use native color picker controls, not preset color swatches.
@@ -47,6 +54,13 @@ Secondary color:
 with #e5e7eb trim accents
 ```
 
+Canonical two-tone direction:
+
+```text
+dominant garment tone #111827 with coordinating accent garment tone #e5e7eb,
+harmonized by the AI as one cohesive outfit color palette
+```
+
 When pattern is selected:
 
 ```text
@@ -59,6 +73,14 @@ Rules:
 - Do not duplicate color already intrinsic to fallback clothing.
 - If Outfit Base is `modest_reference`, colors may be locked or ignored in MVP to keep fallback safe.
 - Color selections must not override uploaded outfit references.
+- The two values are color direction, not a hard 50/50 split. AI distributes
+  them naturally according to garment construction, trim, pattern and material.
+- React persists and submits both through `customColors`; it does not convert
+  them into visual option IDs.
+- `normalizeAttributeGroups()` must retain these two schema fields even though
+  they intentionally have no field-name-matched preset options. They are
+  native-control-only fields; the legacy `Clothing Color` inventory must not
+  cause the fields to be dropped or be exposed as preset swatches.
 
 ## UI Recommendation
 
@@ -74,3 +96,4 @@ Do not register Primary Color or Secondary Color as visual option swatches.
 - Secondary color is omitted when empty.
 - Primary and secondary color text do not duplicate.
 - Colors can be reused later by Free Style mode.
+- Studio and Guided Scene share the same reusable color component and payload.

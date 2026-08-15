@@ -4,6 +4,48 @@
 (() => {
   const state = window.state;
 
+  function normalizeOutfitReferenceOverrides(value) {
+    return window.ModelPromptForgeOutfitReferenceController?.normalizeOverrides?.(value) || {
+      enabled: value?.enabled === true,
+      primaryColor: value?.primaryColor === true,
+      secondaryColor: value?.secondaryColor === true,
+      pattern: value?.pattern === true,
+      material: value?.material === true
+    };
+  }
+
+  function getCharacterTypeCompatibleSelections(selections = state.selections) {
+    if (state.mode !== "character-sheet" || state.characterType === "styled_character") {
+      return selections || {};
+    }
+    return Object.fromEntries(Object.entries(selections || {}).filter(([, selection]) =>
+      selection?.group !== "Clothing"
+    ));
+  }
+
+  function allowsOutfitReferenceState() {
+    return state.mode !== "character-sheet" || state.characterType === "styled_character";
+  }
+
+  function restoreOutfitReferenceState(payload) {
+    const allowOutfit = allowsOutfitReferenceState();
+    state.outfitReferenceImageFront = allowOutfit
+      ? (payload.outfitReferenceImageFront || null)
+      : null;
+    state.outfitReferenceImageBack = state.outfitReferenceImageFront
+      ? (payload.outfitReferenceImageBack || null)
+      : null;
+    state.outfitReferenceJobIds = state.outfitReferenceImageFront
+      ? (Array.isArray(payload.outfitReferenceJobIds) ? payload.outfitReferenceJobIds.slice(0, 2) : [])
+      : [];
+    state.outfitReferenceOverrides = allowOutfit
+      ? normalizeOutfitReferenceOverrides(payload.outfitReferenceOverrides)
+      : normalizeOutfitReferenceOverrides(null);
+    state.imageReferences.outfitReference = state.mode === "character-sheet"
+      && state.characterType === "styled_character"
+      && Boolean(state.outfitReferenceImageFront);
+  }
+
   function getActiveActorStoragePrefix() {
     const userId = window.ModelPromptForgeActorContext?.getActiveMockUserId?.() || "usr_demo";
     return String(userId).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -25,7 +67,15 @@
     const modeKey = getModeStorageKey(state.mode);
 
     const payload = {
-      selections: window.getModeCompatibleSelections ? window.getModeCompatibleSelections(state.selections, state.mode) : state.selections,
+      selections: getCharacterTypeCompatibleSelections(
+        window.getModeCompatibleSelections
+          ? window.getModeCompatibleSelections(state.selections, state.mode)
+          : state.selections
+      ),
+      characterType: state.mode === "character-sheet"
+        ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType)
+          || "reusable_model"
+        : null,
       customColors: state.customColors,
       imageReferences: state.imageReferences,
       aspectRatio: state.aspectRatio,
@@ -46,9 +96,18 @@
       characterReferenceImageA: state.characterReferenceImageA,
       characterReferenceImageB: state.characterReferenceImageB,
       characterReferenceJobIds: state.characterReferenceJobIds,
-      outfitReferenceImageFront: state.outfitReferenceImageFront,
-      outfitReferenceImageBack: state.outfitReferenceImageBack,
-      outfitReferenceJobIds: state.outfitReferenceJobIds,
+      outfitReferenceImageFront: allowsOutfitReferenceState()
+        ? state.outfitReferenceImageFront
+        : null,
+      outfitReferenceImageBack: allowsOutfitReferenceState()
+        ? state.outfitReferenceImageBack
+        : null,
+      outfitReferenceJobIds: allowsOutfitReferenceState()
+        ? state.outfitReferenceJobIds
+        : [],
+      outfitReferenceOverrides: allowsOutfitReferenceState()
+        ? normalizeOutfitReferenceOverrides(state.outfitReferenceOverrides)
+        : normalizeOutfitReferenceOverrides(null),
       characterReferenceOverrides: state.characterReferenceOverrides
     };
 
@@ -112,6 +171,11 @@
       state.selections = window.pruneSelectionsForMode && window.migrateLegacySelections
         ? window.pruneSelectionsForMode(window.migrateLegacySelections(payload.selections), state.mode)
         : (payload.selections || {});
+      state.characterType = state.mode === "character-sheet"
+        ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(payload.characterType)
+          || "reusable_model"
+        : "reusable_model";
+      state.selections = getCharacterTypeCompatibleSelections(state.selections);
       state.customColors = {
         "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
         "Top": { enabled: false, color: "#ffffff" },
@@ -141,9 +205,7 @@
       state.characterReferenceImageA = payload.characterReferenceImageA || null;
       state.characterReferenceImageB = payload.characterReferenceImageB || null;
       state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
-      state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
-      state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
-      state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
+      restoreOutfitReferenceState(payload);
       state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
       if (payload.provider) {
@@ -245,6 +307,7 @@
       // 5. Lockout and previews
       if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
       if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
+      window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
 
       // 6. Recalculate preview
       if (window.updatePromptPreview) window.updatePromptPreview();
@@ -291,10 +354,12 @@
     if (toggleGptSafe) toggleGptSafe.checked = false;
 
     state.selections = {};
+    state.characterType = "reusable_model";
     state.imageReferences = { faceMatch: false, styleMatch: false, poseMatch: false, characterReference: false, outfitReference: false };
     if (window.clearFaceReferenceState) window.clearFaceReferenceState({ updateUI: false });
     if (window.clearCharacterReferenceState) window.clearCharacterReferenceState({ updateUI: false });
     if (window.clearOutfitReferenceState) window.clearOutfitReferenceState({ updateUI: false });
+    state.outfitReferenceOverrides = normalizeOutfitReferenceOverrides(null);
     state.aspectRatio = "6:8";
     state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -396,9 +461,15 @@
       version: 2,
       exportedAt: new Date().toISOString(),
       mode: state.mode,
-      selections: window.getModeCompatibleSelections
-        ? window.getModeCompatibleSelections(state.selections, state.mode)
-        : JSON.parse(JSON.stringify(state.selections || {})),
+      characterType: state.mode === "character-sheet"
+        ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(state.characterType)
+          || "reusable_model"
+        : null,
+      selections: getCharacterTypeCompatibleSelections(
+        window.getModeCompatibleSelections
+          ? window.getModeCompatibleSelections(state.selections, state.mode)
+          : JSON.parse(JSON.stringify(state.selections || {}))
+      ),
       customColors: state.customColors,
       imageReferences: state.imageReferences,
       aspectRatio: state.aspectRatio,
@@ -419,9 +490,18 @@
       characterReferenceImageA: state.characterReferenceImageA,
       characterReferenceImageB: state.characterReferenceImageB,
       characterReferenceJobIds: state.characterReferenceJobIds,
-      outfitReferenceImageFront: state.outfitReferenceImageFront,
-      outfitReferenceImageBack: state.outfitReferenceImageBack,
-      outfitReferenceJobIds: state.outfitReferenceJobIds,
+      outfitReferenceImageFront: allowsOutfitReferenceState()
+        ? state.outfitReferenceImageFront
+        : null,
+      outfitReferenceImageBack: allowsOutfitReferenceState()
+        ? state.outfitReferenceImageBack
+        : null,
+      outfitReferenceJobIds: allowsOutfitReferenceState()
+        ? state.outfitReferenceJobIds
+        : [],
+      outfitReferenceOverrides: allowsOutfitReferenceState()
+        ? normalizeOutfitReferenceOverrides(state.outfitReferenceOverrides)
+        : normalizeOutfitReferenceOverrides(null),
       characterReferenceOverrides: state.characterReferenceOverrides,
       sourceOwnership: window.getCharacterSheetSourceOwnership ? window.getCharacterSheetSourceOwnership() : null
     };
@@ -450,6 +530,11 @@
     state.selections = window.pruneSelectionsForMode
       ? window.pruneSelectionsForMode(migratedSelections, state.mode)
       : migratedSelections;
+    state.characterType = state.mode === "character-sheet"
+      ? window.ModelPromptForgeCharacterTypeControl?.normalizeType?.(payload.characterType)
+        || "reusable_model"
+      : "reusable_model";
+    state.selections = getCharacterTypeCompatibleSelections(state.selections);
 
     state.customColors = {
       "Color": { enabled: false, base: "#4a3728", highlightEnabled: false, highlight: "#ff00a0" },
@@ -480,9 +565,7 @@
     state.characterReferenceImageA = payload.characterReferenceImageA || null;
     state.characterReferenceImageB = payload.characterReferenceImageB || null;
     state.characterReferenceJobIds = payload.characterReferenceJobIds || [];
-    state.outfitReferenceImageFront = payload.outfitReferenceImageFront || null;
-    state.outfitReferenceImageBack = payload.outfitReferenceImageBack || null;
-    state.outfitReferenceJobIds = payload.outfitReferenceJobIds || [];
+    restoreOutfitReferenceState(payload);
     state.characterReferenceOverrides = payload.characterReferenceOverrides === true;
 
     const inputWidth = document.getElementById("input-width");
@@ -542,7 +625,13 @@
     if (window.refreshReferenceAuthorityUI) window.refreshReferenceAuthorityUI();
     if (window.updateReferencePreviewsUI) window.updateReferencePreviewsUI();
     if (window.toggleUIForMode) window.toggleUIForMode();
+    window.ModelPromptForgeCharacterTypeControl?.applyCharacterSheetPolicy?.({
+      root: document,
+      state,
+      clearIncompatible: state.characterType === "reusable_model"
+    });
     if (window.updatePromptPreview) window.updatePromptPreview();
+    window.ModelPromptForgeOutfitReferenceController?.renderOutfitReferencePanel?.();
   }
 
   function exportConfigJSON() {

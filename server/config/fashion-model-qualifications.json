@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+  "simpleEligibleStatuses": ["qualified"],
+  "models": [
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "status": "qualified",
+      "operations": ["fashion_prepared_look", "fashion_final_composition"],
+      "promptStrategyVersion": "GNB2-S6",
+      "benchmarkEvidence": "manual-clothed-grid-pass-2026-08-02"
+    },
+    {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-lite-image",
+      "status": "operation_only",
+      "operations": ["template_pose_proxy_prepare"],
+      "promptStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+      "benchmarkEvidence": "manual-final-pass-single-scenario-2026-08-02"
+    },
+    { "providerId": "openai", "modelId": "gpt-image-1.5", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1", "benchmarkEvidence": "manual-pass-with-accessory-drift-2026-08-02" },
+    { "providerId": "openai", "modelId": "gpt-image-1", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
+    { "providerId": "openai", "modelId": "gpt-image-2", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1", "benchmarkEvidence": "manual-outfit-failure-2026-08-02" },
+    { "providerId": "openai", "modelId": "gpt-image-1-mini", "status": "failed", "operations": [], "promptStrategyVersion": null },
+    { "providerId": "gemini", "modelId": "gemini-3-pro-image", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V4", "benchmarkEvidence": "manual-postman-pass-2026-08-04" },
+    { "providerId": "modelark", "modelId": "seedream-4-0-250828", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-clothed-grid-failure-2026-08-02" },
+    { "providerId": "modelark", "modelId": "seedream-4-5-251128", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-2026-08-02" },
+    {
+      "providerId": "modelark",
+      "modelId": "seedream-5-0-lite-260128",
+      "status": "operation_only",
+      "operations": ["template_pose_proxy_prepare"],
+      "promptStrategyVersion": "SEEDREAM5L-WIREFRAME-PROXY-V1",
+      "benchmarkEvidence": "manual-final-footwear-failure-2026-08-02"
+    },
+    { "providerId": "modelark", "modelId": "dola-seedream-5-0-pro-260628", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "seedream-fashion-v1", "benchmarkEvidence": "manual-footwear-failure-2026-08-02" },
+    { "providerId": "xai", "modelId": "grok-imagine-image-quality", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-garment-failure-2026-08-02" },
+    { "providerId": "xai", "modelId": "grok-imagine-image", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-garment-composition-failure-2026-08-02" }
+  ]
+}

@@ -118,5 +118,23 @@
       "nose"
     ],
     "enabled": true
+  },
+  {
+    "id": "nose.007",
+    "category": "nose",
+    "label": { "en": "Sculpted Straight Bridge", "th": "สันจมูกตรงคมชัด" },
+    "ui": { "control": "select", "group": "Nose" },
+    "prompt": { "default": "sculpted straight masculine nose bridge with a natural proportionate tip" },
+    "tags": ["nose", "vertical-drama-lead", "adult-male"],
+    "enabled": true
+  },
+  {
+    "id": "nose.008",
+    "category": "nose",
+    "label": { "en": "Refined Straight Nose", "th": "จมูกตรงเรียวละมุน" },
+    "ui": { "control": "select", "group": "Nose" },
+    "prompt": { "default": "refined straight feminine nose with a slender natural bridge and softly defined tip" },
+    "tags": ["nose", "vertical-drama-lead", "adult-female"],
+    "enabled": true
   }
 ]

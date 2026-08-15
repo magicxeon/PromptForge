@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "homeRoute": "/community",
+  "groups": [
+    {
+      "id": "create",
+      "labelKey": "shell.navigation.groups.create",
+      "order": 10
+    },
+    {
+      "id": "library",
+      "labelKey": "shell.navigation.groups.library",
+      "order": 20
+    },
+    {
+      "id": "operations",
+      "labelKey": "shell.navigation.groups.operations",
+      "order": 90
+    }
+  ],
+  "items": [
+    {
+      "id": "home",
+      "groupId": null,
+      "labelKey": "shell.navigation.items.home",
+      "descriptionKey": "shell.navigation.descriptions.home",
+      "route": "/community",
+      "icon": "home",
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "studio",
+      "groupId": "create",
+      "labelKey": "shell.navigation.items.studio",
+      "descriptionKey": "shell.navigation.descriptions.studio",
+      "route": "/studio",
+      "icon": "sparkles",
+      "order": 10,
+      "enabled": true
+    },
+    {
+      "id": "easy-create",
+      "groupId": "create",
+      "parentId": "studio",
+      "labelKey": "shell.navigation.items.headshotGrid",
+      "descriptionKey": "shell.navigation.descriptions.headshotGrid",
+      "route": "/create/simple",
+      "icon": "sparkles",
+      "order": 11,
+      "enabled": true,
+      "featured": true,
+      "workflowIntent": {
+        "moduleId": "studio",
+        "workflowId": "simple",
+        "mode": "headshot"
+      }
+    },
+    {
+      "id": "fashion-studio",
+      "groupId": "create",
+      "parentId": "studio",
+      "labelKey": "shell.navigation.items.fashionStudio",
+      "descriptionKey": "shell.navigation.descriptions.fashionStudio",
+      "route": "/create/fashion",
+      "icon": "shirt",
+      "order": 20,
+      "enabled": false,
+      "featured": true,
+      "featureFlag": "fashionStudio",
+      "workflowIntent": {
+        "moduleId": "studio",
+        "workflowId": "fashion",
+        "mode": "guided"
+      }
+    },
+    {
+      "id": "character-builder",
+      "groupId": "create",
+      "parentId": "studio",
+      "labelKey": "shell.navigation.items.characterBuilder",
+      "descriptionKey": "shell.navigation.descriptions.characterBuilder",
+      "route": "/create/characters",
+      "icon": "user",
+      "order": 30,
+      "enabled": true,
+      "workflowIntent": {
+        "moduleId": "studio",
+        "workflowId": "character",
+        "mode": "character-sheet"
+      }
+    },
+    {
+      "id": "scene-builder",
+      "groupId": "create",
+      "parentId": "studio",
+      "labelKey": "shell.navigation.items.sceneBuilder",
+      "descriptionKey": "shell.navigation.descriptions.sceneBuilder",
+      "route": "/create/scenes",
+      "icon": "clapperboard",
+      "order": 40,
+      "enabled": true,
+      "workflowIntent": {
+        "moduleId": "studio",
+        "workflowId": "scene",
+        "mode": "normal"
+      }
+    },
+    {
+      "id": "playground",
+      "groupId": "create",
+      "labelKey": "shell.navigation.items.playground",
+      "descriptionKey": "shell.navigation.descriptions.playground",
+      "route": "/playground",
+      "icon": "flask",
+      "order": 50,
+      "enabled": true
+    },
+    {
+      "id": "comparisons",
+      "groupId": "create",
+      "labelKey": "shell.navigation.items.comparisons",
+      "descriptionKey": "shell.navigation.descriptions.comparisons",
+      "route": "/comparisons",
+      "icon": "columns",
+      "order": 60,
+      "enabled": true,
+      "featureFlag": "aiComparison"
+    },
+    {
+      "id": "my-images",
+      "groupId": "library",
+      "labelKey": "shell.navigation.items.myImages",
+      "descriptionKey": "shell.navigation.descriptions.myImages",
+      "route": "/history",
+      "icon": "image",
+      "order": 10,
+      "enabled": true
+    },
+    {
+      "id": "my-characters",
+      "groupId": "library",
+      "labelKey": "shell.navigation.items.myCharacters",
+      "descriptionKey": "shell.navigation.descriptions.myCharacters",
+      "route": "/community/characters?scope=own",
+      "icon": "users",
+      "order": 20,
+      "enabled": true
+    },
+    {
+      "id": "admin",
+      "groupId": "operations",
+      "labelKey": "shell.navigation.items.admin",
+      "descriptionKey": "shell.navigation.descriptions.admin",
+      "route": "/admin",
+      "icon": "settings",
+      "order": 10,
+      "enabled": true,
+      "roles": [
+        "admin",
+        "support"
+      ]
+    }
+  ]
+}

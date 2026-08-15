@@ -1,17 +1,14 @@
-import { promises as fs } from 'fs';
 import { resolveDataFile } from '../../config/paths.js';
-
-const USERS_FILE = resolveDataFile('mockUsers');
+import { readJsonFile } from '../json/jsonFileStore.js';
 
 export class MockUserRepository {
+  constructor({ usersFile = resolveDataFile('mockUsers') } = {}) {
+    this.usersFile = usersFile;
+  }
+
   async readAll() {
-    try {
-      const data = await fs.readFile(USERS_FILE, 'utf8');
-      return JSON.parse(data) || [];
-    } catch (err) {
-      console.error('[MockUserRepository] Failed to read mockUsers.json:', err);
-      return [];
-    }
+    const users = await readJsonFile(this.usersFile, []);
+    return Array.isArray(users) ? users.map(user => structuredClone(user)) : [];
   }
 
   async listActiveUsers() {

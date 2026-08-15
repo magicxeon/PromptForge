@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schemaVersion", "qualificationVersion", "simpleEligibleStatuses", "models"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "qualificationVersion": { "type": "string", "minLength": 1 },
+    "simpleEligibleStatuses": { "type": "array", "items": { "type": "string" } },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["providerId", "modelId", "status", "operations"],
+        "properties": {
+          "providerId": { "type": "string" },
+          "modelId": { "type": "string" },
+          "status": { "enum": ["qualified", "experimental", "operation_only", "failed"] },
+          "operations": { "type": "array", "items": { "type": "string" } },
+          "promptStrategyVersion": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

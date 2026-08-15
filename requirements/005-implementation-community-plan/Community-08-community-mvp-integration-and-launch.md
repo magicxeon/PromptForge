@@ -1,9 +1,33 @@
 # Community-08 Community MVP Integration and Launch
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Implemented for internal E2E validation - Commercial blockers retained
 **Feature type:** Integration, readiness and launch gate  
-**Depends on:** Community-01 through Community-07  
+**Depends on:** Community-01 through Community-07, Community-09 and Community-12
 **Created:** 2026-07-15
+
+## 0. Delivery Gate
+
+This requirement follows
+`Community-00-009-feature-delivery-gates-and-non-duplication-plan.md`.
+
+Current gates:
+
+```text
+Development  OPEN
+Exposure     INTERNAL
+```
+
+Community-06, Community-07 and Community-12 server exit gates have passed.
+Community-05 and Community-09 are being closed in this delivery. Community-08
+may add integration/readiness checks, but remains a consumer rather than an
+owner of post, profile, moderation, gallery, engagement, credit or generation
+business logic.
+
+When opened, Community-08 may add only feature-flag wiring, readiness checks,
+metrics adapters, navigation exposure and end-to-end launch tests. The first
+allowed exposure is `PRIVATE_BETA`; public exposure additionally requires
+production authentication and asset/security operations outside the local mock
+actor adapter.
 
 ## 1. Objective
 
@@ -99,9 +123,9 @@ Events must avoid storing raw private prompt text unless explicitly required by 
 client/community/communityModule.js
 client/community/communityRoutes.js
 client/community/communityMetrics.js
-server/community/communityRoutes.js
-server/community/CommunityMetricsService.js
-server/community/CommunityLaunchReadinessService.js
+server/app/routes/communityRoutes.js
+server/domain/community/CommunityMetricsService.js
+server/domain/community/CommunityLaunchReadinessService.js
 server/config/moduleFlags.json
 test/communityMvpIntegration.test.js
 ```
@@ -120,4 +144,64 @@ test/communityMvpIntegration.test.js
 - Module disabled state removes navigation and routes gracefully.
 - Metrics events avoid raw prompt text.
 - Studio, History, Comparison and Scene Builder still load without Community module.
+
+## 8. Pre-Commercial Readiness Decision
+
+This phase does not claim public-production readiness while mock actors and JSON
+repositories remain active. It establishes a tested `INTERNAL` baseline:
+
+```text
+Community Home -> 3-layer Explore -> Post Detail
+-> engagement / creator / report / template handoff
+-> curated Gallery / Character handoff
+-> owned Collection share / public Collection detail
+```
+
+Required exit artifacts:
+
+- readiness response for feature/dependency state without sensitive data;
+- E2E coverage for Alice publish, Bob browse/react/remix and admin hide;
+- direct-route coverage for `/community` and `/community/:postId`;
+- feature-off regression proving Studio and Playground remain available;
+- documented production blockers: authentication, durable database, object
+  storage/CDN, payment and operational monitoring.
+
+## 9. Readiness Implementation
+
+The canonical readiness surface is:
+
+```text
+GET /api/community/readiness
+
+server/domain/community/CommunityLaunchReadinessService.js
+server/app/routes/communityReadinessRoutes.js
+test/communityMvpIntegration.test.js
+scripts/test-community-commercial-readiness.bat
+```
+
+The response distinguishes:
+
+```text
+readyForInternal
+readyForPrivateBeta
+readyForProduction
+missingInternalFeatures
+productionBlockers
+```
+
+It deliberately contains no prompt, image, reference or actor-private data.
+Internal readiness requires Share, Explore, Engagement, Creator Profiles,
+Gallery and Moderation. Production readiness remains false while mock actors,
+JSON repositories and local output storage are active.
+
+Validation must prove:
+
+1. Community direct routes load the app shell.
+2. Alice can publish and curate a post.
+3. Bob can browse, view, react, comment and use an allowed template.
+4. Private Character references require Bob to replace them.
+5. Admin moderation removes a post from discovery.
+6. Disabling Community leaves Studio and Playground usable.
+7. Alice can share a non-empty Collection; Bob can browse its public snapshot
+   without receiving source Collection IDs, History job IDs or raw output paths.
 

@@ -1,0 +1,18 @@
+{
+  "promptComposer.kicker": "PROMPT COMPOSER",
+  "promptComposer.title": "Start with an idea",
+  "promptComposer.description": "Describe what you want. We suggest only options that already exist in Studio.",
+  "promptComposer.placeholder": "Example: a fashion model in a cafe wearing a dress, commercial portrait",
+  "promptComposer.inputLabel": "Describe your image idea",
+  "promptComposer.action.compose": "Create proposal",
+  "promptComposer.status.composing": "Preparing proposal...",
+  "promptComposer.error.short": "Write a little more detail before creating a proposal.",
+  "promptComposer.error.unavailable": "Prompt Composer is unavailable.",
+  "promptComposer.review.kicker": "PROPOSAL READY",
+  "promptComposer.review.title": "Review the supported selections",
+  "promptComposer.review.mapped": "Only existing Studio options were mapped. You can review them before using the result.",
+  "promptComposer.review.unmapped": "No official options were assumed. Your idea remains available as a freeform prompt.",
+  "promptComposer.review.reviewSuggested": "Review suggested",
+  "promptComposer.action.usePrompt": "Use in Playground prompt",
+  "promptComposer.action.applyStudio": "Apply selections in Studio"
+}

@@ -1,0 +1,216 @@
+{
+  "schemaVersion": 1,
+  "taxonomyVersion": "2026-07-mvp-1",
+  "thresholds": {
+    "high": 0.75,
+    "medium": 0.45,
+    "low": 0.25
+  },
+  "limits": {
+    "officialTagsPerPost": 12,
+    "customTagsPerPost": 10,
+    "customTagLength": 40
+  },
+  "dimensions": [
+    {
+      "id": "content_type",
+      "labels": {
+        "en": "Content Type",
+        "th": "ประเภทเนื้อหา",
+        "ja": "コンテンツタイプ"
+      },
+      "tags": [
+        {
+          "id": "content_type.fashion",
+          "labels": {
+            "en": "Fashion",
+            "th": "แฟชั่น",
+            "ja": "ファッション"
+          },
+          "aliases": ["fashion", "outfit", "clothing", "dress", "shirt", "blazer", "streetwear", "lookbook"],
+          "workflowSignals": ["character-sheet"]
+        },
+        {
+          "id": "content_type.product",
+          "labels": {
+            "en": "Product",
+            "th": "สินค้า",
+            "ja": "商品"
+          },
+          "aliases": ["product", "packshot", "bottle", "merchandise", "product photography", "e-commerce product", "สินค้า"],
+          "workflowSignals": ["product"]
+        },
+        {
+          "id": "content_type.portrait",
+          "labels": {
+            "en": "Portrait",
+            "th": "ภาพบุคคล",
+            "ja": "ポートレート"
+          },
+          "aliases": ["portrait", "headshot", "face portrait", "facial features", "beauty portrait"],
+          "workflowSignals": ["headshot", "headshot-grid"]
+        },
+        {
+          "id": "content_type.commercial",
+          "labels": {
+            "en": "Commercial",
+            "th": "เชิงพาณิชย์",
+            "ja": "コマーシャル"
+          },
+          "aliases": ["commercial", "advertisement", "advertising", "campaign", "e-commerce", "ecommerce", "marketing visual"],
+          "workflowSignals": []
+        },
+        {
+          "id": "content_type.storytelling",
+          "labels": {
+            "en": "Storytelling",
+            "th": "เล่าเรื่อง",
+            "ja": "ストーリーテリング"
+          },
+          "aliases": ["storytelling", "narrative", "cinematic scene", "story scene", "scene builder"],
+          "workflowSignals": ["scene", "story", "normal"]
+        }
+      ]
+    },
+    {
+      "id": "visual_style",
+      "labels": {
+        "en": "Visual Style",
+        "th": "รูปแบบภาพ",
+        "ja": "ビジュアルスタイル"
+      },
+      "tags": [
+        {
+          "id": "visual_style.realistic_photography",
+          "labels": {
+            "en": "Realistic Photography",
+            "th": "ภาพถ่ายสมจริง",
+            "ja": "リアル写真"
+          },
+          "aliases": ["photorealistic", "realistic photography", "professional photography", "real person", "camera imperfections"],
+          "workflowSignals": ["headshot", "headshot-grid", "character-sheet"]
+        },
+        {
+          "id": "visual_style.beauty",
+          "labels": {
+            "en": "Beauty",
+            "th": "บิวตี้",
+            "ja": "ビューティー"
+          },
+          "aliases": ["beauty", "k-beauty", "makeup", "cosmetic portrait", "glossy lips", "dewy complexion"],
+          "workflowSignals": []
+        },
+        {
+          "id": "visual_style.luxury",
+          "labels": {
+            "en": "Luxury",
+            "th": "ลักชัวรี",
+            "ja": "ラグジュアリー"
+          },
+          "aliases": ["luxury", "premium", "high-end", "sophisticated", "elegant campaign"],
+          "workflowSignals": []
+        },
+        {
+          "id": "visual_style.magazine",
+          "labels": {
+            "en": "Magazine",
+            "th": "แมกกาซีน",
+            "ja": "雑誌"
+          },
+          "aliases": ["magazine", "editorial", "fashion editorial", "editorial spread"],
+          "workflowSignals": []
+        },
+        {
+          "id": "visual_style.anime_cosplay",
+          "labels": {
+            "en": "Anime / Cosplay",
+            "th": "อนิเมะ / คอสเพลย์",
+            "ja": "アニメ / コスプレ"
+          },
+          "aliases": ["anime", "cosplay", "manga", "cel-shaded"],
+          "workflowSignals": []
+        }
+      ]
+    },
+    {
+      "id": "market_context",
+      "labels": {
+        "en": "Market Context",
+        "th": "บริบทตลาด",
+        "ja": "市場コンテキスト"
+      },
+      "tags": [
+        {
+          "id": "market_context.shopee",
+          "labels": {
+            "en": "Shopee",
+            "th": "Shopee",
+            "ja": "Shopee"
+          },
+          "aliases": ["shopee"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.lazada",
+          "labels": {
+            "en": "Lazada",
+            "th": "Lazada",
+            "ja": "Lazada"
+          },
+          "aliases": ["lazada"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.social_media",
+          "labels": {
+            "en": "Social Media",
+            "th": "โซเชียลมีเดีย",
+            "ja": "ソーシャルメディア"
+          },
+          "aliases": ["social media", "instagram", "tiktok", "facebook post", "social campaign"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.thai_style",
+          "labels": {
+            "en": "Thai Style",
+            "th": "สไตล์ไทย",
+            "ja": "タイスタイル"
+          },
+          "aliases": ["thai style", "thai fashion", "thailand", "bangkok", "thai person", "ชุดไทย"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.korean_style",
+          "labels": {
+            "en": "Korean Style",
+            "th": "สไตล์เกาหลี",
+            "ja": "韓国スタイル"
+          },
+          "aliases": ["korean style", "korean fashion", "k-beauty", "korean ad", "korean person"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.japanese_style",
+          "labels": {
+            "en": "Japanese Style",
+            "th": "สไตล์ญี่ปุ่น",
+            "ja": "日本スタイル"
+          },
+          "aliases": ["japanese style", "japanese fashion", "japan", "tokyo", "japanese person"],
+          "workflowSignals": []
+        },
+        {
+          "id": "market_context.chinese_style",
+          "labels": {
+            "en": "Chinese Style",
+            "th": "สไตล์จีน",
+            "ja": "中国スタイル"
+          },
+          "aliases": ["chinese style", "chinese fashion", "china", "chinese person"],
+          "workflowSignals": []
+        }
+      ]
+    }
+  ]
+}

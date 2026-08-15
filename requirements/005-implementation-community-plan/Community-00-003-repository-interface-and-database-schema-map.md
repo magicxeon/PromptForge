@@ -1,11 +1,12 @@
 # Community-00-003 Repository Interface and Database Schema Map
 
-**Status:** Proposed - Ready For Implementation Planning  
+**Status:** Complete - Validated 2026-07-26
 **Feature type:** JSON-to-database migration contract and repository boundary  
 **Depends on:** Community-00-002 Mock User / Actor Context, existing JSON repositories  
-**Feeds into:** Community-00-004 Ownership Policy, Community-00-005 Credit Ledger, Community-00-006 Admin Audit, Scene Builder template sharing  
+**Feeds into:** Community-00-004 Ownership Policy, Community-00-005 Credit
+Ledger, Community-00-008 Admin Audit, Scene Builder template sharing
 **Created:** 2026-07-19  
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-22
 
 ## 1. Business Requirement
 
@@ -34,13 +35,21 @@ The repository layer must be designed from the data already used by the app. Do 
 
 | Current file | Current owner | Current purpose | Future table family |
 | --- | --- | --- | --- |
-| `server/identity/mockUsers.json` | `MockUserRepository` | Development user identities and roles | `users`, `creator_profiles` |
-| `server/database.json` | `CreditManager` | Legacy credit balances and credit ledger | `user_credit_accounts`, `credit_ledger_entries` |
-| `server/history.json` | `HistoryRepository`, `QueueManager` | Generated image history records | `generation_results`, `assets`, `scene_template_snapshots` |
-| `server/collections.json` | `CollectionManager` | User image collections | `collections`, `collection_items` |
-| `server/comparisons.json` | `ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
-| `server/communityPosts.json` | `CommunityPostLocalRepository` | Local shared template/community post mock data | `community_posts` |
-| `server/remixEvents.json` | `CommunityRemixLocalRepository` | Local remix event analytics | `remix_events`, `audit_events` |
+| `server/data/identity/mockUsers.json` | `repositories/identity/MockUserRepository` | Development user identities and roles | `users`, `creator_profiles` |
+| `server/data/credits/database.json` | `domain/credits/CreditManager` | Legacy credit balances and credit ledger | `user_credit_accounts`, `credit_ledger_entries` |
+| `server/data/generation/history.json` | `repositories/generation/HistoryRepository`, `domain/generation/QueueManager` | Generated image history records | `generation_results`, `assets`, `scene_template_snapshots` |
+| `server/data/collections/collections.json` | `domain/collections/CollectionManager` | User image collections | `collections`, `collection_items` |
+| `server/data/comparisons/comparisons.json` | `repositories/comparisons/ComparisonRepository` | Model comparison sets and comparison result metadata | `comparison_sets`, `comparison_runs`, `generation_results` |
+| `server/data/community/communityPosts.json` | `repositories/community/CommunityPostRepository` | Local shared template/community post mock data | `community_posts` |
+| `server/data/community/creatorProfiles.json` | `repositories/community/CreatorProfileRepository` | Public creator identity and profile presentation | `creator_profiles` |
+| `server/data/community/creatorFollows.json` | `repositories/community/CreatorFollowRepository` | Idempotent follower-to-creator relations | `creator_follows` |
+| `server/data/community/communityReports.json` | `repositories/community/CommunityReportRepository` | Private content reports and moderation intake | `community_reports` |
+| `server/data/community/remixEvents.json` | `repositories/community/RemixEventRepository` | Local remix event analytics | `remix_events`, `audit_events` |
+| `server/data/community/engagementEvents.json` | `repositories/community/CommunityEngagementEventRepository` | Immutable post engagement events | `community_engagement_events` |
+| `server/data/community/reactions.json` | `repositories/community/CommunityReactionRepository` | Current like/save state | `community_reactions` |
+| `server/data/community/comments.json` | `repositories/community/CommunityCommentRepository` | Flat public comments and moderation state | `community_comments` |
+| `server/data/community/comparisonVotes.json` | `repositories/community/CommunityComparisonVoteRepository` | One active slot vote per actor/comparison post | `community_comparison_votes` |
+| `server/data/community/engagementDailyAggregates.json` | `repositories/community/CommunityEngagementAggregateRepository` | Rebuildable daily ranking read model | `community_engagement_daily_aggregates` |
 
 ### 2.2 Current Client Sources
 
@@ -100,7 +109,7 @@ server/server.js
   -> service/orchestrator module
     -> policy module
       -> repository contract
-        -> JSON repository adapter
+  -> JSON repository adapter under server/repositories/<capability>/
         -> future PostgreSQL repository adapter
 ```
 
@@ -110,7 +119,7 @@ Example:
 POST /api/scene-templates/share-drafts
   -> SceneTemplateShareService.createDraft(actorContext, sourceGenerationId)
     -> ReferenceSlotPolicy.sanitizeForPublic(...)
-      -> GenerationResultRepository.findByIdForOwner(...)
+  -> GenerationResultRepository.findByIdForOwner(...)
       -> SceneTemplateSnapshotRepository.createDraft(...)
 ```
 
@@ -192,7 +201,7 @@ This schema map is the DB target. JSON repositories may store a simplified shape
 Source now:
 
 ```text
-server/identity/mockUsers.json
+server/data/identity/mockUsers.json
 ```
 
 Columns:
@@ -221,8 +230,8 @@ Migration notes:
 Source now:
 
 ```text
-server/identity/mockUsers.json.activeCreatorProfileId
-future Community creator profile settings
+server/data/community/creatorProfiles.json
+server/data/identity/mockUsers.json.activeCreatorProfileId (legacy/development link)
 ```
 
 Columns:
@@ -235,13 +244,54 @@ display_name: text not null
 bio: text null
 avatar_asset_id: text null
 badge_codes: jsonb not null default []
-follower_count: integer not null default 0
-public_post_count: integer not null default 0
 membership_enabled: boolean not null default false
-status: text not null                        // active | hidden | disabled
+status: text not null                        // active | hidden | disabled | deleted
 created_at: timestamptz not null
 updated_at: timestamptz not null
 ```
+
+Rules:
+
+- `user_id` is the ownership key; handle is a stable public lookup key.
+- Follower and public-post counts are service read models in the JSON MVP.
+- A future database may maintain denormalized counters transactionally, but
+  `creator_follows` and published public `community_posts` remain authoritative.
+
+### 6.2.1 `creator_follows`
+
+Source now:
+
+```text
+server/data/community/creatorFollows.json
+```
+
+Columns:
+
+```text
+id: text primary key                         // follow_*
+follower_user_id: text references users(id)
+creator_profile_id: text references creator_profiles(id)
+status: text not null                        // active | deleted
+created_at: timestamptz not null
+updated_at: timestamptz not null
+deleted_at: timestamptz null
+```
+
+Constraints and indexes:
+
+```text
+unique (follower_user_id, creator_profile_id)
+index (creator_profile_id, status)
+index (follower_user_id, status)
+```
+
+Rules:
+
+- Self-follow is rejected by the domain service.
+- Follow and unfollow are idempotent state transitions over one logical pair.
+- Reactivating a deleted relation clears `deleted_at`.
+- Routes derive `follower_user_id` from `req.actorContext`; request payloads
+  cannot choose the follower.
 
 ### 6.3 `assets`
 
@@ -286,7 +336,7 @@ Rules:
 Source now:
 
 ```text
-server/history.json
+server/data/generation/history.json
 QueueManager.saveToHistory(entry)
 client/core/generationService.js job metadata
 ```
@@ -320,7 +370,7 @@ updated_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
 
-Mapping from `server/history.json`:
+Mapping from `server/data/generation/history.json`:
 
 ```text
 history.id -> generation_results.id and job_id
@@ -348,7 +398,7 @@ Source now:
 history.sceneTemplateSnapshot
 client/scene-builder/sceneTemplateSerializer.js
 client/scene-builder/sceneTemplateHydrator.js
-server/sceneTemplates/*
+server/domain/scene-templates/*
 ```
 
 Columns:
@@ -399,9 +449,9 @@ replaceable_variables must preserve:
 Source now:
 
 ```text
-server/communityPosts.json
-server/communityServices.js publishSceneTemplateShare()
-client/scene-builder/sceneSharePreview.js
+server/data/community/communityPosts.json
+server/domain/community/CommunityShareService.js publishSceneTemplateShare()
+client/community/communitySharePreview.js
 ```
 
 Columns:
@@ -409,10 +459,13 @@ Columns:
 ```text
 id: text primary key                         // post_*
 schema_version: integer not null default 1
+post_type: text not null                     // image | template | comparison
 owner_user_id: text references users(id)
 owner_username: text null
 creator_profile_id: text null references creator_profiles(id)
 source_generation_result_id: text references generation_results(id)
+source_scene_template_snapshot_id: text null references scene_template_snapshots(id)
+source_comparison_set_id: text null references comparison_sets(id)
 title: text not null
 description: text null
 image_asset_id: text null references assets(id)
@@ -429,19 +482,22 @@ scene_template_snapshot: jsonb null          // JSON phase compatibility
 workflow_snapshot: jsonb not null default {}
 visibility: text not null                    // public | unlisted | members_only | private
 reuse_policy: text not null                  // view_only | use_template | remix_allowed | paid_template
-status: text not null                        // active | hidden | deleted | blocked
+status: text not null                        // draft | published | hidden | removed
 counts: jsonb not null default {}
 created_at: timestamptz not null
 updated_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
 
-Mapping from `server/communityPosts.json`:
+Mapping from `server/data/community/communityPosts.json`:
 
 ```text
 post.id -> id
 post.ownerUsername -> owner_username -> owner_user_id via mock user lookup
 post.sourceGenerationId -> source_generation_result_id
+post.postType -> post_type
+post.sourceSceneTemplateSnapshotId -> source_scene_template_snapshot_id
+post.sourceComparisonSetId -> source_comparison_set_id
 post.title -> title
 post.description -> description
 post.imageUrl -> image_url / future image_asset_id
@@ -450,6 +506,52 @@ post.promptVisibility -> prompt_visibility
 post.sceneTemplateSnapshot -> scene_template_snapshot / future scene_template_snapshot_id
 post.createdAt -> created_at
 ```
+
+### 6.6.1 `community_reports`
+
+Source now:
+
+```text
+server/data/community/communityReports.json
+server/repositories/community/CommunityReportRepository.js
+```
+
+Columns:
+
+```text
+id: text primary key                         // report_*
+reporter_user_id: text references users(id)
+target_type: text not null                   // community_post | community_comment
+target_id: text not null
+reason: text not null
+details: text null
+status: text not null                        // open | resolved | dismissed
+resolution: text null
+resolved_by_user_id: text null references users(id)
+resolved_at: timestamptz null
+created_at: timestamptz not null
+updated_at: timestamptz not null
+```
+
+Constraints and indexes:
+
+```text
+unique open report (reporter_user_id, target_type, target_id, reason)
+index (status, created_at desc)
+index (target_type, target_id, status)
+index (reporter_user_id, created_at desc)
+```
+
+Rules:
+
+- The server derives reporter identity from `req.actorContext`.
+- Report details and reporter identity are `admin_only` and never enter public
+  post snapshots.
+- The JSON adapter enforces duplicate and rate-limit checks in one serialized
+  mutation. A database adapter must preserve this with a transaction and unique
+  partial index or equivalent constraint.
+- Post reporting is implemented now. The same target contract reserves
+  `community_comment` for Community-12 without introducing comment storage here.
 
 ### 6.7 `community_gallery_items`
 
@@ -516,8 +618,8 @@ metadata: jsonb not null default {}
 Source now:
 
 ```text
-server/collections.json
-server/collectionManager.js
+server/data/collections/collections.json
+server/domain/collections/CollectionManager.js
 ```
 
 Columns:
@@ -545,7 +647,7 @@ collection_items
 - added_at: timestamptz not null
 ```
 
-Mapping from `server/collections.json`:
+Mapping from `server/data/collections/collections.json`:
 
 ```text
 collection.ownerUsername -> owner_username -> owner_user_id
@@ -559,9 +661,9 @@ defaultCollectionId -> collection.is_default
 Source now:
 
 ```text
-server/comparisons.json
-server/comparison/ComparisonRepository.js
-server/comparison/ComparisonOrchestrator.js
+server/data/comparisons/comparisons.json
+server/repositories/comparisons/ComparisonRepository.js
+server/domain/comparisons/ComparisonOrchestrator.js
 ```
 
 Columns:
@@ -599,9 +701,9 @@ comparison_runs
 Source now:
 
 ```text
-server/database.json.users
-server/database.json.creditLedger
-server/creditManager.js
+server/data/credits/database.json.users
+server/data/credits/database.json.creditLedger
+server/domain/credits/CreditManager.js
 ```
 
 Columns:
@@ -636,7 +738,7 @@ Rules:
 Source now:
 
 ```text
-server/database.json.users[username].credits
+server/data/credits/database.json.users[username].credits
 ```
 
 Columns:
@@ -684,7 +786,7 @@ metadata: jsonb not null default {}
 Source now:
 
 ```text
-server/remixEvents.json
+server/data/community/remixEvents.json
 ```
 
 Columns:
@@ -701,6 +803,78 @@ created_at: timestamptz not null
 metadata: jsonb not null default {}
 ```
 
+### 6.15 Community Engagement and Ranking
+
+Source and behavioral contract:
+
+```text
+requirements/005-implementation-community-plan/Community-12-engagement-events-comments-and-ranking-windows.md
+```
+
+Tables:
+
+```text
+community_engagement_events
+- id: text primary key
+- schema_version: integer not null
+- post_id: text references community_posts(id)
+- actor_user_id: text null references users(id)
+- anonymous_session_hash: text null
+- event_type: text not null
+- target_id: text null
+- dedupe_key: text not null
+- occurred_at: timestamptz not null
+- request_id: text null
+- metadata: jsonb not null default {}
+- unique (dedupe_key)
+
+community_reactions
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- reaction_type: text not null               // like | save
+- active: boolean not null
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- primary key (post_id, actor_user_id, reaction_type)
+
+community_comments
+- id: text primary key
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- body: text not null
+- status: text not null                      // active | hidden | removed
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- deleted_at: timestamptz null
+
+community_comparison_votes
+- post_id: text references community_posts(id)
+- actor_user_id: text references users(id)
+- slot_id: text not null
+- created_at: timestamptz not null
+- updated_at: timestamptz not null
+- primary key (post_id, actor_user_id)
+
+community_engagement_daily_aggregates
+- post_id: text references community_posts(id)
+- utc_date: date not null
+- unique_view_count: integer not null default 0
+- like_net_count: integer not null default 0
+- save_net_count: integer not null default 0
+- active_comment_count: integer not null default 0
+- remix_success_count: integer not null default 0
+- comparison_vote_net_count: integer not null default 0
+- eligible_event_count: integer not null default 0
+- updated_at: timestamptz not null
+- primary key (post_id, utc_date)
+```
+
+`community_posts.counts` is a compatibility read model. It is never the
+authoritative source for reaction uniqueness, comment state, votes or ranking.
+Daily aggregates may be rebuilt from authoritative state and immutable events.
+Ranking weights remain in versioned server configuration, not database rows or
+client code during MVP.
+
 ## 7. JSON Repository Implementation Standard
 
 ### 7.1 File Layout
@@ -708,20 +882,22 @@ metadata: jsonb not null default {}
 New repository modules should live under:
 
 ```text
-server/repositories/
-server/community/
-server/credits/
-server/audit/
-server/identity/
+server/repositories/json/
+server/repositories/generation/
+server/repositories/community/
+server/repositories/identity/
+server/repositories/collections/
+server/repositories/credits/
+server/repositories/audit/
 ```
 
 Existing modules may be wrapped gradually:
 
 ```text
-server/historyRepository.js -> future server/repositories/GenerationResultRepository.js
-server/collectionManager.js -> future server/repositories/CollectionRepository.js
-server/communityServices.js -> split into service + repositories
-server/creditManager.js -> split into CreditAccountRepository + CreditLedgerRepository
+server/repositories/generation/HistoryRepository.js -> GenerationResultRepository read facade
+server/domain/collections/CollectionManager.js -> future CollectionRepository adapter
+server/domain/community/CommunityShareService.js -> service using community repositories
+server/domain/credits/CreditManager.js -> future CreditAccountRepository + CreditLedgerRepository
 ```
 
 ### 7.2 Atomic JSON Writes
@@ -737,10 +913,10 @@ Reason:
 - The app already hit Windows `EPERM rename` when writing JSON.
 - Each repository should not duplicate its own slightly different file writer.
 
-Proposed shared file:
+Canonical shared file:
 
 ```text
-server/repositories/jsonFileStore.js
+server/repositories/json/jsonFileStore.js
 ```
 
 Required functions:
@@ -829,30 +1005,30 @@ schemaVersion
 ### 9.1 Proposed Files
 
 ```text
-server/repositories/jsonFileStore.js
+server/repositories/json/jsonFileStore.js
 server/repositories/repositoryContracts.js
 server/repositories/schemaVersioning.js
 server/repositories/recordNormalizer.js
 server/repositories/RepositoryCursor.js
 
-server/repositories/GenerationResultRepository.js
-server/repositories/AssetRepository.js
-server/repositories/SceneTemplateSnapshotRepository.js
-server/repositories/CollectionRepository.js
-server/repositories/ComparisonRepositoryAdapter.js
+server/repositories/generation/GenerationResultRepository.js
+server/repositories/assets/AssetRepository.js
+server/repositories/scene-templates/SceneTemplateSnapshotRepository.js
+server/repositories/collections/CollectionRepository.js
+server/repositories/comparisons/ComparisonRepositoryAdapter.js
 
-server/community/CommunityPostRepository.js
-server/community/CommunityGalleryRepository.js
-server/community/CommunityCharacterRepository.js
-server/community/RemixEventRepository.js
+server/repositories/community/CommunityPostRepository.js
+server/repositories/community/CommunityGalleryRepository.js
+server/repositories/community/CommunityCharacterRepository.js
+server/repositories/community/RemixEventRepository.js
 
-server/credits/CreditAccountRepository.js
-server/credits/CreditLedgerRepository.js
-server/audit/AuditLogRepository.js
+server/repositories/credits/CreditAccountRepository.js
+server/repositories/credits/CreditLedgerRepository.js
+server/repositories/audit/AuditLogRepository.js
 
 test/repositoryContracts.test.js
 test/repositorySchemaNormalization.test.js
-test/repositoryJsonFileStore.test.js
+test/jsonFileStore.test.js
 ```
 
 ### 9.2 `repositoryContracts.js`
@@ -867,7 +1043,7 @@ VISIBILITY
 REUSE_POLICY
 PROMPT_VISIBILITY
 assertActorContext(actorContext)
-assertOwnerScope(ownerUserId)
+assertOwnerScope(record, ownerUserId)
 ```
 
 ### 9.3 `recordNormalizer.js`
@@ -908,16 +1084,15 @@ Every repository implementation must:
 
 ### 10.2 Step-by-Step Implementation
 
-1. Create `server/repositories/jsonFileStore.js`.
-2. Move duplicated safe JSON write behavior into `jsonFileStore`.
-3. Create `repositoryContracts.js` with shared enums and actor assertions.
-4. Create `recordNormalizer.js` with owner and date normalization helpers.
-5. Add repository tests using temporary JSON files.
-6. Wrap `server/communityPosts.json` behind `CommunityPostRepository`.
-7. Wrap `server/remixEvents.json` behind `RemixEventRepository`.
-8. Add `GenerationResultRepository` wrapper around `server/history.json` without breaking `HistoryRepository` API.
-9. Add `CollectionRepository` wrapper around `server/collections.json` or refactor `CollectionManager` to use the shared store.
-10. Update `Community-00-004`, `00-005`, and `00-006` implementations to use these contracts when they are implemented.
+1. Reuse the existing `server/repositories/json/jsonFileStore.js`; do not create another writer.
+2. Create `repositoryContracts.js`, `schemaVersioning.js`, `recordNormalizer.js`, and `RepositoryCursor.js` as storage-neutral helpers.
+3. Add repository tests using temporary JSON files and a temporary mock-user fixture.
+4. Replace the CommunityShareService embedded JSON classes with `repositories/community/CommunityPostRepository` and `RemixEventRepository`.
+5. Add a read-only `repositories/generation/GenerationResultRepository` facade without changing `HistoryRepository` or QueueManager write APIs.
+6. Update CommunityShareService and Scene Template routes to pass `ActorContext` into repository/service calls while preserving existing endpoint response fields.
+7. Repository scaffolds for Collection, Asset, Scene Template Snapshot, Credit, Audit, and Comparison may be implemented against this contract, but must remain isolated from runtime wiring until their owning requirement changes behavior.
+8. Update Community-00-004, `00-005`, and `00-008` implementations to use
+   these contracts when they are implemented.
 
 ### 10.3 First-Pass Scope
 
@@ -928,10 +1103,10 @@ CommunityPostRepository
 RemixEventRepository
 GenerationResultRepository read-only wrapper
 recordNormalizer owner/date helpers
-jsonFileStore shared writer
+existing jsonFileStore shared writer
 ```
 
-Leave these as planned wrappers unless a feature touches them:
+These adapters may exist as tested repository scaffolds, but remain deferred from runtime integration until a feature touches them:
 
 ```text
 AssetRepository
@@ -957,6 +1132,34 @@ No repository imports Express req/res.
 No repository stores base64 images in public/template records.
 ```
 
+### 10.5 First-Pass Implementation Record
+
+The first pass implements the Community-critical storage boundary only:
+
+```text
+Implemented:
+  server/repositories/repositoryContracts.js
+  server/repositories/schemaVersioning.js
+  server/repositories/recordNormalizer.js
+  server/repositories/RepositoryCursor.js
+  server/repositories/community/CommunityPostRepository.js
+  server/repositories/community/RemixEventRepository.js
+  server/repositories/generation/GenerationResultRepository.js
+  server/domain/community/CommunityShareService.js updated to use repositories
+  server/app/routes/sceneTemplateRoutes.js updated to pass ActorContext
+
+Implemented as isolated repository scaffolds; runtime integration remains deferred:
+  AssetRepository
+  CollectionRepository
+  SceneTemplateSnapshotRepository
+  CommunityGalleryRepository and CommunityCharacterRepository
+  CreditAccountRepository and CreditLedgerRepository
+  AuditLogRepository
+  ComparisonRepositoryAdapter
+```
+
+The isolated adapters belong to their capability requirements. Their runtime wiring and business policy remain owned by those requirements; this phase supplies only database-ready JSON boundaries and regression tests.
+
 ## 11. Testing
 
 ### 11.1 Automated Tests
@@ -970,6 +1173,7 @@ TC-00-003-005 list public records hides deleted/hidden posts
 TC-00-003-006 jsonFileStore write survives repeated writes and preserves valid JSON
 TC-00-003-007 repository methods work with temp file path overrides
 TC-00-003-008 base64 reference values are rejected or stripped from public template snapshots
+TC-00-003-009 generation facade returns only records owned by the requested ownerUserId
 ```
 
 ### 11.2 Manual Verification
@@ -1015,30 +1219,30 @@ Use these files as canonical inputs:
 
 ```text
 Identity:
-  server/identity/mockUsers.json
+  server/data/identity/mockUsers.json
 
 Generation history:
-  server/history.json
-  server/historyRepository.js
-  server/queueManager.js
+  server/data/generation/history.json
+  server/repositories/generation/HistoryRepository.js
+  server/domain/generation/QueueManager.js
 
 Collections:
-  server/collections.json
-  server/collectionManager.js
+  server/data/collections/collections.json
+  server/domain/collections/CollectionManager.js
 
 Credits:
-  server/database.json
-  server/creditManager.js
+  server/data/credits/database.json
+  server/domain/credits/CreditManager.js
 
 Community sharing:
-  server/communityPosts.json
-  server/remixEvents.json
-  server/communityServices.js
+  server/data/community/communityPosts.json
+  server/data/community/remixEvents.json
+  server/domain/community/CommunityShareService.js
 
 Scene template snapshots:
   client/scene-builder/sceneTemplateSerializer.js
   client/scene-builder/sceneTemplateHydrator.js
-  server/sceneTemplates/*
+  server/domain/scene-templates/*
 ```
 
 The guiding rule:

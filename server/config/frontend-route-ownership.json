@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "defaultRuntime": "react",
+  "routes": [
+    {
+      "id": "community-home",
+      "patterns": ["/", "/home", "/community", "/explore/comparisons", "/explore/templates"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "community-characters",
+      "patterns": ["/explore/characters", "/characters/:characterId", "/community/characters", "/community/characters/:characterId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "community-post",
+      "patterns": ["/posts/:postId", "/community/:postId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "creator-profile",
+      "patterns": ["/profiles/:profileId", "/profiles/:profileId/:profileTab", "/me", "/me/:profileTab", "/me/characters/:characterId", "/creators/:handle", "/creators/:handle/:profileTab", "/creator/characters", "/creator/characters/:characterId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "create",
+      "patterns": ["/create/:workflow", "/create/studio/:workflow", "/studio", "/studio/:workflow"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "playground",
+      "patterns": ["/playground"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "history",
+      "patterns": ["/library/recent", "/library/recent/:jobId", "/history", "/history/:jobId", "/recent-generations", "/recent-generations/:jobId", "/library", "/library/images"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "comparisons",
+      "patterns": ["/compare", "/comparisons", "/comparisons/:setId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "admin",
+      "patterns": ["/admin"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "collections",
+      "patterns": ["/library/collections", "/library/collections/:collectionId", "/collections", "/collections/:collectionId"],
+      "runtime": "react",
+      "enabled": true
+    },
+    {
+      "id": "credits",
+      "patterns": ["/credits"],
+      "runtime": "react",
+      "enabled": true
+    }
+  ]
+}

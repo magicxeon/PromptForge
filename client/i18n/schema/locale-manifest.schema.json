@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Locale Manifest Schema",
+  "type": "object",
+  "required": ["schemaVersion", "defaultLocale", "fallbackLocale", "locales", "namespaces"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "defaultLocale": { "type": "string" },
+    "fallbackLocale": { "type": "string" },
+    "locales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "label", "nativeLabel", "direction", "enabled"],
+        "properties": {
+          "code": { "type": "string" },
+          "label": { "type": "string" },
+          "nativeLabel": { "type": "string" },
+          "direction": { "type": "string", "enum": ["ltr", "rtl"] },
+          "enabled": { "type": "boolean" }
+        }
+      }
+    },
+    "namespaces": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

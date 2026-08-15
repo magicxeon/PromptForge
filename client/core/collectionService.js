@@ -63,6 +63,7 @@
       ? `${activeCollection.imageCount} image${activeCollection.imageCount === 1 ? '' : 's'}${activeCollection.isDefault ? ' · Default' : ''}`
       : `${state.history?.length || 0}${state.historyHasMore ? '+' : ''} loaded`;
     if (editButton) editButton.disabled = !activeCollection;
+    window.ModelPromptForgeCommunityCollectionShare?.update?.();
   }
 
   function setCollectionModalVisibility(modal, visible) {

@@ -32,6 +32,21 @@
       more.textContent = `+${remaining}`;
       mosaic.appendChild(more);
     }
+    mosaic.replaceChildren();
+    window.ModelPromptForgeComparisons?.createMosaic?.({
+      mount: mosaic,
+      items: (set.previewImages || []).map((preview, index) => ({
+        id: preview.id || preview.slotId || String(index),
+        imageUrl: preview.imageUrl,
+        thumbnailUrl: preview.thumbnailUrl,
+        modelLabel: preview.modelLabel || '',
+        alt: ''
+      })),
+      maxVisible: 3,
+      label: `${localized('Open', 'เปิด')} ${set.name}`,
+      context: 'private',
+      onActivate: () => actions.open(set)
+    });
 
     const body = document.createElement('div');
     body.className = 'comparison-summary-body';

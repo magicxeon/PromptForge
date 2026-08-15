@@ -138,5 +138,23 @@
       "eyebrows"
     ],
     "enabled": true
+  },
+  {
+    "id": "eyebrows.008",
+    "category": "eyebrows",
+    "label": { "en": "Structured Straight Brows", "th": "คิ้วตรงคมมีโครง" },
+    "ui": { "control": "select", "group": "Eyebrows" },
+    "prompt": { "default": "structured straight masculine eyebrows with natural density" },
+    "tags": ["eyebrows", "vertical-drama-lead", "adult-male"],
+    "enabled": true
+  },
+  {
+    "id": "eyebrows.009",
+    "category": "eyebrows",
+    "label": { "en": "Refined Soft-arc Brows", "th": "คิ้วโค้งละมุนได้รูป" },
+    "ui": { "control": "select", "group": "Eyebrows" },
+    "prompt": { "default": "refined feminine eyebrows with a soft natural arc and clean definition" },
+    "tags": ["eyebrows", "vertical-drama-lead", "adult-female"],
+    "enabled": true
   }
 ]

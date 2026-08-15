@@ -5,9 +5,13 @@ import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import { collectionManager } from '../collections/CollectionManager.js';
 import { dedupeResolvedReferenceImages, normalizeReferenceJobIds, resolveReferenceForProvider } from './referenceUtils.js';
 import { mimeTypeFromFilename, resolveImageOutputType } from './imageUtils.js';
-import { creditManager } from '../credits/CreditManager.js';
+import { creditApplicationService } from '../credits/CreditApplicationService.js';
 import { thumbnailService } from './thumbnailService.js';
 import { historyRepository } from '../../repositories/generation/HistoryRepository.js';
+import { characterCastingExportService } from '../character-profiles/CharacterCastingExportService.js';
+import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
+import { logGenerationDiagnostic } from './generationDiagnostics.js';
+import { templateCoreService } from '../templates/TemplateCoreService.js';
 
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
@@ -34,10 +38,37 @@ function normalizeJobError(error) {
   };
 }
 
-// Read local static output image and convert it back to base64 (Step 9)
+function createOrderedResolvedReferences(planEntries, resolvedBySlot) {
+  if (!Array.isArray(planEntries) || !planEntries.length) return null;
+  const seen = new Set();
+  const ordered = [];
+  for (const entry of planEntries) {
+    const value = (entry?.slots || [])
+      .map(slotId => resolvedBySlot[slotId])
+      .find(Boolean);
+    if (!value) continue;
+    const fingerprint = String(value).includes(';base64,')
+      ? String(value).split(';base64,').at(-1)
+      : String(value);
+    if (seen.has(fingerprint)) continue;
+    seen.add(fingerprint);
+    ordered.push(value);
+  }
+  return ordered;
+}
+
+function parseProviderDimensions(value) {
+  const match = typeof value === 'string'
+    ? value.match(/^(\d+)x(\d+)$/i)
+    : null;
+  return match
+    ? { width: Number(match[1]), height: Number(match[2]) }
+    : { width: null, height: null };
+}
+
+// Read local static output image and convert it back to base64
 async function resolveLocalImageToBase64(imgPath) {
   if (!imgPath) return null;
-  // If it's already a base64 string, return it
   if (!imgPath.startsWith('/outputs/')) {
     return imgPath;
   }
@@ -70,11 +101,25 @@ class QueueManager {
     await historyRepository.init();
   }
 
+  createJobId() {
+    let jobId;
+    do {
+      jobId = 'job_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+    } while (this.jobs.has(jobId));
+    return jobId;
+  }
+
   /**
    * Enqueue a new generation job
    */
   enqueue(provider, submodel, prompt, options = {}) {
-    const jobId = 'job_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const jobId = options.jobId || this.createJobId();
+    if (this.jobs.has(jobId)) {
+      throw new Error(`Generation job ID collision: ${jobId}`);
+    }
+    if (!options.reservationId || !options.payerUserId) {
+      throw new Error('A credit reservation and payer are required before a generation job can be enqueued.');
+    }
     const jobOptions = {
       ...options,
       submodel
@@ -89,13 +134,23 @@ class QueueManager {
       result: null,
       error: null,
       created: Date.now(),
+      timings: {
+        enqueuedAt: Date.now(),
+        queueStartedAt: null,
+        referenceStartedAt: null,
+        referenceCompletedAt: null,
+        providerStartedAt: null,
+        providerCompletedAt: null,
+        outputPersistedAt: null,
+        terminalAt: null
+      },
       listeners: []
     };
 
     this.jobs.set(jobId, job);
     this.queue.push(jobId);
     
-    console.log(`[Queue] Job ${jobId} enqueued. Queue length: ${this.queue.length}`);
+    logGenerationDiagnostic(job, 'enqueued', { queueLength: this.queue.length });
     this.processNext();
     
     return jobId;
@@ -135,7 +190,9 @@ class QueueManager {
         imageUrl: job.result.imageUrl,
         usage: job.result.usage,
         mimeType: job.result.mimeType,
-        generationDuration: job.result.generationDuration
+        generationDuration: job.result.generationDuration,
+        width: job.result.width || null,
+        height: job.result.height || null
       })}\n\n`);
       res.end();
       return true;
@@ -195,6 +252,7 @@ class QueueManager {
 
     this.activeCount++;
     job.status = 'processing';
+    job.timings.queueStartedAt = Date.now();
     this.emitLifecycle(job, 'processing');
     console.log(`[Queue] Processing job ${jobId}. Active jobs: ${this.activeCount}`);
     
@@ -202,29 +260,67 @@ class QueueManager {
 
     try {
       const providerInstance = ProviderFactory.getProvider(job.provider);
-      
-      // Deduct credit at the start of actual processing to prevent abuse
-      const creditCost = Number(job.options.creditCost || 1);
-      await creditManager.deduct(job.options.username || 'user_demo', creditCost, {
-        jobId,
-        comparisonSetId: job.options.comparisonSetId,
-        comparisonRunId: job.options.comparisonRunId
-      });
-      job.creditCharged = true;
-
       const startTime = Date.now();
+      job.timings.referenceStartedAt = startTime;
 
-      // Resolve local /outputs/ files to base64 for API transmission (Step 9)
-      const resolvedFaceA = await resolveReferenceForProvider(job.options.faceReferenceImageA, job.options.username);
-      const resolvedFaceB = await resolveReferenceForProvider(job.options.faceReferenceImageB, job.options.username);
-      const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username);
-      const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username);
-      const resolvedCharacterA = await resolveReferenceForProvider(job.options.characterReferenceImageA, job.options.username);
-      const resolvedCharacterB = await resolveReferenceForProvider(job.options.characterReferenceImageB, job.options.username);
-      const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username);
-      const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username);
+      // Resolve local /outputs/ files to base64 for API transmission
+      const referenceAccess = { ownerUserId: job.options.payerUserId || null };
+      const faceReferenceAccess = {
+        ...referenceAccess,
+        authorizedJobIds: job.options.authorizedFaceReferenceJobIds || []
+      };
+      const templateReferenceAccess = {
+        ...referenceAccess,
+        authorizedJobIds: job.options.authorizedTemplateReferenceJobIds || []
+      };
+      const resolvedTemplateBaseline = await resolveReferenceForProvider(
+        job.options.templateBaselineReference,
+        job.options.username,
+        templateReferenceAccess
+      );
+      if (job.options.templateBaselineReference && !resolvedTemplateBaseline) {
+        const error = new Error('The published Template baseline image is no longer available.');
+        error.code = 'template_baseline_unavailable';
+        throw error;
+      }
+      const resolvedFaceA = await resolveReferenceForProvider(
+        job.options.faceReferenceImageA,
+        job.options.username,
+        faceReferenceAccess
+      );
+      const resolvedFaceB = await resolveReferenceForProvider(
+        job.options.faceReferenceImageB,
+        job.options.username,
+        faceReferenceAccess
+      );
+      const resolvedStyleA = await resolveReferenceForProvider(job.options.styleReferenceImageA, job.options.username, referenceAccess);
+      const resolvedStyleB = await resolveReferenceForProvider(job.options.styleReferenceImageB, job.options.username, referenceAccess);
+      const characterReferenceAccess = {
+        authorizedJobIds: job.options.authorizedCharacterReferenceJobIds || [],
+        authorizedImageUrls: job.options.authorizedCharacterReferenceUrls || [],
+        ownerUserId: job.options.payerUserId || null
+      };
+      const resolvedCharacterA = await resolveReferenceForProvider(
+        job.options.characterReferenceImageA,
+        job.options.username,
+        characterReferenceAccess
+      );
+      const resolvedCharacterB = await resolveReferenceForProvider(
+        job.options.characterReferenceImageB,
+        job.options.username,
+        characterReferenceAccess
+      );
+      if (job.options.characterProfileContext?.purpose === 'character_usage'
+        && !resolvedCharacterA) {
+        const error = new Error('The approved Character reference is no longer available.');
+        error.code = 'character_reference_unavailable';
+        throw error;
+      }
+      const resolvedOutfitFront = await resolveReferenceForProvider(job.options.outfitReferenceImageFront, job.options.username, referenceAccess);
+      const resolvedOutfitBack = await resolveReferenceForProvider(job.options.outfitReferenceImageBack, job.options.username, referenceAccess);
 
       const uniqueReferences = dedupeResolvedReferenceImages([
+        ['templateBaseline', resolvedTemplateBaseline],
         ['characterA', resolvedCharacterA],
         ['characterB', resolvedCharacterB],
         ['outfitFront', resolvedOutfitFront],
@@ -236,6 +332,7 @@ class QueueManager {
       ]);
 
       // Mutate options to supply resolved base64 images to provider strategy
+      job.options.resolvedTemplateBaselineReference = uniqueReferences.templateBaseline;
       job.options.resolvedFaceReferenceImageA = uniqueReferences.faceA;
       job.options.resolvedFaceReferenceImageB = uniqueReferences.faceB;
       job.options.resolvedStyleReferenceImageA = uniqueReferences.styleA;
@@ -244,7 +341,28 @@ class QueueManager {
       job.options.resolvedCharacterReferenceImageB = uniqueReferences.characterB;
       job.options.resolvedOutfitReferenceImageFront = uniqueReferences.outfitFront;
       job.options.resolvedOutfitReferenceImageBack = uniqueReferences.outfitBack;
+      job.options.resolvedReferenceImagesOrdered = createOrderedResolvedReferences(
+        job.options.referenceProcessingPlan?.providerPlan?.orderedReferences,
+        {
+          template_baseline: resolvedTemplateBaseline,
+          character_reference_a: resolvedCharacterA,
+          character_reference_b: resolvedCharacterB,
+          outfit_front: resolvedOutfitFront,
+          outfit_back: resolvedOutfitBack,
+          face_reference_a: resolvedFaceA,
+          face_reference_b: resolvedFaceB,
+          style_reference_a: resolvedStyleA,
+          style_reference_b: resolvedStyleB,
+          pose_reference_a: resolvedStyleA,
+          pose_reference_b: resolvedStyleB
+        }
+      );
 
+      job.timings.referenceCompletedAt = Date.now();
+      job.timings.providerStartedAt = Date.now();
+      logGenerationDiagnostic(job, 'provider_dispatch', {
+        ...createTimingDurations(job)
+      });
       let result;
       if (job.options.stream) {
         result = await providerInstance.generateImageStream(job.prompt, job.options, (eventObj) => {
@@ -263,6 +381,7 @@ class QueueManager {
       } else {
         result = await providerInstance.generateImage(job.prompt, job.options);
       }
+      job.timings.providerCompletedAt = Date.now();
 
       // Calculate generation duration
       const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -273,19 +392,40 @@ class QueueManager {
       const filename = `${jobId}.${extension}`;
       const filePath = path.join(OUTPUTS_DIR, filename);
       await fs.writeFile(filePath, Buffer.from(result.base64, 'base64'));
+      job.outputFilePath = filePath;
 
-      // Update job state
+      // Capture credit reservation on successful completion
+      await creditApplicationService.captureForJob({
+        userId: job.options.payerUserId,
+        reservationId: job.options.reservationId,
+        jobId,
+        metadata: {
+          comparisonSetId: job.options.comparisonSetId,
+          comparisonRunId: job.options.comparisonRunId,
+          generationGroupId: job.options.generationGroupId,
+          outputIndex: job.options.outputIndex
+        }
+      });
+      job.creditCharged = true;
+
+      // Only expose a completed output after its matching reservation is captured.
+      const providerDimensions = parseProviderDimensions(
+        result.providerMetadata?.responseSize
+      );
       job.status = 'completed';
       job.result = {
         imageUrl: `/outputs/${filename}`,
         usage: result.usage,
         mimeType,
-        generationDuration: durationSec
+        generationDuration: durationSec,
+        width: providerDimensions.width,
+        height: providerDimensions.height
       };
-      
-      // Persist parent lineage and duration metadata to history database (Step 9)
+
+      // Persist parent lineage and duration metadata to history database
       const historyEntry = {
         id: jobId,
+        username: job.options.username,
         prompt: job.prompt,
         imageUrl: `/outputs/${filename}`,
         timestamp: Date.now(),
@@ -303,13 +443,21 @@ class QueueManager {
           : null,
         sourceOwnership: job.options.sourceOwnership || null,
         characterSheetConfig: job.options.characterSheetConfig || null,
+        characterProfileContext: job.options.characterProfileContext || null,
+        outfitReferenceOverrides: job.options.outfitReferenceOverrides || null,
+        referenceRoleManifest: Array.isArray(job.options.referenceRoleManifest)
+          ? job.options.referenceRoleManifest
+          : [],
+        referenceProcessingLineage: job.options.referenceProcessingLineage || null,
         storyReferenceHandoff: job.options.storyReferenceHandoff
           ? { ...job.options.storyReferenceHandoff, sourceJobId: jobId }
           : null,
         resolvedSubmodel: result.providerMetadata?.resolvedModel || job.submodel,
         providerConfigVersion: job.options.providerConfigVersion || null,
-        creditCost,
+        creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         mimeType,
+        width: providerDimensions.width,
+        height: providerDimensions.height,
         usage: result.usage || null,
         referencedFaceJobIds: normalizeReferenceJobIds(job.options.faceReferenceJobIds),
         referencedStyleJobIds: normalizeReferenceJobIds(job.options.styleReferenceJobIds),
@@ -318,22 +466,64 @@ class QueueManager {
         generationDuration: durationSec,
         comparisonSetId: job.options.comparisonSetId || null,
         comparisonRunId: job.options.comparisonRunId || null,
-        comparisonSlotId: job.options.comparisonSlotId || null
+        comparisonSlotId: job.options.comparisonSlotId || null,
+        generationGroupId: job.options.generationGroupId || null,
+        outputIndex: Number.isInteger(job.options.outputIndex) ? job.options.outputIndex : null,
+        requestedOutputCount: Number(job.options.requestedOutputCount || 1),
+        promptFingerprint: job.options.promptRefinement?.afterFingerprint || null,
+        referenceProcessingPlanFingerprint:
+          job.options.referenceProcessingPlan?.planFingerprint || null,
+        templateUseContext: job.options.templateUseContext || null,
+        fashionBlueprintContext: job.options.fashionBlueprintContext || null,
+        promptRefinement: job.options.promptRefinement || null,
+        routingSnapshot: job.options.routingSnapshot || null
       };
+      const operationPurpose = job.options.routingSnapshot?.operationPurpose || null;
+      historyEntry.operationPurpose = operationPurpose;
+      historyEntry.artifactVisibility = operationPurpose === 'template_pose_proxy_prepare'
+        ? 'template_owner_only'
+        : 'customer';
       try {
         Object.assign(historyEntry, await thumbnailService.createForHistoryItem(historyEntry));
       } catch (thumbnailError) {
         console.warn(`[Queue] Thumbnail generation failed for ${jobId}:`, thumbnailError.message);
         historyEntry.thumbnailUrl = null;
       }
+      job.result.width = historyEntry.width || providerDimensions.width;
+      job.result.height = historyEntry.height || providerDimensions.height;
+      job.timings.outputPersistedAt = Date.now();
+      historyEntry.performanceTimings = createTimingDurations(job);
       await this.saveToHistory(historyEntry);
+      await characterCastingExportService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
+        console.warn(`[Queue] Character casting linkage failed for ${jobId}:`, error.message);
+      });
+      await characterUsageService.handleCompletedGeneration({ job, historyEntry }).catch(error => {
+        console.warn(`[Queue] Character usage linkage failed for ${jobId}:`, error.message);
+      });
+      if (job.options.templateUseContext?.templateUseSessionId) {
+        await templateCoreService.recordSuccessfulUse({
+          sessionId: job.options.templateUseContext.templateUseSessionId,
+          jobId,
+          pricingSnapshot: job.options.pricingSnapshot,
+          outputCount: 1,
+          replacementSummary: job.options.templateUseContext.replacementSummary || []
+        }, {
+          userId: job.options.payerUserId,
+          username: job.options.username,
+          role: 'user'
+        }).catch(error => {
+          console.warn(`[Queue] Template usage event failed for ${jobId}:`, error.message);
+        });
+      }
 
       let collectionWarning = null;
-      try {
-        await collectionManager.addToDefault(jobId, job.options.username || 'user_demo');
-      } catch (collectionError) {
-        collectionWarning = 'The image was saved, but it could not be added to the default collection.';
-        console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
+      if (historyEntry.artifactVisibility === 'customer') {
+        try {
+          await collectionManager.addToDefault(jobId, job.options.username || 'user_demo');
+        } catch (collectionError) {
+          collectionWarning = 'The image was saved, but it could not be added to the default collection.';
+          console.warn(`[Queue] Default collection update failed for ${jobId}:`, collectionError.message);
+        }
       }
 
       // Emit completed event with duration metadata
@@ -346,35 +536,48 @@ class QueueManager {
         sceneBuilder: job.options.sceneBuilder || null,
         sceneTemplateSnapshot: historyEntry.sceneTemplateSnapshot || null,
         generationDuration: durationSec,
+        width: historyEntry.width || null,
+        height: historyEntry.height || null,
         collectionWarning
       });
       this.emitLifecycle(job, 'completed', { result: job.result });
+      logGenerationDiagnostic(job, 'completed', {
+        resolvedProviderSize: result.providerMetadata?.resolvedSize
+          || result.providerMetadata?.responseSize
+          || null,
+        returnedWidth: historyEntry.width || providerDimensions.width,
+        returnedHeight: historyEntry.height || providerDimensions.height,
+        durationSeconds: durationSec,
+        ...createTimingDurations(job)
+      });
 
     } catch (err) {
       console.error(`[Queue] Job ${jobId} failed:`, err);
+      if (job.outputFilePath) {
+        await fs.unlink(job.outputFilePath).catch(() => {});
+        job.outputFilePath = null;
+      }
       job.status = 'failed';
       job.error = normalizeJobError(err);
 
-      if (
-        job.error.code === 'moderation_blocked' &&
-        !job.creditRefunded
-      ) {
+      // Refund reservation on failure (technical failure, moderation block, provider error)
+      if (job.options.reservationId && !job.creditRefunded) {
         try {
-          job.refundedCredits = await creditManager.refund(
-            job.options.username || 'user_demo',
-            Number(job.options.creditCost || 1),
-            {
-              jobId,
+          await creditApplicationService.refundForJob({
+            userId: job.options.payerUserId || job.options.username || 'usr_demo',
+            reservationId: job.options.reservationId,
+            jobId,
+            reasonCode: job.error.code || 'technical_failure',
+            metadata: {
               comparisonSetId: job.options.comparisonSetId,
-              comparisonRunId: job.options.comparisonRunId
+              comparisonRunId: job.options.comparisonRunId,
+              generationGroupId: job.options.generationGroupId,
+              outputIndex: job.options.outputIndex
             }
-          );
+          });
           job.creditRefunded = true;
         } catch (refundError) {
-          console.error(
-            `[Queue] Credit refund failed for ${jobId}:`,
-            refundError.message
-          );
+          console.error(`[Queue] Credit refund failed for ${jobId}:`, refundError.message);
         }
       }
 
@@ -383,7 +586,12 @@ class QueueManager {
         creditRefunded: job.creditRefunded === true
       });
       this.emitLifecycle(job, 'failed', { error: job.error });
+      logGenerationDiagnostic(job, 'failed', {
+        errorCode: job.error.code || null,
+        ...createTimingDurations(job)
+      });
     } finally {
+      job.timings.terminalAt = Date.now();
       // Close all SSE connections
       job.listeners.forEach(({ res, keepAliveTimer }) => {
         clearInterval(keepAliveTimer);
@@ -458,16 +666,14 @@ class QueueManager {
         status: job.status,
         result: job.result,
         error: job.error,
-        creditCost: Number(job.options.creditCost || 1),
+        creditCost: Number(job.options.pricingSnapshot?.estimatedCredits || 0),
         creditCharged: job.creditCharged === true,
-        creditRefunded: job.creditRefunded === true
+        creditRefunded: job.creditRefunded === true,
+        timings: createTimingDurations(job)
       };
     }
 
-    // Completed jobs survive process restarts in history even though the
-    // current queue implementation still keeps active jobs in memory.
-    const history = await this.getHistory();
-    const completed = history.find(entry => entry.id === jobId);
+    const completed = await historyRepository.getById(jobId);
     if (!completed) return null;
 
     return {
@@ -477,10 +683,13 @@ class QueueManager {
         imageUrl: completed.imageUrl,
         usage: completed.usage || null,
         mimeType: completed.mimeType || null,
-        generationDuration: completed.generationDuration || null
+        generationDuration: completed.generationDuration || null,
+        width: completed.width || null,
+        height: completed.height || null
       },
       error: null,
-      recoveredFromHistory: true
+      recoveredFromHistory: true,
+      timings: completed.performanceTimings || null
     };
   }
 
@@ -502,13 +711,32 @@ class QueueManager {
   }
 
   async getHistoryEntryForUser(jobId, username) {
-    const history = await this.getHistory();
-    const entry = history.find(item => item.id === jobId);
+    const entry = await historyRepository.getById(jobId);
     if (!entry) return null;
     if (!username) return entry;
     if (!entry.username) return username === 'user_demo' ? entry : null;
     return entry.username === username ? entry : null;
   }
+}
+
+function createTimingDurations(job) {
+  const timings = job?.timings || {};
+  const duration = (start, end) => Number.isFinite(start) && Number.isFinite(end)
+    ? Math.max(0, end - start)
+    : null;
+  return {
+    queueWaitMs: duration(timings.enqueuedAt, timings.queueStartedAt),
+    referenceProcessingMs: duration(
+      timings.referenceStartedAt,
+      timings.referenceCompletedAt
+    ),
+    providerMs: duration(timings.providerStartedAt, timings.providerCompletedAt),
+    outputPersistenceMs: duration(
+      timings.providerCompletedAt,
+      timings.outputPersistedAt
+    ),
+    totalMs: duration(timings.enqueuedAt, timings.terminalAt || Date.now())
+  };
 }
 
 export const queueManager = new QueueManager();

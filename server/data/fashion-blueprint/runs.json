@@ -1,0 +1,2963 @@
+{
+  "schemaVersion": 1,
+  "runs": [
+    {
+      "schemaVersion": 2,
+      "id": "frun_a156eca4895e9a4d5f",
+      "planId": "fpl_a156eca4895e9a4d5f",
+      "quoteId": "fqt_1785471471600_54b4n3g",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785471471600_54b4n3g:full",
+      "requestHash": "935e8df2951ee8c563703d5ba60fa956fcb883a2c15ee7a890b301a7532648d5",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 48,
+        "maximumCredits": 48,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 48
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_a156eca4895e9a4d5f_1",
+          "reservationId": "rsv_1785471476040_0_wnf29z",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:17:56.050Z",
+      "updatedAt": "2026-07-31T04:17:56.050Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_f38d30b5ef5089ecfb",
+      "planId": "fpl_f38d30b5ef5089ecfb",
+      "quoteId": "fqt_1785472883122_p3vzkxj",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785472883122_p3vzkxj:full",
+      "requestHash": "c42786e9a24794d16d79994260e1370a04e17b22a7ba8e77d2ee430b76079061",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 49,
+        "maximumCredits": 49,
+        "breakdown": {
+          "generationCredits": 49,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 49
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_f38d30b5ef5089ecfb_1",
+          "reservationId": "rsv_1785472887066_0_5g1t9y",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:41:27.074Z",
+      "updatedAt": "2026-07-31T04:41:27.074Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_c58f66d976bec0174f",
+      "planId": "fpl_c58f66d976bec0174f",
+      "quoteId": "fqt_1785473271416_70w3wck",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785473271416_70w3wck:full",
+      "requestHash": "21ad5217f42a43c375dde82e504ef91fb437225e5b59682e61989e0f605d8e5e",
+      "quotePurpose": "full",
+      "setupFingerprint": "0228342559cf7dbacb40e3aa2fa56b086b27810b4aa1521fc1d5c1f5b0184e1d",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785348243221_sgq6ovcs",
+        "templateId": "tmpl_1785348243205_t3029qlz",
+        "templateVersionId": "tmplv_1785348243209_93asy31z",
+        "templateUseSessionId": "tmpls_1785469875963_zncjl5pg"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 48,
+        "maximumCredits": 48,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 0,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 48
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_c58f66d976bec0174f_1",
+          "reservationId": "rsv_1785473281360_0_4582r5",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T04:48:01.369Z",
+      "updatedAt": "2026-07-31T04:48:01.369Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_36be231d1ad46ce2ff",
+      "planId": "fpl_36be231d1ad46ce2ff",
+      "quoteId": "fqt_1785478054486_c17b4bj",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478054486_c17b4bj:full",
+      "requestHash": "53b1a926c43859105c1ccc5d60d96974b90fbb558c5db7b7d83b94e3e03bcbc7",
+      "quotePurpose": "full",
+      "setupFingerprint": "15022b521c074046572e0081102d68df8424923eb5566cc0535aa3ca412e7214",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478048080_qebcovtb"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": "fashion-routing-2026-07-31"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 58,
+        "maximumCredits": 58,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 58
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_36be231d1ad46ce2ff_1",
+          "reservationId": "rsv_1785478060778_0_mwyywb",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:07:40.786Z",
+      "updatedAt": "2026-07-31T06:07:40.786Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_77e7b2a7a80531f563",
+      "planId": "fpl_77e7b2a7a80531f563",
+      "quoteId": "fqt_1785478608726_ycdlnm2",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478608726_ycdlnm2:full",
+      "requestHash": "9034ef855013bf7bfd95ee0dbb52a750883fd4e83de166b9e1f1d2b2f59870f1",
+      "quotePurpose": "full",
+      "setupFingerprint": "ebf8f4d9fca502713bbc9366fd5a6f9ae6e7702b585e46f73dcd9666384b4fab",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_77e7b2a7a80531f563_1",
+          "reservationId": "rsv_1785478615694_0_07l1ap",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:16:55.701Z",
+      "updatedAt": "2026-07-31T06:16:55.701Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_91e1ccfab7a5b78661",
+      "planId": "fpl_91e1ccfab7a5b78661",
+      "quoteId": "fqt_1785478998722_d255z5u",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785478998722_d255z5u:full",
+      "requestHash": "e4a06ad87d5867a5dd0d8257226d6684cd11cc4991f550658497634e3cddae00",
+      "quotePurpose": "full",
+      "setupFingerprint": "da8acc305ddb73f06921eabf31c0449ff09e73c3d713c4b8d465e419188c0ff5",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1-mini",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 70,
+        "maximumCredits": 70,
+        "breakdown": {
+          "generationCredits": 60,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 70
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_91e1ccfab7a5b78661_1",
+          "reservationId": "rsv_1785479002177_0_key5yk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:23:22.185Z",
+      "updatedAt": "2026-07-31T06:23:22.185Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_d355c324cef06827b6",
+      "planId": "fpl_d355c324cef06827b6",
+      "quoteId": "fqt_1785479105324_cmdq4ii",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479105324_cmdq4ii:full",
+      "requestHash": "b5d7941276396258e746a31496272f613e3e9fecd614a4bc85835c4c5a609f11",
+      "quotePurpose": "full",
+      "setupFingerprint": "10c6bfb9c6c46726df4744c005389d8fb2a984538fcfca8ff2c4be7bf0c44101",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 145,
+        "maximumCredits": 145,
+        "breakdown": {
+          "generationCredits": 135,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 145
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_d355c324cef06827b6_1",
+          "reservationId": "rsv_1785479110117_0_su4vxv",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:25:10.126Z",
+      "updatedAt": "2026-07-31T06:25:10.126Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_96c36d01d75c5f4f05",
+      "planId": "fpl_96c36d01d75c5f4f05",
+      "quoteId": "fqt_1785479317417_z1mr336",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479317417_z1mr336:full",
+      "requestHash": "018666335b816f24e6265e4c60a7e277e52f48f8b0128b6878018890b05c005a",
+      "quotePurpose": "full",
+      "setupFingerprint": "438839f12c6336e7863651a3791002ee4f7f1b17d8afe3dda2fedfb4a9dc73dc",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 125,
+        "maximumCredits": 125,
+        "breakdown": {
+          "generationCredits": 115,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 125
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_96c36d01d75c5f4f05_1",
+          "reservationId": "rsv_1785479321300_0_wml3bf",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:28:41.309Z",
+      "updatedAt": "2026-07-31T06:28:41.309Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_c5ac0fa49ee1705993",
+      "planId": "fpl_c5ac0fa49ee1705993",
+      "quoteId": "fqt_1785479504189_vs8d15g",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479504189_vs8d15g:full",
+      "requestHash": "9a46af716f1e5d32073de413ce3f6c494a572bc8207d46a5b2ff1fbb4922a43a",
+      "quotePurpose": "full",
+      "setupFingerprint": "85b6797d2f72ef1086306bada0b35e2f171aee6d9b0f81c62ae7e52fe43a419e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_c5ac0fa49ee1705993_1",
+          "reservationId": "rsv_1785479505497_0_zr3pr1",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:31:45.507Z",
+      "updatedAt": "2026-07-31T06:31:45.507Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_3e25905e4790488de0",
+      "planId": "fpl_3e25905e4790488de0",
+      "quoteId": "fqt_1785479604643_yncyg0x",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479604643_yncyg0x:full",
+      "requestHash": "2d20971695404e679dea9203e540f3987597d63809bad4e11f8a46f688b0ac12",
+      "quotePurpose": "full",
+      "setupFingerprint": "66c7b3a2129a5d8aff0a05687450c4983c95f9724c9b53868061e2d7e6679093",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-5-0-lite-260128",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 60,
+        "maximumCredits": 60,
+        "breakdown": {
+          "generationCredits": 50,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 60
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_3e25905e4790488de0_1",
+          "reservationId": "rsv_1785479648497_0_rxejk6",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:34:08.504Z",
+      "updatedAt": "2026-07-31T06:34:08.504Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_6f40c6b78839bf86ba",
+      "planId": "fpl_6f40c6b78839bf86ba",
+      "quoteId": "fqt_1785479760140_3wpzo2c",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479760140_3wpzo2c:full",
+      "requestHash": "77b7516b3c9535e8526ee2df62f1303c5a837951ddfdf3ef1f8cd11ec6842e75",
+      "quotePurpose": "full",
+      "setupFingerprint": "34e3ef0a934e2d13093534df0466974d1463e1c6d415a4951a9f19a9afdd9b42",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-5-251128",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 70,
+        "maximumCredits": 70,
+        "breakdown": {
+          "generationCredits": 60,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 70
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_6f40c6b78839bf86ba_1",
+          "reservationId": "rsv_1785479763382_0_9vaqpk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:36:03.391Z",
+      "updatedAt": "2026-07-31T06:36:03.391Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_e28d744e78bb7c6727",
+      "planId": "fpl_e28d744e78bb7c6727",
+      "quoteId": "fqt_1785479836798_rn83h5i",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785479836798_rn83h5i:full",
+      "requestHash": "654592434ca8d4bae3afbcd4345cdae1d5efc96cbc21f9896bccf3106f05ab41",
+      "quotePurpose": "full",
+      "setupFingerprint": "2708450996f0377b739fbf1e766f98012909f8cbfce5e546eaf9cd591b37d435",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785395582352_fej1z0q0",
+        "templateId": "tmpl_1785395582339_zsymjfy7",
+        "templateVersionId": "tmplv_1785395582344_l0k5his5",
+        "templateUseSessionId": "tmpls_1785478589371_o0vy69v0"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "dola-seedream-5-0-pro-260628",
+        "routingPolicyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "maximumCredits": 80,
+        "breakdown": {
+          "generationCredits": 70,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 80
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_e28d744e78bb7c6727_1",
+          "reservationId": "rsv_1785479871351_0_4mhcum",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-07-31T06:37:51.357Z",
+      "updatedAt": "2026-07-31T06:37:51.357Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_60b948277c2c021880",
+      "planId": "fpl_60b948277c2c021880",
+      "quoteId": "fqt_1785563180827_zawqlx7",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785563180827_zawqlx7:full",
+      "requestHash": "2ef3520bd6b410342ffd6c2975e9fc9ff83d14ddbce1056a9af0c7807f8f62ff",
+      "quotePurpose": "full",
+      "setupFingerprint": "b5c5800a9de331ef224970de20136b70a80949c8da22ff2ba358bca398153329",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785560685673_lnf77agu",
+        "templateId": "tmpl_1785560685639_oj2zg1qp",
+        "templateVersionId": "tmplv_1785560685666_24jvlfhw",
+        "templateUseSessionId": "tmpls_1785562955901_fpnn72b9"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_60b948277c2c021880_1",
+          "reservationId": "rsv_1785563182668_0_a385zb",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T05:46:22.677Z",
+      "updatedAt": "2026-08-01T05:46:22.677Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_978f499523d89fa1b1",
+      "planId": "fpl_978f499523d89fa1b1",
+      "quoteId": "fqt_1785602232543_13z7ndq",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785602232543_13z7ndq:full",
+      "requestHash": "579fccf899663a3ae9867dfb8fda8454a0000350bac49ae0f59939d72a0e9650",
+      "quotePurpose": "full",
+      "setupFingerprint": "956937f66e1c67046e4b664cca22a7ffff667401ce144d6f2d879f86531d0b6e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785602208779_03i27k48"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_978f499523d89fa1b1_1",
+          "reservationId": "rsv_1785602237025_0_0faob0",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T16:37:17.035Z",
+      "updatedAt": "2026-08-01T16:37:17.035Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_412e6ade7127ce8fbd",
+      "planId": "fpl_412e6ade7127ce8fbd",
+      "quoteId": "fqt_1785602349566_897fp2f",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785602349566_897fp2f:full",
+      "requestHash": "8adf23e8de87847639bd42478098aeb854ee08f0369ddc783537ccf79f2f042a",
+      "quotePurpose": "full",
+      "setupFingerprint": "956937f66e1c67046e4b664cca22a7ffff667401ce144d6f2d879f86531d0b6e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785602208779_03i27k48"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "เสื้อผ่า",
+          "shotKey": "cover",
+          "jobId": "job_fashion_412e6ade7127ce8fbd_1",
+          "reservationId": "rsv_1785602350529_0_1sqs7s",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-01T16:39:10.538Z",
+      "updatedAt": "2026-08-01T16:39:10.538Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_1101bed05b8cb1316b",
+      "planId": "fpl_1101bed05b8cb1316b",
+      "quoteId": "fqt_1785679072297_yvfy4ni",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785679072297_yvfy4ni:full",
+      "requestHash": "c49d6671332773cf52cf2463091e8bd02e6f5debe26d2b3e40a42fa62f1d5957",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_1101bed05b8cb1316b_1",
+          "reservationId": "rsv_1785679079173_0_qlestk",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T13:57:59.182Z",
+      "updatedAt": "2026-08-02T13:57:59.182Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_5f1d7e1817e4d6684a",
+      "planId": "fpl_5f1d7e1817e4d6684a",
+      "quoteId": "fqt_1785679104200_2v2z4kg",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785679104200_2v2z4kg:full",
+      "requestHash": "1032693d7518c4ed57a466ae460d76e034a61cdb0e9b101f9947c2f574f61fa8",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "failed",
+      "error": {
+        "code": "orphaned_after_restart",
+        "message": "Fashion run was interrupted before a result was persisted. The related credit reservation was refunded."
+      },
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_5f1d7e1817e4d6684a_1",
+          "reservationId": "rsv_1785679106103_0_t7lwrp",
+          "status": "failed",
+          "error": {
+            "code": "orphaned_after_restart",
+            "message": "Generation job was interrupted and could not be recovered after server restart."
+          },
+          "failedAt": "2026-08-02T14:16:36.997Z"
+        }
+      ],
+      "createdAt": "2026-08-02T13:58:26.113Z",
+      "updatedAt": "2026-08-02T14:16:36.997Z",
+      "failedAt": "2026-08-02T14:16:36.997Z",
+      "supportResolution": {
+        "reasonCode": "orphaned_after_restart",
+        "financialAction": "refund_already_completed",
+        "reservationId": "rsv_1785679106103_0_t7lwrp",
+        "resolvedAt": "2026-08-02T14:16:36.997Z"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_a93517bdfdec1719f4",
+      "planId": "fpl_a93517bdfdec1719f4",
+      "quoteId": "fqt_1785680544490_vahvtee",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785680544490_vahvtee:full",
+      "requestHash": "059c9a90cb2cb85dcc91e358614478baa655ce0bb5c8ca727b661faa20be7b4b",
+      "quotePurpose": "full",
+      "setupFingerprint": "6d50807de0778571be46e84642699d1b8ed45342163a263b3eb29ba1f76814e9",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785678709228_3e29kh10"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-01-v2",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_a93517bdfdec1719f4_1",
+          "reservationId": "rsv_1785680554832_0_qdxl1k",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:22:34.845Z",
+      "updatedAt": "2026-08-02T14:22:34.845Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_d3ceec1a55337272ab",
+      "planId": "fpl_d3ceec1a55337272ab",
+      "quoteId": "fqt_1785681044702_jq2gpyh",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681044702_jq2gpyh:full",
+      "requestHash": "dc654ff896f1aecc6f0d701894fa65fc94907ae2689e88b6c6eb35a892a7b14b",
+      "quotePurpose": "full",
+      "setupFingerprint": "bd6db8c9157bb9c5bf791daaff37821e4b56d8599990311e5ffeeff4b64d55ae",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785680945545_8y83qlhn"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 58,
+        "maximumCredits": 58,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 58
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_d3ceec1a55337272ab_1",
+          "reservationId": "rsv_1785681059963_0_c0m6v5",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:30:59.972Z",
+      "updatedAt": "2026-08-02T14:30:59.972Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_25bd77c3137542dd8b",
+      "planId": "fpl_25bd77c3137542dd8b",
+      "quoteId": "fqt_1785681365234_0swe232",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681365234_0swe232:full",
+      "requestHash": "d76f82442456394cae564b7c889e31171c812d1d8ee6266835375da7ded79274",
+      "quotePurpose": "full",
+      "setupFingerprint": "4d8573b4d73da799869291fbda1f4c98806966821d7cb0c092f1519e47f16aaa",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785681325514_ps8mh84s"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_25bd77c3137542dd8b_1",
+          "reservationId": "rsv_1785681386136_0_83suf5",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:36:26.146Z",
+      "updatedAt": "2026-08-02T14:36:26.146Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_0f5ab1d050c17b9a90",
+      "planId": "fpl_0f5ab1d050c17b9a90",
+      "quoteId": "fqt_1785681573183_2h2uce0",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681573183_2h2uce0:full",
+      "requestHash": "b6e90c787cf26c8ff1285fe1748beb5e041d8d14d3f1cc22fa881d12a5086c38",
+      "quotePurpose": "full",
+      "setupFingerprint": "e4bac3ea5a5cd15e90556f2b0368335f6f7e22a78edbc34ad59be5d1527ca7db",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785681325514_ps8mh84s"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 125,
+        "maximumCredits": 125,
+        "breakdown": {
+          "generationCredits": 115,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 125
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_0f5ab1d050c17b9a90_1",
+          "reservationId": "rsv_1785681578176_0_b9ovc5",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:39:38.187Z",
+      "updatedAt": "2026-08-02T14:39:38.187Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_5f8ac6b3f4c2ae454a",
+      "planId": "fpl_5f8ac6b3f4c2ae454a",
+      "quoteId": "fqt_1785681755345_ek7wiaf",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681755345_ek7wiaf:full",
+      "requestHash": "09dbfea221ce4feb8815ddd88d5ae51502c476c908270c8dde34493ba6e82b3e",
+      "quotePurpose": "full",
+      "setupFingerprint": "aeecb1d8770dd70d7450f00dd41a2676ce3c7594d71895aeef77e66d2ca423d5",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785681737303_rhj19cnm"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-2",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 110,
+        "maximumCredits": 110,
+        "breakdown": {
+          "generationCredits": 100,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 110
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_5f8ac6b3f4c2ae454a_1",
+          "reservationId": "rsv_1785681764385_0_wgan02",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:42:44.396Z",
+      "updatedAt": "2026-08-02T14:42:44.396Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_0e731c3e18699d638e",
+      "planId": "fpl_0e731c3e18699d638e",
+      "quoteId": "fqt_1785681819003_tlj4214",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681819003_tlj4214:full",
+      "requestHash": "d9418ca725d6ed93dc6e286d46273ae5356c6504993b903e257c9c0270bd697b",
+      "quotePurpose": "full",
+      "setupFingerprint": "e4b3238389a66bd595b689ebbf399a569894dd3ef2bca786ddd224501d995202",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785681737303_rhj19cnm"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "queued",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_0e731c3e18699d638e_1",
+          "reservationId": "rsv_1785681821613_0_fdfbnv",
+          "status": "queued"
+        }
+      ],
+      "createdAt": "2026-08-02T14:43:41.625Z",
+      "updatedAt": "2026-08-02T14:43:41.625Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_8ed8208c29f87d8597",
+      "planId": "fpl_8ed8208c29f87d8597",
+      "quoteId": "fqt_1785681963238_mrf6x2f",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785681963238_mrf6x2f:full",
+      "requestHash": "e3dc508524aa5bd94c34d12b2eecd3c62ebb45c6be57460dc0ce1fffd06dcefc",
+      "quotePurpose": "full",
+      "setupFingerprint": "78608bfc8d88028461636576302323652763c6d9c84601abda882570a12c6fbe",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785681737303_rhj19cnm"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-5-0-lite-260128",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 60,
+        "maximumCredits": 60,
+        "breakdown": {
+          "generationCredits": 50,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 60
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส ชมพู",
+          "shotKey": "cover",
+          "jobId": "job_fashion_8ed8208c29f87d8597_1",
+          "reservationId": "rsv_1785681964679_0_tl988h",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_8ed8208c29f87d8597_1.png",
+            "usage": {
+              "generated_images": 1,
+              "output_tokens": 15552,
+              "total_tokens": 15552
+            },
+            "mimeType": "image/png",
+            "generationDuration": "62.9",
+            "width": 1728,
+            "height": 2304
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T14:46:04.692Z",
+      "updatedAt": "2026-08-02T15:20:37.744Z",
+      "completedAt": "2026-08-02T15:20:37.744Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_e458673a36d0d38f06",
+      "planId": "fpl_e458673a36d0d38f06",
+      "quoteId": "fqt_1785684273132_aakfqke",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785684273132_aakfqke:full",
+      "requestHash": "0ffd5b33cc19f1996be621b178f9812f52fd777f363f669d5125d6170f942637",
+      "quotePurpose": "full",
+      "setupFingerprint": "be98a4655c72a5cf3cc477d01c08fb754d164c94a84b2e66b7482609531215cd",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785684058727_waan598g",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 58,
+        "maximumCredits": 58,
+        "breakdown": {
+          "generationCredits": 48,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 58
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_e458673a36d0d38f06_1",
+          "reservationId": "rsv_1785684278634_0_bptlvc",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_e458673a36d0d38f06_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "13.3",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T15:24:38.644Z",
+      "updatedAt": "2026-08-02T15:24:53.883Z",
+      "completedAt": "2026-08-02T15:24:53.883Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_2be074bbe1d33d5125",
+      "planId": "fpl_2be074bbe1d33d5125",
+      "quoteId": "fqt_1785684473915_ni3kmk7",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785684473915_ni3kmk7:full",
+      "requestHash": "48c23303c3ade87d140077e2912c442685cfa9f3dc7b17b1f882e219ce565afe",
+      "quotePurpose": "full",
+      "setupFingerprint": "95c3e8f3d80bb4534d9d0db7126dbcdd5a8ef18ba92a5974ae1019d08e484dcc",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785684058727_waan598g",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_2be074bbe1d33d5125_1",
+          "reservationId": "rsv_1785684483884_0_gvwgyx",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_2be074bbe1d33d5125_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "28.3",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T15:28:03.894Z",
+      "updatedAt": "2026-08-02T15:28:33.739Z",
+      "completedAt": "2026-08-02T15:28:33.739Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_a7567066c521b3d64b",
+      "planId": "fpl_a7567066c521b3d64b",
+      "quoteId": "fqt_1785684816363_8n51c4i",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785684816363_8n51c4i:full",
+      "requestHash": "6238ec52c2a73cda1c5d076cbcb1c0c06e5b01c9ce1f87dd93458c47f80dad15",
+      "quotePurpose": "full",
+      "setupFingerprint": "f17acde8237c809ffd6293d5a4734e4cd9d34902c9070a82a8a013bf4710117e",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785684058727_waan598g",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 125,
+        "maximumCredits": 125,
+        "breakdown": {
+          "generationCredits": 115,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 125
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_a7567066c521b3d64b_1",
+          "reservationId": "rsv_1785685017152_0_3ze1ul",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_a7567066c521b3d64b_1.png",
+            "usage": {
+              "input_tokens": 20430,
+              "input_tokens_details": {
+                "image_tokens": 19560,
+                "text_tokens": 870
+              },
+              "output_tokens": 6629,
+              "output_tokens_details": {
+                "image_tokens": 6240,
+                "text_tokens": 389
+              },
+              "total_tokens": 27059
+            },
+            "mimeType": "image/png",
+            "generationDuration": "71.5",
+            "width": 1024,
+            "height": 1536
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T15:36:57.165Z",
+      "updatedAt": "2026-08-02T15:38:08.969Z",
+      "completedAt": "2026-08-02T15:38:08.969Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_aa602f8ffcd24507ef",
+      "planId": "fpl_aa602f8ffcd24507ef",
+      "quoteId": "fqt_1785685432502_dj02i7u",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785685432502_dj02i7u:full",
+      "requestHash": "6329c1c025a064c238de959200f4e2083c201741faca19149c340243257289f9",
+      "quotePurpose": "full",
+      "setupFingerprint": "35d7b491884130dc35dcd91c45e81ccbbadc5477701575fe55026dcc69b627eb",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785684058727_waan598g",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-2",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 110,
+        "maximumCredits": 110,
+        "breakdown": {
+          "generationCredits": 100,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 110
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_aa602f8ffcd24507ef_1",
+          "reservationId": "rsv_1785685514326_0_ex37fo",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_aa602f8ffcd24507ef_1.png",
+            "usage": {
+              "input_tokens": 3684,
+              "input_tokens_details": {
+                "image_tokens": 2885,
+                "text_tokens": 799
+              },
+              "output_tokens": 134,
+              "output_tokens_details": {
+                "image_tokens": 134,
+                "text_tokens": 0
+              },
+              "total_tokens": 3818
+            },
+            "mimeType": "image/png",
+            "generationDuration": "29.7",
+            "width": null,
+            "height": null
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T15:45:14.337Z",
+      "updatedAt": "2026-08-02T15:45:44.247Z",
+      "completedAt": "2026-08-02T15:45:44.247Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_51d36eb32f4cd4bf3d",
+      "planId": "fpl_51d36eb32f4cd4bf3d",
+      "quoteId": "fqt_1785686247796_uybi41l",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785686247796_uybi41l:full",
+      "requestHash": "4499ca9d15ec320561365566c5b95bd7032fee95db8dde83386dc21c951cfb76",
+      "quotePurpose": "full",
+      "setupFingerprint": "75c769ed04f9c5e04e3592a7d27f4462d5209ddafa75af5f796a8e5543059e44",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785686152475_uiytx0mr",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "failed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_51d36eb32f4cd4bf3d_1",
+          "reservationId": "rsv_1785686249364_0_wo13pn",
+          "status": "failed",
+          "result": null,
+          "error": {
+            "provider": "modelark",
+            "type": "InputImageSensitiveContentDetected",
+            "code": "moderation_blocked",
+            "message": "The request failed because the input image may contain sensitive information. Request id: 0217856862497199601394fd5171fb187b1a439528361d386d21b",
+            "requestId": "0217856862497199601394fd5171fb187b1a439528361d386d21b",
+            "safetyViolations": [],
+            "retryable": false
+          }
+        }
+      ],
+      "createdAt": "2026-08-02T15:57:29.376Z",
+      "updatedAt": "2026-08-02T15:57:32.045Z",
+      "completedAt": "2026-08-02T15:57:32.045Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_ae121bdd578474472d",
+      "planId": "fpl_ae121bdd578474472d",
+      "quoteId": "fqt_1785686332995_ll3zhlu",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785686332995_ll3zhlu:full",
+      "requestHash": "811b361dd22bfcc605e864d6753e7c5f31849be11ad8812a60e81085527bc9bb",
+      "quotePurpose": "full",
+      "setupFingerprint": "53aec0daf11dbbab5d168310c25e6e84cad05ef0090bcf648791a7893b7a1cbd",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785686152475_uiytx0mr",
+        "poseProxyId": "tpp_052c231b12a58f7d1a",
+        "poseProxySourceGenerationId": "job_pose_proxy_052c231b12a58f7d1a",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-01-v2",
+        "poseProxyStrategyVersion": "GNB2-S6-PROXY",
+        "poseProxyRepresentation": "matte_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-5-0-lite-260128",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 60,
+        "maximumCredits": 60,
+        "breakdown": {
+          "generationCredits": 50,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 60
+          }
+        }
+      },
+      "status": "failed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_ae121bdd578474472d_1",
+          "reservationId": "rsv_1785686337372_0_69pqr9",
+          "status": "failed",
+          "result": null,
+          "error": {
+            "provider": "modelark",
+            "type": "InputImageSensitiveContentDetected",
+            "code": "moderation_blocked",
+            "message": "The request failed because the input image may contain sensitive information. Request id: 021785686337613e04d4405dfa8354a322f6f89cfd017719ad138",
+            "requestId": "021785686337613e04d4405dfa8354a322f6f89cfd017719ad138",
+            "safetyViolations": [],
+            "retryable": false
+          }
+        }
+      ],
+      "createdAt": "2026-08-02T15:58:57.383Z",
+      "updatedAt": "2026-08-02T15:59:00.035Z",
+      "completedAt": "2026-08-02T15:59:00.035Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_f894d66515e1cfe6e3",
+      "planId": "fpl_f894d66515e1cfe6e3",
+      "quoteId": "fqt_1785687327822_j1x81va",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785687327822_j1x81va:full",
+      "requestHash": "c72daa5dec54844be60c61f012508ffe68616cf705379c58d93156143dedb458",
+      "quotePurpose": "full",
+      "setupFingerprint": "5e7623d75fef18460c04c8fadc14e742dcebeabf68228dd14bf61a256f13b2aa",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_f894d66515e1cfe6e3_1",
+          "reservationId": "rsv_1785687330519_0_a93qun",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_f894d66515e1cfe6e3_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "31.3",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:15:30.531Z",
+      "updatedAt": "2026-08-02T16:16:02.507Z",
+      "completedAt": "2026-08-02T16:16:02.507Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_2d34cce9b7e070369d",
+      "planId": "fpl_2d34cce9b7e070369d",
+      "quoteId": "fqt_1785687390151_vvisdvt",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785687390151_vvisdvt:full",
+      "requestHash": "1f709561a70564d10ba1fa76f3bf415564908ba3b1b1bbbc122af0700c91eea1",
+      "quotePurpose": "full",
+      "setupFingerprint": "5e7623d75fef18460c04c8fadc14e742dcebeabf68228dd14bf61a256f13b2aa",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 103,
+        "maximumCredits": 103,
+        "breakdown": {
+          "generationCredits": 93,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 103
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_2d34cce9b7e070369d_1",
+          "reservationId": "rsv_1785687394968_0_aiagmt",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_2d34cce9b7e070369d_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "24.6",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:16:34.981Z",
+      "updatedAt": "2026-08-02T16:17:00.689Z",
+      "completedAt": "2026-08-02T16:17:00.689Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_03e6f588c72bad56fb",
+      "planId": "fpl_03e6f588c72bad56fb",
+      "quoteId": "fqt_1785687508401_6piyxhk",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785687508401_6piyxhk:full",
+      "requestHash": "c3f81aefae1095e24a64de81f56c8b0a6c24993675985ef1a2a2dd47e40f43e8",
+      "quotePurpose": "full",
+      "setupFingerprint": "5607f32994e0652a01adf698cc21be40e570233fd65de0fa45a40583c1e215c4",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-4-0-250828",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_03e6f588c72bad56fb_1",
+          "reservationId": "rsv_1785687513580_0_b2e5c7",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_03e6f588c72bad56fb_1.jpg",
+            "usage": {
+              "generated_images": 1,
+              "output_tokens": 3888,
+              "total_tokens": 3888
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "36.8",
+            "width": 864,
+            "height": 1152
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:18:33.591Z",
+      "updatedAt": "2026-08-02T16:19:11.874Z",
+      "completedAt": "2026-08-02T16:19:11.874Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_bda6a6fe891f28e65b",
+      "planId": "fpl_bda6a6fe891f28e65b",
+      "quoteId": "fqt_1785687862874_m00zr79",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785687862874_m00zr79:full",
+      "requestHash": "51c5366ad05bfd75b7d6089a1bc9ea450b7adca9e988fbd702069c553830c2c2",
+      "quotePurpose": "full",
+      "setupFingerprint": "b636293dd2d0cc801c51b499d70ed11fe70a420f40561e9a075e757866419b86",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedream-5-0-lite-260128",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 60,
+        "maximumCredits": 60,
+        "breakdown": {
+          "generationCredits": 50,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 60
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_bda6a6fe891f28e65b_1",
+          "reservationId": "rsv_1785687867310_0_b5rbvy",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_bda6a6fe891f28e65b_1.png",
+            "usage": {
+              "generated_images": 1,
+              "output_tokens": 15552,
+              "total_tokens": 15552
+            },
+            "mimeType": "image/png",
+            "generationDuration": "57.9",
+            "width": 1728,
+            "height": 2304
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:24:27.323Z",
+      "updatedAt": "2026-08-02T16:25:26.312Z",
+      "completedAt": "2026-08-02T16:25:26.312Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_26ae67179bbdae7fe6",
+      "planId": "fpl_26ae67179bbdae7fe6",
+      "quoteId": "fqt_1785688163221_8tc0ghy",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785688163221_8tc0ghy:full",
+      "requestHash": "2a9a3678387305a442469635896dae763f67dd1d30fe69968c02d2d8616f0f7a",
+      "quotePurpose": "full",
+      "setupFingerprint": "d0444ba85032f9cc98702bed556cbef2c3110ef4c0f79ad9a225c4fbd6d242f2",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "modelark",
+        "modelId": "dola-seedream-5-0-pro-260628",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "maximumCredits": 80,
+        "breakdown": {
+          "generationCredits": 70,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 80
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_26ae67179bbdae7fe6_1",
+          "reservationId": "rsv_1785688165056_0_7hnnlv",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_26ae67179bbdae7fe6_1.png",
+            "usage": {
+              "input_images": 3,
+              "generated_images": 1,
+              "output_tokens": 3888,
+              "total_tokens": 3888
+            },
+            "mimeType": "image/png",
+            "generationDuration": "48.2",
+            "width": 864,
+            "height": 1152
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:29:25.066Z",
+      "updatedAt": "2026-08-02T16:30:13.860Z",
+      "completedAt": "2026-08-02T16:30:13.860Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_d4b42c50ae5c067d04",
+      "planId": "fpl_d4b42c50ae5c067d04",
+      "quoteId": "fqt_1785688314178_rdlexrt",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785688314178_rdlexrt:full",
+      "requestHash": "c61b0afd06ce26441b46fc95d14d400d1cef00cfec14c9615c23db18c57014fe",
+      "quotePurpose": "full",
+      "setupFingerprint": "3ac02a3609f212f23658f55ad30c46768ffcc28de158265e4d8f5469b956ec71",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "xai",
+        "modelId": "grok-imagine-image-quality",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 125,
+        "maximumCredits": 125,
+        "breakdown": {
+          "generationCredits": 115,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 125
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_d4b42c50ae5c067d04_1",
+          "reservationId": "rsv_1785688321875_0_gamk83",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_d4b42c50ae5c067d04_1.jpg",
+            "usage": {
+              "cost_in_usd_ticks": 800000000
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "8.3",
+            "width": 864,
+            "height": 1152
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:32:01.886Z",
+      "updatedAt": "2026-08-02T16:32:10.846Z",
+      "completedAt": "2026-08-02T16:32:10.846Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_d41cb7ff2ae7cbc329",
+      "planId": "fpl_d41cb7ff2ae7cbc329",
+      "quoteId": "fqt_1785688485310_xs59jdo",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785688485310_xs59jdo:full",
+      "requestHash": "508eadcc3c0c4151e87ee01d8228d48f8687d9c1124acfbd2902b9ffbdc4933c",
+      "quotePurpose": "full",
+      "setupFingerprint": "1123c7ecaabd5a1487f9e1bfc50d825042d2e77fcbdcf96b6ce2ffb2b8141a74",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "xai",
+        "modelId": "grok-imagine-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 55,
+        "maximumCredits": 55,
+        "breakdown": {
+          "generationCredits": 45,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 55
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_d41cb7ff2ae7cbc329_1",
+          "reservationId": "rsv_1785688486789_0_bwgmye",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_d41cb7ff2ae7cbc329_1.jpg",
+            "usage": {
+              "cost_in_usd_ticks": 260000000
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "16.8",
+            "width": 864,
+            "height": 1152
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:34:46.806Z",
+      "updatedAt": "2026-08-02T16:35:04.098Z",
+      "completedAt": "2026-08-02T16:35:04.098Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_bb53bbc10d90aebbbc",
+      "planId": "fpl_bb53bbc10d90aebbbc",
+      "quoteId": "fqt_1785688683004_llwwimu",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785688683004_llwwimu:full",
+      "requestHash": "d00d385243e2ad02b601a9b30afc9c7753cfaf4ecc53ff7392604c3f529c1a0d",
+      "quotePurpose": "full",
+      "setupFingerprint": "67cb507adbb98e439aecae3156138218c0452f418ef213315958fdc0458da477",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_bb53bbc10d90aebbbc_1",
+          "reservationId": "rsv_1785688692365_0_36x9ps",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_bb53bbc10d90aebbbc_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "24.9",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T16:38:12.377Z",
+      "updatedAt": "2026-08-02T16:38:38.096Z",
+      "completedAt": "2026-08-02T16:38:38.096Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_77fcc4bfed595030e4",
+      "planId": "fpl_77fcc4bfed595030e4",
+      "quoteId": "fqt_1785690727897_sgy6a0h",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785690727897_sgy6a0h:full",
+      "requestHash": "8ef944ef961e7426429080cfcc8027a1565d984a0c7717cbfba3d0638c35cb6b",
+      "quotePurpose": "full",
+      "setupFingerprint": "67cb507adbb98e439aecae3156138218c0452f418ef213315958fdc0458da477",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785687313123_fvuk7065",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_77fcc4bfed595030e4_1",
+          "reservationId": "rsv_1785690735851_0_nbv0t8",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_77fcc4bfed595030e4_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "27.2",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-02T17:12:15.862Z",
+      "updatedAt": "2026-08-02T17:12:43.653Z",
+      "completedAt": "2026-08-02T17:12:43.653Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_4a577519461f57eb47",
+      "planId": "fpl_4a577519461f57eb47",
+      "quoteId": "fqt_1785715887172_bbw6hzx",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785715887172_bbw6hzx:full",
+      "requestHash": "c7c30afe893726b673698349bc4919beb07f91790274148a5a1dccbf48c93523",
+      "quotePurpose": "full",
+      "setupFingerprint": "ba491506c86a0557459185e8341f4aa528aa7a8fa0d4f16a03ecfbb3abd9c3e2",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785715871165_vjuqjc6a",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_4a577519461f57eb47_1",
+          "reservationId": "rsv_1785715895954_0_qvb65r",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_4a577519461f57eb47_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "24.8",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-03T00:11:35.965Z",
+      "updatedAt": "2026-08-03T00:12:01.697Z",
+      "completedAt": "2026-08-03T00:12:01.697Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_86a967eeab1b5d3c91",
+      "planId": "fpl_86a967eeab1b5d3c91",
+      "quoteId": "fqt_1785727940259_p8emqvm",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785727940259_p8emqvm:full",
+      "requestHash": "d42c8db98d92dae460226e6bd78469fbb28ae6ba875ce24996150294752d1d28",
+      "quotePurpose": "full",
+      "setupFingerprint": "0db261c97ec7bda8d640828a5aa24a138bc8cef71a6a70708d682609c36bd6ac",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785727923848_v53jgobd",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": null,
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": null
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_86a967eeab1b5d3c91_1",
+          "reservationId": "rsv_1785727947588_0_xwl8nc",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_86a967eeab1b5d3c91_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "27.2",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-03T03:32:27.602Z",
+      "updatedAt": "2026-08-03T03:32:55.370Z",
+      "completedAt": "2026-08-03T03:32:55.370Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_ee4687af8cac1af742",
+      "planId": "fpl_ee4687af8cac1af742",
+      "quoteId": "fqt_1785821583442_w4uf1f6",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1785821583442_w4uf1f6:full",
+      "requestHash": "1f3b57a057088b821667adaa00398591a4dd58bd90a5b22cd1ceff6a0ed331f0",
+      "quotePurpose": "full",
+      "setupFingerprint": "d8e124173a780847952429b892578565869eda52cd9d33f6a5a0bc085898e02a",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1785602001186_pbu5qf1a",
+        "templateId": "tmpl_1785602001168_s960q769",
+        "templateVersionId": "tmplv_1785602001173_26ect756",
+        "templateUseSessionId": "tmpls_1785821568711_kew0wfts",
+        "poseProxyId": "tpp_6d6030c940fa8813d8",
+        "poseProxySourceGenerationId": "job_pose_proxy_6d6030c940fa8813d8",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3-pro-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 193,
+        "maximumCredits": 193,
+        "breakdown": {
+          "generationCredits": 183,
+          "templateUsageCredits": 10,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 193
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_ee4687af8cac1af742_1",
+          "reservationId": "rsv_1785821589687_0_34lax1",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_ee4687af8cac1af742_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "22.9",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-04T05:33:09.702Z",
+      "updatedAt": "2026-08-04T05:33:35.385Z",
+      "completedAt": "2026-08-04T05:33:35.385Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_95c03a47e6d7117e1c",
+      "planId": "fpl_95c03a47e6d7117e1c",
+      "quoteId": "fqt_1786720949460_dv1bkne",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786720949460_dv1bkne:full",
+      "requestHash": "ac2160f1a8214756a8722091e0bd08a0492899f07b87731d7b532ed4f002b11d",
+      "quotePurpose": "full",
+      "setupFingerprint": "1e71e9789be3b7c5b27fa677fb504c8af1601dcea99cb2b711a6f5f5b7e64175",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786720121637_ux9najgi",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": "fashion-routing-2026-08-01-v2",
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 114,
+        "maximumCredits": 114,
+        "breakdown": {
+          "generationCredits": 94,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 114
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_95c03a47e6d7117e1c_1",
+          "reservationId": "rsv_1786720954045_0_use7gq",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_95c03a47e6d7117e1c_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "26.4",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-14T15:22:34.067Z",
+      "updatedAt": "2026-08-14T15:23:01.397Z",
+      "completedAt": "2026-08-14T15:23:01.397Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_55302eaf76143aaf36",
+      "planId": "fpl_55302eaf76143aaf36",
+      "quoteId": "fqt_1786721287793_698rd08",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786721287793_698rd08:full",
+      "requestHash": "935fd8370d8b94971177abe4e0e4ade093f1b576b268408556afeb96ff563539",
+      "quotePurpose": "full",
+      "setupFingerprint": "bb6040456afd819c2c028aa3e1e217ab82c8814e137d134b2bdfbb4041507a76",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786720121637_ux9najgi",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "operation_only",
+        "promptStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 69,
+        "maximumCredits": 69,
+        "breakdown": {
+          "generationCredits": 49,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 69
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_55302eaf76143aaf36_1",
+          "reservationId": "rsv_1786721289313_0_a90xm1",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_55302eaf76143aaf36_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "10.7",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-14T15:28:09.334Z",
+      "updatedAt": "2026-08-14T15:28:21.522Z",
+      "completedAt": "2026-08-14T15:28:21.522Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_00d2211f8275d0512f",
+      "planId": "fpl_00d2211f8275d0512f",
+      "quoteId": "fqt_1786756230955_lk7d9cl",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786756230955_lk7d9cl:full",
+      "requestHash": "c0589bfd11b22c25e8ff26c2fc0dc362e7720387805802914fca177bfee67014",
+      "quotePurpose": "full",
+      "setupFingerprint": "015aa042601905e1a5c5188da8b6f9c35449634abf6b844e526acc153f87b9b2",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 114,
+        "maximumCredits": 114,
+        "breakdown": {
+          "generationCredits": 94,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 114
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_00d2211f8275d0512f_1",
+          "reservationId": "rsv_1786756232622_0_o1xevq",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_00d2211f8275d0512f_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "15.5",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-15T01:10:32.642Z",
+      "updatedAt": "2026-08-15T01:10:49.350Z",
+      "completedAt": "2026-08-15T01:10:49.350Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_5a8ca65cd9ecacc68e",
+      "planId": "fpl_5a8ca65cd9ecacc68e",
+      "quoteId": "fqt_1786756525453_8nxleai",
+      "actorUserId": "usr_bob",
+      "idempotencyKey": "fashion:fqt_1786756525453_8nxleai:full",
+      "requestHash": "d7851c35ccb13d22d9dd473f8488a6ffc1956329a3e9d2541ed9c6797b9554e4",
+      "quotePurpose": "full",
+      "setupFingerprint": "269eb5e639fbac893befc3f5fd807868390ddeb475f466616d8fda9b0c1829df",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "openai",
+        "modelId": "gpt-image-1.5",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "experimental",
+        "promptStrategyVersion": "openai-fashion-v1"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 145,
+        "maximumCredits": 145,
+        "breakdown": {
+          "generationCredits": 125,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1786719939671_1_cover": 145
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1786719939671_1_cover",
+          "productItemKey": "fashion_item_1786719939671_1",
+          "productName": "Outfit 1",
+          "shotKey": "cover",
+          "jobId": "job_fashion_5a8ca65cd9ecacc68e_1",
+          "reservationId": "rsv_1786756526402_0_dozhza",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_5a8ca65cd9ecacc68e_1.png",
+            "usage": {
+              "input_tokens": 16180,
+              "input_tokens_details": {
+                "image_tokens": 15271,
+                "text_tokens": 909
+              },
+              "output_tokens": 6619,
+              "output_tokens_details": {
+                "image_tokens": 6240,
+                "text_tokens": 379
+              },
+              "total_tokens": 22799
+            },
+            "mimeType": "image/png",
+            "generationDuration": "60.7",
+            "width": 1024,
+            "height": 1536
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-15T01:15:26.422Z",
+      "updatedAt": "2026-08-15T01:16:28.461Z",
+      "completedAt": "2026-08-15T01:16:28.461Z"
+    },
+    {
+      "schemaVersion": 2,
+      "id": "frun_5d59cce50efa284f98",
+      "planId": "fpl_5d59cce50efa284f98",
+      "quoteId": "fqt_1786761630195_hgbt8f1",
+      "actorUserId": "usr_alice",
+      "idempotencyKey": "fashion:fqt_1786761630195_hgbt8f1:full",
+      "requestHash": "4b98757398b07b028d0e98b32de54c2459c6af96168d25adef1217d2e27f3b52",
+      "quotePurpose": "full",
+      "setupFingerprint": "61d88d4a279b28e6f314dbf1b77f70f3abd26deba7dbdeacadbe3ba822567879",
+      "proofStatus": null,
+      "proofOperationIds": [],
+      "approvedProofRunId": null,
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786761606802_e5vcf8ao",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      },
+      "routeSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-image",
+        "routingPolicyVersion": null,
+        "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+        "qualificationStatus": "qualified",
+        "promptStrategyVersion": "GNB2-S6"
+      },
+      "pricingSnapshot": {
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 114,
+        "maximumCredits": 114,
+        "breakdown": {
+          "generationCredits": 94,
+          "templateUsageCredits": 20,
+          "operationCredits": {
+            "op_fashion_item_1785467126140_1_cover": 114
+          }
+        }
+      },
+      "status": "completed",
+      "operations": [
+        {
+          "operationId": "op_fashion_item_1785467126140_1_cover",
+          "productItemKey": "fashion_item_1785467126140_1",
+          "productName": "ชุดเดรส พาสเทล",
+          "shotKey": "cover",
+          "jobId": "job_fashion_5d59cce50efa284f98_1",
+          "reservationId": "rsv_1786761638959_0_d2njky",
+          "status": "completed",
+          "result": {
+            "imageUrl": "/outputs/job_fashion_5d59cce50efa284f98_1.jpg",
+            "usage": {
+              "latency_ms": null
+            },
+            "mimeType": "image/jpeg",
+            "generationDuration": "18.2",
+            "width": 896,
+            "height": 1200
+          },
+          "error": null
+        }
+      ],
+      "createdAt": "2026-08-15T02:40:38.980Z",
+      "updatedAt": "2026-08-15T02:40:58.720Z",
+      "completedAt": "2026-08-15T02:40:58.720Z"
+    }
+  ]
+}

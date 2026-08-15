@@ -1,0 +1,23 @@
+{
+  "studio.viewport.title": "Visual Viewport & Queue",
+  "studio.viewport.subtitle": "現在のレンダリングストリーム、背景キュー、履歴を表示します",
+  "studio.viewport.placeholderMain": "キャラクター生成の準備完了",
+  "studio.viewport.placeholderSub": "以下で属性を設定し、「画像を生成」をクリックしてください",
+  "studio.viewport.useFaceRef": "👤 顔参照として使用",
+  "studio.viewport.useStyleRef": "🖼️ スタイル参照として使用",
+  "studio.viewport.useCharacterRef": "📋 キャラクター参照として使用",
+  "studio.configurator.title": "Studio Creative Configurator",
+  "studio.configurator.subtitle": "カスタム属性マップ、モード設定、APIセレクターパイプライン",
+  "studio.step1.title": "キャラクターデザインオプション",
+  "studio.step2.title": "エンジン & 出力設定",
+  "studio.step3.title": "アクティブプロンプトのレンダリング",
+  "studio.mode.normal": "Scene Builder",
+  "studio.mode.headshot": "Headshot Grid",
+  "studio.mode.characterSheet": "Character Sheet Builder",
+  "studio.action.generate": "⚡ 画像を生成",
+  "studio.action.reset": "フォームをリセット",
+  "studio.action.surprise": "🎲 おまかせ生成",
+  "studio.action.export": "設定をエクスポート",
+  "studio.preset.label": "プリセットの読み込み",
+  "studio.preset.load": "プリセット適用"
+}

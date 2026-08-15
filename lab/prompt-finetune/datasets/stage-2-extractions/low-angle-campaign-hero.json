@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "fashion-style-family-extraction-v1",
+  "styleFamily": "low-angle-campaign-hero",
+  "sampleCount": 7,
+  "method": {
+    "stage": "stage-2",
+    "authority": "original-images",
+    "stage1UsedAsEvidence": false,
+    "aggregation": "human-reviewed style-family summary"
+  },
+  "classification": {
+    "recipeRole": ["camera", "campaign-composition"],
+    "clusterHealth": "coherent viewpoint; must split full-body and portrait variants"
+  },
+  "fashionIntent": {"primary": "dominant campaign hero image", "commercialRead": "editorial campaign"},
+  "subject": {"count": 1, "expression": "confident, neutral, or distant"},
+  "pose": {
+    "invariants": ["upright confident body line"],
+    "variations": ["hands in pockets", "arms raised", "wide stance", "wind-driven hair"],
+    "avoid": ["forcing one gesture across the camera family"]
+  },
+  "camera": {
+    "shotSize": ["full-body", "medium", "close portrait"],
+    "height": "clearly below the subject",
+    "angle": "tilted upward",
+    "lensCharacter": "mild perspective expansion without fisheye anatomy"
+  },
+  "composition": {
+    "invariants": ["subject dominates the frame", "head and upper body have clean negative space"],
+    "variations": ["sky field", "building geometry", "simple studio field"]
+  },
+  "lighting": {
+    "source": ["directional daylight", "controlled studio"],
+    "quality": "crisp to moderately soft",
+    "subjectIllumination": "face remains readable despite upward angle"
+  },
+  "environment": {"invariants": ["uncluttered background"], "variations": ["sky", "urban architecture", "studio"]},
+  "capture": {"perspective": "heroic but anatomically credible"},
+  "qualityFlags": ["sample 002 contains visible stock-provider watermarks and is blocked"],
+  "confidence": {"pose": 0.58, "camera": 0.97, "lighting": 0.72, "environment": 0.76},
+  "sampleDisposition": [
+    {"sampleId": "low-angle-campaign-hero-001", "role": "variation", "notes": "medium crop with raised arms"},
+    {"sampleId": "low-angle-campaign-hero-002", "role": "blocked", "notes": "visible stock watermarks; exclude until replaced or licensed"},
+    {"sampleId": "low-angle-campaign-hero-003", "role": "core", "notes": "strong full-body low-angle urban hero"},
+    {"sampleId": "low-angle-campaign-hero-004", "role": "variation", "notes": "medium crop with wind"},
+    {"sampleId": "low-angle-campaign-hero-005", "role": "variation", "notes": "close studio portrait"},
+    {"sampleId": "low-angle-campaign-hero-006", "role": "core", "notes": "architectural low-angle medium frame"},
+    {"sampleId": "low-angle-campaign-hero-007", "role": "variation", "notes": "sky field and overhead gesture"}
+  ]
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "facial_hair.designer_stubble",
+    "category": "facial_hair",
+    "subcategory": "Facial Hair",
+    "label": { "en": "Designer Stubble", "th": "หนวดเคราสั้นแบบดีไซเนอร์" },
+    "description": { "en": "Even short stubble along the natural jaw and upper lip.", "th": "หนวดเคราสั้นสม่ำเสมอตามแนวกรามและเหนือริมฝีปาก" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "even short designer stubble following the natural jaw and upper-lip growth",
+      "gpt-image": "even short designer stubble following the natural jaw and upper-lip growth"
+    },
+    "tags": ["facial-hair", "adult-male", "stubble"],
+    "enabled": true
+  },
+  {
+    "id": "facial_hair.chevron_moustache",
+    "category": "facial_hair",
+    "subcategory": "Facial Hair",
+    "label": { "en": "Chevron Moustache", "th": "หนวดเชฟรอน" },
+    "description": { "en": "A groomed medium-width chevron moustache with clean cheeks and chin.", "th": "หนวดเชฟรอนขนาดกลางที่ตกแต่งเรียบร้อย พร้อมแก้มและคางเกลี้ยง" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "groomed medium-width chevron moustache with clean cheeks and chin",
+      "gpt-image": "groomed medium-width chevron moustache with clean cheeks and chin"
+    },
+    "tags": ["facial-hair", "adult-male", "moustache"],
+    "enabled": true
+  },
+  {
+    "id": "facial_hair.trimmed_goatee",
+    "category": "facial_hair",
+    "subcategory": "Facial Hair",
+    "label": { "en": "Trimmed Goatee", "th": "เคราแพะตัดแต่ง" },
+    "description": { "en": "A neatly trimmed connected moustache and chin goatee.", "th": "หนวดและเคราคางที่เชื่อมกันและตัดแต่งอย่างเรียบร้อย" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "neatly trimmed connected moustache and chin goatee with clean cheek lines",
+      "gpt-image": "neatly trimmed connected moustache and chin goatee with clean cheek lines"
+    },
+    "tags": ["facial-hair", "adult-male", "goatee"],
+    "enabled": true
+  },
+  {
+    "id": "facial_hair.short_boxed_beard",
+    "category": "facial_hair",
+    "subcategory": "Facial Hair",
+    "label": { "en": "Short Boxed Beard", "th": "เคราทรงบ็อกซ์สั้น" },
+    "description": { "en": "A short groomed boxed beard with defined natural edges.", "th": "เคราทรงบ็อกซ์สั้น ตัดแต่งเรียบร้อยและมีแนวขอบเป็นธรรมชาติ" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "short groomed boxed beard with a defined natural cheek and neckline",
+      "gpt-image": "short groomed boxed beard with a defined natural cheek and neckline"
+    },
+    "tags": ["facial-hair", "adult-male", "short-beard"],
+    "enabled": true
+  },
+  {
+    "id": "facial_hair.full_groomed_beard",
+    "category": "facial_hair",
+    "subcategory": "Facial Hair",
+    "label": { "en": "Full Groomed Beard", "th": "เคราเต็มทรงเรียบร้อย" },
+    "description": { "en": "A full but controlled beard with natural density.", "th": "เคราเต็มทรงที่ดูเป็นธรรมชาติและตัดแต่งอย่างเรียบร้อย" },
+    "ui": { "control": "select", "group": "Face" },
+    "prompt": {
+      "default": "full but controlled groomed beard with natural density and a clean silhouette",
+      "gpt-image": "full but controlled groomed beard with natural density and a clean silhouette"
+    },
+    "tags": ["facial-hair", "adult-male", "full-beard"],
+    "enabled": true
+  }
+]
