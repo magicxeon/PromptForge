@@ -95,7 +95,12 @@ export function filterApplicableAttributeGroups(
       );
       if (field.group !== 'Clothing' || field.name !== 'Outfit Base' || !gender) {
         return applicableOptions.length
-          ? [{ ...field, options: sortAttributeOptionsByLabel(applicableOptions) }]
+          ? [{
+            ...field,
+            options: field.name === 'Age'
+              ? applicableOptions
+              : sortAttributeOptionsByLabel(applicableOptions)
+          }]
           : [];
       }
       const genderTag = `outfit-base-${gender}`;

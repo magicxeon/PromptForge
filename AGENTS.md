@@ -16,6 +16,77 @@ Before implementation:
 
 Do not infer architecture from old compatibility folders or deleted module paths.
 
+## 1.1 Professional Role Routing
+
+Follow `requirements/015-professional-agent-orchestration/` for substantial
+requirements, UX/UI, Cinematic, backend, commercial and release work. Select
+the smallest sufficient role set automatically; do not ask the user to choose a
+role when ownership is clear.
+
+### Primary Role Selection
+
+Choose exactly one primary role:
+
+| Task outcome | Primary role charter |
+|---|---|
+| New feature, changed workflow, requirement creation/reconciliation | `roles/product-requirement-architect.md` |
+| Material screen, navigation, interaction, theme or accessibility work | `roles/ux-ui-product-designer.md` |
+| Video, film, shot, sequence, continuity, motion or audio work | `roles/cinematic-experience-director.md` |
+| API, domain, repository, database, durable Job or infrastructure work | `roles/backend-platform-architect.md` |
+| Pricing, Credits, payments, payouts, refunds or billable recovery | `roles/commercial-financial-integrity.md` |
+| Explicit review, regression audit, release gate or requirement closure | `roles/qa-release-engineer.md` |
+
+Resolve these charter paths relative to
+`requirements/015-professional-agent-orchestration/roles/`.
+
+For a tiny local copy, translation, CSS, test expectation or prompt-wording
+correction with an unchanged contract, use `base-implementation-owner`: follow
+the owning requirement and repository rules without loading a specialist role.
+
+### Reviewers And Mandatory Gates
+
+- Add QA for substantial implementations, shared components, bug clusters,
+  migrations, release gates and requirement closure.
+- Add Backend and QA for financial or billable workflow changes.
+- Add security/privacy review for authentication, authorization, public/private
+  media, secrets, PII or destructive Support access.
+- Add UX for material user-facing workflows.
+- Add Cinematic for multi-shot storytelling or continuity decisions.
+- Use one primary plus at most two reviewers by default. More than three active
+  roles requires a written reason.
+- A user override may choose a role or request review-only work, but it cannot
+  silently disable financial, security or destructive-action gates.
+
+### Skill Routing
+
+Load a Skill only after its trigger matches:
+
+- `design-cinematic-experience`: Cinematic sequences, shots and continuity.
+- `review-product-ux`: substantial flows or reusable UI contracts.
+- `review-commercial-integrity`: billable and financial state transitions.
+- `verify-release-regressions`: substantial QA, regression and release work.
+- `review-generative-media-pipeline`: provider/reference/media qualification.
+- `implement-generation-workflow`: the existing cross-stage Generation Skill
+  governed by Section 6 below.
+
+The first five Skills live under
+`requirements/015-professional-agent-orchestration/skills/`. Do not load them
+for their documented non-trigger cases. Do not duplicate the existing
+Generation Skill.
+
+### Clarification And Execution
+
+Ask one concise question only when different answers materially change price,
+rights, retention, public visibility, destructive scope, capability ownership
+or the requested artifact (discussion/requirement versus implementation). Do
+not ask when repository inspection can resolve the choice safely.
+
+For substantial work, state or record the primary role, reviewers, triggered
+Skills, owning requirement and capability. Load only the primary charter first;
+load reviewer charters immediately before review. If independent subagents are
+unavailable, apply roles sequentially and disclose limited review independence
+rather than claiming parallel or independent execution.
+
 ## 2. Project Structure Gate
 
 Before creating, moving, or renaming any file:

@@ -87,7 +87,9 @@ export function VisualOptionPicker({
   const customTotalTooLong = projectedCustomTotal
     > customInputLimits.maxCharactersTotal;
   const customInputInvalid = customFieldTooLong || customTotalTooLong;
-  const sortedOptions = sortAttributeOptionsByLabel(field.options);
+  const sortedOptions = field.name === 'Age'
+  ? field.options
+  : sortAttributeOptionsByLabel(field.options);
 
   function submitCustom(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

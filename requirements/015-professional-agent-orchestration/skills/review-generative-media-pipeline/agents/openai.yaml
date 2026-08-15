@@ -1,0 +1,7 @@
+interface:
+  display_name: "Review Generative Media Pipeline"
+  short_description: "Qualify media providers and references"
+  default_prompt: "Use $review-generative-media-pipeline to assess this provider and reference workflow with repeatable evidence."
+policy:
+  allow_implicit_invocation: true
+

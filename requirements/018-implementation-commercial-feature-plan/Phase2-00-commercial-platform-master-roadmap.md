@@ -62,6 +62,8 @@ existing capability entry points rather than introducing duplicate workflows.
   `requirements/Concept/infrastructure-gcloud.md`
 - Current repository ownership:
   `requirements/099-technical-dept/000-master.md` and `AGENTS.md`
+- Professional role routing and commercial/QA review:
+  `requirements/015-professional-agent-orchestration/`
 - Commercial sequencing:
   this folder and `Phase2-01-commercial-readiness-and-gcp-alignment.md`
 

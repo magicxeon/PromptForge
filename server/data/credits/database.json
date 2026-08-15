@@ -100795,6 +100795,47 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-08-15T03:02:14.356Z",
       "expiresAt": "2026-08-15T03:17:14.356Z"
+    },
+    {
+      "estimateId": "est_1786764347617_2pfw1xb",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "headshot",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "b83f4e2dcf83c99284899391aa49e2c369a8959df574835faa97ea9e2c5e9bd9"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 1,
+        "generationCredits": 46,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 46
+      },
+      "estimatedCredits": 46,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-15T03:25:47.617Z",
+      "expiresAt": "2026-08-15T03:40:47.617Z"
     }
   ],
   "reservations": [

@@ -165,6 +165,8 @@ Client placement rules:
 | Migration and maintenance utilities | `scripts/` |
 | Automated tests and fixtures | `test/` and `test/fixtures/` |
 | Business and implementation requirements | `requirements/<phase-or-domain>/` |
+| Professional agent roles, routing policy and Skill plans | `requirements/015-professional-agent-orchestration/` |
+| Professional role charters and repository-local Skills | `requirements/015-professional-agent-orchestration/roles/`, `requirements/015-professional-agent-orchestration/skills/` |
 | Cross-project architecture and technical debt plans | `requirements/099-technical-dept/` |
 
 ### 4.4 New Folder Decision Rule
