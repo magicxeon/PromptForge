@@ -10,6 +10,14 @@ vi.mock('../collections/CollectionMembershipSection', () => ({
   CollectionMembershipSection: () => null
 }));
 
+vi.mock('../collections/CollectionPickerDialog', () => ({
+  CollectionPickerDialog: () => null
+}));
+
+vi.mock('../community/ShareGeneratedDialog', () => ({
+  ShareGeneratedDialog: () => null
+}));
+
 const testI18n = i18next.createInstance();
 
 describe('GenerationResultSurface', () => {
@@ -81,7 +89,7 @@ describe('GenerationResultSurface', () => {
   });
 
   it('shows a comparison-owned empty stage instead of the normal image placeholder', () => {
-    render(
+    const { container } = render(
       <MemoryRouter>
         <I18nextProvider i18n={testI18n}>
           <GenerationResultSurface
@@ -97,6 +105,31 @@ describe('GenerationResultSurface', () => {
     expect(screen.getByRole('heading', { name: 'Comparison result' })).toBeVisible();
     expect(screen.getByText('Ready to compare models')).toBeVisible();
     expect(screen.getByText('Choose models and generate.')).toBeVisible();
+    expect(container.querySelector('.comparison-result-stage__empty')).toHaveClass(
+      'surface--fill',
+      'surface--center-content'
+    );
+  });
+
+  it('fills the normal idle result panel and uses the shared centered presentation', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <I18nextProvider i18n={testI18n}>
+          <GenerationResultSurface
+            pending={false}
+            showEmpty
+            onGoToPrompt={() => {}}
+          />
+        </I18nextProvider>
+      </MemoryRouter>
+    );
+
+    expect(container.querySelector('.generation-result__media-surface--placeholder')).toHaveClass(
+      'surface--fill',
+      'surface--center-content'
+    );
+    expect(container.querySelector('.generation-stage-state')).toBeInTheDocument();
+    expect(container.querySelector('.generation-result__momelo-mark')).toBeInTheDocument();
   });
 
   it('stops loading and exposes the provider error when a job fails', () => {

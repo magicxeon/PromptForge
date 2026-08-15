@@ -83,6 +83,12 @@ export class CommunityShareService {
       generation,
       classificationSnapshot
     );
+    const suggestedTemplateInputs = Array.isArray(sanitizedSceneTemplate?.replaceableVariables)
+      ? sanitizedSceneTemplate.replaceableVariables
+      : [];
+    const mandatoryTemplateInputIds = deriveMandatoryTemplateInputIds(
+      suggestedTemplateInputs
+    );
     const draft = {
       id: `draft_${timestamp}_${Math.random().toString(36).slice(2, 9)}`,
       schemaVersion: 1,
@@ -100,13 +106,12 @@ export class CommunityShareService {
       sourceType: sanitizedSceneTemplate ? 'scene_template' : 'generated_image',
       sourceGenerationMode: generation.mode || null,
       faceReuseEligible: generation.mode === 'headshot',
-      templateEligible: Boolean(sanitizedSceneTemplate?.replaceableVariables?.length),
+      templateEligible: suggestedTemplateInputs.length > 0,
+      mandatoryTemplateInputIds,
       suggestedTemplateInputSchema: sanitizedSceneTemplate
         ? {
           schemaVersion: 1,
-          inputs: Array.isArray(sanitizedSceneTemplate.replaceableVariables)
-            ? sanitizedSceneTemplate.replaceableVariables
-            : []
+          inputs: suggestedTemplateInputs
         }
         : null,
       faceReusePolicy: 'view_only',
@@ -188,9 +193,7 @@ export class CommunityShareService {
 
     const publishedSnapshots = applyPromptVisibilityToSnapshots(draftSnapshots, promptVisibility);
     const reusable = isReusablePublishedSnapshot(publishedSnapshots, promptVisibility);
-    const publishAsTemplate = payload.publishAsTemplate === undefined
-      ? reusable
-      : payload.publishAsTemplate === true;
+    const publishAsTemplate = payload.publishAsTemplate === true;
     if (publishAsTemplate && !reusable) {
       throw new RepositoryContractError(
         'community_template_not_reusable',
@@ -206,7 +209,7 @@ export class CommunityShareService {
         visibility,
         promptVisibility,
         executionSnapshot: draft.sceneTemplateSnapshot,
-        publicInputSchema: payload.publicInputSchema,
+        publicInputSchema: createCanonicalPublishedInputSchema(draft, payload),
         pricing: {
           accessCredits: payload.templateAccessCredits,
           creatorShareBps: payload.creatorShareBps
@@ -440,6 +443,44 @@ export class CommunityShareService {
   async unpublishOwnPost(postId, actorContext) {
     return this.postAccessService.unpublishOwnPost(postId, actorContext);
   }
+}
+
+function deriveMandatoryTemplateInputIds(inputs) {
+  return inputs
+    .filter(input => {
+      const field = String(input?.sourceFieldName || input?.id || '').toLowerCase();
+      return input?.fashionBindingRole === 'fashion.outfit_front'
+        || field === 'outfit_front'
+        || field === 'outfit_front_reference';
+    })
+    .map(input => String(input.id || input.sourceFieldName || '').trim())
+    .filter(Boolean);
+}
+
+function createCanonicalPublishedInputSchema(draft, payload) {
+  if (payload.publishAsTemplate !== true) return null;
+  const suggested = draft.suggestedTemplateInputSchema?.inputs || [];
+  const mandatoryIds = new Set(draft.mandatoryTemplateInputIds || []);
+  const requested = Array.isArray(payload.publicInputSchema?.inputs)
+    ? payload.publicInputSchema.inputs
+    : [];
+  const requestedById = new Map(
+    requested.map(input => [String(input?.id || ''), input])
+  );
+  const mandatory = suggested
+    .filter(input => mandatoryIds.has(String(input?.id || '')))
+    .map(input => ({ ...input, required: true, replacementPolicy: 'replaceable' }));
+  const optional = suggested.flatMap(input => {
+    const id = String(input?.id || '');
+    const selected = requestedById.get(id);
+    return id && selected && !mandatoryIds.has(id)
+      ? [{ ...input, required: selected.required === true }]
+      : [];
+  });
+  return {
+    schemaVersion: 1,
+    inputs: [...mandatory, ...optional]
+  };
 }
 
 export const communityShareService = new CommunityShareService({

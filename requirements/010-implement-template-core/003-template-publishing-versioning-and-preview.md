@@ -6,6 +6,14 @@ Every published Template needs a visually compelling final image and an
 immutable tested version. Updating a Template must not silently alter results
 for previous buyers or existing remix lineage.
 
+The immutable execution version also owns the Template's **non-identity
+performance direction**. When the source Scene contains an explicit expression,
+gaze or head-direction selection, Template execution preserves that direction
+as structured/text authority while replacing the original person's identity.
+For example, a candid laugh remains a candid laugh performed by the selected
+Character; the source face, facial geometry, skin, hair and body never become
+reusable identity authority.
+
 ## Share And Publish Dialog Layout
 
 The reusable `ShareGeneratedDialog` is the common publishing surface for an
@@ -24,6 +32,16 @@ owned generated image and an optional reusable Template. Its layout must:
   truncating unusually long labels without resizing the dialog;
 - preserve draft loading, API error, Template-ineligible, and Face reuse policy
   states without leaving empty fixed-height regions.
+
+## Shared Template Card Layout
+
+Compact shared Template cards must keep their primary `Use template` action on
+one stable bottom row across sibling cards. Optional access-credit metadata,
+missing pricing, and short title/creator copy must not move the action upward.
+The card owns a full-height column layout, its information body consumes the
+remaining height, and the action is pushed to the bottom without rendering a
+fake zero-credit placeholder. This contract applies to the shared Template
+carousel in Scene Builder and remains theme-aware.
 
 ## Share Intent And Template Eligibility
 
@@ -155,10 +173,25 @@ Fashion Studio template picker
 - Community post points to version;
 - hidden prompt absent from public DTO.
 
-## Planned Adjustment Checkpoint (2026-08-14)
+## Implementation Checkpoint (2026-08-14)
 
-This section records the approved UX and contract adjustment only. Source code
-implementation remains pending. Before implementation, add regression coverage
-around `ShareGeneratedDialog` and the server draft/publication contract so the
-existing post sharing, Template setup handoff, prompt visibility, access
-credits, lifecycle status and owner-management behavior remain intact.
+The Share dialog and server publication boundary now enforce explicit Template
+intent and server-owned mandatory inputs. Automated regression coverage protects
+the existing post sharing, Template setup handoff, prompt visibility, access
+credits, lifecycle status and owner-management behavior.
+
+### Regression preservation checklist
+
+- [x] image-only Community sharing remains the default and closes normally;
+- [x] eligible reusable publication still hands off to owner setup/preparation;
+- [x] mandatory Fashion bindings remain server-owned and cannot be removed;
+- [x] prompt visibility, access credits, immutable versioning and retirement
+  remain behind their existing owner contracts;
+- [x] Sharp-backed previews continue to use the canonical source image;
+- [x] explicit Template expression/gaze/head direction reaches Fashion
+  execution without exposing hidden prompt text publicly;
+- [x] the selected Character remains exclusive identity/body authority and the
+  Pose Proxy remains composition-only authority.
+
+Manual checkpoint remains: publish one image-only post and one eligible Fashion
+Template in each supported Theme, then verify the setup handoff and card preview.

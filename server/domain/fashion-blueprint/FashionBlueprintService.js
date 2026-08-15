@@ -133,6 +133,10 @@ export class FashionBlueprintService {
       this.providerRegistry
     );
   }
+
+  getAdvancedModelCatalog() {
+    return this.routingPolicyService.getAdvancedCatalog(this.providerRegistry);
+  }
 }
 
 function normalizeReference(value) {

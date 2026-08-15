@@ -2,9 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { MediaCard } from './MediaCard';
 import { communityPostSchema } from '../../features/community/schemas/communitySchemas';
+
+vi.mock('../../lib/auth/ActorProvider', () => ({
+  useActor: () => ({ actor: { userId: 'usr_test' } })
+}));
 
 const testI18n = i18next.createInstance();
 

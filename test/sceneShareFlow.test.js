@@ -13,6 +13,7 @@ const bob = { userId: 'usr_bob', username: 'user_bob', role: 'user' };
 function createService(generations = {}) {
   const posts = [];
   const events = [];
+  const publishedTemplates = [];
   const generationRepository = {
     async findByIdForOwner(id, ownerUserId) {
       const generation = generations[id] || null;
@@ -61,6 +62,7 @@ function createService(generations = {}) {
   };
   const templateCoreService = {
     async publishFromGeneration(input) {
+      publishedTemplates.push(structuredClone(input));
       return {
         template: {
           id: `template_${posts.length + 1}`,
@@ -96,7 +98,8 @@ function createService(generations = {}) {
       templateCoreService
     }),
     posts,
-    events
+    events,
+    publishedTemplates
   };
 }
 
@@ -147,7 +150,8 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
 
   const guidedDraft = await service.createSceneShareDraft('job_guided', alice);
   const post = await service.publishSceneTemplateShare(guidedDraft.id, {
-    title: 'Guided template', description: 'A safe template', promptVisibility: 'remix_only'
+    title: 'Guided template', description: 'A safe template', promptVisibility: 'remix_only',
+    publishAsTemplate: true
   }, alice);
 
   assert.equal(post.ownerUserId, 'usr_alice');
@@ -156,6 +160,17 @@ test('publish blocks manual remix_only and publishes guided snapshots without pr
   assert.equal(post.status, 'draft');
   assert.equal(post.sceneTemplateSnapshot.finalPromptSnapshot, '');
   assert.equal(posts.length, 1);
+});
+
+test('guided sharing remains image-only unless reusable Template intent is explicit', async () => {
+  const { service } = createService({ job_guided: generation('job_guided') });
+  const draft = await service.createSceneShareDraft('job_guided', alice);
+  const post = await service.publishSceneTemplateShare(draft.id, {
+    title: 'Community image',
+    promptVisibility: 'full'
+  }, alice);
+  assert.equal(post.postType, 'image');
+  assert.equal(post.status, 'published');
 });
 
 test('reusable Template remains owner-only until preparation approval activates the same post', async () => {
@@ -170,7 +185,7 @@ test('reusable Template remains owner-only until preparation approval activates 
   });
   const draft = await service.createSceneShareDraft('job_guided', alice);
   const post = await service.publishSceneTemplateShare(draft.id, {
-    title: 'Reusable template', promptVisibility: 'full'
+    title: 'Reusable template', promptVisibility: 'full', publishAsTemplate: true
   }, alice);
 
   assert.equal(post.status, 'draft');
@@ -197,4 +212,53 @@ test('reusable Template remains owner-only until preparation approval activates 
   }, bob);
   assert.equal(event.actorUserId, 'usr_bob');
   assert.equal(events.length, 1);
+});
+
+test('Template publication restores mandatory Outfit Front from server draft policy', async () => {
+  const source = generation('job_fashion_template');
+  source.sceneTemplateSnapshot.replaceableVariables = [
+    {
+      id: 'outfit_front_reference',
+      label: 'Outfit Front',
+      type: 'reference_image',
+      sourceFieldName: 'outfit_front_reference',
+      fashionBindingRole: 'fashion.outfit_front'
+    },
+    {
+      id: 'Expression',
+      label: 'Expression',
+      type: 'select_option',
+      sourceFieldName: 'Expression'
+    }
+  ];
+  const { service, publishedTemplates } = createService({
+    job_fashion_template: source
+  });
+  const draft = await service.createSceneShareDraft('job_fashion_template', alice);
+  assert.deepEqual(draft.mandatoryTemplateInputIds, ['outfit_front_reference']);
+
+  await service.publishSceneTemplateShare(draft.id, {
+    title: 'Fashion template',
+    promptVisibility: 'full',
+    publishAsTemplate: true,
+    publicInputSchema: {
+      schemaVersion: 1,
+      inputs: [{
+        id: 'Expression',
+        sourceFieldName: 'crafted_field',
+        required: false
+      }]
+    }
+  }, alice);
+
+  const [mandatoryOutfit, optionalExpression] =
+    publishedTemplates[0].publicInputSchema.inputs;
+  assert.equal(mandatoryOutfit.id, 'outfit_front_reference');
+  assert.equal(mandatoryOutfit.sourceFieldName, 'outfit_front_reference');
+  assert.equal(mandatoryOutfit.fashionBindingRole, 'fashion.outfit_front');
+  assert.equal(mandatoryOutfit.required, true);
+  assert.equal(mandatoryOutfit.replacementPolicy, 'replaceable');
+  assert.equal(optionalExpression.id, 'Expression');
+  assert.equal(optionalExpression.sourceFieldName, 'Expression');
+  assert.equal(optionalExpression.required, false);
 });

@@ -10,6 +10,7 @@ const shareDraftSchema = z.object({
   visibility: z.string().default('public'),
   faceReuseEligible: z.boolean().default(false),
   templateEligible: z.boolean().default(false),
+  mandatoryTemplateInputIds: z.array(z.string()).default([]),
   suggestedTemplateInputSchema: z.object({
     schemaVersion: z.number().default(1),
     inputs: z.array(z.record(z.string(), z.unknown())).default([])

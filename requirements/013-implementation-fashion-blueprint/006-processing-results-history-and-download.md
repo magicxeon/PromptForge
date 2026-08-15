@@ -1,7 +1,7 @@
 # Processing, Results, History and Download
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Status:** Actor-owned recovery, grouped operations and result actions implemented; validation pending
+**Status:** Shared result-grid/viewer convergence implemented; visual validation pending
 
 Grouped polling shows each product status/result and partial failures. Canonical
 QueueManager history remains authoritative; completed items expose Download,
@@ -159,3 +159,31 @@ increase Character popularity.
 4. Add deterministic individual/selected download behavior and filenames.
 5. Test queued, partial, failed, completed, mobile viewer and cross-actor asset
    access states.
+
+## 9. Shared Production Presentation Checkpoint (2026-08-14)
+
+Fashion owns Product Item, shot and operation grouping, but maps operations into
+the shared Generation presentation contracts:
+
+```text
+FashionRun.operations
+  -> GenerationQueueStatus normalized items
+  -> GenerationResultGrid normalized items
+  -> GenerationImageViewer viewer items
+```
+
+The shared grid owns stable layouts for one, two, three and four outputs.
+Fashion batches larger than four continue in subsequent rows while preserving
+Product Item labels. A future multiple-variation-per-product feature groups
+variations beneath their Product Item instead of confusing product count with
+variation count.
+
+Regression checklist:
+
+- [x] completed results retain Download, Collection and Share actions;
+- [x] clicking a result opens the shared viewer with previous/next navigation;
+- [x] active operations use the shared rotating `LoaderCircle` state;
+- [x] failed operations stop animating and retain their error message;
+- [x] partial success never removes completed images;
+- [x] refresh recovery continues from the persisted Fashion run ID;
+- [x] no Fashion-owned Queue, polling loop or Generation API path is created.

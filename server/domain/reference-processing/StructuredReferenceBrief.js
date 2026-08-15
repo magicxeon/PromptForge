@@ -40,6 +40,9 @@ export function buildStructuredReferenceBrief({
   const faceImage = imageLabel(faceIndex);
   const outfitFrontImage = imageLabel(outfitFrontIndex);
   const outfitBackImage = imageLabel(outfitBackIndex);
+  const templatePerformanceDirection = resolveTemplatePerformanceDirection(
+    context
+  );
 
   return {
     contract_id: config.id,
@@ -48,6 +51,9 @@ export function buildStructuredReferenceBrief({
       config.templateDirection,
       templateImage
     ),
+    ...(templatePerformanceDirection
+      ? { template_performance_direction: templatePerformanceDirection }
+      : {}),
     character_identity: {
       ...sectionWithSource(config.characterIdentity, faceImage || characterImage),
       body_source_image: characterImage,
@@ -72,4 +78,24 @@ export function buildStructuredReferenceBrief({
       prohibit: [...config.output.prohibit]
     }
   };
+}
+
+function resolveTemplatePerformanceDirection(context) {
+  const expression = selectionValue(context?.selections?.Expression);
+  if (!expression) return null;
+  return {
+    source: 'IMMUTABLE_TEMPLATE_SELECTIONS',
+    authority: ['expression performance'],
+    expression,
+    instruction: [
+      'Perform this expression using the selected Character identity.',
+      'Retain pose-proxy head and gaze direction.',
+      'Never copy Template facial anatomy or identity.'
+    ].join(' ')
+  };
+}
+
+function selectionValue(selection) {
+  if (typeof selection === 'string') return selection.trim();
+  return typeof selection?.value === 'string' ? selection.value.trim() : '';
 }

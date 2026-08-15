@@ -40,6 +40,25 @@ describe('GenerationResultGrid', () => {
     expect(container.querySelector('.generation-result-grid'))
       .toHaveAttribute('data-count', String(count));
     expect(container.querySelectorAll('.generation-result-grid__tile')).toHaveLength(count);
+    expect(container.querySelectorAll('.generation-loading-indicator')).toHaveLength(count);
+  });
+
+  it('keeps batches above four in the bounded multi-row grid contract', () => {
+    const { container } = render(
+      <I18nextProvider i18n={testI18n}>
+        <GenerationResultGrid
+          items={Array.from({ length: 5 }, (_, index) => ({
+            id: `job_${index}`,
+            status: 'queued',
+            label: `Image ${index + 1}`
+          }))}
+          onOpen={() => {}}
+        />
+      </I18nextProvider>
+    );
+    expect(container.querySelector('.generation-result-grid'))
+      .toHaveAttribute('data-count', '4');
+    expect(container.querySelectorAll('.generation-result-grid__tile')).toHaveLength(5);
   });
 
   it('opens the selected completed child and stops animation for a failed sibling', () => {
@@ -59,5 +78,23 @@ describe('GenerationResultGrid', () => {
     expect(open).toHaveBeenCalledWith('job_ok');
     expect(screen.getByRole('alert')).toHaveTextContent('Provider failed.');
     expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+  });
+
+  it('keeps caller-owned result actions in a stable footer', () => {
+    const { container } = render(
+      <I18nextProvider i18n={testI18n}>
+        <GenerationResultGrid
+          items={[
+            { id: 'job_ok', status: 'completed', imageUrl: '/outputs/result.png' }
+          ]}
+          onOpen={() => {}}
+          renderFooter={item => <button type="button">Action {item.id}</button>}
+        />
+      </I18nextProvider>
+    );
+
+    expect(screen.getByRole('button', { name: 'Action job_ok' })).toBeInTheDocument();
+    expect(container.querySelector('.generation-result-grid__tile'))
+      .toHaveClass('has-footer');
   });
 });

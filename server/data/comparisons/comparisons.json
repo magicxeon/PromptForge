@@ -2,6 +2,215 @@
   "version": 1,
   "sets": [
     {
+      "id": "cmp_set_1786757167604_7fyhdn",
+      "ownerUserId": "usr_bob",
+      "username": "user_bob",
+      "name": "Comparison 2026-08-15",
+      "description": "",
+      "collectionIds": [],
+      "winnerJobId": null,
+      "createdAt": 1786757167604,
+      "updatedAt": 1786757214878,
+      "runs": [
+        {
+          "idempotencyKey": "cmp_1786757163677_3cab1sd5",
+          "status": "completed",
+          "sourcePrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+          "configurationSnapshot": {
+            "selections": {},
+            "mode": "normal",
+            "template": "portrait",
+            "aspectRatio": "6:8",
+            "imageResolution": null,
+            "imageReferences": {
+              "faceMatch": false,
+              "characterReference": false,
+              "styleMatch": false,
+              "poseMatch": false,
+              "outfitReference": false,
+              "characterOverrides": false,
+              "outfitReferenceFront": false,
+              "outfitReferenceBack": false
+            },
+            "referenceProcessingLineage": {
+              "schemaVersion": 1,
+              "policyVersion": "rpp-2026-08-v6",
+              "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+              "executionMode": "single_stage",
+              "referenceCount": 0,
+              "dispatchRuleIds": [],
+              "suppressedReferenceRoles": [],
+              "references": []
+            },
+            "sourceOwnership": null,
+            "referenceJobIds": {
+              "face": [],
+              "style": [],
+              "character": [],
+              "outfit": []
+            },
+            "customColors": {},
+            "isGptSafe": false
+          },
+          "estimatedTotalCredit": 125,
+          "actualTotalCredit": 125,
+          "providerConfigVersion": 1,
+          "promptCompilerVersion": 1,
+          "promptRefinement": {
+            "requested": true,
+            "applied": true,
+            "status": "refined",
+            "provider": "openai",
+            "model": "gpt-5.6-luna",
+            "beforeFingerprint": "8a833f51ecb8286b",
+            "afterFingerprint": "13606b8b8fb6224a",
+            "responseId": "resp_07805eb17aef822c016a7fc02bc28087d0bc92cd5a24a7a96e",
+            "usage": {
+              "inputTokens": 356,
+              "outputTokens": 259,
+              "totalTokens": 615
+            },
+            "latencyMs": 3919,
+            "warnings": [],
+            "changeSummary": [
+              "Removed repetition and tightened phrasing.",
+              "Clarified the contrast between warm fireplace light and cool nighttime cyan tones.",
+              "Preserved the specified subject, pose, environment, lens, photographic effects, atmosphere, aspect ratio, and output count."
+            ],
+            "preservedAuthorities": [
+              "No reference roles were specified.",
+              "Character reference outfit behavior remains preserve.",
+              "Aspect ratio: 6:8.",
+              "Output count: 1."
+            ]
+          },
+          "createdAt": 1786757167602,
+          "completedAt": 1786757214857,
+          "payerUserId": "usr_bob",
+          "slots": [
+            {
+              "id": "slot_1785348253889_qccy30",
+              "position": 1,
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite-image",
+              "providerDisplayName": {
+                "en": "Google Gemini AI",
+                "th": "Google Gemini AI"
+              },
+              "modelDisplayName": {
+                "en": "Nano Banana 2 Lite (Fastest & Cheapest)",
+                "th": "Nano Banana 2 Lite (เร็วและประหยัดที่สุด)"
+              },
+              "estimatedCredit": 45,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_epknjty",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167607_se2tnbmpv",
+              "status": "completed",
+              "actualCredit": 45,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167607_se2tnbmpv.jpg",
+                "usage": {
+                  "latency_ms": null
+                },
+                "mimeType": "image/jpeg",
+                "generationDuration": "8.4",
+                "width": 896,
+                "height": 1200
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167623_d2t0fwt"
+            },
+            {
+              "id": "slot_1785348253889_kr0gtg",
+              "position": 2,
+              "provider": "openai",
+              "model": "gpt-image-1-mini",
+              "providerDisplayName": {
+                "en": "OpenAI",
+                "th": "OpenAI"
+              },
+              "modelDisplayName": {
+                "en": "GPT-Image 1 Mini (Cheapest)",
+                "th": "GPT-Image 1 Mini (ประหยัดที่สุด)"
+              },
+              "estimatedCredit": 30,
+              "imageResolution": null,
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_7uj20h7",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167651_cu4wb82vx",
+              "status": "completed",
+              "actualCredit": 30,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167651_cu4wb82vx.png",
+                "usage": {
+                  "input_tokens": 115,
+                  "input_tokens_details": {
+                    "image_tokens": 0,
+                    "text_tokens": 115
+                  },
+                  "output_tokens": 1584,
+                  "output_tokens_details": {
+                    "image_tokens": 1584,
+                    "text_tokens": 0
+                  },
+                  "total_tokens": 1699
+                },
+                "mimeType": "image/png",
+                "generationDuration": "24.0",
+                "width": 1024,
+                "height": 1536
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167684_mpx0x9f"
+            },
+            {
+              "id": "slot_1786757145951_xx9b1k",
+              "position": 3,
+              "provider": "modelark",
+              "model": "seedream-5-0-lite-260128",
+              "providerDisplayName": {
+                "en": "BytePlus ModelArk Seedream",
+                "th": "BytePlus ModelArk Seedream"
+              },
+              "modelDisplayName": {
+                "en": "Seedream 5.0 Lite",
+                "th": "Seedream 5.0 Lite"
+              },
+              "estimatedCredit": 50,
+              "imageResolution": "2K",
+              "resolutionFallback": null,
+              "estimateId": "est_1786757162541_ae9qhzc",
+              "estimateExpiresAt": "2026-08-15T01:41:02.541Z",
+              "submittedPrompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+              "jobId": "job_1786757167716_nnq0xf94i",
+              "status": "completed",
+              "actualCredit": 50,
+              "result": {
+                "imageUrl": "/outputs/job_1786757167716_nnq0xf94i.png",
+                "usage": {
+                  "generated_images": 1,
+                  "output_tokens": 15552,
+                  "total_tokens": 15552
+                },
+                "mimeType": "image/png",
+                "generationDuration": "38.1",
+                "width": 1728,
+                "height": 2304
+              },
+              "error": null,
+              "reservationId": "rsv_1786757167753_x7ugthi"
+            }
+          ],
+          "id": "cmp_run_1786757167604_57cec8"
+        }
+      ]
+    },
+    {
       "id": "cmp_set_1785326895180_4jkvr3",
       "ownerUserId": "usr_alice",
       "username": "user_alice",

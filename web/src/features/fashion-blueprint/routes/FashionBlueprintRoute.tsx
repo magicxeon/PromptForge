@@ -7,10 +7,7 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
-  CheckCircle2,
-  CircleX,
   Coins,
-  Download,
   LoaderCircle,
   PackagePlus,
   Search,
@@ -18,12 +15,9 @@ import {
   X
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { CollectionPickerDialog } from '../../../components/collections/CollectionPickerDialog';
-import momeloMark from '../../../assets/brand/momelo-mark.svg';
-import { ShareGeneratedDialog } from '../../../components/community/ShareGeneratedDialog';
 import {
   EngineTargetPanel,
   type EngineValue
@@ -55,7 +49,6 @@ import {
 } from '../../credits/api/creditApi';
 import { CreditExhaustedDialog } from '../../credits/components/CreditExhaustedDialog';
 import {
-  getProviderCatalog,
   type GenerationReferenceRole
 } from '../../generation/api/generationApi';
 import {
@@ -67,6 +60,7 @@ import {
   approveFashionProof,
   createFashionQuote,
   createFashionRun,
+  getFashionModelCatalog,
   getFashionRun,
   listFashionReadyTemplateIds,
   uploadFashionReference,
@@ -75,12 +69,17 @@ import {
 } from '../api/fashionBlueprintApi';
 import type { FashionQuote, FashionRun } from '../schemas/fashionSchemas';
 import {
+  FashionProductionSurface
+} from '../components/FashionProductionSurface';
+import { focusFashionProduction } from '../components/fashionProductionPresentation';
+import {
   readFashionDraft,
   writeFashionDraft,
   type FashionDraft,
   type FashionProductDraft
 } from '../state/fashionDraft';
 import { filterFashionReadyCommunityTemplates } from '../state/fashionTemplateDiscovery';
+import { reconcileFashionEngine } from '../state/fashionModelSelection';
 
 type QualityTier = 'draft' | 'selling_quality' | 'premium_campaign';
 type QuotePurpose = 'full' | 'proof' | 'continuation';
@@ -125,6 +124,8 @@ export function FashionBlueprintRoute() {
   const restoredCharacterId = useRef<string | null>(null);
   const uploadedAssetsByUrl = useRef(new Map<string, FashionReferenceAsset>());
   const appliedTemplateQuery = useRef<string | null>(null);
+  const productionRef = useRef<HTMLElement | null>(null);
+  const acceptedRunToFocus = useRef<string | null>(null);
 
   const templates = useInfiniteQuery({
     queryKey: ['fashion-templates', actorId],
@@ -157,8 +158,8 @@ export function FashionBlueprintRoute() {
     refetchOnMount: 'always'
   });
   const catalog = useQuery({
-    queryKey: ['provider-catalog'],
-    queryFn: getProviderCatalog,
+    queryKey: ['fashion-model-catalog'],
+    queryFn: getFashionModelCatalog,
     staleTime: 300_000
   });
   const creditAccount = useQuery({
@@ -180,27 +181,9 @@ export function FashionBlueprintRoute() {
   );
 
   useEffect(() => {
-    if (!catalog.data || engine.provider) return;
-    const provider = catalog.data.providers.find(
-      item => item.id === catalog.data.defaultProvider
-    ) || catalog.data.providers[0];
-    const model = provider?.models.find(
-      item => item.id === provider.defaultModel
-    ) || provider?.models[0];
-    setEngine({
-      provider: provider?.id || '',
-      model: model?.id || '',
-      resolution:
-        model?.capabilities.resolutions?.[0]
-        || model?.defaults?.resolution
-        || model?.defaults?.imageSize
-        || null,
-      aspectRatio: model?.capabilities.aspectRatios.includes('6:8')
-        ? '6:8'
-        : model?.capabilities.aspectRatios[0] || '1:1',
-      outputCount: 1
-    });
-  }, [catalog.data, engine.provider]);
+    if (!catalog.data) return;
+    setEngine(current => reconcileFashionEngine(catalog.data, current));
+  }, [catalog.data]);
 
   useEffect(() => {
     if (!actor?.userId || hydratedActor.current === actor.userId) return;
@@ -290,10 +273,17 @@ export function FashionBlueprintRoute() {
     item => item.key === activeProductKey
   ) || products[0]!;
   const plan = useMemo<FashionPlanInput | null>(() => {
+    const advancedSelectionEligible = !advanced || Boolean(
+      catalog.data?.providers.some(provider =>
+        provider.id === engine.provider
+        && provider.models.some(model => model.id === engine.model)
+      )
+    );
     if (
       !template
       || !templateUseSessionId
       || !characterContext
+      || !advancedSelectionEligible
       || !products.every(item => item.references.outfit_front?.assetId)
     ) {
       return null;
@@ -324,6 +314,7 @@ export function FashionBlueprintRoute() {
     };
   }, [
     advanced,
+    catalog.data,
     characterContext,
     engine,
     environmentDirection,
@@ -399,6 +390,7 @@ export function FashionBlueprintRoute() {
       );
     },
     onSuccess: nextRun => {
+      acceptedRunToFocus.current = nextRun.id;
       setRun(nextRun);
       void queryClient.invalidateQueries({ queryKey: queryKeys.credits(actorId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.creditLedger(actorId) });
@@ -427,6 +419,18 @@ export function FashionBlueprintRoute() {
     }
   });
   const displayedRun = runQuery.data || run;
+  useEffect(() => {
+    if (
+      !displayedRun?.id
+      || acceptedRunToFocus.current !== displayedRun.id
+      || !productionRef.current
+    ) {
+      return;
+    }
+    acceptedRunToFocus.current = null;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    focusFashionProduction(productionRef.current, Boolean(reducedMotion));
+  }, [displayedRun?.id]);
   const approveProofMutation = useMutation({
     mutationFn: () => approveFashionProof(displayedRun!.id),
     onSuccess: approved => {
@@ -607,6 +611,7 @@ export function FashionBlueprintRoute() {
               approvedProofRunId={approvedProofRunId}
               quote={quote}
               run={displayedRun}
+              productionRef={productionRef}
               planReady={Boolean(plan)}
               quotePending={quoteMutation.isPending}
               runPending={runMutation.isPending}
@@ -986,6 +991,7 @@ function FashionReviewStep({
   approvedProofRunId,
   quote,
   run,
+  productionRef,
   planReady,
   quotePending,
   runPending,
@@ -1003,7 +1009,7 @@ function FashionReviewStep({
   onApproveProof,
   onBack
 }: {
-  catalog: Awaited<ReturnType<typeof getProviderCatalog>> | undefined;
+  catalog: Awaited<ReturnType<typeof getFashionModelCatalog>> | undefined;
   advanced: boolean;
   engine: EngineValue;
   quality: QualityTier;
@@ -1014,6 +1020,7 @@ function FashionReviewStep({
   approvedProofRunId: string | null;
   quote: FashionQuote | null;
   run: FashionRun | null;
+  productionRef: RefObject<HTMLElement | null>;
   planReady: boolean;
   quotePending: boolean;
   runPending: boolean;
@@ -1188,7 +1195,7 @@ function FashionReviewStep({
           </Button>
         </div>
       </Surface>
-      {run ? <FashionRunResults run={run} /> : null}
+      {run ? <FashionProductionSurface ref={productionRef} run={run} /> : null}
       {run?.quotePurpose === 'proof'
         && run.status === 'completed'
         && run.proofStatus !== 'approved' ? (
@@ -1286,105 +1293,6 @@ function FashionSetupSummary({
         </div>
       ) : null}
     </aside>
-  );
-}
-
-function FashionRunResults({ run }: { run: FashionRun }) {
-  const { t } = useTranslation('fashion-blueprint');
-  const completedCount = run.operations.filter(operation => operation.status === 'completed').length;
-  const failedCount = run.operations.filter(operation => operation.status === 'failed').length;
-  const active = !['completed', 'partially_completed', 'failed'].includes(run.status);
-  return (
-    <section
-      className="fashion-production mt-5 border border-[var(--mpf-border)] bg-[var(--theme-bg-raised)] p-4"
-      aria-live="polite"
-      aria-busy={active}
-    >
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="m-0 text-lg">{t('fashion.run.title')}</h2>
-        <div className="fashion-production__status">
-          {active ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : null}
-          <span>
-            {t(`common.status.${run.status}`, {
-              ns: 'common',
-              defaultValue: run.status
-            })}
-          </span>
-          <small>{t('fashion.run.progress', {
-            completed: completedCount,
-            total: run.operations.length,
-            failed: failedCount
-          })}</small>
-        </div>
-      </div>
-      {run.operations.length === 0 ? (
-        <div className="fashion-production__empty">
-          {active ? (
-            <LoaderCircle className="size-10 animate-spin" aria-hidden="true" />
-          ) : (
-            <img src={momeloMark} alt="" aria-hidden="true" />
-          )}
-          <strong>{active
-            ? t('fashion.run.preparingTitle')
-            : t('fashion.run.emptyTitle')}</strong>
-          <p>{active
-            ? t('fashion.run.preparingDescription')
-            : t('fashion.run.emptyDescription')}</p>
-        </div>
-      ) : null}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {run.operations.map(operation => (
-          <article
-            key={operation.operationId}
-            className="border border-[var(--mpf-border)] bg-[var(--mpf-surface)] p-3"
-          >
-            {operation.result?.imageUrl ? (
-              <img
-                src={apiMediaUrl(operation.result.imageUrl) || ''}
-                alt=""
-                className="aspect-[3/4] w-full bg-[var(--theme-media-backdrop)] object-contain"
-              />
-            ) : (
-              <div className="fashion-production__operation-state aspect-[3/4] bg-[var(--theme-media-backdrop)] text-sm text-[var(--mpf-text-muted)]">
-                {operation.status === 'failed'
-                  ? <CircleX className="size-8 text-[var(--theme-danger)]" aria-hidden="true" />
-                  : operation.status === 'completed'
-                    ? <CheckCircle2 className="size-8 text-[var(--theme-success)]" aria-hidden="true" />
-                    : <LoaderCircle className="size-8 animate-spin text-[var(--theme-primary)]" aria-hidden="true" />}
-                <span>{t(`common.status.${operation.status}`, {
-                  ns: 'common',
-                  defaultValue: operation.status
-                })}</span>
-              </div>
-            )}
-            <strong className="mt-3 block text-sm">
-              {operation.productName || operation.productItemKey}
-            </strong>
-            {operation.error ? (
-              <small className="mt-1 block text-[var(--theme-danger)]">
-                {typeof operation.error === 'string'
-                  ? operation.error
-                  : operation.error.message}
-              </small>
-            ) : null}
-            {operation.status === 'completed' && operation.result?.imageUrl ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                <a
-                  href={apiMediaUrl(operation.result.imageUrl) || ''}
-                  download
-                  className="inline-flex min-h-9 items-center justify-center gap-2 border border-[var(--mpf-border-strong)] px-3 text-xs font-semibold text-[var(--mpf-text)] no-underline"
-                >
-                  <Download className="size-4" />
-                  {t('fashion.action.download')}
-                </a>
-                <CollectionPickerDialog jobId={operation.jobId} />
-                <ShareGeneratedDialog jobId={operation.jobId} />
-              </div>
-            ) : null}
-          </article>
-        ))}
-      </div>
-    </section>
   );
 }
 

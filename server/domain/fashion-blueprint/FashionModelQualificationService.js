@@ -51,6 +51,34 @@ export class FashionModelQualificationService {
     }
     return record;
   }
+
+  requireOperationEligible(providerId, modelId, operation = 'fashion_final_composition') {
+    const config = this.getConfig();
+    const record = this.resolve(providerId, modelId, operation);
+    if (!record || !record.operationEligible || record.status === 'failed') {
+      throw qualificationError(
+        'fashion_model_operation_not_supported',
+        `Model "${modelId}" is not qualified for ${operation}.`,
+        409,
+        { providerId, modelId, operation, qualificationVersion: config.qualificationVersion }
+      );
+    }
+    return record;
+  }
+
+  listOperationEligible(operation = 'fashion_final_composition') {
+    const config = this.getConfig();
+    return config.models
+      .filter(record =>
+        record.status !== 'failed'
+        && record.operations.includes(operation)
+      )
+      .map(record => ({
+        ...structuredClone(record),
+        qualificationVersion: config.qualificationVersion,
+        operationEligible: true
+      }));
+  }
 }
 
 export const fashionModelQualificationService = new FashionModelQualificationService();

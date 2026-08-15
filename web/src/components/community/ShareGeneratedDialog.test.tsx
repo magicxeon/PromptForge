@@ -66,6 +66,7 @@ describe('ShareGeneratedDialog', () => {
             'ui.share.required': 'Required',
             'ui.share.templateCredits': 'Template access credits',
             'ui.share.templateInputs': 'Template inputs',
+            'ui.share.includedAutomatically': 'Included automatically: {{inputs}}',
             'ui.share.title': 'Share to Community',
             'ui.share.unlisted': 'Unlisted',
             'ui.toast.postPublished': 'Post published',
@@ -87,6 +88,7 @@ describe('ShareGeneratedDialog', () => {
       id: 'draft_1',
       sourceGenerationId: 'job_1',
       templateEligible: true,
+      mandatoryTemplateInputIds: [],
       suggestedTemplateInputSchema: { schemaVersion: 1, inputs: [] }
     });
     apiMocks.publishGeneratedShare.mockResolvedValue({
@@ -108,6 +110,11 @@ describe('ShareGeneratedDialog', () => {
     fireEvent.change(await screen.findByPlaceholderText('Post title'), {
       target: { value: 'Reusable look' }
     });
+    const templateToggle = screen.getByRole('checkbox', {
+      name: /Publish as reusable template/
+    });
+    expect(templateToggle).not.toBeChecked();
+    fireEvent.click(templateToggle);
     fireEvent.click(screen.getByRole('button', { name: 'Publish' }));
 
     const management = await screen.findByRole('dialog', { name: 'Edit shared template' });
@@ -123,7 +130,8 @@ describe('ShareGeneratedDialog', () => {
     apiMocks.createGeneratedShareDraft.mockResolvedValue({
       id: 'draft_image',
       sourceGenerationId: 'job_1',
-      templateEligible: false
+      templateEligible: false,
+      mandatoryTemplateInputIds: []
     });
     apiMocks.publishGeneratedShare.mockResolvedValue({
       id: 'post_image',
@@ -133,6 +141,9 @@ describe('ShareGeneratedDialog', () => {
     renderDialog();
     fireEvent.click(screen.getByRole('button', { name: 'Share' }));
     await screen.findByRole('dialog', { name: 'Share to Community' });
+    expect(screen.queryByRole('checkbox', {
+      name: /Publish as reusable template/
+    })).not.toBeInTheDocument();
     fireEvent.change(await screen.findByPlaceholderText('Post title'), {
       target: { value: 'Single image' }
     });
@@ -147,6 +158,56 @@ describe('ShareGeneratedDialog', () => {
       tone: 'success',
       title: 'Post published'
     });
+  });
+
+  it('keeps mandatory Template inputs read-only and outside creator selections', async () => {
+    apiMocks.createGeneratedShareDraft.mockResolvedValue({
+      id: 'draft_mandatory',
+      sourceGenerationId: 'job_1',
+      templateEligible: true,
+      mandatoryTemplateInputIds: ['outfit_front_reference'],
+      suggestedTemplateInputSchema: {
+        schemaVersion: 1,
+        inputs: [
+          {
+            id: 'outfit_front_reference',
+            label: 'Outfit Front',
+            sourceFieldName: 'outfit_front_reference'
+          },
+          {
+            id: 'expression',
+            label: 'Expression',
+            sourceFieldName: 'Expression'
+          }
+        ]
+      }
+    });
+    apiMocks.publishGeneratedShare.mockResolvedValue({
+      id: 'post_mandatory',
+      postType: 'template',
+      templateId: 'tmpl_1',
+      templateVersionId: 'tmplv_1'
+    });
+    apiMocks.getCommunityPost.mockResolvedValue({
+      id: 'post_mandatory',
+      postType: 'template',
+      templateId: 'tmpl_1',
+      templateVersionId: 'tmplv_1'
+    });
+
+    renderDialog();
+    fireEvent.click(screen.getByRole('button', { name: 'Share' }));
+    await screen.findByRole('dialog', { name: 'Share to Community' });
+    fireEvent.change(screen.getByPlaceholderText('Post title'), {
+      target: { value: 'Mandatory look' }
+    });
+    fireEvent.click(screen.getByRole('checkbox', {
+      name: /Publish as reusable template/
+    }));
+
+    expect(screen.getByText('Included automatically: Outfit Front')).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: 'Outfit Front' })).not.toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Expression' })).toBeInTheDocument();
   });
 });
 

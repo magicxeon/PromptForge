@@ -82,7 +82,10 @@ export function createFashionExecutionPrompt(plan, item, executionSnapshot = {})
     : executionSnapshot.finalPromptSnapshot
       || executionSnapshot.manualPromptSnapshot
       || '';
-  return [templatePrompt, createFashionPrompt(plan, item)].filter(Boolean).join(' ');
+  return [
+    templatePrompt,
+    createFashionPrompt(plan, item, executionSnapshot)
+  ].filter(Boolean).join(' ');
 }
 
 function createFashionTemplateReplacements(
@@ -191,7 +194,10 @@ function createGenerationPayload(plan, item) {
   };
 }
 
-export function createFashionPrompt(plan, item) {
+export function createFashionPrompt(plan, item, executionSnapshot = {}) {
+  const performanceDirection = createTemplatePerformanceDirection(
+    executionSnapshot
+  );
   return [
     'Create a professional full-body ecommerce fashion photograph.',
     plan.templatePoseProxy
@@ -207,8 +213,28 @@ export function createFashionPrompt(plan, item) {
     'Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details.',
     plan.templatePoseProxy
       ? 'Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template.'
-      : ''
+      : '',
+    plan.templatePoseProxy
+      ? 'Reconstruct every visible human surface from the authorized Character, including the complete hands, fingers, legs, ankles and feet. Never retain proxy limb anatomy, mannequin joints, synthetic feet, grid fabric, proxy clothing or gray mannequin material in the final person.'
+      : '',
+    performanceDirection
   ].filter(Boolean).join(' ');
+}
+
+function createTemplatePerformanceDirection(executionSnapshot) {
+  const selections = executionSnapshot?.structuredSelectionsSnapshot || {};
+  const expression = selectionValue(selections.Expression);
+  if (!expression) return '';
+  return [
+    `Template performance direction: ${expression}.`,
+    'Preserve this non-identity expression as a performance by the selected Character while retaining the pose-proxy head and gaze direction.',
+    'Do not copy the Template person face, facial geometry or identity to reproduce the expression.'
+  ].join(' ');
+}
+
+function selectionValue(selection) {
+  if (typeof selection === 'string') return selection.trim();
+  return typeof selection?.value === 'string' ? selection.value.trim() : '';
 }
 
 function referenceUrl(reference) {

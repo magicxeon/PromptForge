@@ -1,5 +1,3527 @@
 [
   {
+    "id": "job_1786760143090_tnlsfuag0",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, korean ethnicity, unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks, diamond face, round eyes, defined eyebrows, natural nose, thin lips, subtle friendly smile, long dark brown hair, side-parted hair, no bangs, coarse thick texture, aura glowing white skin, healthy complexion, soft peach makeup style, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1786760143090_tnlsfuag0.jpg",
+    "timestamp": 1786760150797,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.009",
+        "value": "korean ethnicity",
+        "label": "Korean",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "korean"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_09",
+        "value": "aura glowing white skin",
+        "label": "Aura Glowing White skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "glowing",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Skin Texture": {
+        "id": "skin.text_03",
+        "value": "healthy complexion",
+        "label": "Healthy Complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "healthy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach makeup style",
+        "label": "Soft K-Beauty Makeup",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "even skin with no freckles",
+        "label": "No Freckles",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.006",
+        "value": "diamond face",
+        "label": "Diamond face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.004",
+        "value": "round eyes",
+        "label": "Round eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.005",
+        "value": "defined eyebrows",
+        "label": "Defined eyebrows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.006",
+        "value": "natural nose",
+        "label": "Natural nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.005",
+        "value": "thin lips",
+        "label": "Thin lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_02",
+        "value": "coarse thick hair",
+        "label": "Coarse & Thick",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "76e21a0795e70dd889882031b2f15593a0a0e7c8acab55de5875a5799df55153",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "6f9aeecc8c652c6f",
+    "referenceProcessingPlanFingerprint": "76e21a0795e70dd889882031b2f15593a0a0e7c8acab55de5875a5799df55153",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "6f9aeecc8c652c6f",
+      "afterFingerprint": "6f9aeecc8c652c6f",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 5580,
+      "warnings": [],
+      "errorCode": "prompt_refinement_authority_lost"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786760143090_tnlsfuag0.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 75148,
+    "originalBytes": 612563,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 1,
+      "providerMs": 7609,
+      "outputPersistenceMs": 237,
+      "totalMs": 7849
+    }
+  },
+  {
+    "id": "job_1786757419883_954agvg2s",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, chinese ethnicity, unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks, adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin, expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze, refined feminine eyebrows with a soft natural arc and clean definition, refined straight feminine nose with a slender natural bridge and softly defined tip, soft defined feminine lips with a natural cupid's bow and balanced fullness, subtle friendly smile, long dark brown hair, side-parted hair, no bangs, coarse thick texture, aura glowing white skin, healthy complexion, soft peach makeup style, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1786757419883_954agvg2s.jpg",
+    "timestamp": 1786757427846,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese ethnicity",
+        "label": "Chinese",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_09",
+        "value": "aura glowing white skin",
+        "label": "Aura Glowing White skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "glowing",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Skin Texture": {
+        "id": "skin.text_03",
+        "value": "healthy complexion",
+        "label": "Healthy Complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "healthy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach makeup style",
+        "label": "Soft K-Beauty Makeup",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "even skin with no freckles",
+        "label": "No Freckles",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.022",
+        "value": "adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin",
+        "label": "Refined Soft Tapered Face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.015",
+        "value": "expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze",
+        "label": "Expressive Refined Almond Eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.009",
+        "value": "refined feminine eyebrows with a soft natural arc and clean definition",
+        "label": "Refined Soft-arc Brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.008",
+        "value": "refined straight feminine nose with a slender natural bridge and softly defined tip",
+        "label": "Refined Straight Nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.014",
+        "value": "soft defined feminine lips with a natural cupid's bow and balanced fullness",
+        "label": "Soft Defined Bow Lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_02",
+        "value": "coarse thick hair",
+        "label": "Coarse & Thick",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "1c0c4a847b5d3da16472b80cf074e6dd2d5d963c856aa78a8dfb51db8be9898c",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "7.9",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "cd03e32d0f71ff72",
+    "referenceProcessingPlanFingerprint": "1c0c4a847b5d3da16472b80cf074e6dd2d5d963c856aa78a8dfb51db8be9898c",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "cd03e32d0f71ff72",
+      "afterFingerprint": "cd03e32d0f71ff72",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 4227,
+      "warnings": [],
+      "errorCode": "prompt_refinement_authority_lost"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757419883_954agvg2s.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 94956,
+    "originalBytes": 688485,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 0,
+      "providerMs": 7865,
+      "outputPersistenceMs": 310,
+      "totalMs": 8176
+    }
+  },
+  {
+    "id": "job_1786757323751_in9sn3m01",
+    "username": "user_alice",
+    "prompt": "headshot portrait, female, 21-year-old young adult, chinese ethnicity, unmistakably early-twenties adult facial maturity with a smooth youthful forehead, fresh firm skin, minimal natural under-eye definition, and no age-related lines or hollow cheeks, adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin, expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze, refined feminine eyebrows with a soft natural arc and clean definition, refined straight feminine nose with a slender natural bridge and softly defined tip, soft defined feminine lips with a natural cupid's bow and balanced fullness, subtle friendly smile, long dark brown hair, side-parted hair, no bangs, coarse thick texture, aura glowing white skin, healthy complexion, soft peach makeup style, showing head to shoulders, straight front-facing portrait, looking directly into the camera with zero head tilting, perfectly level head, on a solid pure white background, photorealistic photography, realistic camera imperfections (Image aspect ratio 6:8)",
+    "imageUrl": "/outputs/job_1786757323751_in9sn3m01.png",
+    "timestamp": 1786757354488,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "headshot",
+    "selections": {
+      "Gender": {
+        "id": "character.001",
+        "value": "female",
+        "label": "Female",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Age": {
+        "id": "character.004_e20",
+        "value": "21-year-old young adult",
+        "label": "Early Twenties (20-23)",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character"
+        ],
+        "gptPositiveWords": []
+      },
+      "Ethnicity": {
+        "id": "character.010",
+        "value": "chinese ethnicity",
+        "label": "Chinese",
+        "isCustom": false,
+        "group": "Character",
+        "category": "character",
+        "tags": [
+          "character",
+          "chinese"
+        ],
+        "gptPositiveWords": []
+      },
+      "Color": {
+        "id": "hair_014",
+        "value": "dark brown hair",
+        "label": "Dark Brown",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "color"
+        ],
+        "gptPositiveWords": []
+      },
+      "Tone": {
+        "id": "skin.tone_09",
+        "value": "aura glowing white skin",
+        "label": "Aura Glowing White skin",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "tone",
+          "glowing",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Skin Texture": {
+        "id": "skin.text_03",
+        "value": "healthy complexion",
+        "label": "Healthy Complexion",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "texture",
+          "healthy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.004",
+        "value": "subtle friendly smile",
+        "label": "Soft Friendly Smile",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "smile",
+          "friendly"
+        ],
+        "gptPositiveWords": []
+      },
+      "Length": {
+        "id": "hair_003",
+        "value": "long hair",
+        "label": "Long Hair",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "length"
+        ],
+        "gptPositiveWords": []
+      },
+      "Makeup": {
+        "id": "skin.makeup_02",
+        "value": "soft peach makeup style",
+        "label": "Soft K-Beauty Makeup",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "makeup",
+          "k-beauty",
+          "asian"
+        ],
+        "gptPositiveWords": []
+      },
+      "Freckles": {
+        "id": "skin.freckles_01",
+        "value": "even skin with no freckles",
+        "label": "No Freckles",
+        "isCustom": false,
+        "group": "Skin",
+        "category": "skin",
+        "tags": [
+          "skin",
+          "freckles",
+          "none"
+        ],
+        "gptPositiveWords": []
+      },
+      "Face Shape": {
+        "id": "face.022",
+        "value": "adult feminine face with softly defined cheekbones, a refined jawline, and a naturally tapered chin",
+        "label": "Refined Soft Tapered Face",
+        "isCustom": false,
+        "group": "Face",
+        "category": "face",
+        "tags": [
+          "face",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyes": {
+        "id": "eyes.015",
+        "value": "expressive refined almond eyes with clear natural eyelid definition and a camera-readable gaze",
+        "label": "Expressive Refined Almond Eyes",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyes",
+        "tags": [
+          "eyes",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Eyebrows": {
+        "id": "eyebrows.009",
+        "value": "refined feminine eyebrows with a soft natural arc and clean definition",
+        "label": "Refined Soft-arc Brows",
+        "isCustom": false,
+        "group": "Face",
+        "category": "eyebrows",
+        "tags": [
+          "eyebrows",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Nose": {
+        "id": "nose.008",
+        "value": "refined straight feminine nose with a slender natural bridge and softly defined tip",
+        "label": "Refined Straight Nose",
+        "isCustom": false,
+        "group": "Face",
+        "category": "nose",
+        "tags": [
+          "nose",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lips": {
+        "id": "lips.014",
+        "value": "soft defined feminine lips with a natural cupid's bow and balanced fullness",
+        "label": "Soft Defined Bow Lips",
+        "isCustom": false,
+        "group": "Face",
+        "category": "lips",
+        "tags": [
+          "lips",
+          "vertical-drama-lead",
+          "adult-female"
+        ],
+        "gptPositiveWords": []
+      },
+      "Texture": {
+        "id": "hair.text_02",
+        "value": "coarse thick hair",
+        "label": "Coarse & Thick",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "texture"
+        ],
+        "gptPositiveWords": []
+      },
+      "Parting / Fringe": {
+        "id": "hair_038",
+        "value": "side-parted hair, no bangs",
+        "label": "Side Parting",
+        "isCustom": false,
+        "group": "Hair",
+        "category": "hair",
+        "tags": [
+          "bangs",
+          "parting"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": null,
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "c81b083c09c88183e90873f609bb4c0d41a4fbde8e4c3d37d70fb9b4998a8333",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1728,
+    "height": 2304,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 15552,
+      "total_tokens": 15552
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "30.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "cd03e32d0f71ff72",
+    "referenceProcessingPlanFingerprint": "c81b083c09c88183e90873f609bb4c0d41a4fbde8e4c3d37d70fb9b4998a8333",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "cd03e32d0f71ff72",
+      "afterFingerprint": "cd03e32d0f71ff72",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 4067,
+      "warnings": [],
+      "errorCode": "prompt_refinement_authority_lost"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757323751_in9sn3m01.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 960,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 71584,
+    "originalBytes": 3139613,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 0,
+      "providerMs": 30623,
+      "outputPersistenceMs": 312,
+      "totalMs": 30937
+    }
+  },
+  {
+    "id": "job_1786757167716_nnq0xf94i",
+    "username": "user_bob",
+    "prompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+    "imageUrl": "/outputs/job_1786757167716_nnq0xf94i.png",
+    "timestamp": 1786757214482,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Close-up portrait photography, a beautiful and youthful Chinese woman with the elegant look of a Chinese movie heroine, holding a cup of hot coffee with visible rising steam. Nighttime setting in a cold climate tourist destination. Romantic cinematic lighting, warm glow reflecting on her face from a nearby fireplace contrasting with cool nighttime cyan tones. Shot on Helios 44-2 58mm f/2 vintage manual lens, shallow depth of field, swirly bokeh, realistic skin texture, moody and cinematic atmosphere.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1728,
+    "height": 2304,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 15552,
+      "total_tokens": 15552
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "38.1",
+    "comparisonSetId": "cmp_set_1786757167604_7fyhdn",
+    "comparisonRunId": "cmp_run_1786757167604_57cec8",
+    "comparisonSlotId": "slot_1786757145951_xx9b1k",
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "13606b8b8fb6224a",
+    "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "8a833f51ecb8286b",
+      "afterFingerprint": "13606b8b8fb6224a",
+      "responseId": "resp_07805eb17aef822c016a7fc02bc28087d0bc92cd5a24a7a96e",
+      "usage": {
+        "inputTokens": 356,
+        "outputTokens": 259,
+        "totalTokens": 615
+      },
+      "latencyMs": 3919,
+      "warnings": [],
+      "changeSummary": [
+        "Removed repetition and tightened phrasing.",
+        "Clarified the contrast between warm fireplace light and cool nighttime cyan tones.",
+        "Preserved the specified subject, pose, environment, lens, photographic effects, atmosphere, aspect ratio, and output count."
+      ],
+      "preservedAuthorities": [
+        "No reference roles were specified.",
+        "Character reference outfit behavior remains preserve.",
+        "Aspect ratio: 6:8.",
+        "Output count: 1."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757167716_nnq0xf94i.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 960,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 71218,
+    "originalBytes": 4255316,
+    "performanceTimings": {
+      "queueWaitMs": 8605,
+      "referenceProcessingMs": 0,
+      "providerMs": 38062,
+      "outputPersistenceMs": 275,
+      "totalMs": 46943
+    }
+  },
+  {
+    "id": "job_1786757167651_cu4wb82vx",
+    "username": "user_bob",
+    "prompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+    "imageUrl": "/outputs/job_1786757167651_cu4wb82vx.png",
+    "timestamp": 1786757191723,
+    "provider": "openai",
+    "submodel": "gpt-image-1-mini",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Close-up portrait photography, a beautiful and youthful Chinese woman with the elegant look of a Chinese movie heroine, holding a cup of hot coffee with visible rising steam. Nighttime setting in a cold climate tourist destination. Romantic cinematic lighting, warm glow reflecting on her face from a nearby fireplace contrasting with cool nighttime cyan tones. Shot on Helios 44-2 58mm f/2 vintage manual lens, shallow depth of field, swirly bokeh, realistic skin texture, moody and cinematic atmosphere.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1-mini",
+    "providerConfigVersion": 1,
+    "creditCost": 30,
+    "mimeType": "image/png",
+    "width": 1024,
+    "height": 1536,
+    "usage": {
+      "input_tokens": 115,
+      "input_tokens_details": {
+        "image_tokens": 0,
+        "text_tokens": 115
+      },
+      "output_tokens": 1584,
+      "output_tokens_details": {
+        "image_tokens": 1584,
+        "text_tokens": 0
+      },
+      "total_tokens": 1699
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "24.0",
+    "comparisonSetId": "cmp_set_1786757167604_7fyhdn",
+    "comparisonRunId": "cmp_run_1786757167604_57cec8",
+    "comparisonSlotId": "slot_1785348253889_kr0gtg",
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "13606b8b8fb6224a",
+    "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "8a833f51ecb8286b",
+      "afterFingerprint": "13606b8b8fb6224a",
+      "responseId": "resp_07805eb17aef822c016a7fc02bc28087d0bc92cd5a24a7a96e",
+      "usage": {
+        "inputTokens": 356,
+        "outputTokens": 259,
+        "totalTokens": 615
+      },
+      "latencyMs": 3919,
+      "warnings": [],
+      "changeSummary": [
+        "Removed repetition and tightened phrasing.",
+        "Clarified the contrast between warm fireplace light and cool nighttime cyan tones.",
+        "Preserved the specified subject, pose, environment, lens, photographic effects, atmosphere, aspect ratio, and output count."
+      ],
+      "preservedAuthorities": [
+        "No reference roles were specified.",
+        "Character reference outfit behavior remains preserve.",
+        "Aspect ratio: 6:8.",
+        "Output count: 1."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757167651_cu4wb82vx.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 853,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 40144,
+    "originalBytes": 1973311,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 0,
+      "providerMs": 23976,
+      "outputPersistenceMs": 233,
+      "totalMs": 24210
+    }
+  },
+  {
+    "id": "job_1786757167607_se2tnbmpv",
+    "username": "user_bob",
+    "prompt": "Close-up portrait photograph of a beautiful, youthful Chinese woman with the elegant appearance of a Chinese movie heroine, holding a cup of hot coffee with visibly rising steam. Set at night in a cold-climate tourist destination. Romantic cinematic lighting combines a warm glow from a nearby fireplace reflecting across her face with cool nighttime cyan tones. Captured with a Helios 44-2 58mm f/2 vintage manual lens, using a shallow depth of field and swirly bokeh. Preserve realistic skin texture and a moody, cinematic atmosphere.",
+    "imageUrl": "/outputs/job_1786757167607_se2tnbmpv.jpg",
+    "timestamp": 1786757176088,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Close-up portrait photography, a beautiful and youthful Chinese woman with the elegant look of a Chinese movie heroine, holding a cup of hot coffee with visible rising steam. Nighttime setting in a cold climate tourist destination. Romantic cinematic lighting, warm glow reflecting on her face from a nearby fireplace contrasting with cool nighttime cyan tones. Shot on Helios 44-2 58mm f/2 vintage manual lens, shallow depth of field, swirly bokeh, realistic skin texture, moody and cinematic atmosphere.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.4",
+    "comparisonSetId": "cmp_set_1786757167604_7fyhdn",
+    "comparisonRunId": "cmp_run_1786757167604_57cec8",
+    "comparisonSlotId": "slot_1785348253889_qccy30",
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "13606b8b8fb6224a",
+    "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "8a833f51ecb8286b",
+      "afterFingerprint": "13606b8b8fb6224a",
+      "responseId": "resp_07805eb17aef822c016a7fc02bc28087d0bc92cd5a24a7a96e",
+      "usage": {
+        "inputTokens": 356,
+        "outputTokens": 259,
+        "totalTokens": 615
+      },
+      "latencyMs": 3919,
+      "warnings": [],
+      "changeSummary": [
+        "Removed repetition and tightened phrasing.",
+        "Clarified the contrast between warm fireplace light and cool nighttime cyan tones.",
+        "Preserved the specified subject, pose, environment, lens, photographic effects, atmosphere, aspect ratio, and output count."
+      ],
+      "preservedAuthorities": [
+        "No reference roles were specified.",
+        "Character reference outfit behavior remains preserve.",
+        "Aspect ratio: 6:8.",
+        "Output count: 1."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757167607_se2tnbmpv.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 107252,
+    "originalBytes": 760682,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 1,
+      "providerMs": 8405,
+      "outputPersistenceMs": 222,
+      "totalMs": 8629
+    }
+  },
+  {
+    "id": "job_1786757121798_hiohrvsi8",
+    "username": "user_bob",
+    "prompt": "Close-up portrait photography, a beautiful and youthful Chinese woman with the elegant look of a Chinese movie heroine, holding a cup of hot coffee with visible rising steam. Nighttime setting in a cold climate tourist destination. Romantic cinematic lighting, warm glow reflecting on her face from a nearby fireplace contrasting with cool nighttime cyan tones. Shot on Helios 44-2 58mm f/2 vintage manual lens, shallow depth of field, swirly bokeh, realistic skin texture, moody and cinematic atmosphere.",
+    "imageUrl": "/outputs/job_1786757121798_hiohrvsi8.jpg",
+    "timestamp": 1786757129976,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Close-up portrait photography, a beautiful and youthful Chinese woman with the elegant look of a Chinese movie heroine, holding a cup of hot coffee with visible rising steam. Nighttime setting in a cold climate tourist destination. Romantic cinematic lighting, warm glow reflecting on her face from a nearby fireplace contrasting with cool nighttime cyan tones. Shot on Helios 44-2 58mm f/2 vintage manual lens, shallow depth of field, swirly bokeh, realistic skin texture, moody and cinematic atmosphere.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": null,
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+      "executionMode": "single_stage",
+      "referenceCount": 0,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": []
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 45,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "8a833f51ecb8286b",
+    "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "8a833f51ecb8286b",
+      "afterFingerprint": "8a833f51ecb8286b",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1786757121798_hiohrvsi8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 98530,
+    "originalBytes": 746215,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 0,
+      "providerMs": 8094,
+      "outputPersistenceMs": 214,
+      "totalMs": 8309
+    }
+  },
+  {
+    "id": "job_fashion_5a8ca65cd9ecacc68e_1",
+    "username": "user_bob",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: calm, refined and quietly confident. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. Reference image 3: outfit_front: Transfer only the declared front garment scope, including silhouette, construction, color, pattern, material, and visible clothing details. Suppress the source wearer identity, hair, body identity, pose, room, and lighting style. Remove the corresponding original template garment before applying this replacement. Do not blend the original and replacement garments unless layering is explicitly enabled. Reference image 4: template_baseline: Preserve the published template composition, camera framing, pose intent, environment, lighting, and unchanged visual treatment. Yield only the domains explicitly replaced by another authorized reference or template replacement. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"Outfit 1\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template. Reconstruct every visible human surface from the authorized Character, including the complete hands, fingers, legs, ankles and feet. Never retain proxy limb anatomy, mannequin joints, synthetic feet, grid fabric, proxy clothing or gray mannequin material in the final person. Template performance direction: sharing a genuine candid laugh. Preserve this non-identity expression as a performance by the selected Character while retaining the pose-proxy head and gaze direction. Do not copy the Template person face, facial geometry or identity to reproduce the expression. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_fashion_5a8ca65cd9ecacc68e_1.png",
+    "timestamp": 1786756587239,
+    "provider": "openai",
+    "submodel": "gpt-image-1.5",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.lookbook",
+        "value": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette",
+        "label": "Brand Lookbook",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.window-shadow-lookbook",
+        "value": "one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance",
+        "label": "Window Shadow Lookbook",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook",
+          "shadow",
+          "editorial",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.window-editorial",
+        "value": "one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail",
+        "label": "Asymmetric Lookbook Hands",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "hands",
+          "lookbook",
+          "editorial"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.quiet-lookbook",
+        "value": "quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression",
+        "label": "Quiet Lookbook Connection",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "gaze",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.gallery",
+        "value": "inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props",
+        "label": "Minimalist Gallery",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.window-pattern",
+        "value": "one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source",
+        "label": "Graphic Window Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook",
+          "shadow",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      },
+      "Framing": {
+        "id": "camera.framing_06",
+        "value": "full-body shot",
+        "label": "Full-body Shot",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "full body"
+        ],
+        "gptPositiveWords": []
+      },
+      "Focal Length": {
+        "id": "camera.focal_02",
+        "value": "85mm lens",
+        "label": "85mm (Classic Portrait)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "85mm"
+        ],
+        "gptPositiveWords": []
+      },
+      "Aperture": {
+        "id": "camera.aperture_03",
+        "value": "moderate f/2.8 aperture",
+        "label": "Moderate f/2.8 (Balanced Sharpness)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "aperture",
+          "moderate"
+        ],
+        "gptPositiveWords": []
+      },
+      "Perspective": {
+        "id": "camera.perspective_01",
+        "value": "eye-level shot",
+        "label": "Eye-level Natural View",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "perspective",
+          "eye level"
+        ],
+        "gptPositiveWords": []
+      },
+      "Composition": {
+        "id": "camera.composition_01",
+        "value": "rule-of-thirds composition",
+        "label": "Rule of Thirds",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "composition",
+          "thirds"
+        ],
+        "gptPositiveWords": []
+      },
+      "Motion Blur": {
+        "id": "camera.blur_00",
+        "value": "sharp frozen motion, no motion blur",
+        "label": "No Blur (Sharp & Frozen)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "motion blur",
+          "sharp"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_04",
+        "value": "gentle highlight halation, organic highlight roll-off",
+        "label": "Gentle Halation",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "halation"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.003",
+        "value": "sharing a genuine candid laugh",
+        "label": "Candid Gentle Laugh",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "laugh",
+          "happy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Style": {
+        "id": "pose.style.confident-editorial",
+        "value": "interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact",
+        "label": "Confident Editorial",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose-style",
+          "editorial",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"Outfit 1\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template. Reconstruct every visible human surface from the authorized Character, including the complete hands, fingers, legs, ankles and feet. Never retain proxy limb anatomy, mannequin joints, synthetic feet, grid fabric, proxy clothing or gray mannequin material in the final person. Template performance direction: sharing a genuine candid laugh. Preserve this non-identity expression as a performance by the selected Character while retaining the pose-proxy head and gaze direction. Do not copy the Template person face, facial geometry or identity to reproduce the expression.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "poseControlMode": "simple",
+      "scenePoseRecipeId": "scene-pose.window-shadow-lookbook",
+      "scenePoseRecipeVersion": 4,
+      "finalPromptSnapshot": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette, one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance, one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail, quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression, inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props, clear clean atmosphere, one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source, full-body shot, 85mm lens, moderate f/2.8 aperture, eye-level shot, rule-of-thirds composition, sharp frozen motion, no motion blur, gentle highlight halation, organic highlight roll-off, sharing a genuine candid laugh, wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts, interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Fashion Direction": {
+          "id": "fashion.lookbook",
+          "value": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette",
+          "label": "Brand Lookbook",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.window-shadow-lookbook",
+          "value": "one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance",
+          "label": "Window Shadow Lookbook",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook",
+            "shadow",
+            "editorial",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.window-editorial",
+          "value": "one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail",
+          "label": "Asymmetric Lookbook Hands",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "hands",
+            "lookbook",
+            "editorial"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.quiet-lookbook",
+          "value": "quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression",
+          "label": "Quiet Lookbook Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "gaze",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.gallery",
+          "value": "inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props",
+          "label": "Minimalist Gallery",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "label": "Clear Atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.window-pattern",
+          "value": "one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source",
+          "label": "Graphic Window Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook",
+            "shadow",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        },
+        "Framing": {
+          "id": "camera.framing_06",
+          "value": "full-body shot",
+          "label": "Full-body Shot",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "full body"
+          ],
+          "gptPositiveWords": []
+        },
+        "Focal Length": {
+          "id": "camera.focal_02",
+          "value": "85mm lens",
+          "label": "85mm (Classic Portrait)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "85mm"
+          ],
+          "gptPositiveWords": []
+        },
+        "Aperture": {
+          "id": "camera.aperture_03",
+          "value": "moderate f/2.8 aperture",
+          "label": "Moderate f/2.8 (Balanced Sharpness)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "aperture",
+            "moderate"
+          ],
+          "gptPositiveWords": []
+        },
+        "Perspective": {
+          "id": "camera.perspective_01",
+          "value": "eye-level shot",
+          "label": "Eye-level Natural View",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "perspective",
+            "eye level"
+          ],
+          "gptPositiveWords": []
+        },
+        "Composition": {
+          "id": "camera.composition_01",
+          "value": "rule-of-thirds composition",
+          "label": "Rule of Thirds",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "composition",
+            "thirds"
+          ],
+          "gptPositiveWords": []
+        },
+        "Motion Blur": {
+          "id": "camera.blur_00",
+          "value": "sharp frozen motion, no motion blur",
+          "label": "No Blur (Sharp & Frozen)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "motion blur",
+            "sharp"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_04",
+          "value": "gentle highlight halation, organic highlight roll-off",
+          "label": "Gentle Halation",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "halation"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.003",
+          "value": "sharing a genuine candid laugh",
+          "label": "Candid Gentle Laugh",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "laugh",
+            "happy"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "outfit.base.female.oversized_blazer_tailored_shorts",
+          "value": "wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts",
+          "label": "Oversized Blazer and Tailored Shorts",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "outfit-base-female",
+            "smart-casual",
+            "tailoring"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Style": {
+          "id": "pose.style.confident-editorial",
+          "value": "interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact",
+          "label": "Confident Editorial",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose-style",
+            "editorial",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.window-shadow-lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.window-editorial",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.quiet-lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.gallery",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_atmosphere",
+          "label": "Atmosphere",
+          "type": "select_option",
+          "sourceFieldName": "Atmosphere",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.atmosphere.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.window-pattern",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_framing",
+          "label": "Framing",
+          "type": "select_option",
+          "sourceFieldName": "Framing",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.framing_06",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_focal_length",
+          "label": "Focal Length",
+          "type": "select_option",
+          "sourceFieldName": "Focal Length",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.focal_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_aperture",
+          "label": "Aperture",
+          "type": "select_option",
+          "sourceFieldName": "Aperture",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.aperture_03",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_perspective",
+          "label": "Perspective",
+          "type": "select_option",
+          "sourceFieldName": "Perspective",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.perspective_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_composition",
+          "label": "Composition",
+          "type": "select_option",
+          "sourceFieldName": "Composition",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.composition_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_motion_blur",
+          "label": "Motion Blur",
+          "type": "select_option",
+          "sourceFieldName": "Motion Blur",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.blur_00",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_04",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.003",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.female.oversized_blazer_tailored_shorts",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_style",
+          "label": "Pose Style",
+          "type": "select_option",
+          "sourceFieldName": "Pose Style",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.style.confident-editorial",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_fashion_5a8ca65cd9ecacc68e_1",
+      "createdAt": 1786756587239
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786680491425_6vauj6pi",
+      "characterProfileVersionId": "charver_1786680491430_eln967ep",
+      "useCase": "fashion",
+      "sourceType": "fashion_blueprint",
+      "sourceId": "charprof_1786680491425_6vauj6pi",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786680491425_6vauj6pi",
+        "characterProfileVersionId": "charver_1786680491430_eln967ep",
+        "canonicalThreeViewAssetId": "job_1786680372576_4txu94r4q",
+        "canonicalFaceAssetId": "job_1786677761105_7ct2jhrk3",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "น้องเหมยอิง",
+      "personalitySummarySnapshot": "calm, refined and quietly confident",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786680491425_6vauj6pi",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "น้องเหมยอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "outfit_front"
+        ]
+      },
+      {
+        "index": 4,
+        "roles": [
+          "template_baseline"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "acbae0a4b2ec5b4d821e34d8dcae74466592326a8af663df7d89c6d2eff80c64",
+      "executionMode": "single_stage",
+      "referenceCount": 4,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "template_baseline",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1786720215551_kzmkamkk",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gpt-image-1.5",
+    "providerConfigVersion": 1,
+    "creditCost": 145,
+    "mimeType": "image/png",
+    "width": 1024,
+    "height": 1536,
+    "usage": {
+      "input_tokens": 16180,
+      "input_tokens_details": {
+        "image_tokens": 15271,
+        "text_tokens": 909
+      },
+      "output_tokens": 6619,
+      "output_tokens_details": {
+        "image_tokens": 6240,
+        "text_tokens": 379
+      },
+      "total_tokens": 22799
+    },
+    "referencedFaceJobIds": [
+      "job_1786677761105_7ct2jhrk3"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786680372576_4txu94r4q"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "60.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": null,
+    "referenceProcessingPlanFingerprint": "acbae0a4b2ec5b4d821e34d8dcae74466592326a8af663df7d89c6d2eff80c64",
+    "templateUseContext": {
+      "templateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1786716962796_3rxqostm",
+      "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+      "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+      "replacementSummary": [
+        {
+          "inputId": "outfit_front_reference",
+          "inputType": "reference_image",
+          "supplied": true
+        },
+        {
+          "inputId": "outfit_back_reference",
+          "inputType": "reference_image",
+          "supplied": false
+        }
+      ]
+    },
+    "fashionBlueprintContext": {
+      "runId": "frun_5a8ca65cd9ecacc68e",
+      "planId": "fpl_5a8ca65cd9ecacc68e",
+      "quoteId": "fqt_1786756525453_8nxleai",
+      "quotePurpose": "full",
+      "setupFingerprint": "269eb5e639fbac893befc3f5fd807868390ddeb475f466616d8fda9b0c1829df",
+      "operationId": "op_fashion_item_1786719939671_1_cover",
+      "productItemKey": "fashion_item_1786719939671_1",
+      "productName": "Outfit 1",
+      "shotKey": "cover",
+      "outfitScope": "full_look",
+      "referenceAssetIds": [
+        "ast_1786720215551_kzmkamkk"
+      ],
+      "promptStrategyVersion": "openai-fashion-v1",
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      }
+    },
+    "promptRefinement": null,
+    "routingSnapshot": {
+      "providerId": "openai",
+      "modelId": "gpt-image-1.5",
+      "routingPolicyVersion": null,
+      "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+      "qualificationStatus": "experimental",
+      "promptStrategyVersion": "openai-fashion-v1"
+    },
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_fashion_5a8ca65cd9ecacc68e_1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 853,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 43124,
+    "originalBytes": 2045627,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 210,
+      "providerMs": 60510,
+      "outputPersistenceMs": 223,
+      "totalMs": 60944
+    }
+  },
+  {
+    "id": "job_fashion_00d2211f8275d0512f_1",
+    "username": "user_bob",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: calm, refined and quietly confident. Follow this structured reference authority contract exactly.\n{\n  \"contract_id\": \"fashion_template_character_outfit_v1\",\n  \"task\": \"Generate one photorealistic vertical commercial fashion photograph.\",\n  \"template_direction\": {\n    \"source_image\": \"IMAGE_0\",\n    \"authority\": [\n      \"pose\",\n      \"movement\",\n      \"camera\",\n      \"framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"preserve\": [\n      \"destination pose and movement\",\n      \"camera and framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"ignore\": [\n      \"template person identity\",\n      \"template face\",\n      \"template hair\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template clothing\",\n      \"pose proxy surface\",\n      \"mannequin material\",\n      \"grid lines\",\n      \"proxy limb anatomy\",\n      \"proxy hands\",\n      \"proxy legs\",\n      \"proxy feet\"\n    ]\n  },\n  \"template_performance_direction\": {\n    \"source\": \"IMMUTABLE_TEMPLATE_SELECTIONS\",\n    \"authority\": [\n      \"expression performance\"\n    ],\n    \"expression\": \"sharing a genuine candid laugh\",\n    \"instruction\": \"Perform this expression using the selected Character identity. Retain pose-proxy head and gaze direction. Never copy Template facial anatomy or identity.\"\n  },\n  \"character_identity\": {\n    \"source_image\": \"IMAGE_2\",\n    \"instruction\": \"Replace the template person completely with this exact character. Prioritize the character skin tone and never blend identity traits from another reference.\",\n    \"authority\": [\n      \"identity\",\n      \"face\",\n      \"hair\",\n      \"skin\",\n      \"body shape\",\n      \"body proportions\"\n    ],\n    \"preserve\": [\n      \"recognizable facial identity\",\n      \"facial proportions\",\n      \"hairstyle\",\n      \"skin tone\",\n      \"complete body proportions\",\n      \"natural human hands and fingers\",\n      \"natural human legs, ankles, and feet\"\n    ],\n    \"ignore\": [\n      \"source background\",\n      \"source pose\",\n      \"source clothing\",\n      \"casting sheet layout\"\n    ],\n    \"body_source_image\": \"IMAGE_1\",\n    \"face_source_image\": \"IMAGE_2\"\n  },\n  \"outfit_transfer\": {\n    \"source_image\": \"IMAGE_3\",\n    \"instruction\": \"Dress the selected character in this specific outfit.\",\n    \"authority\": [\n      \"garment\"\n    ],\n    \"preserve\": [\n      \"garment silhouette\",\n      \"construction\",\n      \"color\",\n      \"pattern\",\n      \"material\",\n      \"seams\",\n      \"visible garment details\"\n    ],\n    \"ignore\": [\n      \"outfit source identity\",\n      \"outfit source face\",\n      \"outfit source hair\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"source pose\",\n      \"source environment\",\n      \"source lighting\"\n    ]\n  },\n  \"output\": {\n    \"aspect_ratio\": \"6:8\",\n    \"subject_count\": 1,\n    \"single_full_frame_photo\": true,\n    \"full_body_visible\": true,\n    \"identity_source\": \"IMAGE_2 for detailed face identity and IMAGE_1 for body identity only\",\n    \"composition_source\": \"IMAGE_0 only\",\n    \"garment_source\": \"IMAGE_3 only\",\n    \"prohibit\": [\n      \"identity blending\",\n      \"template person identity\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template hairstyle\",\n      \"outfit source identity\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"pose proxy surface\",\n      \"mannequin material\",\n      \"mannequin joints\",\n      \"synthetic mannequin hands\",\n      \"synthetic mannequin legs\",\n      \"synthetic mannequin feet\",\n      \"wireframe lines\",\n      \"grid lines\",\n      \"proxy clothing\",\n      \"multiple people\",\n      \"multiple views\",\n      \"casting sheet\",\n      \"contact sheet\",\n      \"split screen\",\n      \"white reference background\",\n      \"white casting clothes\",\n      \"text\",\n      \"labels\",\n      \"watermarks\"\n    ]\n  }\n}\nThe detailed destination direction follows this JSON contract. Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"Outfit 1\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template. Reconstruct every visible human surface from the authorized Character, including the complete hands, fingers, legs, ankles and feet. Never retain proxy limb anatomy, mannequin joints, synthetic feet, grid fabric, proxy clothing or gray mannequin material in the final person. Template performance direction: sharing a genuine candid laugh. Preserve this non-identity expression as a performance by the selected Character while retaining the pose-proxy head and gaze direction. Do not copy the Template person face, facial geometry or identity to reproduce the expression. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_fashion_00d2211f8275d0512f_1.jpg",
+    "timestamp": 1786756248218,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-image",
+    "mode": "normal",
+    "selections": {
+      "Fashion Direction": {
+        "id": "fashion.lookbook",
+        "value": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette",
+        "label": "Brand Lookbook",
+        "isCustom": false,
+        "group": "Fashion Direction",
+        "category": "fashion_direction",
+        "tags": [
+          "fashion",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Intent": {
+        "id": "pose.fashion.window-shadow-lookbook",
+        "value": "one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance",
+        "label": "Window Shadow Lookbook",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "lookbook",
+          "shadow",
+          "editorial",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Hand Position": {
+        "id": "pose.hand.window-editorial",
+        "value": "one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail",
+        "label": "Asymmetric Lookbook Hands",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "hands",
+          "lookbook",
+          "editorial"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Gaze": {
+        "id": "pose.gaze.quiet-lookbook",
+        "value": "quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression",
+        "label": "Quiet Lookbook Connection",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose",
+          "gaze",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Fashion Venue": {
+        "id": "environment.fashion.gallery",
+        "value": "inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props",
+        "label": "Minimalist Gallery",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "indoor",
+          "lookbook"
+        ],
+        "gptPositiveWords": []
+      },
+      "Atmosphere": {
+        "id": "environment.atmosphere.clear",
+        "value": "clear clean atmosphere",
+        "label": "Clear Atmosphere",
+        "isCustom": false,
+        "group": "Environment",
+        "category": "environment",
+        "tags": [
+          "environment",
+          "commerce-safe"
+        ],
+        "gptPositiveWords": []
+      },
+      "Lighting Setup": {
+        "id": "lighting.fashion.window-pattern",
+        "value": "one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source",
+        "label": "Graphic Window Shadow",
+        "isCustom": false,
+        "group": "Lighting",
+        "category": "lighting",
+        "tags": [
+          "lighting",
+          "lookbook",
+          "shadow",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      },
+      "Framing": {
+        "id": "camera.framing_06",
+        "value": "full-body shot",
+        "label": "Full-body Shot",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_framing",
+        "tags": [
+          "camera",
+          "framing",
+          "full body"
+        ],
+        "gptPositiveWords": []
+      },
+      "Focal Length": {
+        "id": "camera.focal_02",
+        "value": "85mm lens",
+        "label": "85mm (Classic Portrait)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "focal length",
+          "85mm"
+        ],
+        "gptPositiveWords": []
+      },
+      "Aperture": {
+        "id": "camera.aperture_03",
+        "value": "moderate f/2.8 aperture",
+        "label": "Moderate f/2.8 (Balanced Sharpness)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "aperture",
+          "moderate"
+        ],
+        "gptPositiveWords": []
+      },
+      "Perspective": {
+        "id": "camera.perspective_01",
+        "value": "eye-level shot",
+        "label": "Eye-level Natural View",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "perspective",
+          "eye level"
+        ],
+        "gptPositiveWords": []
+      },
+      "Composition": {
+        "id": "camera.composition_01",
+        "value": "rule-of-thirds composition",
+        "label": "Rule of Thirds",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "composition",
+          "thirds"
+        ],
+        "gptPositiveWords": []
+      },
+      "Motion Blur": {
+        "id": "camera.blur_00",
+        "value": "sharp frozen motion, no motion blur",
+        "label": "No Blur (Sharp & Frozen)",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera",
+        "tags": [
+          "camera",
+          "motion blur",
+          "sharp"
+        ],
+        "gptPositiveWords": []
+      },
+      "Camera Imperfections": {
+        "id": "camera.imp_04",
+        "value": "gentle highlight halation, organic highlight roll-off",
+        "label": "Gentle Halation",
+        "isCustom": false,
+        "group": "Camera",
+        "category": "camera_imperfections",
+        "tags": [
+          "camera",
+          "imperfections",
+          "halation"
+        ],
+        "gptPositiveWords": []
+      },
+      "Expression": {
+        "id": "expression.003",
+        "value": "sharing a genuine candid laugh",
+        "label": "Candid Gentle Laugh",
+        "isCustom": false,
+        "group": "Face",
+        "category": "expression",
+        "tags": [
+          "expression",
+          "laugh",
+          "happy"
+        ],
+        "gptPositiveWords": []
+      },
+      "Pose Style": {
+        "id": "pose.style.confident-editorial",
+        "value": "interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact",
+        "label": "Confident Editorial",
+        "isCustom": false,
+        "group": "Pose",
+        "category": "pose",
+        "tags": [
+          "pose-style",
+          "editorial",
+          "professional"
+        ],
+        "gptPositiveWords": []
+      }
+    },
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"Outfit 1\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template. Reconstruct every visible human surface from the authorized Character, including the complete hands, fingers, legs, ankles and feet. Never retain proxy limb anatomy, mannequin joints, synthetic feet, grid fabric, proxy clothing or gray mannequin material in the final person. Template performance direction: sharing a genuine candid laugh. Preserve this non-identity expression as a performance by the selected Character while retaining the pose-proxy head and gaze direction. Do not copy the Template person face, facial geometry or identity to reproduce the expression.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": {
+      "sceneTemplateVersion": 1,
+      "authoringMode": "guided",
+      "poseControlMode": "simple",
+      "scenePoseRecipeId": "scene-pose.window-shadow-lookbook",
+      "scenePoseRecipeVersion": 4,
+      "finalPromptSnapshot": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette, one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance, one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail, quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression, inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props, clear clean atmosphere, one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source, full-body shot, 85mm lens, moderate f/2.8 aperture, eye-level shot, rule-of-thirds composition, sharp frozen motion, no motion blur, gentle highlight halation, organic highlight roll-off, sharing a genuine candid laugh, wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts, interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact, photorealistic scene photography, natural composition, clear realistic details",
+      "structuredSelectionsSnapshot": {
+        "Fashion Direction": {
+          "id": "fashion.lookbook",
+          "value": "refined fashion lookbook photography, consistent collection styling, clear garment silhouette",
+          "label": "Brand Lookbook",
+          "isCustom": false,
+          "group": "Fashion Direction",
+          "category": "fashion_direction",
+          "tags": [
+            "fashion",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Intent": {
+          "id": "pose.fashion.window-shadow-lookbook",
+          "value": "one full-body subject in a high-fashion editorial contrapposto, approximately seventy percent of weight settled through one long straight supporting leg while the free knee bends softly and crosses a small diagonal half-step in front without locking or merging the legs, pelvis shifts subtly toward the supporting side while the ribcage and shoulders rotate gently in the opposite direction to form one elongated asymmetric S-curve, one shoulder lowers naturally and the torso remains lifted rather than stiff, the head returns slightly toward the camera with a level chin, complete head-to-feet figure visible with restrained negative space, anatomically stable and never a flat symmetrical catalog stance",
+          "label": "Window Shadow Lookbook",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "lookbook",
+            "shadow",
+            "editorial",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Hand Position": {
+          "id": "pose.hand.window-editorial",
+          "value": "one hand rests lightly along the high hip or waist side seam with relaxed separated fingers and an elbow forming a restrained angular line, while the opposite arm extends low beside and slightly behind the outer thigh; both wrists remain natural, the two hands never mirror each other, and no hand covers the garment front, closure, waist construction, or principal product detail",
+          "label": "Asymmetric Lookbook Hands",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "hands",
+            "lookbook",
+            "editorial"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Gaze": {
+          "id": "pose.gaze.quiet-lookbook",
+          "value": "quiet self-possessed camera connection with relaxed eyelids and a neutral refined fashion expression",
+          "label": "Quiet Lookbook Connection",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose",
+            "gaze",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Fashion Venue": {
+          "id": "environment.fashion.gallery",
+          "value": "inside a real contemporary gallery prepared for an on-location fashion lookbook, with matte plaster walls, a visible floor-to-wall junction, one tall architectural window, and restrained gallery context such as a single bench or plinth placed at believable scale; the corridor and wall planes create natural photographic depth while remaining secondary to the garment, with no abstract void, floating lights, unexplained neon, impossible architecture, or random decorative props",
+          "label": "Minimalist Gallery",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "indoor",
+            "lookbook"
+          ],
+          "gptPositiveWords": []
+        },
+        "Atmosphere": {
+          "id": "environment.atmosphere.clear",
+          "value": "clear clean atmosphere",
+          "label": "Clear Atmosphere",
+          "isCustom": false,
+          "group": "Environment",
+          "category": "environment",
+          "tags": [
+            "environment",
+            "commerce-safe"
+          ],
+          "gptPositiveWords": []
+        },
+        "Lighting Setup": {
+          "id": "lighting.fashion.window-pattern",
+          "value": "one physically motivated semi-hard late-morning sunlight source enters through the gallery's real tall window from upper camera-left at approximately forty-five degrees; direct sunlight visibly illuminates a substantial area of the subject's face, shoulder, torso, legs, and garment, with bright sunlit fabric and skin adjacent to crisp window-mullion shadow bands crossing the subject; the same aligned window-frame geometry continues naturally from the subject onto the wall and floor behind, proving one coherent light path rather than a decorative background pattern; ambient room fill remains approximately two stops below the sunlit areas, natural contact shadows remain beneath both feet, facial identity and garment color, material, seams, and construction stay readable, no flat frontal fill, no evenly lit subject, no shadow pattern isolated only on the background, and no invented neon or floating light source",
+          "label": "Graphic Window Shadow",
+          "isCustom": false,
+          "group": "Lighting",
+          "category": "lighting",
+          "tags": [
+            "lighting",
+            "lookbook",
+            "shadow",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        },
+        "Framing": {
+          "id": "camera.framing_06",
+          "value": "full-body shot",
+          "label": "Full-body Shot",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_framing",
+          "tags": [
+            "camera",
+            "framing",
+            "full body"
+          ],
+          "gptPositiveWords": []
+        },
+        "Focal Length": {
+          "id": "camera.focal_02",
+          "value": "85mm lens",
+          "label": "85mm (Classic Portrait)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "focal length",
+            "85mm"
+          ],
+          "gptPositiveWords": []
+        },
+        "Aperture": {
+          "id": "camera.aperture_03",
+          "value": "moderate f/2.8 aperture",
+          "label": "Moderate f/2.8 (Balanced Sharpness)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "aperture",
+            "moderate"
+          ],
+          "gptPositiveWords": []
+        },
+        "Perspective": {
+          "id": "camera.perspective_01",
+          "value": "eye-level shot",
+          "label": "Eye-level Natural View",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "perspective",
+            "eye level"
+          ],
+          "gptPositiveWords": []
+        },
+        "Composition": {
+          "id": "camera.composition_01",
+          "value": "rule-of-thirds composition",
+          "label": "Rule of Thirds",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "composition",
+            "thirds"
+          ],
+          "gptPositiveWords": []
+        },
+        "Motion Blur": {
+          "id": "camera.blur_00",
+          "value": "sharp frozen motion, no motion blur",
+          "label": "No Blur (Sharp & Frozen)",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera",
+          "tags": [
+            "camera",
+            "motion blur",
+            "sharp"
+          ],
+          "gptPositiveWords": []
+        },
+        "Camera Imperfections": {
+          "id": "camera.imp_04",
+          "value": "gentle highlight halation, organic highlight roll-off",
+          "label": "Gentle Halation",
+          "isCustom": false,
+          "group": "Camera",
+          "category": "camera_imperfections",
+          "tags": [
+            "camera",
+            "imperfections",
+            "halation"
+          ],
+          "gptPositiveWords": []
+        },
+        "Expression": {
+          "id": "expression.003",
+          "value": "sharing a genuine candid laugh",
+          "label": "Candid Gentle Laugh",
+          "isCustom": false,
+          "group": "Face",
+          "category": "expression",
+          "tags": [
+            "expression",
+            "laugh",
+            "happy"
+          ],
+          "gptPositiveWords": []
+        },
+        "Outfit Base": {
+          "id": "outfit.base.female.oversized_blazer_tailored_shorts",
+          "value": "wearing a relaxed unbranded blazer over a fitted plain top with clean mid-thigh tailored shorts",
+          "label": "Oversized Blazer and Tailored Shorts",
+          "isCustom": false,
+          "group": "Clothing",
+          "category": "clothing",
+          "tags": [
+            "clothing",
+            "outfit-base",
+            "outfit-base-female",
+            "smart-casual",
+            "tailoring"
+          ],
+          "gptPositiveWords": []
+        },
+        "Pose Style": {
+          "id": "pose.style.confident-editorial",
+          "value": "interpret the selected base pose with confident editorial fashion presence by strengthening its existing asymmetry through anatomically plausible pelvis, ribcage and shoulder counter-direction, one deliberate non-mirrored hand line and a composed lifted posture, without replacing the selected action, crop, camera direction, garment-safe constraints, or environmental contact",
+          "label": "Confident Editorial",
+          "isCustom": false,
+          "group": "Pose",
+          "category": "pose",
+          "tags": [
+            "pose-style",
+            "editorial",
+            "professional"
+          ],
+          "gptPositiveWords": []
+        }
+      },
+      "manualPromptSnapshot": "",
+      "referenceSlotMapping": {
+        "face_reference": {
+          "role": "face_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "character_reference": {
+          "role": "character_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "style_reference": {
+          "role": "style_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "pose_reference": {
+          "role": "pose_reference",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_front_reference": {
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        },
+        "outfit_back_reference": {
+          "role": "outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "sharePolicy": "required_user_replacement",
+          "reuseAllowed": false,
+          "previewAllowed": false
+        }
+      },
+      "replaceableVariables": [
+        {
+          "id": "field_fashion_direction",
+          "label": "Fashion Direction",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Direction",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "fashion.lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_intent",
+          "label": "Pose Intent",
+          "type": "select_option",
+          "sourceFieldName": "Pose Intent",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.fashion.window-shadow-lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_hand_position",
+          "label": "Fashion Hand Position",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Hand Position",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.hand.window-editorial",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_gaze",
+          "label": "Fashion Gaze",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Gaze",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.gaze.quiet-lookbook",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_fashion_venue",
+          "label": "Fashion Venue",
+          "type": "select_option",
+          "sourceFieldName": "Fashion Venue",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.fashion.gallery",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_atmosphere",
+          "label": "Atmosphere",
+          "type": "select_option",
+          "sourceFieldName": "Atmosphere",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "environment.atmosphere.clear",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_lighting_setup",
+          "label": "Lighting Setup",
+          "type": "select_option",
+          "sourceFieldName": "Lighting Setup",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "lighting.fashion.window-pattern",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_framing",
+          "label": "Framing",
+          "type": "select_option",
+          "sourceFieldName": "Framing",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.framing_06",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_focal_length",
+          "label": "Focal Length",
+          "type": "select_option",
+          "sourceFieldName": "Focal Length",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.focal_02",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_aperture",
+          "label": "Aperture",
+          "type": "select_option",
+          "sourceFieldName": "Aperture",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.aperture_03",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_perspective",
+          "label": "Perspective",
+          "type": "select_option",
+          "sourceFieldName": "Perspective",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.perspective_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_composition",
+          "label": "Composition",
+          "type": "select_option",
+          "sourceFieldName": "Composition",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.composition_01",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_motion_blur",
+          "label": "Motion Blur",
+          "type": "select_option",
+          "sourceFieldName": "Motion Blur",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.blur_00",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_camera_imperfections",
+          "label": "Camera Imperfections",
+          "type": "select_option",
+          "sourceFieldName": "Camera Imperfections",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "camera.imp_04",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_expression",
+          "label": "Expression",
+          "type": "select_option",
+          "sourceFieldName": "Expression",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "expression.003",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_outfit_base",
+          "label": "Outfit Base",
+          "type": "select_option",
+          "sourceFieldName": "Outfit Base",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "outfit.base.female.oversized_blazer_tailored_shorts",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "field_pose_style",
+          "label": "Pose Style",
+          "type": "select_option",
+          "sourceFieldName": "Pose Style",
+          "fashionBindingRole": "fashion.pose",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": "pose.style.confident-editorial",
+          "allowedOptionIds": []
+        },
+        {
+          "id": "face_reference",
+          "label": "Face Reference",
+          "type": "reference_image",
+          "sourceFieldName": "face_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "character_reference",
+          "label": "Character Reference",
+          "type": "reference_image",
+          "sourceFieldName": "character_reference",
+          "fashionBindingRole": "fashion.character",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "style_reference",
+          "label": "Style Reference",
+          "type": "reference_image",
+          "sourceFieldName": "style_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "pose_reference",
+          "label": "Pose Reference",
+          "type": "reference_image",
+          "sourceFieldName": "pose_reference",
+          "fashionBindingRole": null,
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_front_reference",
+          "label": "Outfit Front Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_front_reference",
+          "fashionBindingRole": "fashion.outfit_front",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        },
+        {
+          "id": "outfit_back_reference",
+          "label": "Outfit Back Reference",
+          "type": "reference_image",
+          "sourceFieldName": "outfit_back_reference",
+          "fashionBindingRole": "fashion.outfit_back",
+          "required": false,
+          "replacementPolicy": "replaceable",
+          "defaultValue": null,
+          "allowedOptionIds": []
+        }
+      ],
+      "providerModelSnapshot": {
+        "providerId": "gemini",
+        "modelId": "gemini-3.1-flash-lite-image"
+      },
+      "generationSettingsSnapshot": {
+        "aspectRatio": "6:8",
+        "resolution": null,
+        "outputCount": 1
+      },
+      "customColorsSnapshot": {
+        "Color": {
+          "enabled": false,
+          "base": "#4a3728",
+          "highlightEnabled": false,
+          "highlight": "#c58a5b"
+        },
+        "Primary Color": {
+          "enabled": false,
+          "color": "#111827"
+        },
+        "Secondary Color": {
+          "enabled": false,
+          "color": "#e5e7eb"
+        }
+      },
+      "additionalDirectionSnapshot": "",
+      "createdFromGenerationId": "job_fashion_00d2211f8275d0512f_1",
+      "createdAt": 1786756248218
+    },
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786680491425_6vauj6pi",
+      "characterProfileVersionId": "charver_1786680491430_eln967ep",
+      "useCase": "fashion",
+      "sourceType": "fashion_blueprint",
+      "sourceId": "charprof_1786680491425_6vauj6pi",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786680491425_6vauj6pi",
+        "characterProfileVersionId": "charver_1786680491430_eln967ep",
+        "canonicalThreeViewAssetId": "job_1786680372576_4txu94r4q",
+        "canonicalFaceAssetId": "job_1786677761105_7ct2jhrk3",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "น้องเหมยอิง",
+      "personalitySummarySnapshot": "calm, refined and quietly confident",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786680491425_6vauj6pi",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "น้องเหมยอิง"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "template_baseline"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 4,
+        "roles": [
+          "outfit_front"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "c5a35c6bff281b4fef27cf1a78455250b395b7eae92be878b7283ad45fb14ba3",
+      "executionMode": "single_stage",
+      "referenceCount": 4,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "template_baseline",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "outfit_front",
+          "sourceAssetId": "ast_1786720215551_kzmkamkk",
+          "derivativeAssetId": null,
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": "full_look",
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-image",
+    "providerConfigVersion": 1,
+    "creditCost": 114,
+    "mimeType": "image/jpeg",
+    "width": 896,
+    "height": 1200,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786677761105_7ct2jhrk3"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786680372576_4txu94r4q"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "15.5",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": null,
+    "referenceProcessingPlanFingerprint": "c5a35c6bff281b4fef27cf1a78455250b395b7eae92be878b7283ad45fb14ba3",
+    "templateUseContext": {
+      "templateId": "tmpl_1786716962788_t1fxowtc",
+      "templateVersionId": "tmplv_1786716962796_3rxqostm",
+      "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+      "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+      "replacementSummary": [
+        {
+          "inputId": "outfit_front_reference",
+          "inputType": "reference_image",
+          "supplied": true
+        },
+        {
+          "inputId": "outfit_back_reference",
+          "inputType": "reference_image",
+          "supplied": false
+        }
+      ]
+    },
+    "fashionBlueprintContext": {
+      "runId": "frun_00d2211f8275d0512f",
+      "planId": "fpl_00d2211f8275d0512f",
+      "quoteId": "fqt_1786756230955_lk7d9cl",
+      "quotePurpose": "full",
+      "setupFingerprint": "015aa042601905e1a5c5188da8b6f9c35449634abf6b844e526acc153f87b9b2",
+      "operationId": "op_fashion_item_1786719939671_1_cover",
+      "productItemKey": "fashion_item_1786719939671_1",
+      "productName": "Outfit 1",
+      "shotKey": "cover",
+      "outfitScope": "full_look",
+      "referenceAssetIds": [
+        "ast_1786720215551_kzmkamkk"
+      ],
+      "promptStrategyVersion": "GNB2-S6",
+      "templateLineage": {
+        "communityPostId": "post_1786716962811_vz14fvt1",
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
+        "poseProxyId": "tpp_c0a21cfac8415cb968",
+        "poseProxySourceGenerationId": "job_pose_proxy_c0a21cfac8415cb968",
+        "poseProxyPolicyVersion": "template-pose-proxy-2026-08-02-v3",
+        "poseProxyStrategyVersion": "GNB2-S6-CLOTHED-GRID-PROXY-V2",
+        "poseProxyRepresentation": "clothed_grid_mannequin"
+      }
+    },
+    "promptRefinement": null,
+    "routingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "routingPolicyVersion": null,
+      "qualificationVersion": "fashion-qualification-2026-08-04-v7",
+      "qualificationStatus": "qualified",
+      "promptStrategyVersion": "GNB2-S6"
+    },
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_fashion_00d2211f8275d0512f_1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 896,
+    "thumbnailHeight": 1200,
+    "thumbnailBytes": 47268,
+    "originalBytes": 661272,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 184,
+      "providerMs": 15302,
+      "outputPersistenceMs": 221,
+      "totalMs": 15710
+    }
+  },
+  {
     "id": "job_fashion_55302eaf76143aaf36_1",
     "username": "user_bob",
     "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Replace the source outfit with the explicitly supplied outfit reference while preserving the character identity and body proportions. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: calm, refined and quietly confident. Follow this structured reference authority contract exactly.\n{\n  \"contract_id\": \"fashion_template_character_outfit_v1\",\n  \"task\": \"Generate one photorealistic vertical commercial fashion photograph.\",\n  \"template_direction\": {\n    \"source_image\": \"IMAGE_0\",\n    \"authority\": [\n      \"pose\",\n      \"movement\",\n      \"camera\",\n      \"framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"preserve\": [\n      \"destination pose and movement\",\n      \"camera and framing\",\n      \"environment\",\n      \"lighting\"\n    ],\n    \"ignore\": [\n      \"template person identity\",\n      \"template face\",\n      \"template hair\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template clothing\"\n    ]\n  },\n  \"character_identity\": {\n    \"source_image\": \"IMAGE_2\",\n    \"instruction\": \"Replace the template person completely with this exact character. Prioritize the character skin tone and never blend identity traits from another reference.\",\n    \"authority\": [\n      \"identity\",\n      \"face\",\n      \"hair\",\n      \"skin\",\n      \"body shape\",\n      \"body proportions\"\n    ],\n    \"preserve\": [\n      \"recognizable facial identity\",\n      \"facial proportions\",\n      \"hairstyle\",\n      \"skin tone\",\n      \"complete body proportions\"\n    ],\n    \"ignore\": [\n      \"source background\",\n      \"source pose\",\n      \"source clothing\",\n      \"casting sheet layout\"\n    ],\n    \"body_source_image\": \"IMAGE_1\",\n    \"face_source_image\": \"IMAGE_2\"\n  },\n  \"outfit_transfer\": {\n    \"source_image\": \"IMAGE_3\",\n    \"instruction\": \"Dress the selected character in this specific outfit.\",\n    \"authority\": [\n      \"garment\"\n    ],\n    \"preserve\": [\n      \"garment silhouette\",\n      \"construction\",\n      \"color\",\n      \"pattern\",\n      \"material\",\n      \"seams\",\n      \"visible garment details\"\n    ],\n    \"ignore\": [\n      \"outfit source identity\",\n      \"outfit source face\",\n      \"outfit source hair\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"source pose\",\n      \"source environment\",\n      \"source lighting\"\n    ],\n    \"back_source_image\": \"IMAGE_3\"\n  },\n  \"output\": {\n    \"aspect_ratio\": \"6:8\",\n    \"subject_count\": 1,\n    \"single_full_frame_photo\": true,\n    \"full_body_visible\": true,\n    \"identity_source\": \"IMAGE_2 for detailed face identity and IMAGE_1 for body identity only\",\n    \"composition_source\": \"IMAGE_0 only\",\n    \"garment_source\": \"IMAGE_3 and IMAGE_3 only\",\n    \"prohibit\": [\n      \"identity blending\",\n      \"template person identity\",\n      \"template skin tone\",\n      \"template body proportions\",\n      \"template hairstyle\",\n      \"outfit source identity\",\n      \"outfit source skin tone\",\n      \"outfit source body proportions\",\n      \"multiple people\",\n      \"multiple views\",\n      \"casting sheet\",\n      \"contact sheet\",\n      \"split screen\",\n      \"white reference background\",\n      \"white casting clothes\",\n      \"text\",\n      \"labels\",\n      \"watermarks\"\n    ]\n  }\n}\nThe detailed destination direction follows this JSON contract. Create a professional full-body ecommerce fashion photograph. The Template reference is an identity-neutral pose proxy that may appear as a gray mannequin or technical wireframe. Use it only for exact pose joints, hand placement, neck rotation, head yaw, head pitch, head roll, facial-plane direction, gaze direction, camera, framing, environment and lighting; it has no identity, skin, hair, body or clothing authority. Preserve the authorized Character identity and body proportions. Show the clothing_set product named \"Outfit 1\" with accurate silhouette, construction, pattern, color, seams and fabric texture. Pose direction: Preserve the template pose and framing.. Environment direction: Preserve the template environment, lighting direction, and camera composition.. clean ecommerce proof quality with clear garment placement Product integrity mode: balanced. Keep the complete model and garment visible with natural commercial posing and do not invent logos or garment details. Replace the pose proxy completely. Copy its complete joint layout, neck-to-shoulder relationship, head and face direction, and contact points without reproducing wireframe lines, a mannequin surface or any person from the original Template. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",

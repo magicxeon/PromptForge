@@ -393,6 +393,7 @@
   "ui.share.publishTemplateHelp": "People can replace only the inputs exposed by this template version.",
   "ui.share.templateCredits": "Template access credits per output",
   "ui.share.templateInputs": "What can people change?",
+  "ui.share.includedAutomatically": "Included automatically: {inputs}",
   "ui.share.required": "Required",
   "ui.templateManagement.edit": "Edit template",
   "ui.templateManagement.title": "Edit shared template",

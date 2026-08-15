@@ -73,20 +73,15 @@ export function ShareGeneratedDialog({
   });
 
   useEffect(() => {
-    const inputs = draft.data?.suggestedTemplateInputSchema?.inputs || [];
     if (!draft.data?.templateEligible) {
       setPublishAsTemplate(false);
       setSelectedTemplateInputs(new Set());
       setRequiredTemplateInputs(new Set());
       return;
     }
-    setPublishAsTemplate(true);
-    setSelectedTemplateInputs(new Set(inputs
-      .filter(isRecommendedTemplateInput)
-      .map(input => String(input.id || ''))));
-    setRequiredTemplateInputs(new Set(inputs
-      .filter(input => isRecommendedTemplateInput(input) && isRecommendedRequiredInput(input))
-      .map(input => String(input.id || ''))));
+    setPublishAsTemplate(false);
+    setSelectedTemplateInputs(new Set());
+    setRequiredTemplateInputs(new Set());
   }, [draft.data]);
 
   function change(next: boolean) {
@@ -210,7 +205,15 @@ export function ShareGeneratedDialog({
                         onChange={event => {
                           const checked = event.target.checked;
                           setPublishAsTemplate(checked);
-                          if (!checked) {
+                          if (checked) {
+                            const inputs = optionalTemplateInputs(draft.data);
+                            setSelectedTemplateInputs(new Set(inputs
+                              .filter(isRecommendedTemplateInput)
+                              .map(input => String(input.id || ''))));
+                            setRequiredTemplateInputs(new Set(inputs
+                              .filter(input => isRecommendedTemplateInput(input) && isRecommendedRequiredInput(input))
+                              .map(input => String(input.id || ''))));
+                          } else {
                             setSelectedTemplateInputs(new Set());
                             setRequiredTemplateInputs(new Set());
                           }
@@ -224,10 +227,18 @@ export function ShareGeneratedDialog({
 
                     {publishAsTemplate ? (
                       <>
+                      {draft.data.mandatoryTemplateInputIds.length ? (
+                        <p className="share-generated-dialog__mandatory-summary">
+                          {t('ui.share.includedAutomatically', {
+                            inputs: mandatoryInputLabels(draft.data).join(', ')
+                          })}
+                        </p>
+                      ) : null}
+                      {optionalTemplateInputs(draft.data).length ? (
                       <fieldset className="share-generated-dialog__template-inputs">
                       <legend>{t('ui.share.templateInputs')}</legend>
                       <div className="share-generated-dialog__template-input-list">
-                        {draft.data.suggestedTemplateInputSchema?.inputs.map(input => {
+                        {optionalTemplateInputs(draft.data).map(input => {
                           const inputId = String(input.id || '');
                           return (
                             <div
@@ -269,6 +280,7 @@ export function ShareGeneratedDialog({
                         })}
                       </div>
                       </fieldset>
+                      ) : null}
 
                       <label className="share-generated-dialog__field">
                         <span>{t('ui.share.templateCredits')}</span>
@@ -348,4 +360,24 @@ function updateSet(current: Set<string>, value: string, enabled: boolean) {
   if (enabled) next.add(value);
   else next.delete(value);
   return next;
+}
+
+type TemplateDraftInputSource = {
+  mandatoryTemplateInputIds: string[];
+  suggestedTemplateInputSchema?: {
+    inputs: Record<string, unknown>[];
+  } | null;
+};
+
+function optionalTemplateInputs(draft: TemplateDraftInputSource) {
+  const mandatory = new Set(draft.mandatoryTemplateInputIds);
+  return (draft.suggestedTemplateInputSchema?.inputs || [])
+    .filter(input => !mandatory.has(String(input.id || '')));
+}
+
+function mandatoryInputLabels(draft: TemplateDraftInputSource) {
+  const mandatory = new Set(draft.mandatoryTemplateInputIds);
+  return (draft.suggestedTemplateInputSchema?.inputs || [])
+    .filter(input => mandatory.has(String(input.id || '')))
+    .map(input => String(input.label || input.sourceFieldName || input.id));
 }

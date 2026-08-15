@@ -1,7 +1,7 @@
 # Fashion Blueprint UX Review And Production Results Experience
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`
-**Status:** Requirement ready for UX/UI expert review; implementation pending
+**Status:** Shared production convergence implemented; visual validation pending
 **Owner:** Fashion Blueprint React feature with shared Generation UI dependencies
 
 ## 1. Purpose
@@ -144,6 +144,23 @@ web/src/components/generation/GenerationQueueStatus.tsx
 
 The shared component must accept Fashion operation items without learning
 Fashion pricing, ownership or provider behavior.
+
+Active operation tiles use the same theme-aware loading treatment as the shared
+Generation result grid. Fashion does not maintain a visually different spinner
+implementation. Clicking a successful tile opens the shared
+`GenerationImageViewer`; Fashion supplies labels/actions through props and does
+not create another lightbox.
+
+The active Fashion empty/preparation state also uses the shared
+`GenerationStageState` and loading-halo primitive. Fashion must not render a
+route-local bare `LoaderCircle`; idle copy, active copy and the Momelo mark stay
+centered inside a stable full-width production media area. Operation tiles keep
+using `GenerationResultGrid`, so Studio, Playground and Fashion expose one
+recognizable loading language.
+
+The production heading receives programmatic focus after an accepted run.
+Quote, Credit and validation rejection do not move the viewport. Restoring a
+persisted run renders in place without repeatedly forcing scroll on page load.
 
 ### 3.6 Recent Fashion images
 
@@ -345,3 +362,19 @@ i18n catalog parity
 
 Manual validation must cover approximately `1440px` and `390px` in Momelo
 Neon, Pearl Editorial and Electric Studio.
+
+## 9. Change-Safety Checklist
+
+- [x] one, two, three and four result layouts remain stable;
+- [x] batches greater than four remain readable and do not overflow;
+- [x] an accepted run scrolls/focuses exactly once and reduced motion is honored;
+- [x] queued, processing, completed, partial and failed states remain distinct;
+- [x] completed outputs retain Download, Collection and Share;
+- [x] completed outputs open in the shared viewer with keyboard navigation;
+- [x] failed operations stop their spinner;
+- [x] actor switch and refresh do not expose another actor's run;
+- [x] the Momelo mark remains in the non-running empty state;
+- [x] no Fashion-specific provider, Queue, Credit or polling path is introduced.
+
+Manual validation remains required at desktop and mobile widths in all three
+Themes before this UX requirement is marked complete.

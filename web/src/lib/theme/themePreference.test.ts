@@ -20,9 +20,9 @@ describe('theme preference', () => {
     expect(readThemePreference('usr_demo')).toBe('auto');
   });
 
-  it('resolves auto from the active workspace and preserves explicit choices', () => {
-    expect(resolveTheme('auto', resolveRouteTheme('/create/fashion'))).toBe('fashion');
-    expect(resolveTheme('auto', resolveRouteTheme('/playground'))).toBe('creative');
+  it('keeps auto actor-wide across routes and preserves explicit choices', () => {
+    expect(resolveTheme('auto', resolveRouteTheme('/create/fashion'))).toBe('default');
+    expect(resolveTheme('auto', resolveRouteTheme('/playground'))).toBe('default');
     expect(resolveTheme('auto', resolveRouteTheme('/community'))).toBe('default');
     expect(resolveTheme('fashion', resolveRouteTheme('/playground'))).toBe('fashion');
   });

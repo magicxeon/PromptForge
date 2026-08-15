@@ -158,22 +158,8 @@
   border-radius: var(--mpf-radius-md);
 }
 
-.fashion-production__status {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: center;
-  justify-items: end;
-  gap: 2px 7px;
-  color: var(--theme-primary);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-}
-
-.fashion-production__status small {
-  grid-column: 1 / -1;
-  color: var(--mpf-text-muted);
-  font-size: 0.68rem;
-  text-transform: none;
+.fashion-production .generation-queue-status {
+  width: min(100%, 430px);
 }
 
 .fashion-production__empty {
@@ -201,14 +187,16 @@
   color: var(--mpf-text-muted);
 }
 
-.fashion-production__operation-state {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 10px;
-}
-
 @media (max-width: 767px) {
+  .fashion-production > div:first-child {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fashion-production .generation-queue-status {
+    width: 100%;
+  }
+
   .fashion-blueprint-stepper__item {
     min-width: 138px;
     flex-basis: 138px;

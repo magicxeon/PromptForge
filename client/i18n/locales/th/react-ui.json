@@ -393,6 +393,7 @@
   "ui.share.publishTemplateHelp": "ผู้ใช้เปลี่ยนได้เฉพาะข้อมูลที่ Template Version นี้อนุญาต",
   "ui.share.templateCredits": "Credit ค่าใช้ Template ต่อหนึ่งผลลัพธ์",
   "ui.share.templateInputs": "อนุญาตให้ผู้ใช้อื่นเปลี่ยนอะไรได้บ้าง?",
+  "ui.share.includedAutomatically": "รวมให้อัตโนมัติ: {inputs}",
   "ui.share.required": "จำเป็น",
   "ui.templateManagement.edit": "แก้ไข Template",
   "ui.templateManagement.title": "แก้ไข Template ที่แชร์",

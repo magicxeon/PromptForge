@@ -86,9 +86,44 @@ The customer-facing label may later be changed from `Draft` to `Proof` or
 - Models that accept references but have not passed Fashion qualification may
   remain available in Advanced Mode with a clear `Experimental for Fashion`
   status.
+- Advanced final generation still requires the selected qualification record
+  to include `fashion_final_composition`. An `operation_only` model qualified
+  only for `template_pose_proxy_prepare` is rejected before quote creation and
+  cannot leak mannequin/proxy anatomy into a customer output.
 - A failed or unqualified model must never become an automatic Simple fallback.
 - Server routing remains authoritative; React must not contain a duplicate
   qualification table.
+
+### 2.4 Fashion model catalog contract
+
+Fashion Blueprint must obtain its Advanced model choices from a Fashion-owned
+server projection of the public provider catalog. The projection includes only
+models whose current qualification record permits `fashion_final_composition`.
+React must not infer eligibility from model names or duplicate
+`fashion-model-qualifications.json`.
+
+When the provider default model is qualified only for Pose Proxy preparation,
+the Fashion projection replaces that provider default with its first eligible
+final-composition model. A blank, restored, or stale client selection must be
+reconciled to the projected default before quote construction. This prevents a
+valid server safety gate from becoming a customer-facing quote error.
+
+Regression checklist:
+
+- [x] the general Studio/Playground provider catalog remains unchanged;
+- [x] Fashion Advanced excludes `operation_only` and `failed` models;
+- [x] Gemini Lite remains available to Template Pose Proxy preparation;
+- [x] a stale Fashion selection of Gemini Lite reconciles to an eligible final
+  model before quote creation;
+- [x] direct crafted quote requests using an ineligible model remain rejected
+  by the server;
+- [x] provider/model/resolution in the displayed quote still matches the
+  submitted Fashion plan.
+
+Implementation checkpoint (2026-08-15): Fashion now exposes
+`GET /api/fashion-blueprints/model-catalog` as the server-owned Advanced model
+projection. React consumes that projection and reconciles stale selections;
+the general provider catalog and Pose Proxy qualification remain unchanged.
 
 ## 3. Initial Manual Benchmark
 
@@ -665,7 +700,7 @@ twice as long because the generic compiler also contributed structured JSON,
 Character personality, product notes and repeated authority directives.
 
 Fashion generation therefore uses
-`GEMINI-PRO-CONCISE-AUTHORITY-V3` only when all of these conditions hold:
+`GEMINI-PRO-CONCISE-AUTHORITY-V4` only when all of these conditions hold:
 
 - provider is `gemini`;
 - model is `gemini-3-pro-image`;
@@ -679,7 +714,9 @@ Outfit as the exclusive garment authority and Pose Proxy as the exclusive
 pose/composition authority. It retains complete-body framing, coherent fallback
 footwear and accessory prohibitions from the passing manual request. It does
 not include Template-person identity, Character personality, product marketing
-copy, structured authority JSON or repeated generic prompt fragments.
+copy, structured authority JSON or repeated generic prompt fragments. An
+explicit immutable Template `Expression` remains a concise non-identity
+performance direction executed by the selected Character.
 
 The provider adapter remains responsible only for interleaving role labels and
 images, provider-local ordering, `IMAGE_n` remapping and response parsing. Flash,
@@ -698,7 +735,7 @@ Manual verification checkpoint:
 1. Create one Advanced Fashion run with `gemini-3-pro-image` and the fixed
    Character, Outfit and Fashion-ready Template benchmark.
 2. Confirm the enqueue/provider-dispatch diagnostic reports
-   `GEMINI-PRO-CONCISE-AUTHORITY-V3` and the selected resolution.
+   `GEMINI-PRO-CONCISE-AUTHORITY-V4` and the selected resolution.
 3. Score identity, body, outfit, pose, scene, commercial polish and leakage
    using the qualification rubric in this requirement.
 4. Keep Gemini Pro Experimental until three repeat runs pass the promotion

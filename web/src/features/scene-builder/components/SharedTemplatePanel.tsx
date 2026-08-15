@@ -42,7 +42,10 @@ export function SharedTemplatePanel({
           const fallbackUrl = apiMediaUrl(template.thumbnailUrl || template.imageUrl) || '';
           const presentationUrl = apiMediaUrl(template.presentationUrls.templateCard) || fallbackUrl;
           return (
-            <article key={template.id} className="h-full overflow-hidden border border-[var(--mpf-border)] bg-black/25">
+            <article
+              key={template.id}
+              className="shared-template-card flex h-full flex-col overflow-hidden border border-[var(--mpf-border)] bg-black/25"
+            >
               <div className="aspect-[16/10] overflow-hidden bg-black">
                 {presentationUrl ? (
                   <img
@@ -60,7 +63,7 @@ export function SharedTemplatePanel({
                   />
                 ) : null}
               </div>
-              <div className="p-3">
+              <div className="shared-template-card__body flex flex-1 flex-col p-3">
                 <strong className="line-clamp-1 text-sm">{template.title}</strong>
                 <small className="mt-1 block text-[var(--mpf-text-muted)]">
                   @{template.ownerUsername || 'creator'}
@@ -68,7 +71,9 @@ export function SharedTemplatePanel({
                 {template.templatePricing
                   ? <TemplatePricingBadge accessCredits={template.templatePricing.accessCredits} className="mt-2" />
                   : null}
-                <TemplateUseButton className="mt-3 w-full" onUse={() => onSelect(template)} />
+                <div className="shared-template-card__action mt-auto pt-3">
+                  <TemplateUseButton className="w-full" onUse={() => onSelect(template)} />
+                </div>
               </div>
             </article>
           );

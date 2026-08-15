@@ -118,6 +118,16 @@
   background: rgb(34 211 238 / 7%);
 }
 
+.share-generated-dialog__mandatory-summary {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--theme-warning) 40%, var(--theme-border));
+  border-radius: var(--mpf-radius-sm);
+  color: var(--theme-text);
+  background: color-mix(in srgb, var(--theme-warning) 9%, var(--theme-surface));
+  font-size: 0.78rem;
+}
+
 .share-generated-dialog__template-toggle {
   min-width: 0;
   display: flex;

@@ -38,7 +38,8 @@ The public Creator Profile must never expose private application preferences.
 - Missing or corrupt values return `auto`.
 - Unknown theme identifiers return `auto`.
 - Changing Actor changes preference immediately.
-- Route recommendation changes only when preference is `auto`.
+- `auto` resolves to one actor-wide application Theme and does not change by
+  route. Playground, Studio and Fashion Studio retain the same Theme.
 - Explicit themes ignore route recommendation.
 - Preference writes are synchronous locally and isolated by Actor ID.
 
@@ -47,7 +48,7 @@ The public Creator Profile must never expose private application preferences.
 - preference round trip;
 - corrupt/unknown fallback;
 - actor isolation;
-- auto Fashion and Creative route resolution;
+- auto actor-wide default resolution across Fashion, Creative and Studio routes;
 - explicit override;
 - document `data-theme` and `color-scheme` application.
 
@@ -86,6 +87,26 @@ must call `useTheme()` rather than access local storage or mutate
 5. Expose Footer theme options through an accessible radio group.
 6. Add English and Thai Shell keys with interpolation parity.
 7. Cover storage, route, document and menu behavior with focused tests.
+
+Route synchronization remains a compatibility API, but it must not alter the
+resolved application Theme. The only intentional nested palette scope is a
+viewed Creator Profile canvas, which may render the creator's public Profile
+Theme without changing the viewer's Header, Sidebar, Footer or persisted
+application preference.
+
+Regression checklist:
+
+- [ ] actor preference remains isolated and survives route navigation;
+- [ ] `auto` uses Momelo Neon as the application fallback on every route;
+- [ ] explicit Pearl Editorial or Electric Studio remains active on every route;
+- [ ] switching actors rehydrates the next actor's preference;
+- [ ] Creator Profile palette remains local to the Profile canvas;
+- [ ] Footer selection uses the canonical Theme provider and persistence adapter.
+
+Implementation checkpoint (2026-08-14): route-based Auto palette switching was
+removed and automated route-resolution coverage now enforces one actor-wide
+application Theme. Creator Profile remains the only documented nested palette
+scope. Manual actor-switch verification remains open.
 
 ## 7. Impact And Migration
 

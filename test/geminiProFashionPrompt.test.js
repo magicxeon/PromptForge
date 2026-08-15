@@ -7,6 +7,11 @@ import {
 
 function createContext() {
   return {
+    selections: {
+      Expression: {
+        value: 'sharing a genuine candid laugh'
+      }
+    },
     referenceRoleManifest: [
       { index: 1, roles: ['template_baseline'] },
       { index: 2, roles: ['character_reference'] },
@@ -34,6 +39,8 @@ test('Gemini Pro Fashion uses the concise authority prompt proven by the manual 
   assert.match(result.prompt, /IMAGE_2 is the exclusive authority for the clothing/);
   assert.match(result.prompt, /IMAGE_0 is an identity-neutral structural pose proxy/);
   assert.match(result.prompt, /Do not add jewelry, bags, logos, accessories/);
+  assert.match(result.prompt, /Template performance direction: sharing a genuine candid laugh/);
+  assert.match(result.prompt, /Do not copy the Template person's face/);
   assert.doesNotMatch(result.prompt, /Personality|verbose fallback|Product integrity/i);
 });
 

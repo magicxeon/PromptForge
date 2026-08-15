@@ -2326,7 +2326,7 @@
   height: 13px;
 }
 
-.studio-active-render #generation-results > .generation-result__media-surface {
+.studio-active-render #generation-results > .generation-result__media-surface:not(.generation-result__media-surface--placeholder) {
   flex: 0 0 auto;
   height: auto;
 }

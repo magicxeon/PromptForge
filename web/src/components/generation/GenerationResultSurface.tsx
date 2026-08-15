@@ -24,9 +24,9 @@ import {
   GenerationImageViewer,
   type GenerationViewerItem
 } from '../media/GenerationImageViewer';
-import momeloMark from '../../assets/brand/momelo-mark.svg';
 import { newestComparisonRun } from '../../features/comparisons/comparisonRunState';
 import { GenerationResultGrid } from './GenerationResultGrid';
+import { GenerationStageState } from './GenerationStageState';
 
 export function GenerationResultSurface({
   job,
@@ -225,26 +225,23 @@ export function GenerationResultSurface({
           ) : null}
         </>
       ) : comparisonActive ? (
-        <Surface className="comparison-result-stage__empty">
-          {loading ? (
-            <LoaderCircle className="size-10 animate-spin text-amber-300" aria-hidden="true" />
-          ) : (
-            <img
-              className="generation-result__momelo-mark"
-              src={momeloMark}
-              alt=""
-              aria-hidden="true"
-            />
-          )}
-          <strong>{loading
-            ? t('playground.result.generatingComparison')
-            : t('playground.result.comparisonReady')}</strong>
-          <p>{loading
-            ? t('playground.result.comparisonProcessing')
-            : t('playground.result.comparisonEmptyDescription')}</p>
+        <Surface fill centerContent className="comparison-result-stage__empty">
+          <GenerationStageState
+            loading={loading}
+            title={loading
+              ? t('playground.result.generatingComparison')
+              : t('playground.result.comparisonReady')}
+            description={loading
+              ? t('playground.result.comparisonProcessing')
+              : t('playground.result.comparisonEmptyDescription')}
+          />
         </Surface>
       ) : (
-        <Surface className="generation-result__media-surface overflow-hidden bg-[var(--theme-bg-raised)] p-0">
+        <Surface
+          fill={!job}
+          centerContent={!job}
+          className={`generation-result__media-surface${!job ? ' generation-result__media-surface--placeholder' : ''} overflow-hidden bg-[var(--theme-bg-raised)] p-0`}
+        >
           {job ? (
             <>
               <GenerationResultGrid
@@ -305,45 +302,16 @@ export function GenerationResultSurface({
               ) : null}
             </>
           ) : (
-            <div
-              className="grid min-h-72 place-items-center p-6 text-center"
-              role={loading ? 'status' : undefined}
-              aria-live={loading ? 'polite' : undefined}
-              aria-busy={loading}
-            >
-              <div>
-                {loading ? (
-                  <span className="relative mx-auto grid size-16 place-items-center text-amber-300">
-                    <span
-                      className="absolute inset-1 animate-ping rounded-full border border-amber-300/35"
-                      aria-hidden="true"
-                    />
-                    <span
-                      className="absolute inset-0 rounded-full border border-amber-300/15 shadow-[0_0_32px_rgb(251_191_36_/_0.3)]"
-                      aria-hidden="true"
-                    />
-                    <LoaderCircle className="size-10 animate-spin" aria-hidden="true" />
-                  </span>
-                ) : (
-                  <img
-                    className="generation-result__momelo-mark"
-                    src={momeloMark}
-                    alt=""
-                    aria-hidden="true"
-                  />
-                )}
-                <strong className="mt-4 block">
-                  {loading
-                    ? t(generationStatusKey(jobStatus))
-                    : jobStatus || t('playground.result.preparing')}
-                </strong>
-                <p className="text-sm text-[var(--mpf-text-muted)]">
-                  {jobError(job) || (loading
-                    ? t('playground.result.preparing')
-                    : t('playground.result.emptyDescription'))}
-                </p>
-              </div>
-            </div>
+            <GenerationStageState
+              className="generation-stage-state--result"
+              loading={loading}
+              title={loading
+                ? t(generationStatusKey(jobStatus))
+                : jobStatus || t('playground.result.preparing')}
+              description={jobError(job) || (loading
+                ? t('playground.result.preparing')
+                : t('playground.result.emptyDescription'))}
+            />
           )}
         </Surface>
       )}

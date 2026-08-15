@@ -18,12 +18,18 @@ test('Fashion Pose Proxy execution excludes the Template source garment prompt',
     environmentDirection: 'Preserve the Template environment',
     qualityPromptDirective: 'Clean commercial quality'
   }, item, {
-    finalPromptSnapshot: 'wearing a blazer, plain inner top, and trousers'
+    finalPromptSnapshot: 'wearing a blazer, plain inner top, and trousers',
+    structuredSelectionsSnapshot: {
+      Expression: { value: 'sharing a genuine candid laugh' }
+    }
   });
 
   assert.doesNotMatch(prompt, /wearing a blazer/i);
   assert.match(prompt, /Pastel dress/);
   assert.match(prompt, /identity-neutral pose proxy/i);
+  assert.match(prompt, /sharing a genuine candid laugh/i);
+  assert.match(prompt, /human surface.+hands.+legs.+feet/i);
+  assert.match(prompt, /do not copy the Template person face/i);
 });
 
 test('Fashion execution retains the Template prompt only when no Pose Proxy exists', () => {

@@ -245,16 +245,6 @@
   border-top: 1px solid var(--mpf-border);
 }
 
-.generation-result__momelo-mark {
-  display: block;
-  width: 54px;
-  height: 54px;
-  margin-inline: auto;
-  opacity: 0.72;
-  filter: grayscale(1) brightness(1.8);
-  object-fit: contain;
-}
-
 .playground-generation-action {
   position: static;
   display: flex;

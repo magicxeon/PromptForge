@@ -29,6 +29,13 @@ export function registerFashionBlueprintRoutes(app, {
       sendError(res, error);
     }
   });
+  app.get('/api/fashion-blueprints/model-catalog', (req, res) => {
+    try {
+      res.json(blueprintService.getAdvancedModelCatalog());
+    } catch (error) {
+      sendError(res, error);
+    }
+  });
   app.post('/api/fashion-blueprints/resolve', async (req, res) => {
     try {
       const normalized = blueprintService.resolvePlan(

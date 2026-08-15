@@ -381,3 +381,42 @@ Automated coverage was added in `test/generationGroup.test.js` and
 `web/src/components/generation/GenerationResultGrid.test.tsx`. The requirement
 must remain validation-pending until the repository Node suites and desktop/
 mobile browser checks pass.
+
+### 16.2 Shared idle and loading presentation
+
+Studio, Scene Builder and Playground use one shared Generation presentation
+for result placeholders and active output tiles:
+
+- idle presentation uses the monochrome Momelo mark, centered title and
+  description;
+- active presentation uses one rotating `LoaderCircle` with the same subtle
+  warning-color halo and expanding ring at every Generation result location;
+- the halo is decorative, theme-aware and removed from the accessibility tree;
+- failed and completed states stop the active animation immediately;
+- reduced-motion preference disables the expanding halo animation;
+- an empty result `Surface` fills the available result panel and centers its
+  complete content vertically and horizontally instead of sizing only to its
+  minimum placeholder height;
+- a completed media result may return to content-driven height and must retain
+  `object-fit: contain` inspection behavior.
+
+Canonical shared owners:
+
+```text
+web/src/components/generation/GenerationStageState.tsx
+web/src/components/generation/GenerationResultSurface.tsx
+web/src/components/generation/GenerationResultGrid.tsx
+web/src/components/ui/Surface.tsx
+web/src/styles/generation.css
+```
+
+Regression checklist:
+
+- [x] Idle Studio/Playground result fills the available panel and centers mark
+  plus copy.
+- [x] Pre-enqueue loading and queued result tiles use the same halo primitive.
+- [x] Comparison loading uses the same halo primitive.
+- [x] Failed tiles do not retain spinner or halo animation.
+- [x] Surface fill/center behavior is opt-in and does not resize unrelated
+  application surfaces.
+- [ ] Desktop and mobile browser verification in all supported themes.

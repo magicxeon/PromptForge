@@ -23,7 +23,7 @@
     { "providerId": "openai", "modelId": "gpt-image-1", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1" },
     { "providerId": "openai", "modelId": "gpt-image-2", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "openai-fashion-v1", "benchmarkEvidence": "manual-outfit-failure-2026-08-02" },
     { "providerId": "openai", "modelId": "gpt-image-1-mini", "status": "failed", "operations": [], "promptStrategyVersion": null },
-    { "providerId": "gemini", "modelId": "gemini-3-pro-image", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V3", "benchmarkEvidence": "manual-postman-pass-2026-08-04" },
+    { "providerId": "gemini", "modelId": "gemini-3-pro-image", "status": "experimental", "operations": ["fashion_final_composition"], "promptStrategyVersion": "GEMINI-PRO-CONCISE-AUTHORITY-V4", "benchmarkEvidence": "manual-postman-pass-2026-08-04" },
     { "providerId": "modelark", "modelId": "seedream-4-0-250828", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-clothed-grid-failure-2026-08-02" },
     { "providerId": "modelark", "modelId": "seedream-4-5-251128", "status": "failed", "operations": [], "promptStrategyVersion": null, "benchmarkEvidence": "manual-2026-08-02" },
     {

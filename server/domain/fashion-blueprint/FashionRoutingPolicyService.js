@@ -70,15 +70,57 @@ export class FashionRoutingPolicyService {
 
   resolveAdvancedRoute(providerId, modelId, providerRegistry) {
     const selection = providerRegistry.resolveSelection(providerId, modelId);
-    const qualification = this.qualificationService.resolve(
+    const qualification = this.qualificationService.requireOperationEligible(
       providerId,
-      modelId
+      modelId,
+      'fashion_final_composition'
     );
     return {
       ...selection,
-      qualificationVersion: qualification?.qualificationVersion || null,
-      qualificationStatus: qualification?.status || 'experimental',
-      promptStrategyVersion: qualification?.promptStrategyVersion || null
+      qualificationVersion: qualification.qualificationVersion,
+      qualificationStatus: qualification.status,
+      promptStrategyVersion: qualification.promptStrategyVersion || null
+    };
+  }
+
+  getAdvancedCatalog(providerRegistry) {
+    const catalog = providerRegistry.getPublicCatalog();
+    const eligibleRecords = this.qualificationService.listOperationEligible(
+      'fashion_final_composition'
+    );
+    const eligibleByKey = new Map(eligibleRecords.map(record => [
+      `${record.providerId}:${record.modelId}`,
+      record
+    ]));
+    const providers = catalog.providers
+      .map(provider => {
+        const models = provider.models
+          .filter(model => eligibleByKey.has(`${provider.id}:${model.id}`))
+          .map(model => ({
+            ...model,
+            fashionQualification: eligibleByKey.get(`${provider.id}:${model.id}`)
+          }));
+        if (!models.length) return null;
+        return {
+          ...provider,
+          defaultModel: models.some(model => model.id === provider.defaultModel)
+            ? provider.defaultModel
+            : models[0].id,
+          models
+        };
+      })
+      .filter(Boolean);
+    const defaultProvider = providers.some(provider =>
+      provider.id === catalog.defaultProvider
+    )
+      ? catalog.defaultProvider
+      : providers[0]?.id || '';
+    return {
+      ...catalog,
+      defaultProvider,
+      providers,
+      fashionOperation: 'fashion_final_composition',
+      qualificationVersion: eligibleRecords[0]?.qualificationVersion || null
     };
   }
 }

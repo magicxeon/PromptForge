@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../lib/api/apiClient';
+import { providerCatalogSchema } from '../../generation/schemas/generationSchemas';
 import {
   fashionAssetSchema,
   fashionReadyTemplateIndexSchema,
@@ -43,6 +44,12 @@ export function uploadFashionReference(dataUrl: string, role: string) {
     method: 'POST',
     body: { dataUrl, role },
     schema: fashionAssetSchema
+  });
+}
+
+export function getFashionModelCatalog() {
+  return apiRequest('/api/fashion-blueprints/model-catalog', {
+    schema: providerCatalogSchema
   });
 }
 

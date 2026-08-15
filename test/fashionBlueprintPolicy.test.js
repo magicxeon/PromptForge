@@ -258,7 +258,33 @@ test('Fashion Advanced routes retain model qualification and prompt strategy met
   assert.equal(plan.route.qualificationStatus, 'experimental');
   assert.equal(
     plan.route.promptStrategyVersion,
-    'GEMINI-PRO-CONCISE-AUTHORITY-V3'
+    'GEMINI-PRO-CONCISE-AUTHORITY-V4'
+  );
+});
+
+test('Fashion Advanced rejects a Pose Proxy-only model for final composition', () => {
+  const service = new FashionBlueprintService({
+    providerRegistry: createRegistry()
+  });
+  assert.throws(
+    () => service.resolvePlan({
+      templateId: 'post_1',
+      templateUseSessionId: 'tuse_1',
+      characterProfileContext: {
+        characterProfileId: 'char_1',
+        characterProfileVersionId: 'charv_1'
+      },
+      routingMode: 'advanced',
+      requestedProviderId: 'gemini',
+      requestedModelId: 'gemini-3.1-flash-lite-image',
+      productItems: [{
+        key: 'product_1',
+        references: {
+          outfit_front: { imageUrl: '/outputs/outfit.jpg' }
+        }
+      }]
+    }, { userId: 'usr_demo' }),
+    error => error?.code === 'fashion_model_operation_not_supported'
   );
 });
 

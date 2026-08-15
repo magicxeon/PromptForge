@@ -255,8 +255,8 @@ for performance-sensitive work.
 - Keep edits scoped to the requested capability and avoid unrelated formatting
   churn.
 <!-- - Do not run Node commands or Node tests directly in this repository. -->
-- Tell the user exactly which `node --check`, `node --test`, or npm command to
-  execute and ask them to report failures.
+<!-- - Tell the user exactly which `node --check`, `node --test`, or npm command to
+  execute and ask them to report failures. -->
 - Read-only checks such as JSON parsing, `git diff --check`, and file inspection
   are allowed.
 - For frontend changes, verify the visible result in the in-app browser when it

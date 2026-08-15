@@ -1,6 +1,6 @@
 export const GEMINI_PRO_FASHION_MODEL_ID = 'gemini-3-pro-image';
 export const GEMINI_PRO_FASHION_PROMPT_STRATEGY_VERSION =
-  'GEMINI-PRO-CONCISE-AUTHORITY-V3';
+  'GEMINI-PRO-CONCISE-AUTHORITY-V4';
 
 export function resolveFashionExecutionPrompt({
   plan,
@@ -51,9 +51,21 @@ export function createGeminiProFashionPrompt(context, plan = {}) {
     `${outfitAuthority} ${outfitBackIndex === null ? 'is' : 'are'} the exclusive authority for the clothing. Dress the exact character from ${character} in this product. Preserve garment category, silhouette, construction, color, pattern, material, seams, closures, fit, and visible product details. Infer only physically necessary drape, folds, and hidden areas. Ignore any wearer identity, body, pose, environment, and lighting in the outfit source.`,
     `${poseProxy} is an identity-neutral structural pose proxy. Use it only for pose joints, movement, hand placement, neck and head direction, gaze, camera, framing, perspective, environment, architecture, and lighting. It has no identity, face, skin, hair, body, garment, accessory, or footwear authority. Replace the proxy completely and never render mannequin surfaces, wireframe lines, grid lines, or proxy clothing.`,
     `Identity, skin, hair, height, and body proportions must come from ${character} only. Garment must come from ${outfitAuthority} only. Pose and composition must come from ${poseProxy} only.`,
+    createTemplatePerformanceDirection(context),
     createDestinationDirection(plan),
     'Output one person in one continuous full-frame photograph. Do not blend identities or reproduce a person from the original Template.'
   ].join('\n\n');
+}
+
+function createTemplatePerformanceDirection(context) {
+  const expression = selectionValue(context?.selections?.Expression);
+  if (!expression) return '';
+  return `Template performance direction: ${expression}. Perform this expression using the exact character from the Character image while retaining the pose proxy head and gaze direction. Do not copy the Template person's face, facial geometry, skin, hair, age, or identity.`;
+}
+
+function selectionValue(selection) {
+  if (typeof selection === 'string') return selection.trim();
+  return typeof selection?.value === 'string' ? selection.value.trim() : '';
 }
 
 function shouldUseGeminiProFashionPrompt(plan, context) {

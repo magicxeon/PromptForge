@@ -1,6 +1,8 @@
-import { Image as ImageIcon, LoaderCircle, TriangleAlert } from 'lucide-react';
+import { Image as ImageIcon, TriangleAlert } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiMediaUrl } from '../../lib/api/apiClient';
+import { GenerationLoadingIndicator } from './GenerationStageState';
 
 export type GenerationResultGridItem = {
   id: string;
@@ -12,10 +14,12 @@ export type GenerationResultGridItem = {
 
 export function GenerationResultGrid({
   items,
-  onOpen
+  onOpen,
+  renderFooter
 }: {
   items: GenerationResultGridItem[];
   onOpen: (id: string) => void;
+  renderFooter?: (item: GenerationResultGridItem) => ReactNode;
 }) {
   const { t } = useTranslation('playground');
   return (
@@ -30,39 +34,52 @@ export function GenerationResultGrid({
           ? item.error
           : item.error?.message;
         return (
-          <article className="generation-result-grid__tile" key={item.id}>
-            {item.imageUrl ? (
-              <button
-                type="button"
-                className="generation-result-grid__open"
-                aria-label={t('playground.result.openImage')}
-                title={t('playground.result.openImage')}
-                onClick={() => onOpen(item.id)}
-              >
-                <img
-                  src={apiMediaUrl(item.imageUrl) || ''}
-                  alt={`${t('playground.result.imageAlt')} ${index + 1}`}
-                />
-              </button>
-            ) : (
-              <div
-                className="generation-result-grid__state"
-                role={active ? 'status' : item.status === 'failed' ? 'alert' : undefined}
-                aria-busy={active}
-              >
-                {active ? (
-                  <LoaderCircle className="size-9 animate-spin text-amber-300" aria-hidden="true" />
-                ) : item.status === 'failed' ? (
-                  <TriangleAlert className="size-9 text-red-300" aria-hidden="true" />
-                ) : (
-                  <ImageIcon className="size-9 text-[var(--theme-text-muted)]" aria-hidden="true" />
-                )}
-                <strong>{item.label || (active
-                  ? t('playground.result.generating')
-                  : message || item.status)}</strong>
-                {message ? <small>{message}</small> : null}
+          <article
+            className={`generation-result-grid__tile${renderFooter ? ' has-footer' : ''}`}
+            key={item.id}
+          >
+            <div className="generation-result-grid__media">
+              {item.imageUrl ? (
+                <button
+                  type="button"
+                  className="generation-result-grid__open"
+                  aria-label={t('playground.result.openImage')}
+                  title={t('playground.result.openImage')}
+                  onClick={() => onOpen(item.id)}
+                >
+                  <img
+                    src={apiMediaUrl(item.imageUrl) || ''}
+                    alt={`${t('playground.result.imageAlt')} ${index + 1}`}
+                  />
+                </button>
+              ) : (
+                <div
+                  className="generation-result-grid__state"
+                  role={active ? 'status' : item.status === 'failed' ? 'alert' : undefined}
+                  aria-busy={active}
+                >
+                  {active ? (
+                    <GenerationLoadingIndicator
+                      className="generation-loading-indicator--compact"
+                      iconClassName="size-9"
+                    />
+                  ) : item.status === 'failed' ? (
+                    <TriangleAlert className="size-9 text-red-300" aria-hidden="true" />
+                  ) : (
+                    <ImageIcon className="size-9 text-[var(--theme-text-muted)]" aria-hidden="true" />
+                  )}
+                  <strong>{item.label || (active
+                    ? t('playground.result.generating')
+                    : message || item.status)}</strong>
+                  {message ? <small>{message}</small> : null}
+                </div>
+              )}
+            </div>
+            {renderFooter ? (
+              <div className="generation-result-grid__footer">
+                {renderFooter(item)}
               </div>
-            )}
+            ) : null}
           </article>
         );
       })}

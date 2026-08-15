@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "policyVersion": "rpp-2026-08-v5",
+  "policyVersion": "rpp-2026-08-v6",
   "defaultFallbackMode": "safe_deterministic",
   "defaultReferenceOrder": [
     "character_reference",
@@ -174,12 +174,12 @@
         "templateDirection": {
           "authority": ["pose", "movement", "camera", "framing", "environment", "lighting"],
           "preserve": ["destination pose and movement", "camera and framing", "environment", "lighting"],
-          "ignore": ["template person identity", "template face", "template hair", "template skin tone", "template body proportions", "template clothing"]
+          "ignore": ["template person identity", "template face", "template hair", "template skin tone", "template body proportions", "template clothing", "pose proxy surface", "mannequin material", "grid lines", "proxy limb anatomy", "proxy hands", "proxy legs", "proxy feet"]
         },
         "characterIdentity": {
           "authority": ["identity", "face", "hair", "skin", "body shape", "body proportions"],
           "instruction": "Replace the template person completely with this exact character. Prioritize the character skin tone and never blend identity traits from another reference.",
-          "preserve": ["recognizable facial identity", "facial proportions", "hairstyle", "skin tone", "complete body proportions"],
+          "preserve": ["recognizable facial identity", "facial proportions", "hairstyle", "skin tone", "complete body proportions", "natural human hands and fingers", "natural human legs, ankles, and feet"],
           "ignore": ["source background", "source pose", "source clothing", "casting sheet layout"]
         },
         "outfitTransfer": {
@@ -192,7 +192,7 @@
           "subjectCount": 1,
           "singleFullFramePhoto": true,
           "fullBodyVisible": true,
-          "prohibit": ["identity blending", "template person identity", "template skin tone", "template body proportions", "template hairstyle", "outfit source identity", "outfit source skin tone", "outfit source body proportions", "multiple people", "multiple views", "casting sheet", "contact sheet", "split screen", "white reference background", "white casting clothes", "text", "labels", "watermarks"]
+          "prohibit": ["identity blending", "template person identity", "template skin tone", "template body proportions", "template hairstyle", "outfit source identity", "outfit source skin tone", "outfit source body proportions", "pose proxy surface", "mannequin material", "mannequin joints", "synthetic mannequin hands", "synthetic mannequin legs", "synthetic mannequin feet", "wireframe lines", "grid lines", "proxy clothing", "multiple people", "multiple views", "casting sheet", "contact sheet", "split screen", "white reference background", "white casting clothes", "text", "labels", "watermarks"]
         }
       }
     }

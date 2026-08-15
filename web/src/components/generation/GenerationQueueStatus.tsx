@@ -1,4 +1,4 @@
-import { CircleCheck, CircleX, Clock3, LoaderCircle } from 'lucide-react';
+import { CircleCheck, CircleX, Clock3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Surface } from '../ui/Surface';
@@ -8,6 +8,7 @@ import {
   FAILED_JOB_STATUSES,
   normalizeJobStatus
 } from '../../lib/api/jobLifecycle';
+import { GenerationLoadingIndicator } from './GenerationStageState';
 
 type GenerationQueueStatusProps = {
   jobId?: string | null;
@@ -81,7 +82,9 @@ export function GenerationQueueStatus({
       aria-busy={active}
     >
       <div className="generation-queue-status__icon" aria-hidden="true">
-        {active ? <LoaderCircle className="animate-spin" /> : failed ? <CircleX /> : completed ? <CircleCheck /> : <Clock3 />}
+        {active
+          ? <GenerationLoadingIndicator className="generation-loading-indicator--micro" iconClassName="size-4" />
+          : failed ? <CircleX /> : completed ? <CircleCheck /> : <Clock3 />}
       </div>
       <div className="generation-queue-status__copy">
         <strong>{isComparison
@@ -148,7 +151,9 @@ function queueStatusKey(status: string) {
 }
 
 function queueStatusIcon(status: string) {
-  if (ACTIVE_JOB_STATUSES.has(status)) return <LoaderCircle className="animate-spin" />;
+  if (ACTIVE_JOB_STATUSES.has(status)) {
+    return <GenerationLoadingIndicator className="generation-loading-indicator--micro" iconClassName="size-3.5" />;
+  }
   if (FAILED_JOB_STATUSES.has(status)) return <CircleX />;
   if (COMPLETE_JOB_STATUSES.has(status)) return <CircleCheck />;
   return <Clock3 />;
