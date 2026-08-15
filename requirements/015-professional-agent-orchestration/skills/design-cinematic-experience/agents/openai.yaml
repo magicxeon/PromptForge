@@ -1,7 +1,0 @@
-interface:
-  display_name: "Design Cinematic Experience"
-  short_description: "Plan cinematic shots and continuity"
-  default_prompt: "Use $design-cinematic-experience to turn this idea into a structured cinematic sequence."
-policy:
-  allow_implicit_invocation: true
-

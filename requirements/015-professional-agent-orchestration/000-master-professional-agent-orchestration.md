@@ -1,7 +1,7 @@
 # Professional Agent Orchestration Master Requirement
 
 **Requirement ID:** AGENT-ORCH-000  
-**Status:** Implemented; initial readiness validation passed, adoption gate pending  
+**Status:** Distributed placement implemented and structurally validated; adoption gate pending
 **Owner:** Engineering governance  
 **Applies to:** Product requirements, UX/UI, Cinematic Studio, backend,
 commercial operations, generative media and QA/release work
@@ -23,9 +23,10 @@ This requirement defines a small professional role system that:
 - preserves current capability ownership and existing behavior; and
 - leaves an auditable requirement, implementation and validation handoff.
 
-The repository router, six role charters, five focused Skills and routing
-regression fixtures are implemented. Three-real-task adoption and blind QA
-validation remain pending before final completion.
+The repository router, six distributed role charters, six discoverable Skills,
+scoped instructions and routing regression fixtures are implemented.
+Three-real-task adoption and blind QA validation remain pending before final
+completion.
 
 ## 2. Requirement Set
 
@@ -36,6 +37,7 @@ validation remain pending before final completion.
 | [AGENT-ORCH-003](003-implementation-plan-and-artifact-structure.md) | Repository structure, implementation sequence, rollout and rollback |
 | [AGENT-ORCH-004](004-acceptance-regression-and-operational-checklists.md) | Acceptance, QA, regression, overhead and ongoing maintenance checklists |
 | [AGENT-ORCH-005](005-initial-readiness-validation.md) | Initial structural, routing and section-readiness evidence |
+| [AGENT-ORCH-006](006-distributed-agent-and-skill-placement.md) | Canonical domain ownership, runtime Skill discovery and nested `AGENTS.md` placement |
 
 ## 3. Core Decision
 
@@ -43,7 +45,7 @@ Use **roles for responsibility** and **Skills for repeatable procedures**.
 
 - A role states the perspective, decisions and required deliverables.
 - A Skill states a concise executable workflow and conditional reading.
-- `AGENTS.md` is the repository routing authority.
+- Root and scoped `AGENTS.md` files are the repository routing authorities.
 - An owning requirement remains the product and behavior source of truth.
 - Current code and tests remain authoritative over stale documentation.
 
@@ -113,14 +115,23 @@ used when the active environment can only apply roles sequentially.
 - Creating one Skill per feature, screen or technology.
 - Granting additional filesystem, network or production permissions.
 
-## 8. Implementation Result
+## 8. Current Implementation Result
 
 - `AGENTS.md` automatically routes substantial work to the minimum role set.
-- Six role charters are available under `roles/`.
-- Five focused Skills with invocation metadata are available under `skills/`.
-- The existing Generation Workflow Skill remains canonical and is not copied.
+- Cross-project Product and QA role charters remain under this requirement.
+- UX, Cinematic, Backend and Commercial role charters live with their owning
+  domain requirements.
+- Six focused Skills with invocation metadata are discoverable under
+  `.agents/skills/`, including the moved Generation Workflow Skill.
+- Scoped `AGENTS.md` files provide frontend, server and domain requirement
+  deltas without copying root policy.
+- `agent-artifact-map.json` records one canonical owner and path per artifact.
 - `routing-fixtures.json` contains 21 positive, negative, high-risk and
   clarification cases.
 - `test/agentOrchestration.test.js` validates structure, bounds, router links and
   positive/negative Skill coverage.
 - Initial readiness evidence is recorded in AGENT-ORCH-005.
+
+AGENT-ORCH-006 records the completed placement migration. Do not mark the full
+orchestration program complete until its remaining real-task adoption and
+independent QA gates pass.

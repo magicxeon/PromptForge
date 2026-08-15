@@ -1,7 +1,7 @@
 # Initial Agent And Skill Readiness Validation
 
 **Requirement ID:** AGENT-ORCH-005  
-**Status:** Initial structural and routing validation passed  
+**Status:** Initial and distributed-placement structural validation passed
 **Validated:** 2026-08-15
 
 ## 1. Validation Scope
@@ -22,12 +22,23 @@ node --test test/agentOrchestration.test.js
 Validated contracts:
 
 - all six role charters expose every required section and remain below 180 lines;
-- all five new Skills use valid bounded `SKILL.md` metadata and UI metadata;
+- all six Skills use valid bounded `SKILL.md` metadata and UI metadata;
 - 21 routing fixtures use known roles and Skills;
 - no fixture exceeds one primary plus two reviewers or two Skills;
 - `AGENTS.md` references every role and Skill;
 - every role has a primary-routing case; and
 - every Skill has an explicit positive and negative trigger case.
+
+After AGENT-ORCH-006 implementation, the same command additionally validates:
+
+- one canonical artifact-map entry and existing path for every role, Skill and
+  scoped instruction file;
+- repository-wide Skills under `.agents/skills/` with unique Skill names;
+- domain role placement and removal of centralized compatibility copies;
+- scoped `AGENTS.md` inheritance markers and role references; and
+- full canonical role and Skill paths in the root router.
+
+Current result: 8 tests passed, 0 failed.
 
 ## 3. Section Readiness
 
@@ -82,11 +93,11 @@ subagent context, so true blind seeded-regression validation remains pending.
 
 ## 5. Tooling Note
 
-The standard `skill-creator` Python initializer and validator were attempted,
-but this Windows environment exposes only inaccessible WindowsApps Python
-aliases. The Skill artifacts were created with the same required structure and
-are covered by the repository Node structural test. Re-run the official
-`quick_validate.py` if an accessible Python runtime becomes available.
+The standard `skill-creator` Python validator was attempted again after the
+placement migration. `py.exe` resolves to an unavailable WindowsApps Python
+3.10 process, so it exits before loading `quick_validate.py`. The Skill
+artifacts are covered by the repository Node structural test. Re-run the
+official validator if an accessible Python runtime becomes available.
 
 ## 6. Remaining Gate
 
@@ -97,4 +108,3 @@ Before marking the orchestration requirement complete:
 3. perform one tiny task proving no unnecessary role load; and
 4. perform a blind QA seeded-regression test in a fresh agent context when the
    environment supports independent agents.
-

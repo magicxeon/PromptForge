@@ -1,7 +1,0 @@
-interface:
-  display_name: "Verify Release Regressions"
-  short_description: "Trace requirements and catch regressions"
-  default_prompt: "Use $verify-release-regressions to independently validate this change and report release risk."
-policy:
-  allow_implicit_invocation: true
-

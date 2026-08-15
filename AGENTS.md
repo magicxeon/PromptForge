@@ -29,15 +29,12 @@ Choose exactly one primary role:
 
 | Task outcome | Primary role charter |
 |---|---|
-| New feature, changed workflow, requirement creation/reconciliation | `roles/product-requirement-architect.md` |
-| Material screen, navigation, interaction, theme or accessibility work | `roles/ux-ui-product-designer.md` |
-| Video, film, shot, sequence, continuity, motion or audio work | `roles/cinematic-experience-director.md` |
-| API, domain, repository, database, durable Job or infrastructure work | `roles/backend-platform-architect.md` |
-| Pricing, Credits, payments, payouts, refunds or billable recovery | `roles/commercial-financial-integrity.md` |
-| Explicit review, regression audit, release gate or requirement closure | `roles/qa-release-engineer.md` |
-
-Resolve these charter paths relative to
-`requirements/015-professional-agent-orchestration/roles/`.
+| New feature, changed workflow, requirement creation/reconciliation | `requirements/015-professional-agent-orchestration/roles/product-requirement-architect.md` |
+| Material screen, navigation, interaction, theme or accessibility work | `requirements/009-migration-to-react/roles/ux-ui-product-designer.md` |
+| Video, film, shot, sequence, continuity, motion or audio work | `requirements/016-cinematic-studio/roles/cinematic-experience-director.md` |
+| API, domain, repository, database, durable Job or infrastructure work | `requirements/017-implementation-backend/roles/backend-platform-architect.md` |
+| Pricing, Credits, payments, payouts, refunds or billable recovery | `requirements/018-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md` |
+| Explicit review, regression audit, release gate or requirement closure | `requirements/015-professional-agent-orchestration/roles/qa-release-engineer.md` |
 
 For a tiny local copy, translation, CSS, test expectation or prompt-wording
 correction with an unchanged contract, use `base-implementation-owner`: follow
@@ -61,18 +58,21 @@ the owning requirement and repository rules without loading a specialist role.
 
 Load a Skill only after its trigger matches:
 
-- `design-cinematic-experience`: Cinematic sequences, shots and continuity.
-- `review-product-ux`: substantial flows or reusable UI contracts.
-- `review-commercial-integrity`: billable and financial state transitions.
-- `verify-release-regressions`: substantial QA, regression and release work.
-- `review-generative-media-pipeline`: provider/reference/media qualification.
-- `implement-generation-workflow`: the existing cross-stage Generation Skill
-  governed by Section 6 below.
+- `design-cinematic-experience`: Cinematic sequences, shots and continuity;
+  `.agents/skills/design-cinematic-experience/SKILL.md`.
+- `review-product-ux`: substantial flows or reusable UI contracts;
+  `.agents/skills/review-product-ux/SKILL.md`.
+- `review-commercial-integrity`: billable and financial state transitions;
+  `.agents/skills/review-commercial-integrity/SKILL.md`.
+- `verify-release-regressions`: substantial QA, regression and release work;
+  `.agents/skills/verify-release-regressions/SKILL.md`.
+- `review-generative-media-pipeline`: provider/reference/media qualification;
+  `.agents/skills/review-generative-media-pipeline/SKILL.md`.
+- `implement-generation-workflow`: cross-stage Generation lifecycle work;
+  `.agents/skills/implement-generation-workflow/SKILL.md` and Section 6 below.
 
-The first five Skills live under
-`requirements/015-professional-agent-orchestration/skills/`. Do not load them
-for their documented non-trigger cases. Do not duplicate the existing
-Generation Skill.
+Do not load Skills for their documented non-trigger cases. Do not create a
+second copy of a Skill under a requirement folder.
 
 ### Clarification And Execution
 
@@ -276,7 +276,7 @@ for performance-sensitive work.
 - For changes crossing multiple Generation lifecycle stages, or changing
   Credit settlement, idempotency, Queue/provider dispatch, terminal polling,
   reference-count parity, Comparison ownership or multi-output groups, follow
-  `requirements/009-migration-to-react/skills/implement-generation-workflow/SKILL.md`.
+  `.agents/skills/implement-generation-workflow/SKILL.md`.
   Do not load that Skill for isolated CSS, copy, localization, prompt wording
   or presentation-only changes with unchanged workflow contracts.
 - Use the existing canonical generation pipeline. UI modules must not call AI

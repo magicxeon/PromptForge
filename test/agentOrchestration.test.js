@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import test from 'node:test';
@@ -13,6 +13,9 @@ const orchestrationRoot = path.join(
 );
 const fixtures = JSON.parse(
   readFileSync(path.join(orchestrationRoot, 'routing-fixtures.json'), 'utf8')
+);
+const artifactMap = JSON.parse(
+  readFileSync(path.join(orchestrationRoot, 'agent-artifact-map.json'), 'utf8')
 );
 
 const requiredRoleSections = [
@@ -32,6 +35,14 @@ function read(relativePath) {
   return readFileSync(path.join(root, relativePath), 'utf8');
 }
 
+function artifact(id, kind) {
+  const match = artifactMap.artifacts.find(
+    (entry) => entry.id === id && entry.kind === kind
+  );
+  assert.ok(match, `missing ${kind} artifact ${id}`);
+  return match;
+}
+
 function parseFrontmatter(markdown) {
   const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   assert.ok(match, 'SKILL.md must start with YAML frontmatter');
@@ -47,9 +58,8 @@ function parseFrontmatter(markdown) {
 
 test('professional role charters expose the complete bounded contract', () => {
   for (const role of fixtures.roles) {
-    const content = read(
-      `requirements/015-professional-agent-orchestration/roles/${role}.md`
-    );
+    const roleArtifact = artifact(role, 'role');
+    const content = read(roleArtifact.canonicalPath);
     for (const section of requiredRoleSections) {
       assert.match(content, new RegExp(`^## ${section}$`, 'm'), `${role}: ${section}`);
     }
@@ -58,13 +68,12 @@ test('professional role charters expose the complete bounded contract', () => {
 });
 
 test('professional Skills have valid metadata, UI metadata and context bounds', () => {
-  const localSkills = fixtures.skills.filter(
-    (skill) => skill !== 'implement-generation-workflow'
-  );
-  for (const skill of localSkills) {
-    const relativeRoot =
-      `requirements/015-professional-agent-orchestration/skills/${skill}`;
-    const content = read(`${relativeRoot}/SKILL.md`);
+  for (const skill of fixtures.skills) {
+    const skillArtifact = artifact(skill, 'skill');
+    assert.equal(skillArtifact.canonicalPath, skillArtifact.discoveryPath);
+    assert.match(skillArtifact.discoveryPath, /^\.agents\/skills\//);
+    const relativeRoot = path.posix.dirname(skillArtifact.canonicalPath);
+    const content = read(skillArtifact.canonicalPath);
     const frontmatter = parseFrontmatter(content);
     assert.deepEqual(
       frontmatter.map(([key]) => key),
@@ -78,6 +87,83 @@ test('professional Skills have valid metadata, UI metadata and context bounds', 
     assert.match(metadata, new RegExp(`\\$${skill}\\b`));
     assert.match(metadata, /allow_implicit_invocation:\s*true/);
   }
+});
+
+test('artifact map has unique canonical paths and all active artifacts exist', () => {
+  assert.equal(artifactMap.version, 1);
+  const ids = new Set();
+  const canonicalPaths = new Set();
+  const skillNames = new Set();
+
+  for (const entry of artifactMap.artifacts) {
+    const key = `${entry.kind}:${entry.id}`;
+    assert.ok(!ids.has(key), `duplicate artifact ${key}`);
+    ids.add(key);
+    assert.ok(!canonicalPaths.has(entry.canonicalPath), `duplicate path ${entry.canonicalPath}`);
+    canonicalPaths.add(entry.canonicalPath);
+    assert.ok(existsSync(path.join(root, entry.canonicalPath)), `missing ${entry.canonicalPath}`);
+
+    if (entry.kind === 'skill') {
+      const frontmatter = parseFrontmatter(read(entry.canonicalPath));
+      const skillName = frontmatter.find(([name]) => name === 'name')?.[1];
+      assert.ok(!skillNames.has(skillName), `duplicate Skill name ${skillName}`);
+      skillNames.add(skillName);
+    }
+  }
+});
+
+test('discoverable Skill directory matches the canonical artifact map exactly', () => {
+  const mappedSkills = artifactMap.artifacts
+    .filter((entry) => entry.kind === 'skill')
+    .map((entry) => entry.id)
+    .sort();
+  const discoveredSkills = readdirSync(path.join(root, '.agents', 'skills'), {
+    withFileTypes: true
+  })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+
+  assert.deepEqual(discoveredSkills, mappedSkills);
+});
+
+test('scoped AGENTS files extend root policy and point to their domain role', () => {
+  const expectations = new Map([
+    ['web/AGENTS.md', 'ux-ui-product-designer'],
+    ['server/AGENTS.md', 'backend-platform-architect'],
+    ['requirements/016-cinematic-studio/AGENTS.md', 'cinematic-experience-director'],
+    ['requirements/017-implementation-backend/AGENTS.md', 'backend-platform-architect'],
+    ['requirements/018-implementation-commercial-feature-plan/AGENTS.md', 'commercial-financial-integrity']
+  ]);
+
+  for (const [relativePath, role] of expectations) {
+    const content = read(relativePath);
+    assert.match(content, /extends the repository root `AGENTS\.md`/i);
+    assert.match(content, new RegExp(role));
+  }
+});
+
+test('centralized compatibility copies are removed after placement migration', () => {
+  assert.ok(!existsSync(path.join(orchestrationRoot, 'skills')));
+  for (const role of [
+    'ux-ui-product-designer',
+    'cinematic-experience-director',
+    'backend-platform-architect',
+    'commercial-financial-integrity'
+  ]) {
+    assert.ok(!existsSync(path.join(orchestrationRoot, 'roles', `${role}.md`)));
+  }
+  assert.ok(
+    !existsSync(
+      path.join(
+        root,
+        'requirements',
+        '009-migration-to-react',
+        'skills',
+        'implement-generation-workflow'
+      )
+    )
+  );
 });
 
 test('routing fixtures remain bounded and reference known roles and Skills', () => {
@@ -127,8 +213,10 @@ test('AGENTS router references every role and local Skill', () => {
   assert.match(agents, /requirements\/015-professional-agent-orchestration/);
   for (const role of fixtures.roles) {
     assert.match(agents, new RegExp(role));
+    assert.match(agents, new RegExp(artifact(role, 'role').canonicalPath.replaceAll('/', '\\/')));
   }
   for (const skill of fixtures.skills) {
     assert.match(agents, new RegExp(skill));
+    assert.match(agents, new RegExp(artifact(skill, 'skill').canonicalPath.replaceAll('/', '\\/')));
   }
 });

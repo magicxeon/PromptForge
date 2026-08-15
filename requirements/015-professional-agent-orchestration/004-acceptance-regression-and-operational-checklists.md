@@ -71,6 +71,21 @@ For each Skill:
 - [ ] Skill validator passes.
 - [ ] Forward test uses raw artifacts and does not leak the intended answer.
 - [ ] `agents/openai.yaml`, when present, matches current Skill behavior.
+- [x] Repository-wide Skill is discoverable under `.agents/skills/`.
+- [x] No discovered Skill shares the same `name` with another Skill.
+
+## 4.1 Placement And Scoped Instruction Checklist
+
+- [x] Every role and Skill has one canonical owner and path in the artifact map.
+- [x] Cross-project Product and QA roles remain under orchestration governance.
+- [x] UX, Cinematic, Backend and Commercial roles live with their domain owner.
+- [x] Root `AGENTS.md` contains compact routing and valid canonical links.
+- [x] Nested `AGENTS.md` files add only directory-specific deltas.
+- [x] Nested instructions do not relax root financial, security or permission
+      gates.
+- [x] Root-launched sessions do not depend on nested instructions being loaded.
+- [x] Old centralized copies are removed after migration validation.
+- [x] Existing routing fixtures pass before and after physical moves.
 
 ## 5. Regression Preservation Checklist
 

@@ -25,6 +25,9 @@ The router evaluates, in order:
 6. domain signals: Cinematic, UX/UI, backend, commercial or generative media;
 7. task size and number of lifecycle stages.
 
+Artifact resolution uses the canonical map defined by AGENT-ORCH-006. Routing
+must not assume every role and Skill lives under this requirement folder.
+
 ## 3. Deterministic Routing Matrix
 
 | Trigger | Primary | Mandatory reviewer/Skill |
@@ -108,6 +111,11 @@ gates. The agent must explain that exception briefly.
 - Do not duplicate schemas, pricing tables, routes or architecture maps in role
   files; link to their canonical owners.
 - Default to no more than three active roles and two triggered Skills.
+- Resolve role charters from their domain-owned canonical paths.
+- Discover active repository Skills through `.agents/skills/`; do not scan
+  arbitrary requirement folders as an alternative Skill registry.
+- Treat nested `AGENTS.md` files as current-working-directory scope. Root
+  routing remains sufficient for sessions launched at repository root.
 
 ## 8. Routing Record
 

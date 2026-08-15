@@ -1,18 +1,31 @@
 # Implementation Plan And Artifact Structure
 
 **Requirement ID:** AGENT-ORCH-003  
-**Status:** Implemented through Phase 5 structural/routing validation; adoption pending  
+**Status:** Distributed placement implemented; adoption validation pending
 **Owner:** Engineering governance
 
 ## 1. Architecture Decision
 
 Use a repository-owned router and progressively disclosed role/Skill files.
-Do not depend on an undocumented `.agent.md` auto-discovery convention.
+Use supported `AGENTS.md` hierarchy and `.agents/skills` discovery paths. Do not
+depend on an undocumented `.agent.md` auto-discovery convention.
+
+The target below supersedes the initial centralized layout. See
+AGENT-ORCH-006 for ownership and migration rules.
 
 Target structure:
 
 ```text
 AGENTS.md                                      automatic repository router
+.agents/skills/                                repository-wide Skill discovery
+  design-cinematic-experience/
+  review-commercial-integrity/
+  review-generative-media-pipeline/
+  review-product-ux/
+  verify-release-regressions/
+  implement-generation-workflow/
+web/AGENTS.md                                  frontend-scoped deltas
+server/AGENTS.md                               backend-scoped deltas
 requirements/015-professional-agent-orchestration/
   000-master-professional-agent-orchestration.md
   001-business-roles-and-governance.md
@@ -20,33 +33,36 @@ requirements/015-professional-agent-orchestration/
   003-implementation-plan-and-artifact-structure.md
   004-acceptance-regression-and-operational-checklists.md
   005-initial-readiness-validation.md
+  006-distributed-agent-and-skill-placement.md
+  agent-artifact-map.json
   routing-fixtures.json
   roles/
     product-requirement-architect.md
-    ux-ui-product-designer.md
-    cinematic-experience-director.md
-    backend-platform-architect.md
-    commercial-financial-integrity.md
     qa-release-engineer.md
-  skills/
-    design-cinematic-experience/SKILL.md
-    review-product-ux/SKILL.md
-    review-commercial-integrity/SKILL.md
-    verify-release-regressions/SKILL.md
-    review-generative-media-pipeline/SKILL.md
+requirements/009-migration-to-react/roles/
+  ux-ui-product-designer.md
+requirements/016-cinematic-studio/
+  AGENTS.md
+  roles/cinematic-experience-director.md
+requirements/017-implementation-backend/
+  AGENTS.md
+  roles/backend-platform-architect.md
+requirements/018-implementation-commercial-feature-plan/
+  AGENTS.md
+  roles/commercial-financial-integrity.md
 test/
   agentOrchestration.test.js
 ```
 
-Role charters remain requirement-adjacent because they are repository policy.
-Skills use valid `SKILL.md` frontmatter and may include `agents/openai.yaml`
-when the active Codex discovery/install mechanism supports it. `AGENTS.md`
-must explicitly reference repository-local Skills; their mere presence does not
-guarantee automatic discovery.
+Role charters remain requirement-adjacent to their actual domain owner. Skills
+use valid `SKILL.md` frontmatter, may include `agents/openai.yaml`, and live in
+the supported `.agents/skills` catalog when they must be available from the
+repository root. Root `AGENTS.md` still defines trigger boundaries; location
+alone does not replace routing policy.
 
-Do not duplicate the existing
-`requirements/009-migration-to-react/skills/implement-generation-workflow/`
-Skill. The router links to it when its current trigger policy matches.
+The existing Generation Workflow Skill was moved, not duplicated, to
+`.agents/skills/implement-generation-workflow/`. Its trigger policy and
+positive/negative routing coverage remain unchanged.
 
 ## 2. Role Charter Contract
 
@@ -151,6 +167,21 @@ Where independent contexts are available, do not pass expected findings to QA.
    regressions.
 3. Shorten or refine triggers from evidence.
 4. Mark only validated roles/Skills active.
+
+### Phase 7: Distributed Placement Migration
+
+1. Add the canonical artifact map and tests before moving files.
+2. Move role charters to their domain owners.
+3. Move active Skills into `.agents/skills/` without duplicate names.
+4. Add minimal scoped `AGENTS.md` files.
+5. Update every router, fixture, test and requirement consumer atomically.
+6. Verify root and nested launch scopes, then remove compatibility copies.
+
+**Checkpoint:** The same routing fixtures pass, every active Skill is
+discoverable from root, and no stale or duplicate artifact remains.
+
+**Result:** Implemented. Canonical paths are recorded in
+`agent-artifact-map.json`; compatibility copies were removed.
 
 ## 5. Implementation Safeguards
 

@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "artifacts": [
+    {
+      "id": "product-requirement-architect",
+      "kind": "role",
+      "owner": "professional-agent-orchestration",
+      "canonicalPath": "requirements/015-professional-agent-orchestration/roles/product-requirement-architect.md",
+      "discoveryPath": null,
+      "scope": "cross-project",
+      "status": "active"
+    },
+    {
+      "id": "qa-release-engineer",
+      "kind": "role",
+      "owner": "professional-agent-orchestration",
+      "canonicalPath": "requirements/015-professional-agent-orchestration/roles/qa-release-engineer.md",
+      "discoveryPath": null,
+      "scope": "cross-project",
+      "status": "active"
+    },
+    {
+      "id": "ux-ui-product-designer",
+      "kind": "role",
+      "owner": "react-product-experience",
+      "canonicalPath": "requirements/009-migration-to-react/roles/ux-ui-product-designer.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "cinematic-experience-director",
+      "kind": "role",
+      "owner": "cinematic-studio",
+      "canonicalPath": "requirements/016-cinematic-studio/roles/cinematic-experience-director.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "backend-platform-architect",
+      "kind": "role",
+      "owner": "backend-platform",
+      "canonicalPath": "requirements/017-implementation-backend/roles/backend-platform-architect.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "commercial-financial-integrity",
+      "kind": "role",
+      "owner": "commercial-platform",
+      "canonicalPath": "requirements/018-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
+      "id": "design-cinematic-experience",
+      "kind": "skill",
+      "owner": "cinematic-studio",
+      "canonicalPath": ".agents/skills/design-cinematic-experience/SKILL.md",
+      "discoveryPath": ".agents/skills/design-cinematic-experience/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "review-commercial-integrity",
+      "kind": "skill",
+      "owner": "commercial-platform",
+      "canonicalPath": ".agents/skills/review-commercial-integrity/SKILL.md",
+      "discoveryPath": ".agents/skills/review-commercial-integrity/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "review-generative-media-pipeline",
+      "kind": "skill",
+      "owner": "professional-agent-orchestration",
+      "canonicalPath": ".agents/skills/review-generative-media-pipeline/SKILL.md",
+      "discoveryPath": ".agents/skills/review-generative-media-pipeline/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "review-product-ux",
+      "kind": "skill",
+      "owner": "react-product-experience",
+      "canonicalPath": ".agents/skills/review-product-ux/SKILL.md",
+      "discoveryPath": ".agents/skills/review-product-ux/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "verify-release-regressions",
+      "kind": "skill",
+      "owner": "professional-agent-orchestration",
+      "canonicalPath": ".agents/skills/verify-release-regressions/SKILL.md",
+      "discoveryPath": ".agents/skills/verify-release-regressions/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "implement-generation-workflow",
+      "kind": "skill",
+      "owner": "generation",
+      "canonicalPath": ".agents/skills/implement-generation-workflow/SKILL.md",
+      "discoveryPath": ".agents/skills/implement-generation-workflow/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "frontend-scope",
+      "kind": "instructions",
+      "owner": "react-product-experience",
+      "canonicalPath": "web/AGENTS.md",
+      "discoveryPath": "web/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    },
+    {
+      "id": "backend-scope",
+      "kind": "instructions",
+      "owner": "backend-platform",
+      "canonicalPath": "server/AGENTS.md",
+      "discoveryPath": "server/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    },
+    {
+      "id": "cinematic-requirement-scope",
+      "kind": "instructions",
+      "owner": "cinematic-studio",
+      "canonicalPath": "requirements/016-cinematic-studio/AGENTS.md",
+      "discoveryPath": "requirements/016-cinematic-studio/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    },
+    {
+      "id": "backend-requirement-scope",
+      "kind": "instructions",
+      "owner": "backend-platform",
+      "canonicalPath": "requirements/017-implementation-backend/AGENTS.md",
+      "discoveryPath": "requirements/017-implementation-backend/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    },
+    {
+      "id": "commercial-requirement-scope",
+      "kind": "instructions",
+      "owner": "commercial-platform",
+      "canonicalPath": "requirements/018-implementation-commercial-feature-plan/AGENTS.md",
+      "discoveryPath": "requirements/018-implementation-commercial-feature-plan/AGENTS.md",
+      "scope": "directory",
+      "status": "active"
+    }
+  ]
+}

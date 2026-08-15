@@ -1,8 +1,0 @@
-interface:
-  display_name: "Generation Workflow"
-  short_description: "Guard Credit, Queue, polling, and result changes"
-  default_prompt: "Use $implement-generation-workflow to implement or review this cross-layer Generation workflow safely."
-
-policy:
-  allow_implicit_invocation: true
-

@@ -165,8 +165,10 @@ Client placement rules:
 | Migration and maintenance utilities | `scripts/` |
 | Automated tests and fixtures | `test/` and `test/fixtures/` |
 | Business and implementation requirements | `requirements/<phase-or-domain>/` |
-| Professional agent roles, routing policy and Skill plans | `requirements/015-professional-agent-orchestration/` |
-| Professional role charters and repository-local Skills | `requirements/015-professional-agent-orchestration/roles/`, `requirements/015-professional-agent-orchestration/skills/` |
+| Professional agent routing, cross-project Product/QA roles and artifact map | `requirements/015-professional-agent-orchestration/` |
+| Domain professional role charters | Owning requirement under `requirements/<domain>/roles/` |
+| Repository-wide discoverable Codex Skills | `.agents/skills/<skill-name>/` |
+| Directory-scoped agent instruction deltas | Nearest justified `AGENTS.md` below the repository root |
 | Cross-project architecture and technical debt plans | `requirements/099-technical-dept/` |
 
 ### 4.4 New Folder Decision Rule
