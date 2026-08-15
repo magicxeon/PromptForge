@@ -1,7 +1,7 @@
 # Acceptance, Regression And Operational Checklists
 
 **Requirement ID:** AGENT-ORCH-004  
-**Status:** Implemented; initial automated checklist validation passed  
+**Status:** Implemented; structural and operational-adoption validation passed
 **Owner:** QA and engineering governance
 
 ## 1. Requirement Review Checklist
@@ -184,3 +184,17 @@ AGENT-ORCH may be marked complete only when:
 - at least one high-risk task demonstrates mandatory review;
 - at least one tiny task demonstrates no unnecessary specialist loading; and
 - the Product Owner accepts the routing and clarification behavior.
+
+Current evidence:
+
+- [x] Role, Skill, placement and routing fixtures pass.
+- [x] Three real requirement tasks have machine-readable adoption evidence.
+- [x] Admin/Support demonstrates mandatory Commercial and QA review.
+- [x] A JSON fixture correction demonstrates no unnecessary Skill loading.
+- [x] The explicit QA-only Product Owner override requires no router edit.
+- [x] Sequential review and its independence limitation are disclosed.
+- [ ] A blind seeded-regression exercise passes in a fresh reviewer context.
+
+See `adoption-evidence.json` and AGENT-ORCH-007. The unchecked blind-QA item is
+the only remaining orchestration closure gate; it does not invalidate the
+implemented router, placement or operational adoption behavior.

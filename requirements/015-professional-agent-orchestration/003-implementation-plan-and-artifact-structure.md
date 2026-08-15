@@ -1,7 +1,7 @@
 # Implementation Plan And Artifact Structure
 
 **Requirement ID:** AGENT-ORCH-003  
-**Status:** Distributed placement implemented; adoption validation pending
+**Status:** Distributed placement and operational adoption implemented; independent blind QA pending
 **Owner:** Engineering governance
 
 ## 1. Architecture Decision
@@ -171,6 +171,11 @@ Where independent contexts are available, do not pass expected findings to QA.
 3. Shorten or refine triggers from evidence.
 4. Mark only validated roles/Skills active.
 
+**Result:** Implemented. `adoption-evidence.json` records three real tasks from
+distinct capabilities, mandatory Commercial/QA review, a low-overhead negative
+case and Product Owner override behavior. Automated tests verify every recorded
+output remains current. Fresh-context blind QA remains pending.
+
 ### Phase 7: Distributed Placement Migration
 
 1. Add the canonical artifact map and tests before moving files.
@@ -217,7 +222,7 @@ If routing creates excessive context or incorrect ownership:
 - Link Cinematic, Backend and Commercial masters to their required roles.
 - Record implemented status and forward-test evidence in this master.
 - Do not mark AGENT-ORCH complete until three real-task adoption evidence sets
-  exist.
+  exist and the independent blind-QA gate passes.
 
 ## 8. Implementation Note
 

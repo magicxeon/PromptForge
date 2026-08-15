@@ -17,6 +17,9 @@ const fixtures = JSON.parse(
 const artifactMap = JSON.parse(
   readFileSync(path.join(orchestrationRoot, 'agent-artifact-map.json'), 'utf8')
 );
+const adoptionEvidence = JSON.parse(
+  readFileSync(path.join(orchestrationRoot, 'adoption-evidence.json'), 'utf8')
+);
 
 const requiredRoleSections = [
   'Mission',
@@ -219,4 +222,63 @@ test('AGENTS router references every role and local Skill', () => {
     assert.match(agents, new RegExp(skill));
     assert.match(agents, new RegExp(artifact(skill, 'skill').canonicalPath.replaceAll('/', '\\/')));
   }
+});
+
+test('operational adoption evidence covers real tasks and release gates', () => {
+  assert.equal(adoptionEvidence.version, 1);
+  assert.ok(adoptionEvidence.realTasks.length >= 3);
+
+  const knownRoles = new Set(fixtures.roles);
+  const knownSkills = new Set(fixtures.skills);
+  const taskIds = new Set();
+  const capabilities = new Set();
+
+  for (const task of adoptionEvidence.realTasks) {
+    assert.ok(!taskIds.has(task.id), `duplicate adoption task ${task.id}`);
+    taskIds.add(task.id);
+    capabilities.add(task.owningCapability);
+    assert.ok(knownRoles.has(task.primaryRole), `${task.id}: unknown primary role`);
+    assert.ok(task.reviewerRoles.every((role) => knownRoles.has(role)));
+    assert.ok(task.skills.every((skill) => knownSkills.has(skill)));
+    assert.ok(1 + task.reviewerRoles.length <= 3, `${task.id}: too many roles`);
+    assert.ok(task.skills.length <= 2, `${task.id}: too many Skills`);
+    assert.equal(task.status, 'requirement-complete');
+    assert.ok(task.reasonForRouting.length > 0);
+    assert.ok(task.handoff.length > 0);
+    assert.ok(existsSync(path.join(root, task.owningRequirement)));
+    assert.ok(task.outputs.length > 0);
+    for (const output of task.outputs) {
+      assert.ok(existsSync(path.join(root, output)), `${task.id}: stale output ${output}`);
+    }
+  }
+
+  assert.ok(capabilities.size >= 3, 'adoption must cover three capabilities');
+
+  const mandatory = adoptionEvidence.mandatoryReviewEvidence;
+  const highRiskTask = adoptionEvidence.realTasks.find(
+    (task) => task.id === mandatory.taskId
+  );
+  assert.ok(highRiskTask, 'mandatory-review task is missing');
+  assert.ok(mandatory.riskClasses.length > 0);
+  for (const role of ['commercial-financial-integrity', 'qa-release-engineer']) {
+    assert.ok(mandatory.requiredRoles.includes(role));
+    assert.ok(highRiskTask.reviewerRoles.includes(role));
+  }
+  assert.equal(mandatory.result, 'passed-sequential-review');
+
+  const cases = new Map(fixtures.cases.map((routeCase) => [routeCase.id, routeCase]));
+  const lowOverhead = adoptionEvidence.lowOverheadEvidence;
+  assert.deepEqual(cases.get(lowOverhead.routingCaseId)?.skills, lowOverhead.expectedSkills);
+  assert.equal(lowOverhead.result, 'passed');
+
+  const override = adoptionEvidence.productOwnerOverrideEvidence;
+  const overrideCase = cases.get(override.routingCaseId);
+  assert.ok(overrideCase?.userOverride);
+  assert.equal(override.requiresRouterEdit, false);
+  assert.equal(override.result, 'passed');
+
+  assert.equal(adoptionEvidence.reviewExecution.mode, 'sequential');
+  assert.equal(adoptionEvidence.reviewExecution.independentAgentAvailable, false);
+  assert.equal(adoptionEvidence.reviewExecution.remainingGate, 'blind-seeded-regression');
+  assert.match(adoptionEvidence.reviewExecution.disclosure, /not provide an independent/i);
 });

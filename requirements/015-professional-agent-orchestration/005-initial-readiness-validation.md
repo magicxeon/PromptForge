@@ -1,15 +1,16 @@
 # Initial Agent And Skill Readiness Validation
 
 **Requirement ID:** AGENT-ORCH-005  
-**Status:** Initial and distributed-placement structural validation passed
+**Status:** Structural and operational-adoption validation passed; blind QA pending
 **Validated:** 2026-08-15
 
 ## 1. Validation Scope
 
 This checkpoint verifies that every role and Skill is structurally usable, has
 bounded context, is reachable from the root router and has positive and negative
-routing evidence. It does not claim independent subagent validation or the
-three-real-task adoption evidence required by Gate D.
+routing evidence. AGENT-ORCH-007 now adds the three-real-task operational
+adoption evidence required by Gate D. This file does not claim independent
+subagent validation.
 
 ## 2. Automated Evidence
 
@@ -38,7 +39,8 @@ After AGENT-ORCH-006 implementation, the same command additionally validates:
 - scoped `AGENTS.md` inheritance markers and role references; and
 - full canonical role and Skill paths in the root router.
 
-Current result: 9 tests passed, 0 failed.
+Current result after operational adoption implementation: 10 tests passed, 0
+failed.
 
 ## 3. Section Readiness
 
@@ -100,12 +102,16 @@ placement migration. `py.exe` resolves to an unavailable WindowsApps Python
 artifacts are covered by the repository Node structural test. Re-run the
 official validator if an accessible Python runtime becomes available.
 
-## 6. Remaining Gate
+## 6. Operational Adoption Result
 
-Before marking the orchestration requirement complete:
+`adoption-evidence.json` now records:
 
-1. use the router on three real tasks from different domains;
-2. perform one financial/security mandatory-review task;
-3. perform one tiny task proving no unnecessary role load; and
-4. perform a blind QA seeded-regression test in a fresh agent context when the
-   environment supports independent agents.
+1. three real requirement-authoring tasks from Cinematic, Support and
+   Commercial capabilities;
+2. mandatory Commercial and QA review for Admin/Support recovery design;
+3. a tiny JSON fixture case with no unnecessary Skill activation; and
+4. an explicit QA-only Product Owner override that does not edit router files.
+
+The automated suite checks role/Skill bounds and fails on stale requirement or
+output paths. The only remaining closure gate is a blind seeded-regression test
+in a fresh agent context when independent review is available.

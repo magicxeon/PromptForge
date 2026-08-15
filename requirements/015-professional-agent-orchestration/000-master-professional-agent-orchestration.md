@@ -1,7 +1,7 @@
 # Professional Agent Orchestration Master Requirement
 
 **Requirement ID:** AGENT-ORCH-000  
-**Status:** Distributed placement implemented and structurally validated; adoption gate pending
+**Status:** Implemented and operationally adopted; independent blind-QA gate pending
 **Owner:** Engineering governance  
 **Applies to:** Product requirements, UX/UI, Cinematic Studio, backend,
 commercial operations, generative media and QA/release work
@@ -24,9 +24,9 @@ This requirement defines a small professional role system that:
 - leaves an auditable requirement, implementation and validation handoff.
 
 The repository router, six distributed role charters, seven discoverable Skills,
-scoped instructions and routing regression fixtures are implemented.
-Three-real-task adoption and blind QA validation remain pending before final
-completion.
+scoped instructions, routing regression fixtures and three-real-task adoption
+record are implemented. Independent blind QA validation remains pending before
+final closure.
 
 ## 2. Requirement Set
 
@@ -38,6 +38,7 @@ completion.
 | [AGENT-ORCH-004](004-acceptance-regression-and-operational-checklists.md) | Acceptance, QA, regression, overhead and ongoing maintenance checklists |
 | [AGENT-ORCH-005](005-initial-readiness-validation.md) | Initial structural, routing and section-readiness evidence |
 | [AGENT-ORCH-006](006-distributed-agent-and-skill-placement.md) | Canonical domain ownership, runtime Skill discovery and nested `AGENTS.md` placement |
+| [AGENT-ORCH-007](007-operational-adoption-and-release-validation.md) | Real-task routing evidence, mandatory review, overhead and release validation |
 
 ## 3. Core Decision
 
@@ -129,10 +130,13 @@ used when the active environment can only apply roles sequentially.
 - `agent-artifact-map.json` records one canonical owner and path per artifact.
 - `routing-fixtures.json` contains 22 positive, negative, high-risk and
   clarification cases.
+- `adoption-evidence.json` records three real requirement-authoring tasks across
+  Cinematic, Support and Commercial capabilities, plus mandatory-review,
+  low-overhead and Product Owner override evidence.
 - `test/agentOrchestration.test.js` validates structure, bounds, router links and
-  positive/negative Skill coverage.
+  positive/negative Skill coverage, adoption outputs and release gates.
 - Initial readiness evidence is recorded in AGENT-ORCH-005.
 
-AGENT-ORCH-006 records the completed placement migration. Do not mark the full
-orchestration program complete until its remaining real-task adoption and
-independent QA gates pass.
+AGENT-ORCH-006 records the completed placement migration and AGENT-ORCH-007
+records operational adoption. Do not mark the full orchestration program
+complete until a fresh-context blind QA seeded-regression exercise passes.
