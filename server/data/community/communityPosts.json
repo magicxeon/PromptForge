@@ -13,7 +13,7 @@
     "templateId": "tmpl_1786716962788_t1fxowtc",
     "templateVersionId": "tmplv_1786716962796_3rxqostm",
     "templatePricing": {
-      "accessCredits": 20,
+      "accessCredits": 12,
       "cadence": "per_output",
       "creatorShareBps": 7500,
       "platformShareBps": 2500,
@@ -580,14 +580,14 @@
       "commentCount": 0,
       "remixSuccessCount": 0,
       "comparisonVoteCount": 0,
-      "updatedAt": "2026-08-15T02:29:11.636Z"
+      "updatedAt": "2026-08-15T03:01:15.070Z"
     },
     "id": "post_1786716962811_vz14fvt1",
     "schemaVersion": 1,
     "ownerUserId": "usr_alice",
     "ownerUsername": "user_alice",
     "createdAt": "2026-08-14T14:16:02.809Z",
-    "updatedAt": "2026-08-15T02:29:42.385Z",
+    "updatedAt": "2026-08-15T03:01:15.070Z",
     "deletedAt": null,
     "metadata": {},
     "publishedAt": "2026-08-14T15:06:14.968Z"

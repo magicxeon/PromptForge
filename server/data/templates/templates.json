@@ -12,7 +12,7 @@
       "aspectRatio": "6:8"
     },
     "pricing": {
-      "accessCredits": 20,
+      "accessCredits": 12,
       "cadence": "per_output",
       "creatorShareBps": 7500,
       "platformShareBps": 2500,
@@ -28,7 +28,7 @@
     "visibility": "public",
     "status": "published",
     "createdAt": "2026-08-14T14:16:02.788Z",
-    "updatedAt": "2026-08-15T02:29:42.373Z",
+    "updatedAt": "2026-08-15T02:52:06.272Z",
     "deletedAt": null,
     "metadata": {}
   },

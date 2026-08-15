@@ -1,5 +1,46 @@
 [
   {
+    "displayName": "เหมยลี่",
+    "description": "น้องเหมยลี่",
+    "characterType": "reusable_model",
+    "creatorProfileId": "creator_alice",
+    "sourceCommunityPostId": null,
+    "sourceGenerationResultId": "job_1786761957472_i11ww8gij",
+    "previewImageAssetId": "job_1786761957472_i11ww8gij",
+    "faceReferencePolicy": "replace_required",
+    "outfitReferencePolicy": "none",
+    "sceneBuilderHandoffSnapshot": null,
+    "characterProfileId": "charprof_1786762030645_bi3091e5",
+    "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+    "personalitySummary": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+    "intendedUses": [
+      "fashion",
+      "scene_story"
+    ],
+    "canonicalCastingExportAssetId": "job_1786761957472_i11ww8gij",
+    "canonicalCharacterSheetAssetId": "job_1786761957472_i11ww8gij",
+    "destinationCapabilities": [
+      "fashion_blueprint",
+      "scene_builder"
+    ],
+    "outfitBehavior": "replaceable",
+    "sourceGenerationResultIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "officialTags": [],
+    "reusePolicy": "use_as_character",
+    "id": "char_1786762033827_vosjirdz",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "public",
+    "status": "active",
+    "createdAt": "2026-08-15T02:47:13.827Z",
+    "updatedAt": "2026-08-15T02:47:58.648Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "displayName": "บักป๊อม",
     "description": "ป้อม ทดสอบ",
     "characterType": "reusable_model",

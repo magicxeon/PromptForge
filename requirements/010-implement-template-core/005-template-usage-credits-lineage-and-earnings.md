@@ -44,6 +44,27 @@ Estimate response exposes:
 The existing reservation captures or refunds the combined amount. No second
 balance system is introduced.
 
+### Pricing Changes And Use Sessions
+
+Template access-credit edits apply to use sessions created after the edit.
+Every use session pins the pricing snapshot that was shown when the user chose
+the Template, so an in-progress session and any quote derived from it must not
+change price underneath the user.
+
+The expected transition is:
+
+```text
+session A created while accessCredits = 20 -> session A remains 20
+owner changes accessCredits to 12
+session B created after the edit          -> session B uses 12
+```
+
+Clients must start a new Template handoff when validating or presenting the
+new price. A listing price and an older active session price may differ by
+design; the quote, reservation, capture and usage event must all use the pinned
+session value. The UI must never replace the server-owned session snapshot with
+the current listing price during an active flow.
+
 ## Lineage
 
 Every Template result records:
@@ -90,3 +111,5 @@ Commercial payout later consumes immutable captured entries.
 - refund includes Template component
 - duplicate completion does not duplicate usage
 - ledger metadata contains version and split snapshot
+- editing access credits preserves existing use-session pricing while a newly
+  created use session receives the updated price

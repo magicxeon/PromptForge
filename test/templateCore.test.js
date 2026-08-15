@@ -84,6 +84,25 @@ test('Template Core publishes an immutable version and pins actor-scoped use ses
   const pricing = await service.resolvePricing(handoff.useSession.id, viewer);
   assert.equal(pricing.executionReferenceCount, 1);
   assert.equal(pricing.unitCredits, 11);
+
+  await service.updatePublishedSettings(published.template.id, {
+    accessCredits: 12
+  }, actor);
+  const pinnedPricingAfterEdit = await service.resolvePricing(
+    handoff.useSession.id,
+    viewer
+  );
+  assert.equal(pinnedPricingAfterEdit.unitCredits, 11);
+  const updatedPriceHandoff = await service.createUseSession({
+    templateId: published.template.id,
+    sourceCommunityPostId: 'post_updated_price'
+  }, viewer);
+  assert.equal(updatedPriceHandoff.pricing.accessCredits, 12);
+  assert.equal(
+    (await service.resolvePricing(updatedPriceHandoff.useSession.id, viewer)).unitCredits,
+    12
+  );
+
   await service.attachGeneration(handoff.useSession.id, viewer, 'job_result_1');
   const firstUsage = await service.recordSuccessfulUse({
     sessionId: handoff.useSession.id,

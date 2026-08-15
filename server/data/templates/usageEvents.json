@@ -2,6 +2,61 @@
   {
     "templateId": "tmpl_1786716962788_t1fxowtc",
     "templateVersionId": "tmplv_1786716962796_3rxqostm",
+    "templateUseSessionId": "tmpls_1786761606802_e5vcf8ao",
+    "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
+    "generatedJobId": "job_fashion_5d59cce50efa284f98_1",
+    "creatorUserId": "usr_alice",
+    "creatorUsername": "user_alice",
+    "eventType": "generation_completed",
+    "outputCount": 1,
+    "replacementSummary": [
+      {
+        "inputId": "outfit_front_reference",
+        "inputType": "reference_image",
+        "supplied": true
+      },
+      {
+        "inputId": "outfit_back_reference",
+        "inputType": "reference_image",
+        "supplied": false
+      }
+    ],
+    "pricingSnapshot": {
+      "providerId": "gemini",
+      "modelId": "gemini-3.1-flash-image",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "estimatedCredits": 114,
+      "breakdown": {
+        "baseOutputCredits": 90,
+        "referenceCredits": 4,
+        "generationCredits": 94,
+        "templateUsageCredits": 20,
+        "templateId": "tmpl_1786716962788_t1fxowtc",
+        "templateVersionId": "tmplv_1786716962796_3rxqostm",
+        "templateCreatorUserId": "usr_alice",
+        "templateCreatorUsername": "user_alice",
+        "templateCreatorShareBps": 7500,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 114
+      }
+    },
+    "creatorEarningCredits": 15,
+    "platformRevenueCredits": 5,
+    "id": "tmpluse_1786761657655_ekzoa1m3",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "recorded",
+    "createdAt": "2026-08-15T02:40:57.654Z",
+    "updatedAt": "2026-08-15T02:40:57.654Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "templateId": "tmpl_1786716962788_t1fxowtc",
+    "templateVersionId": "tmplv_1786716962796_3rxqostm",
     "templateUseSessionId": "tmpls_1786755478598_srhzlk0r",
     "sourceCommunityPostId": "post_1786716962811_vz14fvt1",
     "generatedJobId": "job_fashion_5a8ca65cd9ecacc68e_1",

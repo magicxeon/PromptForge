@@ -1,5 +1,26 @@
 [
   {
+    "characterProfileId": "charprof_1786066442793_bhqmmr1q",
+    "characterProfileVersionId": "charver_1786066442795_61n1y7bm",
+    "consumerUserId": "usr_alice",
+    "useCase": "fashion",
+    "sourceType": "fashion_blueprint",
+    "sourceId": "charprof_1786066442793_bhqmmr1q",
+    "generationJobId": "job_fashion_5d59cce50efa284f98_1",
+    "successfulOutputCount": 1,
+    "idempotencyKey": "character-usage:job_fashion_5d59cce50efa284f98_1:charprof_1786066442793_bhqmmr1q",
+    "id": "charuse_1786761657650_4nlzu9t4",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": null,
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-15T02:40:57.650Z",
+    "updatedAt": "2026-08-15T02:40:57.650Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "characterProfileId": "charprof_1786680491425_6vauj6pi",
     "characterProfileVersionId": "charver_1786680491430_eln967ep",
     "consumerUserId": "usr_bob",
