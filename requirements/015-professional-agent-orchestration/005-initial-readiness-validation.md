@@ -22,8 +22,8 @@ node --test test/agentOrchestration.test.js
 Validated contracts:
 
 - all six role charters expose every required section and remain below 180 lines;
-- all six Skills use valid bounded `SKILL.md` metadata and UI metadata;
-- 21 routing fixtures use known roles and Skills;
+- all seven Skills use valid bounded `SKILL.md` metadata and UI metadata;
+- 22 routing fixtures use known roles and Skills;
 - no fixture exceeds one primary plus two reviewers or two Skills;
 - `AGENTS.md` references every role and Skill;
 - every role has a primary-routing case; and
@@ -38,7 +38,7 @@ After AGENT-ORCH-006 implementation, the same command additionally validates:
 - scoped `AGENTS.md` inheritance markers and role references; and
 - full canonical role and Skill paths in the root router.
 
-Current result: 8 tests passed, 0 failed.
+Current result: 9 tests passed, 0 failed.
 
 ## 3. Section Readiness
 
@@ -90,6 +90,7 @@ subagent context, so true blind seeded-regression validation remains pending.
 | `verify-release-regressions` | Explicit PR review | Translation key | Pass |
 | `review-generative-media-pipeline` | Provider/reference qualification | Prompt phrase only | Pass |
 | `implement-generation-workflow` | Terminal Queue polling | Prompt phrase only | Pass |
+| `plan-database-migration` | Character Profile PostgreSQL migration | JSON label correction | Pass |
 
 ## 5. Tooling Note
 

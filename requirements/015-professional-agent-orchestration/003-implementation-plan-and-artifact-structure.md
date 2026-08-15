@@ -24,6 +24,7 @@ AGENTS.md                                      automatic repository router
   review-product-ux/
   verify-release-regressions/
   implement-generation-workflow/
+  plan-database-migration/
 web/AGENTS.md                                  frontend-scoped deltas
 server/AGENTS.md                               backend-scoped deltas
 requirements/015-professional-agent-orchestration/
@@ -141,6 +142,8 @@ Skill according to the `skill-creator` process. Start with:
 3. `review-commercial-integrity` before paid backend work;
 4. `review-generative-media-pipeline` before video-provider qualification;
 5. `review-product-ux` only if the role charter alone proves insufficient.
+6. `plan-database-migration` when repeated schema-readiness and transactional
+   cutover work justifies a focused migration procedure.
 
 **Checkpoint:** No Skill duplicates existing Generation or React migration
 procedures.

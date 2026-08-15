@@ -93,6 +93,7 @@ discovery location:
   review-product-ux/
   verify-release-regressions/
   implement-generation-workflow/
+  plan-database-migration/
 ```
 
 Each Skill links to its owning requirement and role charter. The directory is a
@@ -213,7 +214,8 @@ Do not perform partial moves that leave root routing pointed at stale paths.
 
 - `agent-artifact-map.json` owns canonical path resolution.
 - Domain roles were moved to their owning requirement sets.
-- All six active Skills were moved into `.agents/skills/` with metadata.
+- All seven active Skills are available in `.agents/skills/` with metadata; the
+  seventh adds focused database migration planning without creating a new role.
 - Five scoped `AGENTS.md` files were added at the approved boundaries.
 - Root routing and Generation references now use canonical discovery paths.
 - Compatibility copies were removed and placement regression tests protect the

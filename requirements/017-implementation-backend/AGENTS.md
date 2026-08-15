@@ -6,7 +6,8 @@ apply.
 
 Read `roles/backend-platform-architect.md` as the primary professional charter.
 Use `verify-release-regressions` for substantial implementation or release
-work, and add the domain-specific Skill selected by root routing.
+work, use `plan-database-migration` for relational schema readiness or storage
+cutovers, and add the domain-specific Skill selected by root routing.
 
 - Define one capability owner and canonical application entry point.
 - Specify API, domain, repository and adapter boundaries before implementation.

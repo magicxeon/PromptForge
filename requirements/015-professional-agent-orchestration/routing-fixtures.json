@@ -14,7 +14,8 @@
     "review-commercial-integrity",
     "verify-release-regressions",
     "review-generative-media-pipeline",
-    "implement-generation-workflow"
+    "implement-generation-workflow",
+    "plan-database-migration"
   ],
   "skillCoverage": {
     "design-cinematic-experience": { "positive": "cinematic-three-shot", "negative": "cinematic-copy" },
@@ -22,13 +23,14 @@
     "review-commercial-integrity": { "positive": "commercial-payout-refund", "negative": "price-label-style" },
     "verify-release-regressions": { "positive": "qa-pr-review", "negative": "tiny-translation" },
     "review-generative-media-pipeline": { "positive": "provider-reference-qualification", "negative": "prompt-wording-only" },
-    "implement-generation-workflow": { "positive": "generation-terminal-spinner", "negative": "prompt-wording-only" }
+    "implement-generation-workflow": { "positive": "generation-terminal-spinner", "negative": "prompt-wording-only" },
+    "plan-database-migration": { "positive": "backend-character-db", "negative": "json-fixture-copy" }
   },
   "cases": [
     { "id": "ux-theme-small", "request": "Adjust one Pearl theme border", "primary": "ux-ui-product-designer", "reviewers": [], "skills": [], "clarification": false },
     { "id": "video-studio-product", "request": "Design the complete Video Studio workflow", "primary": "product-requirement-architect", "reviewers": ["cinematic-experience-director", "ux-ui-product-designer"], "skills": ["design-cinematic-experience", "review-product-ux"], "clarification": false },
     { "id": "cinematic-three-shot", "request": "Define a three-shot fashion sequence", "primary": "cinematic-experience-director", "reviewers": [], "skills": ["design-cinematic-experience", "review-generative-media-pipeline"], "clarification": false },
-    { "id": "backend-character-db", "request": "Migrate Character Profiles to PostgreSQL", "primary": "backend-platform-architect", "reviewers": ["qa-release-engineer"], "skills": ["verify-release-regressions"], "clarification": false },
+    { "id": "backend-character-db", "request": "Migrate Character Profiles to PostgreSQL", "primary": "backend-platform-architect", "reviewers": ["qa-release-engineer"], "skills": ["plan-database-migration", "verify-release-regressions"], "clarification": false },
     { "id": "commercial-stale-estimate", "request": "Fix a stale Fashion Credit estimate", "primary": "commercial-financial-integrity", "reviewers": ["backend-platform-architect", "qa-release-engineer"], "skills": ["review-commercial-integrity", "implement-generation-workflow"], "clarification": false },
     { "id": "commercial-payout-refund", "request": "Create creator payout and refund policy", "primary": "commercial-financial-integrity", "reviewers": ["backend-platform-architect", "qa-release-engineer"], "skills": ["review-commercial-integrity", "verify-release-regressions"], "clarification": false },
     { "id": "qa-pr-review", "request": "Review this PR for regressions", "primary": "qa-release-engineer", "reviewers": [], "skills": ["verify-release-regressions"], "clarification": false },
@@ -45,6 +47,7 @@
     { "id": "commercial-support-recovery", "request": "Add support recovery for an orphaned paid Fashion run", "primary": "commercial-financial-integrity", "reviewers": ["backend-platform-architect", "qa-release-engineer"], "skills": ["review-commercial-integrity", "implement-generation-workflow"], "clarification": false },
     { "id": "cinematic-copy", "request": "Rename Shot List to Scenes in one label", "primary": "cinematic-experience-director", "reviewers": [], "skills": [], "clarification": false },
     { "id": "prompt-wording-only", "request": "Adjust one Scene Recipe prompt phrase without changing lifecycle contracts", "primary": "base-implementation-owner", "reviewers": [], "skills": [], "clarification": false },
-    { "id": "price-label-style", "request": "Align the price label without changing calculation or consent", "primary": "ux-ui-product-designer", "reviewers": [], "skills": [], "clarification": false }
+    { "id": "price-label-style", "request": "Align the price label without changing calculation or consent", "primary": "ux-ui-product-designer", "reviewers": [], "skills": [], "clarification": false },
+    { "id": "json-fixture-copy", "request": "Correct one label in a local JSON fixture", "primary": "base-implementation-owner", "reviewers": [], "skills": [], "clarification": false }
   ]
 }

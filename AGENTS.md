@@ -70,6 +70,8 @@ Load a Skill only after its trigger matches:
   `.agents/skills/review-generative-media-pipeline/SKILL.md`.
 - `implement-generation-workflow`: cross-stage Generation lifecycle work;
   `.agents/skills/implement-generation-workflow/SKILL.md` and Section 6 below.
+- `plan-database-migration`: relational schema readiness, JSON-to-database
+  cutovers, backfills and rollback; `.agents/skills/plan-database-migration/SKILL.md`.
 
 Do not load Skills for their documented non-trigger cases. Do not create a
 second copy of a Skill under a requirement folder.

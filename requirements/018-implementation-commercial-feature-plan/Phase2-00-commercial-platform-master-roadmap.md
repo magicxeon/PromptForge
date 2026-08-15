@@ -22,6 +22,7 @@ that already have canonical owners. As of 2026-08-15 the local MVP provides:
 | Collections and History | owning server repositories and React features | Project scoping, database migration and bounded production pagination |
 | Actor identity | mock actor middleware and actor-scoped React state | Real authentication, secure sessions, roles and tenant authorization |
 | Observability | request IDs, domain IDs and bounded performance telemetry | End-to-end correlation tree, trace repository, alerts and Support console |
+| Admin and Support | admin overview/read models, moderation, Audit and Credit adjustment | Case-oriented Support orchestration, least privilege, approvals and reconciliation per `requirements/017-implementation-backend/` |
 
 Local JSON repositories, local image files, mock actors and the process-local
 Queue are development adapters. They are migration inputs, not acceptable paid
@@ -118,8 +119,9 @@ frontend or blocking independent backend migration.
 | Existing MVP foundation | Fashion Blueprint (`requirements/013-implementation-fashion-blueprint/`) | Character Profile, Scene Builder, Community |
 | Phase2-01 | Commercial Readiness and Google Cloud Alignment | Existing application, GCP concept |
 | Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Phase2-01 |
-| Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
-| Phase2-04 | Authentication, Sessions and Authorization | Phase2-03 |
+| Phase2-03A | Database foundation and schema-contract freeze | Phase2-01, Phase2-02 |
+| Phase2-04 | Authentication, Sessions and Authorization | Phase2-03A identity/audit schema foundation |
+| Phase2-03B | Capability-by-capability JSON migration | Phase2-03A, Phase2-04; ordered waves in Phase2-03 |
 | Phase2-05 | Projects, Ownership and Collections | Phase2-03, Phase2-04 |
 | Phase2-06 | Assets, Storage and Product Catalog | Phase2-05 |
 | Phase2-07 | Credit Ledger and Transaction Integrity | Phase2-03, Phase2-04 |
@@ -131,8 +133,10 @@ frontend or blocking independent backend migration.
 | Phase2-14 | Fashion Shot Packs and Photographer Styles | Phase2-13 |
 | Phase2-15 | Approval, Regeneration and Refund Policy | Phase2-10, Phase2-13 |
 | Phase2-16 | Marketplace Export Presets | Phase2-15 |
-| Phase2-18 | Production Support and Manual Recovery | Phase2-04, Phase2-07, Phase2-10, Phase2-15, platform correlation tracing |
+| Admin/Support MVP | `requirements/017-implementation-backend/000-admin-support-management-mvp-master.md` | Phase2-04, Audit/Observability; financial commands require Phase2-07/08 |
+| Phase2-18 | Production Support and Manual Recovery | Admin/Support Cases, Phase2-04, Phase2-07, Phase2-10, Phase2-15, platform correlation tracing |
 | Phase2-19 | Fashion Routing Qualification and Promotion | Fashion Blueprint Req 009 baseline, Phase2-07, Phase2-08, Phase2-10, Phase2-13 |
+| Phase2-20 | Current-State Reconciliation and Execution Checklist | Phase2-00 through Phase2-19, Backend Requirement 017 |
 | Phase2-17 | Fashion MVP Integration, GCP Security and Launch | All required MVP phases |
 | Phase2-09 | Subscription, Renewal and Entitlements | Deferred until one-time paid MVP is stable |
 
@@ -152,7 +156,9 @@ the Product Owner changes the revenue model.
 
 ### Gate B: Commercial Foundation
 
-- Database migration reconciled.
+- Database foundation and identity/audit cutover reconciled.
+- Credits, durable Jobs and Assets migrated by their dependency-ordered waves;
+  discovery/history JSON does not block the first secure staging slice.
 - Authentication and ownership enforcement complete.
 - Ledger and payment webhook tests complete.
 - Durable jobs survive process restart.
@@ -243,7 +249,7 @@ registry, route and entitlement contracts.
 | Scene Builder Requirement 010 | Local MVP closed 2026-08-15 | Regressions remain protected; future quality work moves to Phase2-19 |
 | Phase2-01 | Next: refresh architecture/GCP readiness audit | Architecture/GCP decision |
 | Phase2-02 | Core boundaries and React route registry implemented; commercial module/entitlement registry pending | Architecture/Application shell |
-| Phase2-03 | Proposed | Data/Migration |
+| Phase2-03 | Current-source audit complete; schema readiness is partial and migration implementation is pending | Data/Migration |
 | Phase2-04 | Proposed | Security |
 | Phase2-05 | Collections exist locally; Project aggregate pending | Domain/UX |
 | Phase2-06 | Local Asset capability exists; Cloud Storage and Product Catalog pending | Storage/Product |
@@ -260,17 +266,21 @@ registry, route and entitlement contracts.
 | Phase2-17 | Proposed | Launch approval |
 | Phase2-18 | Proposed - required before paid beta | Production support/recovery |
 | Phase2-19 | Active commercial follow-up | Repeated qualification/Premium promotion |
+| Phase2-20 | Requirement ready | Current-code crosswalk and implementation ordering |
 
 ## 8. Recommended Next Sequence From The Current Codebase
 
 1. Refresh Phase2-01 decisions and inventory the exact production adapter
    boundaries without moving canonical domain services.
-2. Implement Phase2-03 and Phase2-04 together as the first secure vertical
-   slice: authenticated actor -> PostgreSQL owner-scoped record.
-3. Move private Assets and Credit transactions through production adapters
-   (Phase2-06 and Phase2-07) before accepting payment.
+2. Implement Phase2-03A and Phase2-04 as the first secure vertical slice:
+   migration framework -> PostgreSQL identity/audit schema -> authenticated
+   actor -> owner-scoped record. Do not wait for every JSON domain to migrate.
+3. Add Support Case/Audit foundations, then move Credit transactions, private
+   Asset metadata and Project ownership through production adapters before
+   accepting payment.
 4. Prove one durable Generation/Fashion operation with restart reconciliation
-   and Support diagnosis (Phase2-10 and Phase2-18).
+   and Case-oriented Support diagnosis (Phase2-10, Backend Requirement 017 and
+   Phase2-18).
 5. Add packages/payment and commercial Fashion Project integration only after
    the durable Credit path passes (Phase2-08 and Phase2-13).
 6. Finish approval, export, security and operational launch gates; keep

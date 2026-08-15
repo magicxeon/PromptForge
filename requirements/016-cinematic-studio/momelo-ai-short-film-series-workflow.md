@@ -1,6 +1,9 @@
 # Momelo AI Short-Film & Series Studio
 ## Product Workflow, UX Flow, Character Wardrobe, Storyboard, Shot Generation, Video Assembly, and Credit Estimation
 
+> This file is the source concept. The implementable MVP contract starts at
+> `000-cinematic-studio-mvp-master.md` and its numbered child requirements.
+
 **Document type:** Product / UX / Functional Design  
 **Project:** Momelo  
 **Primary use case:** AI-generated vertical short films and episodic series for TikTok, YouTube Shorts, Facebook Reels  
@@ -2331,4 +2334,3 @@ PUBLISH PACK
 ```
 
 This workflow preserves professional filmmaking logic while keeping the user experience simple enough for non-filmmakers.
-

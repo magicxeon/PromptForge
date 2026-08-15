@@ -110,6 +110,15 @@
       "status": "active"
     },
     {
+      "id": "plan-database-migration",
+      "kind": "skill",
+      "owner": "backend-platform",
+      "canonicalPath": ".agents/skills/plan-database-migration/SKILL.md",
+      "discoveryPath": ".agents/skills/plan-database-migration/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
       "id": "frontend-scope",
       "kind": "instructions",
       "owner": "react-product-experience",

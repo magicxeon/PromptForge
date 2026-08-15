@@ -23,7 +23,7 @@ This requirement defines a small professional role system that:
 - preserves current capability ownership and existing behavior; and
 - leaves an auditable requirement, implementation and validation handoff.
 
-The repository router, six distributed role charters, six discoverable Skills,
+The repository router, six distributed role charters, seven discoverable Skills,
 scoped instructions and routing regression fixtures are implemented.
 Three-real-task adoption and blind QA validation remain pending before final
 completion.
@@ -121,12 +121,13 @@ used when the active environment can only apply roles sequentially.
 - Cross-project Product and QA role charters remain under this requirement.
 - UX, Cinematic, Backend and Commercial role charters live with their owning
   domain requirements.
-- Six focused Skills with invocation metadata are discoverable under
-  `.agents/skills/`, including the moved Generation Workflow Skill.
+- Seven focused Skills with invocation metadata are discoverable under
+  `.agents/skills/`, including the moved Generation Workflow Skill and the
+  database migration planning Skill added for commercial cutover work.
 - Scoped `AGENTS.md` files provide frontend, server and domain requirement
   deltas without copying root policy.
 - `agent-artifact-map.json` records one canonical owner and path per artifact.
-- `routing-fixtures.json` contains 21 positive, negative, high-risk and
+- `routing-fixtures.json` contains 22 positive, negative, high-risk and
   clarification cases.
 - `test/agentOrchestration.test.js` validates structure, bounds, router links and
   positive/negative Skill coverage.

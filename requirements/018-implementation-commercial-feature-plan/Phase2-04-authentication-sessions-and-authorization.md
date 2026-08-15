@@ -34,10 +34,18 @@ Roles do not replace resource ownership checks.
 
 ```text
 user: own profile and owned/member Projects
-support: limited diagnostic access, no financial mutation by default
-admin: controlled administrative actions with mandatory audit reason
+support_agent: Case/search and limited diagnostic access
+support_lead: approved operational recovery and bounded compensation
+finance_ops: payment/refund/reconciliation commands
+moderator: Community moderation
+admin: controlled identity/configuration actions with mandatory audit reason
 system: background jobs with scoped service identity
 ```
+
+The complete staff permission and two-person approval contract is owned by
+`requirements/017-implementation-backend/000-admin-support-management-mvp-master.md`.
+This phase supplies authenticated staff identity and authorization primitives;
+it must not duplicate Support Case or financial command policy.
 
 Every Project/Collection/Asset/Batch endpoint verifies both authentication and action-level authorization.
 
@@ -87,4 +95,3 @@ Before authentication is implemented, a development-only identity adapter may re
 - Suspended accounts cannot start billable operations.
 - Authentication and authorization decisions are tested separately.
 - Admin/support actions include actor, target, reason and timestamp in audit events.
-

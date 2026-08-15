@@ -5,6 +5,12 @@
 **Dependencies:** Phase2-04, Phase2-07, Phase2-10, Phase2-15 and
 `requirements/013-implementation-fashion-blueprint/012-platform-correlation-tracing-and-credit-recovery.md`
 
+This requirement defines domain recovery commands. The staff-facing workflow,
+Case lifecycle, approvals and command audit are owned by
+`requirements/017-implementation-backend/`. Every production recovery starts
+from a Support Case and invokes these commands through the owning capability;
+do not build a second standalone recovery console.
+
 ## 1. Purpose
 
 Production Support must be able to investigate and safely resolve customer
