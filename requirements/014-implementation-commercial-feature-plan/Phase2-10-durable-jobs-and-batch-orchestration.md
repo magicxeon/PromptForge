@@ -1,6 +1,13 @@
 # Phase 2-10 Durable Jobs and Batch Orchestration
 
-**Status:** Proposed - Awaiting Review
+**Status:** Local Queue, Generation Groups and Fashion operations exist; durable worker/restart recovery pending
+
+The current canonical entry point is Generation, with lifecycle orchestration
+under `server/domain/generation/`, group persistence under
+`server/repositories/generation/` and Fashion plan/run ownership under
+`server/domain/fashion-blueprint/`. Commercial durability replaces the
+process-local Queue adapter behind these contracts; it must not add a separate
+Fashion queue or submit directly to providers.
 
 ## 1. Business Requirement
 

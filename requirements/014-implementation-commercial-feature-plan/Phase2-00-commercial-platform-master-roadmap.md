@@ -1,9 +1,32 @@
 # Phase 2 Commercial Platform Master Roadmap
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Current-state baseline updated; commercial implementation pending  
 **Target:** Fashion Selling MVP for Thai small merchants  
 **Architecture:** Modular monolith first, replaceable solution modules  
-**Updated:** 2026-08-03
+**Updated:** 2026-08-15
+
+## 0. Current Runtime Baseline
+
+This plan extends the current application; it must not rebuild capabilities
+that already have canonical owners. As of 2026-08-15 the local MVP provides:
+
+| Capability | Current canonical implementation | Commercial delta |
+|---|---|---|
+| React application shell and routes | `web/src/app/`, `web/src/app/routeRegistry/` | Production hosting, authenticated entitlements and operational feature flags |
+| Generation and provider dispatch | `server/domain/generation/`, `server/providers/` | Durable worker/attempt storage, Cloud Tasks and restart reconciliation |
+| Credits and pricing | `server/domain/credits/`, `server/repositories/credits/` | Transactional PostgreSQL ledger, purchased Credit and payment reconciliation |
+| Assets and image presentation | `server/domain/assets/`, `server/repositories/assets/` | Private Cloud Storage adapter, signed access and retention lifecycle |
+| Character Profiles | `server/domain/character-profiles/`, `web/src/features/profiles/` | Production identity/privacy storage and Project-scoped commercial policy |
+| Template Core and Pose Proxy | `server/domain/templates/`, `server/domain/template-pose-proxy/` | Durable preparation jobs, production retention and support recovery |
+| Fashion Blueprint | `server/domain/fashion-blueprint/`, `web/src/features/fashion-blueprint/` | Project/Product integration, durable batches, approval/export and paid policy |
+| Collections and History | owning server repositories and React features | Project scoping, database migration and bounded production pagination |
+| Actor identity | mock actor middleware and actor-scoped React state | Real authentication, secure sessions, roles and tenant authorization |
+| Observability | request IDs, domain IDs and bounded performance telemetry | End-to-end correlation tree, trace repository, alerts and Support console |
+
+Local JSON repositories, local image files, mock actors and the process-local
+Queue are development adapters. They are migration inputs, not acceptable paid
+production infrastructure. Commercial phases replace adapters behind the
+existing capability entry points rather than introducing duplicate workflows.
 
 ## 1. Product Decisions
 
@@ -14,11 +37,11 @@
 - AI models support ready templates, paid template variation and fully custom generation.
 - Customers buy understandable packages; internal accounting settles actual operation costs through an immutable credit ledger.
 - The complete maximum price must be displayed and confirmed before processing.
-- Visual Character Builder in `requirements/003-implementation-visual-character-builder-plan` owns character attributes, visual assets and reusable visual-control contracts.
-- Character Profile in `requirements/006-implementation-character-profile` owns
+- Visual Character Builder in `requirements/003-implementation-visual-character-builder-plan/` owns character attributes, visual assets and reusable visual-control contracts.
+- Character Profile in `requirements/006-implementation-character-profile/` owns
   named reusable Characters, canonical casting exports and Character usage
   lineage.
-- Fashion Blueprint in `requirements/010-implementation-fashion-blueprint` owns
+- Fashion Blueprint in `requirements/013-implementation-fashion-blueprint/` owns
   the beginner-facing Template-to-result workflow and shared-component
   composition.
 - Existing Studio Creative Configurator remains the advanced editor and consumes those shared contracts.
@@ -88,9 +111,9 @@ frontend or blocking independent backend migration.
 
 | Phase | Requirement | Dependency |
 |---|---|---|
-| External foundation | Visual Character Builder (`requirements/003-implementation-visual-character-builder-plan`) | Existing application |
-| External foundation | Character Profile (`requirements/006-implementation-character-profile`) | Visual Character Builder, Community |
-| External foundation | Fashion Blueprint (`requirements/010-implementation-fashion-blueprint`) | Character Profile, Scene Builder, Community |
+| Existing MVP foundation | Visual Character Builder (`requirements/003-implementation-visual-character-builder-plan/`) | Existing application |
+| Existing MVP foundation | Character Profile (`requirements/006-implementation-character-profile/`) | Visual Character Builder, Community |
+| Existing MVP foundation | Fashion Blueprint (`requirements/013-implementation-fashion-blueprint/`) | Character Profile, Scene Builder, Community |
 | Phase2-01 | Commercial Readiness and Google Cloud Alignment | Existing application, GCP concept |
 | Phase2-02 | Modular Core Architecture, Application Shell and Module Registry | Phase2-01 |
 | Phase2-03 | Database Architecture and JSON Migration | Phase2-02 |
@@ -117,7 +140,7 @@ the Product Owner changes the revenue model.
 
 ## 4. Delivery Gates
 
-### Gate A: Product Prototype
+### Gate A: Product Prototype - Achieved for local MVP
 
 - Visual Character Builder Face Structure pilot accepted.
 - Character Profile casting export and private handoff accepted.
@@ -179,14 +202,13 @@ the Product Owner changes the revenue model.
 
 ### 5.1 Application Navigation Direction
 
-The current shell exposes working areas such as:
+The current route registry exposes the organized application shell:
 
 ```text
-Community
-Studio
-Image History
-Comparisons
-Playground
+Explore: Gallery, Comparisons, Templates, Characters
+Create: Playground, Studio, Fashion Studio
+My Library: Recent, Collections
+Creator Profile and account/settings routes
 ```
 
 Commercial pages may register Projects, Assets, Fashion Selling, Credits and
@@ -213,25 +235,41 @@ registry, route and entitlement contracts.
 
 | Phase | Status | Review Gate |
 |---|---|---|
-| Visual Character Builder | Separate 003 plan | Product/UX/Technical |
-| Character Profile | Separate 006 plan | Identity/reuse/privacy |
-| Fashion Blueprint | Separate 009 plan | Consumer UX/plan contract |
-| Phase2-01 | Required first | Architecture/GCP decision |
-| Phase2-02 | Proposed | Architecture/Application shell |
+| Visual Character Builder | Local MVP implemented | Product/UX regression |
+| Character Profile | Local MVP implemented | Production identity/reuse/privacy migration |
+| Fashion Blueprint | Local MVP implemented and locally qualified | Commercial adapters and operational gates |
+| Scene Builder Requirement 010 | Local MVP closed 2026-08-15 | Regressions remain protected; future quality work moves to Phase2-19 |
+| Phase2-01 | Next: refresh architecture/GCP readiness audit | Architecture/GCP decision |
+| Phase2-02 | Core boundaries and React route registry implemented; commercial module/entitlement registry pending | Architecture/Application shell |
 | Phase2-03 | Proposed | Data/Migration |
 | Phase2-04 | Proposed | Security |
-| Phase2-05 | Proposed | Domain/UX |
-| Phase2-06 | Proposed | Storage/Product |
-| Phase2-07 | Proposed | Financial integrity |
+| Phase2-05 | Collections exist locally; Project aggregate pending | Domain/UX |
+| Phase2-06 | Local Asset capability exists; Cloud Storage and Product Catalog pending | Storage/Product |
+| Phase2-07 | Local estimate/reserve/capture/refund validated; transactional production ledger pending | Financial integrity |
 | Phase2-08 | Proposed | Payment/Legal |
 | Phase2-09 | Deferred for paid MVP | Subscription |
-| Phase2-10 | Proposed | Reliability |
-| Phase2-11 | Proposed | Model safety/cost |
+| Phase2-10 | Generation groups and process queue exist; durable worker/restart recovery pending | Reliability |
+| Phase2-11 | Character Profile MVP exists; Project Model Profile policy pending | Model safety/cost |
 | Phase2-12 | Proposed | Consistency |
-| Phase2-13 | Proposed | Consumer UX |
+| Phase2-13 | Fashion Blueprint MVP exists; commercial Project/Product adapters pending | Consumer UX |
 | Phase2-14 | Proposed | Commercial content |
 | Phase2-15 | Proposed | Operations/refunds |
 | Phase2-16 | Proposed | Export quality |
 | Phase2-17 | Proposed | Launch approval |
 | Phase2-18 | Proposed - required before paid beta | Production support/recovery |
-| Phase2-19 | Proposed follow-up | Repeated qualification/Premium promotion |
+| Phase2-19 | Active commercial follow-up | Repeated qualification/Premium promotion |
+
+## 8. Recommended Next Sequence From The Current Codebase
+
+1. Refresh Phase2-01 decisions and inventory the exact production adapter
+   boundaries without moving canonical domain services.
+2. Implement Phase2-03 and Phase2-04 together as the first secure vertical
+   slice: authenticated actor -> PostgreSQL owner-scoped record.
+3. Move private Assets and Credit transactions through production adapters
+   (Phase2-06 and Phase2-07) before accepting payment.
+4. Prove one durable Generation/Fashion operation with restart reconciliation
+   and Support diagnosis (Phase2-10 and Phase2-18).
+5. Add packages/payment and commercial Fashion Project integration only after
+   the durable Credit path passes (Phase2-08 and Phase2-13).
+6. Finish approval, export, security and operational launch gates; keep
+   subscriptions deferred and Premium hidden until their evidence exists.

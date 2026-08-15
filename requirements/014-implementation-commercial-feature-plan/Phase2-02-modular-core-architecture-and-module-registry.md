@@ -1,7 +1,7 @@
 # Phase 2-02 Modular Core Architecture and Module Registry
 
-**Status:** Proposed - Awaiting Review  
-**Goal:** Create stable boundaries before commercial modules are implemented.
+**Status:** Capability boundaries and React route registry implemented; commercial entitlement/module exposure pending  
+**Goal:** Extend the current stable boundaries without creating a second core tree.
 
 ## 1. Business Requirement
 
@@ -16,31 +16,29 @@ ModelPromptForge must support independently enabled solution modules without dup
 - Module disablement preserves data and blocks new operations safely.
 - Existing routes remain compatible during staged migration.
 
-## 3. Proposed Structure
+## 3. Canonical Current Structure
 
 ```text
 server/
-  core/
-    identity/
-    projects/
-    assets/
-    collections/
-    billing/
-    jobs/
-    providers/
-    audit/
-  modules/
-    registry/
-    advanced-studio/
-    fashion-selling/
-  shared/
-    errors/
-    validation/
-    events/
-    clock/
+  app/routes/                 HTTP adapters
+  domain/<capability>/        application/domain entry points
+  repositories/<capability>/ persistence adapters
+  providers/                  AI provider adapters
+  middleware/                 actor/request/performance context
+  config/                     server-owned configuration
+
+web/src/
+  app/routeRegistry/          route/navigation metadata
+  features/<feature>/         route orchestration and feature UI
+  components/                 reusable presentation/workflow components
+  lib/                        shared client infrastructure
 ```
 
-Do not move all existing files at once. Introduce application-service boundaries and migrate one vertical path at a time.
+Do not introduce `server/core/`, `server/modules/` or a commercial-only frontend.
+Capability ownership and single workflow entry points are governed by
+`requirements/009-migration-to-react/016-capability-ownership-and-single-workflow-entry-points.md`.
+The remaining Phase2-02 work is a server-owned exposure/entitlement catalog
+consumed by the existing React route registry, not another application shell.
 
 ## 4. Module Manifest
 
@@ -104,11 +102,15 @@ registered -> enabled -> disabled -> archived
 ## 8. Migration Steps
 
 1. Define contracts and shared error format.
-2. Wrap existing provider and queue calls behind core interfaces.
-3. Add registry with Advanced Studio as the first registered module.
-4. Add demo identity and mock entitlement adapters for prototype use only.
-5. Introduce Fashion manifest without implementing Fashion behavior.
-6. Add contract and dependency tests.
+2. Reuse `GenerationApplicationService`, Credits, Assets and provider contracts;
+   do not wrap them in parallel commercial services.
+3. Extend the existing React route registry with server-owned exposure and
+   entitlement metadata.
+4. Replace mock exposure/actor adapters during Phase2-04 while preserving route
+   IDs and deep links.
+5. Register the already implemented Fashion feature without forking its route,
+   plan, quote or run behavior.
+6. Add dependency, disablement, authorization and route-exposure tests.
 
 ## 9. Acceptance Criteria
 

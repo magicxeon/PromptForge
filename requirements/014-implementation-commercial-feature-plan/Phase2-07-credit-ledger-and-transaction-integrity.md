@@ -1,6 +1,13 @@
 # Phase 2-07 Credit Ledger and Transaction Integrity
 
-**Status:** Proposed - Awaiting Review
+**Status:** Local Credit lifecycle implemented and validated; transactional production ledger pending
+
+The current Credit owner is `server/domain/credits/` with repositories under
+`server/repositories/credits/`. Estimate, reservation, capture, release/refund,
+idempotency, Template access pricing and Fashion quote separation are working
+local-MVP contracts. This phase migrates those contracts to transactional
+production storage and adds concurrency/financial operations; it must not
+introduce a second balance or Fashion-specific ledger.
 
 ## 1. Business Requirement
 

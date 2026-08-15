@@ -1,6 +1,6 @@
 # Phase 2-05 Projects, Ownership and Collections
 
-**Status:** Proposed - Awaiting Review
+**Status:** Local Collections and actor ownership exist; Project aggregate and production persistence pending
 
 ## 1. Business Requirement
 

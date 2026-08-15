@@ -1,6 +1,6 @@
 # Phase 2-11 Model Profiles and AI Model Creation
 
-**Status:** Proposed - Awaiting Review
+**Status:** Character Profile and identity-pack MVP implemented; Project Model Profile policy pending
 
 ## 1. Business Requirement
 

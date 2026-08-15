@@ -1,6 +1,6 @@
 # Phase 2-06 Assets, Storage and Product Catalog
 
-**Status:** Proposed - Awaiting Review
+**Status:** Local Asset/reference service exists; Cloud Storage and Product Catalog pending
 
 ## 1. Business Requirement
 

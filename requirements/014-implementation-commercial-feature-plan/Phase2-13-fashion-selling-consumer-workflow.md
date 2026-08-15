@@ -1,6 +1,6 @@
 # Phase 2-13 Fashion Blueprint Commercial Integration
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Local Fashion Blueprint MVP implemented; commercial adapter work pending  
 **Audience:** Thai small merchants  
 **MVP limit:** One to five wearable clothing products per Batch
 
@@ -9,7 +9,7 @@
 Allow merchants to create consistent selling images without understanding prompts, camera terminology or the full Advanced Studio.
 
 The user-facing Blueprint workflow is owned by
-`requirements/010-implementation-fashion-blueprint`. This commercial phase
+`requirements/013-implementation-fashion-blueprint/`. This commercial phase
 replaces its development adapters with production Projects, PostgreSQL, Cloud
 Storage, durable jobs, payment-backed credits and operational policy. It must not
 fork the Blueprint page, plan resolver or shared generation controls.
@@ -94,8 +94,10 @@ Generation operations     -> durable jobs + Cloud Tasks
 Results                   -> Cloud Storage + result metadata
 ```
 
-The current Vanilla JavaScript Blueprint client continues to consume stable
-HTTP contracts. A frontend framework rewrite is not required.
+The current React Blueprint route under `web/src/features/fashion-blueprint/`
+continues to consume stable HTTP contracts. Commercial work extends this route
+and its server-owned plan/quote/run contracts; it must not create another
+Blueprint frontend or workflow.
 
 ## 5. Collections
 

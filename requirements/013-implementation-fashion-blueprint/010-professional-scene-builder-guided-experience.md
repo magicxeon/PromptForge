@@ -3,7 +3,8 @@
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
 **Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `009-fashion-model-qualification-and-routing-optimization.md`, `../011-reference-processing-pipeline`, `../008-implement-adjusment-ui/014-global-route-inventory-and-target-information-architecture.md`, `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`  
 **Required skill:** `skills/design-professional-scene-prompts/SKILL.md`  
-**Status:** Partially implemented; Simple/Pro recipe and accordion experience completed 2026-08-04, credit-presentation and visual qualification remain
+**Status:** Complete for the local MVP (2026-08-15); commercial qualification,
+durability and support follow-ups are transferred to Requirement 014
 
 **Implementation checkpoint (2026-08-04):**
 
@@ -29,9 +30,9 @@
 - actor-scoped Scene drafts persist the applied recipe version and automatically
   refresh stale Simple recipe selections without mutating immutable Templates.
 
-This checkpoint does not mark the full requirement complete. Phase C visual
-qualification, compatibility warning reason codes and Phase E credit
-presentation remain open.
+This was the initial implementation checkpoint. The remaining MVP visual,
+compatibility, readiness and Credit presentation gates were completed in the
+closure checkpoint in Section 26.
 
 ### Runtime recovery checkpoint (2026-08-14)
 
@@ -1712,3 +1713,54 @@ authoring prompt was automatically refreshed from the current Attribute
 Catalog. The user did not need to Reset Form, stale literal prompt text was not
 dispatched, and immutable published Template snapshots remained outside this
 mutable-draft reconciliation contract.
+
+## 26. MVP Closure Checkpoint (2026-08-15)
+
+Requirement 010 is complete for the current React/local-persistence MVP. The
+owner accepted the guided Scene Builder path after implementation and manual
+verification of these contracts:
+
+- Simple and Pro mode share one canonical Attribute catalog and Generation
+  compiler; recipes do not create a parallel prompt or provider path;
+- one-open accordion behavior, relevant-category `Next`, expanded-header focus,
+  Custom input limits, Reset Form and actor-scoped draft reconciliation work
+  without dropping existing Visual Character controls;
+- Character, canonical Face, Outfit and Template reference authority remains
+  explicit, and mutable draft prompts reconcile against current catalog text;
+- the discoverable professional set covers Architectural Lean, Street Walk
+  Editorial v2, Window Shadow Lookbook, Cafe Seated Lifestyle, Soft Character
+  Portrait, Sunlit Storefront v3, Low-angle Campaign Hero v2 and Color-light
+  Editorial v3;
+- full-body margin, footwear fallback, portrait crop precedence, grounded
+  sunlight/shadow and recipe-exclusive color-light cleanup are protected by
+  prompt-policy regression coverage;
+- Scene estimates and Fashion readiness use server-owned Credit contracts;
+  preparation is charged once, cache hits are free, insufficient Credit uses
+  the shared dialog, and prepared Templates expose no preparation charge;
+- Fashion quote presentation separates Generation and Template access Credit;
+  accepted Template use sessions retain their pricing snapshot while a new
+  session receives the creator's current access price; and
+- completed, failed and stale workflows stop their active presentation instead
+  of leaving indefinite progress UI.
+
+Recorded owner verification includes the female and male Face -> Character ->
+Scene chains, stale Attribute Prompt reconciliation, Fashion readiness review,
+Pose Proxy cache reuse, insufficient preparation Credit and Fashion quote
+separation. The detailed Credit evidence remains in `.tmp/credit-validation.md`.
+
+The following work is deliberately not a blocker for this closed MVP
+requirement:
+
+- repeated cross-provider and Premium Fashion qualification is owned by
+  `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`;
+- durable queue/restart recovery and authorized support repair are owned by
+  Phase2-10 and Phase2-18 in the commercial plan;
+- PostgreSQL, production authentication, Cloud Storage, payment-backed Credit
+  and package economics are owned by Phase2-03 through Phase2-10; and
+- the structured semantic Prompt Director architecture in Section 21 remains a
+  future quality evolution behind the existing Generation entry point, not a
+  reason to reopen the accepted Scene Builder MVP.
+
+No required MVP behavior remains open in this file. A later regression must be
+recorded as a new scoped requirement or bug and must preserve these accepted
+contracts.

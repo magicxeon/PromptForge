@@ -128,11 +128,12 @@ This requirement evaluates provider cost, operation count, latency and margin
 as qualification evidence. It does not own customer-facing credit typography,
 denomination or package copy.
 
-Customer-facing credit presentation belongs to
+The local MVP Credit presentation and Fashion quote separation were accepted in
 `../013-implementation-fashion-blueprint/010-professional-scene-builder-guided-experience.md`.
-Commercial ledger and package economics remain owned by Phase2-07 and
-Phase2-08. A display-unit change must never rewrite provider pricing in React or
-change previously accepted ledger entries.
+Future customer package presentation belongs to Phase2-08 and the existing
+Fashion quote surface; commercial ledger economics remain owned by Phase2-07.
+A display-unit change must never rewrite provider pricing in React, mutate a
+pinned Template use-session price or change previously accepted ledger entries.
 
 ## 5. Promotion Workflow
 

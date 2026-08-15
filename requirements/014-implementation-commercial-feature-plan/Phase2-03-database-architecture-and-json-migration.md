@@ -1,6 +1,6 @@
 # Phase 2-03 Database Architecture and JSON Migration
 
-**Status:** Proposed - Awaiting Review  
+**Status:** Proposed - current repository inventory aligned 2026-08-15  
 **Goal:** Replace mutable runtime JSON persistence with transactional database storage.
 
 ## 1. Business Requirement
@@ -44,13 +44,19 @@ All timestamps use UTC. Public IDs are opaque. Financial rows use database trans
 
 ## 5. Migration Sources
 
-- `server/database.json`
-- `server/history.json`
-- `server/collections.json`
-- queue/runtime records if durable records exist by migration time
-- generated output files and reference lineage
-- Character Profile and Fashion Blueprint development records if their local
-  adapters are implemented before database cutover
+- `server/data/credits/`
+- `server/data/generation/`
+- `server/data/collections/`
+- `server/data/assets/`
+- `server/data/community/`
+- `server/data/character-profiles/`
+- `server/data/templates/` and `server/data/template-pose-proxy/`
+- `server/data/fashion-blueprint/`
+- generated output files, image-presentation derivatives and reference lineage
+
+The exact files and schema versions must be inventoried from owning
+repositories at migration time. Domain services must not read these paths
+directly, and migration code belongs under `scripts/` rather than HTTP routes.
 
 ## 6. Migration Process
 

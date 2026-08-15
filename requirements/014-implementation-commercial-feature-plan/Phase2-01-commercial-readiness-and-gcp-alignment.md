@@ -1,6 +1,6 @@
 # Phase 2-01 Commercial Readiness and Google Cloud Alignment
 
-**Status:** Required before commercial implementation  
+**Status:** Required next; updated for the current React modular-monolith MVP  
 **Target:** Convert the current local JSON/mock platform into a production-ready
 commercial foundation without rewriting established domain behavior.
 
@@ -32,11 +32,9 @@ Explicit conflict decisions:
 - The DigitalOcean/Supabase/R2 topology in
   `requirements/000-business-overview/04-mvp-infrastructure-costs.md` remains a
   historical cost comparison. The selected deployment target is Google Cloud.
-- The current client is browser-native Vanilla JavaScript, but its approved
-  replacement is the React/Vite application defined in
-  `requirements/009-migration-to-react/`. Firebase Hosting targets the React
-  production build after route cutover; do not build another commercial-only
-  frontend.
+- React/Vite under `web/` is the current and only browser runtime. Firebase
+  Hosting targets that production build; do not revive the legacy Vanilla
+  client or build a commercial-only frontend.
 - Existing mock actor and JSON repositories are migration inputs, not production
   identity or persistence.
 - The current central pricing, credit, generation and provider contracts are
@@ -82,12 +80,12 @@ Not required for the first paid MVP:
 
 | Current capability | Current owner | Production target | Owning phase |
 |---|---|---|---|
-| Static browser client | `client/` | Firebase Hosting artifact | Phase2-01, Phase2-17 |
+| React browser client | `web/` | Firebase Hosting artifact | Phase2-01, Phase2-17 |
 | Express composition | `server/app/createApp.js` | Cloud Run API | Phase2-01, Phase2-17 |
 | Process bootstrap | `server/server.js` | API container entry point | Phase2-01, Phase2-17 |
 | JSON repositories | `server/repositories/` | PostgreSQL adapters | Phase2-03 |
 | Runtime JSON | `server/data/` | migration source/read-only archive | Phase2-03 |
-| Mock actor | `server/identity/`, middleware | authenticated actor adapter | Phase2-04 |
+| Mock actor | `server/middleware/actorContextMiddleware.js`, mock-user repository | authenticated actor adapter | Phase2-04 |
 | Local outputs/references | local files and asset metadata | private Cloud Storage | Phase2-06 |
 | Mock credit ledger | credit domain/repositories | transactional PostgreSQL ledger | Phase2-07 |
 | In-memory/local queue | generation domain/repositories | Cloud Tasks + durable job tables | Phase2-10 |

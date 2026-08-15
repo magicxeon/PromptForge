@@ -1,6 +1,6 @@
 # Phase 2-12 Consistency Profiles and Reference Lineage
 
-**Status:** Proposed - Awaiting Review
+**Status:** Reference authority and lineage foundations implemented; commercial Consistency Profile pending
 
 ## 1. Business Requirement
 
