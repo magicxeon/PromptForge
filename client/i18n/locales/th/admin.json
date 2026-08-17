@@ -203,5 +203,16 @@
   "admin.attributes.runtimeCatalog": "Catalog ที่เผยแพร่แล้ว (อ่านอย่างเดียว)",
   "admin.attributes.savingOption": "กำลังบันทึก...",
   "admin.attributes.supportReadOnlyHelp": "Support ตรวจสอบรายละเอียด Attribute ได้ แต่ไม่สามารถแก้ไขได้",
-  "admin.attributes.selectDraftToEdit": "เลือกแบบร่างที่มีอยู่หรือสร้างแบบร่างใหม่เพื่อแก้ไข Attribute นี้"
+  "admin.attributes.selectDraftToEdit": "เลือกแบบร่างที่มีอยู่หรือสร้างแบบร่างใหม่เพื่อแก้ไข Attribute นี้",
+  "admin.navigation.cinematic": "งาน Cinematic",
+  "admin.cinematic.accessRequired": "ต้องใช้สิทธิ์ Admin หรือ Support",
+  "admin.cinematic.eyebrow": "งานระบบ CINEMATIC",
+  "admin.cinematic.title": "โปรเจกต์ Cinematic และ Provider Task",
+  "admin.cinematic.search": "ค้นหา",
+  "admin.cinematic.searchPlaceholder": "Project, Shot, Job, task หรือ support reference",
+  "admin.cinematic.loading": "กำลังโหลดข้อมูลงาน Cinematic...",
+  "admin.cinematic.loadFailed": "ไม่สามารถโหลดข้อมูลงาน Cinematic ได้",
+  "admin.cinematic.projects": "โปรเจกต์",
+  "admin.cinematic.providerTasks": "Provider task",
+  "admin.cinematic.capabilities": "ความสามารถของโมเดลวิดีโอ"
 }

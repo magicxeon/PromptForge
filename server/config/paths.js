@@ -38,6 +38,7 @@ export const FASHION_BLUEPRINT_DATA_DIR = path.resolve(DATA_ROOT, 'fashion-bluep
 export const TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'templates');
 export const TEMPLATE_POSE_PROXY_DATA_DIR = path.resolve(DATA_ROOT, 'template-pose-proxy');
 export const ATTRIBUTE_CATALOG_DATA_DIR = path.resolve(DATA_ROOT, 'attribute-catalog');
+export const CINEMATIC_DATA_DIR = path.resolve(DATA_ROOT, 'cinematic');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -73,7 +74,9 @@ export const DATA_FILES = {
   templatePoseProxies: path.resolve(TEMPLATE_POSE_PROXY_DATA_DIR, 'poseProxies.json'),
   attributeCatalogDrafts: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'drafts.json'),
   attributeCatalogReleases: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'releases.json'),
-  attributeCatalogState: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'state.json')
+  attributeCatalogState: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'state.json'),
+  cinematicProjects: path.resolve(CINEMATIC_DATA_DIR, 'projects.json'),
+  videoProviderTasks: path.resolve(GENERATION_DATA_DIR, 'videoProviderTasks.json')
 };
 
 export function resolveDataFile(name) {

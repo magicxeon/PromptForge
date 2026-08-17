@@ -47,6 +47,7 @@ export const router = createBrowserRouter([{
     { path: 'credits', lazy: lazyRoute(() => import('../features/credits/routes/CreditsRoute'), 'CreditsRoute') },
     { path: 'admin', lazy: lazyRoute(() => import('../features/admin/routes/AdminRoute'), 'AdminRoute') },
     { path: 'admin/attributes', lazy: lazyRoute(() => import('../features/admin/routes/AdminAttributesRoute'), 'AdminAttributesRoute') },
+    { path: 'admin/cinematic', lazy: lazyRoute(() => import('../features/admin/routes/AdminCinematicRoute'), 'AdminCinematicRoute') },
 
     { path: 'home', element: <LegacyRouteRedirect to={routePaths.explore} /> },
     { path: 'community', element: <LegacyRouteRedirect to={routePaths.explore} /> },

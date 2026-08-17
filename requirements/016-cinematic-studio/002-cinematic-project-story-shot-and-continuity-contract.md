@@ -1,5 +1,9 @@
 # Cinematic Project, Story, Shot And Continuity Contract
 
+**Status:** MVP aggregate, owner-scoped repository, immutable Story sources,
+pinned Cast, Character-owned Wardrobe Looks, versioned Scene/Shot/Storyboard
+sources and Timeline foundation implemented on 2026-08-17. Series-lite remains
+deferred behind the single-film launch gate.
 **Owner:** Cinematic Studio domain
 **Primary role:** Cinematic Experience Director
 **Reviewer:** Backend Platform Architect
@@ -7,8 +11,9 @@
 
 ## 1. Canonical Entry Point
 
-Future implementation shall expose one `CinematicApplicationService` (name may
-follow the final local convention) for project commands and queries. Routes are
+The implementation exposes one `CinematicApplicationService` for Project,
+Cast, Wardrobe Look, Story, Scene, Shot, Storyboard source and Timeline commands
+and queries. Routes are
 thin; repositories persist Cinematic aggregates only. Character, Asset,
 Reference, Generation, Credit and Support operations go through their public
 facades.

@@ -1,0 +1,83 @@
+import { resolveDataFile } from '../../config/paths.js';
+import { mutateJsonFile, readJsonFile } from '../json/jsonFileStore.js';
+import { createPrefixedId } from '../schemaVersioning.js';
+
+const FALLBACK = { schemaVersion: 1, tasks: [] };
+const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
+
+export class VideoProviderTaskRepository {
+  constructor({ tasksFile = resolveDataFile('videoProviderTasks') } = {}) {
+    this.tasksFile = tasksFile;
+  }
+
+  createAccepted(input) {
+    return mutateJsonFile(this.tasksFile, FALLBACK, data => {
+      assertStore(data);
+      const replay = data.tasks.find(task => task.ownerUserId === input.ownerUserId && task.idempotencyKey === input.idempotencyKey);
+      if (replay) return structuredClone(replay);
+      const now = new Date().toISOString();
+      const task = {
+        id: createPrefixedId('videotask'),
+        schemaVersion: 1,
+        status: 'accepted',
+        pollCount: 0,
+        providerTaskId: null,
+        providerOperationId: null,
+        outputAsset: null,
+        providerUsage: null,
+        providerError: null,
+        supportReference: createPrefixedId('support'),
+        createdAt: now,
+        updatedAt: now,
+        ...structuredClone(input)
+      };
+      data.tasks.unshift(task);
+      return structuredClone(task);
+    });
+  }
+
+  find(taskId) {
+    return this.#read().then(data => {
+      const task = data.tasks.find(item => item.id === taskId);
+      return task ? structuredClone(task) : null;
+    });
+  }
+
+  listRecoverable({ limit = 100 } = {}) {
+    return this.#read().then(data => data.tasks.filter(task => !TERMINAL.has(task.status)).slice(0, limit).map(task => structuredClone(task)));
+  }
+
+  listOperational({ search = '', status = '', limit = 50 } = {}) {
+    const needle = String(search).trim().toLowerCase();
+    return this.#read().then(data => data.tasks.filter(task => (
+      (!status || task.status === status)
+      && (!needle || [task.id, task.projectId, task.sceneId, task.shotId, task.attemptId, task.providerTaskId, task.supportReference]
+        .filter(Boolean).some(value => String(value).toLowerCase().includes(needle)))
+    )).slice(0, Math.min(100, Math.max(1, Number(limit) || 50))).map(task => structuredClone(task)));
+  }
+
+  update(taskId, operation) {
+    return mutateJsonFile(this.tasksFile, FALLBACK, async data => {
+      assertStore(data);
+      const index = data.tasks.findIndex(task => task.id === taskId);
+      if (index < 0) throw Object.assign(new Error('Video provider task not found.'), { code: 'video_task_not_found', statusCode: 404 });
+      const draft = structuredClone(data.tasks[index]);
+      const result = await operation(draft);
+      draft.updatedAt = new Date().toISOString();
+      data.tasks[index] = draft;
+      return structuredClone(result === undefined ? draft : result);
+    });
+  }
+
+  async #read() {
+    const data = await readJsonFile(this.tasksFile, FALLBACK);
+    assertStore(data);
+    return data;
+  }
+}
+
+function assertStore(data) {
+  if (!data || !Array.isArray(data.tasks)) throw new TypeError('Video provider task data must contain a tasks array.');
+}
+
+export const videoProviderTaskRepository = new VideoProviderTaskRepository();

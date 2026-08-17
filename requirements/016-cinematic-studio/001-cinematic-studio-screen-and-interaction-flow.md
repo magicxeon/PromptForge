@@ -1,5 +1,8 @@
 # Cinematic Studio Screen And Interaction Flow
 
+**Status:** Six-stage responsive workspace and functional authoring interactions
+implemented on 2026-08-17. Paid Storyboard/video/export controls remain visibly
+disabled until canonical quote and qualified provider operations are connected.
 **Owner:** Cinematic Studio React feature
 **Primary role:** UX/UI Product Designer
 **Reviewers:** Product And Requirement Architect, Cinematic Experience Director,

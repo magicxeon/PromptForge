@@ -203,5 +203,16 @@
   "admin.attributes.runtimeCatalog": "Published runtime catalog (read-only)",
   "admin.attributes.savingOption": "Saving...",
   "admin.attributes.supportReadOnlyHelp": "Support can inspect Attribute definitions but cannot modify them.",
-  "admin.attributes.selectDraftToEdit": "Select an existing draft or create one to edit this Attribute."
+  "admin.attributes.selectDraftToEdit": "Select an existing draft or create one to edit this Attribute.",
+  "admin.navigation.cinematic": "Cinematic Operations",
+  "admin.cinematic.accessRequired": "Admin or Support access is required.",
+  "admin.cinematic.eyebrow": "CINEMATIC OPERATIONS",
+  "admin.cinematic.title": "Cinematic Projects and Provider Tasks",
+  "admin.cinematic.search": "Search",
+  "admin.cinematic.searchPlaceholder": "Project, Shot, Job, task or support reference",
+  "admin.cinematic.loading": "Loading Cinematic operations...",
+  "admin.cinematic.loadFailed": "Cinematic operations could not be loaded.",
+  "admin.cinematic.projects": "Projects",
+  "admin.cinematic.providerTasks": "Provider tasks",
+  "admin.cinematic.capabilities": "Video capabilities"
 }

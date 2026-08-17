@@ -1,5 +1,10 @@
 # Cinematic Generation, Credit And Media Contract
 
+**Status:** Provider-neutral capability validation, research task lifecycle,
+durable Storyboard/video Asset adoption and pricing calculation foundations are
+implemented. Customer-paid quote/reserve/capture/refund orchestration and live
+video dispatch remain launch-blocked pending qualification and Credits-owner
+integration.
 **Owners:** Cinematic Studio orchestration, Generation, Credits, Assets
 **Primary role:** Backend Platform Architect
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer

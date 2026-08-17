@@ -1,14 +1,17 @@
 # Video Generation Provider Contract
 
-**Status:** Provider architecture and qualification requirement ready for
-implementation planning
+**Status:** Provider-neutral research lifecycle foundation implemented;
+provider qualification and paid routing remain blocked
 **Owner:** Generation provider integration with Cinematic Studio orchestration
 **Primary role:** Backend Platform Architect
 **Reviewers:** Cinematic Experience Director, QA And Release Engineer
 **Skills:** `design-cinematic-experience`, `review-generative-media-pipeline`,
 `implement-generation-workflow`, `verify-release-regressions`
 **Source review date:** 2026-08-17
-**Implementation in this change:** None
+**Implementation in this change:** disabled capability catalog, research-only
+sandbox adapter, durable provider-task repository, idempotent submission,
+restart recovery, terminal polling, usage reconciliation and durable video
+Asset copy. No live Veo/Seedance adapter is promoted.
 
 ## 1. Outcome
 

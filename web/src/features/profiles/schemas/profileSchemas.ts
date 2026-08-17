@@ -31,6 +31,15 @@ export const characterSummarySchema = z.object({
   featuredGenerationResultId: z.string().nullable().default(null),
   featuredWorkPostId: z.string().nullable().default(null),
   characterProfileVersionId: z.string().default(''),
+  identityFacets: z.object({
+    presentationGender: z.string().nullable(),
+    ageRange: z.object({
+      minimum: z.number().nullable(),
+      maximum: z.number().nullable(),
+      label: z.string().nullable()
+    }).nullable(),
+    ethnicity: z.string().nullable()
+  }).optional(),
   stats: z.object({
     totalOutputs: z.number().default(0),
     byUseCase: z.object({

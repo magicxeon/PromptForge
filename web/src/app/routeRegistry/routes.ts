@@ -16,7 +16,8 @@ export const routePaths = {
   ownedTemplates: '/me/templates',
   accountCredits: '/credits',
   admin: '/admin',
-  adminAttributes: '/admin/attributes'
+  adminAttributes: '/admin/attributes',
+  adminCinematic: '/admin/cinematic'
 } as const;
 
 export const routeBuilders = {

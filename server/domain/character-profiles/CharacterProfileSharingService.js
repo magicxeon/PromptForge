@@ -16,6 +16,7 @@ import {
   reuseStatus
 } from './characterProfilePolicy.js';
 import { characterUsageService } from './CharacterUsageService.js';
+import { buildCharacterIdentityFacets } from './CharacterIdentityFacetService.js';
 import { buildCommunityPostPublicView } from '../community/communityPostPublicView.js';
 import {
   assertCharacterDestination,
@@ -495,6 +496,7 @@ export class CharacterProfileSharingService {
       && Boolean(version.castingFrontPreviewUrl);
     return {
       id: profile.id,
+      identityFacets: buildCharacterIdentityFacets(version),
       displayName: profile.displayName,
       personalitySummary: profile.personalitySummary,
       intendedUses: [...profile.intendedUses],

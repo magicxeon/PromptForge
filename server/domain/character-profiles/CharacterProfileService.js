@@ -7,6 +7,7 @@ import { stripEmbeddedReferenceDataFromSnapshot } from '../generation/referenceU
 import { adminPolicyService } from '../admin/AdminPolicyService.js';
 import { auditLogRepo } from '../../repositories/audit/AuditLogRepository.js';
 import { characterProfileSharingService } from './CharacterProfileSharingService.js';
+import { buildCharacterIdentityFacets } from './CharacterIdentityFacetService.js';
 import { characterUsageService } from './CharacterUsageService.js';
 import {
   CHARACTER_TYPE,
@@ -125,6 +126,7 @@ export class CharacterProfileService {
         const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
         return {
           ...profile,
+          identityFacets: buildCharacterIdentityFacets(version),
           isOwner: true,
           ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
           reuseStatus: profile.status === 'approved' ? 'available' : 'unavailable',
@@ -173,6 +175,7 @@ export class CharacterProfileService {
     const ownerDisplayUrl = hasCastingPreview ? ownerThumbnailUrl : ownerImageUrl;
     const ownerDetail = {
       ...profile,
+      identityFacets: buildCharacterIdentityFacets(version),
       ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
       versions: await this.versionRepository.listByProfileId(profile.id),
       stats: await this.usageService.getStats(profile.id),

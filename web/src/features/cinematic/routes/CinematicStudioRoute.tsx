@@ -1,11 +1,12 @@
 import { Clapperboard, Plus, Save, Sparkles } from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../../../components/ui/Button';
 import { StatusNotice } from '../../../components/ui/StatusNotice';
 import { Surface } from '../../../components/ui/Surface';
-import { routePaths } from '../../../app/routeRegistry/routes';
+import { routeBuilders, routePaths } from '../../../app/routeRegistry/routes';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider';
 import { CinematicStageRail } from '../components/CinematicStageRail';
@@ -16,9 +17,19 @@ import { StoryEnhanceDialog } from '../components/CinematicDialogs';
 import { cinematicStageSchema } from '../schemas/cinematicSchemas';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import {
+  createCinematicSetupDraft,
   readCinematicSetupDraft,
+  removeCinematicSetupDraft,
   writeCinematicSetupDraft
 } from '../state/cinematicDraftStorage';
+import {
+  createCinematicProject,
+  getCinematicProject,
+  listCinematicProjects,
+  updateCinematicSetup,
+  updateCinematicStage
+} from '../api/cinematicApi';
+import type { CinematicProject } from '../schemas/cinematicSchemas';
 
 export function CinematicStudioRoute() {
   const { t } = useTranslation('cinematic');
@@ -40,13 +51,9 @@ export function CinematicStudioRoute() {
   if (!actor) return null;
 
   const isNew = location.pathname === routePaths.createCinematicNew;
-  if (!isNew && !projectId) return <CinematicProjectList />;
+  if (!isNew && !projectId) return <CinematicProjectList actorId={actor.userId} />;
   if (projectId) {
-    return (
-      <StatusNotice tone="info" title={t('cinematic.status.projectServicePending')}>
-        {t('cinematic.status.projectServicePendingDescription')}
-      </StatusNotice>
-    );
+    return <ExistingCinematicWorkspace actorId={actor.userId} projectId={projectId} requestedStage={stage} />;
   }
 
   return (
@@ -58,8 +65,12 @@ export function CinematicStudioRoute() {
   );
 }
 
-function CinematicProjectList() {
+function CinematicProjectList({ actorId }: { actorId: string }) {
   const { t } = useTranslation('cinematic');
+  const projects = useQuery({
+    queryKey: ['cinematic-projects', actorId],
+    queryFn: listCinematicProjects
+  });
   return (
     <main className="grid gap-4" data-testid="cinematic-project-list">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -71,52 +82,139 @@ function CinematicProjectList() {
           <Button variant="primary" icon={<Plus className="size-4" />}>{t('cinematic.actions.newProject')}</Button>
         </Link>
       </header>
-      <Surface className="min-h-64 p-6" centerContent>
-        <Clapperboard className="size-10 text-[var(--theme-text-muted)]" aria-hidden="true" />
-        <strong>{t('cinematic.empty.title')}</strong>
-        <p className="m-0 max-w-md text-center text-sm text-[var(--theme-text-muted)]">{t('cinematic.empty.description')}</p>
-      </Surface>
+      {projects.isPending ? <Surface className="min-h-64 p-6" centerContent><p>{t('cinematic.status.loading')}</p></Surface> : null}
+      {projects.isError ? <StatusNotice tone="error" title={t('cinematic.status.loadFailed')}>{projects.error.message}</StatusNotice> : null}
+      {projects.data?.items.length === 0 ? <Surface className="min-h-64 p-6" centerContent>
+          <Clapperboard className="size-10 text-[var(--theme-text-muted)]" aria-hidden="true" />
+          <strong>{t('cinematic.empty.title')}</strong>
+          <p className="m-0 max-w-md text-center text-sm text-[var(--theme-text-muted)]">{t('cinematic.empty.description')}</p>
+        </Surface> : null}
+      {projects.data?.items.length ? <div className="cinematic-project-grid">
+        {projects.data.items.map(project => <Link key={project.projectId} to={routeBuilders.cinematicProject(project.projectId, project.activeStage)} className="cinematic-project-card">
+          <Clapperboard aria-hidden="true" />
+          <div><strong>{project.title}</strong><span>{t(`cinematic.stage.${project.activeStage}.title`)}</span></div>
+          <small>{project.durationSeconds}s</small>
+        </Link>)}
+      </div> : null}
     </main>
   );
 }
 
+function ExistingCinematicWorkspace({ actorId, projectId, requestedStage }: { actorId: string; projectId: string; requestedStage?: string }) {
+  const { t } = useTranslation('cinematic');
+  const project = useQuery({
+    queryKey: ['cinematic-project', actorId, projectId],
+    queryFn: () => getCinematicProject(projectId)
+  });
+  if (project.isPending) return <Surface fill centerContent><p>{t('cinematic.status.loading')}</p></Surface>;
+  if (project.isError) return <StatusNotice tone="error" title={t('cinematic.status.loadFailed')}>{project.error.message}</StatusNotice>;
+  return <CinematicWorkspace key={`${actorId}:${projectId}`} actorId={actorId} project={project.data} requestedStage={requestedStage} />;
+}
+
 function CinematicWorkspace({
   actorId,
-  requestedStage
+  requestedStage,
+  project
 }: {
   actorId: string;
   requestedStage?: string;
+  project?: CinematicProject;
 }) {
   const { t } = useTranslation('cinematic');
-  const [draft, setDraft] = useState<CinematicSetupDraft>(() => readCinematicSetupDraft(actorId));
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const initialDraft = useMemo(() => project ? projectToDraft(project) : readCinematicSetupDraft(actorId), [actorId, project]);
+  const [draft, setDraft] = useState<CinematicSetupDraft>(initialDraft);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [enhanceOpen, setEnhanceOpen] = useState(false);
+  const projectVersionRef = useRef(project?.version ?? 0);
+  const mutationChainRef = useRef<Promise<void>>(Promise.resolve());
+  const lastSavedSetupRef = useRef(project ? serializeSetup(initialDraft) : '');
   const requestedStageResult = cinematicStageSchema.safeParse(requestedStage);
   const activeStage = requestedStageResult.success ? requestedStageResult.data : draft.activeStage;
 
+  const createProject = useMutation({
+    mutationFn: createCinematicProject,
+    onSuccess: created => {
+      removeCinematicSetupDraft(actorId);
+      queryClient.invalidateQueries({ queryKey: ['cinematic-projects', actorId] });
+      navigate(routeBuilders.cinematicProject(created.id, 'cast'));
+    }
+  });
+
   useEffect(() => {
+    if (project) return;
     setSaveState('saving');
     const timer = window.setTimeout(() => {
       writeCinematicSetupDraft(actorId, draft);
       setSaveState('saved');
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [actorId, draft]);
+  }, [actorId, draft, project]);
+
+  useEffect(() => {
+    if (!project) return;
+    const serialized = serializeSetup(draft);
+    if (serialized === lastSavedSetupRef.current) return;
+    setSaveState('saving');
+    const timer = window.setTimeout(async () => {
+      try {
+        const saved = await enqueueProjectMutation(() =>
+          updateCinematicSetup(project.id, draft, projectVersionRef.current)
+        );
+        projectVersionRef.current = saved.version;
+        lastSavedSetupRef.current = serialized;
+        queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+        setSaveState('saved');
+      } catch {
+        setSaveState('idle');
+      }
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [actorId, draft, project, queryClient]);
 
   const storyLength = useMemo(() => draft.storyBrief.length, [draft.storyBrief]);
+
+  function enqueueProjectMutation(operation: () => Promise<CinematicProject>) {
+    const result = mutationChainRef.current.then(operation, operation);
+    mutationChainRef.current = result.then(() => undefined, () => undefined);
+    return result;
+  }
 
   function update<K extends keyof CinematicSetupDraft>(key: K, value: CinematicSetupDraft[K]) {
     setDraft(current => ({ ...current, [key]: value, updatedAt: new Date().toISOString() }));
   }
 
-  function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
+  async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
     update('activeStage', nextStage);
+    if (!project) return;
+    try {
+      const saved = await enqueueProjectMutation(async () => {
+        const serialized = serializeSetup(draft);
+        if (serialized !== lastSavedSetupRef.current) {
+          const setupSaved = await updateCinematicSetup(project.id, draft, projectVersionRef.current);
+          projectVersionRef.current = setupSaved.version;
+          lastSavedSetupRef.current = serialized;
+        }
+        return updateCinematicStage(project.id, nextStage, projectVersionRef.current);
+      });
+      projectVersionRef.current = saved.version;
+      queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+      navigate(routeBuilders.cinematicProject(project.id, nextStage));
+    } catch {
+      setSaveState('idle');
+    }
   }
 
   function moveStage(offset: -1 | 1) {
     const currentIndex = cinematicStages.indexOf(activeStage);
     const nextStage = cinematicStages[currentIndex + offset];
-    if (nextStage) setActiveStage(nextStage);
+    if (nextStage) void setActiveStage(nextStage);
+  }
+
+  function continueFromSetup() {
+    if (project) void setActiveStage('cast');
+    else createProject.mutate(draft);
   }
 
   return (
@@ -180,16 +278,26 @@ function CinematicWorkspace({
                   <Button key={mode} type="button" size="sm" variant={draft.mode === mode ? 'primary' : 'ghost'} onClick={() => update('mode', mode)}>{t(`cinematic.mode.${mode}`)}</Button>
                 ))}
               </div>
-              <Button type="button" variant="primary" onClick={() => setActiveStage('cast')}>{t('cinematic.actions.continueToCast')}</Button>
+              <Button type="button" variant="primary" disabled={createProject.isPending || !draft.projectName.trim() || !draft.storyBrief.trim()} onClick={continueFromSetup}>{t('cinematic.actions.continueToCast')}</Button>
             </div>
+            {createProject.isError ? <StatusNotice tone="error" title={t('cinematic.status.saveFailed')}>{createProject.error.message}</StatusNotice> : null}
           </form>
           ) : (
             <CinematicStageContent
               activeStage={activeStage}
               mode={draft.mode}
+              project={project}
               onModeChange={mode => update('mode', mode)}
               onPrevious={() => moveStage(-1)}
               onNext={() => moveStage(1)}
+              onOpenStage={stage => void setActiveStage(stage)}
+              onProjectChanged={saved => {
+                projectVersionRef.current = saved.version;
+                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+              }}
+              onProjectRefresh={() => {
+                if (project) void queryClient.invalidateQueries({ queryKey: ['cinematic-project', actorId, project.id] });
+              }}
             />
           )}
           </div>
@@ -199,6 +307,40 @@ function CinematicWorkspace({
       <StoryEnhanceDialog open={enhanceOpen} onOpenChange={setEnhanceOpen} />
     </main>
   );
+}
+
+function projectToDraft(project: CinematicProject): CinematicSetupDraft {
+  const fallback = createCinematicSetupDraft(new Date(project.updatedAt));
+  return {
+    ...fallback,
+    projectName: project.title,
+    platform: project.setup.platform,
+    durationSeconds: project.setup.durationSeconds,
+    storyBrief: project.setup.storyBrief,
+    creativeDirection: project.setup.creativeDirection,
+    genre: project.setup.genre,
+    audienceFeeling: project.setup.audienceFeeling,
+    pacing: project.setup.pacing,
+    endingIntent: project.setup.endingIntent,
+    mode: project.setup.mode,
+    activeStage: project.activeStage,
+    updatedAt: project.updatedAt
+  };
+}
+
+function serializeSetup(draft: CinematicSetupDraft) {
+  return JSON.stringify({
+    projectName: draft.projectName,
+    platform: draft.platform,
+    durationSeconds: draft.durationSeconds,
+    storyBrief: draft.storyBrief,
+    creativeDirection: draft.creativeDirection,
+    genre: draft.genre,
+    audienceFeeling: draft.audienceFeeling,
+    pacing: draft.pacing,
+    endingIntent: draft.endingIntent,
+    mode: draft.mode
+  });
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {

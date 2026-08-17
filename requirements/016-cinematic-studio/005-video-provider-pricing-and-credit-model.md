@@ -8,7 +8,11 @@ rates remain gated by provider qualification and Commercial approval
 **Skills:** `review-commercial-integrity`, `review-generative-media-pipeline`,
 `verify-release-regressions`
 **Source review date:** 2026-08-17
-**Implementation in this change:** None
+**Implementation in this change:** server-owned capability/rate-card registry
+and deterministic `VideoPricingCalculator` with Veo output-second and Seedance
+completion-token test coverage. Customer quotes, reservation and settlement
+remain disabled until a model is qualified and Commercial approves retail
+rates.
 
 ## 1. Outcome
 

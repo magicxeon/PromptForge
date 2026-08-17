@@ -12,6 +12,9 @@ export function AdminNavigation() {
       <NavLink to={routePaths.adminAttributes} className={navigationClassName}>
         {t('admin.navigation.attributes')}
       </NavLink>
+      <NavLink to={routePaths.adminCinematic} className={navigationClassName}>
+        {t('admin.navigation.cinematic')}
+      </NavLink>
     </nav>
   );
 }

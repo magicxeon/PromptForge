@@ -69,13 +69,158 @@ export const cinematicProjectSummarySchema = z.object({
   title: z.string().min(1),
   activeStage: cinematicStageSchema,
   durationSeconds: z.number().int().positive(),
-  status: z.enum(['draft', 'planning', 'producing', 'finishing', 'completed', 'archived']),
+  status: z.enum(['draft', 'planning', 'planned', 'storyboard_ready', 'production_ready', 'producing', 'review', 'finalizing', 'finishing', 'completed', 'failed_recoverable', 'archived']),
   updatedAt: z.string().datetime()
 });
 
 export const cinematicProjectListResponseSchema = z.object({
   items: z.array(cinematicProjectSummarySchema),
-  nextCursor: z.string().nullable()
+  nextCursor: z.string().nullable(),
+  hasMore: z.boolean(),
+  totalApprox: z.number().optional()
+});
+
+export const cinematicCastAssignmentSchema = z.object({
+  id: z.string().min(1),
+  characterProfileId: z.string().min(1),
+  characterProfileVersionId: z.string().min(1),
+  displayName: z.string().min(1),
+  storyRole: z.string(),
+  storyImportance: z.enum(['protagonist', 'supporting']),
+  objective: z.string(),
+  motivation: z.string(),
+  pressure: z.string(),
+  personalityTraits: z.array(z.string()),
+  emotionalBaseline: z.string(),
+  dialogueStyle: z.string(),
+  performanceDirection: z.string(),
+  identityReady: z.boolean(),
+  apparentAgeRange: z.unknown().nullable(),
+  looks: z.array(z.unknown()),
+  active: z.boolean(),
+  updatedAt: z.string().datetime()
+});
+
+export const cinematicApprovedStoryboardSourceSchema = z.object({
+  assetId: z.string().min(1),
+  assetVersionId: z.string().min(1),
+  sourceJobId: z.string().min(1),
+  imageUrl: z.string().min(1),
+  thumbnailUrl: z.string().min(1),
+  contentHash: z.string(),
+  sourceFingerprint: z.string().min(1),
+  approvedAt: z.string().datetime()
+});
+
+export const cinematicShotSchema = z.object({
+  id: z.string().min(1),
+  version: z.number().int().positive(),
+  orderKey: z.number(),
+  title: z.string(),
+  purpose: z.string(),
+  durationMs: z.number().int().positive(),
+  framing: z.string(),
+  cameraAngle: z.string(),
+  cameraMovement: z.string(),
+  lensIntent: z.string(),
+  blocking: z.string(),
+  performance: z.string(),
+  gaze: z.string(),
+  lighting: z.string(),
+  environment: z.string(),
+  audioIntent: z.string(),
+  prompt: z.string(),
+  castAssignmentIds: z.array(z.string()),
+  wardrobeLookIds: z.array(z.string()),
+  continuityNotes: z.array(z.string()),
+  storyboardStatus: z.string(),
+  approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.optional(),
+  approvedStoryboardAttemptId: z.string().optional()
+});
+
+export const cinematicSceneSchema = z.object({
+  id: z.string().min(1),
+  version: z.number().int().positive(),
+  orderKey: z.number(),
+  title: z.string(),
+  purpose: z.string(),
+  location: z.string(),
+  time: z.string(),
+  emotionalStart: z.string(),
+  emotionalEnd: z.string(),
+  transitionIntent: z.string(),
+  castAssignmentIds: z.array(z.string()),
+  shots: z.array(cinematicShotSchema),
+  shotOrder: z.array(z.string()),
+  durationMs: z.number().int().nonnegative()
+});
+
+export const cinematicProjectSchema = z.object({
+  id: z.string().min(1),
+  projectId: z.string().min(1),
+  schemaVersion: z.number().int().positive(),
+  version: z.number().int().positive(),
+  ownerUserId: z.string().min(1),
+  ownerUsername: z.string().min(1),
+  title: z.string().min(1),
+  format: z.literal('short-film'),
+  platformTargets: z.array(z.string()).min(1),
+  aspectRatio: z.string().min(1),
+  durationTargetMs: z.number().int().positive(),
+  activeStage: cinematicStageSchema,
+  status: cinematicProjectSummarySchema.shape.status,
+  setup: z.object({
+    title: z.string(),
+    format: z.literal('short-film'),
+    platform: cinematicSetupDraftSchema.shape.platform,
+    durationSeconds: cinematicSetupDraftSchema.shape.durationSeconds,
+    storyBrief: z.string(),
+    creativeDirection: z.string(),
+    genre: cinematicSetupDraftSchema.shape.genre,
+    audienceFeeling: cinematicSetupDraftSchema.shape.audienceFeeling,
+    pacing: cinematicSetupDraftSchema.shape.pacing,
+    endingIntent: cinematicSetupDraftSchema.shape.endingIntent,
+    mode: cinematicSetupDraftSchema.shape.mode
+  }),
+  storySourceVersions: z.array(z.unknown()),
+  activeStorySourceVersionId: z.string().min(1),
+  castAssignments: z.array(cinematicCastAssignmentSchema),
+  storyPlanVersions: z.array(z.unknown()),
+  scenes: z.array(cinematicSceneSchema),
+  generationAttempts: z.array(z.unknown()),
+  timelineVersions: z.array(z.unknown()),
+  commandReceipts: z.array(z.unknown()).optional(),
+  activeStoryPlanVersionId: z.string().nullable().optional(),
+  activeTimelineVersionId: z.string().nullable().optional(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  archivedAt: z.string().datetime().nullable()
+});
+
+export const cinematicArchiveResponseSchema = z.object({
+  success: z.literal(true),
+  projectId: z.string().min(1)
+});
+
+export const cinematicProduceShotContextSchema = z.object({
+  projectId: z.string().min(1),
+  projectVersion: z.number().int().positive(),
+  sceneId: z.string().min(1),
+  shotId: z.string().min(1),
+  shotVersion: z.number().int().positive(),
+  approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.nullable(),
+  generationEligible: z.boolean(),
+  blockingReason: z.string().nullable(),
+  videoAttempts: z.array(z.object({
+    id: z.string(), operation: z.string(), status: z.string(),
+    downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
+  })),
+  timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
 });
 
 export type CinematicVideoCapability = z.infer<typeof cinematicVideoCapabilitySchema>;
+export type CinematicProject = z.infer<typeof cinematicProjectSchema>;
+export type CinematicCastAssignment = z.infer<typeof cinematicCastAssignmentSchema>;
+export type CinematicScene = z.infer<typeof cinematicSceneSchema>;
+export type CinematicShot = z.infer<typeof cinematicShotSchema>;
+export type CinematicProduceShotContext = z.infer<typeof cinematicProduceShotContextSchema>;

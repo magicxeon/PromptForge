@@ -52,6 +52,18 @@ export class AssetRepository {
     return asset?.ownerUserId === ownerUserId ? asset : null;
   }
 
+  async findBySourceJobIdForOwner(sourceJobId, ownerUserId, assetType = null) {
+    if (!sourceJobId || !ownerUserId) return null;
+    const items = await this.readAll();
+    const asset = items.find(item => (
+      item.sourceJobId === sourceJobId
+      && item.ownerUserId === ownerUserId
+      && item.status !== 'deleted'
+      && (!assetType || item.assetType === assetType)
+    ));
+    return asset ? structuredClone(asset) : null;
+  }
+
   async findByPublicUrlForOwner(publicUrl, ownerUserId) {
     if (!publicUrl || !ownerUserId) return null;
     const items = await this.readAll();

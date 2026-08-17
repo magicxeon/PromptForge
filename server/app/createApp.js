@@ -61,6 +61,8 @@ import { TemplatePoseProxyService } from '../domain/template-pose-proxy/Template
 import { GenerationApplicationService } from '../domain/generation/GenerationApplicationService.js';
 import { requestPerformanceMiddleware } from '../middleware/requestPerformanceMiddleware.js';
 import { AttributeCatalogApplicationService } from '../domain/attribute-catalog/AttributeCatalogApplicationService.js';
+import { cinematicApplicationService } from '../domain/cinematic/CinematicApplicationService.js';
+import { registerCinematicRoutes } from './routes/cinematicRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -235,6 +237,7 @@ export function createApp() {
     templatePoseProxyService
   });
   registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService });
+  registerCinematicRoutes(app, { cinematicService: cinematicApplicationService });
 
   // All registered browser routes are owned by the React SPA.
   app.get('*', (req, res, next) => {

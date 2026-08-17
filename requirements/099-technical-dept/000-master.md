@@ -91,6 +91,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
 | Canonical Attribute definitions, revisions, compatibility and published releases | `server/domain/attribute-catalog/`, `server/repositories/attribute-catalog/`, `server/data/attribute-catalog/` |
+| Cinematic Project, Cast, Story, Scene, Shot, continuity and timeline orchestration | `server/domain/cinematic/`, `server/repositories/cinematic/`, `server/data/cinematic/`, `server/app/routes/cinematicRoutes.js` |
 | Cross-workflow correlation context, sanitized trace events and support trace lookup | `server/middleware/`, `server/domain/observability/`, `server/repositories/observability/`, `server/data/observability/` |
 | Bounded process-local performance timing and slow-request measurement | `server/domain/observability/PerformanceTelemetry.js`, `server/middleware/requestPerformanceMiddleware.js` |
 | Shared atomic JSON implementation | `server/repositories/json/` |

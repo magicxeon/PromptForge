@@ -46,5 +46,16 @@
   "admin.error.load": "バックオフィスデータを読み込めませんでした。",
   "admin.error.ledger": "クレジット台帳を読み込めませんでした。",
   "admin.error.moderation": "モデレーションに失敗しました。",
-  "admin.error.creditAdjustment": "クレジット調整に失敗しました。"
+  "admin.error.creditAdjustment": "クレジット調整に失敗しました。",
+  "admin.navigation.cinematic": "Cinematic Operations",
+  "admin.cinematic.accessRequired": "Admin or Support access is required.",
+  "admin.cinematic.eyebrow": "CINEMATIC OPERATIONS",
+  "admin.cinematic.title": "Cinematic Projects and Provider Tasks",
+  "admin.cinematic.search": "Search",
+  "admin.cinematic.searchPlaceholder": "Project, Shot, Job, task or support reference",
+  "admin.cinematic.loading": "Loading Cinematic operations...",
+  "admin.cinematic.loadFailed": "Cinematic operations could not be loaded.",
+  "admin.cinematic.projects": "Projects",
+  "admin.cinematic.providerTasks": "Provider tasks",
+  "admin.cinematic.capabilities": "Video capabilities"
 }

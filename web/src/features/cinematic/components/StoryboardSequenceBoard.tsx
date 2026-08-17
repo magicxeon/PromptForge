@@ -11,6 +11,7 @@ export type StoryboardShotSummary = {
 };
 
 type StoryboardSequenceBoardProps = {
+  sceneId?: string;
   sceneTitle: string;
   sceneDurationSeconds: number;
   shots: StoryboardShotSummary[];
@@ -20,6 +21,7 @@ type StoryboardSequenceBoardProps = {
 };
 
 export function StoryboardSequenceBoard({
+  sceneId,
   sceneTitle,
   sceneDurationSeconds,
   shots,
@@ -30,7 +32,7 @@ export function StoryboardSequenceBoard({
   const { t } = useTranslation('cinematic');
 
   return (
-    <section className="cinematic-storyboard-board" aria-label={t('cinematic.storyboard.boardLabel')}>
+    <section id={`storyboard-sequence-${sceneId || 'preview'}`} className="cinematic-storyboard-board" aria-label={t('cinematic.storyboard.boardLabel')} tabIndex={-1}>
       <header className="cinematic-storyboard-board__header">
         <div>
           <span>{t('cinematic.storyboard.sequence')}</span>
@@ -44,6 +46,7 @@ export function StoryboardSequenceBoard({
       <div className="cinematic-storyboard-board__grid">
         {shots.map((shot, index) => (
           <article
+            id={`storyboard-shot-${shot.id}`}
             key={shot.id}
             className={`cinematic-storyboard-card${selectedShotId === shot.id ? ' is-selected' : ''}`}
             draggable

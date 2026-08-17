@@ -1,15 +1,20 @@
 # Cinematic Studio MVP Master Requirement
 
-**Status:** C1 shared foundation implemented on 2026-08-17; C1.5 UX contract
-revised for contextual operations and Project costs; visual revision and owner
-approval are required before C2 functional integration
+**Status:** C0-C1.5 implemented; C2-C3 functional authoring foundation
+implemented on 2026-08-17; C4 sandbox lifecycle, C5 timeline/export manifest
+and C6 read-only operations are implemented foundations. Paid video routing,
+final assembly and launch closure remain blocked by provider qualification,
+Credits integration and manual film evidence.
 **Source concept:** `momelo-ai-short-film-series-workflow.md`
 **Product owner:** Cinematic Studio
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Cinematic Experience Director, UX/UI Product Designer
 **Skills used:** `design-cinematic-experience`, `review-product-ux`
-**Implementation in this change:** C1.5 local-only UX mockup implemented; no
-provider dispatch, accepted Credit quote, durable Project mutation or export
+**Implementation in this change:** six-stage UI, private durable Project/Cast,
+immutable Story Sources, Story Plan/Scene/Shot authoring, Storyboard source
+approval, research-only video task lifecycle, durable video Asset copy,
+Timeline/export manifest gating and Admin/Support read models. No customer-paid
+video dispatch or qualified final assembly is enabled.
 
 ## 1. Outcome
 
@@ -218,7 +223,7 @@ and shared Generation shell before C2 vertical slices.
 - Desktop and mobile preserve all six stages without clipped controls.
 - All visible text uses i18n and all actions are keyboard reachable.
 
-## 9. Open Decisions Before Implementation
+## 9. Launch Decisions And Evidence Still Required
 
 - Final promotion decisions from the Veo/Seedance qualification matrix in
   `006-video-generation-provider-contract.md`; candidate capability and pricing
@@ -226,4 +231,5 @@ and shared Generation shell before C2 vertical slices.
 - Exact export presets and maximum retained draft duration.
 - Commercial prices, refund policy and Series-lite feature flag.
 
-These decisions affect adapters and pricing, not the six-stage product model.
+These decisions affect adapter promotion, billing and release approval, not the
+implemented six-stage product model or authoring contracts.

@@ -1,5 +1,8 @@
 # Cinematic Studio MVP Delivery And Validation Plan
 
+**Status:** C0-C3 and the guarded C4-C6 foundations are implemented. Release is
+conditional: live provider film qualification, Credits settlement integration,
+final assembly qualification and the manual UX matrix are still required.
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Backend Platform Architect, QA And Release Engineer; UX/UI Product
 Designer and Commercial Financial Integrity join their owned checkpoints
@@ -425,3 +428,67 @@ Any cache requires owner, key, bound, TTL/terminal condition and invalidation.
 - Existing Studio/Playground/Fashion shared-component suites remain green.
 - Support can diagnose any billed project operation from a safe reference.
 - Open provider-quality limitations are visible and assigned to a follow-up.
+
+## 10. Implementation Evidence - 2026-08-17
+
+### Implemented and automated
+
+- C0-C1.5: route, six-stage shell, actor-scoped draft, schemas, shared async
+  presentation and protected paid-operation controls.
+- C2: private Project persistence, serialized Setup/stage mutations, immutable
+  manual Story Source revisions, rights-aware Character picker with server
+  gender/age/ethnicity facets, pinned Cast Assignment dossier updates and
+  Character-owned Wardrobe Looks with owned-Asset authority snapshots.
+- C3: versioned Story Plans, stable Scene/Shot IDs and duration reconciliation,
+  per-Shot direction edit, sequence reorder, immutable approved Storyboard
+  Asset source and selective downstream stale propagation.
+- C4 foundation: disabled video capability catalog, parameterized pricing
+  calculator, sandbox provider contract, durable provider-task lifecycle,
+  idempotency, restart recovery, terminal states, usage reconciliation and
+  durable private video Asset copy.
+- C5 foundation: durable Timeline versions, trim/transition validation,
+  current-source eligibility and qualification-blocked export manifest.
+- C6 foundation: role-gated bounded Project/task/capability operational search
+  and sanitized detail.
+
+### Deliberately blocked, not silently simulated
+
+- Quoted AI Story enhancement, Scene rewrite and embedded Storyboard image
+  generation still require canonical text/image Credit operation integration.
+- No Veo or Seedance model is customer-routable until three repeated visual
+  qualification rounds, live account capability evidence, error/latency/cost
+  evidence and Commercial approval are recorded.
+- Project Cost Summary shows unavailable values until a Credits-owned Project
+  projection exists; it does not display fixture financial totals.
+- Final video assembly/export and audited Support recovery commands remain
+  blocked by qualification and Requirement 017 command ownership.
+- Series-lite remains behind the post-MVP gate.
+
+### Current automated evidence
+
+- Cinematic Project, Story Source, Cast/Wardrobe, Scene/Shot, Storyboard source,
+  Timeline and operational authorization domain tests.
+- Video capability, pricing, task restart/idempotency/reconciliation and durable
+  Asset-copy tests.
+- React schema, stage workflow, Character filter, Storyboard interaction,
+  committed-project fixture isolation and Project Cost truth tests.
+- TypeScript project build for `web`.
+
+Validation recorded on 2026-08-17:
+
+- Cinematic-focused server suites: 30 passed, 0 failed.
+- Cinematic-focused React suites: 18 passed, 0 failed.
+- Full React regression suite: 69 files and 241 tests passed.
+- `web` TypeScript build and Cinematic EN/TH locale JSON parsing passed.
+- Full server regression suite: 469 of 477 passed. The eight failures are the
+  pre-existing Clothing prompt/Fashion taxonomy expectation group and no
+  Cinematic test failed; they remain outside this capability's closeout.
+- `git diff --check` passed.
+
+The in-app browser connection was unavailable during this validation run, so
+the desktop/mobile screenshot matrix remains explicitly open rather than being
+inferred from component tests.
+
+Manual desktop/mobile/theme/accessibility checks and live provider film
+qualification remain mandatory before changing any blocked item above to
+complete.

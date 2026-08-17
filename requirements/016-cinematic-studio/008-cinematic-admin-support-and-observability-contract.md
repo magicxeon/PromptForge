@@ -1,7 +1,8 @@
 # Cinematic Admin, Support And Observability Contract
 
-**Status:** Required operational contract; UI delivery follows working
-Cinematic vertical slices
+**Status:** Bounded Admin/Support project, provider-task and capability read
+models implemented; audited recovery commands remain owned by Requirement 017
+and are not yet exposed
 **Owners:** Cinematic read models with Admin, Support and Observability
 **Primary role:** Backend Platform Architect
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer

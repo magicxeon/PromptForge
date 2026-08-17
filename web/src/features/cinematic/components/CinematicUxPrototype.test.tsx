@@ -4,6 +4,8 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CinematicStageContent } from './CinematicStageContent';
 import { CinematicStageRail } from './CinematicStageRail';
+import { formatFacetLabel, overlapsAgeBucket } from './CinematicDialogs';
+import type { CinematicProject } from '../schemas/cinematicSchemas';
 
 const testI18n = i18next.createInstance();
 
@@ -16,6 +18,13 @@ describe('Cinematic UX prototype', () => {
       returnNull: false,
       interpolation: { escapeValue: false }
     });
+  });
+
+  it('filters Character age ranges and formats server identity facets', () => {
+    expect(overlapsAgeBucket({ minimum: 21, maximum: 23 }, '20-29')).toBe(true);
+    expect(overlapsAgeBucket({ minimum: 21, maximum: 23 }, '30-39')).toBe(false);
+    expect(overlapsAgeBucket(null, '20-29')).toBe(false);
+    expect(formatFacetLabel('east-asian')).toBe('East Asian');
   });
 
   it('lets the prototype owner inspect every production stage', () => {
@@ -66,6 +75,16 @@ describe('Cinematic UX prototype', () => {
     expect(screen.queryByText('cinematic.cast.pressure')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Noah Lin/i }));
     expect(screen.getByText('Noah Lin', { selector: '.cinematic-dossier-header h3' })).toBeVisible();
+  });
+
+  it('never shows fixture Characters inside a committed empty Project', () => {
+    const project = {
+      id: 'cineproj_empty', projectId: 'cineproj_empty', castAssignments: []
+    } as unknown as CinematicProject;
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+    expect(screen.queryByText('Mira Chen')).not.toBeInTheDocument();
+    expect(screen.queryByText('Noah Lin')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'cinematic.cast.addCharacter' })).toHaveLength(2);
   });
 
   it('reveals advanced Character direction without changing the Cast workflow', () => {

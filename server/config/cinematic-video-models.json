@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "cinematic-video-2026-08-17-v1",
+  "models": [
+    {
+      "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
+      "operations": ["cinematic_motion_preview", "cinematic_draft_clip"], "durations": [4, 6, 8],
+      "resolutions": ["720p", "1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["generated"],
+      "referenceImageLimit": 1, "supportsFirstFrame": true, "supportsLastFrame": false,
+      "billingMetric": "output_second", "ratesByResolutionUsd": { "720p": 0.05, "1080p": 0.08 },
+      "providerRateVersion": "google-veo-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "gemini", "modelId": "veo-3.1-fast-generate-preview", "displayName": "Veo 3.1 Fast",
+      "operations": ["cinematic_motion_preview", "cinematic_draft_clip", "cinematic_final_clip"], "durations": [4, 6, 8],
+      "resolutions": ["720p", "1080p", "4K"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["generated"],
+      "referenceImageLimit": 3, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "output_second", "ratesByResolutionUsd": { "720p": 0.10, "1080p": 0.12, "4K": 0.30 },
+      "providerRateVersion": "google-veo-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "gemini", "modelId": "veo-3.1-generate-preview", "displayName": "Veo 3.1 Standard",
+      "operations": ["cinematic_final_clip"], "durations": [4, 6, 8],
+      "resolutions": ["720p", "1080p", "4K"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["generated"],
+      "referenceImageLimit": 3, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "output_second", "ratesByResolutionUsd": { "720p": 0.40, "1080p": 0.40, "4K": 0.60 },
+      "providerRateVersion": "google-veo-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "seedance-1-0-pro-fast-251015", "displayName": "Seedance 1.0 Pro Fast",
+      "operations": ["cinematic_motion_preview", "cinematic_draft_clip"], "durations": [2, 3, 4, 5, 6, 8, 10, 12],
+      "resolutions": ["480p", "720p", "1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none"],
+      "referenceImageLimit": 1, "supportsFirstFrame": true, "supportsLastFrame": false,
+      "billingMetric": "completion_token", "ratesByResolutionUsdPerMillionTokens": { "480p": 1.0, "720p": 1.0, "1080p": 1.0 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "seedance-1-5-pro-251215", "displayName": "Seedance 1.5 Pro",
+      "operations": ["cinematic_draft_clip", "cinematic_final_clip"], "durations": [4, 5, 6, 8, 10, 12],
+      "resolutions": ["480p", "720p", "1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 2, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "completion_token", "ratesByAudioUsdPerMillionTokens": { "none": 1.2, "generated": 2.4 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "dreamina-seedance-2-0-mini-260615", "displayName": "Seedance 2.0 Mini",
+      "operations": ["cinematic_motion_preview", "cinematic_draft_clip"], "durations": [4, 5, 6, 8, 10, 12, 15],
+      "resolutions": ["480p", "720p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 3.5, "with_video": 2.1 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "dreamina-seedance-2-0-fast-260128", "displayName": "Seedance 2.0 Fast",
+      "operations": ["cinematic_draft_clip", "cinematic_final_clip"], "durations": [4, 5, 6, 8, 10, 12, 15],
+      "resolutions": ["480p", "720p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "completion_token", "ratesByInputModeUsdPerMillionTokens": { "without_video": 5.6, "with_video": 3.3 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "dreamina-seedance-2-0-260128", "displayName": "Seedance 2.0",
+      "operations": ["cinematic_draft_clip", "cinematic_final_clip"], "durations": [4, 5, 6, 8, 10, 12, 15],
+      "resolutions": ["480p", "720p", "1080p", "4K"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "completion_token", "ratesByResolutionUsdPerMillionTokens": { "480p": 7.0, "720p": 7.0, "1080p": 7.7, "4K": 4.0 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "modelark", "modelId": "dreamina-seedance-2-5-260628", "displayName": "Seedance 2.5",
+      "operations": ["cinematic_draft_clip", "cinematic_final_clip"], "durations": [4, 5, 6, 8, 10, 12, 15, 20, 30],
+      "resolutions": ["480p", "720p"], "qualificationBlockedResolutions": ["1080p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["none", "generated"],
+      "referenceImageLimit": 9, "supportsFirstFrame": true, "supportsLastFrame": true,
+      "billingMetric": "completion_token", "ratesByResolutionUsdPerMillionTokens": { "480p": 10.7, "720p": 10.7 },
+      "providerRateVersion": "byteplus-seedance-2026-08-17", "pricingStatus": "research_only",
+      "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    }
+  ]
+}
