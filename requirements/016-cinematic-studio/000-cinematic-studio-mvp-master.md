@@ -1,6 +1,7 @@
 # Cinematic Studio MVP Master Requirement
 
-**Status:** Requirement ready for implementation planning
+**Status:** Requirement architecture reconciled; implementation must follow the
+ordered checkpoints in Requirement 004
 **Source concept:** `momelo-ai-short-film-series-workflow.md`
 **Product owner:** Cinematic Studio
 **Primary role:** Product And Requirement Architect
@@ -116,17 +117,59 @@ must use these six stable stages.
 Cinematic Studio may orchestrate these public contracts but must not access a
 foreign repository or provider directly.
 
+## 5.1 Architecture principles
+
+1. Cinematic Studio is a new orchestration capability, not a second
+   Generation, Credit, Asset, Character, Reference, theme or Admin platform.
+2. Shared image-generation UI behavior is extended through typed media and
+   operation adapters. Existing image consumers remain protected by tests.
+3. Video-specific story, Scene, Shot, continuity and timeline behavior remains
+   inside the Cinematic capability and is not pushed into generic components.
+4. Browser storage holds only actor-scoped recoverable drafts and presentation
+   preferences. Server records remain authoritative for accepted quotes, Jobs,
+   attempts, Assets, approvals and financial state.
+5. Admin and Support inspect Cinematic through bounded read models and invoke
+   owner commands; they never mutate Cinematic, Generation or Credit storage.
+6. Every operation is traceable through Project, Scene, Shot, attempt,
+   Generation Group, Job, provider task, quote, reservation and settlement IDs.
+7. The active application theme applies to Cinematic through existing semantic
+   tokens. Cinematic must not introduce a route-local theme system.
+
 ## 6. Requirement Set
 
 - `001-cinematic-studio-screen-and-interaction-flow.md`
 - `002-cinematic-project-story-shot-and-continuity-contract.md`
 - `003-cinematic-generation-credit-and-media-contract.md`
 - `004-cinematic-mvp-delivery-and-validation-plan.md`
+- `005-video-provider-pricing-and-credit-model.md`
+- `006-video-generation-provider-contract.md`
+- `007-cinematic-shared-component-state-and-project-structure.md`
+- `008-cinematic-admin-support-and-observability-contract.md`
 
 The source concept remains product research. These numbered files are the
-implementable MVP contract when the documents disagree.
+implementable MVP contract when the documents disagree. Requirement 004 owns
+delivery order; Requirement 007 owns code placement and reuse boundaries;
+Requirement 008 owns operational visibility without taking business ownership
+from Cinematic, Generation, Credits or Assets.
 
-## 7. Global Acceptance
+## 7. Implementation order
+
+```text
+C0 contract and protected-behavior freeze
+-> C1 shared component/state/schema foundation
+-> C2 private Project Setup and Cast vertical slice
+-> C3 Story Plan, continuity and Storyboard vertical slice
+-> C4 qualified draft-video production and financial lifecycle
+-> C5 Finish, export and recovery
+-> C6 Admin/Support operational completion and launch hardening
+-> C7 optional Series-lite
+```
+
+No later checkpoint may be started merely because its screen is easy to build.
+Each checkpoint must prove its domain, UI, persistence, authorization and
+recovery path together.
+
+## 8. Global Acceptance
 
 - A new user can complete a single-film project without opening Advanced mode.
 - Refresh/restart restores the last committed stage and draft safely.
@@ -137,10 +180,11 @@ implementable MVP contract when the documents disagree.
 - Desktop and mobile preserve all six stages without clipped controls.
 - All visible text uses i18n and all actions are keyboard reachable.
 
-## 8. Open Decisions Before Implementation
+## 9. Open Decisions Before Implementation
 
-- Initial qualified video provider/model matrix and maximum source-reference
-  count per operation.
+- Final promotion decisions from the Veo/Seedance qualification matrix in
+  `006-video-generation-provider-contract.md`; candidate capability and pricing
+  contracts are now documented, but no candidate is launch-qualified yet.
 - Whether voice-over generation ships in launch gate or remains subtitle/music
   only.
 - Exact export presets and maximum retained draft duration.

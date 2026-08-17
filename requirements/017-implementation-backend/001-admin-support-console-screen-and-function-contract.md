@@ -5,6 +5,12 @@
 **Reviewers:** Backend Platform Architect, QA And Release Engineer
 **Skill:** `review-product-ux`
 
+Detailed information hierarchy, per-route primary actions, validation, Toast,
+durable async states, accessibility, responsive and theme behavior are owned by
+Requirement 017-005. QA evidence and release gates are owned by Requirement
+017-006. Low-fidelity desktop/mobile layouts are owned by Requirement 017-008,
+and controls are exposed according to Requirement 017-007.
+
 ## 1. Routes
 
 ```text
@@ -218,3 +224,5 @@ thumbnails and reuse entry points before execution.
 - An unauthorized role cannot see or invoke a restricted command.
 - No action disappears after modal close; Toast and timeline confirm result.
 - Empty, stale, partial, error and approval states are testable.
+- Acceptance must also satisfy `UX-017-01` through `UX-017-09` in Requirement
+  017-005 and their evidence mapping in Requirement 017-006.

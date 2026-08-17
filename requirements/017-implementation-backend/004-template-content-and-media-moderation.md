@@ -6,6 +6,10 @@
 **Reviewers:** Security, Product UX, QA And Release Engineer
 **Skills:** `review-product-ux`, `verify-release-regressions`
 
+Requirement 017-005 owns Content workspace interaction, command previews,
+notifications and persistent propagation/reconciliation state. Requirement
+017-006 owns moderation, lineage, delivery and fail-closed release evidence.
+
 ## 1. Objective
 
 Authorized staff must be able to locate and contain any inappropriate,
@@ -173,3 +177,6 @@ and cannot become the authoritative lifecycle source.
    verify the command is blocked with the dependency identified.
 5. Simulate cache invalidation failure and verify customer delivery remains
    blocked while reconciliation is queued.
+
+These scenarios and the automated acceptance rules map to `QA-017-004` and the
+cross-requirement scenarios in Requirement 017-006.

@@ -4,6 +4,12 @@
 **Reviewers:** Backend Platform Architect, QA And Release Engineer
 **Skills:** `review-commercial-integrity`, `verify-release-regressions`
 
+Requirement 017-005 owns the staff-facing dry-run, approval, confirmation,
+Toast and durable outcome presentation. Requirement 017-006 owns the financial
+and security evidence matrix and release recommendation. Requirement 017-007
+owns the executable role/command/approval matrix; Requirement 017-009 prevents
+financial exposure before durable prerequisites pass.
+
 ## 1. Risk Tiers
 
 | Tier | Example | Approval |
@@ -121,3 +127,5 @@ approvals, command ID, audit ID, financial before/after and reconciliation.
 - Support can explain and reconcile every tested customer outcome.
 - Privacy review and least-privilege matrix pass.
 - Phase2-18 recovery contracts are invoked through Cases, not duplicated.
+- All `QA-017-003` evidence in Requirement 017-006 passes before financial
+  commands are enabled.

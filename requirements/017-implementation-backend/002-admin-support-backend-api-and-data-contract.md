@@ -5,6 +5,11 @@
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer
 **Skill:** `verify-release-regressions`
 
+The APIs in this requirement expose the stable validation and operation states
+consumed by Requirement 017-005. Requirement 017-006 owns contract,
+concurrency, restart, authorization and cross-capability validation evidence.
+Requirement 017-009 owns adapter durability, implementation order and cutover.
+
 ## 1. Canonical Entry Points
 
 - `AdminBackofficeService` remains the permission-aware read-model facade.
@@ -177,3 +182,5 @@ Approval state. No production command may rely on process memory.
 - Every material command has matching Audit evidence.
 - Cross-role and cross-customer access tests fail server-side.
 - Routes contain no repository or financial mutation logic.
+- Every acceptance rule maps to `QA-017-002` evidence in Requirement 017-006
+  before this requirement can close.

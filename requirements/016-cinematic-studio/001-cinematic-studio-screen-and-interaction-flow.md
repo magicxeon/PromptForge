@@ -29,16 +29,27 @@ navigation remains available, but a user cannot skip an unmet approval gate.
 |---|---|---|
 | Character selection | existing Character cards/profile media | role badge and pinned-version state |
 | Outfit upload/select | Asset/reference pickers | Character wardrobe assignment wrapper |
-| Provider/quality | Engine/target controls | video operation capability filtering |
-| Result loading | shared Generation result surface/loader | video thumbnail and duration metadata |
-| Queue | shared Queue status | project and shot grouping |
-| Media viewing | shared authenticated media viewer | video transport controls and shot actions |
+| Provider/quality | `EngineTargetPanel` and Generation command-region visual contract | typed video operation, duration, resolution, audio and capability filtering without changing the image defaults |
+| Estimate/consent | current Generation estimate presentation and `CreditExhaustedDialog` | shared quote summary with per-Shot and project totals; calculation remains server-owned by Credits |
+| Result loading | `GenerationStageState`, `Surface` and Generation result-state treatment | video poster, duration and operation metadata through a media adapter |
+| Queue | `GenerationQueueStatus` and canonical polling policy | project/Scene/Shot grouping and partial completion |
+| Media viewing | authenticated media viewer/stage contract | video transport controls, poster fallback and Shot actions |
 | Async/error | `AsyncState`, `StatusNotice`, `Toast` | cinematic error codes and recovery actions |
 | Confirmation | shared quote/credit and confirm dialogs | operation-specific breakdown |
 | Options | shared visual/segmented controls | cinematic presets and director controls |
 
 Shared components receive data and callbacks. They do not call providers,
 Credits or repositories.
+
+The video Generation panel must keep the same visual grammar and action order
+as Studio image generation: Engine and Target Output, estimate, primary
+Generate action, Queue status, result loader, result surface and viewer. It may
+expose video-only fields through a typed variant, but it must not create a
+second unrelated panel that requires users to learn a new submission model.
+
+Before introducing a shared component, implementation must search the existing
+owner and either extend it compatibly or extract a common presentation layer
+with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 
 ## 3. Stage 1 - Setup
 
@@ -163,6 +174,22 @@ Every stage must render:
 
 No spinner may remain after a terminal status.
 
+## 9.1 Draft persistence and restoration
+
+- Setup, active stage, uncommitted story edits, expanded inspector, selected
+  Scene/Shot, filters and scroll-return target may be saved through
+  `web/src/lib/persistence/actorScopedStorage.ts`.
+- Use a versioned `cinematic-project:<projectId>` feature key. A new unsaved
+  project uses a stable client draft ID until the server returns its Project ID.
+- Actor switching must never restore another actor's draft.
+- Do not put signed media URLs, Base64, provider payloads, accepted quotes,
+  balances, Job truth or approval truth in `localStorage`.
+- On resume, server state wins for committed records. Compatible local changes
+  are offered for restoration; version conflicts require user choice and must
+  not overwrite silently.
+- Completed submission state is restored from TanStack Query/server APIs, not
+  from browser booleans.
+
 ## 10. Accessibility, Theme And Responsive Rules
 
 - Use semantic headings, labels, focus order and `aria-live` for async status.
@@ -170,6 +197,8 @@ No spinner may remain after a terminal status.
 - Focus moves only after user-triggered stage/section expansion.
 - Media controls are keyboard operable and have accessible names.
 - Theme tokens come from the active user theme; no Cinematic-local palette.
+- Provider, estimate, Queue, result and viewer controls must render correctly
+  under Momelo Neon, Pearl Editorial and Electric Studio using semantic tokens.
 - At 360px width, cards become a list and inspectors become drawers; text and
   controls must not overlap.
 - At desktop width, the main storyboard/timeline remains the visual priority,

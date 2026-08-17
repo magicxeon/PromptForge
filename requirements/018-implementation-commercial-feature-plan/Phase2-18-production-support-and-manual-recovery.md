@@ -7,7 +7,8 @@
 
 This requirement defines domain recovery commands. The staff-facing workflow,
 Case lifecycle, approvals and command audit are owned by
-`requirements/017-implementation-backend/`. Every production recovery starts
+`requirements/017-implementation-backend/`, with staff command policy in
+Requirement 017-007 and durability/rollout gates in Requirement 017-009. Every production recovery starts
 from a Support Case and invokes these commands through the owning capability;
 do not build a second standalone recovery console.
 

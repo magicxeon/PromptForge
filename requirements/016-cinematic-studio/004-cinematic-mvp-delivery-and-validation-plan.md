@@ -1,27 +1,70 @@
 # Cinematic Studio MVP Delivery And Validation Plan
 
 **Primary role:** Product And Requirement Architect
-**Reviewers:** Backend Platform Architect, QA And Release Engineer
-**Skills:** `design-cinematic-experience`, `verify-release-regressions`
+**Reviewers:** Backend Platform Architect, QA And Release Engineer; UX/UI Product
+Designer and Commercial Financial Integrity join their owned checkpoints
+**Skills:** `design-cinematic-experience`, `review-product-ux`,
+`implement-generation-workflow`, `review-commercial-integrity`,
+`verify-release-regressions`
 
 ## 1. Delivery Principle
 
 Build vertical slices through existing capability facades. Do not build all UI,
-then all server code, then connect providers. Each checkpoint must preserve old
-Studio, Scene Builder, Character, Fashion, Generation and Credit behavior.
+then all server code, then connect providers. Do not build provider adapters
+before the normalized operation/Job/quote contracts, and do not build Admin
+mutation paths before owner commands. Each checkpoint must preserve old Studio,
+Scene Builder, Character, Fashion, Generation and Credit behavior.
+
+Shared extraction follows characterize -> extract -> adapt existing consumer ->
+add Cinematic consumer -> regression test. A later checkpoint cannot compensate
+for missing tests or ownership in an earlier one.
 
 ## 2. Checkpoints
 
 ### C0 - Contract freeze
 
 - Approve six-stage UX, operation names, IDs, state machines and owner map.
-- Confirm video provider qualification inputs and output/storage constraints.
-- Confirm commercial pricing/refund decisions.
+- Freeze the versioned Veo/Seedance capability candidates, rate-card sources
+  and disabled-by-default launch state from
+  `005-video-provider-pricing-and-credit-model.md` and
+  `006-video-generation-provider-contract.md`.
+- Confirm video provider qualification inputs, face/reference eligibility,
+  asynchronous recovery and output/storage constraints.
+- Confirm commercial pricing, estimate-versus-actual reconciliation and refund
+  decisions.
 - Add protected-behavior inventory for existing shared components.
+- Approve Requirement 007 project structure, component reuse map, browser state
+  boundaries and theme contract.
+- Approve Requirement 008 Admin/Support read model, correlation IDs and owner
+  command boundaries.
 
 Exit: schemas and open decisions are recorded; no runtime implementation.
 
-### C1 - Private project and cast draft
+### C1 - Shared foundation without paid video
+
+**Primary:** Backend Platform Architect
+**Review:** UX/UI Product Designer, QA And Release Engineer
+
+- Add typed provider-neutral video operation, capability and status schemas.
+- Add Cinematic API/Zod boundaries and empty feature route behind the feature
+  flag.
+- Characterize current `EngineTargetPanel`, Generation estimate/action region,
+  Queue, loader, result, viewer, actor storage and theme behavior.
+- Extract or extend only the presentation contracts required by two consumers;
+  image Studio remains the first compatibility adapter.
+- Add versioned actor-scoped Cinematic draft schema and safe migration/fallback.
+- Add correlation fields and structured lifecycle event schemas before Jobs
+  exist.
+
+Exit: an internal fixture can render the video Engine/estimate/Queue/result
+states in all themes without provider dispatch or Credit mutation; existing
+image/Fashion regressions pass.
+
+### C2 - Private project and cast vertical slice
+
+**Primary:** Backend Platform Architect
+**Review:** UX/UI Product Designer, Cinematic Experience Director
+**Skills:** `review-product-ux`, `design-cinematic-experience`
 
 - Cinematic route/shell, Setup, Cast/Wardrobe and actor-scoped autosave.
 - Use the canonical Project service. If the commercial Project capability is
@@ -29,38 +72,84 @@ Exit: schemas and open decisions are recorded; no runtime implementation.
   the Project capability; Cinematic must not create a substitute project store.
 - Cinematic repository interface and local adapter for film-specific state.
 - Character/Profile Version and Asset authorization through owners.
+- Commit/resume/version-conflict behavior uses server truth plus recoverable
+  local draft; actor switching is isolated.
 
 Exit: restart and actor switch tests pass; no paid generation.
 
-### C2 - Structured story and storyboard
+### C3 - Structured story, continuity and Storyboard vertical slice
+
+**Primary:** Cinematic Experience Director
+**Review:** Backend Platform Architect, UX/UI Product Designer
 
 - text planning operation, validation and Story Plan versions;
 - scene/shot editor, continuity ledger and storyboard stills;
 - quote/reservation for planning/stills through canonical owners.
+- use the existing image Generation/Credit path for Storyboard stills rather
+  than a Cinematic image queue;
+- expose the first Admin/Support read-only Project/Shot trace projection.
 
 Exit: one approved storyboard is reproducible from stored structure.
 
-### C3 - Draft production
+### C4 - Qualified draft-video production
 
+**Primary:** Backend Platform Architect
+**Review:** Commercial Financial Integrity, QA And Release Engineer
+**Skills:** `implement-generation-workflow`, `review-commercial-integrity`,
+`review-generative-media-pipeline`
+
+- implement one qualified sandbox provider path first; a second provider begins
+  only after normalized dispatch, task persistence, bounded polling, durable
+  media copy and terminal settlement pass with the first;
+- fixed-fixture cost/latency/error and visual qualification evidence before
+  promoting any paid route;
 - qualified draft video operation and durable Generation Groups;
 - result viewer, attempt history, selective regenerate and partial batch;
-- settlement/reconciliation and terminal error behavior.
+- settlement/reconciliation and terminal error behavior;
+- Admin provider/operation visibility, disable-new-submission control and
+  Support trace lookup use the same owner contracts.
 
 Exit: 3-6 shot film can be generated and one failed shot retried safely.
 
-### C4 - Finish and export
+### C5 - Finish, export and recovery
+
+**Primary:** Cinematic Experience Director
+**Review:** Backend Platform Architect, QA And Release Engineer
 
 - simple timeline, trim, transition, subtitle/music and final assembly;
 - final quote, export Asset and download;
-- support correlation and recovery evidence.
+- support correlation, restart, media-copy recovery and export idempotency
+  evidence;
+- local draft cleanup preserves committed timeline/export state on the server.
 
 Exit: complete 20-60 second film survives restart and exports once.
 
-### C5 - Series-lite and launch hardening
+### C6 - Admin/Support completion and launch hardening
+
+**Primary:** Backend Platform Architect
+**Review:** Commercial Financial Integrity, QA And Release Engineer
+
+- complete Requirement 008 bounded search, operational detail, command preview,
+  reconciliation, retention and audit integration;
+- complete provider qualification/rate-version administration without creating
+  a Cinematic-local pricing store;
+- accessibility, responsive, themes, i18n and performance budgets;
+- customer-runtime isolation from Admin read-model outages;
+- rollout, kill switch and rollback evidence.
+
+Exit: Support can explain and recover every qualification scenario through
+audited owner commands; no Severity 1/2 financial, privacy or orphaned-Job issue.
+
+### C7 - Series-lite
+
+**Primary:** Cinematic Experience Director
+**Review:** Product And Requirement Architect, QA And Release Engineer
 
 - Series Bible and episode linkage behind feature flag;
-- retention, quotas, accessibility, responsive and performance validation;
-- provider qualification and commercial launch gate.
+- cross-episode continuity and bounded list/query behavior;
+- separate manual qualification after single-film C0-C6 acceptance.
+
+Series-lite must not delay or destabilize the single-film MVP.
 
 ## 3. Automated Test Suites
 
@@ -70,10 +159,24 @@ Exit: complete 20-60 second film survives restart and exports once.
 - idempotency tests for planning, generation, settlement and export;
 - stale quote and stale downstream dependency tests;
 - partial batch, cancellation, restart and orphan reconciliation tests;
+- parameterized video pricing tests for duration, resolution, audio,
+  input-video usage, returned completion tokens and rate-card version;
+- Veo/Seedance capability matrix tests for references, first/last frame,
+  person-asset eligibility and unsupported combinations;
+- provider task persistence, bounded polling, temporary-media download and
+  provider-retention recovery tests;
 - shared component regressions for loader, queue, viewer, credit dialog and
   Character/outfit pickers;
+- shared Engine/estimate/result adapter tests proving image defaults and
+  Cinematic video variants coexist;
+- actor-scoped local-draft schema migration, malformed payload, storage quota,
+  logout and actor-switch isolation;
+- theme tests for Momelo Neon, Pearl Editorial and Electric Studio without a
+  Cinematic route override;
 - i18n key parity and route registry tests;
 - repository adapter parity before database migration.
+- Admin/Support read-model outage, role authorization, duplicate recovery
+  command and sanitized-log tests from Requirement 008.
 
 ## 4. Manual Film Qualification
 
@@ -136,9 +239,22 @@ Any cache requires owner, key, bound, TTL/terminal condition and invalidation.
 - Rollback never deletes accepted Jobs, Assets or ledger entries.
 - A provider flag can stop one operation while preserving completed projects.
 
-## 8. Definition Of Done
+## 8. Requirement-To-Checkpoint Traceability
 
-- C0-C4 acceptance passes with automated and manual evidence.
+| Requirement | First implementation | Completion gate |
+|---|---|---|
+| 000 Master | C0 | C6 |
+| 001 UX flow | C1/C2 | C6 visual/manual matrix |
+| 002 domain/continuity | C2 | C5 |
+| 003 Generation/Credit/media | C1 contract | C5 settlement/recovery |
+| 005 pricing | C0 fixtures | C4 paid qualification and C6 Admin rate control |
+| 006 providers | C1 schemas | C4 first adapter; later provider separately qualified |
+| 007 shared architecture/state | C1 | every checkpoint regression gate |
+| 008 Admin/Support/observability | C1 event IDs, C3 read-only | C6 commands/recovery |
+
+## 9. Definition Of Done
+
+- C0-C6 acceptance passes with automated and manual evidence.
 - No Severity 1/2 privacy, financial, orphaned Job or cross-actor defect remains.
 - Existing Studio/Playground/Fashion shared-component suites remain green.
 - Support can diagnose any billed project operation from a safe reference.

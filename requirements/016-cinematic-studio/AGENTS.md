@@ -15,3 +15,14 @@ and `review-generative-media-pipeline` for provider/reference qualification.
   cost and qualification evidence.
 - Hand runtime Generation, Asset, Reference and Credit behavior to their
   canonical capability owners rather than redefining them here.
+- Read `007-cinematic-shared-component-state-and-project-structure.md` before
+  creating a Cinematic file or shared React component. Characterize the current
+  image consumer before extracting shared Engine, estimate, Queue, loader,
+  result, viewer, persistence or theme behavior.
+- Read `008-cinematic-admin-support-and-observability-contract.md` for staff
+  visibility, provider/rate controls, recovery or logging. Extend Requirement
+  017 Admin/Support contracts and owner commands; never add a direct mutation
+  path for operational convenience.
+- Follow the checkpoint order in Requirement 004. Do not begin a second video
+  provider adapter before the first passes normalized lifecycle, restart,
+  settlement and qualification gates.

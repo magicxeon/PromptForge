@@ -66,7 +66,7 @@ Grades mean readiness to author production DDL, not feature completion.
 | Identity/Auth | Not ready | mock user IDs and actor context | credential/session/role/security-event lifecycle |
 | Projects | Not ready | owner IDs used in domains | Project/member/status contract |
 | Audit/Idempotency | Partial | audit events and per-domain keys | global event envelope, retention, uniqueness scope |
-| Support | Not ready | support references/correlation concepts | Case/Command/Approval contract from Requirement 017 |
+| Support | Partial-high | Case/Link/Note/Command/Approval, permission and rollout contracts in Requirements 017-002/007/009 | final DDL review, retention values, staff Identity foreign keys and PostgreSQL adapter transaction boundaries |
 | Credits | Partial-high | account/reservation/ledger lifecycle | SQL transaction boundaries, entry taxonomy and expiry |
 | Pricing/Payments | Not ready | local pricing snapshots | package/price/purchase/payment/refund/provider-event model |
 | Assets | Partial | Asset IDs, owner and metadata | object version/checksum/derivative/retention model |

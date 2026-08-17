@@ -5,6 +5,16 @@
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer
 **Skills:** `implement-generation-workflow`, `review-commercial-integrity`
 
+Provider-specific rate cards, parameterized video Credit formulas and adapter
+constraints are owned by:
+
+- `005-video-provider-pricing-and-credit-model.md`;
+- `006-video-generation-provider-contract.md`.
+
+When those documents are more specific about video billing or provider
+capability, they extend this provider-independent contract without changing its
+ownership boundaries.
+
 ## 1. Operations
 
 Provider-independent operation names:
@@ -47,6 +57,10 @@ sequenceDiagram
 Cinematic does not call a provider, mutate Queue state, calculate model price or
 write a Credit ledger directly.
 
+The implementation extends `CreditApplicationService` and its existing pricing
+policy/version contracts with video operation metrics. It must not create a
+`CinematicCreditService`, client-side formula or Cinematic balance store.
+
 ## 3. Quote Contract
 
 Every quote snapshots:
@@ -61,6 +75,13 @@ Every quote snapshots:
 
 Draft and final clips are separate operations. Previously spent Credits are
 shown as history and never included again in the next charge.
+
+The React estimate/confirmation presentation is shared with existing
+Generation consumers. If extraction is required, create one typed quote-summary
+component under the shared Credit/Generation UI owner and adapt image, Fashion
+and Cinematic DTOs without changing their calculation contracts. Cinematic may
+add Shot/project grouping, but not duplicate insufficient-Credit, expiry,
+refresh or confirmation behavior.
 
 ## 4. Reservation And Settlement
 
@@ -141,3 +162,7 @@ authority combinations block before Credit reservation.
 - Partial completion is visible and usable.
 - Reconciliation can explain project spend as the sum of immutable ledger
   entries by operation and Shot.
+- Existing image and Fashion estimates remain unchanged after video rate
+  metrics are introduced.
+- The same server quote drives displayed Credits, reservation and settlement;
+  no Cinematic client formula participates in consent.

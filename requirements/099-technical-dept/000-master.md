@@ -85,6 +85,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
 | Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
+| Cinematic Project, Story Plan, Scene, Shot, continuity and timeline orchestration | `server/domain/cinematic/`, `server/repositories/cinematic/`, `server/data/cinematic/`; provider tasks remain in Generation and financial state remains in Credits |
 | Canonical Template definitions, immutable versions, use sessions and usage events | `server/domain/templates/`, `server/repositories/templates/`, `server/data/templates/` |
 | Private Template Pose Proxy preparation, cache lifecycle and readiness | `server/domain/template-pose-proxy/`, `server/repositories/template-pose-proxy/`, `server/data/template-pose-proxy/` |
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
@@ -119,6 +120,7 @@ Server placement rules:
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | React navigation metadata | `web/src/app/routeRegistry/` |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
+| Cinematic Studio routes, stage orchestration, story/Shot/timeline UI and actor draft adapters | `web/src/features/cinematic/`; shared Generation, media, Credit and theme presentation remains under its current shared owner |
 | Admin Attribute authoring shell (UI reset pending) | `web/src/features/admin/components/AdminNavigation.tsx`, `web/src/features/admin/routes/AdminAttributesRoute.tsx`; future API/schema modules return under `web/src/features/admin/` only with the accepted mockup implementation |
 | Template serialization and client contracts | `web/src/features/templates/` |
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
