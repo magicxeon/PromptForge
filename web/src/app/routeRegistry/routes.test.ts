@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   isSidebarNavigationTargetActive,
+  routePaths,
   sidebarNavigationGroups
 } from './routes';
 
@@ -36,5 +37,10 @@ describe('Momelo sidebar navigation registry', () => {
     expect(isSidebarNavigationTargetActive('my-characters', '/me/characters')).toBe(true);
     expect(isSidebarNavigationTargetActive('my-characters', '/me/characters/charprof_1')).toBe(true);
     expect(isSidebarNavigationTargetActive('my-templates', '/me/templates')).toBe(true);
+  });
+
+  it('keeps Attribute Studio under the canonical Admin route', () => {
+    expect(routePaths.admin).toBe('/admin');
+    expect(routePaths.adminAttributes).toBe('/admin/attributes');
   });
 });

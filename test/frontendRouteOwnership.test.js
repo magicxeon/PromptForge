@@ -30,6 +30,7 @@ test('frontend route ownership recognizes canonical and parameterized routes', (
   assert.equal(resolveFrontendRoute('/library/collections/collection_123').routeId, 'collections');
   assert.equal(resolveFrontendRoute('/credits').routeId, 'credits');
   assert.equal(resolveFrontendRoute('/admin').routeId, 'admin');
+  assert.equal(resolveFrontendRoute('/admin/attributes').routeId, 'admin');
 });
 
 test('frontend route ownership rejects API and unknown browser routes', () => {

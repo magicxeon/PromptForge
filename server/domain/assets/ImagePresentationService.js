@@ -4,6 +4,26 @@ import path from 'path';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 
 export const IMAGE_PRESENTATION_PROFILES = Object.freeze({
+  'attribute-option-preview-v1': Object.freeze({
+    id: 'attribute-option-preview-v1',
+    width: 768,
+    height: 768,
+    fit: 'contain',
+    positionStrategy: 'centre',
+    sourceMedia: 'image',
+    format: 'webp',
+    quality: 90
+  }),
+  'attribute-option-thumbnail-v1': Object.freeze({
+    id: 'attribute-option-thumbnail-v1',
+    width: 320,
+    height: 320,
+    fit: 'contain',
+    positionStrategy: 'centre',
+    sourceMedia: 'image',
+    format: 'webp',
+    quality: 86
+  }),
   'template-card-person-focus-v2': Object.freeze({
     id: 'template-card-person-focus-v2',
     width: 640,

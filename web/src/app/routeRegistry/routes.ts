@@ -13,7 +13,8 @@ export const routePaths = {
   ownedCharacters: '/me/characters',
   ownedTemplates: '/me/templates',
   accountCredits: '/credits',
-  admin: '/admin'
+  admin: '/admin',
+  adminAttributes: '/admin/attributes'
 } as const;
 
 export const routeBuilders = {

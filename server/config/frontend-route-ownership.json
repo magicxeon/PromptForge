@@ -52,7 +52,7 @@
     },
     {
       "id": "admin",
-      "patterns": ["/admin"],
+      "patterns": ["/admin", "/admin/:adminSection"],
       "runtime": "react",
       "enabled": true
     },

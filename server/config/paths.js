@@ -10,6 +10,12 @@ export const CLIENT_ROOT = path.resolve(PROJECT_ROOT, 'client');
 export const WEB_ROOT = path.resolve(PROJECT_ROOT, 'web');
 export const WEB_DIST_ROOT = path.resolve(WEB_ROOT, 'dist');
 export const OUTPUTS_DIR = path.resolve(CLIENT_ROOT, 'outputs');
+export const ATTRIBUTES_ROOT = path.resolve(PROJECT_ROOT, 'attributes');
+export const VISUAL_CHARACTER_ASSETS_ROOT = path.resolve(
+  CLIENT_ROOT,
+  'assets',
+  'visual-character-builder'
+);
 
 export const DATA_ROOT = path.resolve(SERVER_ROOT, 'data');
 export const IDENTITY_DATA_DIR = path.resolve(DATA_ROOT, 'identity');
@@ -31,6 +37,7 @@ export const CHARACTER_PROFILES_DATA_DIR = path.resolve(DATA_ROOT, 'character-pr
 export const FASHION_BLUEPRINT_DATA_DIR = path.resolve(DATA_ROOT, 'fashion-blueprint');
 export const TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'templates');
 export const TEMPLATE_POSE_PROXY_DATA_DIR = path.resolve(DATA_ROOT, 'template-pose-proxy');
+export const ATTRIBUTE_CATALOG_DATA_DIR = path.resolve(DATA_ROOT, 'attribute-catalog');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -63,7 +70,10 @@ export const DATA_FILES = {
   templateVersions: path.resolve(TEMPLATES_DATA_DIR, 'versions.json'),
   templateUseSessions: path.resolve(TEMPLATES_DATA_DIR, 'useSessions.json'),
   templateUsageEvents: path.resolve(TEMPLATES_DATA_DIR, 'usageEvents.json'),
-  templatePoseProxies: path.resolve(TEMPLATE_POSE_PROXY_DATA_DIR, 'poseProxies.json')
+  templatePoseProxies: path.resolve(TEMPLATE_POSE_PROXY_DATA_DIR, 'poseProxies.json'),
+  attributeCatalogDrafts: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'drafts.json'),
+  attributeCatalogReleases: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'releases.json'),
+  attributeCatalogState: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'state.json')
 };
 
 export function resolveDataFile(name) {

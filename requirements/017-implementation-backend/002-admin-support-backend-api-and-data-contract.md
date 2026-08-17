@@ -78,6 +78,9 @@ GET /api/support/cases/:caseId
 GET /api/support/lookup?reference=...
 GET /api/admin/finance/reconciliation?cursor&state
 GET /api/admin/audit-events?cursor&filters
+GET /api/admin/content/templates?cursor&query&lifecycle&moderationStatus&visibility
+GET /api/admin/content/media?cursor&query&mediaType&moderationStatus&ownerId
+GET /api/admin/content/media/:assetId/lineage
 ```
 
 Commands:
@@ -91,6 +94,10 @@ POST /api/support/cases/:caseId/commands
 POST /api/support/commands/:commandId/approvals
 POST /api/admin/users/:userId/status-commands
 POST /api/admin/users/:userId/session-revocations
+POST /api/admin/content/templates/:templateId/moderation-commands/preview
+POST /api/admin/content/templates/:templateId/moderation-commands
+POST /api/admin/content/media/:assetId/moderation-commands/preview
+POST /api/admin/content/media/:assetId/moderation-commands
 ```
 
 Do not expose generic PATCH endpoints for financial or lifecycle state.
@@ -104,6 +111,9 @@ Allowed command types map to one owning facade, for example:
 - `payments.refund`, `payments.reconcile`, `payments.replay_webhook`;
 - `identity.suspend`, `identity.reactivate`, `identity.revoke_sessions`;
 - `community.moderate`.
+- `templates.disable_reuse`, `templates.quarantine`, `templates.restore`,
+  `templates.retire`;
+- `assets.quarantine`, `assets.restore`, `assets.replace_presentation`.
 
 The Support command stores an owner operation ID and observes its result. It
 does not emulate the owner mutation.

@@ -31,6 +31,18 @@ export class AdminPolicyService {
     return actor;
   }
 
+  assertCanManageAttributeCatalog(actorContext) {
+    const actor = this.assertCanAccessBackoffice(actorContext);
+    if (actor.role !== 'admin') {
+      throw new RepositoryContractError(
+        'attribute_catalog_mutation_forbidden',
+        'Only admin can change the Attribute Catalog.',
+        403
+      );
+    }
+    return actor;
+  }
+
   requireReason(reason, action = 'This action') {
     const normalized = String(reason || '').trim();
     if (normalized.length < 3) {

@@ -42,6 +42,7 @@ export const router = createBrowserRouter([{
     { path: 'comparisons/:setId', lazy: lazyRoute(() => import('../features/comparisons/routes/ComparisonDetailRoute'), 'ComparisonDetailRoute') },
     { path: 'credits', lazy: lazyRoute(() => import('../features/credits/routes/CreditsRoute'), 'CreditsRoute') },
     { path: 'admin', lazy: lazyRoute(() => import('../features/admin/routes/AdminRoute'), 'AdminRoute') },
+    { path: 'admin/attributes', lazy: lazyRoute(() => import('../features/admin/routes/AdminAttributesRoute'), 'AdminAttributesRoute') },
 
     { path: 'home', element: <LegacyRouteRedirect to={routePaths.explore} /> },
     { path: 'community', element: <LegacyRouteRedirect to={routePaths.explore} /> },

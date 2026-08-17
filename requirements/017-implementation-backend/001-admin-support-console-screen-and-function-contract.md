@@ -17,6 +17,7 @@
 /admin/finance                 reconciliation queues
 /admin/audit                   staff audit search
 /admin/community               existing moderation surface
+/admin/content                 Template and media moderation search
 ```
 
 Routes are hidden and server-protected by capability permission. A hidden link
@@ -34,6 +35,7 @@ admin shell.
 - Trace Lookup
 - Finance (permission-gated)
 - Community (moderator-gated)
+- Content (moderator/admin-gated)
 - Audit (lead/admin-gated)
 
 ## 3. Reuse Matrix
@@ -171,6 +173,33 @@ Every command exposes:
 
 Closing a dialog does not imply completion. Long-running commands remain in the
 case timeline and shared queue state.
+
+## 10.1 Template And Media Search
+
+The Content workspace searches beyond public Community posts. Staff can find:
+
+- Templates in draft, preparing, ready, enabled, disabled, retired,
+  quarantined, failed-preparation and tombstoned states;
+- original generated images, uploaded references, approved derivatives,
+  thumbnails, Character featured images and Template pose proxies;
+- content by stable ID, owner ID/handle, Job ID, post/Template/Character ID,
+  asset ID, checksum, moderation status, visibility, date range and report ID;
+- items that no longer appear in customer lists but still exist for evidence,
+  support recovery or lineage.
+
+Results use bounded metadata and safe thumbnails. Full-resolution or private
+media requires a reasoned reveal action and enhanced Audit. Search must not
+silently exclude disabled or quarantined records when a staff filter requests
+them.
+
+Template rows keep lifecycle, publication, Fashion-ready/preparation and
+moderation status separate. Media rows show original/derivative relationships
+so staff can quarantine the correct scope instead of guessing from a URL.
+
+Available commands are explicit: quarantine, restore, disable new reuse,
+retire, replace featured media and escalate. There is no generic Delete button.
+Every command previews affected posts, Templates, profiles, collections,
+thumbnails and reuse entry points before execution.
 
 ## 11. Responsive And Accessibility
 

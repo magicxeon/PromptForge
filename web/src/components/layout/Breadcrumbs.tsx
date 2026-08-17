@@ -50,6 +50,10 @@ function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
   if (pathname.startsWith(routePaths.libraryCollections)) return [library, { label: t('shell.navigation.items.collections') }];
   if (pathname.startsWith('/comparisons')) return [library, { label: t('shell.navigation.items.comparisons') }];
   if (pathname.startsWith(routePaths.accountCredits)) return [{ label: t('shell.account.credits') }];
+  if (pathname === routePaths.adminAttributes) return [
+    { label: t('shell.navigation.items.admin'), to: routePaths.admin },
+    { label: t('shell.navigation.items.attributes') }
+  ];
   if (pathname.startsWith(routePaths.admin)) return [{ label: t('shell.navigation.items.admin') }];
   return [explore];
 }

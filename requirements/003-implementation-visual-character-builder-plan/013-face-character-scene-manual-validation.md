@@ -195,15 +195,15 @@ Pass when:
 
 ```text
 TC2A Male Face
-Job ID:
-Provider / Model:
-Output path:
-Apparent age:
-Face fidelity: /5
-Hair fidelity: /5
-Clean-shaven default: pass / fail
-Result: pass / conditional pass / fail
-Notes:
+Job ID: job_1786684690343_rpw8e4jjd
+Provider / Model: gemini-3.1-flash-lite-image
+Output path: /outputs/job_1786684690343_rpw8e4jjd.jpg
+Apparent age: 22-23
+Face fidelity: 4/5
+Hair fidelity: 5/5
+Clean-shaven default: pass 
+Result: pass 
+Notes: use custom beauty, Chinese Lead actor, handsome, face structure like Chinese comic male lead charactor ถ้าไม่ใส่ ไม่หล่อเหมือนพระเอก
 ```
 
 ### 2B. Create And Approve Character
@@ -232,17 +232,17 @@ Pass when:
 
 ```text
 TC2B Male Character
-Source Face Job ID:
-Character Job ID:
-Character Profile ID:
-Character Version ID:
-Provider / Model:
-Output path:
-Canonical face present: yes / no
+Source Face Job ID: job_1786684690343_rpw8e4jjd
+Character Job ID:  job_1786685014497_k6bocmq1c
+Character Profile ID: charprof_1786685229618_e6nbhedt
+Character Version ID: first version
+Provider / Model: gemini-3.1-flash-lite-image
+Output path: outputs/job_1786685014497_k6bocmq1c.jpg
+Canonical face present: yes 
 Identity Pack status:
-Identity fidelity: /5
-Anatomy consistency: /5
-Result: pass / conditional pass / fail
+Identity fidelity: 4/5
+Anatomy consistency: 5/5
+Result: pass 
 Notes:
 ```
 
@@ -270,19 +270,19 @@ Pass when:
 
 ```text
 TC2C Male Scene
-Scene Job ID:
-Provider / Model:
-Output path:
-Reference count:
-Canonical face source recorded: yes / no
+Scene Job ID: job_1786685467046_e396xpkvk.
+Provider / Model: gemini-3.1-flash-lite-image
+Output path: /outputs/job_1786685467046_e396xpkvk.jpg
+Reference count:1
+Canonical face source recorded: yes
 Explicit Face override: false
-Identity fidelity: /5
-Age fidelity: /5
-Body fidelity: /5
-Recipe fidelity: /5
-Commercial quality: /5
-Result: pass / conditional pass / fail
-Notes:
+Identity fidelity: 3/5
+Age fidelity: 4/5
+Body fidelity: 5/5
+Recipe fidelity: 5/5
+Commercial quality: 4/5
+Result:  conditional pass
+Notes: หน้าไม่หล่อเหมือนในรูปต้นฉบับ หน้าเกร็งๆ ดูไม่ธรรมชาติ
 ```
 
 ---
@@ -488,67 +488,3 @@ Female Run 1 remains failed. Retest TC1B and TC1C with a new Character version
 created after the correction. Do not reuse
 `charver_1786678978658_8is52ngb` as closure evidence because its immutable
 canonical lineage records the old crop.
-
-### Male Run 1 - 2026-08-14
-
-```text
-TC2A Male Face
-Job ID: job_1786684690343_rpw8e4jjd
-Provider / Model: gemini-3.1-flash-lite-image
-Output path: /outputs/job_1786684690343_rpw8e4jjd.jpg
-Apparent age: 22-23
-Face fidelity: 4/5
-Hair fidelity: 5/5
-Clean-shaven default: pass
-Result: pass (visual), conditional for preset closure
-Notes: Beauty used Custom Write-In "Chinese Lead actor, handsome, face
-       structure like Chinese comic male lead character". The accepted output
-       meets the visual target, but the standard Vertical Drama selections did
-       not reach the same leading-man quality without this custom direction.
-
-TC2B Male Character
-Source Face Job ID: job_1786684690343_rpw8e4jjd
-Character Job ID: job_1786685014497_k6bocmq1c
-Character Profile ID: charprof_1786685229618_e6nbhedt
-Character Version ID: charver_1786685229636_j88fhumh
-Provider / Model: gemini-3.1-flash-lite-image
-Output path: /outputs/job_1786685014497_k6bocmq1c.jpg
-Canonical face present: yes
-Identity Pack status: ready by approved canonical asset contract
-Identity fidelity: 4/5
-Anatomy consistency: 5/5
-Result: pass
-Notes: The approved immutable version records the original Face Job as both
-       canonicalHeadshotAssetId and canonicalFaceAssetId, and records the
-       Character Job as canonicalThreeViewAssetId.
-
-TC2C Male Scene
-Scene Job ID: job_1786685467046_e396xpkvk
-Provider / Model: gemini-3.1-flash-lite-image
-Output path: /outputs/job_1786685467046_e396xpkvk.jpg
-Effective Reference Processing count: 2
-Canonical face source recorded: yes, job_1786684690343_rpw8e4jjd
-Explicit Face override: false
-Identity fidelity: 3/5
-Age fidelity: 4/5
-Body fidelity: 5/5
-Recipe fidelity: 5/5
-Commercial quality: 4/5
-Result: conditional pass
-Notes: The provider plan correctly dispatched character_reference followed by
-       face_reference. The Scene retained age, body and recipe well, but facial
-       identity and natural expression drifted in the full-body walking result;
-       the face looked tenser and less like the accepted Face portrait.
-```
-
-Engineering assessment:
-
-- TC2 does not reproduce the TC1 canonical-lineage defect. The Character
-  version points directly to the trusted Face Creation Job.
-- The Scene history records `referenceCount: 2`, not 1. The role manifest and
-  referenced Job IDs contain both Character and Face authorities.
-- The remaining TC2C issue is provider fidelity under a full-body moving Scene,
-  not a missing canonical face or age instruction.
-- TC2 remains conditional for requirement closure. A clean preset-only Face run
-  and a Scene result with stronger facial identity are still required before
-  marking the male end-to-end case passed without an accepted limitation.

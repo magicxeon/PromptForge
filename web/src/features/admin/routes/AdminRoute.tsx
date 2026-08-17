@@ -16,6 +16,7 @@ import {
   listAuditEvents,
   moderatePost
 } from '../api/adminApi';
+import { AdminNavigation } from '../components/AdminNavigation';
 
 const tabs = ['overview', 'users', 'generations', 'posts', 'audit'] as const;
 
@@ -35,6 +36,7 @@ export function AdminRoute() {
         <span className="text-xs font-bold uppercase text-cyan-300">{t('ui.admin.operation')}</span>
         <h1 className="mb-0 mt-2 text-3xl">{t('ui.admin.title')}</h1>
       </header>
+      <AdminNavigation />
       <nav className="mb-5 flex gap-1 overflow-x-auto border-b border-[var(--mpf-border)]">
         {tabs.map(item => <button key={item} type="button" className={`shrink-0 border-b-2 bg-transparent px-4 py-3 text-sm ${tab === item ? 'border-cyan-400 text-white' : 'border-transparent text-[var(--mpf-text-muted)]'}`} onClick={() => setParams(item === 'overview' ? {} : { tab: item })}>{t(`ui.admin.tab.${item}`)}</button>)}
       </nav>

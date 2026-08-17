@@ -112,12 +112,15 @@
     "metadata": {}
   },
   {
+    "id": "creator_admin_demo",
+    "schemaVersion": 1,
     "userId": "usr_admin",
     "handle": "admin-demo",
     "displayName": "Admin Demo",
     "bio": "",
     "avatarAssetId": null,
     "presentation": {
+      "profileTheme": "default",
       "headline": null,
       "creatorRoles": [],
       "locationText": null,
@@ -138,17 +141,11 @@
     },
     "badgeCodes": [],
     "membershipEnabled": false,
-    "recordVersion": 1,
-    "status": "active",
-    "id": "creator_admin_demo",
-    "schemaVersion": 1,
-    "ownerUserId": null,
-    "ownerUsername": null,
+    "recordVersion": 4,
     "visibility": "public",
+    "status": "active",
     "createdAt": "2026-07-31T14:25:36.637Z",
-    "updatedAt": "2026-07-31T14:25:36.637Z",
-    "deletedAt": null,
-    "metadata": {}
+    "updatedAt": "2026-08-15T12:49:57.274Z"
   },
   {
     "userId": "usr_support",

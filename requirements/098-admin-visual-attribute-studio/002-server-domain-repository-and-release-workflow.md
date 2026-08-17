@@ -1,6 +1,6 @@
 # 002 - Server Domain, Repository and Release Workflow
 
-**Status:** Planned  
+**Status:** Implemented with atomic JSON adapters and immutable releases 2026-08-15
 **Depends on:** 001
 
 ## Objective
@@ -32,6 +32,11 @@ server/app/routes/adminAttributeCatalogRoutes.js
 Paths must resolve through `server/config/paths.js`; JSON writes use the shared
 atomic JSON store. Repository contracts must remain database-migration ready.
 
+Register the route through `server/app/createApp.js`. Reuse
+`server/domain/admin/AdminPolicyService.js` for Admin/Support access and the
+existing Audit repository contract for material events. Do not introduce a
+second role gate, audit store or actor model inside Attribute Catalog.
+
 ## Application Use Cases
 
 - list/search catalog definitions with pagination
@@ -45,6 +50,11 @@ atomic JSON store. Repository contracts must remain database-migration ready.
 - retire an option with replacement policy
 - compare releases and rollback active release
 - compile the public runtime bundle
+
+The compiled bundle must preserve the current `schema`, `templates`, `order`,
+`library`, `presets`, optional `scenePoseRecipes` and `inputPolicy` shape while
+adding release provenance additively. Scene recipes and Generation input policy
+remain owned by their current configuration/domain owners.
 
 ## Authorization
 
@@ -70,6 +80,9 @@ trusted. Material changes emit Audit events and correlation IDs.
 Use `/api/admin/attribute-catalog/...` for Admin contracts and preserve
 `/api/attributes/bundle` as the public read contract during migration.
 
+The first server slice is read-only inventory and shadow compilation. Mutation
+routes remain disabled until catalog parity and Admin authorization tests pass.
+
 Responses require Zod-owned client schemas, stable error codes, pagination and
 safe support references. Do not return private generation prompts or raw assets
 to unauthorized users.
@@ -82,4 +95,3 @@ to unauthorized users.
 - Failed publication leaves the active release unchanged.
 - Rollback and cache invalidation are covered by integration tests.
 - Public bundle output is deterministic for the same release.
-

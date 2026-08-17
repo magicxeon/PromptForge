@@ -1,6 +1,6 @@
 # 005 - Compatibility, Prompt and Safety Validation
 
-**Status:** Planned  
+**Status:** Baseline and publication validation implemented; advanced rule-graph authoring remains deferred
 **Depends on:** 001-004, Reference Processing and Generation compiler
 
 ## Objective
@@ -33,6 +33,18 @@ Validate at least:
 - Custom hair color disables preset base/highlight controls as specified.
 - Custom garment tone pair supersedes preset garment colors without suppressing
   pattern, material or surface.
+
+Current parity fixtures must also protect:
+
+- `studioModePolicy.ts` mode exposure and Character-reference field behavior;
+- `referenceAuthorityPolicy.ts` client reconciliation and
+  `ReferenceAuthorityPlanner.js` server authority;
+- presentation-tag filtering, adult Facial Hair visibility and gender-specific
+  Outfit Base/Body manifest variants;
+- semantic Age ordering versus alphabetical ordinary-option ordering;
+- the server custom Attribute limits and stale-selection reconciliation; and
+- Simple Scene recipe ownership from `scene-pose-recipes.json` without turning
+  recipes into editable Attribute options.
 
 ## Prompt Validation
 
@@ -71,4 +83,3 @@ recommended correction. Never expose raw internal errors to customers.
 - Client visibility and server enforcement produce equivalent outcomes.
 - Prompt parity is proven before and after catalog migration.
 - Validation output is useful without reading source code.
-

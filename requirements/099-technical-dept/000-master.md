@@ -119,7 +119,7 @@ Server placement rules:
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | React navigation metadata | `web/src/app/routeRegistry/` |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
-| Admin Attribute authoring and catalog operations | `web/src/features/admin/attributes/` |
+| Admin Attribute authoring shell (UI reset pending) | `web/src/features/admin/components/AdminNavigation.tsx`, `web/src/features/admin/routes/AdminAttributesRoute.tsx`; future API/schema modules return under `web/src/features/admin/` only with the accepted mockup implementation |
 | Template serialization and client contracts | `web/src/features/templates/` |
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |

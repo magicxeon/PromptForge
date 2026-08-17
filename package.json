@@ -13,6 +13,7 @@
     "dev:web": "npm run dev --workspace web",
     "build:web": "npm run build --workspace web",
     "performance:bundle-budget": "node scripts/measure-react-build-budget.mjs",
+    "attributes:audit": "node scripts/audit-attribute-catalog.js",
     "test:web": "npm run test --workspace web",
     "test:web:e2e": "npm run test:e2e --workspace web",
     "lint:web": "npm run lint --workspace web",

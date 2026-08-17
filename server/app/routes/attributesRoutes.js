@@ -1,36 +1,10 @@
 import fs from 'fs/promises';
+import crypto from 'node:crypto';
 import zlib from 'zlib';
 import path from 'path';
 import { PROJECT_ROOT } from '../../config/paths.js';
 import { getPublicGenerationInputPolicy } from '../../config/generationInputPolicy.js';
-
-const ATTRIBUTE_FILES = [
-  '001-character.json',
-  '002-face.json',
-  '003-eyes.json',
-  '004-eyebrows.json',
-  '005-nose.json',
-  '006-lips.json',
-  '007-skin.json',
-  '008-hair.json',
-  '009-body.json',
-  '010-clothing.json',
-  '011-pose.json',
-  '012-environment.json',
-  '013-lighting.json',
-  '014-camera.json',
-  '015-quality.json',
-  '016-nsfw.json',
-  '017-photographic-context.json',
-  '018-scene-story.json',
-  '019-expression.json',
-  '020-camera-framing.json',
-  '021-accessories.json',
-  '022-hair-extra.json',
-  '023-architecture.json',
-  '024-fashion-commerce.json',
-  '025-facial-hair.json'
-];
+import { ATTRIBUTE_SOURCE_FILES } from '../../config/attributeCatalogSource.js';
 
 export function createAttributesBundleLoader() {
   let cachedAttributesBundle = null;
@@ -62,7 +36,7 @@ export function createAttributesBundleLoader() {
       const scenePoseRecipes = validateScenePoseRecipes(JSON.parse(scenePoseRecipesRaw));
 
       const library = [];
-      for (const file of ATTRIBUTE_FILES) {
+      for (const file of ATTRIBUTE_SOURCE_FILES) {
         try {
           const fileContent = await fs.readFile(path.join(attributesDir, file), 'utf-8');
           const fileData = JSON.parse(fileContent);
@@ -171,15 +145,28 @@ function validateScenePoseRecipes(catalog) {
   return catalog;
 }
 
-export function registerAttributesRoutes(app, { providerRegistry, getAttributesBundle }) {
+export function registerAttributesRoutes(app, {
+  providerRegistry,
+  getAttributesBundle,
+  getRuntimeAttributesBundle = null
+}) {
   app.get('/api/providers', (req, res) => {
     res.json(providerRegistry.getPublicCatalog());
   });
 
   app.get('/api/attributes/bundle', async (req, res) => {
     try {
-      const bundle = await getAttributesBundle();
+      const runtime = getRuntimeAttributesBundle
+        ? await getRuntimeAttributesBundle()
+        : { bundle: await getAttributesBundle(), source: 'legacy', releaseId: null };
+      const bundle = runtime.bundle;
       const jsonStr = JSON.stringify(bundle);
+      const etag = `"attr-${createResponseFingerprint(jsonStr)}"`;
+      res.setHeader('ETag', etag);
+      res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
+      res.setHeader('X-MPF-Attribute-Source', runtime.source);
+      if (runtime.releaseId) res.setHeader('X-MPF-Attribute-Release', runtime.releaseId);
+      if (req.headers['if-none-match'] === etag) return res.status(304).end();
 
       const acceptEncoding = req.headers['accept-encoding'] || '';
       if (acceptEncoding.includes('gzip')) {
@@ -190,7 +177,11 @@ export function registerAttributesRoutes(app, { providerRegistry, getAttributesB
           }
           res.writeHead(200, {
             'Content-Type': 'application/json',
-            'Content-Encoding': 'gzip'
+            'Content-Encoding': 'gzip',
+            'ETag': etag,
+            'Cache-Control': 'private, max-age=0, must-revalidate',
+            'X-MPF-Attribute-Source': runtime.source,
+            ...(runtime.releaseId ? { 'X-MPF-Attribute-Release': runtime.releaseId } : {})
           });
           res.end(buffer);
         });
@@ -201,4 +192,8 @@ export function registerAttributesRoutes(app, { providerRegistry, getAttributesB
       res.status(500).json({ error: `Failed to load attributes: ${err.message}` });
     }
   });
+}
+
+function createResponseFingerprint(value) {
+  return crypto.createHash('sha256').update(value).digest('base64url').slice(0, 32);
 }

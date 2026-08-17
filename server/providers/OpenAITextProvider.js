@@ -43,6 +43,67 @@ export class OpenAITextProvider {
     maxOutputTokens,
     timeoutMs
   }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: SYSTEM_INSTRUCTION,
+      input: { canonicalPrompt: prompt, executionContext: context },
+      reasoningEffort,
+      schemaName: 'momelo_prompt_refinement',
+      schema: REFINEMENT_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'prompt_refinement'
+    });
+    const parsed = parseStructuredOutput(payload);
+    return { ...parsed, responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async localizeAttribute({ englishLabel, locales, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const localeCodes = [...new Set((locales || []).map(value => String(value || '').trim()).filter(Boolean))];
+    const schema = {
+      type: 'object',
+      additionalProperties: false,
+      required: localeCodes,
+      properties: Object.fromEntries(localeCodes.map(locale => [locale, { type: 'string' }]))
+    };
+    const payload = await this.requestStructured({
+      model,
+      instructions: [
+        'You localize concise Momelo visual-attribute labels for professional creative software.',
+        'Translate the English label faithfully and naturally for each requested locale.',
+        'Keep product names and technical fashion meaning precise. Do not add explanations.',
+        'Return only the requested structured result.'
+      ].join(' '),
+      input: { englishLabel, locales: localeCodes },
+      reasoningEffort,
+      schemaName: 'momelo_attribute_localization',
+      schema,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'attribute_localization'
+    });
+    const translations = parseJsonOutput(payload, 'attribute_localization');
+    if (localeCodes.some(locale => typeof translations[locale] !== 'string' || !translations[locale].trim())) {
+      throw createProviderError('attribute_localization_invalid_response', 'Attribute localization response is incomplete.');
+    }
+    return {
+      translations: Object.fromEntries(localeCodes.map(locale => [locale, translations[locale].trim()])),
+      responseId: payload?.id || null,
+      usage: payload?.usage || null
+    };
+  }
+
+  async requestStructured({
+    model,
+    instructions,
+    input,
+    reasoningEffort,
+    schemaName,
+    schema,
+    maxOutputTokens,
+    timeoutMs,
+    errorPrefix
+  }) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -55,16 +116,11 @@ export class OpenAITextProvider {
         body: JSON.stringify({
           model,
           store: false,
-          instructions: SYSTEM_INSTRUCTION,
-          input: JSON.stringify({ canonicalPrompt: prompt, executionContext: context }),
+          instructions,
+          input: JSON.stringify(input),
           reasoning: { effort: reasoningEffort },
           text: {
-            format: {
-              type: 'json_schema',
-              name: 'momelo_prompt_refinement',
-              strict: true,
-              schema: REFINEMENT_SCHEMA
-            },
+            format: { type: 'json_schema', name: schemaName, strict: true, schema },
             verbosity: 'low'
           },
           max_output_tokens: maxOutputTokens
@@ -74,25 +130,23 @@ export class OpenAITextProvider {
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
         const error = createProviderError(
-          'prompt_refinement_provider_error',
+          `${errorPrefix}_provider_error`,
           payload?.error?.message || `OpenAI Responses API returned HTTP ${response.status}.`
         );
         error.status = response.status;
         error.requestId = response.headers?.get?.('x-request-id') || null;
         throw error;
       }
-      const parsed = parseStructuredOutput(payload);
-      return {
-        ...parsed,
-        responseId: payload?.id || null,
-        usage: payload?.usage || null
-      };
+      return payload;
     } catch (error) {
       if (error?.name === 'AbortError') {
-        throw createProviderError('prompt_refinement_timeout', 'Prompt refinement timed out.');
+        throw createProviderError(`${errorPrefix}_timeout`, `${humanizeErrorPrefix(errorPrefix)} timed out.`);
       }
       if (error?.code) throw error;
-      throw createProviderError('prompt_refinement_transport_error', error?.message || 'Prompt refinement failed.');
+      throw createProviderError(
+        `${errorPrefix}_transport_error`,
+        error?.message || `${humanizeErrorPrefix(errorPrefix)} failed.`
+      );
     } finally {
       clearTimeout(timeout);
     }
@@ -100,20 +154,7 @@ export class OpenAITextProvider {
 }
 
 function parseStructuredOutput(payload) {
-  const raw = typeof payload?.output_text === 'string'
-    ? payload.output_text
-    : payload?.output
-      ?.flatMap(item => Array.isArray(item?.content) ? item.content : [])
-      .find(item => item?.type === 'output_text')?.text;
-  if (!raw) {
-    throw createProviderError('prompt_refinement_empty_response', 'Prompt refinement returned no structured output.');
-  }
-  let value;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    throw createProviderError('prompt_refinement_invalid_response', 'Prompt refinement returned invalid JSON.');
-  }
+  const value = parseJsonOutput(payload, 'prompt_refinement');
   if (
     !value
     || typeof value.refinedPrompt !== 'string'
@@ -126,6 +167,26 @@ function parseStructuredOutput(payload) {
     throw createProviderError('prompt_refinement_invalid_response', 'Prompt refinement response does not match its schema.');
   }
   return value;
+}
+
+function parseJsonOutput(payload, errorPrefix) {
+  const raw = typeof payload?.output_text === 'string'
+    ? payload.output_text
+    : payload?.output
+      ?.flatMap(item => Array.isArray(item?.content) ? item.content : [])
+      .find(item => item?.type === 'output_text')?.text;
+  if (!raw) {
+    throw createProviderError(`${errorPrefix}_empty_response`, `${humanizeErrorPrefix(errorPrefix)} returned no structured output.`);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw createProviderError(`${errorPrefix}_invalid_response`, `${humanizeErrorPrefix(errorPrefix)} returned invalid JSON.`);
+  }
+}
+
+function humanizeErrorPrefix(value) {
+  return String(value || '').replaceAll('_', ' ').replace(/^./, character => character.toUpperCase());
 }
 
 function createProviderError(code, message) {

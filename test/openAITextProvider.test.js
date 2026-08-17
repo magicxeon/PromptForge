@@ -47,3 +47,31 @@ test('OpenAI text provider sends a non-stored structured Responses API request',
   assert.equal(result.refinedPrompt, 'Refined prompt (Image aspect ratio 6:8)');
   assert.equal(result.responseId, 'resp_123');
 });
+
+test('OpenAI text provider localizes Attribute labels with a strict locale schema', async () => {
+  let request = null;
+  const provider = new OpenAITextProvider('test-key', {
+    endpoint: 'https://example.test/responses',
+    fetchImpl: async (url, options) => {
+      request = { url, body: JSON.parse(options.body) };
+      return {
+        ok: true,
+        headers: { get: () => 'req_locale' },
+        json: async () => ({ id: 'resp_locale', output_text: JSON.stringify({ th: 'เสื้อโค้ตเอดิทอเรียล' }) })
+      };
+    }
+  });
+
+  const result = await provider.localizeAttribute({
+    englishLabel: 'Editorial Coat',
+    locales: ['th'],
+    model: 'gpt-5.6-luna',
+    reasoningEffort: 'low',
+    maxOutputTokens: 300,
+    timeoutMs: 1_000
+  });
+
+  assert.deepEqual(request.body.text.format.schema.required, ['th']);
+  assert.deepEqual(result.translations, { th: 'เสื้อโค้ตเอดิทอเรียล' });
+  assert.equal(result.responseId, 'resp_locale');
+});

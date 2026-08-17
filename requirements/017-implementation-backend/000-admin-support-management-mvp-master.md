@@ -41,6 +41,7 @@ it does not create alternate Credit, Generation or moderation implementations.
   commands;
 - user status/session controls;
 - Community moderation handoff;
+- cross-status Template and media discovery, quarantine and restoration;
 - audit, two-person approval for high-risk actions and reports;
 - queues for unresolved financial, orphaned Job and provider incidents.
 
@@ -63,7 +64,9 @@ it does not create alternate Credit, Generation or moderation implementations.
 | Generation | Job diagnosis/recovery/cancellation | executes operation commands |
 | Credits | accounts, reservations, ledger, adjustments | executes Credit commands |
 | Payments | checkout, payment, refund/reconciliation | executes money commands |
-| Community | moderation and public content | executes moderation commands |
+| Community | public-post moderation and visibility | executes post moderation commands |
+| Templates | Template lifecycle, versions and reuse eligibility | executes disable/restore commands |
+| Assets | originals, derivatives, lineage and media quarantine | executes media moderation commands |
 | Audit | append-only staff action evidence | records all material access/action |
 
 Support may coordinate a case command through public facades. It may not mutate
@@ -118,6 +121,7 @@ Every transition records actor, reason, timestamp and expected case version.
 - `001-admin-support-console-screen-and-function-contract.md`
 - `002-admin-support-backend-api-and-data-contract.md`
 - `003-admin-support-financial-security-and-validation.md`
+- `004-template-content-and-media-moderation.md`
 
 Commercial recovery policy remains under Requirement 018. This set defines the
 staff product and Support orchestration boundary.

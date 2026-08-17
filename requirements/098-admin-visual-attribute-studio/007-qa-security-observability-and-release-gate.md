@@ -1,6 +1,6 @@
 # 007 - QA, Security, Observability and Release Gate
 
-**Status:** Planned  
+**Status:** Automated core gate implemented; manual visual and browser gate remains
 **Depends on:** 001-006
 
 ## Objective
@@ -28,6 +28,8 @@ guided generation workflow.
 - visual candidate and lifecycle state tests
 - nested dialog layering tests
 - i18n catalog parity
+- shared Visual Option component regression tests proving existing Face,
+  Character Sheet and Scene visual cards do not disappear
 
 ### End-to-End
 
@@ -39,6 +41,8 @@ guided generation workflow.
 6. Generate an image and verify prompt/release lineage.
 7. Disable the option and verify saved-work compatibility.
 8. Roll back the release and verify recovery.
+9. Switch between Admin and Support and verify mutation controls and server
+   enforcement remain role-correct.
 
 ## Security
 
@@ -92,4 +96,6 @@ retention to rejected candidates and raw provider output.
 - Rollback drill succeeds before broad Admin access.
 - Requirement is not marked complete while any production workflow still reads
   an unexplained duplicate source of truth.
-
+- Existing Visual Character assets, gender variants, Age ordering, custom-input
+  limits and customer picker behavior remain in the protected regression
+  checklist throughout every vertical slice.

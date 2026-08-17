@@ -22,6 +22,7 @@ import { registerHistoryRoutes } from './routes/historyRoutes.js';
 import { registerComparisonRoutes } from './routes/comparisonRoutes.js';
 import { registerSceneTemplateRoutes } from './routes/sceneTemplateRoutes.js';
 import { registerAdminRoutes } from './routes/adminRoutes.js';
+import { registerAdminAttributeCatalogRoutes } from './routes/adminAttributeCatalogRoutes.js';
 import { registerPromptComposerRoutes } from './routes/promptComposerRoutes.js';
 import { registerCommunityTaxonomyRoutes } from './routes/communityTaxonomyRoutes.js';
 import { registerCommunityShareRoutes } from './routes/communityShareRoutes.js';
@@ -59,6 +60,7 @@ import { registerTemplateRoutes } from './routes/templateRoutes.js';
 import { TemplatePoseProxyService } from '../domain/template-pose-proxy/TemplatePoseProxyService.js';
 import { GenerationApplicationService } from '../domain/generation/GenerationApplicationService.js';
 import { requestPerformanceMiddleware } from '../middleware/requestPerformanceMiddleware.js';
+import { AttributeCatalogApplicationService } from '../domain/attribute-catalog/AttributeCatalogApplicationService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -106,6 +108,10 @@ export function createApp() {
     comparisonOrchestrator
   });
   const getAttributesBundle = createAttributesBundleLoader();
+  const attributeCatalogApplicationService = new AttributeCatalogApplicationService({
+    generationService: generationApplicationService,
+    legacyBundleLoader: getAttributesBundle
+  });
 
   creditApplicationService.reconcileStartupOrphanReservations().catch(err => {
     console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
@@ -147,7 +153,11 @@ export function createApp() {
     resolveRequestUsername
   };
 
-  registerAttributesRoutes(app, { providerRegistry, getAttributesBundle });
+  registerAttributesRoutes(app, {
+    providerRegistry,
+    getAttributesBundle,
+    getRuntimeAttributesBundle: () => attributeCatalogApplicationService.resolvePublicRuntimeBundle()
+  });
   registerPromptComposerRoutes(app, { getAttributesBundle });
   registerIdentityRoutes(app, {
     mockUserRepo,
@@ -168,6 +178,7 @@ export function createApp() {
     communityFeaturePolicyService,
     adjustmentService: creditApplicationService
   });
+  registerAdminAttributeCatalogRoutes(app, { catalogService: attributeCatalogApplicationService });
   registerCommunityTaxonomyRoutes(app, {
     communityClassificationService,
     communityFeaturePolicyService

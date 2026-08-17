@@ -94,6 +94,12 @@ Required suites:
 8. user suspension and session revocation;
 9. large compensation requiring a second approver;
 10. reopened Case after failed recovery.
+11. locate a disabled Template that is absent from public search and restore it;
+12. quarantine an inappropriate original image and verify all public
+    derivatives, featured placements and reuse entry points stop serving it;
+13. search by Job ID/checksum and trace an image through Asset, post, Template,
+    Character and Collection usage without revealing another customer's raw
+    media to an unauthorized staff role.
 
 For each record Case ID, support reference, linked entity IDs, dry-run,
 approvals, command ID, audit ID, financial before/after and reconciliation.

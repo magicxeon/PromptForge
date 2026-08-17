@@ -438,5 +438,59 @@
     "actorRole": "creator",
     "requestId": null,
     "ipHash": null
+  },
+  {
+    "action": "attribute_catalog.draft_created",
+    "targetType": "attribute_catalog",
+    "targetId": "attrdraft_1786789838881_khagz2vm",
+    "reason": null,
+    "requestId": "req_1786789838854_uohvnzn",
+    "afterSnapshot": {
+      "id": "attrdraft_1786789838881_khagz2vm",
+      "status": "draft",
+      "revision": 1,
+      "sourceDraftId": null
+    },
+    "id": "audit_1786789838895_xi7zvas2",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-15T10:30:38.895Z",
+    "updatedAt": "2026-08-15T10:30:38.895Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_admin",
+    "actorRole": "admin",
+    "beforeSnapshot": null,
+    "ipHash": null
+  },
+  {
+    "action": "attribute_catalog.draft_created",
+    "targetType": "attribute_catalog",
+    "targetId": "attrdraft_1786805379933_bkos06ui",
+    "reason": null,
+    "requestId": "req_1786805379904_zgl4tza",
+    "afterSnapshot": {
+      "id": "attrdraft_1786805379933_bkos06ui",
+      "status": "draft",
+      "revision": 1,
+      "sourceDraftId": null
+    },
+    "id": "audit_1786805379954_muqllo95",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "visibility": "admin_only",
+    "status": "active",
+    "createdAt": "2026-08-15T14:49:39.954Z",
+    "updatedAt": "2026-08-15T14:49:39.954Z",
+    "deletedAt": null,
+    "metadata": {},
+    "actorUserId": "usr_admin",
+    "actorRole": "admin",
+    "beforeSnapshot": null,
+    "ipHash": null
   }
 ]

@@ -47,6 +47,7 @@
   "shell.navigation.items.collections": "Collections",
   "shell.navigation.items.characters": "Characters",
   "shell.navigation.items.admin": "Admin",
+  "shell.navigation.items.attributes": "Attributes",
   "shell.navigation.descriptions.home": "Discover community work",
   "shell.navigation.descriptions.studio": "Guided character and scene creation",
   "shell.navigation.descriptions.headshotGrid": "Start with guided controls",
