@@ -113,8 +113,10 @@ change.
 | Results | Generation result presentation plus media adapter | Normalize status/actions; video transport stays in media component |
 | Viewer | authenticated media stage/viewer | Add video poster/playback variant without duplicating authorization |
 | Async/status | `AsyncState`, `StatusNotice`, `ToastViewport` | Reuse severity, focus and notification behavior |
-| Character/outfit | current Character cards and reference pickers | Add role/continuity context around existing selection contracts |
+| Character/outfit | current Character cards and reference pickers | Add project-local `CharacterDossierCard` and Character-owned `WardrobeLookEditor`; never add an unassigned Project upload store |
 | Credits | current estimate flow and `CreditExhaustedDialog` | Add shared quote summary if extraction is necessary; server remains calculator |
+| Contextual operation | shared Generation command/quote/progress primitives | Compose text, analysis, image, video and export docks through typed operation adapters |
+| Project spend | Credits-owned ledger projection | Shared compact `ProjectCostSummary`; no client running total |
 | Theme | current `ThemeProvider` and semantic tokens | Consume resolved theme; no Cinematic theme preference |
 
 ### 4.2 Extraction rule
@@ -128,7 +130,31 @@ Do not force storyboards or timelines into `GenerationExperience`. They are
 Cinematic concepts. Reuse the Generation command/result building blocks inside
 the Cinematic production stage instead.
 
-## 5. Video Generation Panel Contract
+## 5. Contextual Operation And Video Panel Contract
+
+The permanent workspace element is the compact `ProjectCostSummary`, not an
+Engine panel. It shows captured, reserved, next-estimate, refunded and net
+Project Credits and opens an authorized grouped breakdown.
+
+An operation dock is mounted only where a billable action exists:
+
+```text
+operation intent and output
+-> source/version summary
+-> routing or provider/model controls when supported
+-> exact Credit quote and balance state
+-> explicit confirm action
+-> Queue/progress/error/refund
+-> result or proposal review
+```
+
+Text enhancement, wardrobe analysis and Story planning reuse quote/progress
+primitives but do not present video-specific duration/resolution controls. The
+yellow shared Generation shell is reserved for media-generation operations or
+another action-dominant surface approved by UX; it is absent from passive Setup
+and browsing states.
+
+### 5.1 Video Generation panel
 
 The panel follows the existing image Generation mental model:
 
@@ -148,10 +174,59 @@ Engine & Target Output
   previous selection becomes unavailable.
 - Changing a cost-bearing field invalidates the quote and disables submission
   until the estimate refreshes.
+
+For Storyboard and Produce, the operation dock is the sticky right command
+group rather than a detached price card. It composes scope, supported provider
+controls, exact quote and the primary action, then targets the selected result
+in the center editor. Prompt authoring remains in the center lane beside its
+media and direction context. Reuse `GenerationStageState` for the Momelo empty
+state and shared amber loading treatment; reuse the current result grid/viewer
+or a typed video adapter instead of creating Cinematic-only loaders.
+
+The Storyboard board, Scene navigator and focused Shot editor are Cinematic
+feature components. Their stable component contract accepts Scene totals,
+ordered Shot summaries, selected Shot ID and move/select callbacks. Do not put
+generation, Credit or repository behavior inside visual board cards.
+
+The board and focused editor share a feature-owned navigation contract rather
+than querying DOM selectors ad hoc. It exposes stable Scene/Shot anchor IDs,
+`focusSelectedShotEditor`, `focusStoryboardCard` and a bounded scroll-return
+record. The contract performs focus after navigation, respects reduced motion
+and remains independent from generation and persistence commands.
+
+Produce receives an authorized approved-Storyboard source DTO containing Shot
+ID, Asset ID, immutable Asset Version ID, approval state, thumbnail/media
+presentation and source status. The UI never reconstructs source authority from
+URLs or latest-attempt ordering. `Edit storyboard source` routes with Scene and
+Shot IDs plus a return target; source replacement and stale propagation remain
+server-owned Cinematic commands.
+
+The feature owns only selection and presentation state for `Selected Shot` and
+`All eligible Shots`. Generation owns the group/child lifecycle and Credits
+owns aggregate and per-child quote truth. Accepted submission triggers
+`scrollIntoView` and moves programmatic focus to the result status heading;
+client validation and quote failures retain focus in the command group.
 - The primary action, loader, Queue and result state use the same placement,
   theme tokens and terminology as image Studio.
 - Multi-Shot submission presents one Project total and inspectable child Shot
   costs without hiding partial settlement.
+- Provider/model preference inherits Project default, then optional Scene
+  override, then optional Shot override. Capability reconciliation removes an
+  invalid inherited selection and requires a fresh quote.
+
+### 5.2 Shared presentation ownership
+
+Preferred reusable contracts:
+
+- `OperationQuotePanel`: normalized intent, inputs, breakdown, expiry, consent;
+- `OperationProgressPanel`: queued/processing/terminal/recovery state;
+- `ProjectCostSummary`: Credits-owned Project projection and drill-down;
+- Cinematic `SceneDirectorDialog`, `ShotWorkspace`, `AttemptHistory` and
+  timeline remain feature-owned compositions around shared primitives.
+
+These names are design contracts, not permission to create files before
+searching current owners. Implementation may extend an existing equivalent
+instead of adding another component.
 
 ## 6. Client State Ownership
 
@@ -160,8 +235,10 @@ Engine & Target Output
 | Current Project/Story/Shot committed data | server + TanStack Query | No canonical local copy |
 | Uncommitted Setup/story/inspector draft | Cinematic route state | Versioned actor-scoped local draft |
 | Expanded panels, selected Shot/filter, scroll-return target | Cinematic UI | Actor-scoped local preference, bounded |
+| Approved Storyboard source and downstream stale status | Cinematic server | Query cache only; IDs/fingerprints retained in committed records |
 | Provider/model/quality preference | existing Generation preference owner or Cinematic operation preference | Actor-scoped; capability-reconciled on read |
 | Accepted quote, reservation, balance | Credits server | Never authoritative in local storage |
+| Project cost summary | Credits server projection | Query cache only; no browser accumulator |
 | Job/Group/provider task status | Generation server | Never authoritative in local storage |
 | Media | Assets | IDs only; no Base64 or signed URL retention |
 
@@ -180,6 +257,9 @@ fall back safely without blocking the server project.
 - Desktop uses stage rail + workspace + inspector. Mobile uses one column and a
   drawer/sheet inspector without hiding the primary action.
 - Focus moves after explicit stage/Shot navigation, not every state refresh.
+- Storyboard/editor anchors and cross-stage source correction move focus to a
+  semantic heading, restore the selected Shot and provide an equivalent normal-
+  flow layout on mobile; sticky panels never obscure the anchor target.
 - Queue/progress announcements use `aria-live`; reduced motion suppresses
   decorative animation without hiding status.
 

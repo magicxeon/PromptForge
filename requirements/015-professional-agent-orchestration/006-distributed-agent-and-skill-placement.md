@@ -67,6 +67,7 @@ requirements/009-migration-to-react/
 requirements/016-cinematic-studio/
   roles/
     cinematic-experience-director.md
+    generative-cinematic-production-director.md
 
 requirements/017-implementation-backend/
   roles/
@@ -88,6 +89,7 @@ discovery location:
 ```text
 .agents/skills/
   design-cinematic-experience/
+  direct-generative-cinematic-production/
   review-commercial-integrity/
   review-generative-media-pipeline/
   review-product-ux/

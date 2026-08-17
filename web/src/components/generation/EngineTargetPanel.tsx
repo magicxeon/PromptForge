@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import { ComparisonConfigurator } from '../comparisons/ComparisonConfigurator';
+import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
 
 const ratioLabels: Record<string, string> = {
   '6:8': '6:8 Portrait',
@@ -80,24 +81,17 @@ export function EngineTargetPanel({
   }
 
   return (
-    <section
-      id="generation-engine"
-      className={`engine-target-panel${studioLayout ? ' engine-target-panel--studio' : ''}`}
+    <EngineTargetPanelFrame
+      studioLayout={studioLayout}
+      title={t('playground.section.engine')}
+      description={t('playground.engine.help')}
+      badge={studioLayout ? (
+        <span className="studio-step-badge">
+          {tUi('ui.studio.stepLabel')} 2
+        </span>
+      ) : null}
+      action={allowComparison ? <Button className={`engine-comparison-toggle btn-compare-models${comparison ? ' active is-active' : ''}`} variant="secondary" icon={<Columns3 className="size-4" />} onClick={() => onComparisonChange(!comparison)}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null}
     >
-      <div className="engine-target-panel__heading">
-        <div className="engine-target-panel__title">
-          {studioLayout ? (
-            <span className="studio-step-badge">
-              {tUi('ui.studio.stepLabel')} 2
-            </span>
-          ) : null}
-          <div>
-            <h2>{t('playground.section.engine')}</h2>
-            <p>{t('playground.engine.help')}</p>
-          </div>
-        </div>
-        {allowComparison ? <Button className={`engine-comparison-toggle btn-compare-models${comparison ? ' active is-active' : ''}`} variant="secondary" icon={<Columns3 className="size-4" />} onClick={() => onComparisonChange(!comparison)}>{t('playground.action.compare')}{comparison ? ` ${comparisonSlots.length}/4` : ''}</Button> : null}
-      </div>
       <div className="engine-target-panel__controls">
         {!comparison ? (
           <div className="engine-target-panel__model-grid">
@@ -194,7 +188,7 @@ export function EngineTargetPanel({
           </button>
         </div>
       ) : null}
-    </section>
+    </EngineTargetPanelFrame>
   );
 }
 

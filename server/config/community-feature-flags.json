@@ -16,5 +16,8 @@
   },
   "routing": {
     "automaticSimpleModeEnabled": false
+  },
+  "cinematic": {
+    "enabled": true
   }
 }

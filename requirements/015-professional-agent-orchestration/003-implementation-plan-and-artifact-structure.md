@@ -19,6 +19,7 @@ Target structure:
 AGENTS.md                                      automatic repository router
 .agents/skills/                                repository-wide Skill discovery
   design-cinematic-experience/
+  direct-generative-cinematic-production/
   review-commercial-integrity/
   review-generative-media-pipeline/
   review-product-ux/
@@ -45,6 +46,7 @@ requirements/009-migration-to-react/roles/
 requirements/016-cinematic-studio/
   AGENTS.md
   roles/cinematic-experience-director.md
+  roles/generative-cinematic-production-director.md
 requirements/017-implementation-backend/
   AGENTS.md
   roles/backend-platform-architect.md

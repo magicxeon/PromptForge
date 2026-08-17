@@ -60,6 +60,7 @@ function renderNavigation({
           studioOpen
           communityEnabled
           charactersEnabled
+          cinematicEnabled
           onToggleCollapsed={vi.fn()}
           onToggleStudio={onToggleStudio}
           onNavigate={vi.fn()}

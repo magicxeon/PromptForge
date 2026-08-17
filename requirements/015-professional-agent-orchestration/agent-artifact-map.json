@@ -38,6 +38,15 @@
       "status": "active"
     },
     {
+      "id": "generative-cinematic-production-director",
+      "kind": "role",
+      "owner": "cinematic-studio",
+      "canonicalPath": "requirements/016-cinematic-studio/roles/generative-cinematic-production-director.md",
+      "discoveryPath": null,
+      "scope": "domain",
+      "status": "active"
+    },
+    {
       "id": "backend-platform-architect",
       "kind": "role",
       "owner": "backend-platform",
@@ -61,6 +70,15 @@
       "owner": "cinematic-studio",
       "canonicalPath": ".agents/skills/design-cinematic-experience/SKILL.md",
       "discoveryPath": ".agents/skills/design-cinematic-experience/SKILL.md",
+      "scope": "repository",
+      "status": "active"
+    },
+    {
+      "id": "direct-generative-cinematic-production",
+      "kind": "skill",
+      "owner": "cinematic-studio",
+      "canonicalPath": ".agents/skills/direct-generative-cinematic-production/SKILL.md",
+      "discoveryPath": ".agents/skills/direct-generative-cinematic-production/SKILL.md",
       "scope": "repository",
       "status": "active"
     },

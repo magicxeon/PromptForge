@@ -27,6 +27,10 @@ function flags(overrides = {}) {
     routing: {
       automaticSimpleModeEnabled: false,
       ...(overrides.routing || {})
+    },
+    cinematic: {
+      enabled: true,
+      ...(overrides.cinematic || {})
     }
   };
 }
@@ -63,6 +67,7 @@ test('community feature policy validates dependencies and rejects disabled acces
   });
   assert.equal(await policy.isEnabled('community.shareEnabled'), true);
   assert.equal(await policy.isEnabled('community.exploreEnabled'), false);
+  assert.equal(await policy.isEnabled('cinematic.enabled'), true);
   await assert.rejects(
     () => policy.assertEnabled('community.exploreEnabled'),
     error => error.code === 'community_feature_disabled' && error.statusCode === 404

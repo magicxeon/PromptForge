@@ -35,6 +35,7 @@ must not assume every role and Skill lives under this requirement folder.
 | New feature or changed cross-screen flow | Product And Requirement Architect | UX for user-facing work; Backend for new server capability |
 | Layout, interaction, navigation, theme, accessibility | UX/UI Product Designer | QA when shared or substantial |
 | Film, shot, sequence, continuity, motion or audio | Cinematic Experience Director | Generative Media Pipeline; UX for authoring UI |
+| Approved Shot to AI video attempt, temporal prompt or drift diagnosis | Generative Cinematic Production Director | Cinematic Experience Director for intent; Generative Media Pipeline for qualification |
 | API/domain/repository/database/job/infrastructure | Backend Platform Architect | QA; Security or Performance when triggered |
 | Credits, pricing, payment, payout, refund, ledger, recovery | Commercial Operations And Financial Integrity | Backend plus QA; security review mandatory |
 | Prompt/reference/provider qualification or visual consistency | Generative Media Pipeline Skill with owning domain primary | QA for qualification evidence |

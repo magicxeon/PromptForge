@@ -43,4 +43,16 @@ describe('Momelo sidebar navigation registry', () => {
     expect(routePaths.admin).toBe('/admin');
     expect(routePaths.adminAttributes).toBe('/admin/attributes');
   });
+
+  it('registers Cinematic Studio once under Create and marks nested routes active', () => {
+    const create = sidebarNavigationGroups.find(group => group.id === 'create');
+    const cinematicItems = create?.items.filter(item => item.id === 'cinematic');
+
+    expect(cinematicItems).toEqual([expect.objectContaining({
+      path: '/create/cinematic',
+      feature: 'cinematic'
+    })]);
+    expect(routePaths.createCinematicNew).toBe('/create/cinematic/new');
+    expect(isSidebarNavigationTargetActive('cinematic', '/create/cinematic/project_1/storyboard')).toBe(true);
+  });
 });

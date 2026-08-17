@@ -32,6 +32,10 @@ export const router = createBrowserRouter([{
     { path: 'create/studio/character', lazy: lazyRoute(() => import('../features/studio/routes/StudioRoute'), 'StudioRoute') },
     { path: 'create/studio/scene', lazy: lazyRoute(() => import('../features/scene-builder/routes/SceneBuilderRoute'), 'SceneBuilderRoute') },
     { path: 'create/fashion', lazy: lazyRoute(() => import('../features/fashion-blueprint/routes/FashionBlueprintRoute'), 'FashionBlueprintRoute') },
+    { path: 'create/cinematic', lazy: lazyRoute(() => import('../features/cinematic/routes/CinematicStudioRoute'), 'CinematicStudioRoute') },
+    { path: 'create/cinematic/new', lazy: lazyRoute(() => import('../features/cinematic/routes/CinematicStudioRoute'), 'CinematicStudioRoute') },
+    { path: 'create/cinematic/:projectId/:stage', lazy: lazyRoute(() => import('../features/cinematic/routes/CinematicStudioRoute'), 'CinematicStudioRoute') },
+    { path: 'create/cinematic/:projectId/shot/:shotId', lazy: lazyRoute(() => import('../features/cinematic/routes/CinematicStudioRoute'), 'CinematicStudioRoute') },
 
     { path: 'library/recent', lazy: lazyRoute(() => import('../features/history/routes/HistoryRoute'), 'HistoryRoute') },
     { path: 'library/recent/:jobId', lazy: lazyRoute(() => import('../features/history/routes/HistoryDetailRoute'), 'HistoryDetailRoute') },

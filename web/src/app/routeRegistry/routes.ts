@@ -8,6 +8,8 @@ export const routePaths = {
   createStudioCharacter: '/create/studio/character',
   createStudioScene: '/create/studio/scene',
   createFashion: '/create/fashion',
+  createCinematic: '/create/cinematic',
+  createCinematicNew: '/create/cinematic/new',
   libraryRecent: '/library/recent',
   libraryCollections: '/library/collections',
   ownedCharacters: '/me/characters',
@@ -25,7 +27,11 @@ export const routeBuilders = {
     `/profiles/${encodeURIComponent(handle)}${tab && tab !== 'overview' ? `/${encodeURIComponent(tab)}` : ''}`,
   recentDetail: (jobId: string) => `/library/recent/${encodeURIComponent(jobId)}`,
   collection: (collectionId: string) => `/library/collections/${encodeURIComponent(collectionId)}`,
-  comparison: (setId: string) => `/comparisons/${encodeURIComponent(setId)}`
+  comparison: (setId: string) => `/comparisons/${encodeURIComponent(setId)}`,
+  cinematicProject: (projectId: string, stage = 'setup') =>
+    `/create/cinematic/${encodeURIComponent(projectId)}/${encodeURIComponent(stage)}`,
+  cinematicShot: (projectId: string, shotId: string) =>
+    `/create/cinematic/${encodeURIComponent(projectId)}/shot/${encodeURIComponent(shotId)}`
 } as const;
 
 export type NavigationRouteId =
@@ -35,6 +41,7 @@ export type NavigationRouteId =
   | 'publicComparisons'
   | 'studio'
   | 'fashion'
+  | 'cinematic'
   | 'playground'
   | 'history'
   | 'collections'
@@ -56,7 +63,7 @@ export type SidebarNavigationItem = {
   path?: string;
   children?: readonly SidebarNavigationItem[];
   allowedRoles?: readonly string[];
-  feature?: 'community' | 'characters';
+  feature?: 'community' | 'characters' | 'cinematic';
 };
 
 export type SidebarNavigationGroup = {
@@ -72,6 +79,7 @@ export const navigationRoutes: readonly NavigationRoute[] = [
   { id: 'characters', path: routePaths.exploreCharacters, labelKey: 'shell.navigation.items.characters', navigation: 'primary' },
   { id: 'studio', path: routePaths.createStudioFace, labelKey: 'shell.navigation.items.studio', navigation: 'primary' },
   { id: 'fashion', path: routePaths.createFashion, labelKey: 'shell.navigation.items.fashionStudio', navigation: 'primary' },
+  { id: 'cinematic', path: routePaths.createCinematic, labelKey: 'shell.navigation.items.cinematicStudio', navigation: 'primary' },
   { id: 'playground', path: routePaths.createPlayground, labelKey: 'shell.navigation.items.playground', navigation: 'primary' },
   { id: 'history', path: routePaths.libraryRecent, labelKey: 'shell.navigation.items.recent', navigation: 'primary' },
   { id: 'collections', path: routePaths.libraryCollections, labelKey: 'shell.navigation.items.collections', navigation: 'primary' },
@@ -105,7 +113,8 @@ export const sidebarNavigationGroups: readonly SidebarNavigationGroup[] = [
           { id: 'scene-builder', path: `${routePaths.createStudioScene}#studio-configurator-title`, labelKey: 'shell.navigation.items.sceneBuilder', icon: 'scene' }
         ]
       },
-      { id: 'fashion', path: routePaths.createFashion, labelKey: 'shell.navigation.items.fashionStudio', icon: 'fashion' }
+      { id: 'fashion', path: routePaths.createFashion, labelKey: 'shell.navigation.items.fashionStudio', icon: 'fashion' },
+      { id: 'cinematic', path: routePaths.createCinematic, labelKey: 'shell.navigation.items.cinematicStudio', icon: 'cinematic', feature: 'cinematic' }
     ]
   },
   {
@@ -145,6 +154,7 @@ export function isSidebarNavigationTargetActive(id: string, currentLocation: str
   if (id === 'character-sheet') return pathname === routePaths.createStudioCharacter;
   if (id === 'scene-builder') return pathname === routePaths.createStudioScene;
   if (id === 'fashion') return pathname.startsWith(routePaths.createFashion);
+  if (id === 'cinematic') return pathname.startsWith(routePaths.createCinematic);
   if (id === 'playground') return pathname.startsWith(routePaths.createPlayground);
   if (id === 'history') return pathname.startsWith(routePaths.libraryRecent);
   if (id === 'collections') return pathname.startsWith(routePaths.libraryCollections);

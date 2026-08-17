@@ -2,7 +2,7 @@
 
 **Requirement ID:** AGENT-ORCH-005  
 **Status:** Structural and operational-adoption validation passed; blind QA pending
-**Validated:** 2026-08-15
+**Validated:** 2026-08-17
 
 ## 1. Validation Scope
 
@@ -22,9 +22,9 @@ node --test test/agentOrchestration.test.js
 
 Validated contracts:
 
-- all six role charters expose every required section and remain below 180 lines;
-- all seven Skills use valid bounded `SKILL.md` metadata and UI metadata;
-- 22 routing fixtures use known roles and Skills;
+- all seven role charters expose every required section and remain below 180 lines;
+- all eight Skills use valid bounded `SKILL.md` metadata and UI metadata;
+- 23 routing fixtures use known roles and Skills;
 - no fixture exceeds one primary plus two reviewers or two Skills;
 - `AGENTS.md` references every role and Skill;
 - every role has a primary-routing case; and
@@ -63,6 +63,13 @@ Representative cases: three-shot fashion sequence and Cinematic Studio design.
 The role separates beat, shot and continuity authority and invokes cinematic
 and media-pipeline Skills only for sequence-level work.
 
+### Generative Cinematic Production Director: Pass
+
+Representative case: convert an approved Shot into a provider-aware
+image-to-video attempt and diagnose temporal drift. The role preserves Story
+intent while owning execution packets, first/last-frame strategy, motion plans,
+provider constraints and bounded retry diagnosis.
+
 ### Backend Platform Architect: Pass
 
 Representative cases: Character PostgreSQL migration, private signed Assets and
@@ -87,6 +94,7 @@ subagent context, so true blind seeded-regression validation remains pending.
 | Skill | Positive case | Negative case | Result |
 |---|---|---|---|
 | `design-cinematic-experience` | Three-shot sequence | One Cinematic label | Pass |
+| `direct-generative-cinematic-production` | Approved Shot AI video execution | One Cinematic label | Pass |
 | `review-product-ux` | Shared Scene layout | One theme border | Pass |
 | `review-commercial-integrity` | Payout/refund policy | Price-label alignment | Pass |
 | `verify-release-regressions` | Explicit PR review | Translation key | Pass |

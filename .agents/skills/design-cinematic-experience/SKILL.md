@@ -8,7 +8,8 @@ description: Design professional ModelPromptForge Cinematic Studio stories, beat
 ## Workflow
 
 1. Establish audience, story objective, duration, format and emotional change.
-2. Identify Character, face, body, wardrobe, prop and environment authorities.
+2. Define each Character dossier: story role, objective, personality,
+   relationships, performance baseline, face/body authority and wardrobe looks.
 3. Split the story into beats, then shots with duration and transition intent.
 4. Specify camera, framing, movement, lighting, performance and audio per shot.
 5. Build a continuity ledger across every shot.
@@ -20,6 +21,7 @@ description: Design professional ModelPromptForge Cinematic Studio stories, beat
 
 ```text
 Story intent
+Character dossiers and wardrobe ownership
 Beat map
 Shot list
 Continuity ledger

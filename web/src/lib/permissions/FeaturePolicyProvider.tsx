@@ -26,7 +26,10 @@ const featurePolicySchema = z.object({
   }),
   generation: z.object({
     promptRefinementEnabled: z.boolean().default(false)
-  }).default({ promptRefinementEnabled: false })
+  }).default({ promptRefinementEnabled: false }),
+  cinematic: z.object({
+    enabled: z.boolean().default(false)
+  }).default({ enabled: false })
 });
 
 export type FeaturePolicy = z.infer<typeof featurePolicySchema>;
@@ -42,7 +45,8 @@ type FeaturePath =
   | `community.${keyof FeaturePolicy['community']}`
   | `development.${keyof FeaturePolicy['development']}`
   | `routing.${keyof FeaturePolicy['routing']}`
-  | `generation.${keyof FeaturePolicy['generation']}`;
+  | `generation.${keyof FeaturePolicy['generation']}`
+  | `cinematic.${keyof FeaturePolicy['cinematic']}`;
 
 const FeaturePolicyContext = createContext<FeaturePolicyContextValue | null>(null);
 

@@ -207,8 +207,10 @@ These are Preview models and are disabled from paid routing until qualification.
 
 For a Character-led Shot:
 
-1. Prefer an approved storyboard/keyframe as `image` when first-frame motion is
-   sufficient.
+1. Use the exact approved immutable Storyboard Asset Version as `image` when
+   first-frame motion is sufficient. The adapter receives a resolved authorized
+   Asset, version and fingerprint from the prepared Generation request; it must
+   not choose the latest Storyboard attempt or resolve a client URL itself.
 2. Use named `referenceImages` only on qualified Standard/Fast routes and map no
    more than three authorities, typically Character identity, wardrobe and
    environment/style.
@@ -216,6 +218,11 @@ For a Character-led Shot:
    requirement than independent references.
 4. Never silently drop an authority to fit the provider limit. Reference
    Processing must choose a qualified compiled keyframe or block the operation.
+
+At dispatch, Generation revalidates that the prepared Storyboard source
+fingerprint still matches the accepted quote and current approved Shot source.
+A mismatch fails before provider submission and Credit capture; provider
+adapters never substitute another image.
 
 ## 7. BytePlus Seedance Adapter
 
@@ -414,6 +421,9 @@ Minimum deterministic suites cover:
 - Seedance 2.5 1080p remains blocked until live capability evidence resolves
   the pricing-page/model-list discrepancy;
 - named authority mapping and provider reference limits;
+- approved Storyboard Asset Version parity across quote, prepared request,
+  provider payload and durable output provenance, including source replacement
+  immediately before dispatch;
 - real-person asset eligibility and expiry;
 - immutable quote fingerprint parity;
 - provider task persistence before polling;

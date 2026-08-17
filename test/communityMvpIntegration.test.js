@@ -17,7 +17,8 @@ function flags(overrides = {}) {
       privateBeta: false,
       ...overrides
     },
-    routing: { automaticSimpleModeEnabled: false }
+    routing: { automaticSimpleModeEnabled: false },
+    cinematic: { enabled: true }
   };
 }
 

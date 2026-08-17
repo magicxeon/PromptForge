@@ -32,6 +32,7 @@ Choose exactly one primary role:
 | New feature, changed workflow, requirement creation/reconciliation | `requirements/015-professional-agent-orchestration/roles/product-requirement-architect.md` |
 | Material screen, navigation, interaction, theme or accessibility work | `requirements/009-migration-to-react/roles/ux-ui-product-designer.md` |
 | Video, film, shot, sequence, continuity, motion or audio work | `requirements/016-cinematic-studio/roles/cinematic-experience-director.md` |
+| AI video execution packets, temporal prompting, provider-aware Shot attempts or drift diagnosis | `requirements/016-cinematic-studio/roles/generative-cinematic-production-director.md` |
 | API, domain, repository, database, durable Job or infrastructure work | `requirements/017-implementation-backend/roles/backend-platform-architect.md` |
 | Pricing, Credits, payments, payouts, refunds or billable recovery | `requirements/018-implementation-commercial-feature-plan/roles/commercial-financial-integrity.md` |
 | Explicit review, regression audit, release gate or requirement closure | `requirements/015-professional-agent-orchestration/roles/qa-release-engineer.md` |
@@ -49,6 +50,8 @@ the owning requirement and repository rules without loading a specialist role.
   media, secrets, PII or destructive Support access.
 - Add UX for material user-facing workflows.
 - Add Cinematic for multi-shot storytelling or continuity decisions.
+- Add Generative Cinematic Production for provider-aware AI video attempts,
+  temporal continuity or Shot failure diagnosis.
 - Use one primary plus at most two reviewers by default. More than three active
   roles requires a written reason.
 - A user override may choose a role or request review-only work, but it cannot
@@ -60,6 +63,9 @@ Load a Skill only after its trigger matches:
 
 - `design-cinematic-experience`: Cinematic sequences, shots and continuity;
   `.agents/skills/design-cinematic-experience/SKILL.md`.
+- `direct-generative-cinematic-production`: approved Shot execution, temporal
+  motion, AI video provider constraints and attempt diagnosis;
+  `.agents/skills/direct-generative-cinematic-production/SKILL.md`.
 - `review-product-ux`: substantial flows or reusable UI contracts;
   `.agents/skills/review-product-ux/SKILL.md`.
 - `review-commercial-integrity`: billable and financial state transitions;

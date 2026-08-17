@@ -19,7 +19,11 @@ ownership boundaries.
 
 Provider-independent operation names:
 
+- `cinematic_story_enhancement` - optional structured Story source proposal;
 - `cinematic_story_plan` - structured text plan;
+- `cinematic_scene_direction` - expand or rewrite one director-ready Scene;
+- `cinematic_wardrobe_suggestion` - optional wardrobe proposal;
+- `cinematic_wardrobe_analysis` - optional uploaded-reference analysis;
 - `cinematic_storyboard_still` - one or more still panels;
 - `cinematic_motion_preview` - optional low-cost preview;
 - `cinematic_draft_clip` - review-quality video;
@@ -69,6 +73,7 @@ Every quote snapshots:
 - operation and output count;
 - provider/model/routing mode and quality;
 - duration, resolution/aspect ratio and audio setting;
+- for Produce, the approved Storyboard Asset Version ID and source fingerprint;
 - reference count/plan fingerprint;
 - per-operation Credits, total Credits, policy version and expiry;
 - creator/template usage amounts if introduced later.
@@ -83,9 +88,61 @@ and Cinematic DTOs without changing their calculation contracts. Cinematic may
 add Shot/project grouping, but not duplicate insufficient-Credit, expiry,
 refresh or confirmation behavior.
 
+### 3.1 Stage-specific presentation
+
+One financial lifecycle is presented through operation-specific configuration:
+
+| Stage | Billable operation | Not billable |
+|---|---|---|
+| Setup | Story enhancement | writing, editing, compare, apply/discard |
+| Cast | AI wardrobe suggestion/analysis/concept generation | browse, filter, upload, existing-asset assignment |
+| Story Plan | generate plan, expand/rewrite one Scene | manual edit, reorder, split/merge, approve |
+| Storyboard | still generation/regeneration by Shot or selected batch | prompt editing, reset default, compare, approve |
+| Produce | motion preview, draft/final video attempt | playback, compare, approve/reject |
+| Finish | server assembly/export when processing is required | browser arrangement and trim |
+
+Every billable action uses the same sequence:
+
+```text
+estimate -> exact quote -> explicit consent -> reserve -> dispatch
+-> durable terminal result -> capture or eligible refund -> reconciliation
+```
+
+The UI must not show the video `Engine & Target Output` during Setup or ordinary
+Cast editing. It uses a contextual operation dock describing the actual text,
+analysis, image, video or export operation. Provider/model controls appear only
+when the operation permits user selection; otherwise routing policy and quality
+tier are summarized without exposing unsupported controls.
+
+### 3.2 Project cost read model
+
+Credits owns an authorized Project cost projection derived from immutable quote
+and ledger records. The compact summary exposes:
+
+- captured/spent Credits;
+- active reserved/processing Credits;
+- current next-action estimate, excluded from spend;
+- refunded Credits and net captured total;
+- grouped drill-down by Stage, Scene, Shot, attempt and operation;
+- safe quote, Job, settlement and support references.
+
+This is a read model, never a Cinematic-maintained running total. Refresh,
+restart, retry and actor switching must reconstruct the same result. Completing
+a Project records a final statement snapshot that remains reconcilable against
+the ledger; continuing as a Series starts a separate Project/Series cost scope.
+
 ## 4. Reservation And Settlement
 
 - Reserve one allocation per Shot/operation so partial batches settle safely.
+- `Generate eligible set` first creates one immutable aggregate quote whose
+  children preserve a per-Shot price/input fingerprint. Confirmation displays
+  both the aggregate total and inspectable child breakdown; the aggregate is
+  never calculated by summing mutable client values.
+- Batch scope is snapshotted at quote time. Newly eligible Shots, approved
+  Shots, already-active Shots and changed prompts cannot silently enter the
+  accepted batch.
+- Text/Scene/Wardrobe operations without a Shot reserve one allocation per
+  immutable source version and operation key.
 - Capture only when the operation reaches the defined successful terminal
   boundary and durable result metadata exists.
 - Refund an unconsumed reservation on provider failure, cancellation before
@@ -114,6 +171,11 @@ authority combinations block before Credit reservation.
 - Outputs are Asset records linked to owner, Generation Job, mime type,
   dimensions/duration, checksum and storage key.
 - Storyboard images, drafts, finals and exports have distinct media roles.
+- A video Generation request resolves its source through the Shot's approved
+  Storyboard Asset Version. It must not resolve from the latest Storyboard Job,
+  thumbnail URL, client-selected image URL or an unapproved attempt.
+- The accepted video quote, prepared reference plan, Generation Job and output
+  Asset provenance all retain the same Storyboard source version/fingerprint.
 - The project stores identifiers, not signed URLs; URLs are resolved at access
   time.
 - Private input references never become public through export metadata.
@@ -145,9 +207,15 @@ authority combinations block before Credit reservation.
 ## 9. Financial And Abuse Cases
 
 - quote expires after model price or Shot inputs change;
+- quote expires when source Story/Scene/prompt, provider, output count or any
+  other cost-bearing operation input changes;
+- a Produce quote expires immediately when its approved Storyboard Asset
+  Version changes, even when provider/model/duration remain identical;
 - two browser tabs cannot reserve the same operation twice;
 - insufficient Credits opens the shared top-up flow and preserves the draft;
 - partial batch settles successful children and refunds eligible failed ones;
+- an all-set retry defaults to failed/retryable children and never charges
+  completed children again;
 - actor cannot submit a quote belonging to another actor/project;
 - Support adjustment requires case, reason, evidence, authorization and
   idempotency;
@@ -159,9 +227,30 @@ authority combinations block before Credit reservation.
 - Every terminal child has exactly one financial terminal outcome.
 - Result media is owner-authorized and traceable after restart.
 - Unsupported models/references fail before reservation.
+- Missing, unauthorized, unapproved or stale Storyboard source versions fail
+  before Credit reservation with a stable recovery code.
 - Partial completion is visible and usable.
 - Reconciliation can explain project spend as the sum of immutable ledger
   entries by operation and Shot.
+- Project cost summary equals the ledger projection and never includes an
+  unconfirmed estimate in captured spend.
+
+### Stable Storyboard source errors
+
+```text
+cinematic_storyboard_source_required
+cinematic_storyboard_source_not_approved
+cinematic_storyboard_source_changed
+cinematic_storyboard_source_unavailable
+```
+
+- `required` and `not_approved` route the user to the same Shot in Storyboard.
+- `changed` refreshes Produce context and requires a new quote; it never retries
+  the stale request automatically.
+- `unavailable` blocks dispatch and exposes a sanitized Support reference.
+- None of these errors captures Credits. Any earlier active reservation follows
+  the canonical release/reconciliation policy rather than a Cinematic-local
+  refund mutation.
 - Existing image and Fashion estimates remain unchanged after video rate
   metrics are introduced.
 - The same server quote drives displayed Credits, reservation and settlement;

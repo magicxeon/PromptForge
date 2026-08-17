@@ -21,7 +21,8 @@ const REQUIRED_BOOLEAN_PATHS = Object.freeze([
   'community.moderationEnabled',
   'community.privateBeta',
   'development.mockActorSwitcherEnabled',
-  'routing.automaticSimpleModeEnabled'
+  'routing.automaticSimpleModeEnabled',
+  'cinematic.enabled'
 ]);
 
 let cachedFlags = null;
@@ -67,6 +68,9 @@ export class CommunityFeaturePolicyService {
       },
       generation: {
         promptRefinementEnabled: getPublicPromptRefinementPolicy().enabled
+      },
+      cinematic: {
+        enabled: flags.cinematic.enabled === true
       }
     };
   }

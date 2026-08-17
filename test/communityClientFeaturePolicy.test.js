@@ -24,7 +24,8 @@ test('client Community policy follows server flags for navigation and feature co
       privateBeta: false
     },
     development: { mockActorSwitcherEnabled: true },
-    routing: { automaticSimpleModeEnabled: false }
+    routing: { automaticSimpleModeEnabled: false },
+    cinematic: { enabled: true }
   }, events);
   vm.runInNewContext(source, context);
 

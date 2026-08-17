@@ -134,6 +134,7 @@ export function AppShell() {
             studioOpen={studioOpen}
             communityEnabled={isEnabled('community.enabled')}
             charactersEnabled={isEnabled('community.characterProfilesEnabled')}
+            cinematicEnabled={isEnabled('cinematic.enabled')}
             onToggleCollapsed={toggleCollapsed}
             onToggleStudio={() => setStudioOpen(value => !value)}
             onNavigate={() => setMobileOpen(false)}

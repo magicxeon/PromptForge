@@ -40,8 +40,10 @@ private references or signed media URLs.
 The Cinematic operational detail view joins by stable IDs and shows:
 
 1. owner, Project stage and active immutable versions;
-2. Scene/Shot/attempt hierarchy and stale/approval reasons;
-3. Character Version, wardrobe and reference-plan lineage;
+2. Scene/Shot/attempt hierarchy and stale/approval reasons, including
+   `source_changed` and `source_unavailable`;
+3. Character Version, wardrobe, approved Storyboard Asset Version and
+   reference-plan lineage;
 4. provider/model/rate version, request capability snapshot and provider task;
 5. Queue wait, processing, media-copy and total duration;
 6. quote, reserved/captured/refunded Credits and reconciliation state;
@@ -150,6 +152,9 @@ existing restricted output/log policy and retention instead of standard logs.
 
 - One safe reference traces a paid Shot from Project through provider task,
   Asset and financial terminal outcome.
+- Support can compare the current approved Storyboard source with the source
+  consumed by any video attempt and explain why a clip or export is stale
+  without opening private raw prompts.
 - Duplicate Support commands cannot duplicate Generation, refund or capture.
 - Partial completion retains successful children and exposes failed children.
 - A promotional rate expiry does not alter an accepted quote.

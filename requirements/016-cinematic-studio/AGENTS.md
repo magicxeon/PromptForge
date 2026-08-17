@@ -6,8 +6,11 @@ still apply.
 
 Read `roles/cinematic-experience-director.md` as the primary professional
 charter for video, shot, sequence, continuity, motion and audio requirements.
+Read `roles/generative-cinematic-production-director.md` when approved Shots
+must become provider-aware AI video attempts or failed motion must be diagnosed.
 Use the `design-cinematic-experience` Skill for structured cinematic workflows
-and `review-generative-media-pipeline` for provider/reference qualification.
+and `direct-generative-cinematic-production` for execution packets. Use
+`review-generative-media-pipeline` for provider/reference qualification.
 
 - Keep story intent, scene, shot and sequence as separate structured concepts.
 - Define Character, wardrobe, prop, environment and temporal continuity.

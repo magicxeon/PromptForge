@@ -1,6 +1,7 @@
 import {
   ChevronDown,
   ChevronLeft,
+  Clapperboard,
   Columns3,
   ContactRound,
   FlaskConical,
@@ -35,6 +36,7 @@ const iconRegistry = {
   character: ContactRound,
   scene: Images,
   fashion: Shirt,
+  cinematic: Clapperboard,
   playground: FlaskConical,
   comparisons: Columns3,
   characters: UsersRound,
@@ -50,6 +52,7 @@ export function SidebarNavigation({
   studioOpen,
   communityEnabled,
   charactersEnabled,
+  cinematicEnabled,
   onToggleCollapsed,
   onToggleStudio,
   onNavigate
@@ -59,6 +62,7 @@ export function SidebarNavigation({
   studioOpen: boolean;
   communityEnabled: boolean;
   charactersEnabled: boolean;
+  cinematicEnabled: boolean;
   onToggleCollapsed: () => void;
   onToggleStudio: () => void;
   onNavigate: () => void;
@@ -71,7 +75,7 @@ export function SidebarNavigation({
       <nav aria-label={t('shell.navigation.menu')}>
         {sidebarNavigationGroups.map(group => {
           const items = group.items.filter(item =>
-            isVisible(item, role, communityEnabled, charactersEnabled)
+            isVisible(item, role, communityEnabled, charactersEnabled, cinematicEnabled)
           );
           if (!items.length) return null;
           return (
@@ -221,10 +225,12 @@ function isVisible(
   item: SidebarNavigationItem,
   role: string | undefined,
   communityEnabled: boolean,
-  charactersEnabled: boolean
+  charactersEnabled: boolean,
+  cinematicEnabled: boolean
 ) {
   if (item.allowedRoles?.length && (!role || !item.allowedRoles.includes(role))) return false;
   if (item.feature === 'community' && !communityEnabled) return false;
   if (item.feature === 'characters' && !charactersEnabled) return false;
+  if (item.feature === 'cinematic' && !cinematicEnabled) return false;
   return true;
 }

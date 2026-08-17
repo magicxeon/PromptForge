@@ -1,13 +1,15 @@
 # Cinematic Studio MVP Master Requirement
 
-**Status:** Requirement architecture reconciled; implementation must follow the
-ordered checkpoints in Requirement 004
+**Status:** C1 shared foundation implemented on 2026-08-17; C1.5 UX contract
+revised for contextual operations and Project costs; visual revision and owner
+approval are required before C2 functional integration
 **Source concept:** `momelo-ai-short-film-series-workflow.md`
 **Product owner:** Cinematic Studio
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Cinematic Experience Director, UX/UI Product Designer
 **Skills used:** `design-cinematic-experience`, `review-product-ux`
-**Implementation in this change:** None
+**Implementation in this change:** C1.5 local-only UX mockup implemented; no
+provider dispatch, accepted Credit quote, durable Project mutation or export
 
 ## 1. Outcome
 
@@ -22,6 +24,20 @@ regenerate and export one 20-60 second 9:16 film through six visible stages.
 
 ## 2. MVP Scope
 
+### C1.5 UX mockup checkpoint - 2026-08-17
+
+The internal route now presents all six stages with stage-owned workspaces:
+Story Enhance comparison, filtered Character picker, wardrobe source choices,
+Scene Director detail, per-Shot Storyboard prompt/provider/reset controls,
+per-Shot video Produce controls, MVP trim/transition/export controls and a
+persistent Project cost summary. Billable actions remain disabled preview
+fixtures. The former permanently visible Engine panel is retained as reusable
+foundation code but is no longer shown outside a contextual operation.
+
+This checkpoint validates information architecture only. It does not prove
+provider capability, pricing, Queue behavior, durable Project state, Credit
+reservation or media output.
+
 ### 2.1 Launch scope
 
 - Single vertical short film, 20, 30, 45 or 60 seconds.
@@ -32,7 +48,7 @@ regenerate and export one 20-60 second 9:16 film through six visible stages.
 - Scene and shot plan with Character, wardrobe and location continuity.
 - Storyboard stills and optional low-cost motion previews.
 - Draft video clips, per-shot review and per-shot regeneration.
-- Simple ordered timeline, trim points, transitions, music, subtitle and final
+- Simple ordered timeline, trim points, cut/dissolve/fade, preview and final
   export.
 - Credit range before planning and immutable quote before every paid operation.
 - Actor-scoped autosave and resume.
@@ -43,6 +59,15 @@ Series-lite is an MVP extension, not a dependency of first launch. It may be
 enabled only after the single-film acceptance gate passes. It supports 2-6
 episodes that reuse a Series Bible, cast and continuity baseline. Each episode
 still uses the same six-stage production workflow.
+
+### 2.3 Deferred commercial and product advertising
+
+Product commercials, service advertising and campaign production are outside
+the first Cinematic MVP. They require a separate Campaign Brief, product
+dimensions/scale authority, packaging and logo fidelity, claims/CTA review,
+hero/detail/usage/pack shots and advertising-specific qualification. Do not add
+an `Advertising` genre or hidden product fields to the MVP Setup form. Preserve
+an extension point for a later campaign workflow after single-film closure.
 
 ### 2.3 Deferred
 
@@ -76,8 +101,8 @@ must use these six stable stages.
    and preview stills.
 5. **Produce:** draft/final clip generation, queue status, selective retry and
    shot approval.
-6. **Finish and Export:** timeline order, trims, transitions, audio, subtitles,
-   final quote, render and download.
+6. **Finish and Export:** timeline order, trims, basic transitions, final quote,
+   render and download.
 
 ## 4. Product Rules
 
@@ -98,6 +123,9 @@ must use these six stable stages.
    Base64 payloads.
 10. Public sharing is a separate explicit workflow after export; it is not part
     of generation consent.
+11. Produce uses the exact approved immutable Storyboard Asset Version for each
+    Shot. Replacing that source preserves history but makes dependent clips and
+    exports stale until the affected Shot is regenerated and approved again.
 
 ## 5. Capability Ownership
 
@@ -157,6 +185,7 @@ from Cinematic, Generation, Credits or Assets.
 ```text
 C0 contract and protected-behavior freeze
 -> C1 shared component/state/schema foundation
+-> C1.5 six-stage UX/UI prototype and usability approval
 -> C2 private Project Setup and Cast vertical slice
 -> C3 Story Plan, continuity and Storyboard vertical slice
 -> C4 qualified draft-video production and financial lifecycle
@@ -168,6 +197,15 @@ C0 contract and protected-behavior freeze
 No later checkpoint may be started merely because its screen is easy to build.
 Each checkpoint must prove its domain, UI, persistence, authorization and
 recovery path together.
+
+### C1.5 UX/UI-first boundary
+
+All six stages shall be reviewable with actor-scoped local fixture state before
+Project, provider, Generation or Credit integration begins. The prototype may
+navigate, edit presentation fields and demonstrate terminal states, but it must
+not invent accepted quotes, provider Jobs, durable Assets or server approval.
+UX approval freezes the principal information architecture, responsive behavior
+and shared Generation shell before C2 vertical slices.
 
 ## 8. Global Acceptance
 
@@ -185,8 +223,6 @@ recovery path together.
 - Final promotion decisions from the Veo/Seedance qualification matrix in
   `006-video-generation-provider-contract.md`; candidate capability and pricing
   contracts are now documented, but no candidate is launch-qualified yet.
-- Whether voice-over generation ships in launch gate or remains subtitle/music
-  only.
 - Exact export presets and maximum retained draft duration.
 - Commercial prices, refund policy and Series-lite feature flag.
 

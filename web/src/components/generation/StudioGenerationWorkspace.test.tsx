@@ -35,7 +35,7 @@ describe('StudioGenerationWorkspace', () => {
   });
 
   it('returns to the canonical configurator without changing the workspace content', () => {
-    render(
+    const { container } = render(
       <I18nextProvider i18n={testI18n}>
         <StudioGenerationWorkspace
           modeSelector={<div>Mode selector</div>}
@@ -58,6 +58,9 @@ describe('StudioGenerationWorkspace', () => {
     });
     expect(screen.getByText('Mode selector')).toBeVisible();
     expect(screen.getByText('Result')).toBeVisible();
+    expect(container.querySelector('.studio-step-card--generation')).toContainElement(
+      screen.getByText('Engine')
+    );
   });
 
   it('exposes the full-width comparison layout contract to the viewport', () => {

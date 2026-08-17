@@ -18,7 +18,8 @@ const disabledFlags = {
     privateBeta: false
   },
   development: { mockActorSwitcherEnabled: false },
-  routing: { automaticSimpleModeEnabled: false }
+  routing: { automaticSimpleModeEnabled: false },
+  cinematic: { enabled: true }
 };
 
 test('disabled Community write routes reject with stable code before service mutation', async () => {

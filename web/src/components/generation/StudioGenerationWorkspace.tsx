@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { GenerationCommandRegion } from './GenerationCommandRegion';
+import { GenerationEngineShell } from './GenerationEngineShell';
 
 type StudioGenerationWorkspaceProps = {
   modeSelector: ReactNode;
@@ -137,7 +138,7 @@ export function StudioGenerationWorkspace({
             {builder}
           </section>
 
-          <section className="studio-step-card studio-step-card--generation">
+          <GenerationEngineShell>
             <div className="studio-generation-scroll-region">
               {engine}
               {references}
@@ -149,7 +150,7 @@ export function StudioGenerationWorkspace({
               actions={actions}
               messages={messages}
             />
-          </section>
+          </GenerationEngineShell>
         </div>
       </section>
     </div>

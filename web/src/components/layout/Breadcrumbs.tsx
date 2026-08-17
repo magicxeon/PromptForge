@@ -45,6 +45,7 @@ function resolveCrumbs(pathname: string, t: (key: string) => string): Crumb[] {
   if (pathname === routePaths.createStudioCharacter) return [create, { label: t('shell.navigation.items.studio'), to: routePaths.createStudioFace }, { label: t('shell.navigation.items.characterSheet') }];
   if (pathname === routePaths.createStudioScene) return [create, { label: t('shell.navigation.items.studio'), to: routePaths.createStudioFace }, { label: t('shell.navigation.items.sceneBuilder') }];
   if (pathname.startsWith(routePaths.createFashion)) return [create, { label: t('shell.navigation.items.fashionStudio') }];
+  if (pathname.startsWith(routePaths.createCinematic)) return [create, { label: t('shell.navigation.items.cinematicStudio') }];
 
   if (pathname.startsWith(routePaths.libraryRecent)) return [library, { label: t('shell.navigation.items.recent') }];
   if (pathname.startsWith(routePaths.libraryCollections)) return [library, { label: t('shell.navigation.items.collections') }];
