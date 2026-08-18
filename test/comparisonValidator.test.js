@@ -77,3 +77,19 @@ test('aggregate run status preserves partial success', () => {
   assert.equal(aggregateRunStatus([{ status: 'failed' }, { status: 'failed' }]), 'failed');
   assert.equal(aggregateRunStatus([{ status: 'processing' }, { status: 'queued' }]), 'processing');
 });
+
+test('video comparison requires exactly two slots and remains qualification gated', () => {
+  const validator = new ComparisonValidator({ providerRegistry: createRegistry(), secret: 'test' });
+  const slots = [
+    { id: 'one', provider: 'alpha', model: 'image-a' },
+    { id: 'two', provider: 'alpha', model: 'image-a' }
+  ];
+  assert.throws(
+    () => validator.validateSlots(slots.slice(0, 1), { mediaType: 'video' }),
+    /exactly 2 slots/
+  );
+  assert.throws(
+    () => validator.validateSlots(slots, { mediaType: 'video' }),
+    error => error.code === 'video_comparison_not_qualified' && error.statusCode === 409
+  );
+});

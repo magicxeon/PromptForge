@@ -22,7 +22,10 @@ const REQUIRED_BOOLEAN_PATHS = Object.freeze([
   'community.privateBeta',
   'development.mockActorSwitcherEnabled',
   'routing.automaticSimpleModeEnabled',
-  'cinematic.enabled'
+  'cinematic.enabled',
+  'cinematic.playgroundVideoEnabled',
+  'cinematic.videoComparisonEnabled',
+  'cinematic.communityVideoEnabled'
 ]);
 
 let cachedFlags = null;
@@ -70,7 +73,10 @@ export class CommunityFeaturePolicyService {
         promptRefinementEnabled: getPublicPromptRefinementPolicy().enabled
       },
       cinematic: {
-        enabled: flags.cinematic.enabled === true
+        enabled: flags.cinematic.enabled === true,
+        playgroundVideoEnabled: flags.cinematic.playgroundVideoEnabled === true,
+        videoComparisonEnabled: flags.cinematic.videoComparisonEnabled === true,
+        communityVideoEnabled: flags.cinematic.communityVideoEnabled === true
       }
     };
   }

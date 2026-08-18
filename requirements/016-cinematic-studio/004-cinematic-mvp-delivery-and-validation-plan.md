@@ -1,8 +1,10 @@
 # Cinematic Studio MVP Delivery And Validation Plan
 
-**Status:** C0-C3 and the guarded C4-C6 foundations are implemented. Release is
+**Status:** C0-C3 and the guarded C4-C6 foundations are implemented. Guarded
+Playground/Community video media contracts were added on 2026-08-18. Release is
 conditional: live provider film qualification, Credits settlement integration,
-final assembly qualification and the manual UX matrix are still required.
+durable poster extraction, Character rating projection, final assembly
+qualification and the manual UX matrix are still required.
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Backend Platform Architect, QA And Release Engineer; UX/UI Product
 Designer and Commercial Financial Integrity join their owned checkpoints

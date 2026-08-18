@@ -220,6 +220,15 @@ export class CharacterProfileSharingService {
     const resultById = new Map(results.map(result => [result.id, result]));
     const matches = [];
     for (const post of posts.items) {
+      const attributed = Array.isArray(post.characterAttributions)
+        && post.characterAttributions.some(item => (
+          item.characterProfileId === profile.id
+          && item.verificationStatus === 'verified'
+        ));
+      if (attributed) {
+        matches.push(buildCommunityPostPublicView(post));
+        continue;
+      }
       const result = resultById.get(post.sourceGenerationResultId);
       if (result?.characterProfileContext?.characterProfileId === profile.id) {
         matches.push(buildCommunityPostPublicView(post));

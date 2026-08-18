@@ -25,8 +25,11 @@ const comparisonSlotSchema = z.object({
   position: z.number().nullable().optional(),
   providerDisplayName: nullableText,
   modelDisplayName: nullableText,
-  imageUrl: z.string(),
-  thumbnailUrl: z.string(),
+  mediaType: z.enum(['image', 'video']).default('image'),
+  imageUrl: nullableText,
+  thumbnailUrl: nullableText,
+  videoUrl: nullableText,
+  posterUrl: nullableText,
   status: z.enum(['completed', 'failed', 'cancelled']).default('completed'),
   generationDuration: z.union([z.string(), z.number()]).nullable().optional()
 });
@@ -42,7 +45,8 @@ const collectionItemSchema = z.object({
 
 export const communityPostSchema = z.object({
   id: z.string(),
-  postType: z.enum(['image', 'template', 'comparison', 'collection']),
+  postType: z.enum(['image', 'video', 'template', 'comparison', 'collection']),
+  mediaType: z.enum(['image', 'video']).default('image'),
   creator: creatorSchema,
   title: z.string().default(''),
   description: z.string().default(''),
@@ -58,6 +62,15 @@ export const communityPostSchema = z.object({
   visibility: z.enum(['public', 'unlisted', 'members_only', 'private']).default('public'),
   imageUrl: nullableText,
   thumbnailUrl: nullableText,
+  videoUrl: nullableText,
+  posterUrl: nullableText,
+  durationSeconds: z.number().positive().nullable().optional(),
+  characterAttributions: z.array(z.object({
+    characterProfileId: z.string(),
+    characterProfileVersionId: z.string(),
+    displayName: z.string(),
+    verificationStatus: z.literal('verified')
+  })).default([]),
   presentationUrls: z.object({
     templateCard: nullableText,
     templateDetail: nullableText,
@@ -125,6 +138,7 @@ export const communityFeedPageSchema = z.object({
     postTypes: z.object({
       all: count,
       image: count,
+      video: count,
       template: count,
       comparison: count,
       collection: count

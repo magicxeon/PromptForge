@@ -731,7 +731,9 @@
 .cinematic-search-field input { padding-left: 34px !important; }
 .cinematic-character-results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .cinematic-character-results button { display: grid; gap: 5px; border: 1px solid var(--theme-border); border-radius: var(--mpf-radius-sm); background: var(--theme-input); color: var(--theme-text); padding: 10px; text-align: left; }
-.cinematic-character-results button > span { display: grid; place-items: center; aspect-ratio: 4 / 5; background: color-mix(in srgb, var(--theme-primary) 10%, var(--theme-surface)); color: var(--theme-text-muted); }
+.cinematic-character-results button > .cinematic-character-results__media { display: grid; place-items: center; aspect-ratio: 4 / 5; overflow: hidden; background: color-mix(in srgb, var(--theme-primary) 10%, var(--theme-surface)); color: var(--theme-text-muted); }
+.cinematic-character-results__media > img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
+.cinematic-character-results__fallback { display: grid; width: 100%; height: 100%; place-items: center; }
 .cinematic-character-results small { color: var(--theme-text-muted); }
 
 .cinematic-wardrobe-options { display: grid; gap: 7px; }

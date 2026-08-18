@@ -45,7 +45,10 @@ export class ComparisonOrchestrator {
     const { payload: executionPayload } = await this.resolveTemplatePayload(payload, actor);
     const { context } = compileGenerationContext(executionPayload, actor);
     await this.processReferencesForSlots(context, payload.slots, actor);
-    const slots = this.validator.validateSlots(payload.slots, context);
+    const slots = this.validator.validateSlots(payload.slots, {
+      ...context,
+      mediaType: payload.mediaType
+    });
     const templatePricing = await this.templateCoreService.resolvePricing(
       payload.templateUseSessionId,
       actor,
@@ -82,7 +85,10 @@ export class ComparisonOrchestrator {
     const { context } = compileGenerationContext(executionPayload, actor);
     await this.processReferencesForSlots(context, payload.slots, actor);
     const idempotencyKey = normalizeIdempotencyKey(payload.idempotencyKey);
-    const slots = this.validator.validateSlots(payload.slots, context);
+    const slots = this.validator.validateSlots(payload.slots, {
+      ...context,
+      mediaType: payload.mediaType
+    });
     const clientEstimates = new Map((payload.creditEstimates || []).map(item => [item.slotId, item]));
     const pricedSlots = slots.map(slot => {
       const clientEstimate = clientEstimates.get(slot.id);

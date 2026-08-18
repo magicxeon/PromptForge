@@ -10,7 +10,7 @@ import { useActor } from '../../../lib/auth/ActorProvider';
 import { CommunityHero } from '../components/CommunityHero';
 import { routePaths } from '../../../app/routeRegistry/routes';
 
-const postTypes = ['all', 'image', 'template', 'comparison', 'collection'] as const;
+const postTypes = ['all', 'image', 'video', 'template', 'comparison', 'collection'] as const;
 const periods = ['latest', 'week', 'month', 'year'] as const;
 
 export function CommunityHomeRoute() {

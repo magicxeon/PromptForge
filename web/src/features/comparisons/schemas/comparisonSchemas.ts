@@ -14,7 +14,10 @@ export const comparisonSlotSchema = z.object({
   submittedPrompt: z.string().default(''),
   thumbnailUrl: z.string().nullable().optional(),
   result: z.object({
+    mediaType: z.enum(['image', 'video']).default('image'),
     imageUrl: z.string().nullable().optional(),
+    videoUrl: z.string().nullable().optional(),
+    posterUrl: z.string().nullable().optional(),
     mimeType: z.string().nullable().optional(),
     generationDuration: z.union([z.string(), z.number()]).nullable().optional()
   }).nullable().optional(),
@@ -28,6 +31,7 @@ export const comparisonRunSchema = z.object({
   id: z.string(),
   status: z.string(),
   sourcePrompt: z.string().default(''),
+  mediaType: z.enum(['image', 'video']).default('image'),
   configurationSnapshot: z.object({
     mode: z.string().optional(),
     generationMode: z.string().optional()

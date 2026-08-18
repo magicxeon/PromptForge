@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { Button } from '../ui/Button';
 import { Surface } from '../ui/Surface';
+import { VideoMediaPlayer } from '../media/VideoMediaPlayer';
 import { apiMediaUrl } from '../../lib/api/apiClient';
 import type {
   ComparisonRun,
@@ -60,7 +61,8 @@ type ComparisonWorkspaceProps = WorkspaceModeProps & {
 };
 
 const DEFAULT_TRANSFORM: ViewTransform = { scale: 1, x: 0, y: 0 };
-const PAGE_SIZE = 3;
+const IMAGE_PAGE_SIZE = 3;
+const VIDEO_PAGE_SIZE = 2;
 
 export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   const { t } = useTranslation(['comparisons', 'community']);
@@ -72,8 +74,12 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
     startY: number;
     origin: ViewTransform;
   } | null>(null);
+  const isVideo = props.run.mediaType === 'video';
+  const pageSize = isVideo ? VIDEO_PAGE_SIZE : IMAGE_PAGE_SIZE;
   const availableSlots = useMemo(
-    () => props.run.slots.filter(slot => slot.result?.imageUrl || slot.status !== 'failed'),
+    () => props.run.slots.filter(slot => (
+      slot.result?.imageUrl || slot.result?.videoUrl || slot.status !== 'failed'
+    )),
     [props.run.slots]
   );
   const [pageStart, setPageStart] = useState(0);
@@ -81,12 +87,12 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sharedTransform, setSharedTransform] = useState<ViewTransform>(DEFAULT_TRANSFORM);
   const [slotTransforms, setSlotTransforms] = useState<Record<string, ViewTransform>>({});
-  const maximumPageStart = Math.max(0, availableSlots.length - PAGE_SIZE);
-  const hasPages = availableSlots.length > PAGE_SIZE;
+  const maximumPageStart = Math.max(0, availableSlots.length - pageSize);
+  const hasPages = availableSlots.length > pageSize;
   const normalizedPageStart = Math.min(pageStart, maximumPageStart);
   const visibleSlots = availableSlots.slice(
     normalizedPageStart,
-    normalizedPageStart + PAGE_SIZE
+    normalizedPageStart + pageSize
   );
   const prompt = props.run.sourcePrompt || availableSlots[0]?.submittedPrompt || '';
 
@@ -95,6 +101,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
     if (!workspace) return;
 
     const handleWheel = (event: WheelEvent) => {
+      if (isVideo) return;
       if (!(event.target instanceof Element)) return;
       const viewport = event.target.closest<HTMLElement>(
         '[data-comparison-slot-id]'
@@ -130,7 +137,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
 
     workspace.addEventListener('wheel', handleWheel, { passive: false });
     return () => workspace.removeEventListener('wheel', handleWheel);
-  }, [syncView]);
+  }, [isVideo, syncView]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -242,7 +249,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
         className="comparison-workspace__toolbar"
         aria-label={t('comparisons.viewer.controls')}
       >
-        <label className="comparison-workspace__sync">
+        {!isVideo ? <label className="comparison-workspace__sync">
           <input
             type="checkbox"
             checked={syncView}
@@ -264,37 +271,37 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
             }}
           />
           <span>{t('comparisons.viewer.sync')}</span>
-        </label>
-        <Button
+        </label> : null}
+        {!isVideo ? <Button
           variant="ghost"
           size="icon"
           title={t('comparisons.viewer.zoomOut')}
           icon={<Minus className="size-4" />}
           onClick={() => zoomVisible(-0.2)}
-        />
-        <Button
+        /> : null}
+        {!isVideo ? <Button
           variant="ghost"
           size="sm"
           title={t('comparisons.viewer.fit')}
           onClick={resetVisible}
         >
           {t('comparisons.viewer.fit')}
-        </Button>
-        <Button
+        </Button> : null}
+        {!isVideo ? <Button
           variant="ghost"
           size="icon"
           title={t('comparisons.viewer.zoomIn')}
           icon={<Plus className="size-4" />}
           onClick={() => zoomVisible(0.2)}
-        />
-        <Button
+        /> : null}
+        {!isVideo ? <Button
           variant="ghost"
           size="sm"
           icon={<RotateCcw className="size-4" />}
           onClick={resetVisible}
         >
           {t('comparisons.viewer.reset')}
-        </Button>
+        </Button> : null}
         <Button
           variant="ghost"
           size="sm"
@@ -325,7 +332,7 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
           onClick={() => setPageStart(current => Math.max(0, current - 1))}
         />
 
-        <div className="comparison-workspace__grid">
+        <div className={`comparison-workspace__grid${isVideo ? ' is-video' : ''}`}>
           {visibleSlots.map(slot => {
             const transform = currentTransform(slot.id);
             const winner = isWinner(props, slot);
@@ -345,14 +352,20 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
                 </header>
 
                 <div
-                  className="comparison-result-panel__viewport"
+                  className={`comparison-result-panel__viewport${isVideo ? ' is-video' : ''}`}
                   data-comparison-slot-id={slot.id}
-                  onPointerDown={event => startDrag(slot.id, event)}
-                  onPointerMove={event => drag(slot.id, event)}
-                  onPointerUp={stopDrag}
-                  onPointerCancel={stopDrag}
+                  onPointerDown={isVideo ? undefined : event => startDrag(slot.id, event)}
+                  onPointerMove={isVideo ? undefined : event => drag(slot.id, event)}
+                  onPointerUp={isVideo ? undefined : stopDrag}
+                  onPointerCancel={isVideo ? undefined : stopDrag}
                 >
-                  {slot.result?.imageUrl ? (
+                  {isVideo && slot.result?.videoUrl ? (
+                    <VideoMediaPlayer
+                      videoUrl={slot.result.videoUrl}
+                      posterUrl={slot.result.posterUrl || slot.thumbnailUrl}
+                      title={`${localized(slot.providerDisplayName) || slot.provider} ${localized(slot.modelDisplayName) || slot.model}`}
+                    />
+                  ) : slot.result?.imageUrl ? (
                     <img
                       src={apiMediaUrl(slot.result.imageUrl) || ''}
                       alt=""
@@ -370,9 +383,9 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
                       {t('comparisons.viewer.winner')}
                     </span>
                   ) : null}
-                  <span className="comparison-result-panel__pan-hint" aria-hidden="true">
+                  {!isVideo ? <span className="comparison-result-panel__pan-hint" aria-hidden="true">
                     <Move className="size-4" />
-                  </span>
+                  </span> : null}
                 </div>
 
                 <footer className="comparison-result-panel__footer">
@@ -382,9 +395,9 @@ export function ComparisonWorkspace(props: ComparisonWorkspaceProps) {
                   <div className="comparison-result-panel__actions">
                     {comparisonAction(props, slot, t)}
                     {props.renderSlotActions?.(slot)}
-                    {slot.result?.imageUrl ? (
+                    {slot.result?.imageUrl || slot.result?.videoUrl ? (
                       <a
-                        href={apiMediaUrl(slot.result.imageUrl) || ''}
+                        href={apiMediaUrl(slot.result.videoUrl || slot.result.imageUrl) || ''}
                         download
                         className="comparison-result-panel__download"
                         title={t('comparisons.viewer.download')}

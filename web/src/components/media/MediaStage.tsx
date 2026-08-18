@@ -7,6 +7,7 @@ import {
   comparisonThumbnailProfileId
 } from '../comparisons/ComparisonThumbnailGrid';
 import { AuthenticatedMediaImage } from './AuthenticatedMediaImage';
+import { VideoMediaPlayer } from './VideoMediaPlayer';
 
 export function resolveCommunityPostDetailMedia(post: Pick<CommunityPost, 'postType'>) {
   return post.postType === 'template'
@@ -37,6 +38,19 @@ export function MediaStage({
   presentation?: 'templateCard' | 'templateDetail' | 'profileTemplateSquare';
   source?: 'preview' | 'original';
 }) {
+  if (post.postType === 'video') {
+    return (
+      <VideoMediaPlayer
+        className={cn('aspect-video', className)}
+        videoUrl={post.videoUrl}
+        posterUrl={post.posterUrl || post.thumbnailUrl}
+        title={post.title}
+        controls={eager}
+        preload="metadata"
+      />
+    );
+  }
+
   if (post.postType === 'comparison') {
     const slots = post.comparisonSnapshot?.slots
       .filter(slot =>

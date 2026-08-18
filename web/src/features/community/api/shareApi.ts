@@ -22,9 +22,28 @@ const shareDraftSchema = z.object({
 // projection is loaded separately from the canonical Community post endpoint.
 const publishedPostSchema = z.object({
   id: z.string(),
-  postType: z.enum(['image', 'template', 'comparison', 'collection']),
+  postType: z.enum(['image', 'video', 'template', 'comparison', 'collection']),
   templateId: z.string().nullable().optional(),
   templateVersionId: z.string().nullable().optional()
+}).passthrough();
+
+const videoShareDraftSchema = z.object({
+  id: z.string(),
+  videoAssetId: z.string(),
+  videoUrl: z.string(),
+  posterUrl: z.string().nullable(),
+  durationSeconds: z.number().positive().nullable(),
+  title: z.string().default(''),
+  description: z.string().default(''),
+  visibility: z.enum(['public', 'unlisted', 'private']).default('public'),
+  promptVisibility: z.enum(['private', 'full']).default('private'),
+  characterAttributions: z.array(z.object({
+    characterProfileId: z.string(),
+    characterProfileVersionId: z.string(),
+    displayName: z.string(),
+    verificationStatus: z.enum(['verified', 'hidden_private'])
+  })).default([]),
+  expiresAt: z.string()
 }).passthrough();
 
 export function createGeneratedShareDraft(jobId: string) {
@@ -50,6 +69,46 @@ export function publishGeneratedShare(
   }
 ) {
   return apiRequest(`/api/community/share-drafts/${encodeURIComponent(draftId)}/publish`, {
+    method: 'POST',
+    body: input,
+    schema: publishedPostSchema
+  });
+}
+
+export function createVideoShareDraft(assetId: string) {
+  return apiRequest('/api/community/video-share-drafts', {
+    method: 'POST',
+    body: { assetId },
+    schema: videoShareDraftSchema
+  });
+}
+
+export function updateVideoShareDraft(
+  draftId: string,
+  input: {
+    title?: string;
+    description?: string;
+    visibility?: 'public' | 'unlisted' | 'private';
+    promptVisibility?: 'private' | 'full';
+  }
+) {
+  return apiRequest(`/api/community/video-share-drafts/${encodeURIComponent(draftId)}`, {
+    method: 'PATCH',
+    body: input,
+    schema: videoShareDraftSchema
+  });
+}
+
+export function publishVideoShare(
+  draftId: string,
+  input: {
+    title: string;
+    description?: string;
+    visibility?: 'public' | 'unlisted' | 'private';
+    promptVisibility?: 'private' | 'full';
+  }
+) {
+  return apiRequest(`/api/community/video-share-drafts/${encodeURIComponent(draftId)}/publish`, {
     method: 'POST',
     body: input,
     schema: publishedPostSchema

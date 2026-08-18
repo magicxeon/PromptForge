@@ -4,7 +4,7 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CinematicStageContent } from './CinematicStageContent';
 import { CinematicStageRail } from './CinematicStageRail';
-import { formatFacetLabel, overlapsAgeBucket } from './CinematicDialogs';
+import { characterCandidateMediaUrl, formatFacetLabel, overlapsAgeBucket } from './CinematicDialogs';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
 
 const testI18n = i18next.createInstance();
@@ -25,6 +25,14 @@ describe('Cinematic UX prototype', () => {
     expect(overlapsAgeBucket({ minimum: 21, maximum: 23 }, '30-39')).toBe(false);
     expect(overlapsAgeBucket(null, '20-29')).toBe(false);
     expect(formatFacetLabel('east-asian')).toBe('East Asian');
+    expect(characterCandidateMediaUrl({
+      thumbnailUrl: '/thumb.webp',
+      faceThumbnailUrl: '/face.webp',
+      displayImageUrl: '/display.webp',
+      imageUrl: '/image.webp'
+    })).toBe('/thumb.webp');
+    expect(characterCandidateMediaUrl({ displayImageUrl: '/display.webp' }))
+      .toBe('/display.webp');
   });
 
   it('lets the prototype owner inspect every production stage', () => {

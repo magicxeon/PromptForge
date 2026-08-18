@@ -241,7 +241,7 @@ function normalizeSectionOrder(value) {
 }
 
 function countPostTypes(posts) {
-  const counts = { image: 0, template: 0, comparison: 0, collection: 0 };
+  const counts = { image: 0, video: 0, template: 0, comparison: 0, collection: 0 };
   posts.forEach(post => {
     if (Object.hasOwn(counts, post.postType)) counts[post.postType] += 1;
   });

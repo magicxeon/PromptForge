@@ -31,6 +31,21 @@ export function registerCommunityComparisonRoutes(app, {
     }
   });
 
+  app.get('/api/community/posts/:postId/comparison-slots/:slotId/:mediaKind(video|poster)', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.communityVideoEnabled');
+      const filePath = await postAccessService.getComparisonSlotMediaFile(
+        req.params.postId,
+        req.params.slotId,
+        req.actorContext,
+        req.params.mediaKind
+      );
+      return res.sendFile(filePath);
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
   app.get(
     '/api/community/posts/:postId/comparison-slots/:slotId/presentations/:profileId',
     async (req, res) => {

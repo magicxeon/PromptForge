@@ -22,7 +22,8 @@ export function PlaygroundGenerationWorkspace({
   showRenderPromptHeading,
   recentExpanded,
   onRecentExpandedChange,
-  comparisonActive
+  comparisonActive,
+  recentTitle
 }: {
   prompt: ReactNode;
   result: ReactNode;
@@ -36,6 +37,7 @@ export function PlaygroundGenerationWorkspace({
   recentExpanded: boolean;
   onRecentExpandedChange: (expanded: boolean) => void;
   comparisonActive: boolean;
+  recentTitle?: ReactNode;
 }) {
   const { t } = useTranslation(['playground', 'react-ui']);
   const controlsRef = useRef<HTMLElement | null>(null);
@@ -117,7 +119,7 @@ export function PlaygroundGenerationWorkspace({
               <div>
                 <History aria-hidden="true" />
                 <h2 id="playground-recent-title">
-                  {t('playground.result.recentTitle', { ns: 'playground' })}
+                  {recentTitle || t('playground.result.recentTitle', { ns: 'playground' })}
                 </h2>
               </div>
               <Button

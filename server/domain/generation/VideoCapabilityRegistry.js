@@ -30,12 +30,16 @@ export class VideoCapabilityRegistry {
     return this.catalog;
   }
 
-  getPublicCatalog({ includeResearch = false } = {}) {
+  getPublicCatalog({ includeResearch = false, includeTesting = false } = {}) {
     const catalog = this.load();
     return {
       schemaVersion: catalog.schemaVersion,
       catalogVersion: catalog.catalogVersion,
-      models: catalog.models.filter(model => includeResearch || model.paidRoutingEnabled === true).map(toPublicModel)
+      models: catalog.models.filter(model => (
+        includeResearch
+        || model.paidRoutingEnabled === true
+        || (includeTesting && model.testingRoutingEnabled === true)
+      )).map(toPublicModel)
     };
   }
 
@@ -43,10 +47,11 @@ export class VideoCapabilityRegistry {
     return this.load().models.find(model => model.providerId === providerId && model.modelId === modelId) || null;
   }
 
-  validateRequest(input, { allowResearch = false } = {}) {
+  validateRequest(input, { allowResearch = false, allowTesting = false } = {}) {
     const model = this.resolve(input.providerId, input.modelId);
     if (!model) throw new VideoCapabilityError('video_model_unknown', 'Video model is unknown.');
-    if (!allowResearch && model.paidRoutingEnabled !== true) {
+    if (!allowResearch && model.paidRoutingEnabled !== true
+      && !(allowTesting && model.testingRoutingEnabled === true)) {
       throw new VideoCapabilityError('video_model_not_qualified', 'Video model is not qualified for paid routing.', 409);
     }
     if (!model.operations.includes(input.operation)) throw unsupported('operation', input.operation);

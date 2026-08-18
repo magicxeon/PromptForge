@@ -91,7 +91,28 @@ export class CommunityPostAccessService {
     return path.join(OUTPUTS_DIR, fileName);
   }
 
-  async getComparisonSlotMediaFile(postId, slotId, actorContext) {
+  async getVideoMediaFile(postId, kind, actorContext) {
+    const actor = assertActorContext(actorContext);
+    const post = await this.postRepository.findById(postId);
+    assertCanViewCommunityPost(post, actor, { directLink: true });
+    if (post.postType !== 'video') {
+      throw new RepositoryContractError('community_video_unavailable', 'Video post not found.', 404);
+    }
+    const source = kind === 'poster'
+      ? (post.posterUrl || post.thumbnailUrl || post.imageUrl)
+      : post.videoUrl;
+    const fileName = outputFileName(source);
+    if (!fileName) {
+      throw new RepositoryContractError(
+        'community_video_media_unavailable',
+        kind === 'poster' ? 'Video poster is unavailable.' : 'Video is unavailable.',
+        404
+      );
+    }
+    return path.join(OUTPUTS_DIR, fileName);
+  }
+
+  async getComparisonSlotMediaFile(postId, slotId, actorContext, kind = 'image') {
     const actor = assertActorContext(actorContext);
     const post = await this.postRepository.findById(postId);
     assertCanViewCommunityPost(post, actor, { directLink: true });
@@ -100,7 +121,12 @@ export class CommunityPostAccessService {
     }
     const slots = post.comparisonSnapshot?.slots || post.workflowSnapshot?.comparison?.slots || [];
     const slot = slots.find(item => String(item.slotId || item.id) === String(slotId));
-    const fileName = outputFileName(slot?.imageUrl);
+    const source = kind === 'video'
+      ? slot?.videoUrl
+      : kind === 'poster'
+        ? (slot?.posterUrl || slot?.thumbnailUrl)
+        : slot?.imageUrl;
+    const fileName = outputFileName(source);
     if (!fileName) {
       throw new RepositoryContractError('community_media_unavailable', 'Comparison image is unavailable.', 404);
     }

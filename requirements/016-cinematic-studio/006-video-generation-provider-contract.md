@@ -1,17 +1,45 @@
 # Video Generation Provider Contract
 
-**Status:** Provider-neutral research lifecycle foundation implemented;
-provider qualification and paid routing remain blocked
+**Status:** Provider-neutral lifecycle plus Veo Lite and Seedance internal
+qualification adapters implemented; live Seedance submission is exposed only
+to internal testing and remains subject to ModelArk account entitlement; public
+paid routing remains blocked
 **Owner:** Generation provider integration with Cinematic Studio orchestration
 **Primary role:** Backend Platform Architect
 **Reviewers:** Cinematic Experience Director, QA And Release Engineer
 **Skills:** `design-cinematic-experience`, `review-generative-media-pipeline`,
 `implement-generation-workflow`, `verify-release-regressions`
-**Source review date:** 2026-08-17
-**Implementation in this change:** disabled capability catalog, research-only
-sandbox adapter, durable provider-task repository, idempotent submission,
-restart recovery, terminal polling, usage reconciliation and durable video
-Asset copy. No live Veo/Seedance adapter is promoted.
+**Source review date:** 2026-08-18
+**Implementation in this change:** disabled-by-qualification capability
+catalog, research sandbox adapter, official Google Gen AI SDK Veo adapter,
+ModelArk Seedance asynchronous adapter, provider adapter registry, durable
+provider-task repository, idempotent submission, terminal polling, Credit
+settlement and durable video Asset copy. Veo Lite may be exercised from
+Playground as explicitly labelled internal candidates. Seedance is visible for
+controlled live qualification, while every model still requires successful
+payload, status, usage and account-entitlement evidence before promotion. No
+live Veo/Seedance adapter is promoted to general paid routing.
+
+### 0.1 BytePlus live contract reconciliation (2026-08-18)
+
+- Official create-task endpoint: `POST
+  https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks`.
+- The adapter sends the documented top-level `model`, `content`, `ratio`,
+  `resolution`, `duration`, `generate_audio`, `camera_fixed`, `watermark`,
+  `seed` and `return_last_frame` fields. Text and image items remain inside the
+  ordered `content` array.
+- A BytePlus `ModelNotOpen` response is an account/API-key model-entitlement or
+  region configuration failure. It is non-retryable and non-billable; it is not
+  translated into a generic gateway failure and never triggers silent model
+  fallback.
+- Submission creates and persists a durable task before provider dispatch. If
+  the provider rejects that task immediately, the submit endpoint returns the
+  terminal task with HTTP `200`; accepted non-terminal work returns `202`.
+  The client must display the stable provider error code through safe localized
+  guidance, retain the support reference and refresh the refunded Credit state.
+- Provider and model selectors are relational: the model selector contains
+  only models owned by the currently selected provider. A Gemini Veo model must
+  never appear inside the BytePlus Seedance model list.
 
 ## 1. Outcome
 
@@ -239,9 +267,17 @@ Official sources:
 
 ### 7.1 Model candidates
 
+**Account entitlement evidence (2026-08-18):** the configured BytePlus account
+shows enabled scope access for Dreamina Seedance 2.5, 2.0 Mini, 2.0 Fast, 2.0,
+ByteDance Seedance 1.5 Pro, 1.0 Pro Fast and 1.0 Pro. Video uses the existing
+`MODEL_ARK_API-KEY` credential and regional ModelArk base URL already used by
+Seedream. This evidence clears credential and model-entitlement discovery only;
+it does not clear request-shape, usage, visual-quality or paid-routing gates.
+
 | Model | Candidate purpose | Key capability |
 |---|---|---|
 | `dreamina-seedance-2-5-260628` | Premium long-shot multimodal/edit candidate | 4-30s, first/last-frame and multimodal reference/edit/extension modes; model list currently declares 480p/720p and `.mp4`/`.mov` |
+| `seedance-1-0-pro-250528` | Standard silent motion candidate | 2-12s, 480p/720p/1080p, text-to-video and first-frame image-to-video |
 | `seedance-1-0-pro-fast-251015` | Cheapest motion draft candidate | 2-12s, 480p/720p/1080p, first-frame I2V, silent |
 | `seedance-1-5-pro-251215` | Creator candidate | 4-12s, optional native audio, first/last frame, draft support at qualified modes |
 | `dreamina-seedance-2-0-mini-260615` | Low-cost multimodal candidate | 4-15s, up to nine image references, video/audio reference support, no 1080p/4K |
@@ -296,6 +332,71 @@ authorized real-person assets under provider rules. Therefore:
   create an approved provider-specific asset workflow, or block with a recovery
   action;
 - no adapter may weaken moderation or mislabel an asset to bypass this rule.
+
+### 7.4 Adapter compatibility and activation gate
+
+The Seedance video adapter must reuse the ModelArk deployment contract already
+used by Seedream:
+
+- credentials resolve from `MODEL_ARK_API-KEY`, then `MODEL_ARK_API`, then
+  `ARK_API_KEY`;
+- the base URL resolves from `MODEL_ARK_BASE_URL` and defaults to the same
+  regional `/api/v3` endpoint used by Seedream;
+- timeout and sanitized provider-error behavior follow the existing ModelArk
+  adapter conventions;
+- the adapter is selected by the Generation-owned video adapter registry using
+  `providerId`; routes, Playground and Cinematic Studio never instantiate it;
+- Veo and Seedance share `VideoProviderTaskService`, durable task persistence,
+  polling, media copy, actor isolation, Credit capture/refund and Support
+  correlation. Seedance must not introduce a second queue or settlement path;
+- constructor injection of one adapter remains supported for deterministic
+  tests and migration compatibility, but runtime dispatch resolves the adapter
+  recorded on each task.
+
+The first implementation encodes the reviewed ModelArk content-task contract
+behind pure request/response mapping functions. Console scope evidence permits
+Seedance catalog rows to use `testingRoutingEnabled: true` for non-production
+Prompt-only qualification while `paidRoutingEnabled` remains `false`. A live
+`ModelNotOpen` response means the API key/account/region entitlement remains
+unconfirmed for that exact model even when the console selection appears
+enabled; this discrepancy blocks promotion and must not trigger model fallback.
+Image/Character operations remain hidden for Seedance until provider person and
+private-reference policy is represented by deterministic preflight checks.
+Sanitized live fixtures must still confirm all of the following:
+
+1. account entitlement and exact model IDs;
+2. create-task payloads for text, first-frame, first/last-frame and multimodal
+   modes;
+3. task lookup endpoint, status vocabulary and terminal error shape;
+4. output URL, MIME type, audio metadata and provider retention behavior;
+5. authoritative `usage.completion_tokens` placement;
+6. generated-audio support per model;
+7. real-person and Character eligibility behavior; and
+8. Seedance 2.5 duration, input-video minimum-token floor and the unresolved
+   1080p capability conflict.
+
+Unknown provider states or missing successful usage never become `completed`:
+they stop at `reconciliation_required`. Live qualification changes capability,
+pricing and qualification policy versions; it does not require replacing the
+adapter lifecycle.
+
+### 7.5 Sanitized live debug logging
+
+- `MODEL_ARK_VIDEO_DEBUG=false` is the default. Set it to the exact value
+  `true` and restart the server to enable Seedance adapter diagnostics.
+- A submit or poll logs one structured `request` event and one `response` event
+  under the `[ModelArkSeedance][Debug]` prefix. Transport failures use
+  `transport_error`.
+- Request diagnostics include operation, endpoint, HTTP method, timeout, exact
+  model ID, ratio, resolution, duration, audio/camera/watermark/last-frame
+  controls, content types, reference roles and reference count.
+- Response diagnostics include latency, HTTP status, success flag, provider
+  code, provider request ID, provider task ID and provider status.
+- Logs must never contain the API key, Authorization header, prompt text,
+  reference URLs, Base64 media or raw provider payload. The toggle changes
+  observability only and cannot alter routing, pricing, retries or settlement.
+- QA must prove that debug-off emits no adapter diagnostics and debug-on emits
+  the safe fields while redacting a sentinel prompt and credential.
 
 ## 8. Normalized Async Lifecycle
 

@@ -1695,7 +1695,8 @@
 }
 
 .engine-target-panel__model-grid select,
-.engine-target-panel__output-grid input {
+.engine-target-panel__output-grid input,
+.engine-target-panel__output-grid select {
   width: 100%;
   min-width: 0;
   height: 34px;
@@ -2631,6 +2632,7 @@
 .studio-additional-direction textarea,
 .engine-target-panel__model-grid select,
 .engine-target-panel__output-grid input,
+.engine-target-panel__output-grid select,
 .comparison-slot-card__fields select {
   border-color: var(--theme-border-strong);
   background: var(--theme-input);

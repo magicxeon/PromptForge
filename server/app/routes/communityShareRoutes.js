@@ -9,7 +9,9 @@ function sendCommunityShareError(res, error) {
 
 export function registerCommunityShareRoutes(app, {
   communityShareService,
-  communityFeaturePolicyService
+  communityFeaturePolicyService,
+  postAccessService,
+  videoShareService
 }) {
   app.post('/api/community/share-drafts', async (req, res) => {
     try {
@@ -56,6 +58,60 @@ export function registerCommunityShareRoutes(app, {
       await communityFeaturePolicyService.assertEnabled('community.shareEnabled');
       return res.json(await communityShareService.unpublishOwnPost(
         req.params.postId,
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendCommunityShareError(res, error);
+    }
+  });
+
+  app.get('/api/community/posts/:postId/:mediaKind(video|poster)', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.communityVideoEnabled');
+      const filePath = await postAccessService.getVideoMediaFile(
+        req.params.postId,
+        req.params.mediaKind,
+        req.actorContext
+      );
+      return res.sendFile(filePath, error => {
+        if (error && !res.headersSent) sendCommunityShareError(res, error);
+      });
+    } catch (error) {
+      return sendCommunityShareError(res, error);
+    }
+  });
+
+  app.post('/api/community/video-share-drafts', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.communityVideoEnabled');
+      return res.status(201).json(await videoShareService.createDraft(
+        req.body?.assetId,
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendCommunityShareError(res, error);
+    }
+  });
+
+  app.patch('/api/community/video-share-drafts/:draftId', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.communityVideoEnabled');
+      return res.json(videoShareService.updateDraft(
+        req.params.draftId,
+        req.body || {},
+        req.actorContext
+      ));
+    } catch (error) {
+      return sendCommunityShareError(res, error);
+    }
+  });
+
+  app.post('/api/community/video-share-drafts/:draftId/publish', async (req, res) => {
+    try {
+      await communityFeaturePolicyService.assertEnabled('cinematic.communityVideoEnabled');
+      return res.status(201).json(await videoShareService.publish(
+        req.params.draftId,
+        req.body || {},
         req.actorContext
       ));
     } catch (error) {

@@ -134,4 +134,32 @@ describe('PlaygroundGenerationWorkspace', () => {
     ).toBeTruthy();
     expect(comparison.closest('.playground-workspace__comparison-result')).not.toBeNull();
   });
+
+  it('accepts a Video-specific recent title without changing the shared layout', () => {
+    render(
+      <I18nextProvider i18n={testI18n}>
+        <PlaygroundGenerationWorkspace
+          prompt={<div>Video direction</div>}
+          result={<div>Video result</div>}
+          queue={null}
+          recent={<div>Recent clips</div>}
+          recentTitle="Recent Video outputs"
+          engine={<div>Video engine</div>}
+          references={null}
+          actions={<button type="button">Generate Video</button>}
+          showRenderPromptHeading={false}
+          recentExpanded
+          onRecentExpandedChange={() => {}}
+          comparisonActive={false}
+        />
+      </I18nextProvider>
+    );
+    expect(screen.getByRole('heading', { name: 'Recent Video outputs' })).toBeVisible();
+    expect(screen.getByText('Video result').compareDocumentPosition(
+      screen.getByText('Video direction')
+    ) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText('Recent clips').compareDocumentPosition(
+      screen.getByText('Video engine')
+    ) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

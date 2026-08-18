@@ -30,6 +30,9 @@ function flags(overrides = {}) {
     },
     cinematic: {
       enabled: true,
+      playgroundVideoEnabled: true,
+      videoComparisonEnabled: false,
+      communityVideoEnabled: true,
       ...(overrides.cinematic || {})
     }
   };

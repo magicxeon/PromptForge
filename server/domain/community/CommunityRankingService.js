@@ -48,7 +48,7 @@ export class CommunityRankingService {
     const normalizedSort = normalizeRankingSort(sort);
     const normalizedPeriod = normalizeRankingPeriod(period);
     const policy = await this.policyLoader();
-    const normalizedPostType = ['image', 'template', 'comparison', 'collection'].includes(postType)
+    const normalizedPostType = ['image', 'video', 'template', 'comparison', 'collection'].includes(postType)
       ? postType
       : 'all';
     const normalizedSearch = String(search || '').trim().toLocaleLowerCase('en-US').slice(0, 100);
@@ -212,7 +212,8 @@ export class CommunityRankingService {
 }
 
 function publicPostType(post) {
-  if (['image', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (['image', 'video', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (post.videoUrl || post.videoAssetId || post.mediaType === 'video') return 'video';
   if (post.sourceCollectionId || post.collectionSnapshot) return 'collection';
   if (post.sourceComparisonSetId) return 'comparison';
   if (post.sceneTemplateSnapshot) return 'template';
@@ -231,7 +232,7 @@ function matchesSearch(post, search) {
 }
 
 function buildFacets(posts) {
-  const postTypes = { all: posts.length, image: 0, template: 0, comparison: 0, collection: 0 };
+  const postTypes = { all: posts.length, image: 0, video: 0, template: 0, comparison: 0, collection: 0 };
   const officialTags = new Map();
   posts.forEach(post => {
     postTypes[publicPostType(post)] += 1;

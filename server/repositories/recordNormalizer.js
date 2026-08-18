@@ -93,7 +93,8 @@ export async function normalizeCommunityPostRecord(post = {}, mockUserRepository
 }
 
 export function normalizeCommunityPostType(value, post = {}) {
-  if (['image', 'template', 'comparison', 'collection'].includes(value)) return value;
+  if (['image', 'video', 'template', 'comparison', 'collection'].includes(value)) return value;
+  if (post.videoUrl || post.videoAssetId || post.mediaType === 'video') return 'video';
   if (post.sourceCollectionId || post.collectionSnapshot) return 'collection';
   if (post.sourceComparisonSetId) return 'comparison';
   if (post.sourceType === 'scene_template' || post.sceneTemplateSnapshot) return 'template';

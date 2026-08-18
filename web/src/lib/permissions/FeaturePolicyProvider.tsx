@@ -28,8 +28,16 @@ const featurePolicySchema = z.object({
     promptRefinementEnabled: z.boolean().default(false)
   }).default({ promptRefinementEnabled: false }),
   cinematic: z.object({
-    enabled: z.boolean().default(false)
-  }).default({ enabled: false })
+    enabled: z.boolean().default(false),
+    playgroundVideoEnabled: z.boolean().default(false),
+    videoComparisonEnabled: z.boolean().default(false),
+    communityVideoEnabled: z.boolean().default(false)
+  }).default({
+    enabled: false,
+    playgroundVideoEnabled: false,
+    videoComparisonEnabled: false,
+    communityVideoEnabled: false
+  })
 });
 
 export type FeaturePolicy = z.infer<typeof featurePolicySchema>;

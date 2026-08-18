@@ -4,7 +4,27 @@ import { videoCapabilityRegistry } from '../server/domain/generation/VideoCapabi
 
 test('paid video catalog exposes no unqualified research models', () => {
   assert.deepEqual(videoCapabilityRegistry.getPublicCatalog().models, []);
-  assert.equal(videoCapabilityRegistry.getPublicCatalog({ includeResearch: true }).models.length, 9);
+  const researchModels = videoCapabilityRegistry.getPublicCatalog({ includeResearch: true }).models;
+  assert.equal(researchModels.length, 10);
+  assert.ok(researchModels.some(model => model.modelId === 'seedance-1-0-pro-250528'));
+  const testingModels = videoCapabilityRegistry.getPublicCatalog({ includeTesting: true }).models;
+  assert.equal(testingModels.length, 8);
+  assert.equal(testingModels.filter(model => model.providerId === 'modelark').length, 7);
+  assert.ok(testingModels.filter(model => model.providerId === 'modelark')
+    .every(model => model.operations.includes('text_to_video') && model.paidRoutingEnabled === false));
+});
+
+test('Seedance internal routing accepts Prompt only and blocks unqualified private-reference operations', () => {
+  const request = {
+    providerId: 'modelark', modelId: 'dreamina-seedance-2-5-260628',
+    operation: 'text_to_video', aspectRatio: '9:16', resolution: '720p',
+    durationSeconds: 5, audioMode: 'generated', referenceImageCount: 0
+  };
+  assert.equal(videoCapabilityRegistry.validateRequest(request, { allowTesting: true }).providerId, 'modelark');
+  assert.throws(
+    () => videoCapabilityRegistry.validateRequest({ ...request, operation: 'character_to_video', referenceImageCount: 1 }, { allowTesting: true }),
+    error => error.code === 'video_parameter_unsupported'
+  );
 });
 
 test('video capability validation blocks paid routing and rejects unsupported Veo combinations', () => {

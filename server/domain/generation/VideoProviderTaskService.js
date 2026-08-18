@@ -12,18 +12,20 @@ const PROVIDER_TO_TASK = {
 };
 
 export class VideoProviderTaskService {
-  constructor({ repository = videoProviderTaskRepository, capabilityRegistry = videoCapabilityRegistry, adapter, mediaPersister } = {}) {
+  constructor({ repository = videoProviderTaskRepository, capabilityRegistry = videoCapabilityRegistry, adapter, adapterRegistry, mediaPersister } = {}) {
     this.repository = repository;
     this.capabilityRegistry = capabilityRegistry;
     this.adapter = adapter;
+    this.adapterRegistry = adapterRegistry;
     this.mediaPersister = mediaPersister;
   }
 
-  async submitResearchTask(request, actorContext) {
-    if (!this.adapter) throw taskError('video_sandbox_adapter_unavailable', 'Video sandbox adapter is unavailable.', 503);
-    const model = this.capabilityRegistry.validateRequest(request, { allowResearch: true });
+  async submitTask(request, actorContext, { allowResearch = false, allowTesting = false } = {}) {
+    const model = this.capabilityRegistry.validateRequest(request, { allowResearch, allowTesting });
+    const adapter = this.#resolveAdapter(model.providerId);
     const submittedFingerprint = fingerprintRequest(request);
     const accepted = await this.repository.createAccepted({
+      id: request.id,
       ownerUserId: actorContext.userId,
       ownerUsername: actorContext.username,
       idempotencyKey: normalizeIdempotencyKey(request.idempotencyKey),
@@ -36,12 +38,16 @@ export class VideoProviderTaskService {
       operation: request.operation,
       submittedFingerprint,
       submittedRequest: sanitizeRequest(request),
+      reservationId: request.reservationId || null,
+      estimateId: request.estimateId || null,
+      estimatedCredits: Number(request.estimatedCredits || 0) || null,
+      billingStatus: request.reservationId ? 'reserved' : null,
       acceptedAt: new Date().toISOString()
     });
     if (accepted.providerTaskId || accepted.status !== 'accepted') return accepted;
     await this.repository.update(accepted.id, draft => { draft.status = 'provider_submitting'; });
     try {
-      const response = await this.adapter.submit({ ...request, submittedFingerprint });
+      const response = await adapter.submit({ ...request, submittedFingerprint });
       return this.repository.update(accepted.id, draft => {
         draft.providerTaskId = response.providerTaskId;
         draft.providerOperationId = response.providerOperationId || response.providerTaskId;
@@ -57,15 +63,33 @@ export class VideoProviderTaskService {
     }
   }
 
+  submitResearchTask(request, actorContext) {
+    return this.submitTask(request, actorContext, { allowResearch: true });
+  }
+
   async pollTask(taskId) {
     const task = await this.repository.find(taskId);
     if (!task) throw taskError('video_task_not_found', 'Video provider task not found.', 404);
     if (isTerminal(task.status)) return task;
     if (!task.providerTaskId) throw taskError('video_provider_task_id_missing', 'Provider task ID is missing.', 409);
-    const response = await this.adapter.poll(task.providerTaskId);
+    const adapter = this.#resolveAdapter(task.providerId);
+    const response = await adapter.poll(task.providerTaskId, { task });
     const nextStatus = PROVIDER_TO_TASK[response.providerStatus];
-    if (!nextStatus) throw taskError('video_provider_status_unknown', 'Provider returned an unknown task status.', 502);
-    if (nextStatus === 'provider_succeeded') return this.#completeSuccessfulTask(task, response);
+    if (!nextStatus) {
+      return this.repository.update(task.id, draft => {
+        draft.pollCount = Number(draft.pollCount || 0) + 1;
+        draft.lastPolledAt = new Date().toISOString();
+        draft.status = 'reconciliation_required';
+        draft.providerError = {
+          code: 'video_provider_status_unknown',
+          category: 'provider',
+          retryable: false,
+          providerBillableState: 'unknown'
+        };
+        draft.completedAt = new Date().toISOString();
+      });
+    }
+    if (nextStatus === 'provider_succeeded') return this.#completeSuccessfulTask(task, response, adapter);
     return this.repository.update(task.id, draft => {
       draft.pollCount = Number(draft.pollCount || 0) + 1;
       draft.lastPolledAt = new Date().toISOString();
@@ -86,7 +110,7 @@ export class VideoProviderTaskService {
     return results;
   }
 
-  async #completeSuccessfulTask(task, response) {
+  async #completeSuccessfulTask(task, response, adapter) {
     if (!this.mediaPersister) throw taskError('video_media_persister_unavailable', 'Durable video media persistence is unavailable.', 503);
     await this.repository.update(task.id, draft => {
       draft.status = 'media_copying';
@@ -107,7 +131,15 @@ export class VideoProviderTaskService {
         draft.providerError = sanitizeError(error, 'video_media_copy_failed');
         draft.completedAt = new Date().toISOString();
       });
+    } finally {
+      await adapter.cleanupOutput?.(response.output).catch(() => {});
     }
+  }
+
+  #resolveAdapter(providerId) {
+    if (this.adapterRegistry) return this.adapterRegistry.resolve(providerId);
+    if (this.adapter) return this.adapter;
+    throw taskError('video_provider_adapter_unavailable', 'Video provider adapter is unavailable.', 503);
   }
 }
 
@@ -132,8 +164,26 @@ function sanitizeRequest(request) {
     audioMode: request.audioMode,
     referenceImageCount: Number(request.referenceImageCount || 0),
     pricingFingerprint: request.pricingFingerprint,
-    correlationId: request.correlationId
+    correlationId: request.correlationId,
+    characterAttributions: sanitizeCharacterAttributions(request.characterAttributions)
   };
+}
+
+function sanitizeCharacterAttributions(value) {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  return value.slice(0, 6).flatMap(item => {
+    const characterProfileId = String(item?.characterProfileId || '').trim();
+    const characterProfileVersionId = String(item?.characterProfileVersionId || '').trim();
+    const key = `${characterProfileId}:${characterProfileVersionId}`;
+    if (!characterProfileId || !characterProfileVersionId || seen.has(key)) return [];
+    seen.add(key);
+    return [{
+      characterProfileId,
+      characterProfileVersionId,
+      role: String(item?.role || '').trim().slice(0, 80) || null
+    }];
+  });
 }
 
 function sanitizeError(error, fallbackCode) {

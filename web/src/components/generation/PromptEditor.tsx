@@ -1,4 +1,5 @@
 import { Copy } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 
@@ -8,7 +9,14 @@ export function PromptEditor({
   onChange,
   onNegativeChange,
   compact = false,
-  variant = 'default'
+  variant = 'default',
+  primaryLabel,
+  primaryDescription,
+  primaryPlaceholder,
+  primaryMaxLength = 8000,
+  primaryFooter,
+  showNegative = true,
+  inputId = 'generation-main-prompt'
 }: {
   value: string;
   negativeValue: string;
@@ -16,6 +24,13 @@ export function PromptEditor({
   onNegativeChange: (value: string) => void;
   compact?: boolean;
   variant?: 'default' | 'playground';
+  primaryLabel?: ReactNode;
+  primaryDescription?: ReactNode;
+  primaryPlaceholder?: string;
+  primaryMaxLength?: number;
+  primaryFooter?: ReactNode;
+  showNegative?: boolean;
+  inputId?: string;
 }) {
   const { t } = useTranslation('playground');
   if (variant === 'playground') {
@@ -23,23 +38,24 @@ export function PromptEditor({
       <div id="generation-prompt" className="playground-prompt-editor">
         <section className="playground-prompt-editor__panel playground-prompt-editor__panel--primary">
           <div className="playground-prompt-editor__heading">
-            <label htmlFor="generation-main-prompt">{t('playground.prompt.label')}</label>
+            <label htmlFor={inputId}>{primaryLabel || t('playground.prompt.label')}</label>
             <Button variant="ghost" size="icon" title={t('playground.prompt.copy')} icon={<Copy className="size-4" />} onClick={() => void navigator.clipboard.writeText(value)} />
           </div>
           <p className="playground-prompt-editor__description" style={{ marginTop: '-13px' }}>
-            {t('playground.prompt.description')}
+            {primaryDescription || t('playground.prompt.description')}
           </p>
           <textarea
-            id="generation-main-prompt"
+            id={inputId}
             value={value}
-            maxLength={8000}
+            maxLength={primaryMaxLength}
             onChange={event => onChange(event.target.value)}
-            placeholder={t('playground.prompt.placeholder')}
+            placeholder={primaryPlaceholder || t('playground.prompt.placeholder')}
             className="playground-prompt-editor__main"
           />
-          <div className="playground-prompt-editor__count">{value.length} / 8000</div>
+          <div className="playground-prompt-editor__count">{value.length} / {primaryMaxLength}</div>
+          {primaryFooter}
         </section>
-        <section className="playground-prompt-editor__panel">
+        {showNegative ? <section className="playground-prompt-editor__panel">
           <div className="playground-prompt-editor__heading">
             <label htmlFor="generation-negative-prompt">{t('playground.negative.label')}</label>
           </div>
@@ -55,7 +71,7 @@ export function PromptEditor({
             className="playground-prompt-editor__negative"
           />
           <div className="playground-prompt-editor__count">{negativeValue.length} / 2000</div>
-        </section>
+        </section> : null}
       </div>
     );
   }

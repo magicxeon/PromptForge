@@ -2,9 +2,11 @@
 
 **Status:** C0-C1.5 implemented; C2-C3 functional authoring foundation
 implemented on 2026-08-17; C4 sandbox lifecycle, C5 timeline/export manifest
-and C6 read-only operations are implemented foundations. Paid video routing,
-final assembly and launch closure remain blocked by provider qualification,
-Credits integration and manual film evidence.
+and C6 read-only operations are implemented foundations. On 2026-08-18 the
+guarded Playground Video and Community Video media/publication foundations were
+added. Paid video routing, final assembly, durable poster extraction,
+Character rating projection and launch closure remain blocked by provider
+qualification, Credits integration and manual film evidence.
 **Source concept:** `momelo-ai-short-film-series-workflow.md`
 **Product owner:** Cinematic Studio
 **Primary role:** Product And Requirement Architect
@@ -189,6 +191,11 @@ from Cinematic, Generation, Credits or Assets. Requirement 009 extends the
 existing Playground with single-clip video through canonical Generation;
 Requirement 010 extends Community publication/discovery with typed video media.
 Neither extension duplicates the six-stage Cinematic production workflow.
+Playground Video Comparison is constrained to exactly two slots while existing
+Image Comparison remains unchanged at two through four slots.
+Published videos preserve verified Character attribution so eligible Character
+Profiles can link back to the videos/stories in which they appear and receive a
+versioned, anti-abuse Community rating contribution.
 
 ## 7. Implementation order
 

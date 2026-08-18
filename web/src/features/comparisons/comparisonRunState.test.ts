@@ -15,6 +15,7 @@ function run(
     id,
     status: 'queued',
     sourcePrompt: '',
+    mediaType: 'image',
     estimatedTotalCredit: 0,
     actualTotalCredit: 0,
     createdAt,

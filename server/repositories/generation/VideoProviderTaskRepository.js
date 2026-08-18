@@ -17,7 +17,7 @@ export class VideoProviderTaskRepository {
       if (replay) return structuredClone(replay);
       const now = new Date().toISOString();
       const task = {
-        id: createPrefixedId('videotask'),
+        id: input.id || createPrefixedId('videotask'),
         schemaVersion: 1,
         status: 'accepted',
         pollCount: 0,
@@ -43,8 +43,28 @@ export class VideoProviderTaskRepository {
     });
   }
 
+  async findForActor(taskId, actorContext) {
+    const task = await this.find(taskId);
+    return task?.ownerUserId === actorContext?.userId ? task : null;
+  }
+
+  async findByIdempotencyKey(ownerUserId, idempotencyKey) {
+    const data = await this.#read();
+    const task = data.tasks.find(item => item.ownerUserId === ownerUserId && item.idempotencyKey === idempotencyKey);
+    return task ? structuredClone(task) : null;
+  }
+
   listRecoverable({ limit = 100 } = {}) {
     return this.#read().then(data => data.tasks.filter(task => !TERMINAL.has(task.status)).slice(0, limit).map(task => structuredClone(task)));
+  }
+
+  listForActor(actorContext, { limit = 6 } = {}) {
+    const ownerUserId = String(actorContext?.userId || '');
+    const boundedLimit = Math.min(24, Math.max(1, Number(limit) || 6));
+    return this.#read().then(data => data.tasks
+      .filter(task => task.ownerUserId === ownerUserId)
+      .slice(0, boundedLimit)
+      .map(task => structuredClone(task)));
   }
 
   listOperational({ search = '', status = '', limit = 50 } = {}) {

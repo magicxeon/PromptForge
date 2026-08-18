@@ -128,4 +128,34 @@ describe('ComparisonWorkspace', () => {
     expect(requestFullscreen).toHaveBeenCalledTimes(1);
     expect(exitFullscreen).toHaveBeenCalledTimes(1);
   });
+
+  it('renders exactly two video players without image zoom controls', () => {
+    const run = comparisonRunSchema.parse({
+      id: 'run_video',
+      status: 'completed',
+      mediaType: 'video',
+      createdAt: Date.now(),
+      slots: ['a', 'b'].map(id => ({
+        id: `slot_${id}`,
+        provider: 'provider',
+        model: `model_${id}`,
+        status: 'completed',
+        result: {
+          mediaType: 'video',
+          videoUrl: `/outputs/${id}.mp4`,
+          posterUrl: `/outputs/${id}.webp`
+        }
+      }))
+    });
+
+    const { container } = render(
+      <I18nextProvider i18n={testI18n}>
+        <ComparisonWorkspace mode="generation" run={run} />
+      </I18nextProvider>
+    );
+
+    expect(container.querySelectorAll('video')).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Zoom in' })).not.toBeInTheDocument();
+    expect(container.querySelector('.comparison-workspace__grid')).toHaveClass('is-video');
+  });
 });

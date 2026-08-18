@@ -52,7 +52,10 @@ export class CinematicVideoAssetService {
           projectId: task.projectId,
           sceneId: task.sceneId,
           shotId: task.shotId,
-          attemptId: task.attemptId
+          attemptId: task.attemptId,
+          characterAttributions: Array.isArray(task.submittedRequest?.characterAttributions)
+            ? task.submittedRequest.characterAttributions
+            : []
         }
       }, { userId: task.ownerUserId, username: task.ownerUsername, role: 'user' });
       return toOutputAsset(asset);

@@ -1,8 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Camera, Check, Search, Sparkles, UserRound } from 'lucide-react';
+import { Camera, Check, Search, UserRound } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { DialogHeader } from './ProjectCostSummary';
 import { listCharacters, listOwnedCharacters } from '../../profiles/api/profileApi';
@@ -50,7 +51,7 @@ const characterFixtures = [
   { id: 'theo', name: 'Theo Martin', gender: 'male', age: '30-39', ethnicity: 'european', scope: 'community' }
 ] as const;
 
-type CharacterCandidate = z.infer<typeof characterSummarySchema> & { scope?: 'mine' | 'community' };
+export type CharacterCandidate = z.infer<typeof characterSummarySchema> & { scope?: 'mine' | 'community' };
 
 export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDialogProps & { onSelect?: (character: CharacterCandidate) => void }) {
   const { t } = useTranslation('cinematic');
@@ -113,7 +114,9 @@ export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDial
             {candidates.map(item => {
               const name = 'displayName' in item ? item.displayName : item.name;
               const detail = 'age' in item ? `${item.age} · ${item.ethnicity}` : item.personalitySummary;
-              return <button type="button" className={selectedId === item.id ? 'is-selected' : ''} key={item.id} onClick={() => setSelectedId(item.id)}><span><UserRound aria-hidden="true" /></span><strong>{name}</strong><small>{detail}</small></button>;
+              const mediaUrl = characterCandidateMediaUrl(item);
+              const fallback = <span className="cinematic-character-results__fallback"><UserRound aria-hidden="true" /></span>;
+              return <button type="button" className={selectedId === item.id ? 'is-selected' : ''} key={item.id} onClick={() => setSelectedId(item.id)}><span className="cinematic-character-results__media">{mediaUrl ? <AuthenticatedMediaImage src={mediaUrl} alt="" fallback={fallback} /> : fallback}</span><strong>{name}</strong><small>{detail}</small></button>;
             })}
           </div>
           <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!selectedId || !loadedCandidates} onClick={() => { const selected = loadedCandidates?.find(item => item.id === selectedId); if (selected) { onSelect?.(selected); onOpenChange(false); } }}>{t('cinematic.picker.use')}</Button></div>
@@ -121,6 +124,14 @@ export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDial
       </Dialog.Portal>
     </Dialog.Root>
   );
+}
+
+export function characterCandidateMediaUrl(item: Partial<CharacterCandidate>) {
+  return item.thumbnailUrl
+    || item.faceThumbnailUrl
+    || item.displayImageUrl
+    || item.imageUrl
+    || null;
 }
 
 export function overlapsAgeBucket(

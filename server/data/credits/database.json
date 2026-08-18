@@ -783,7 +783,7 @@
       "lifetimeGrantedCredits": 9973,
       "lifetimeCapturedCredits": 0,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-07-23T16:58:05.676Z"
+      "updatedAt": "2026-08-18T09:48:47.528Z"
     },
     {
       "schemaVersion": 2,
@@ -100918,6 +100918,4379 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-08-15T04:46:36.457Z",
       "expiresAt": "2026-08-15T05:01:36.457Z"
+    },
+    {
+      "estimateId": "est_1787032041774_04gt170",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T05:47:21.774Z",
+      "expiresAt": "2026-08-18T06:02:21.774Z"
+    },
+    {
+      "estimateId": "est_1787032067002_fc11l57",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T05:47:47.002Z",
+      "expiresAt": "2026-08-18T06:02:47.002Z"
+    },
+    {
+      "estimateId": "est_1787032107944_cq1w57r",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T05:48:27.944Z",
+      "expiresAt": "2026-08-18T06:03:27.944Z"
+    },
+    {
+      "estimateId": "est_1787032152973_78wm3a4",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T05:49:12.973Z",
+      "expiresAt": "2026-08-18T06:04:12.973Z"
+    },
+    {
+      "estimateId": "vest_1787033889761_x1l1252",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.2,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 270,
+        "totalCredits": 270
+      },
+      "estimatedCredits": 270,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:18:09.761Z",
+      "expiresAt": "2026-08-18T06:33:09.761Z"
+    },
+    {
+      "estimateId": "vest_1787034190204_e9z56tq",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.2,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 270,
+        "totalCredits": 270
+      },
+      "estimatedCredits": 270,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:23:10.204Z",
+      "expiresAt": "2026-08-18T06:38:10.204Z"
+    },
+    {
+      "estimateId": "vest_1787034284770_zy0081b",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.2,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 270,
+        "totalCredits": 270
+      },
+      "estimatedCredits": 270,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:24:44.770Z",
+      "expiresAt": "2026-08-18T06:39:44.770Z"
+    },
+    {
+      "estimateId": "vest_1787034962878_i1e5z07",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.2,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 270,
+        "totalCredits": 270
+      },
+      "estimatedCredits": 270,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:36:02.878Z",
+      "expiresAt": "2026-08-18T06:51:02.878Z"
+    },
+    {
+      "estimateId": "est_1787035226287_h88u7b5",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:40:26.287Z",
+      "expiresAt": "2026-08-18T06:55:26.287Z"
+    },
+    {
+      "estimateId": "est_1787035430366_syaluvu",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:43:50.366Z",
+      "expiresAt": "2026-08-18T06:58:50.366Z"
+    },
+    {
+      "estimateId": "est_1787035642810_4u3c646",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T06:47:22.810Z",
+      "expiresAt": "2026-08-18T07:02:22.810Z"
+    },
+    {
+      "estimateId": "est_1787036900503_ud2ecgx",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:08:20.503Z",
+      "expiresAt": "2026-08-18T07:23:20.503Z"
+    },
+    {
+      "estimateId": "est_1787037214075_t1a46t1",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:13:34.075Z",
+      "expiresAt": "2026-08-18T07:28:34.075Z"
+    },
+    {
+      "estimateId": "est_1787037418792_12tj6oa",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:16:58.792Z",
+      "expiresAt": "2026-08-18T07:31:58.792Z"
+    },
+    {
+      "estimateId": "est_1787037702366_9jdopge",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:21:42.365Z",
+      "expiresAt": "2026-08-18T07:36:42.365Z"
+    },
+    {
+      "estimateId": "est_1787037724574_mkrp5ej",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:22:04.574Z",
+      "expiresAt": "2026-08-18T07:37:04.574Z"
+    },
+    {
+      "estimateId": "est_1787038570422_cijqwb8",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:36:10.422Z",
+      "expiresAt": "2026-08-18T07:51:10.422Z"
+    },
+    {
+      "estimateId": "est_1787038737618_ph1hdpz",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:38:57.618Z",
+      "expiresAt": "2026-08-18T07:53:57.618Z"
+    },
+    {
+      "estimateId": "est_1787039049076_0uwvwra",
+      "userId": "usr_demo",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:44:09.076Z",
+      "expiresAt": "2026-08-18T07:59:09.076Z"
+    },
+    {
+      "estimateId": "est_1787039456739_2g1cmg7",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T07:50:56.739Z",
+      "expiresAt": "2026-08-18T08:05:56.739Z"
+    },
+    {
+      "estimateId": "est_1787041707413_1c9gfxo",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T08:28:27.412Z",
+      "expiresAt": "2026-08-18T08:43:27.412Z"
+    },
+    {
+      "estimateId": "est_1787041714912_po4o47d",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "70b48711aa39a0bb13e0589dc18c6dfb3c61629194a361b72aaf79a4d7a625b2"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T08:28:34.912Z",
+      "expiresAt": "2026-08-18T08:43:34.912Z"
+    },
+    {
+      "estimateId": "est_1787042454514_oh9peal",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T08:40:54.513Z",
+      "expiresAt": "2026-08-18T08:55:54.513Z"
+    },
+    {
+      "estimateId": "est_1787042458798_5wpp159",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "xai",
+        "requestedModelId": "grok-imagine-image-quality",
+        "resolvedProviderId": "xai",
+        "resolvedModelId": "grok-imagine-image-quality"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "952f2b527af4a3960a6b8056b9d5e638ed56b6f057955883979e82dccfecd01f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 70,
+        "referenceCredits": 0,
+        "generationCredits": 70,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 70
+      },
+      "estimatedCredits": 70,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T08:40:58.798Z",
+      "expiresAt": "2026-08-18T08:55:58.798Z"
+    },
+    {
+      "estimateId": "est_1787042460413_0rkmvvm",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "openai",
+        "requestedModelId": "gpt-image-1-mini",
+        "resolvedProviderId": "openai",
+        "resolvedModelId": "gpt-image-1-mini"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "cf397ee0659f0fb5cef9d7c56c4b76e10f58999c075ab50fe1dca99772e3eeff"
+      },
+      "breakdown": {
+        "baseOutputCredits": 30,
+        "referenceCredits": 0,
+        "generationCredits": 30,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 30
+      },
+      "estimatedCredits": 30,
+      "estimateConfidence": "provisional",
+      "createdAt": "2026-08-18T08:41:00.413Z",
+      "expiresAt": "2026-08-18T08:56:00.413Z"
+    },
+    {
+      "estimateId": "est_1787042461987_48iu4vx",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedream-4-0-250828",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedream-4-0-250828"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "70b48711aa39a0bb13e0589dc18c6dfb3c61629194a361b72aaf79a4d7a625b2"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T08:41:01.987Z",
+      "expiresAt": "2026-08-18T08:56:01.987Z"
+    },
+    {
+      "estimateId": "vest_1787044789180_438ueu6",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.180Z",
+      "expiresAt": "2026-08-18T09:34:49.180Z"
+    },
+    {
+      "estimateId": "vest_1787044789188_raoc5zp",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.188Z",
+      "expiresAt": "2026-08-18T09:34:49.188Z"
+    },
+    {
+      "estimateId": "vest_1787044789422_yc2fb81",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.422Z",
+      "expiresAt": "2026-08-18T09:34:49.422Z"
+    },
+    {
+      "estimateId": "vest_1787044789621_v7ouhsz",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.621Z",
+      "expiresAt": "2026-08-18T09:34:49.621Z"
+    },
+    {
+      "estimateId": "vest_1787044789881_pgvj7vz",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.881Z",
+      "expiresAt": "2026-08-18T09:34:49.881Z"
+    },
+    {
+      "estimateId": "vest_1787044789993_kvgdcjv",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:49.993Z",
+      "expiresAt": "2026-08-18T09:34:49.993Z"
+    },
+    {
+      "estimateId": "vest_1787044790112_m0ldbe3",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:50.112Z",
+      "expiresAt": "2026-08-18T09:34:50.112Z"
+    },
+    {
+      "estimateId": "vest_1787044790802_h331nmw",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:50.802Z",
+      "expiresAt": "2026-08-18T09:34:50.802Z"
+    },
+    {
+      "estimateId": "vest_1787044790956_jugpgng",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:50.956Z",
+      "expiresAt": "2026-08-18T09:34:50.956Z"
+    },
+    {
+      "estimateId": "vest_1787044791095_nvd0pp9",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:51.095Z",
+      "expiresAt": "2026-08-18T09:34:51.095Z"
+    },
+    {
+      "estimateId": "vest_1787044791298_8g3xwon",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:51.298Z",
+      "expiresAt": "2026-08-18T09:34:51.298Z"
+    },
+    {
+      "estimateId": "vest_1787044791427_2q6dy0s",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 8,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.43200000000000005,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 580,
+        "totalCredits": 580
+      },
+      "estimatedCredits": 580,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:19:51.427Z",
+      "expiresAt": "2026-08-18T09:34:51.427Z"
+    },
+    {
+      "estimateId": "vest_1787044803170_sm30ol7",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:03.170Z",
+      "expiresAt": "2026-08-18T09:35:03.170Z"
+    },
+    {
+      "estimateId": "vest_1787044803306_54vfs0b",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:03.306Z",
+      "expiresAt": "2026-08-18T09:35:03.306Z"
+    },
+    {
+      "estimateId": "vest_1787044803416_y2b9uvs",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:03.416Z",
+      "expiresAt": "2026-08-18T09:35:03.416Z"
+    },
+    {
+      "estimateId": "vest_1787044803762_58rjcsv",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:03.762Z",
+      "expiresAt": "2026-08-18T09:35:03.762Z"
+    },
+    {
+      "estimateId": "vest_1787044804362_vylmgum",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:04.362Z",
+      "expiresAt": "2026-08-18T09:35:04.362Z"
+    },
+    {
+      "estimateId": "vest_1787044804574_wpoc8h3",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:04.574Z",
+      "expiresAt": "2026-08-18T09:35:04.574Z"
+    },
+    {
+      "estimateId": "vest_1787044804862_dpk52p0",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:04.862Z",
+      "expiresAt": "2026-08-18T09:35:04.862Z"
+    },
+    {
+      "estimateId": "vest_1787044805142_f94w64c",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:05.142Z",
+      "expiresAt": "2026-08-18T09:35:05.142Z"
+    },
+    {
+      "estimateId": "vest_1787044805244_8oyd2pg",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:05.244Z",
+      "expiresAt": "2026-08-18T09:35:05.244Z"
+    },
+    {
+      "estimateId": "vest_1787044805348_fntcrdk",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:05.348Z",
+      "expiresAt": "2026-08-18T09:35:05.348Z"
+    },
+    {
+      "estimateId": "vest_1787044805638_qk1pqzw",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:05.638Z",
+      "expiresAt": "2026-08-18T09:35:05.638Z"
+    },
+    {
+      "estimateId": "vest_1787044805771_rjj24ot",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:05.771Z",
+      "expiresAt": "2026-08-18T09:35:05.771Z"
+    },
+    {
+      "estimateId": "vest_1787044806140_by0n7ku",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:06.140Z",
+      "expiresAt": "2026-08-18T09:35:06.140Z"
+    },
+    {
+      "estimateId": "vest_1787044806285_525e8wu",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:06.285Z",
+      "expiresAt": "2026-08-18T09:35:06.285Z"
+    },
+    {
+      "estimateId": "vest_1787044806439_mdipuk2",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:06.439Z",
+      "expiresAt": "2026-08-18T09:35:06.439Z"
+    },
+    {
+      "estimateId": "vest_1787044815997_x2bw2sy",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:15.997Z",
+      "expiresAt": "2026-08-18T09:35:15.997Z"
+    },
+    {
+      "estimateId": "vest_1787044816157_reszowx",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:16.157Z",
+      "expiresAt": "2026-08-18T09:35:16.157Z"
+    },
+    {
+      "estimateId": "vest_1787044817346_95ippw3",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:17.346Z",
+      "expiresAt": "2026-08-18T09:35:17.346Z"
+    },
+    {
+      "estimateId": "vest_1787044817821_9yjb3ob",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:17.821Z",
+      "expiresAt": "2026-08-18T09:35:17.821Z"
+    },
+    {
+      "estimateId": "vest_1787044818118_ean8gqb",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:18.118Z",
+      "expiresAt": "2026-08-18T09:35:18.118Z"
+    },
+    {
+      "estimateId": "vest_1787044818264_vabo4ml",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:18.264Z",
+      "expiresAt": "2026-08-18T09:35:18.264Z"
+    },
+    {
+      "estimateId": "vest_1787044818523_5ers9nf",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:18.522Z",
+      "expiresAt": "2026-08-18T09:35:18.522Z"
+    },
+    {
+      "estimateId": "vest_1787044818677_okvwy7k",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:18.677Z",
+      "expiresAt": "2026-08-18T09:35:18.677Z"
+    },
+    {
+      "estimateId": "vest_1787044833859_6yp0wan",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:33.859Z",
+      "expiresAt": "2026-08-18T09:35:33.859Z"
+    },
+    {
+      "estimateId": "vest_1787044833934_pln0c21",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:33.934Z",
+      "expiresAt": "2026-08-18T09:35:33.934Z"
+    },
+    {
+      "estimateId": "vest_1787044834109_vxaze1e",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:34.109Z",
+      "expiresAt": "2026-08-18T09:35:34.109Z"
+    },
+    {
+      "estimateId": "vest_1787044834636_jnguano",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:34.636Z",
+      "expiresAt": "2026-08-18T09:35:34.636Z"
+    },
+    {
+      "estimateId": "vest_1787044836860_5t1o1y2",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:36.860Z",
+      "expiresAt": "2026-08-18T09:35:36.860Z"
+    },
+    {
+      "estimateId": "vest_1787044837091_xfo7543",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:37.091Z",
+      "expiresAt": "2026-08-18T09:35:37.091Z"
+    },
+    {
+      "estimateId": "vest_1787044839411_ae5dj1k",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:39.411Z",
+      "expiresAt": "2026-08-18T09:35:39.411Z"
+    },
+    {
+      "estimateId": "vest_1787044839571_mp0ugb8",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:39.571Z",
+      "expiresAt": "2026-08-18T09:35:39.571Z"
+    },
+    {
+      "estimateId": "vest_1787044839747_wx6clvs",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:39.747Z",
+      "expiresAt": "2026-08-18T09:35:39.747Z"
+    },
+    {
+      "estimateId": "vest_1787044839955_qdkoq9n",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:39.955Z",
+      "expiresAt": "2026-08-18T09:35:39.955Z"
+    },
+    {
+      "estimateId": "vest_1787044840125_7hc1eu0",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:40.125Z",
+      "expiresAt": "2026-08-18T09:35:40.125Z"
+    },
+    {
+      "estimateId": "vest_1787044840306_te1utzc",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:40.306Z",
+      "expiresAt": "2026-08-18T09:35:40.306Z"
+    },
+    {
+      "estimateId": "vest_1787044840404_hwlgtq8",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.21600000000000003,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 290,
+        "totalCredits": 290
+      },
+      "estimatedCredits": 290,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:40.404Z",
+      "expiresAt": "2026-08-18T09:35:40.404Z"
+    },
+    {
+      "estimateId": "vest_1787044843652_gf1brjm",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:43.652Z",
+      "expiresAt": "2026-08-18T09:35:43.652Z"
+    },
+    {
+      "estimateId": "vest_1787044848945_ka2ohd2",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:48.945Z",
+      "expiresAt": "2026-08-18T09:35:48.945Z"
+    },
+    {
+      "estimateId": "vest_1787044850202_z4t8ndg",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:50.202Z",
+      "expiresAt": "2026-08-18T09:35:50.202Z"
+    },
+    {
+      "estimateId": "vest_1787044851721_strs1fg",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:51.721Z",
+      "expiresAt": "2026-08-18T09:35:51.721Z"
+    },
+    {
+      "estimateId": "vest_1787044852087_bfijfde",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:52.087Z",
+      "expiresAt": "2026-08-18T09:35:52.087Z"
+    },
+    {
+      "estimateId": "vest_1787044852269_nwl5n8w",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:52.269Z",
+      "expiresAt": "2026-08-18T09:35:52.269Z"
+    },
+    {
+      "estimateId": "vest_1787044852473_0ixf1tt",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:52.473Z",
+      "expiresAt": "2026-08-18T09:35:52.473Z"
+    },
+    {
+      "estimateId": "vest_1787044852685_v4nfm41",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:52.685Z",
+      "expiresAt": "2026-08-18T09:35:52.685Z"
+    },
+    {
+      "estimateId": "vest_1787044852944_fxksjti",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:52.944Z",
+      "expiresAt": "2026-08-18T09:35:52.944Z"
+    },
+    {
+      "estimateId": "vest_1787044853074_ubdklkf",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:53.074Z",
+      "expiresAt": "2026-08-18T09:35:53.074Z"
+    },
+    {
+      "estimateId": "vest_1787044853556_pzk7zhd",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:53.556Z",
+      "expiresAt": "2026-08-18T09:35:53.556Z"
+    },
+    {
+      "estimateId": "vest_1787044854270_fdbsfky",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:54.270Z",
+      "expiresAt": "2026-08-18T09:35:54.270Z"
+    },
+    {
+      "estimateId": "vest_1787044854530_zowd99d",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:54.530Z",
+      "expiresAt": "2026-08-18T09:35:54.530Z"
+    },
+    {
+      "estimateId": "vest_1787044854835_zhsrr5h",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:54.835Z",
+      "expiresAt": "2026-08-18T09:35:54.835Z"
+    },
+    {
+      "estimateId": "vest_1787044854996_qwsovqx",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:54.996Z",
+      "expiresAt": "2026-08-18T09:35:54.996Z"
+    },
+    {
+      "estimateId": "vest_1787044855075_9cyj8ul",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:55.075Z",
+      "expiresAt": "2026-08-18T09:35:55.075Z"
+    },
+    {
+      "estimateId": "vest_1787044855321_jjzzjbx",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:55.321Z",
+      "expiresAt": "2026-08-18T09:35:55.321Z"
+    },
+    {
+      "estimateId": "vest_1787044858423_ndg89vk",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:58.423Z",
+      "expiresAt": "2026-08-18T09:35:58.423Z"
+    },
+    {
+      "estimateId": "vest_1787044858522_4d39nvv",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:58.522Z",
+      "expiresAt": "2026-08-18T09:35:58.522Z"
+    },
+    {
+      "estimateId": "vest_1787044858734_2845u8q",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:58.734Z",
+      "expiresAt": "2026-08-18T09:35:58.734Z"
+    },
+    {
+      "estimateId": "vest_1787044858889_8dtwg6r",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:58.889Z",
+      "expiresAt": "2026-08-18T09:35:58.889Z"
+    },
+    {
+      "estimateId": "vest_1787044859617_mc1i4di",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:20:59.617Z",
+      "expiresAt": "2026-08-18T09:35:59.617Z"
+    },
+    {
+      "estimateId": "vest_1787044862384_5dg1hya",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:02.384Z",
+      "expiresAt": "2026-08-18T09:36:02.384Z"
+    },
+    {
+      "estimateId": "vest_1787044862595_tyrhli8",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:02.595Z",
+      "expiresAt": "2026-08-18T09:36:02.595Z"
+    },
+    {
+      "estimateId": "vest_1787044863126_cyt4sc7",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:03.126Z",
+      "expiresAt": "2026-08-18T09:36:03.126Z"
+    },
+    {
+      "estimateId": "vest_1787044863692_gqxsq9c",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:03.692Z",
+      "expiresAt": "2026-08-18T09:36:03.692Z"
+    },
+    {
+      "estimateId": "vest_1787044866217_bioru4r",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:06.217Z",
+      "expiresAt": "2026-08-18T09:36:06.217Z"
+    },
+    {
+      "estimateId": "vest_1787044866376_7dtafts",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:21:06.376Z",
+      "expiresAt": "2026-08-18T09:36:06.376Z"
+    },
+    {
+      "estimateId": "vest_1787045072887_6gqen5t",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.096075,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 130,
+        "totalCredits": 130
+      },
+      "estimatedCredits": 130,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:32.887Z",
+      "expiresAt": "2026-08-18T09:39:32.887Z"
+    },
+    {
+      "estimateId": "vest_1787045080554_9bq4c6j",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 4,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.03843,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 55,
+        "totalCredits": 55
+      },
+      "estimatedCredits": 55,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:40.554Z",
+      "expiresAt": "2026-08-18T09:39:40.554Z"
+    },
+    {
+      "estimateId": "vest_1787045085695_kaw7i62",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:45.695Z",
+      "expiresAt": "2026-08-18T09:39:45.695Z"
+    },
+    {
+      "estimateId": "vest_1787045090581_po2jo7x",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "dreamina-seedance-2-0-fast-260128",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "dreamina-seedance-2-0-fast-260128"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.322812,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 435,
+        "totalCredits": 435
+      },
+      "estimatedCredits": 435,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:50.581Z",
+      "expiresAt": "2026-08-18T09:39:50.581Z"
+    },
+    {
+      "estimateId": "vest_1787045096468_ck5gmb3",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.30000000000000004,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 405,
+        "totalCredits": 405
+      },
+      "estimatedCredits": 405,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:56.468Z",
+      "expiresAt": "2026-08-18T09:39:56.468Z"
+    },
+    {
+      "estimateId": "vest_1787045097454_9l2u6tw",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.32399999999999995,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 435,
+        "totalCredits": 435
+      },
+      "estimatedCredits": 435,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:24:57.454Z",
+      "expiresAt": "2026-08-18T09:39:57.454Z"
+    },
+    {
+      "estimateId": "vest_1787045104104_lkpp2xq",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "dreamina-seedance-2-0-mini-260615",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "dreamina-seedance-2-0-mini-260615"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.4536,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 610,
+        "totalCredits": 610
+      },
+      "estimatedCredits": 610,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:25:04.104Z",
+      "expiresAt": "2026-08-18T09:40:04.104Z"
+    },
+    {
+      "estimateId": "vest_1787045106274_pjwyp41",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.1296,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 175,
+        "totalCredits": 175
+      },
+      "estimatedCredits": 175,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:25:06.274Z",
+      "expiresAt": "2026-08-18T09:40:06.274Z"
+    },
+    {
+      "estimateId": "vest_1787045111398_1pzytgm",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "16:9",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.1296,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 175,
+        "totalCredits": 175
+      },
+      "estimatedCredits": 175,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:25:11.398Z",
+      "expiresAt": "2026-08-18T09:40:11.398Z"
+    },
+    {
+      "estimateId": "vest_1787045119710_xqqrbod",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:25:19.710Z",
+      "expiresAt": "2026-08-18T09:40:19.710Z"
+    },
+    {
+      "estimateId": "vest_1787045175425_26m8k7k",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:26:15.425Z",
+      "expiresAt": "2026-08-18T09:41:15.425Z"
+    },
+    {
+      "estimateId": "vest_1787045182862_9qcehc7",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.30000000000000004,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 405,
+        "totalCredits": 405
+      },
+      "estimatedCredits": 405,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:26:22.862Z",
+      "expiresAt": "2026-08-18T09:41:22.862Z"
+    },
+    {
+      "estimateId": "vest_1787045185160_999xm6d",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.32399999999999995,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 435,
+        "totalCredits": 435
+      },
+      "estimatedCredits": 435,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:26:25.160Z",
+      "expiresAt": "2026-08-18T09:41:25.160Z"
+    },
+    {
+      "estimateId": "vest_1787045191951_jcohmno",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.1296,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 175,
+        "totalCredits": 175
+      },
+      "estimatedCredits": 175,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:26:31.951Z",
+      "expiresAt": "2026-08-18T09:41:31.951Z"
+    },
+    {
+      "estimateId": "est_1787046170649_2gqtsu8",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:42:50.649Z",
+      "expiresAt": "2026-08-18T09:57:50.649Z"
+    },
+    {
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:42:50.922Z",
+      "expiresAt": "2026-08-18T09:57:50.922Z"
+    },
+    {
+      "estimateId": "vest_1787046173866_j410y8o",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "veo-3.1-lite-generate-preview",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "veo-3.1-lite-generate-preview"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "generated",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.30000000000000004,
+        "billingMetric": "output_second",
+        "providerRateVersion": "google-veo-2026-08-17",
+        "generationCredits": 405,
+        "totalCredits": 405
+      },
+      "estimatedCredits": 405,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:42:53.866Z",
+      "expiresAt": "2026-08-18T09:57:53.866Z"
+    },
+    {
+      "estimateId": "vest_1787046175549_box2rbc",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.32399999999999995,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 435,
+        "totalCredits": 435
+      },
+      "estimatedCredits": 435,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:42:55.549Z",
+      "expiresAt": "2026-08-18T09:57:55.549Z"
+    },
+    {
+      "estimateId": "vest_1787046178439_0cgkwno",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "720p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.1296,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 175,
+        "totalCredits": 175
+      },
+      "estimatedCredits": 175,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T09:42:58.439Z",
+      "expiresAt": "2026-08-18T09:57:58.439Z"
     }
   ],
   "reservations": [
@@ -112977,6 +117350,126 @@
       "capturedAt": "2026-08-15T02:46:07.293Z",
       "refundedAt": null,
       "terminalReason": null
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787045122125_6d2qp7g",
+      "estimateId": "vest_1787045119710_xqqrbod",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_6dfa7156bf1c87f5236f",
+      "jobId": "videotask_6dfa7156bf1c87f5236f",
+      "amountCredits": 80,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T09:25:22.104Z",
+      "updatedAt": "2026-08-18T09:25:22.551Z",
+      "expiresAt": "2026-08-18T09:40:19.710Z",
+      "capturedAt": null,
+      "refundedAt": "2026-08-18T09:25:22.551Z",
+      "terminalReason": "video_provider_submit_failed"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787045209309_q9bgk1y",
+      "estimateId": "vest_1787045175425_26m8k7k",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_71c8a8bca47cfd560b41",
+      "jobId": "videotask_71c8a8bca47cfd560b41",
+      "amountCredits": 80,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T09:26:49.282Z",
+      "updatedAt": "2026-08-18T09:26:49.742Z",
+      "expiresAt": "2026-08-18T09:41:15.425Z",
+      "capturedAt": null,
+      "refundedAt": "2026-08-18T09:26:49.742Z",
+      "terminalReason": "video_provider_submit_failed"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787046186680_ki93yvn",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_9cb637be86ccea1adbe5",
+      "jobId": "videotask_9cb637be86ccea1adbe5",
+      "amountCredits": 80,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T09:43:06.650Z",
+      "updatedAt": "2026-08-18T09:43:07.138Z",
+      "expiresAt": "2026-08-18T09:57:50.922Z",
+      "capturedAt": null,
+      "refundedAt": "2026-08-18T09:43:07.138Z",
+      "terminalReason": "video_provider_submit_failed"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787046527135_kzvmkgk",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_9518482ba0ea9b7cb0bb",
+      "jobId": "videotask_9518482ba0ea9b7cb0bb",
+      "amountCredits": 80,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T09:48:47.108Z",
+      "updatedAt": "2026-08-18T09:48:47.528Z",
+      "expiresAt": "2026-08-18T09:57:50.922Z",
+      "capturedAt": null,
+      "refundedAt": "2026-08-18T09:48:47.528Z",
+      "terminalReason": "video_provider_submit_failed"
     }
   ],
   "ledgerEntries": [
@@ -136003,6 +140496,214 @@
         "generationGroupId": null,
         "outputIndex": null
       }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787045122125_9t5jbua",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9893,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787045122125_6d2qp7g",
+      "estimateId": "vest_1787045119710_xqqrbod",
+      "relatedJobId": "videotask_6dfa7156bf1c87f5236f",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_6dfa7156bf1c87f5236f",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:25:22.104Z",
+      "metadata": {
+        "jobId": "videotask_6dfa7156bf1c87f5236f",
+        "requestId": "video:videotask_6dfa7156bf1c87f5236f",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T09:40:19.710Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_6dfa7156bf1c87f5236f"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787045122566_69x1usu",
+      "userId": "usr_admin",
+      "operationType": "refund",
+      "amountCredits": 80,
+      "availableDelta": 80,
+      "reservedDelta": -80,
+      "availableAfter": 9973,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1787045122125_6d2qp7g",
+      "estimateId": "vest_1787045119710_xqqrbod",
+      "relatedJobId": "videotask_6dfa7156bf1c87f5236f",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1787045122125_6d2qp7g:video_provider_submit_failed",
+      "reasonCode": "video_provider_submit_failed",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:25:22.551Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787045209309_9xeko6s",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9893,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787045209309_q9bgk1y",
+      "estimateId": "vest_1787045175425_26m8k7k",
+      "relatedJobId": "videotask_71c8a8bca47cfd560b41",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_71c8a8bca47cfd560b41",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:26:49.282Z",
+      "metadata": {
+        "jobId": "videotask_71c8a8bca47cfd560b41",
+        "requestId": "video:videotask_71c8a8bca47cfd560b41",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T09:41:15.425Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_71c8a8bca47cfd560b41"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787045209764_chd537d",
+      "userId": "usr_admin",
+      "operationType": "refund",
+      "amountCredits": 80,
+      "availableDelta": 80,
+      "reservedDelta": -80,
+      "availableAfter": 9973,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1787045209309_q9bgk1y",
+      "estimateId": "vest_1787045175425_26m8k7k",
+      "relatedJobId": "videotask_71c8a8bca47cfd560b41",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1787045209309_q9bgk1y:video_provider_submit_failed",
+      "reasonCode": "video_provider_submit_failed",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:26:49.742Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787046186680_dach34r",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9893,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787046186680_ki93yvn",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "relatedJobId": "videotask_9cb637be86ccea1adbe5",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_9cb637be86ccea1adbe5",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:43:06.650Z",
+      "metadata": {
+        "jobId": "videotask_9cb637be86ccea1adbe5",
+        "requestId": "video:videotask_9cb637be86ccea1adbe5",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T09:57:50.922Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_9cb637be86ccea1adbe5"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787046187166_g6yqyk8",
+      "userId": "usr_admin",
+      "operationType": "refund",
+      "amountCredits": 80,
+      "availableDelta": 80,
+      "reservedDelta": -80,
+      "availableAfter": 9973,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1787046186680_ki93yvn",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "relatedJobId": "videotask_9cb637be86ccea1adbe5",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1787046186680_ki93yvn:video_provider_submit_failed",
+      "reasonCode": "video_provider_submit_failed",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:43:07.138Z",
+      "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787046527135_rmisjkh",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9893,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787046527135_kzvmkgk",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "relatedJobId": "videotask_9518482ba0ea9b7cb0bb",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_9518482ba0ea9b7cb0bb",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:48:47.108Z",
+      "metadata": {
+        "jobId": "videotask_9518482ba0ea9b7cb0bb",
+        "requestId": "video:videotask_9518482ba0ea9b7cb0bb",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T09:57:50.922Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_9518482ba0ea9b7cb0bb"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787046527551_1a8h3ar",
+      "userId": "usr_admin",
+      "operationType": "refund",
+      "amountCredits": 80,
+      "availableDelta": 80,
+      "reservedDelta": -80,
+      "availableAfter": 9973,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1787046527135_kzvmkgk",
+      "estimateId": "vest_1787046170922_uyiarkb",
+      "relatedJobId": "videotask_9518482ba0ea9b7cb0bb",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1787046527135_kzvmkgk:video_provider_submit_failed",
+      "reasonCode": "video_provider_submit_failed",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T09:48:47.528Z",
+      "metadata": {}
     }
   ]
 }

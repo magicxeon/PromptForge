@@ -63,6 +63,9 @@ import { requestPerformanceMiddleware } from '../middleware/requestPerformanceMi
 import { AttributeCatalogApplicationService } from '../domain/attribute-catalog/AttributeCatalogApplicationService.js';
 import { cinematicApplicationService } from '../domain/cinematic/CinematicApplicationService.js';
 import { registerCinematicRoutes } from './routes/cinematicRoutes.js';
+import { registerVideoGenerationRoutes } from './routes/videoGenerationRoutes.js';
+import { videoGenerationApplicationService } from '../domain/generation/VideoGenerationApplicationService.js';
+import { communityVideoShareService } from '../domain/community/CommunityVideoShareService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -187,7 +190,9 @@ export function createApp() {
   });
   registerCommunityShareRoutes(app, {
     communityShareService,
-    communityFeaturePolicyService
+    communityFeaturePolicyService,
+    postAccessService: communityPostAccessService,
+    videoShareService: communityVideoShareService
   });
   registerCommunityCreatorRoutes(app, {
     creatorProfileService,
@@ -238,6 +243,10 @@ export function createApp() {
   });
   registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService });
   registerCinematicRoutes(app, { cinematicService: cinematicApplicationService });
+  registerVideoGenerationRoutes(app, {
+    videoGenerationService: videoGenerationApplicationService,
+    communityFeaturePolicyService
+  });
 
   // All registered browser routes are owned by the React SPA.
   app.get('*', (req, res, next) => {

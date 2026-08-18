@@ -18,6 +18,9 @@
     "automaticSimpleModeEnabled": false
   },
   "cinematic": {
-    "enabled": true
+    "enabled": true,
+    "playgroundVideoEnabled": true,
+    "videoComparisonEnabled": false,
+    "communityVideoEnabled": true
   }
 }

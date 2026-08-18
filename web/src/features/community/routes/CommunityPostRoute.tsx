@@ -115,6 +115,7 @@ export function CommunityPostRoute() {
     || item.comparisonSnapshot?.slots[0]?.imageUrl
     || item.collectionSnapshot?.items[0]?.imageUrl
     || null;
+  const primaryMedia = item.videoUrl || primaryImage;
 
   return (
     <main className="community-post-page">
@@ -159,7 +160,7 @@ export function CommunityPostRoute() {
                       .format(new Date(item.createdAt))}
                   </time>
                 ) : null}
-                {primaryImage ? (
+                {primaryMedia ? (
                   <div className="community-post-media-panel__tools">
                     <Button
                       size="icon"
@@ -169,7 +170,7 @@ export function CommunityPostRoute() {
                       <Expand className="size-4" aria-hidden="true" />
                     </Button>
                     <a
-                      href={apiMediaUrl(primaryImage) || ''}
+                      href={apiMediaUrl(primaryMedia) || ''}
                       download
                       title={t('community.detail.download')}
                     >
@@ -230,6 +231,23 @@ export function CommunityPostRoute() {
 
           <Metadata post={item} />
 
+          {item.characterAttributions.length ? (
+            <section className="community-post-prompt" aria-labelledby="community-post-characters-title">
+              <h2 id="community-post-characters-title">{t('community.video.featuringCharacters')}</h2>
+              <div className="flex flex-wrap gap-2">
+                {item.characterAttributions.map(character => (
+                  <Link
+                    key={`${character.characterProfileId}:${character.characterProfileVersionId}`}
+                    className="rounded-[var(--mpf-radius-sm)] border border-cyan-400/30 px-3 py-2 text-sm text-cyan-200 no-underline"
+                    to={`/characters/${encodeURIComponent(character.characterProfileId)}`}
+                  >
+                    {character.displayName}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <div className="community-post-information-panel__actions">
             {item.postType === 'template' && item.viewer?.isOwner ? (
               <SharedTemplateEditDialog post={item} />
@@ -280,7 +298,10 @@ function Metadata({ post }: { post: CommunityPost }) {
     <dl className="community-post-metadata">
       <MetadataItem label={t('community.detail.model')} value={post.providerModelDisplay} />
       <MetadataItem label={t('community.detail.aspectRatio')} value={metadata.aspectRatio} />
-      <MetadataItem label={t('community.detail.imageSize')} value={size} />
+      <MetadataItem label={t(post.mediaType === 'video' ? 'community.video.size' : 'community.detail.imageSize')} value={size} />
+      {post.mediaType === 'video' ? (
+        <MetadataItem label={t('community.video.duration')} value={formatDuration(post.durationSeconds)} />
+      ) : null}
       <MetadataItem
         label={t('community.detail.generationDuration')}
         value={formatDuration(metadata.generationDuration)}
@@ -329,6 +350,9 @@ function toPublicComparisonRun(post: CommunityPost): ComparisonRun {
     actualTotalCredit: 0,
     createdAt,
     completedAt: createdAt,
+    mediaType: post.comparisonSnapshot?.slots.some(slot => slot.mediaType === 'video')
+      ? 'video'
+      : 'image',
     slots: (post.comparisonSnapshot?.slots || []).map(slot => ({
       id: slot.slotId,
       position: slot.position ?? undefined,
@@ -341,7 +365,10 @@ function toPublicComparisonRun(post: CommunityPost): ComparisonRun {
       submittedPrompt: post.promptPreview || '',
       thumbnailUrl: slot.thumbnailUrl,
       result: {
+        mediaType: slot.mediaType,
         imageUrl: slot.imageUrl,
+        videoUrl: slot.videoUrl,
+        posterUrl: slot.posterUrl,
         generationDuration: slot.generationDuration ?? null
       }
     }))

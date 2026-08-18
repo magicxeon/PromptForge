@@ -1,6 +1,7 @@
 import { creditPricingPolicyService } from './CreditPricingPolicyService.js';
 import { creditAccountRepo } from '../../repositories/credits/CreditAccountRepository.js';
 import { createCreditError, CREDIT_ERROR_CODES } from './creditErrors.js';
+import { calculateVideoPricingPreview } from './VideoPricingCalculator.js';
 
 export class CreditReservationService {
   constructor({
@@ -14,6 +15,52 @@ export class CreditReservationService {
 
   async estimate(options = {}) {
     const estimate = await this.pricingPolicyService.calculateEstimate(options);
+    this.estimateCache.set(estimate.estimateId, estimate);
+    return this.accountRepo.saveEstimate(estimate);
+  }
+
+  async estimateVideo({ userId, model, request }) {
+    if (!userId || !model || !request) {
+      throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'Video pricing inputs are incomplete.', 400);
+    }
+    const policy = await this.pricingPolicyService.loadPolicy();
+    const preview = calculateVideoPricingPreview(model, request, policy);
+    const now = new Date();
+    const estimate = {
+      estimateId: `vest_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+      userId,
+      pricingPolicyVersion: policy.policyVersion,
+      routing: {
+        routingMode: 'advanced',
+        qualityTier: 'video',
+        requestedProviderId: model.providerId,
+        requestedModelId: model.modelId,
+        resolvedProviderId: model.providerId,
+        resolvedModelId: model.modelId
+      },
+      pricingInputs: {
+        mediaType: 'video',
+        operation: request.operation,
+        resolution: request.resolution,
+        aspectRatio: request.aspectRatio,
+        durationSeconds: Number(request.durationSeconds),
+        audioMode: request.audioMode,
+        referenceCount: Number(request.referenceImageCount || 0),
+        outputCount: 1,
+        generationMode: 'playground_video'
+      },
+      breakdown: {
+        providerCostUsd: preview.providerCostUsd,
+        billingMetric: preview.billingMetric,
+        providerRateVersion: preview.providerRateVersion,
+        generationCredits: preview.estimatedCredits,
+        totalCredits: preview.estimatedCredits
+      },
+      estimatedCredits: preview.estimatedCredits,
+      estimateConfidence: 'locked',
+      createdAt: now.toISOString(),
+      expiresAt: new Date(now.getTime() + Number(policy.estimateTtlSeconds) * 1000).toISOString()
+    };
     this.estimateCache.set(estimate.estimateId, estimate);
     return this.accountRepo.saveEstimate(estimate);
   }
@@ -59,6 +106,11 @@ export class CreditReservationService {
       ['referenceCount', integer(inputs.referenceCount, 0), integer(generationRequest.referenceCount, 0)],
       ['outputCount', Math.max(1, integer(inputs.outputCount, 1)), Math.max(1, integer(generationRequest.outputCount, 1))],
       ['generationMode', normalized(inputs.generationMode), normalized(generationRequest.generationMode)],
+      ...(inputs.mediaType === 'video' ? [
+        ['operation', normalized(inputs.operation), normalized(generationRequest.operation)],
+        ['durationSeconds', integer(inputs.durationSeconds, 0), integer(generationRequest.durationSeconds, 0)],
+        ['audioMode', normalized(inputs.audioMode), normalized(generationRequest.audioMode)]
+      ] : []),
       ['templateUseSessionId', normalized(inputs.templateUseSessionId), normalized(generationRequest.templateUseSessionId)],
       ...(normalized(inputs.referenceProcessingPlanFingerprint)
         ? [[

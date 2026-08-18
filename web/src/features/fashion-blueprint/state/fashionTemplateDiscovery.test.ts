@@ -6,6 +6,7 @@ function post(id: string, templateId: string | null): CommunityPost {
   return {
     id,
     postType: 'template',
+    mediaType: 'image',
     creator: { displayName: 'Creator' },
     title: id,
     description: '',
@@ -20,6 +21,7 @@ function post(id: string, templateId: string | null): CommunityPost {
     templateId,
     templatePricing: null,
     faceReuseAvailability: false,
+    characterAttributions: [],
     comparisonSnapshot: null,
     collectionSnapshot: null,
     engagementSummary: {

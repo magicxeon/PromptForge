@@ -24,6 +24,10 @@ export class CreditApplicationService {
     return this.reservationService.estimate(options);
   }
 
+  estimateVideo(options) {
+    return this.reservationService.estimateVideo(options);
+  }
+
   validateAndReserveForRequest(input) {
     return this.reservationService.validateAndReserveForRequest(input);
   }

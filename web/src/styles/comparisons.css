@@ -310,6 +310,10 @@
   gap: 10px;
 }
 
+.comparison-workspace__grid.is-video {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .comparison-workspace__page-button {
   width: 34px;
   height: auto;
@@ -403,6 +407,19 @@
   cursor: grab;
   touch-action: none;
   user-select: none;
+}
+
+.comparison-result-panel__viewport.is-video {
+  aspect-ratio: 16 / 9;
+  cursor: default;
+  touch-action: auto;
+}
+
+.comparison-result-panel__viewport.is-video video {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
 }
 
 .comparison-result-panel__viewport:active {

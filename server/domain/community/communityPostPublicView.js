@@ -29,8 +29,15 @@ export function buildCommunityPostPublicView(post = {}) {
     description: post.description || '',
     status: post.status || 'published',
     visibility: post.visibility || 'public',
+    mediaType: post.postType === 'video' || post.mediaType === 'video' ? 'video' : 'image',
     imageUrl: post.imageUrl ? communityMediaUrl(post.id, 'image') : null,
     thumbnailUrl: (post.thumbnailUrl || post.imageUrl) ? communityMediaUrl(post.id, 'thumbnail') : null,
+    videoUrl: post.videoUrl ? communityVideoMediaUrl(post.id, 'video') : null,
+    posterUrl: (post.posterUrl || post.thumbnailUrl || post.imageUrl)
+      ? communityVideoMediaUrl(post.id, 'poster')
+      : null,
+    durationSeconds: safePositiveNumber(post.durationSeconds || post.videoMetadata?.durationSeconds),
+    characterAttributions: publicCharacterAttributions(post.characterAttributions),
     presentationUrls: (post.thumbnailUrl || post.imageUrl) ? {
       templateCard: communityPresentationUrl(post.id, 'template-card-person-focus-v2'),
       templateDetail: communityPresentationUrl(post.id, 'template-detail-person-focus-v1'),
@@ -88,18 +95,35 @@ function publicComparisonSnapshot(post) {
   return {
     criteria: typeof source?.criteria === 'string' ? source.criteria : null,
     slots: slots.map(slot => ({
+      mediaType: slot.mediaType === 'video' || slot.videoUrl ? 'video' : 'image',
       slotId: String(slot.slotId || slot.id || ''),
       position: Number(slot.position) || null,
       providerDisplayName: displayLabel(slot.providerDisplayName || slot.provider),
       modelDisplayName: displayLabel(slot.modelDisplayName || slot.model),
-      imageUrl: `/api/community/posts/${encodeURIComponent(post.id)}/comparison-slots/${encodeURIComponent(slot.slotId || slot.id)}/image`,
-      thumbnailUrl: `/api/community/posts/${encodeURIComponent(post.id)}/comparison-slots/${encodeURIComponent(slot.slotId || slot.id)}/image`,
+      imageUrl: slot.mediaType === 'video' || slot.videoUrl
+        ? null
+        : comparisonSlotMediaUrl(post.id, slot.slotId || slot.id, 'image'),
+      thumbnailUrl: slot.mediaType === 'video' || slot.videoUrl
+        ? comparisonSlotMediaUrl(post.id, slot.slotId || slot.id, 'poster')
+        : comparisonSlotMediaUrl(post.id, slot.slotId || slot.id, 'image'),
+      videoUrl: slot.mediaType === 'video' || slot.videoUrl
+        ? comparisonSlotMediaUrl(post.id, slot.slotId || slot.id, 'video')
+        : null,
+      posterUrl: slot.mediaType === 'video' || slot.videoUrl
+        ? comparisonSlotMediaUrl(post.id, slot.slotId || slot.id, 'poster')
+        : null,
       status: ['completed', 'failed', 'cancelled'].includes(slot.status)
         ? slot.status
         : 'completed',
       generationDuration: slot.generationDuration || null
     })).filter(slot => slot.slotId)
   };
+}
+
+function comparisonSlotMediaUrl(postId, slotId, kind) {
+  return postId && slotId
+    ? `/api/community/posts/${encodeURIComponent(postId)}/comparison-slots/${encodeURIComponent(slotId)}/${kind}`
+    : null;
 }
 
 function publicCollectionSnapshot(post) {
@@ -140,11 +164,18 @@ function creatorHandle(value) {
 }
 
 function publicPostType(post) {
-  if (['image', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (['image', 'video', 'template', 'comparison', 'collection'].includes(post.postType)) return post.postType;
+  if (post.videoUrl || post.videoAssetId || post.mediaType === 'video') return 'video';
   if (post.sourceCollectionId || post.collectionSnapshot) return 'collection';
   if (post.sourceComparisonSetId) return 'comparison';
   if (post.sourceType === 'scene_template' || post.sceneTemplateSnapshot) return 'template';
   return 'image';
+}
+
+function communityVideoMediaUrl(postId, kind) {
+  return postId
+    ? `/api/community/posts/${encodeURIComponent(postId)}/${kind}`
+    : null;
 }
 
 function communityMediaUrl(postId, kind) {
@@ -200,6 +231,11 @@ function safePositiveInteger(value) {
     : null;
 }
 
+function safePositiveNumber(value) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) && normalized > 0 ? normalized : null;
+}
+
 function publicCounts(value) {
   const counts = value && typeof value === 'object' ? value : {};
   return Object.fromEntries(['likes', 'votes', 'comments', 'remixes', 'uses']
@@ -233,5 +269,15 @@ function publicTaxonomyAssignments(value) {
     status: item.status,
     categoryEligible: item.categoryEligible === true,
     trendingEligible: item.trendingEligible === true
+  }));
+}
+
+function publicCharacterAttributions(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(item => item?.verificationStatus === 'verified').map(item => ({
+    characterProfileId: item.characterProfileId,
+    characterProfileVersionId: item.characterProfileVersionId,
+    displayName: item.displayName,
+    verificationStatus: 'verified'
   }));
 }

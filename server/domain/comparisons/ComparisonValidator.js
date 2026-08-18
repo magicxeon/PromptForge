@@ -22,8 +22,24 @@ export class ComparisonValidator {
   }
 
   validateSlots(slots, context) {
-    if (!Array.isArray(slots) || slots.length < 2 || slots.length > 4) {
-      throw new ComparisonError('invalid_slot_count', 'AI Comparison requires between 2 and 4 slots.');
+    const mediaType = context.mediaType === 'video' ? 'video' : 'image';
+    const validSlotCount = mediaType === 'video'
+      ? Array.isArray(slots) && slots.length === 2
+      : Array.isArray(slots) && slots.length >= 2 && slots.length <= 4;
+    if (!validSlotCount) {
+      throw new ComparisonError(
+        'invalid_slot_count',
+        mediaType === 'video'
+          ? 'Video Comparison requires exactly 2 slots.'
+          : 'AI Comparison requires between 2 and 4 slots.'
+      );
+    }
+    if (mediaType === 'video') {
+      throw new ComparisonError(
+        'video_comparison_not_qualified',
+        'Video Comparison is unavailable until two comparable models pass qualification.',
+        409
+      );
     }
     const slotIds = new Set();
     return slots.map((slot, index) => {

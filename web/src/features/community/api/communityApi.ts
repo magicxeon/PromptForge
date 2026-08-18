@@ -13,7 +13,7 @@ import {
 export type CommunityFilters = {
   sort: 'latest' | 'trending';
   period: 'week' | 'month' | 'year';
-  postType: 'all' | 'image' | 'template' | 'comparison' | 'collection';
+  postType: 'all' | 'image' | 'video' | 'template' | 'comparison' | 'collection';
   officialTag: string;
   search: string;
 };
