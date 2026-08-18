@@ -178,12 +178,17 @@ foreign repository or provider directly.
 - `006-video-generation-provider-contract.md`
 - `007-cinematic-shared-component-state-and-project-structure.md`
 - `008-cinematic-admin-support-and-observability-contract.md`
+- `009-playground-unified-image-and-video-generation.md`
+- `010-community-video-publishing-and-discovery.md`
 
 The source concept remains product research. These numbered files are the
 implementable MVP contract when the documents disagree. Requirement 004 owns
 delivery order; Requirement 007 owns code placement and reuse boundaries;
 Requirement 008 owns operational visibility without taking business ownership
-from Cinematic, Generation, Credits or Assets.
+from Cinematic, Generation, Credits or Assets. Requirement 009 extends the
+existing Playground with single-clip video through canonical Generation;
+Requirement 010 extends Community publication/discovery with typed video media.
+Neither extension duplicates the six-stage Cinematic production workflow.
 
 ## 7. Implementation order
 
@@ -197,6 +202,8 @@ C0 contract and protected-behavior freeze
 -> C5 Finish, export and recovery
 -> C6 Admin/Support operational completion and launch hardening
 -> C7 optional Series-lite
+-> P1 unified Playground single-clip video after provider/Credit qualification
+-> P2 Community video publication after durable Asset delivery and moderation
 ```
 
 No later checkpoint may be started merely because its screen is easy to build.
@@ -230,6 +237,8 @@ and shared Generation shell before C2 vertical slices.
   contracts are now documented, but no candidate is launch-qualified yet.
 - Exact export presets and maximum retained draft duration.
 - Commercial prices, refund policy and Series-lite feature flag.
+- Public Playground video enablement, Community video rights defaults and
+  active rate-card publication under Requirement 017-010.
 
 These decisions affect adapter promotion, billing and release approval, not the
 implemented six-stage product model or authoring contracts.

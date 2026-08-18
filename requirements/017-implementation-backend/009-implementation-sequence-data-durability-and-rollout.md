@@ -33,6 +33,7 @@ Phase2-18. It does not replace their owner contracts.
 | Templates | Partial-high | use Template owner lifecycle and version contracts |
 | Assets/media lineage | Partial | complete moderation, derivative lineage and delivery authorization contracts |
 | Community moderation | Existing partial | extend current owner command; do not duplicate moderation state |
+| Runtime configuration publication | Not implemented | follow Requirement 017-010; draft save must never mutate active frontend behavior |
 
 No `Not implemented` capability may be represented as a working disabled-looking
 button without an explicit prerequisite explanation or feature exposure policy.
@@ -189,6 +190,27 @@ adapters with explicit scale limits.
 
 Exit: QA Gate A passes and customer runtime remains independent.
 
+### Phase A2 - Versioned Runtime Configuration Foundation
+
+Implement Requirement 017-010 in bounded order:
+
+1. characterize current static provider/pricing readers and quote fixtures;
+2. add revision/history/validation contracts behind disabled exposure;
+3. import current configuration as immutable bootstrap active snapshots;
+4. prove old/new quote and capability parity in shadow mode;
+5. add manual publication with atomic activation and cache invalidation;
+6. add Admin draft/diff/history UX;
+7. add durable scheduled publication only after transactional storage and
+   authenticated publisher roles are available.
+
+Editing and Save Draft are never allowed to change customer-facing behavior.
+Credits remains the pricing evaluator and Generation remains the provider
+dispatch owner.
+
+Exit: bootstrap parity passes, manual publication is auditable and rollback can
+restore a validated snapshot without changing accepted quotes. Scheduled
+publication has its own later durability gate.
+
 ### Phase B - Durable Case Foundation
 
 Implement:
@@ -268,6 +290,8 @@ SUPPORT_GENERATION_COMMANDS_ENABLED
 ADMIN_CONTENT_COMMANDS_ENABLED
 ADMIN_RESTRICTED_MEDIA_REVEAL_ENABLED
 ADMIN_FINANCIAL_COMMANDS_ENABLED
+ADMIN_RUNTIME_CONFIGURATION_ENABLED
+ADMIN_SCHEDULED_CONFIGURATION_PUBLISH_ENABLED
 STAFF_ROLE_COMPATIBILITY_ENABLED       non-production migration only
 ```
 

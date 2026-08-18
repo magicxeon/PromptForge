@@ -60,7 +60,8 @@ must re-authorize and re-read canonical owner state.
 
 ### 4.1 Provider and pricing controls
 
-Admin may, through existing provider/pricing owners:
+Admin may, through the versioned runtime-configuration lifecycle in Requirement
+017-010 and existing provider/pricing owners:
 
 - enable/disable a qualified video operation by provider/model/cohort;
 - stop new submissions while preserving read/review/export access;
@@ -70,7 +71,9 @@ Admin may, through existing provider/pricing owners:
 - expire a promotional rate without changing accepted quotes.
 
 Provider/model capability, pricing and customer exposure are separate states.
-A priced model is not automatically qualified or enabled.
+A priced model is not automatically qualified or enabled. Editing or saving a
+draft never changes customer-facing behavior; activation is manual or scheduled
+and accepted quotes remain pinned to their original versions.
 
 ### 4.2 Support recovery controls
 

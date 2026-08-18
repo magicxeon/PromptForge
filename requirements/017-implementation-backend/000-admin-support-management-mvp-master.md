@@ -127,6 +127,7 @@ Every transition records actor, reason, timestamp and expected case version.
 - `007-permission-command-and-approval-matrix.md`
 - `008-ux-wireframes-and-responsive-screen-blueprints.md`
 - `009-implementation-sequence-data-durability-and-rollout.md`
+- `010-versioned-runtime-configuration-and-video-rate-cards.md`
 
 Commercial recovery policy remains under Requirement 018. This set defines the
 staff product and Support orchestration boundary.
@@ -146,6 +147,10 @@ staff product and Support orchestration boundary.
 - Requirement 017-008 owns low-fidelity route layouts and responsive handoff.
 - Requirement 017-009 owns capability readiness, durable data, implementation
   order, migration, feature exposure, rollout and rollback.
+- Requirement 017-010 owns the reusable draft/validate/manual-or-scheduled
+  publish/rollback lifecycle for frontend-affecting Admin configuration, with
+  video capability and rate cards as its first adopter. Credits remains the
+  pricing evaluator and Generation remains the provider-dispatch owner.
 
 Implementation may be phased, but a phase must not invent a local UI state or
 mutation path that conflicts with these owners. UX and QA use the same stable
@@ -160,6 +165,9 @@ requirement rather than changing acceptance criteria.
   are implemented and pass Gate B.
 - Generation, content and financial commands remain independently gated by
   their owner-capability and durability prerequisites.
+- Runtime configuration bootstrap/parity work may proceed after Phase 0, but
+  scheduled pricing publication remains blocked until transactional storage,
+  authenticated publisher roles and Audit pass Requirement 017-010.
 - Gate E financial commands are intentionally blocked until authenticated staff
   roles, PostgreSQL Support/Audit/Credit records, approval policy and Payment
   contracts are available.
