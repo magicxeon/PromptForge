@@ -74,6 +74,11 @@ import {
   readOutputCountPreference,
   writeOutputCountPreference
 } from '../../features/generation/outputCountPreference';
+import {
+  generationRoutePointerFeature,
+  readGenerationRoutePointer,
+  writeGenerationRoutePointer
+} from '../../features/generation/job-center/generationRoutePointer';
 
 type GenerationExperienceProps = {
   surface: 'playground' | 'studio' | 'fashion';
@@ -188,6 +193,7 @@ export function GenerationExperience({
   const [jobId, setJobId] = useState<string | null>(null);
   const [generationGroupId, setGenerationGroupId] = useState<string | null>(null);
   const [comparisonSetId, setComparisonSetId] = useState<string | null>(null);
+  const [routePointerActorId, setRoutePointerActorId] = useState<string | null>(null);
   const [resultFocusSequence, setResultFocusSequence] = useState(0);
   const [debouncedDraft, setDebouncedDraft] = useState<GenerationRequestDraft | null>(null);
   const [comparisonPreferencesActorId, setComparisonPreferencesActorId] = useState<string | null>(null);
@@ -198,6 +204,7 @@ export function GenerationExperience({
   const completedGroupJobsRef = useRef(new Set<string>());
   const [outputCountPreferenceActorId, setOutputCountPreferenceActorId] = useState<string | null>(null);
   const actorId = actor?.userId || 'loading';
+  const routePointerFeature = generationRoutePointerFeature(surface, generationMode);
   const fixedAspectRatio = generationMode === 'character-sheet'
     && characterType === 'reusable_model'
     ? '1:1'
@@ -211,9 +218,13 @@ export function GenerationExperience({
     staleTime: 15_000
   });
   useEffect(() => {
-    setJobId(null);
-    setGenerationGroupId(null);
-    setComparisonSetId(null);
+    const pointer = actor?.userId
+      ? readGenerationRoutePointer(actor.userId, routePointerFeature)
+      : null;
+    setJobId(pointer?.jobId || null);
+    setGenerationGroupId(pointer?.generationGroupId || null);
+    setComparisonSetId(pointer?.comparisonSetId || null);
+    setRoutePointerActorId(actor?.userId || null);
     setComparison(false);
     setComparisonSlots([]);
     setComparisonPreferencesActorId(null);
@@ -228,7 +239,23 @@ export function GenerationExperience({
     setReferenceScopes({});
     completedJobRef.current = null;
     completedGroupJobsRef.current.clear();
-  }, [actor?.userId]);
+  }, [actor?.userId, routePointerFeature]);
+
+  useEffect(() => {
+    if (!actor?.userId || routePointerActorId !== actor.userId) return;
+    writeGenerationRoutePointer(actor.userId, routePointerFeature, {
+      jobId,
+      generationGroupId,
+      comparisonSetId
+    });
+  }, [
+    actor?.userId,
+    comparisonSetId,
+    generationGroupId,
+    jobId,
+    routePointerActorId,
+    routePointerFeature
+  ]);
 
   useEffect(() => {
     if (!actor || outputCountPreferenceActorId === actor.userId) return;
@@ -419,6 +446,9 @@ export function GenerationExperience({
       setComparisonSetId(null);
       setJobId(response.groupId ? null : response.jobId);
       setGenerationGroupId(response.groupId || null);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.generationJobCenter(actorId)
+      });
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         jobId: response.jobId,
@@ -453,6 +483,9 @@ export function GenerationExperience({
       setJobId(null);
       setComparisonSetId(response.setId);
       setComparisonJobBindings(response.jobs);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.generationJobCenter(actorId)
+      });
       emitTelemetry('generation_transition', {
         actorId: actor?.userId,
         comparisonSetId: response.setId,
@@ -527,8 +560,9 @@ export function GenerationExperience({
       onCompleted?.(completedJobId);
       void queryClient.invalidateQueries({ queryKey: ['history'] });
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actorId) });
     }
-  }, [job.data?.id, job.data?.jobId, job.data?.status, jobId, onCompleted, queryClient]);
+  }, [actorId, job.data?.id, job.data?.jobId, job.data?.status, jobId, onCompleted, queryClient]);
   useEffect(() => {
     if (!generationGroupId || !generationGroup.data) return;
     const terminal = ['completed', 'partially_completed', 'failed']
@@ -541,8 +575,9 @@ export function GenerationExperience({
     if (terminal) {
       void queryClient.invalidateQueries({ queryKey: ['history'] });
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actorId) });
     }
-  }, [generationGroup.data, generationGroupId, onCompleted, queryClient]);
+  }, [actorId, generationGroup.data, generationGroupId, onCompleted, queryClient]);
   useEffect(() => {
     if (!jobId || !job.data?.status) return;
     emitTelemetry('generation_transition', {
@@ -564,7 +599,8 @@ export function GenerationExperience({
     }
     void queryClient.invalidateQueries({ queryKey: ['history'] });
     void queryClient.invalidateQueries({ queryKey: ['credits'] });
-  }, [comparisonSetId, derivedComparisonStatus, queryClient]);
+    void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actorId) });
+  }, [actorId, comparisonSetId, derivedComparisonStatus, queryClient]);
 
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
@@ -579,10 +615,10 @@ export function GenerationExperience({
     || availableCredits >= estimate;
   const pending = submitSingle.isPending
     || submitCompare.isPending
-    || Boolean(jobId && !isTerminalJobStatus(job.data?.status))
-    || Boolean(generationGroupId && !['completed', 'partially_completed', 'failed']
+    || Boolean(jobId && !job.isError && !isTerminalJobStatus(job.data?.status))
+    || Boolean(generationGroupId && !generationGroup.isError && !['completed', 'partially_completed', 'failed']
       .includes(generationGroup.data?.status || 'queued'))
-    || comparisonNeedsPolling(comparisonSetId, comparisonResult.data);
+    || (!comparisonResult.isError && comparisonNeedsPolling(comparisonSetId, comparisonResult.data));
   const submitError = submitSingle.error || submitCompare.error;
   const comparisonQueueItems: GenerationProcessQueueItem[] = comparison
     && (

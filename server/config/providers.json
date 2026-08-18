@@ -136,7 +136,7 @@
       "id": "modelark",
       "adapter": "modelark-seedream",
       "enabled": true,
-      "displayName": { "en": "BytePlus ModelArk Seedream", "th": "BytePlus ModelArk Seedream" },
+      "displayName": { "en": "Seedream", "th": "Seedream" },
       "apiKeyEnv": "MODEL_ARK_API-KEY",
       "apiKeyEnvAliases": ["MODEL_ARK_API", "ARK_API_KEY"],
       "baseUrlEnv": "MODEL_ARK_BASE_URL",

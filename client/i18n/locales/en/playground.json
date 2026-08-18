@@ -211,6 +211,7 @@
   "playground.video.audio": "Audio",
   "playground.video.generate": "Generate video",
   "playground.video.resultTitle": "Video result",
+  "playground.video.openDetails": "Open details",
   "playground.video.recentTitle": "Recent Video outputs",
   "playground.video.loadingRecent": "Loading recent Video outputs...",
   "playground.video.recentEmpty": "No Video output yet. Your completed clips will appear here.",

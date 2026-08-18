@@ -211,6 +211,7 @@
   "playground.video.audio": "เสียง",
   "playground.video.generate": "สร้างวิดีโอ",
   "playground.video.resultTitle": "ผลลัพธ์วิดีโอ",
+  "playground.video.openDetails": "เปิดรายละเอียด",
   "playground.video.recentTitle": "วิดีโอล่าสุด",
   "playground.video.loadingRecent": "กำลังโหลดวิดีโอล่าสุด...",
   "playground.video.recentEmpty": "ยังไม่มีวิดีโอ คลิปที่สร้างสำเร็จจะแสดงที่นี่",

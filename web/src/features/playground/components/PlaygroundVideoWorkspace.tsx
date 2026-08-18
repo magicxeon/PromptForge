@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Film, ImagePlus, Sparkles, UserRound, X } from 'lucide-react';
+import { ArrowDown, Film, ImagePlus, Maximize2, Sparkles, UserRound, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EngineTargetPanelFrame } from '../../../components/generation/EngineTargetPanelFrame';
@@ -7,11 +7,16 @@ import { GenerationStageState } from '../../../components/generation/GenerationS
 import { PlaygroundGenerationWorkspace } from '../../../components/generation/PlaygroundGenerationWorkspace';
 import { PromptEditor } from '../../../components/generation/PromptEditor';
 import { VideoEngineTargetPanel } from '../../../components/generation/VideoEngineTargetPanel';
+import {
+  GenerationVideoViewer,
+  type GenerationVideoViewerItem
+} from '../../../components/media/GenerationVideoViewer';
 import { VideoMediaPlayer } from '../../../components/media/VideoMediaPlayer';
 import { Button } from '../../../components/ui/Button';
 import { Surface } from '../../../components/ui/Surface';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { apiMediaUrl } from '../../../lib/api/apiClient';
+import { queryKeys } from '../../../lib/api/queryKeys';
 import { readActorScopedDraft, writeActorScopedDraft } from '../../../lib/persistence/actorScopedStorage';
 import { CharacterPickerDialog, type CharacterCandidate } from '../../cinematic/components/CinematicDialogs';
 import { uploadGenerationReference } from '../../generation/api/generationApi';
@@ -66,11 +71,14 @@ export function PlaygroundVideoExperience() {
   const queryClient = useQueryClient();
   const uploadRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLElement>(null);
   const completedTaskRef = useRef<string | null>(null);
   const [draft, setDraft] = useState<VideoDraft>(() => readVideoDraft(actor?.userId));
   const [characterPickerOpen, setCharacterPickerOpen] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(draft.activeTaskId);
   const [uploading, setUploading] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerActiveId, setViewerActiveId] = useState<string | null>(null);
 
   const capabilities = useQuery({
     queryKey: ['video-capabilities'],
@@ -140,6 +148,7 @@ export function PlaygroundVideoExperience() {
       setDraft(current => ({ ...current, activeTaskId: submitted.id }));
       void queryClient.invalidateQueries({ queryKey: ['credits'] });
       void queryClient.invalidateQueries({ queryKey: ['video-tasks', actor?.userId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.generationJobCenter(actor?.userId || 'loading') });
     }
   });
 
@@ -179,6 +188,14 @@ export function PlaygroundVideoExperience() {
   }, [selectedModel]);
 
   const activeTask = task.data || submit.data;
+  const viewerItems = useMemo(() => {
+    const byId = new Map<string, VideoTask>();
+    for (const item of recent.data?.items || []) byId.set(item.id, item);
+    if (activeTask) byId.set(activeTask.id, activeTask);
+    return [...byId.values()]
+      .filter(item => item.status === 'completed' && Boolean(item.outputAsset?.publicUrl))
+      .map(toVideoViewerItem);
+  }, [activeTask, recent.data?.items]);
   useEffect(() => {
     if (!activeTask || !TERMINAL.has(activeTask.status) || completedTaskRef.current === activeTask.id) return;
     completedTaskRef.current = activeTask.id;
@@ -219,7 +236,12 @@ export function PlaygroundVideoExperience() {
     || null;
 
   const resultRegion = (
-    <section id="generation-video-results" aria-labelledby="playground-video-result-title">
+    <section
+      ref={resultRef}
+      id="generation-video-results"
+      aria-labelledby="playground-video-result-title"
+      tabIndex={-1}
+    >
       <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <span className="text-xs font-bold uppercase text-cyan-300">{t('playground.result.kicker')}</span>
@@ -227,13 +249,24 @@ export function PlaygroundVideoExperience() {
             <h2 id="playground-video-result-title" className="m-0 truncate text-xl">{t('playground.video.resultTitle')}</h2>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          icon={<ArrowDown className="size-4" />}
-          onClick={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-        >
-          {t('playground.action.goToPrompt')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {activeTask?.status === 'completed' && activeTask.outputAsset?.publicUrl ? (
+            <Button
+              variant="ghost"
+              icon={<Maximize2 className="size-4" />}
+              onClick={() => openViewer(activeTask.id)}
+            >
+              {t('playground.video.openDetails')}
+            </Button>
+          ) : null}
+          <Button
+            variant="ghost"
+            icon={<ArrowDown className="size-4" />}
+            onClick={() => promptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          >
+            {t('playground.action.goToPrompt')}
+          </Button>
+        </div>
       </header>
       <Surface
         fill={!activeTask || activeTask.status !== 'completed'}
@@ -385,7 +418,11 @@ export function PlaygroundVideoExperience() {
         size="lg"
         icon={<Sparkles className="size-5" />}
         disabled={!generationReady}
-        onClick={() => submit.mutate()}
+        onClick={() => {
+          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          resultRef.current?.focus({ preventScroll: true });
+          submit.mutate();
+        }}
       >
         <span>{submit.isPending ? t('playground.video.submitting') : t('playground.video.generate')}</span>
         <small>{quote.data
@@ -401,8 +438,13 @@ export function PlaygroundVideoExperience() {
         prompt={directionRegion}
         result={resultRegion}
         queue={null}
-        recent={<RecentVideoOutputs tasks={recent.data?.items || []} loading={recent.isLoading} onSelect={selected => { setTaskId(selected.id); setDraft(current => ({ ...current, activeTaskId: selected.id })); }} />}
+        recent={<RecentVideoOutputs tasks={recent.data?.items || []} loading={recent.isLoading} onSelect={selected => {
+          setTaskId(selected.id);
+          setDraft(current => ({ ...current, activeTaskId: selected.id }));
+          openViewer(selected.id);
+        }} />}
         recentTitle={t('playground.video.recentTitle')}
+        recentPlacement="after-engine"
         engine={engineRegion}
         references={null}
         actions={actionRegion}
@@ -416,8 +458,24 @@ export function PlaygroundVideoExperience() {
         onOpenChange={setCharacterPickerOpen}
         onSelect={character => setDraft(current => ({ ...current, character }))}
       />
+      <GenerationVideoViewer
+        items={viewerItems}
+        activeId={viewerActiveId}
+        open={viewerOpen}
+        onOpenChange={setViewerOpen}
+        onActiveIdChange={id => {
+          setViewerActiveId(id);
+          setTaskId(id);
+          setDraft(current => ({ ...current, activeTaskId: id }));
+        }}
+      />
     </>
   );
+
+  function openViewer(id: string) {
+    setViewerActiveId(id);
+    setViewerOpen(true);
+  }
 }
 
 function RecentVideoOutputs({ tasks, loading, onSelect }: { tasks: VideoTask[]; loading: boolean; onSelect: (task: VideoTask) => void }) {
@@ -461,4 +519,25 @@ function readVideoDraft(actorId?: string): VideoDraft {
     fallback: EMPTY_DRAFT
   });
   return { ...EMPTY_DRAFT, ...value };
+}
+
+function toVideoViewerItem(task: VideoTask): GenerationVideoViewerItem {
+  const request = task.submittedRequest;
+  return {
+    id: task.id,
+    videoUrl: task.outputAsset?.publicUrl || '',
+    posterUrl: task.outputAsset?.posterUrl,
+    status: task.status,
+    provider: task.providerId,
+    model: task.modelId,
+    createdAt: task.createdAt,
+    completedAt: task.completedAt,
+    clipDurationSeconds: task.durationSeconds ?? request?.durationSeconds,
+    aspectRatio: task.aspectRatio ?? request?.aspectRatio,
+    resolution: task.resolution ?? request?.resolution,
+    audioMode: request?.audioMode,
+    operation: task.operation ?? request?.operation,
+    creditCost: task.estimatedCredits,
+    characterProfileId: request?.characterAttributions?.[0]?.characterProfileId || null
+  };
 }

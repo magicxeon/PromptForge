@@ -22,6 +22,17 @@ export class GenerationGroupRepository {
     ) || null);
   }
 
+  async listForActor(actorUserId, { limit = 50 } = {}) {
+    if (!actorUserId) return [];
+    const safeLimit = Math.min(50, Math.max(1, Number(limit) || 50));
+    const groups = await readJsonFile(this.groupsFile, FALLBACK);
+    return groups
+      .filter(group => group.actorUserId === actorUserId)
+      .sort((left, right) => Date.parse(right.createdAt || 0) - Date.parse(left.createdAt || 0))
+      .slice(0, safeLimit)
+      .map(group => structuredClone(group));
+  }
+
   async create(record) {
     return mutateJsonFile(this.groupsFile, FALLBACK, async groups => {
       if (!Array.isArray(groups)) throw new TypeError('Generation groups data must be an array.');

@@ -60,10 +60,24 @@ export const videoTaskSchema = z.object({
   durationSeconds: z.number().nullable().optional(),
   billingStatus: z.string().nullable().optional(),
   estimatedCredits: z.number().nullable().optional(),
+  submittedRequest: z.object({
+    operation: z.string().nullable().optional(),
+    aspectRatio: z.string().nullable().optional(),
+    resolution: z.string().nullable().optional(),
+    durationSeconds: z.number().nullable().optional(),
+    audioMode: z.string().nullable().optional(),
+    referenceImageCount: z.number().int().nonnegative().optional(),
+    characterAttributions: z.array(z.object({
+      characterProfileId: z.string(),
+      characterProfileVersionId: z.string(),
+      role: z.string().nullable().optional()
+    }).passthrough()).default([])
+  }).passthrough().nullable().optional(),
   providerError: z.object({ code: z.string().optional() }).passthrough().nullable().optional(),
   outputAsset: z.object({
     publicUrl: z.string(),
-    mimeType: z.string().optional()
+    mimeType: z.string().optional(),
+    posterUrl: z.string().nullable().optional()
   }).passthrough().nullable().optional()
 }).passthrough();
 

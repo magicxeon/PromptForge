@@ -10,6 +10,7 @@ export const queryKeys = {
   comments: (postId: string, actorId: string) => ['community-comments', postId, actorId] as const,
   generationJob: (actorId: string, jobId: string | null) =>
     ['generation-job', actorId, jobId] as const,
+  generationJobCenter: (actorId: string) => ['generation-job-center', actorId] as const,
   comparison: (actorId: string, comparisonId: string | null) =>
     ['comparison', actorId, comparisonId] as const,
   comparisons: (actorId: string) => ['comparisons', actorId] as const,

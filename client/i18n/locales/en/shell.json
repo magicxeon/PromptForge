@@ -94,5 +94,15 @@
   "shell.footer.links.terms": "Terms",
   "shell.footer.comingSoon": "Coming soon",
   "shell.footer.copyright": "© {year} Momelo. All rights reserved.",
-  "shell.footer.version": "Version {version}"
+  "shell.footer.version": "Version {version}",
+  "shell.jobCenter.label": "Generation jobs",
+  "shell.jobCenter.idle": "Idle",
+  "shell.jobCenter.empty": "No generation jobs yet.",
+  "shell.jobCenter.unavailable": "Job status is temporarily unavailable.",
+  "shell.jobCenter.viewHistory": "View recent outputs",
+  "shell.jobCenter.image": "Image generation",
+  "shell.jobCenter.video": "Video generation",
+  "shell.jobCenter.completed": "Generation completed",
+  "shell.jobCenter.failed": "Generation failed",
+  "shell.jobCenter.progress": "{completed} of {total} outputs"
 }

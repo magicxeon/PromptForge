@@ -305,6 +305,8 @@ export class GenerationApplicationService {
         requestId,
         estimateId,
         requestedOutputCount,
+        generationSurface: context.generationSurface || null,
+        generationMode: generationRequest.generationMode || null,
         status: 'queued',
         childJobIds: children.map(child => child.jobId),
         children: children.map(child => ({
@@ -486,6 +488,11 @@ export class GenerationApplicationService {
     const persistedByJob = new Map(
       (group.children || []).map(child => [child.jobId, child])
     );
+    const orphanGraceMs = Math.max(
+      5_000,
+      Number(process.env.GENERATION_GROUP_ORPHAN_GRACE_MS || 30_000)
+    );
+    const groupAgeMs = Date.now() - Date.parse(group.updatedAt || group.createdAt || 0);
     const children = await Promise.all(group.childJobIds.map(async (jobId, outputIndex) => {
       const failure = enqueueFailureByJob.get(jobId);
       if (failure) {
@@ -493,7 +500,23 @@ export class GenerationApplicationService {
       }
       const status = await this.queueManager.getJobStatusForUser(jobId, group.actorUsername);
       if (!status) {
-        return persistedByJob.get(jobId) || {
+        const persisted = persistedByJob.get(jobId);
+        if (
+          groupAgeMs >= orphanGraceMs
+          && !['completed', 'failed'].includes(persisted?.status || '')
+        ) {
+          return {
+            jobId,
+            outputIndex,
+            status: 'failed',
+            result: null,
+            error: {
+              code: 'generation_job_reconciliation_required',
+              message: 'This Image job did not survive a server restart and was not replayed.'
+            }
+          };
+        }
+        return persisted || {
           jobId,
           outputIndex,
           status: 'queued',
@@ -542,7 +565,10 @@ export class GenerationApplicationService {
       failedCount,
       estimateId: group.estimateId,
       createdAt: group.createdAt,
+      updatedAt: group.updatedAt || group.createdAt,
       completedAt: terminal ? (group.completedAt || new Date().toISOString()) : null,
+      generationSurface: group.generationSurface || null,
+      generationMode: group.generationMode || null,
       children
     };
   }

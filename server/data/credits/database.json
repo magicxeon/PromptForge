@@ -777,13 +777,13 @@
       "schemaVersion": 2,
       "userId": "usr_admin",
       "username": "admin_demo",
-      "availableCredits": 9973,
+      "availableCredits": 9893,
       "reservedCredits": 0,
       "status": "active",
       "lifetimeGrantedCredits": 9973,
-      "lifetimeCapturedCredits": 0,
+      "lifetimeCapturedCredits": 80,
       "createdAt": "2026-07-23T16:58:05.676Z",
-      "updatedAt": "2026-08-18T09:48:47.528Z"
+      "updatedAt": "2026-08-18T13:20:09.088Z"
     },
     {
       "schemaVersion": 2,
@@ -105291,6 +105291,456 @@
       "estimateConfidence": "locked",
       "createdAt": "2026-08-18T09:42:58.439Z",
       "expiresAt": "2026-08-18T09:57:58.439Z"
+    },
+    {
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T11:20:21.981Z",
+      "expiresAt": "2026-08-18T11:35:21.981Z"
+    },
+    {
+      "estimateId": "est_1787052051317_ecg8rxv",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "headshot",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T11:20:51.317Z",
+      "expiresAt": "2026-08-18T11:35:51.317Z"
+    },
+    {
+      "estimateId": "est_1787052051993_je0w9ho",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T11:20:51.993Z",
+      "expiresAt": "2026-08-18T11:35:51.993Z"
+    },
+    {
+      "estimateId": "vest_1787052056231_7gt9ynb",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T11:20:56.231Z",
+      "expiresAt": "2026-08-18T11:35:56.231Z"
+    },
+    {
+      "estimateId": "vest_1787054755970_68q1daf",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-250528",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-250528"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.1441125,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-18",
+        "generationCredits": 195,
+        "totalCredits": 195
+      },
+      "estimatedCredits": 195,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T12:05:55.970Z",
+      "expiresAt": "2026-08-18T12:20:55.970Z"
+    },
+    {
+      "estimateId": "vest_1787054758514_2l72ba1",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T12:05:58.514Z",
+      "expiresAt": "2026-08-18T12:20:58.514Z"
+    },
+    {
+      "estimateId": "vest_1787054775306_j0w6ys4",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T12:06:15.306Z",
+      "expiresAt": "2026-08-18T12:21:15.306Z"
+    },
+    {
+      "estimateId": "est_1787058854008_wubgufi",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "scene",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T13:14:14.008Z",
+      "expiresAt": "2026-08-18T13:29:14.008Z"
+    },
+    {
+      "estimateId": "est_1787058855755_97kad75",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "1:1",
+        "quality": null,
+        "referenceCount": 1,
+        "outputCount": 1,
+        "generationMode": "character-sheet",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "418d38f48b25b6149e43f35013c085227f727d6ee859d3ee61b68db79812af5f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 1,
+        "generationCredits": 46,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 46
+      },
+      "estimatedCredits": 46,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T13:14:15.755Z",
+      "expiresAt": "2026-08-18T13:29:15.755Z"
+    },
+    {
+      "estimateId": "est_1787058859126_g0atndt",
+      "userId": "usr_alice",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "standard",
+        "requestedProviderId": "gemini",
+        "requestedModelId": "gemini-3.1-flash-lite-image",
+        "resolvedProviderId": "gemini",
+        "resolvedModelId": "gemini-3.1-flash-lite-image"
+      },
+      "pricingInputs": {
+        "resolution": "1K",
+        "aspectRatio": "6:8",
+        "quality": null,
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground",
+        "templateUseSessionId": null,
+        "referenceProcessingPlanFingerprint": "de66d5e6f42b6330fdaf8b176190730d1bf18249d0b34a51b2097bbfe11c881f"
+      },
+      "breakdown": {
+        "baseOutputCredits": 45,
+        "referenceCredits": 0,
+        "generationCredits": 45,
+        "templateUsageCredits": 0,
+        "templateId": null,
+        "templateVersionId": null,
+        "templateCreatorUserId": null,
+        "templateCreatorUsername": null,
+        "templateCreatorShareBps": 0,
+        "textCredits": 0,
+        "adjustmentCredits": 0,
+        "totalCredits": 45
+      },
+      "estimatedCredits": 45,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T13:14:19.126Z",
+      "expiresAt": "2026-08-18T13:29:19.126Z"
+    },
+    {
+      "estimateId": "vest_1787058866186_uzd7624",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T13:14:26.186Z",
+      "expiresAt": "2026-08-18T13:29:26.186Z"
+    },
+    {
+      "estimateId": "vest_1787059213501_7o5yfb2",
+      "userId": "usr_admin",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "routing": {
+        "routingMode": "advanced",
+        "qualityTier": "video",
+        "requestedProviderId": "modelark",
+        "requestedModelId": "seedance-1-0-pro-fast-251015",
+        "resolvedProviderId": "modelark",
+        "resolvedModelId": "seedance-1-0-pro-fast-251015"
+      },
+      "pricingInputs": {
+        "mediaType": "video",
+        "operation": "text_to_video",
+        "resolution": "480p",
+        "aspectRatio": "9:16",
+        "durationSeconds": 6,
+        "audioMode": "none",
+        "referenceCount": 0,
+        "outputCount": 1,
+        "generationMode": "playground_video"
+      },
+      "breakdown": {
+        "providerCostUsd": 0.057645,
+        "billingMetric": "completion_token",
+        "providerRateVersion": "byteplus-seedance-2026-08-17",
+        "generationCredits": 80,
+        "totalCredits": 80
+      },
+      "estimatedCredits": 80,
+      "estimateConfidence": "locked",
+      "createdAt": "2026-08-18T13:20:13.501Z",
+      "expiresAt": "2026-08-18T13:35:13.501Z"
     }
   ],
   "reservations": [
@@ -117470,6 +117920,66 @@
       "capturedAt": null,
       "refundedAt": "2026-08-18T09:48:47.528Z",
       "terminalReason": "video_provider_submit_failed"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787052039037_qeo7ku7",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_168e247875ff185184f4",
+      "jobId": "videotask_168e247875ff185184f4",
+      "amountCredits": 80,
+      "status": "refunded",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T11:20:38.998Z",
+      "updatedAt": "2026-08-18T13:20:09.088Z",
+      "expiresAt": "2026-08-18T11:35:21.981Z",
+      "capturedAt": null,
+      "refundedAt": "2026-08-18T13:20:09.088Z",
+      "terminalReason": "job_missing_after_restart"
+    },
+    {
+      "schemaVersion": 1,
+      "reservationId": "rsv_1787052044342_ijd9z76",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "userId": "usr_admin",
+      "requestId": "video:videotask_fcf96de9c9611f9490ff",
+      "jobId": "videotask_fcf96de9c9611f9490ff",
+      "amountCredits": 80,
+      "status": "captured",
+      "pricingSnapshot": {
+        "providerId": "modelark",
+        "modelId": "seedance-1-0-pro-fast-251015",
+        "pricingPolicyVersion": "mock-2026-07-24-v2",
+        "estimatedCredits": 80,
+        "breakdown": {
+          "providerCostUsd": 0.057645,
+          "billingMetric": "completion_token",
+          "providerRateVersion": "byteplus-seedance-2026-08-17",
+          "generationCredits": 80,
+          "totalCredits": 80
+        }
+      },
+      "relatedTemplateId": null,
+      "createdAt": "2026-08-18T11:20:44.309Z",
+      "updatedAt": "2026-08-18T11:21:17.925Z",
+      "expiresAt": "2026-08-18T11:35:21.981Z",
+      "capturedAt": "2026-08-18T11:21:17.925Z",
+      "refundedAt": null,
+      "terminalReason": null
     }
   ],
   "ledgerEntries": [
@@ -140704,6 +141214,121 @@
       "actorUserId": "usr_admin",
       "createdAt": "2026-08-18T09:48:47.528Z",
       "metadata": {}
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787052039037_wtaveey",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9893,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787052039037_qeo7ku7",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "relatedJobId": "videotask_168e247875ff185184f4",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_168e247875ff185184f4",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T11:20:38.998Z",
+      "metadata": {
+        "jobId": "videotask_168e247875ff185184f4",
+        "requestId": "video:videotask_168e247875ff185184f4",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T11:35:21.981Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_168e247875ff185184f4"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787052044342_h45eh4b",
+      "userId": "usr_admin",
+      "operationType": "reserve",
+      "amountCredits": 80,
+      "availableDelta": -80,
+      "reservedDelta": 80,
+      "availableAfter": 9813,
+      "reservedAfter": 160,
+      "reservationId": "rsv_1787052044342_ijd9z76",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "relatedJobId": "videotask_fcf96de9c9611f9490ff",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "reserve:usr_admin:video:videotask_fcf96de9c9611f9490ff",
+      "reasonCode": "generation_reserved",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T11:20:44.309Z",
+      "metadata": {
+        "jobId": "videotask_fcf96de9c9611f9490ff",
+        "requestId": "video:videotask_fcf96de9c9611f9490ff",
+        "capability": "playground_video",
+        "expiresAt": "2026-08-18T11:35:21.981Z",
+        "idempotencyKey": "reserve:usr_admin:video:videotask_fcf96de9c9611f9490ff"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787052077958_92ezos6",
+      "userId": "usr_admin",
+      "operationType": "capture",
+      "amountCredits": 80,
+      "availableDelta": 0,
+      "reservedDelta": -80,
+      "availableAfter": 9813,
+      "reservedAfter": 80,
+      "reservationId": "rsv_1787052044342_ijd9z76",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "relatedJobId": "videotask_fcf96de9c9611f9490ff",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "capture:rsv_1787052044342_ijd9z76",
+      "reasonCode": "generation_captured",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T11:21:17.925Z",
+      "metadata": {
+        "providerUsage": {
+          "billingMetric": "completion_token",
+          "completionTokens": 58725,
+          "outputCount": 1,
+          "source": "provider_response"
+        },
+        "mediaType": "video"
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "ledgerEntryId": "clg_1787059209118_xczmzie",
+      "userId": "usr_admin",
+      "operationType": "refund",
+      "amountCredits": 80,
+      "availableDelta": 80,
+      "reservedDelta": -80,
+      "availableAfter": 9893,
+      "reservedAfter": 0,
+      "reservationId": "rsv_1787052039037_qeo7ku7",
+      "estimateId": "vest_1787052021981_e5ydpng",
+      "relatedJobId": "videotask_168e247875ff185184f4",
+      "relatedTemplateId": null,
+      "providerId": "modelark",
+      "modelId": "seedance-1-0-pro-fast-251015",
+      "pricingPolicyVersion": "mock-2026-07-24-v2",
+      "idempotencyKey": "refund:rsv_1787052039037_qeo7ku7:job_missing_after_restart",
+      "reasonCode": "job_missing_after_restart",
+      "actorUserId": "usr_admin",
+      "createdAt": "2026-08-18T13:20:09.088Z",
+      "metadata": {
+        "reconciledAtStartup": true,
+        "reservationExpired": true
+      }
     }
   ]
 }

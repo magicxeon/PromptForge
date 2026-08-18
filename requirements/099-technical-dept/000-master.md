@@ -4,6 +4,18 @@
 
 This directory tracks refactoring tasks, technical debt payments, and modularization requirements designed to keep the codebase maintainable, performant, and clean.
 
+## Current Capability Addendum
+
+### Unified Generation Job Center
+
+- Requirement: `requirements/017-unified-generation-job-center/000-master.md`
+- Domain projection: `server/domain/generation/GenerationJobCenterService.js`
+- HTTP route: `server/app/routes/generationJobCenterRoutes.js`
+- React tracker: `web/src/features/generation/job-center/`
+- This is a read/navigation projection only. Image Queue, Generation Groups,
+  Video Provider Tasks, History, Comparisons, and Credits retain lifecycle
+  ownership.
+
 ---
 
 ## 1. Refactoring Goals

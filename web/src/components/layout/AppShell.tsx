@@ -24,6 +24,7 @@ import { HeaderSelect } from './HeaderSelect';
 import { AccountMenu } from './AccountMenu';
 import { useTheme } from '../../lib/theme/ThemeContext';
 import { routePaths } from '../../app/routeRegistry/routes';
+import { GenerationJobCenterIndicator } from '../../features/generation/job-center/GenerationJobCenterIndicator';
 
 const creditResponseSchema = z.object({
   account: z.object({
@@ -223,6 +224,7 @@ function GlobalHeader({
           <Sparkles aria-hidden="true" />
           <span>{t('shell.navigation.create')}</span>
         </Link>
+        <GenerationJobCenterIndicator />
         <Link
           to="/credits"
           className="global-header__credits"

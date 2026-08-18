@@ -14,8 +14,11 @@ default protected workflow. Video mode now provides prompt-only, authorized
 uploaded Image and approved Character sources; a server-owned Veo Lite internal
 qualification route; immutable Video Credit quote/reserve/capture/refund;
 durable provider-task polling and media persistence; and a shared playable
-result. Desktop composition is Prompt/Source above Render result on the left
-and sticky Engine & Target Output with quote/Generate on the right.
+result. Desktop composition is Render result above Prompt/Source on the left;
+the sticky right column now places Engine & Target Output with quote/Generate
+before collapsible Recent Video outputs. Completed clips open in the shared
+Video detail viewer with task timing, provider/model, request settings, Credit
+and Character attribution metadata when those values exist.
 
 Veo Lite is exposed only outside production when
 `VIDEO_PLAYGROUND_TESTING_ENABLED` is not explicitly false and is labelled
@@ -46,6 +49,10 @@ promotion remain launch gates.
 - Provider downloads are copied into durable Momelo output storage and their
   temporary local files are removed after successful persistence or a
   reconciliation outcome.
+- Video submission focuses the result once; terminal polling never repeatedly
+  steals focus. Portrait Recent previews use `contain`, and the existing Image
+  Playground retains its original Recent placement through an opt-in workspace
+  layout variant.
 
 ## 1. Outcome
 
@@ -239,10 +246,10 @@ Current Playground workspace
       Source: None | Image | Character
 
   Right sticky operation column
-    Recent Video outputs
     Engine & Target Output
       provider/model, duration, ratio, resolution, audio
       exact Credit quote + Generate video
+    Recent Video outputs (collapsible, below the operation panel)
 ```
 
 Use `PlaygroundGenerationWorkspace` and its current grid, sticky controls,
@@ -254,6 +261,32 @@ Recent Video outputs are read from actor-owned durable Video tasks. They never
 mix another actor's work, expose raw prompts or depend only on localStorage.
 Selecting a recent completed item restores it into the result player without
 submitting work or moving Credits.
+
+Video mode deliberately places Recent Video outputs below Engine & Target
+Output so provider, model, quote and Generate remain the first uninterrupted
+operation. Image mode keeps its existing ordering unless a separate approved
+requirement changes it. Recent previews use a stable inspection frame with a
+black matte and `object-fit: contain`; portrait clips must never be cropped to
+look landscape.
+
+Submitting a valid Video request scrolls and moves programmatic focus to the
+Video result region immediately. Completion updates that same region but does
+not steal focus or force another scroll after the user has continued working.
+
+Every completed main result and completed Recent item can open the shared Video
+detail viewer. The viewer preserves the complete frame and exposes only task
+metadata actually persisted by Generation:
+
+- Job ID, status, provider, model, operation and creation time;
+- requested clip duration, aspect ratio, resolution and audio mode;
+- elapsed processing time derived from task creation and completion times;
+- estimated/captured Credit value when available;
+- attributed Character Profile with an authorized route back to that profile;
+- download action and keyboard previous/next navigation across completed clips.
+
+The detail viewer must not invent a Character name, provider duration, captured
+price or raw prompt when the task projection does not contain it. Prompt
+visibility remains subject to the owning privacy/publication contract.
 
 The shared Character picker must render the authorized Character thumbnail,
 face thumbnail, featured display image or canonical image in that precedence
@@ -706,6 +739,13 @@ still making operational cache and polling behavior tunable.
 - `PGV-18`: invalid runtime-policy environment values fail validation, while
   no environment setting can disable actor isolation, HTTP no-store, terminal
   polling stops or Credit stale-estimate enforcement.
+- `PGV-19`: Video mode orders Engine before Recent without changing the Image
+  workspace baseline, and portrait Recent previews remain fully visible.
+- `PGV-20`: Generate focuses the result once on submission; terminal polling
+  does not repeatedly steal scroll or focus.
+- `PGV-21`: completed Video results open an accessible detail viewer whose
+  provider/model, timing, Character attribution, request settings, Job ID and
+  Credit metadata match the actor-owned task projection.
 
 ## 13. Launch Blockers
 

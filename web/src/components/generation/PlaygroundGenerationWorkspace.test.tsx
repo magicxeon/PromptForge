@@ -144,6 +144,7 @@ describe('PlaygroundGenerationWorkspace', () => {
           queue={null}
           recent={<div>Recent clips</div>}
           recentTitle="Recent Video outputs"
+          recentPlacement="after-engine"
           engine={<div>Video engine</div>}
           references={null}
           actions={<button type="button">Generate Video</button>}
@@ -160,6 +161,6 @@ describe('PlaygroundGenerationWorkspace', () => {
     ) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText('Recent clips').compareDocumentPosition(
       screen.getByText('Video engine')
-    ) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    ) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
   });
 });

@@ -94,5 +94,15 @@
   "shell.footer.links.terms": "ข้อกำหนด",
   "shell.footer.comingSoon": "กำลังเตรียมพร้อม",
   "shell.footer.copyright": "© {year} Momelo สงวนลิขสิทธิ์",
-  "shell.footer.version": "เวอร์ชัน {version}"
+  "shell.footer.version": "เวอร์ชัน {version}",
+  "shell.jobCenter.label": "งานที่กำลังสร้าง",
+  "shell.jobCenter.idle": "ว่าง",
+  "shell.jobCenter.empty": "ยังไม่มีงานสร้างภาพหรือวิดีโอ",
+  "shell.jobCenter.unavailable": "ไม่สามารถโหลดสถานะงานได้ชั่วคราว",
+  "shell.jobCenter.viewHistory": "ดูผลงานล่าสุด",
+  "shell.jobCenter.image": "สร้างภาพ",
+  "shell.jobCenter.video": "สร้างวิดีโอ",
+  "shell.jobCenter.completed": "สร้างผลงานเสร็จแล้ว",
+  "shell.jobCenter.failed": "สร้างผลงานไม่สำเร็จ",
+  "shell.jobCenter.progress": "เสร็จแล้ว {completed} จาก {total} ภาพ"
 }

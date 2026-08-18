@@ -23,7 +23,8 @@ export function PlaygroundGenerationWorkspace({
   recentExpanded,
   onRecentExpandedChange,
   comparisonActive,
-  recentTitle
+  recentTitle,
+  recentPlacement = 'before-engine'
 }: {
   prompt: ReactNode;
   result: ReactNode;
@@ -38,6 +39,7 @@ export function PlaygroundGenerationWorkspace({
   onRecentExpandedChange: (expanded: boolean) => void;
   comparisonActive: boolean;
   recentTitle?: ReactNode;
+  recentPlacement?: 'before-engine' | 'after-engine';
 }) {
   const { t } = useTranslation(['playground', 'react-ui']);
   const controlsRef = useRef<HTMLElement | null>(null);
@@ -114,32 +116,7 @@ export function PlaygroundGenerationWorkspace({
           onScroll={updateScrollFade}
         >
           {queue}
-          <section className="playground-recent-panel" aria-labelledby="playground-recent-title">
-            <header className="playground-recent-panel__heading">
-              <div>
-                <History aria-hidden="true" />
-                <h2 id="playground-recent-title">
-                  {recentTitle || t('playground.result.recentTitle', { ns: 'playground' })}
-                </h2>
-              </div>
-              <Button
-                size="icon"
-                variant="ghost"
-                title={recentExpanded
-                  ? t('ui.studio.collapseViewport', { ns: 'react-ui' })
-                  : t('ui.studio.expandViewport', { ns: 'react-ui' })}
-                icon={recentExpanded
-                  ? <ChevronUp aria-hidden="true" />
-                  : <ChevronDown aria-hidden="true" />}
-                aria-expanded={recentExpanded}
-                aria-controls="playground-recent-content"
-                onClick={() => onRecentExpandedChange(!recentExpanded)}
-              />
-            </header>
-            <div id="playground-recent-content" hidden={!recentExpanded}>
-              {recent}
-            </div>
-          </section>
+          {recentPlacement === 'before-engine' ? renderRecentPanel() : null}
           <section className="playground-engine-surface">
             {engine}
             {references}
@@ -149,8 +126,40 @@ export function PlaygroundGenerationWorkspace({
               messages={messages}
             />
           </section>
+          {recentPlacement === 'after-engine' ? renderRecentPanel() : null}
         </section>
       </div>
     </div>
   );
+
+  function renderRecentPanel() {
+    return (
+      <section className="playground-recent-panel" aria-labelledby="playground-recent-title">
+        <header className="playground-recent-panel__heading">
+          <div>
+            <History aria-hidden="true" />
+            <h2 id="playground-recent-title">
+              {recentTitle || t('playground.result.recentTitle', { ns: 'playground' })}
+            </h2>
+          </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            title={recentExpanded
+              ? t('ui.studio.collapseViewport', { ns: 'react-ui' })
+              : t('ui.studio.expandViewport', { ns: 'react-ui' })}
+            icon={recentExpanded
+              ? <ChevronUp aria-hidden="true" />
+              : <ChevronDown aria-hidden="true" />}
+            aria-expanded={recentExpanded}
+            aria-controls="playground-recent-content"
+            onClick={() => onRecentExpandedChange(!recentExpanded)}
+          />
+        </header>
+        <div id="playground-recent-content" hidden={!recentExpanded}>
+          {recent}
+        </div>
+      </section>
+    );
+  }
 }

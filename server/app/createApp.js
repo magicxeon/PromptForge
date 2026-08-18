@@ -66,6 +66,9 @@ import { registerCinematicRoutes } from './routes/cinematicRoutes.js';
 import { registerVideoGenerationRoutes } from './routes/videoGenerationRoutes.js';
 import { videoGenerationApplicationService } from '../domain/generation/VideoGenerationApplicationService.js';
 import { communityVideoShareService } from '../domain/community/CommunityVideoShareService.js';
+import { generationGroupRepository } from '../repositories/generation/GenerationGroupRepository.js';
+import { GenerationJobCenterService } from '../domain/generation/GenerationJobCenterService.js';
+import { registerGenerationJobCenterRoutes } from './routes/generationJobCenterRoutes.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -94,6 +97,13 @@ export function createApp() {
     queueManager,
     templateCoreService,
     creditService: creditApplicationService
+  });
+  const generationJobCenterService = new GenerationJobCenterService({
+    queueManager,
+    historyRepository,
+    generationGroupRepository,
+    generationApplicationService,
+    videoGenerationService: videoGenerationApplicationService
   });
   const templatePoseProxyService = new TemplatePoseProxyService({
     providerRegistry,
@@ -171,6 +181,7 @@ export function createApp() {
   registerCreditRoutes(app, sharedDependencies);
   registerCollectionRoutes(app, sharedDependencies);
   registerGenerationRoutes(app, sharedDependencies);
+  registerGenerationJobCenterRoutes(app, { generationJobCenterService });
   registerFashionBlueprintRoutes(app, sharedDependencies);
   registerReferenceRoutes(app, sharedDependencies);
   registerReferenceHandoffRoutes(app, { faceReferenceHandoffService });

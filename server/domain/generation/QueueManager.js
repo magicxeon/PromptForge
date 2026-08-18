@@ -84,7 +84,7 @@ async function resolveLocalImageToBase64(imgPath) {
   }
 }
 
-class QueueManager {
+export class QueueManager {
   constructor() {
     this.jobs = new Map(); // jobId -> JobObject
     this.queue = [];       // Array of pending jobIds
@@ -708,6 +708,40 @@ class QueueManager {
     }
 
     return status;
+  }
+
+  listActiveJobSnapshotsForUser(username, { limit = 50 } = {}) {
+    const safeUsername = String(username || '');
+    const safeLimit = Math.min(50, Math.max(1, Number(limit) || 50));
+    return [...this.jobs.values()]
+      .filter(job => (
+        !['completed', 'failed', 'cancelled'].includes(job.status)
+        && (job.options?.username
+          ? job.options.username === safeUsername
+          : safeUsername === 'user_demo')
+      ))
+      .sort((left, right) => Number(right.created || 0) - Number(left.created || 0))
+      .slice(0, safeLimit)
+      .map(job => ({
+        id: job.id,
+        status: job.status,
+        providerId: job.provider || null,
+        modelId: job.submodel || null,
+        createdAt: new Date(job.created).toISOString(),
+        updatedAt: new Date(
+          job.timings?.terminalAt
+          || job.timings?.providerCompletedAt
+          || job.timings?.providerStartedAt
+          || job.timings?.queueStartedAt
+          || job.created
+        ).toISOString(),
+        generationMode: job.options?.generationMode || null,
+        generationSurface: job.options?.generationSurface || null,
+        generationGroupId: job.options?.generationGroupId || null,
+        comparisonSetId: job.options?.comparisonSetId || null,
+        outputIndex: Number.isInteger(job.options?.outputIndex) ? job.options.outputIndex : null,
+        estimatedCredits: Number(job.options?.pricingSnapshot?.estimatedCredits || 0)
+      }));
   }
 
   async getHistoryEntryForUser(jobId, username) {
