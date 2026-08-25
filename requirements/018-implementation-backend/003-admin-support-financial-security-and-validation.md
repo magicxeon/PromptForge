@@ -4,10 +4,10 @@
 **Reviewers:** Backend Platform Architect, QA And Release Engineer
 **Skills:** `review-commercial-integrity`, `verify-release-regressions`
 
-Requirement 017-005 owns the staff-facing dry-run, approval, confirmation,
-Toast and durable outcome presentation. Requirement 017-006 owns the financial
-and security evidence matrix and release recommendation. Requirement 017-007
-owns the executable role/command/approval matrix; Requirement 017-009 prevents
+Requirement 018-005 owns the staff-facing dry-run, approval, confirmation,
+Toast and durable outcome presentation. Requirement 018-006 owns the financial
+and security evidence matrix and release recommendation. Requirement 018-007
+owns the executable role/command/approval matrix; Requirement 018-009 prevents
 financial exposure before durable prerequisites pass.
 
 ## 1. Risk Tiers
@@ -59,6 +59,26 @@ Threshold values are configuration, not client constants.
   retention-limited.
 - Repeated denied access, mass lookup and unusual compensation trigger alerts.
 - Account suspension does not delete evidence or change financial history.
+- Production staff access uses real authenticated principals, revocable
+  sessions and server-side RBAC plus target/risk attributes. Mock actor headers
+  are forbidden outside explicitly isolated development/test environments.
+- Sensitive or R3/R4 commands require recent re-authentication; R4 requires an
+  independent approver. Break-glass access is time-bound, reasoned, alerted and
+  cannot erase its Audit trail.
+- Browser sessions use Secure, HttpOnly and appropriate SameSite cookies,
+  session rotation and CSRF protection for cookie-authenticated mutation.
+- Every endpoint has request-size, input-schema, rate and pagination bounds.
+  Repeated exact-ID enumeration and restricted reveal attempts trigger alerts.
+- Field-level policy is enforced before serialization. Hiding a React control
+  is never authorization.
+- Provider credentials, signed origin URLs, raw provider payloads and local file
+  paths never enter client responses, notes, exports or normal logs.
+- Media reveal and retrieval prevent path traversal, SSRF and cross-owner asset
+  substitution and use short-lived scoped delivery authorization.
+- Audit is append-only and tamper-evident in production, with immutable actor,
+  session, target, Case, reason, before/after summary and correlation evidence.
+- Configuration publication and permission changes generate security events and
+  cannot be approved by their requester when policy requires separation.
 
 ## 5. Approval And Execution
 
@@ -87,6 +107,11 @@ Required suites:
 - balance/ledger/reservation reconciliation;
 - Audit presence and private-data sanitization;
 - pagination/query bounds and actor isolation.
+- CSRF/session fixation/revocation and expired re-authentication;
+- privilege escalation, restricted-count leakage and direct API authorization;
+- path traversal, SSRF, signed-media expiry and cross-owner media access;
+- configuration requester/approver separation and scheduled publish restart;
+- tamper/replay attempts against Audit, approval and dry-run fingerprints.
 
 ## 7. Manual Support Scenarios
 
@@ -106,6 +131,16 @@ Required suites:
 13. search by Job ID/checksum and trace an image through Asset, post, Template,
     Character and Collection usage without revealing another customer's raw
     media to an unauthorized staff role.
+14. trace a durable Video Task through provider poll, Credit settlement, Video
+    Asset, poster derivative, Community post and Character attribution;
+15. restart while a Video task and scheduled configuration publication are
+    pending, then prove no premature refund, duplicate publish or lost status;
+16. attempt restricted media reveal, role escalation, self-approval, CSRF and
+    expired re-authentication from both UI and direct API;
+17. reconcile a Cinematic Shot whose approved Storyboard source changed and
+    prove no blind retry or stale source publication;
+18. validate and publish one Attribute category release, then roll back without
+    silently changing unrelated categories.
 
 For each record Case ID, support reference, linked entity IDs, dry-run,
 approvals, command ID, audit ID, financial before/after and reconciliation.
@@ -126,6 +161,7 @@ approvals, command ID, audit ID, financial before/after and reconciliation.
 - No high-risk command runs from local process memory or unaudited JSON edit.
 - Support can explain and reconcile every tested customer outcome.
 - Privacy review and least-privilege matrix pass.
-- Phase2-18 recovery contracts are invoked through Cases, not duplicated.
-- All `QA-017-003` evidence in Requirement 017-006 passes before financial
+- Commercial recovery contracts in Requirement 019 are invoked through Cases,
+  not duplicated.
+- All `QA-018-003` evidence in Requirement 018-006 passes before financial
   commands are enabled.

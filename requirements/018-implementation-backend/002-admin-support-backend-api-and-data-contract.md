@@ -6,9 +6,9 @@
 **Skill:** `verify-release-regressions`
 
 The APIs in this requirement expose the stable validation and operation states
-consumed by Requirement 017-005. Requirement 017-006 owns contract,
+consumed by Requirement 018-005. Requirement 018-006 owns contract,
 concurrency, restart, authorization and cross-capability validation evidence.
-Requirement 017-009 owns adapter durability, implementation order and cutover.
+Requirement 018-009 owns adapter durability, implementation order and cutover.
 
 ## 1. Canonical Entry Points
 
@@ -17,6 +17,9 @@ Requirement 017-009 owns adapter durability, implementation order and cutover.
   orchestration.
 - Identity, Generation, Credits, Payments, Community and Audit execute their own
   state changes behind public application services.
+- Cinematic, Assets, Attribute Catalog, Admin Configuration and the Unified Job
+  Center expose bounded projections or owner commands through their canonical
+  application services. Admin never reads their physical JSON files directly.
 
 Routes validate HTTP input and invoke these facades. Support must not become a
 large service containing foreign business rules.
@@ -86,6 +89,14 @@ GET /api/admin/audit-events?cursor&filters
 GET /api/admin/content/templates?cursor&query&lifecycle&moderationStatus&visibility
 GET /api/admin/content/media?cursor&query&mediaType&moderationStatus&ownerId
 GET /api/admin/content/media/:assetId/lineage
+GET /api/admin/operations?cursor&capability&state&severity&owner
+GET /api/admin/providers?cursor&providerId&modelId&health&qualification
+GET /api/admin/cinematic?cursor&query&stage&state&providerId&modelId
+GET /api/admin/cinematic/:projectId/operations
+GET /api/admin/assets/reconciliation?cursor&mediaType&state&ownerId
+GET /api/admin/attributes/releases?cursor&category&state
+GET /api/admin/configuration/revisions?cursor&scope&state&effectiveAt
+GET /api/admin/approvals?cursor&state&riskTier&requester
 ```
 
 Commands:
@@ -119,6 +130,14 @@ Allowed command types map to one owning facade, for example:
 - `templates.disable_reuse`, `templates.quarantine`, `templates.restore`,
   `templates.retire`;
 - `assets.quarantine`, `assets.restore`, `assets.replace_presentation`.
+- `video.reconcile_task`, `assets.reconcile_video_poster` and
+  `assets.quarantine_missing_media` through their owner services;
+- `cinematic.reconcile_attempt`, `cinematic.invalidate_stale_attempt` and
+  owner-supported recovery commands only;
+- `attribute_catalog.validate_release`, `attribute_catalog.publish_release`
+  and `attribute_catalog.rollback_release`;
+- `admin_configuration.validate`, `admin_configuration.publish`,
+  `admin_configuration.schedule` and `admin_configuration.rollback`.
 
 The Support command stores an owner operation ID and observes its result. It
 does not emulate the owner mutation.
@@ -174,6 +193,25 @@ Local JSON may support development through an owning Support repository and
 atomic store. Production requires PostgreSQL transactions for Case, Command and
 Approval state. No production command may rely on process memory.
 
+The production relational design also requires:
+
+- `staff_principals`, role grants, permissions and revocable sessions;
+- `support_cases`, `case_links`, immutable note revisions, commands and
+  approvals with foreign keys and optimistic versions;
+- append-only `audit_events` and command outcome/reconciliation evidence;
+- versioned configuration revisions, validations, approvals, publication
+  schedules and active snapshot pointers;
+- stable references to owner records for Job/Task, Asset, Community post,
+  Character, Template, Cinematic and Attribute releases without copying their
+  mutable business state into Support tables;
+- unique idempotency and approval constraints plus indexes for every cursor and
+  exact-ID lookup;
+- a transactional outbox for publication, cache invalidation and rebuildable
+  Admin projections.
+
+Generated media bytes remain in durable object storage. PostgreSQL stores
+verified object keys, checksums, media metadata and lineage only.
+
 ## 11. API Acceptance
 
 - Duplicate command request returns the same command/result.
@@ -182,5 +220,5 @@ Approval state. No production command may rely on process memory.
 - Every material command has matching Audit evidence.
 - Cross-role and cross-customer access tests fail server-side.
 - Routes contain no repository or financial mutation logic.
-- Every acceptance rule maps to `QA-017-002` evidence in Requirement 017-006
+- Every acceptance rule maps to `QA-018-002` evidence in Requirement 018-006
   before this requirement can close.

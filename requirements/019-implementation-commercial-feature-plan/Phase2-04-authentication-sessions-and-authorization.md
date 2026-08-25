@@ -43,7 +43,7 @@ system: background jobs with scoped service identity
 ```
 
 The complete staff permission and two-person approval contract is owned by
-`requirements/017-implementation-backend/007-permission-command-and-approval-matrix.md`,
+`requirements/018-implementation-backend/007-permission-command-and-approval-matrix.md`,
 coordinated by the Requirement 017 Master.
 This phase supplies authenticated staff identity and authorization primitives;
 it must not duplicate Support Case or financial command policy.

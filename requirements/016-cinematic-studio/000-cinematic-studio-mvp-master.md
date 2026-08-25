@@ -251,7 +251,7 @@ and shared Generation shell before C2 vertical slices.
 - Exact export presets and maximum retained draft duration.
 - Commercial prices, refund policy and Series-lite feature flag.
 - Public Playground video enablement, Community video rights defaults and
-  active rate-card publication under Requirement 017-010.
+  active rate-card publication under Requirement 018-010.
 
 These decisions affect adapter promotion, billing and release approval, not the
 implemented six-stage product model or authoring contracts.

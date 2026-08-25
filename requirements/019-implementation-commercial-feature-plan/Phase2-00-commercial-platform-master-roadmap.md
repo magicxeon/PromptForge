@@ -22,7 +22,7 @@ that already have canonical owners. As of 2026-08-15 the local MVP provides:
 | Collections and History | owning server repositories and React features | Project scoping, database migration and bounded production pagination |
 | Actor identity | mock actor middleware and actor-scoped React state | Real authentication, secure sessions, roles and tenant authorization |
 | Observability | request IDs, domain IDs and bounded performance telemetry | End-to-end correlation tree, trace repository, alerts and Support console |
-| Admin and Support | admin overview/read models, moderation, Audit and Credit adjustment | Case-oriented Support orchestration, least privilege, approvals and reconciliation per `requirements/017-implementation-backend/` |
+| Admin and Support | admin overview/read models, moderation, Audit and Credit adjustment | Case-oriented Support orchestration, least privilege, approvals and reconciliation per `requirements/018-implementation-backend/` |
 
 Local JSON repositories, local image files, mock actors and the process-local
 Queue are development adapters. They are migration inputs, not acceptable paid
@@ -133,7 +133,7 @@ frontend or blocking independent backend migration.
 | Phase2-14 | Fashion Shot Packs and Photographer Styles | Phase2-13 |
 | Phase2-15 | Approval, Regeneration and Refund Policy | Phase2-10, Phase2-13 |
 | Phase2-16 | Marketplace Export Presets | Phase2-15 |
-| Admin/Support MVP | `requirements/017-implementation-backend/000-admin-support-management-mvp-master.md` | Phase2-04, Audit/Observability; financial commands require Phase2-07/08 |
+| Admin/Support MVP | `requirements/018-implementation-backend/000-admin-support-management-mvp-master.md` | Phase2-04, Audit/Observability; financial commands require Phase2-07/08 |
 | Phase2-18 | Production Support and Manual Recovery | Admin/Support Cases, Phase2-04, Phase2-07, Phase2-10, Phase2-15, platform correlation tracing |
 | Phase2-19 | Fashion Routing Qualification and Promotion | Fashion Blueprint Req 009 baseline, Phase2-07, Phase2-08, Phase2-10, Phase2-13 |
 | Phase2-20 | Current-State Reconciliation and Execution Checklist | Phase2-00 through Phase2-19, Backend Requirement 017 |

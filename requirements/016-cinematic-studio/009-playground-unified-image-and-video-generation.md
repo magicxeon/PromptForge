@@ -563,7 +563,7 @@ terminal stop condition.
   reconciliation.
 - Retry creates a new attempt and quote unless the owner workflow explicitly
   declares a non-billable technical retry.
-- Admin configuration follows Requirement 017-010; draft changes do not affect
+- Admin configuration follows Requirement 018-010; draft changes do not affect
   quotes until their revision is active.
 - A Video Comparison estimate is the sum of exactly two server estimates plus
   only explicitly published comparison adjustments. Each slot records its own
@@ -761,7 +761,7 @@ Public enablement remains blocked until:
 - at least one exact Playground video operation passes Requirement 016-006;
 - at least two semantically comparable qualified video operations exist before
   Video Comparison is enabled;
-- active rate cards are approved through Requirement 017-010;
+- active rate cards are approved through Requirement 018-010;
 - durable provider-task recovery survives restart;
 - Credit reserve/capture/refund/reconciliation evidence passes;
 - image Playground regression, authorization and privacy gates pass;

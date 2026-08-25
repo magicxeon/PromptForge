@@ -15,8 +15,8 @@ Admin and Support shall be able to locate, explain, moderate and recover a
 Cinematic operation without direct file edits, without exposing private media,
 and without creating alternate Generation or Credit mutation paths.
 
-This requirement integrates with `requirements/017-implementation-backend/`.
-Requirement 017 owns shared Admin/Support screens, cases, commands, approvals
+This requirement integrates with `requirements/018-implementation-backend/`.
+Requirement 018 owns shared Admin/Support screens, cases, commands, approvals
 and audit behavior. Cinematic supplies bounded read projections and owner
 commands for its own Project/Scene/Shot/attempt state.
 
@@ -77,7 +77,7 @@ and accepted quotes remain pinned to their original versions.
 
 ### 4.2 Support recovery controls
 
-Support commands use Requirement 017 Case/preview/approval contracts to:
+Support commands use Requirement 018 Case/preview/approval contracts to:
 
 - retry an eligible failed operation with preserved idempotency;
 - reconcile an unknown provider or settlement outcome;

@@ -46,15 +46,15 @@
         "review-commercial-integrity",
         "verify-release-regressions"
       ],
-      "owningRequirement": "requirements/017-implementation-backend/000-admin-support-management-mvp-master.md",
+      "owningRequirement": "requirements/018-implementation-backend/000-admin-support-management-mvp-master.md",
       "owningCapability": "support",
       "reasonForRouting": "The workflow is backend-owned and crosses authorization, financial recovery, audit and release-safety boundaries.",
       "userOverride": null,
       "outputs": [
-        "requirements/017-implementation-backend/000-admin-support-management-mvp-master.md",
-        "requirements/017-implementation-backend/001-admin-support-console-screen-and-function-contract.md",
-        "requirements/017-implementation-backend/002-admin-support-backend-api-and-data-contract.md",
-        "requirements/017-implementation-backend/003-admin-support-financial-security-and-validation.md"
+        "requirements/018-implementation-backend/000-admin-support-management-mvp-master.md",
+        "requirements/018-implementation-backend/001-admin-support-console-screen-and-function-contract.md",
+        "requirements/018-implementation-backend/002-admin-support-backend-api-and-data-contract.md",
+        "requirements/018-implementation-backend/003-admin-support-financial-security-and-validation.md"
       ],
       "handoff": "Requirement set created with mandatory Commercial and QA review; implementation remains explicitly pending.",
       "status": "requirement-complete"

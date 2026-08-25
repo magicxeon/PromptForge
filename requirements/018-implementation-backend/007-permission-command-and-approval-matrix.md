@@ -13,8 +13,8 @@ Every staff route, data reveal and command shall have one explicit permission,
 risk tier, capability owner, approval policy and audit requirement. A staff role
 never gains authority merely because the React UI renders a control.
 
-This matrix refines Requirements 017-000 through 017-006. Threshold amounts,
-refund policy and creator/platform allocation remain owned by Requirement 018
+This matrix refines Requirements 018-000 through 018-006 and 018-011. Threshold
+amounts, refund policy and creator/platform allocation remain owned by Requirement 019
 and server configuration.
 
 ## 2. Current-To-Target Role Compatibility
@@ -38,7 +38,13 @@ Target roles:
 - `finance_ops`
 - `moderator`
 - `admin`
+- `configuration_publisher`
+- `security_auditor`
 - `super_admin`
+
+Deployments may express these as scoped permission grants rather than one role
+column per job title. Separation between editor, publisher, requester, approver
+and auditor must remain enforceable server-side.
 
 Ordinary `user` and `creator` actors have no staff permission.
 
@@ -46,6 +52,10 @@ Ordinary `user` and `creator` actors have no staff permission.
 
 ```text
 operations.overview.read
+operations.generation.read
+operations.provider.read
+operations.cinematic.read
+operations.assets.read
 users.search.read
 users.detail.read
 users.status.command
@@ -69,6 +79,16 @@ content.search
 content.restricted.reveal
 content.moderate.preview
 content.moderate.execute
+attributes.read
+attributes.author
+attributes.release.validate
+attributes.release.publish
+attributes.release.rollback
+configuration.read
+configuration.author
+configuration.publish
+configuration.schedule
+configuration.rollback
 audit.read
 audit.export
 staff.approval.review
@@ -86,12 +106,16 @@ Legend: `R` read, `M` mutate within policy, `A` approve when independent,
 | Surface | Support Agent | Support Lead | Finance Ops | Moderator | Admin | Super Admin |
 |---|---:|---:|---:|---:|---:|---:|
 | Operations overview | R | R | R finance | R moderation | R | R |
+| Generation/Provider/Cinematic operations | R Case-linked | R | R financial subset | R public-content subset | R | R |
+| Asset/poster reconciliation | R Case-linked | R | - | R/M policy | R/M | R/M |
 | User search / masked Customer 360 | R | R | R financial subset | R public/content subset | R | R |
 | Support Cases | R/M own | R/M team | R linked finance | R linked moderation | R/M | R/M |
 | Trace lookup sanitized | R | R | R financial | R content | R | R |
 | Finance queue | - | R summary | R/M | - | R summary | R/M |
 | Community moderation | - | R linked | - | R/M | R/M configured | R/M |
 | Content search | R metadata | R metadata | - | R/M | R/M | R/M |
+| Attribute authoring/releases | - | R linked | - | R | R/M configured | R/M |
+| Runtime configuration | - | R | R rate-card subset | - | R/M configured | R/M |
 | Restricted media reveal | - | reasoned/configured | - | reasoned/configured | reasoned/configured | reasoned/emergency |
 | Audit search | R Case-linked | R team | R financial | R moderation | R | R |
 | Audit export | - | - | configured | - | configured | configured |
@@ -153,7 +177,7 @@ references the original Quote/Reservation/Capture where available.
 | `payments.replay_webhook` | Payments | R3 | Finance Ops | configured | event deduplicated and projected once |
 
 These commands remain unavailable until the Payments capability and durable
-provider event/idempotency contracts from Requirement 018 are implemented.
+provider event/idempotency contracts from Requirement 019 are implemented.
 
 ### 6.4 Identity And Sessions
 
@@ -181,6 +205,23 @@ impersonation. Impersonation remains deferred.
 
 There is no generic delete command. Legal hold and evidence retention override
 ordinary cleanup without making content public.
+
+### 6.6 Video, Cinematic, Attributes And Configuration
+
+| Command | Owner facade | Tier | Requester | Approval | Terminal proof |
+|---|---|---:|---|---|---|
+| `video.reconcile_task` | Generation | R1/R2 | Support Lead | policy-based | provider/task/output/Credit state reaches one known outcome |
+| `assets.reconcile_video_poster` | Assets | R1 | Support Lead/Admin | configured | verified poster exists or terminal actionable failure recorded |
+| `cinematic.reconcile_attempt` | Cinematic | R1/R2 | Support Lead | source/risk based | attempt and approved source lineage reconcile |
+| `attribute_catalog.publish_release` | Attribute Catalog | R2 | Admin publisher | independent review when configured | active category pointer changes atomically |
+| `attribute_catalog.rollback_release` | Attribute Catalog | R2/R4 | Admin publisher | impact-based | previous validated release activated with Audit |
+| `admin_configuration.publish` | Admin Configuration | R2/R4 | Admin/config publisher | pricing/exposure based | immutable active snapshot and consumer invalidation reconcile |
+| `admin_configuration.schedule` | Admin Configuration | R2/R4 | Admin/config publisher | pricing/exposure based | durable schedule executes once or records terminal failure |
+| `admin_configuration.rollback` | Admin Configuration | R2/R4 | Admin/config publisher | impact-based | validated snapshot reactivated atomically |
+
+Provider/model emergency disable is not a hidden configuration edit. It has a
+dedicated reasoned command, preserves active-task reads/polling and cannot
+retroactively change accepted Quotes.
 
 ## 7. Command Request Contract
 
@@ -218,18 +259,18 @@ result; it never emulates the mutation.
 
 ## 9. Acceptance IDs
 
-- `POL-017-01`: every route, reveal and command maps to a server permission.
-- `POL-017-02`: current `admin`/`support` compatibility is explicit, bounded and
+- `POL-018-01`: every route, reveal and command maps to a server permission.
+- `POL-018-02`: current `admin`/`support` compatibility is explicit, bounded and
   cannot enable financial mutation accidentally.
-- `POL-017-03`: every command maps to one capability facade and one risk tier.
-- `POL-017-04`: self-action and same-person approval are denied server-side.
-- `POL-017-05`: approval is bound to an immutable, unexpired dry-run.
-- `POL-017-06`: repeated command submission resolves to one owner operation and
+- `POL-018-03`: every command maps to one capability facade and one risk tier.
+- `POL-018-04`: self-action and same-person approval are denied server-side.
+- `POL-018-05`: approval is bound to an immutable, unexpired dry-run.
+- `POL-018-06`: repeated command submission resolves to one owner operation and
   one settlement.
-- `POL-017-07`: Money, Credits and content commands retain separate policy and
+- `POL-018-07`: Money, Credits and content commands retain separate policy and
   Audit evidence.
-- `POL-017-08`: unauthorized UI and direct API attempts both fail.
-- `POL-017-09`: high-risk commands remain disabled until their durability and
+- `POL-018-08`: unauthorized UI and direct API attempts both fail.
+- `POL-018-09`: high-risk commands remain disabled until their durability and
   owner-capability prerequisites pass.
 
-Requirement 017-006 owns validation evidence for this matrix.
+Requirement 018-006 owns validation evidence for this matrix.

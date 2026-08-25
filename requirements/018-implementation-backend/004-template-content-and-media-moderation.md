@@ -6,7 +6,7 @@
 **Reviewers:** Security, Product UX, QA And Release Engineer
 **Skills:** `review-product-ux`, `verify-release-regressions`
 
-Requirement 017-005 owns Content workspace interaction, command previews,
+Requirement 018-005 owns Content workspace interaction, command previews,
 notifications and persistent propagation/reconciliation state. Requirement
 017-006 owns moderation, lineage, delivery and fail-closed release evidence.
 
@@ -45,8 +45,12 @@ Search Asset records and authorized lineage for:
 - Template source images and private pose proxies;
 - Character canonical faces, three-view references and featured images;
 - approved Attribute visuals and deterministic derivatives;
-- future video, audio, poster and frame derivatives through the same media
-  contract.
+- durable Video files, poster derivatives, future audio and frame derivatives
+  through the same media contract;
+- records whose Video file or poster is missing and requires reconciliation
+  rather than silent deletion;
+- Community video posts and verified Character attribution/placements;
+- Cinematic Storyboard images, Shot attempts and approved/exported Video Assets.
 
 Filters include Asset/public-safe ID, source Job/Generation Group ID, owner,
 media role/type, MIME type, dimensions, checksum/perceptual hash when available,
@@ -178,5 +182,5 @@ and cannot become the authoritative lifecycle source.
 5. Simulate cache invalidation failure and verify customer delivery remains
    blocked while reconciliation is queued.
 
-These scenarios and the automated acceptance rules map to `QA-017-004` and the
-cross-requirement scenarios in Requirement 017-006.
+These scenarios and the automated acceptance rules map to `QA-018-004` and the
+cross-requirement scenarios in Requirement 018-006.

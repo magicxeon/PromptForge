@@ -52,7 +52,7 @@ Admin activation, expiry preview and operational inspection follow
 `008-cinematic-admin-support-and-observability-contract.md` and the shared
 Admin/Support contracts in Requirement 017. Draft, manual/scheduled publish,
 rollback and active snapshot behavior are owned specifically by
-`requirements/017-implementation-backend/010-versioned-runtime-configuration-and-video-rate-cards.md`.
+`requirements/018-implementation-backend/010-versioned-runtime-configuration-and-video-rate-cards.md`.
 Cinematic Studio and Playground do not own a separate pricing editor or rate
 store.
 

@@ -69,7 +69,7 @@ requirements/016-cinematic-studio/
     cinematic-experience-director.md
     generative-cinematic-production-director.md
 
-requirements/017-implementation-backend/
+requirements/018-implementation-backend/
   roles/
     backend-platform-architect.md
 
@@ -121,7 +121,7 @@ Add nested `AGENTS.md` files only where repeated local rules justify them:
 web/AGENTS.md
 server/AGENTS.md
 requirements/016-cinematic-studio/AGENTS.md
-requirements/017-implementation-backend/AGENTS.md
+requirements/018-implementation-backend/AGENTS.md
 requirements/018-implementation-commercial-feature-plan/AGENTS.md
 ```
 

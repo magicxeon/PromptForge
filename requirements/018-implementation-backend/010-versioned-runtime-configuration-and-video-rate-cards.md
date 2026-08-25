@@ -243,6 +243,11 @@ re-resolving a new active price.
 
 ### 9.1 Information architecture
 
+The Configuration workspace is linked from the Requirement 018-011 dashboard
+and uses its shared Admin frame, filters, status, entity links and persistent
+operation presentation. Revision schema, validation and publication remain
+owned here; shared components do not evaluate price or activate a snapshot.
+
 Add a permission-aware Admin workspace with:
 
 1. **Active overview:** current version, effective time, provider operations,
@@ -436,4 +441,3 @@ Do not start with a visual Admin editor that writes static files directly.
 - at least one video operation is qualified under Requirement 016-006;
 - Commercial approves retail policy and source evidence;
 - QA passes replay, stale edit, schedule, rollback, expiry and emergency tests.
-

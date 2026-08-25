@@ -65,13 +65,15 @@ desktop split panels. No table requires page-level horizontal scrolling.
 ## 4. `/admin` Operational Overview
 
 ```text
-Overview                                      Updated 14s ago  [Refresh]
-[Open cases 12] [Generation 3] [Finance 1] [Moderation 4]
+Overview                    Production  Updated 14s ago  [Refresh]
+[Open cases 12] [Image/Video 3] [Finance 1] [Content 4]
+[Providers 1] [Media/posters 2] [Config drafts 2] [Approvals 1]
 
 Priority queue ------------------------------------------------------------
 Severity | Queue / oldest age | Owner | latest event             [Open ->]
 High     | Payment reconcile  | Fin   | webhook conflict 18m
-High     | Orphaned Job       | Gen   | no terminal state 31m
+High     | Video settlement   | Gen   | provider terminal, reserved 31m
+Med      | Poster reconcile   | Asset | durable Video has no poster 8m
 
 Recent high-risk commands -----------------------------------------------
 Time | Command | Target | Requester | Approval / outcome
@@ -84,6 +86,12 @@ Interactions:
   counts inline;
 - no global `Fix all` action;
 - empty state says no operational action is currently required.
+- every summary and row opens the exact URL-filtered owner workspace;
+- partial data names its failed source and does not hide healthy queues;
+- unauthorized queues and counts are omitted server-side.
+
+Dashboard component behavior, current capability coverage and database-ready
+projection ownership are defined in Requirement 018-011.
 
 ## 5. `/admin/users` User Search
 
@@ -302,6 +310,25 @@ Interactions:
 - unknown propagation remains fail-closed with persistent reconciliation;
 - there is no generic Delete button.
 
+## 13.1 Current Operations Workspaces
+
+The following routes reuse the shared desktop/mobile frame, filter bar, list,
+status, entity-link, evidence and persistent-operation contracts from
+Requirement 018-011:
+
+```text
+/admin/operations     Image/Video Job and Credit settlement detail
+/admin/providers      provider/model health and qualification
+/admin/cinematic      Project/Scene/Shot/attempt lineage
+/admin/assets         original/poster/derivative reconciliation
+/admin/attributes     Attribute Catalog authoring and category release
+/admin/configuration  capability/rate-card revision and publication
+/admin/approvals      independent approval queue
+```
+
+Each keeps its domain-specific detail and commands. Sharing the frame must not
+produce one generic edit form or move business rules into React components.
+
 ## 14. Shared State Blueprints
 
 ### Loading
@@ -333,34 +360,34 @@ commands and preserve staff-authored reason/note drafts.
 ### Notification
 
 Toast acknowledges a short event; timeline/queue/operation status owns durable
-truth as defined by Requirement 017-005.
+truth as defined by Requirement 018-005.
 
 ## 15. Handoff Checklist
 
 - route uses existing `AppShell` and route registry;
 - primary goal/action matches this blueprint;
 - API state and command vocabulary match Requirements 017-002 and 017-005;
-- controls are permission-driven by Requirement 017-007;
+- controls are permission-driven by Requirement 018-007;
 - shared component owner is identified before adding markup;
 - URL filters, Back behavior and post-action navigation are specified;
 - loading, empty, partial, stale, error, unauthorized and terminal states exist;
 - desktop `1440px` and mobile `390px` evidence is captured;
 - keyboard, focus, reduced motion, all themes and EN/TH are validated;
-- QA acceptance maps to Requirement 017-006.
+- QA acceptance maps to Requirement 018-006.
 
 ## 16. Acceptance IDs
 
-- `UI-017-01`: every declared Operations route matches one blueprint and clear
+- `UI-018-01`: every declared Operations route matches one blueprint and clear
   primary goal.
-- `UI-017-02`: desktop and mobile preserve complete information and actions
+- `UI-018-02`: desktop and mobile preserve complete information and actions
   without clipped or horizontally scrolling page content.
-- `UI-017-03`: Case Workspace supports diagnosis through durable reconciliation
+- `UI-018-03`: Case Workspace supports diagnosis through durable reconciliation
   without losing staff input.
-- `UI-017-04`: Trace Lookup converts one safe reference into an understandable
+- `UI-018-04`: Trace Lookup converts one safe reference into an understandable
   linked timeline.
-- `UI-017-05`: financial and content commands expose impact/dependencies before
+- `UI-018-05`: financial and content commands expose impact/dependencies before
   execution.
-- `UI-017-06`: shared async, permission, conflict and notification behavior is
+- `UI-018-06`: shared async, permission, conflict and notification behavior is
   consistent across routes.
-- `UI-017-07`: no screen duplicates an owner capability workflow or creates a
+- `UI-018-07`: no screen duplicates an owner capability workflow or creates a
   second Admin shell.

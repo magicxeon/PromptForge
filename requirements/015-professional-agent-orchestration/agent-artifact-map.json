@@ -50,7 +50,7 @@
       "id": "backend-platform-architect",
       "kind": "role",
       "owner": "backend-platform",
-      "canonicalPath": "requirements/017-implementation-backend/roles/backend-platform-architect.md",
+      "canonicalPath": "requirements/018-implementation-backend/roles/backend-platform-architect.md",
       "discoveryPath": null,
       "scope": "domain",
       "status": "active"
@@ -167,8 +167,8 @@
       "id": "backend-requirement-scope",
       "kind": "instructions",
       "owner": "backend-platform",
-      "canonicalPath": "requirements/017-implementation-backend/AGENTS.md",
-      "discoveryPath": "requirements/017-implementation-backend/AGENTS.md",
+      "canonicalPath": "requirements/018-implementation-backend/AGENTS.md",
+      "discoveryPath": "requirements/018-implementation-backend/AGENTS.md",
       "scope": "directory",
       "status": "active"
     },

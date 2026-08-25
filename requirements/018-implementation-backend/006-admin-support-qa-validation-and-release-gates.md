@@ -9,7 +9,7 @@
 
 ## 1. Outcome
 
-Every Requirement 017 acceptance rule shall have repeatable evidence before a
+Every Requirement 018 acceptance rule shall have repeatable evidence before a
 staff capability is released. QA protects current customer Generation, Credit,
 Template, Character, Community and media behavior while validating the new
 Admin/Support workflow.
@@ -60,12 +60,18 @@ into validation evidence.
 Before each implementation phase, QA records and protects:
 
 - customer Generation enqueue, Queue, polling and terminal behavior;
+- durable Video provider tasks, restart recovery and Unified Job Center resume;
 - Generation Group aggregation and multi-output results;
 - Credit estimate, reservation, capture, refund and idempotency;
 - actor-scoped history, Characters, Templates and private references;
 - Template publication, preparation, Fashion-ready and reuse eligibility;
 - Community visibility and existing moderation;
 - original/thumbnail/presentation media delivery authorization;
+- Video Asset/poster reconciliation, Community video publication and verified
+  Character attribution;
+- Cinematic Project/Scene/Shot/attempt/source-version continuity;
+- Attribute Catalog category publication and runtime compatibility;
+- active provider capability/rate-card parity while drafts remain inert;
 - existing Audit and Observability correlation propagation;
 - actor switching, theme, localization and shared component behavior.
 
@@ -74,27 +80,27 @@ breaks a protected customer workflow.
 
 ## 5. Requirement Traceability
 
-### 5.1 Requirement 017-000 - Master Workflow
+### 5.1 Requirement 018-000 - Master Workflow
 
 Required evidence:
 
-- `QA-017-000-01`: one safe support reference traces a billed failed request to
+- `QA-018-000-01`: one safe support reference traces a billed failed request to
   Job, reservation, ledger and Case.
-- `QA-017-000-02`: staff outside policy cannot view or execute the command.
-- `QA-017-000-03`: duplicate command submission does not duplicate Job, refund
+- `QA-018-000-02`: staff outside policy cannot view or execute the command.
+- `QA-018-000-03`: duplicate command submission does not duplicate Job, refund
   or compensation.
-- `QA-017-000-04`: final customer balance reconciles with immutable records.
-- `QA-017-000-05`: sensitive prompt/media remains hidden without authorized
+- `QA-018-000-04`: final customer balance reconciles with immutable records.
+- `QA-018-000-05`: sensitive prompt/media remains hidden without authorized
   reveal and reason.
-- `QA-017-000-06`: every material read/action contains Case, actor, correlation
+- `QA-018-000-06`: every material read/action contains Case, actor, correlation
   and Audit evidence.
-- `QA-017-000-07`: customer product remains usable while Admin/Support UI is
+- `QA-018-000-07`: customer product remains usable while Admin/Support UI is
   unavailable.
 
 Validation type: server integration, cross-capability contract, manual
 end-to-end and failure injection.
 
-### 5.2 Requirement 017-001 - Console Screens And Functions
+### 5.2 Requirement 018-001 - Console Screens And Functions
 
 Required evidence:
 
@@ -115,7 +121,7 @@ Required evidence:
 Validation type: React unit/integration, API schema, accessibility automation,
 desktop/mobile browser evidence and permission matrix.
 
-### 5.3 Requirement 017-002 - Backend API And Data Contract
+### 5.3 Requirement 018-002 - Backend API And Data Contract
 
 Required evidence:
 
@@ -135,7 +141,7 @@ Required evidence:
 Validation type: unit, repository contract, route integration, restart,
 concurrency, architecture inspection and data migration compatibility.
 
-### 5.4 Requirement 017-003 - Financial And Security
+### 5.4 Requirement 018-003 - Financial And Security
 
 Required evidence:
 
@@ -160,7 +166,7 @@ concurrency, approval, privacy review and manual Support scenarios.
 High-risk financial commands cannot pass while backed only by process memory or
 unaudited production JSON mutation.
 
-### 5.5 Requirement 017-004 - Template, Content And Media Moderation
+### 5.5 Requirement 018-004 - Template, Content And Media Moderation
 
 Required evidence:
 
@@ -183,9 +189,9 @@ Required evidence:
 Validation type: owner-domain integration, delivery authorization, lineage,
 cache failure injection, actor/role security and manual moderation.
 
-### 5.6 Requirement 017-005 - UX Screen And State Contract
+### 5.6 Requirement 018-005 - UX Screen And State Contract
 
-Map `UX-017-01` through `UX-017-09` directly to evidence:
+Map `UX-018-01` through `UX-018-09` directly to evidence:
 
 - primary goal/action review per route;
 - URL-restorable filter tests that preserve compatible Category/Field context;
@@ -200,7 +206,7 @@ Map `UX-017-01` through `UX-017-09` directly to evidence:
 Validation type: React integration, accessibility, visual/manual browser review
 and end-to-end workflow.
 
-### 5.7 Requirement 017-006 - QA Plan Completeness
+### 5.7 Requirement 018-006 - QA Plan Completeness
 
 Required evidence before each phase begins:
 
@@ -215,9 +221,9 @@ Required evidence before each phase begins:
 - unavailable QA independence, paid-provider access or production-only proof is
   disclosed as a release risk rather than reported as passed.
 
-### 5.8 Requirement 017-007 - Permission, Command And Approval Matrix
+### 5.8 Requirement 018-007 - Permission, Command And Approval Matrix
 
-Map `POL-017-01` through `POL-017-09` to:
+Map `POL-018-01` through `POL-018-09` to:
 
 - complete route/query/reveal/command role matrix tests;
 - current `admin`/`support` compatibility and production-disable tests;
@@ -226,9 +232,9 @@ Map `POL-017-01` through `POL-017-09` to:
 - replay/idempotency and separate financial-unit reconciliation;
 - direct API denial in addition to hidden/disabled UI evidence.
 
-### 5.9 Requirement 017-008 - UX Wireframes
+### 5.9 Requirement 018-008 - UX Wireframes
 
-Map `UI-017-01` through `UI-017-07` to:
+Map `UI-018-01` through `UI-018-07` to:
 
 - route/component review against the accepted low-fidelity blueprint;
 - desktop `1440px` and mobile `390px` browser screenshots;
@@ -237,9 +243,9 @@ Map `UI-017-01` through `UI-017-07` to:
 - Trace timeline, Finance unit separation and Content lineage evidence;
 - all themes, EN/TH, keyboard, reduced motion and accessibility checks.
 
-### 5.10 Requirement 017-009 - Implementation, Durability And Rollout
+### 5.10 Requirement 018-009 - Implementation, Durability And Rollout
 
-Map `IMP-017-01` through `IMP-017-09` to:
+Map `IMP-018-01` through `IMP-018-10` to:
 
 - phase prerequisite and feature-exposure tests;
 - canonical entry-point/dependency inspection;
@@ -250,12 +256,27 @@ Map `IMP-017-01` through `IMP-017-09` to:
 - retention/legal-hold configuration, pagination and performance evidence;
 - per-phase rollout, observation, rollback and compatibility deletion record.
 
+### 5.11 Requirement 018-011 - Dashboard And Shared Workspace
+
+Map `DASH-018-01` through `DASH-018-08` to:
+
+- role-filtered dashboard source and restricted-count leakage tests;
+- each tile/queue row opening the exact URL-filtered owner workspace;
+- Image/Video, Cinematic, Credit, poster/media, Community video, Attribute and
+  configuration fixture coverage;
+- partial/stale source, bounded refresh and dashboard-cache invalidation tests;
+- shared component contract tests proving no provider, Credit or repository
+  mutation occurs in presentation components;
+- desktop/mobile, all themes, EN/TH, keyboard and accessibility evidence;
+- local/PostgreSQL repository contract parity for dashboard projections.
+
 ## 6. Cross-Requirement Test Suites
 
 ### 6.1 Role And Permission Matrix
 
 Test `support_agent`, `support_lead`, `finance_ops`, `moderator`, `admin`,
-`super_admin` and ordinary user across every route, query, reveal and command.
+`configuration_publisher`, `security_auditor`, `super_admin` and ordinary user
+across every route, query, reveal and command.
 Check both hidden UI and direct API denial. Role possession alone must not grant
 unrelated finance or private-media access.
 
@@ -298,7 +319,7 @@ meaning, reduced motion, no clipping/overlap and responsive labeled records.
 
 ## 7. Manual End-To-End Scenarios
 
-Execute and record all scenarios before full Requirement 017 closure:
+Execute and record all scenarios before full Requirement 018 closure:
 
 1. Generation failed before provider dispatch; release reservation.
 2. Provider failed after dispatch; issue one technical refund.
@@ -321,12 +342,26 @@ Execute and record all scenarios before full Requirement 017 closure:
     blocked while reconciliation is queued.
 15. Disable Admin command execution; reads and in-flight reconciliation remain
     available and customer workflows continue.
+16. Restart with an active Video Task; reservation remains valid, Job Center
+    resumes and the dashboard does not create a duplicate recovery command.
+17. Complete a Video without a poster, reconcile the poster and verify Library,
+    Profile, Community and Character placements update through Assets.
+18. Trace a Cinematic Shot from approved Storyboard source to provider attempt,
+    Video Asset and Credit settlement; reject stale-source retry.
+19. Publish and roll back one Attribute category while unrelated categories and
+    existing prompts remain unchanged.
+20. Save a provider/rate-card draft, schedule publication, restart the worker
+    and prove one atomic activation with accepted Quote immutability.
 
 ## 8. Phase Release Gates
 
 ### Gate A - Read Only
 
 - overview, bounded search, Customer 360, Trace and sanitized evidence;
+- current-capability dashboard covers Image/Video, Cinematic, provider,
+  media/poster, Content, Attribute and configuration projections;
+- every summary opens an exact URL-filtered owner workspace and partial source
+  failure remains visible;
 - role/permission and Audit-read tests pass;
 - no mutation endpoint exposed.
 

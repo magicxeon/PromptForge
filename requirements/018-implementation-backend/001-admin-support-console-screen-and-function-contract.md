@@ -7,9 +7,10 @@
 
 Detailed information hierarchy, per-route primary actions, validation, Toast,
 durable async states, accessibility, responsive and theme behavior are owned by
-Requirement 017-005. QA evidence and release gates are owned by Requirement
-017-006. Low-fidelity desktop/mobile layouts are owned by Requirement 017-008,
-and controls are exposed according to Requirement 017-007.
+Requirement 018-005. QA evidence and release gates are owned by Requirement
+018-006. Low-fidelity desktop/mobile layouts are owned by Requirement 018-008,
+controls are exposed according to Requirement 018-007, and dashboard/shared
+workspace behavior is owned by Requirement 018-011.
 
 ## 1. Routes
 
@@ -24,6 +25,13 @@ and controls are exposed according to Requirement 017-007.
 /admin/audit                   staff audit search
 /admin/community               existing moderation surface
 /admin/content                 Template and media moderation search
+/admin/operations              unified Image/Video and reconciliation queue
+/admin/providers               provider/model health and qualification evidence
+/admin/cinematic               Cinematic Project/Scene/Shot/attempt operations
+/admin/assets                  media, Video poster and file reconciliation
+/admin/attributes              Attribute Catalog authoring and category release
+/admin/configuration           versioned capability and rate-card publication
+/admin/approvals               staff approval queue
 ```
 
 Routes are hidden and server-protected by capability permission. A hidden link
@@ -36,13 +44,12 @@ theme. Add one role-aware `Operations` navigation group; do not add a second
 admin shell.
 
 - Overview
-- Users
-- Support Cases
-- Trace Lookup
-- Finance (permission-gated)
-- Community (moderator-gated)
-- Content (moderator/admin-gated)
-- Audit (lead/admin-gated)
+- Operations: Generation Jobs, Providers, Cinematic, Assets
+- Customers: Users, Support Cases, Trace Lookup
+- Content: Community, Templates/Characters/Media, Attributes
+- Commerce: Credits/Reconciliation and future Payments/Payouts
+- Configuration: capability/rate-card drafts and publication
+- Governance: Approvals, Audit and Security
 
 ## 3. Reuse Matrix
 
@@ -55,6 +62,10 @@ admin shell.
 | Generation | QueueStatus and existing status vocabulary |
 | Credits | existing ledger/credit formatting and top-up units |
 | Lists | one shared paginated data-list/table primitive when introduced |
+| Staff workspace | Requirement 018-011 `AdminWorkspaceLayout` contract |
+| Filters | one URL-backed Admin filter contract; keep compatible filters |
+| Entity references | one permission-aware stable-ID link/copy presentation |
+| Configuration | one revision diff/publication status presentation |
 
 No Support component may call a domain-specific endpoint without the owning
 feature API/schema boundary.
@@ -70,6 +81,10 @@ Show operational queues, not vanity charts:
 - provider incidents;
 - moderation queue;
 - recent high-risk staff commands.
+- active/aging durable Video tasks and Image/Video Job Center conflicts;
+- Cinematic Shot/attempt/source-lineage failures;
+- missing Video output/poster and media reconciliation;
+- Attribute/configuration drafts awaiting validation, approval or publication.
 
 Each tile links to a filtered queue and displays data timestamp/staleness. Empty
 states say no action is required.
@@ -143,8 +158,10 @@ reasoned reveal action and enhanced audit.
 
 ## 8. Trace Lookup
 
-Input supports request, correlation, Job, Generation Group, Fashion Run, quote,
-reservation, ledger, payment, Template and Case IDs. Results render a linked
+Input supports request, correlation, Job, Generation Group, Video Task,
+provider task, Cinematic Project/Scene/Shot/attempt, Fashion Run, quote,
+reservation, ledger, payment, Template, Character, post, Asset/poster,
+configuration revision and Case IDs. Results render a linked
 graph/timeline with explicit `not found`, `expired`, `unauthorized` and
 `incomplete trace` states.
 
@@ -224,5 +241,6 @@ thumbnails and reuse entry points before execution.
 - An unauthorized role cannot see or invoke a restricted command.
 - No action disappears after modal close; Toast and timeline confirm result.
 - Empty, stale, partial, error and approval states are testable.
-- Acceptance must also satisfy `UX-017-01` through `UX-017-09` in Requirement
-  017-005 and their evidence mapping in Requirement 017-006.
+- Acceptance must also satisfy `UX-018-01` through `UX-018-09` in Requirement
+  018-005, `DASH-018-01` through `DASH-018-08` in Requirement 018-011 and their
+  evidence mapping in Requirement 018-006.

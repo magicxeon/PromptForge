@@ -110,7 +110,7 @@ SupportApplicationService
 ```
 
 `SupportApplicationService` is the Case-oriented orchestration boundary from
-`requirements/017-implementation-backend/`; it coordinates owner commands but
+`requirements/018-implementation-backend/`; it coordinates owner commands but
 does not replace Generation, Credits, Payments, Identity or Audit.
 
 Required request context:

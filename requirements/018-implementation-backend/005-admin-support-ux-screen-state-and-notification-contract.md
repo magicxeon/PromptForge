@@ -14,12 +14,13 @@ auditable resolution without learning internal repository structure. Every
 screen must make the current state, next valid action, financial impact,
 approval requirement and final outcome understandable.
 
-This requirement refines the routes and functions in Requirement 017-001. It
+This requirement refines the routes and functions in Requirement 018-001. It
 does not create alternate Support, Credit, Payment, Generation, Template,
 Asset, Community or Identity workflows.
 
-Low-fidelity route layouts are defined by Requirement 017-008. Permission and
-command visibility follow Requirement 017-007.
+Low-fidelity route layouts are defined by Requirement 018-008. Permission and
+command visibility follow Requirement 018-007. The landing dashboard and
+shared staff workspace contracts follow Requirement 018-011.
 
 ## 2. Experience Principles
 
@@ -265,6 +266,52 @@ Command preview lists affected posts, Templates, profiles, Characters,
 Collections, derivatives, thumbnails and reuse entry points. Reconciliation
 failure remains fail-closed and visible.
 
+### 6.11 Generation Operations - `/admin/operations`
+
+**Primary goal:** diagnose one Image or Video operation from submission through
+provider state, durable output and Credit settlement.
+
+Use the Unified Generation Job Center only as the activity projection. Detail
+links to canonical Image Group/Job or Video Task records and shows provider
+task, restart/recovery state, quote/reservation/settlement, output Asset/poster,
+safe error and retry eligibility. Image and Video keep distinct lifecycle
+vocabularies where their owner contracts differ.
+
+### 6.12 Providers - `/admin/providers`
+
+**Primary goal:** identify a degraded provider/model and prevent unsafe new
+submissions without losing active-task visibility.
+
+Show operation qualification, exposure cohort, recent submit/poll latency,
+bounded failure rate, last successful terminal result and active configuration
+version. Emergency disable is server-owned, reasoned and audited; rate changes
+remain in Configuration.
+
+### 6.13 Cinematic - `/admin/cinematic`
+
+**Primary goal:** trace Project -> Scene -> Shot -> attempt -> provider task ->
+Asset/settlement while preserving Storyboard and Character/wardrobe authority.
+
+The workspace exposes bounded project/attempt evidence and links to owner
+commands. It must not replicate the customer Cinematic editor.
+
+### 6.14 Assets And Reconciliation - `/admin/assets`
+
+**Primary goal:** identify missing originals, posters, derivatives or invalid
+placements and invoke one safe owner reconciliation path.
+
+Rows distinguish `file_missing`, `poster_missing`, `derivative_stale`,
+`placement_blocked`, `quarantined` and `cleanup_eligible`. Destructive cleanup
+requires Preview, evidence retention rules and a durable Audit result.
+
+### 6.15 Attributes And Configuration
+
+`/admin/attributes` retains the Attribute Catalog authoring and category-level
+publication workflow. `/admin/configuration` owns provider/model capability and
+rate-card revision lifecycle. Both reuse the same revision diff, validation,
+approval, schedule, publication history and rollback presentation without
+merging their domain schemas or publish commands.
+
 ## 7. Validation Contract
 
 Validation is layered:
@@ -360,17 +407,17 @@ double-submit. Retry is shown only when owner policy confirms it is safe.
 
 ## 11. UX Acceptance IDs
 
-- `UX-017-01`: every Operations route has one clear primary goal/action.
-- `UX-017-02`: filters preserve compatible context and are URL-restorable.
-- `UX-017-03`: loading, empty, partial, stale, error and unauthorized states
+- `UX-018-01`: every Operations route has one clear primary goal/action.
+- `UX-018-02`: filters preserve compatible context and are URL-restorable.
+- `UX-018-03`: loading, empty, partial, stale, error and unauthorized states
   are distinct and testable.
-- `UX-017-04`: every material command exposes Preview, validation, confirmation,
+- `UX-018-04`: every material command exposes Preview, validation, confirmation,
   execution and durable outcome.
-- `UX-017-05`: Toast never becomes the sole record of a material action.
-- `UX-017-06`: financial units and outcomes remain visually separate.
-- `UX-017-07`: restricted data requires reasoned reveal and enhanced Audit.
-- `UX-017-08`: desktop/mobile, keyboard, focus, themes and EN/TH pass review.
-- `UX-017-09`: existing customer workflows remain independent of Admin UI
+- `UX-018-05`: Toast never becomes the sole record of a material action.
+- `UX-018-06`: financial units and outcomes remain visually separate.
+- `UX-018-07`: restricted data requires reasoned reveal and enhanced Audit.
+- `UX-018-08`: desktop/mobile, keyboard, focus, themes and EN/TH pass review.
+- `UX-018-09`: existing customer workflows remain independent of Admin UI
   availability.
 
-QA validation and evidence ownership are defined in Requirement 017-006.
+QA validation and evidence ownership are defined in Requirement 018-006.
