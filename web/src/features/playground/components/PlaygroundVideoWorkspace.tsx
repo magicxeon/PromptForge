@@ -29,6 +29,7 @@ import {
   type VideoGenerationInput
 } from '../../generation/api/videoGenerationApi';
 import type { VideoTask } from '../../generation/schemas/videoGenerationSchemas';
+import { focusResultRegionAfterLayout } from './resultRegionFocus';
 import { filterVideoModelsForOperation } from './videoModelSelection';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
@@ -72,6 +73,7 @@ export function PlaygroundVideoExperience() {
   const uploadRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLElement>(null);
+  const cancelResultFocusRef = useRef<(() => void) | null>(null);
   const completedTaskRef = useRef<string | null>(null);
   const [draft, setDraft] = useState<VideoDraft>(() => readVideoDraft(actor?.userId));
   const [characterPickerOpen, setCharacterPickerOpen] = useState(false);
@@ -167,6 +169,7 @@ export function PlaygroundVideoExperience() {
       payload: draft
     });
   }, [actor?.userId, draft]);
+  useEffect(() => () => cancelResultFocusRef.current?.(), []);
   useEffect(() => {
     if (!selectedModel) return;
     setDraft(current => ({
@@ -419,9 +422,9 @@ export function PlaygroundVideoExperience() {
         icon={<Sparkles className="size-5" />}
         disabled={!generationReady}
         onClick={() => {
-          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          resultRef.current?.focus({ preventScroll: true });
           submit.mutate();
+          cancelResultFocusRef.current?.();
+          cancelResultFocusRef.current = focusResultRegionAfterLayout(resultRef.current);
         }}
       >
         <span>{submit.isPending ? t('playground.video.submitting') : t('playground.video.generate')}</span>

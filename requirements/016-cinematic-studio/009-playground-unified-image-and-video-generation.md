@@ -746,6 +746,13 @@ still making operational cache and polling behavior tunable.
 - `PGV-21`: completed Video results open an accessible detail viewer whose
   provider/model, timing, Character attribution, request settings, Job ID and
   Credit metadata match the actor-owned task projection.
+- `PGV-22`: result focus is scheduled after the submitted-state layout has
+  committed, uses the Video result scroll margin, and runs only for the direct
+  Generate action. Polling and terminal transitions never move the viewport.
+- `PGV-23`: internal Playground exposure lists only exact operations whose
+  model has `testingRoutingEnabled=true`. Veo Fast and Standard remain absent
+  while unqualified, even though they exist in the research catalog; UI code
+  must never broaden this server-owned qualification to offer a costly model.
 
 ## 13. Launch Blockers
 

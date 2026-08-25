@@ -48,8 +48,8 @@ export class CreditApplicationService {
     return this.reservationService.refundForJob(input);
   }
 
-  reconcileStartupOrphanReservations() {
-    return this.reservationService.reconcileStartupOrphanReservations();
+  reconcileStartupOrphanReservations(options) {
+    return this.reservationService.reconcileStartupOrphanReservations(options);
   }
 
   async getAccount(userId) {

@@ -128,7 +128,10 @@ export function createApp() {
     legacyBundleLoader: getAttributesBundle
   });
 
-  creditApplicationService.reconcileStartupOrphanReservations().catch(err => {
+  creditApplicationService.reconcileStartupOrphanReservations({
+    shouldPreserveReservation: reservation =>
+      videoGenerationApplicationService.hasDurableTaskForReservation(reservation)
+  }).catch(err => {
     console.warn('[Startup] Credit reservation reconciliation failed:', err.message);
   });
 

@@ -153,6 +153,7 @@ export const creatorPageSchema = z.object({
     sectionOrder: z.array(z.string()),
     featured: z.object({ items: z.array(communityPostSchema) }),
     gallery: z.object({ items: z.array(profileMediaItemSchema) }),
+    videos: z.object({ items: z.array(communityPostSchema) }),
     characters: z.object({ items: z.array(characterSummarySchema) }),
     templates: z.object({ items: z.array(communityPostSchema) }),
     comparisons: z.object({ items: z.array(communityPostSchema) }),

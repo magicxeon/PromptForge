@@ -114,6 +114,35 @@ test('Seedance debug logging exposes diagnostics without prompts or credentials'
   assert.doesNotMatch(entries.join('\n'), /PRIVATE PROMPT CONTENT|private-test-key/);
 });
 
+test('Seedance transport diagnostics include the nested fetch cause safely', async () => {
+  const entries = [];
+  const transportError = new TypeError('fetch failed', {
+    cause: Object.assign(new Error('connect ETIMEDOUT 101.47.10.100:443'), {
+      code: 'ETIMEDOUT', errno: -4039, syscall: 'connect',
+      address: '101.47.10.100', port: 443
+    })
+  });
+  const provider = new ModelArkSeedanceProvider({
+    apiKey: 'private-test-key',
+    debugEnabled: true,
+    logger: { info: (...parts) => entries.push(parts.join(' ')) },
+    fetchImpl: async () => { throw transportError; }
+  });
+
+  await assert.rejects(() => provider.submit({
+    modelId: 'seedance-1-0-pro-fast-251015',
+    prompt: 'PRIVATE PROMPT CONTENT', aspectRatio: '9:16',
+    resolution: '480p', durationSeconds: 6, audioMode: 'none'
+  }), error => error.code === 'video_provider_unreachable');
+
+  const log = entries.join('\n');
+  assert.match(log, /"causeCode":"ETIMEDOUT"/);
+  assert.match(log, /"causeSyscall":"connect"/);
+  assert.match(log, /"causeAddress":"101.47.10.100"/);
+  assert.match(log, /"causePort":443/);
+  assert.doesNotMatch(log, /PRIVATE PROMPT CONTENT|private-test-key/);
+});
+
 test('Seedance debug toggle only accepts explicit true', () => {
   assert.equal(parseEnvironmentBoolean('true'), true);
   assert.equal(parseEnvironmentBoolean(' TRUE '), true);

@@ -154,6 +154,21 @@ export class AssetRepository {
       return structuredClone(record);
     });
   }
+
+  update(assetId, operation) {
+    return mutateJsonFile(this.assetsFile, ASSET_FALLBACK, async items => {
+      if (!Array.isArray(items)) throw new TypeError('Assets data must be an array.');
+      const index = items.findIndex(asset => asset.id === assetId);
+      if (index < 0) {
+        throw new RepositoryContractError('asset_not_found', 'Asset not found.', 404);
+      }
+      const draft = structuredClone(items[index]);
+      const result = await operation(draft);
+      draft.updatedAt = new Date().toISOString();
+      items[index] = stripEmbeddedBase64(draft);
+      return structuredClone(result === undefined ? items[index] : result);
+    });
+  }
 }
 
 function pathIsUnsafe(storageKey) {

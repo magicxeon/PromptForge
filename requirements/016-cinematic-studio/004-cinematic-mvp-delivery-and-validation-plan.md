@@ -1,10 +1,10 @@
 # Cinematic Studio MVP Delivery And Validation Plan
 
-**Status:** C0-C3 and the guarded C4-C6 foundations are implemented. Guarded
-Playground/Community video media contracts were added on 2026-08-18. Release is
-conditional: live provider film qualification, Credits settlement integration,
-durable poster extraction, Character rating projection, final assembly
-qualification and the manual UX matrix are still required.
+**Status:** C0-C3, the selected-Shot C4 Produce vertical slice and guarded C5-C6
+foundations are implemented. Guarded Playground/Community video media contracts
+were added on 2026-08-18. Release remains conditional on live provider film
+qualification, durable poster extraction, Character rating projection, final
+assembly qualification and the manual UX matrix.
 **Primary role:** Product And Requirement Architect
 **Reviewers:** Backend Platform Architect, QA And Release Engineer; UX/UI Product
 Designer and Commercial Financial Integrity join their owned checkpoints
@@ -494,3 +494,58 @@ inferred from component tests.
 Manual desktop/mobile/theme/accessibility checks and live provider film
 qualification remain mandatory before changing any blocked item above to
 complete.
+
+## 11. C4 Produce Vertical Slice Evidence - 2026-08-25
+
+### Implemented
+
+- Produce now obtains its video provider/model catalog from a Cinematic-owned
+  endpoint backed by the canonical Video capability registry. It does not
+  depend on the Playground feature flag and does not duplicate model tables.
+- A selected Shot must expose an approved immutable Storyboard Asset version
+  and matching source fingerprint before quote or submission.
+- Cinematic quote and submission delegate to the canonical Video Generation
+  application service. The locked estimate uses `cinematic_video`, and reserve,
+  provider dispatch, polling, capture and non-billable refund remain owned by
+  Generation and Credits.
+- A deterministic Cinematic Attempt is persisted before provider dispatch.
+  Its Project, Scene, Shot, source fingerprint, quote, reservation, provider
+  task and output lineage remain recoverable after navigation or restart.
+- Produce restores the latest Shot task, polls the durable task, uses the shared
+  loading and video-player components, keeps previous attempts visible and
+  enables approval only for a completed, captured output.
+- Approval rejects stale Storyboard lineage and pins exactly one approved Video
+  Attempt to the Shot. A later Storyboard replacement preserves existing
+  evidence while marking dependent Video and Timeline work `source_changed`.
+
+### Protected compatibility contracts
+
+- Playground Image and Video entry points retain their existing default
+  `playground_video` generation mode.
+- No new queue, pricing store, provider adapter or Credit settlement path was
+  introduced.
+- Prototype-only Produce rendering remains available when no committed Project
+  exists, keeping the existing UX regression fixture stable.
+- Batch generation remains presentation-only. C4 enables one selected Shot per
+  explicit quote and submit consent; eligible-set billing remains blocked until
+  grouped idempotency and partial-failure settlement are specified.
+
+### Automated evidence
+
+- Video/Cinematic domain suites: 22 passed.
+- Cinematic schemas and UX prototype suites: 18 passed.
+- Video routes, Cinematic, Video application and pricing suites: 31 passed;
+  the Credit reservation fixture initially hit sandbox `EPERM`, then passed
+  independently with fixture write permission.
+- `npm run typecheck:web` is a required final gate after this evidence update.
+
+### Remaining manual and qualification gates
+
+- Run the Thai C4 checklist in
+  `_temp/cinematic-c4-produce-video-closeout-20260825-th.md` with one lowest-cost
+  qualified Video model.
+- Record desktop/mobile/theme screenshots, provider task ID, Credit reserve and
+  capture evidence, restart recovery and source-replacement behavior.
+- Do not mark C4 provider qualification complete from deterministic tests alone;
+  film quality, identity/wardrobe continuity, provider cost and repeated live
+  reliability evidence remain required.

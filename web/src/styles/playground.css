@@ -84,7 +84,8 @@
   display: none;
 }
 
-.playground-workspace__result #generation-results {
+.playground-workspace__result #generation-results,
+.playground-workspace__result #generation-video-results {
   scroll-margin-top: calc(var(--mpf-header-height) + 18px);
 }
 

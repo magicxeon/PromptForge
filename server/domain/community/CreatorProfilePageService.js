@@ -11,6 +11,7 @@ import { communityGalleryService } from './CommunityGalleryService.js';
 const TABS = Object.freeze([
   'overview',
   'gallery',
+  'videos',
   'characters',
   'templates',
   'comparisons',
@@ -105,6 +106,7 @@ export class CreatorProfilePageService {
         gallery: Number(galleryPreview.totalApprox)
           || Number(tabData?.kind === 'gallery' ? tabData.page?.totalApprox : 0)
           || 0,
+        videos: postTypeCounts.video,
         templates: postTypeCounts.template,
         comparisons: postTypeCounts.comparison,
         collections: postTypeCounts.collection
@@ -155,6 +157,18 @@ export class CreatorProfilePageService {
         page: await this.galleryService.listCharactersByHandle(profile.handle, query, actor)
       };
     }
+    if (tab === 'videos') {
+      const items = allPosts.filter(post => post.postType === 'video');
+      return {
+        kind: 'videos',
+        page: {
+          items: items.slice(0, query.limit),
+          nextCursor: null,
+          hasMore: items.length > query.limit,
+          totalApprox: items.length
+        }
+      };
+    }
     const postType = {
       templates: 'template',
       comparisons: 'comparison',
@@ -189,10 +203,16 @@ export class CreatorProfilePageService {
       presentation.featuredCharacterProfileIds,
       4
     );
+    const videos = selectFeatured(
+      allPosts.filter(post => post.postType === 'video'),
+      presentation.featuredVideoPostIds,
+      4
+    );
     return {
       sectionOrder: normalizeSectionOrder(presentation.sectionOrder),
       featured: { items: featured },
       gallery: { items: gallery.items.slice(0, 6) },
+      videos: { items: videos },
       characters: { items: featuredCharacters },
       templates: { items: templates },
       comparisons: {

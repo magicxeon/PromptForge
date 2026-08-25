@@ -2,6 +2,21 @@ import { CinematicError } from '../../domain/cinematic/CinematicApplicationServi
 import { RepositoryContractError } from '../../repositories/repositoryContracts.js';
 
 export function registerCinematicRoutes(app, { cinematicService }) {
+  app.get('/api/cinematic/video-capabilities', async (_req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      const catalog = cinematicService.getVideoCapabilities();
+      res.json({
+        ...catalog,
+        mediaType: 'video',
+        comparison: { enabled: false, minimumSlots: 2, maximumSlots: 2 },
+        launchStatus: catalog.models.length ? 'available' : 'qualification_blocked'
+      });
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.get('/api/cinematic/projects', async (req, res) => {
     try {
       res.json(await cinematicService.listProjects(req.actorContext, req.query));
@@ -105,6 +120,39 @@ export function registerCinematicRoutes(app, { cinematicService }) {
     }
   });
 
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/video-quote', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.quoteVideoAttempt(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/video-attempts', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.status(202).json(await cinematicService.createVideoAttempt(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.body || {}, req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.post('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId/video-attempts/:attemptId/approve', async (req, res) => {
+    try {
+      res.json(await cinematicService.approveVideoAttempt(
+        req.params.projectId, req.params.sceneId, req.params.shotId, req.params.attemptId,
+        req.body || {}, req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.patch('/api/cinematic/projects/:projectId/scenes/:sceneId/shots/:shotId', async (req, res) => {
     try {
       res.json(await cinematicService.updateShotDirection(
@@ -194,7 +242,7 @@ export function registerCinematicRoutes(app, { cinematicService }) {
 }
 
 function sendCinematicError(res, error) {
-  if (error instanceof CinematicError || error instanceof RepositoryContractError) {
+  if (error instanceof CinematicError || error instanceof RepositoryContractError || error?.code) {
     return res.status(error.statusCode || 400).json({
       error: {
         code: error.code,

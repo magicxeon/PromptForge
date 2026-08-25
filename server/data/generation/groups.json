@@ -1,6 +1,82 @@
 [
   {
     "schemaVersion": 1,
+    "id": "ggrp_1787641205125_g8uzfwao",
+    "actorUserId": "usr_admin",
+    "actorUsername": "admin_demo",
+    "requestId": "gen_1787641205119_w55pc55b",
+    "estimateId": "est_1787641205015_mjw7eu7",
+    "requestedOutputCount": 2,
+    "generationSurface": "playground",
+    "generationMode": "playground",
+    "status": "completed",
+    "childJobIds": [
+      "job_1787641205125_0ki1lhofe",
+      "job_1787641205125_mj8zzue8h"
+    ],
+    "children": [
+      {
+        "jobId": "job_1787641205125_0ki1lhofe",
+        "outputIndex": 0,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1787641205125_0ki1lhofe.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "15.4",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 1,
+          "referenceProcessingMs": 2,
+          "providerMs": 15431,
+          "outputPersistenceMs": 205,
+          "totalMs": 15741
+        }
+      },
+      {
+        "jobId": "job_1787641205125_mj8zzue8h",
+        "outputIndex": 1,
+        "status": "completed",
+        "result": {
+          "imageUrl": "/outputs/job_1787641205125_mj8zzue8h.jpg",
+          "usage": {
+            "latency_ms": null
+          },
+          "mimeType": "image/jpeg",
+          "generationDuration": "9.5",
+          "width": 896,
+          "height": 1200
+        },
+        "error": null,
+        "creditCost": 45,
+        "creditCharged": true,
+        "creditRefunded": false,
+        "timings": {
+          "queueWaitMs": 0,
+          "referenceProcessingMs": 9,
+          "providerMs": 9446,
+          "outputPersistenceMs": 219,
+          "totalMs": 9772
+        }
+      }
+    ],
+    "enqueueFailures": [],
+    "completedCount": 2,
+    "failedCount": 0,
+    "createdAt": "2026-08-25T07:00:05.161Z",
+    "updatedAt": "2026-08-25T07:00:20.907Z",
+    "completedAt": "2026-08-25T07:00:20.907Z"
+  },
+  {
+    "schemaVersion": 1,
     "id": "ggrp_1786666392870_n4wfd4v7",
     "actorUserId": "usr_alice",
     "actorUsername": "user_alice",

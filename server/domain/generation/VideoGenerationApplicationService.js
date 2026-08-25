@@ -49,14 +49,16 @@ export class VideoGenerationApplicationService {
     return this.capabilityRegistry.getPublicCatalog({ includeTesting: this.testingEnabled });
   }
 
-  async quote(input, actorContext) {
+  async quote(input, actorContext, workflowContext = null) {
     const request = normalizeRequest(input);
+    const workflow = normalizeWorkflowContext(workflowContext);
     const model = this.#validateModel(request);
     await this.#validateSource(request, actorContext, { resolveMedia: false });
     const estimate = await this.creditService.estimateVideo({
       userId: actorContext.userId,
       model,
-      request
+      request,
+      generationMode: workflow.generationMode
     });
     const account = await this.creditService.getAccount(actorContext.userId);
     return {
@@ -68,8 +70,9 @@ export class VideoGenerationApplicationService {
     };
   }
 
-  async submit(input, actorContext) {
+  async submit(input, actorContext, workflowContext = null) {
     const request = normalizeRequest(input);
+    const workflow = normalizeWorkflowContext(workflowContext);
     const model = this.#validateModel(request);
     const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
     const replay = await this.taskRepository.findByIdempotencyKey(actorContext.userId, idempotencyKey);
@@ -87,7 +90,7 @@ export class VideoGenerationApplicationService {
       aspectRatio: request.aspectRatio,
       referenceCount: request.referenceImageCount,
       outputCount: 1,
-      generationMode: 'playground_video',
+      generationMode: workflow.generationMode,
       operation: request.operation,
       durationSeconds: request.durationSeconds,
       audioMode: request.audioMode
@@ -96,7 +99,7 @@ export class VideoGenerationApplicationService {
       userId: actorContext.userId,
       estimateId: input.estimateId,
       generationRequest,
-      metadata: { jobId: taskId, requestId, capability: 'playground_video' }
+      metadata: { jobId: taskId, requestId, capability: workflow.capability }
     });
     const submitted = await this.providerTaskService.submitTask({
       ...request,
@@ -109,10 +112,10 @@ export class VideoGenerationApplicationService {
       reservationId: reserved.reservation.reservationId,
       estimateId: reserved.estimate.estimateId,
       correlationId: taskId,
-      projectId: 'playground',
-      sceneId: null,
-      shotId: null,
-      generationAttemptId: taskId
+      projectId: workflow.projectId,
+      sceneId: workflow.sceneId,
+      shotId: workflow.shotId,
+      generationAttemptId: workflow.generationAttemptId || taskId
     }, actorContext, { allowTesting: this.testingEnabled });
     if (submitted.status === 'failed' && submitted.providerError?.providerBillableState === 'not_billable') {
       await this.creditService.refundForJob({
@@ -135,7 +138,7 @@ export class VideoGenerationApplicationService {
     const owned = await this.taskRepository.findForActor(taskId, actorContext);
     if (!owned) throw videoError('video_task_not_found', 'Video task not found.', 404);
     let task = TERMINAL.has(owned.status) ? owned : await this.providerTaskService.pollTask(taskId);
-    if (task.status === 'completed' && task.billingStatus !== 'captured') {
+    if (task.status === 'completed' && task.billingStatus === 'reserved') {
       await this.creditService.captureForJob({
         userId: actorContext.userId,
         reservationId: task.reservationId,
@@ -143,6 +146,16 @@ export class VideoGenerationApplicationService {
         metadata: { providerUsage: task.providerUsage, mediaType: 'video' }
       });
       task = await this.taskRepository.update(task.id, draft => { draft.billingStatus = 'captured'; });
+    } else if (task.status === 'completed' && task.billingStatus === 'refunded') {
+      task = await this.taskRepository.update(task.id, draft => {
+        draft.status = 'reconciliation_required';
+        draft.providerError = {
+          code: 'video_credit_settlement_conflict',
+          category: 'credits',
+          retryable: false,
+          providerBillableState: 'billable'
+        };
+      });
     } else if (['failed', 'cancelled', 'expired'].includes(task.status)
       && task.billingStatus === 'reserved'
       && task.providerError?.providerBillableState === 'not_billable') {
@@ -163,6 +176,14 @@ export class VideoGenerationApplicationService {
       items: tasks.map(toPublicTask),
       hasMore: false
     };
+  }
+
+  async hasDurableTaskForReservation({ userId, reservationId, jobId } = {}) {
+    if (!userId || !reservationId || !jobId) return false;
+    const task = await this.taskRepository.find(jobId);
+    return Boolean(task
+      && task.ownerUserId === userId
+      && task.reservationId === reservationId);
   }
 
   #validateModel(request) {
@@ -237,6 +258,7 @@ function deterministicTaskId(userId, idempotencyKey) {
 }
 
 function toPublicTask(task) {
+  const submittedRequest = task.submittedRequest || {};
   return {
     id: task.id,
     status: task.status,
@@ -252,7 +274,22 @@ function toPublicTask(task) {
     outputAsset: task.outputAsset || null,
     providerError: task.providerError || null,
     billingStatus: task.billingStatus || null,
-    estimatedCredits: task.estimatedCredits || null
+    estimatedCredits: task.estimatedCredits || null,
+    submittedRequest: {
+      operation: submittedRequest.operation || null,
+      aspectRatio: submittedRequest.aspectRatio || null,
+      resolution: submittedRequest.resolution || null,
+      durationSeconds: submittedRequest.durationSeconds || null,
+      audioMode: submittedRequest.audioMode || null,
+      referenceImageCount: Number(submittedRequest.referenceImageCount) || 0,
+      characterAttributions: Array.isArray(submittedRequest.characterAttributions)
+        ? submittedRequest.characterAttributions.slice(0, 6).map(attribution => ({
+          characterProfileId: attribution.characterProfileId,
+          characterProfileVersionId: attribution.characterProfileVersionId,
+          role: attribution.role || null
+        }))
+        : []
+    }
   };
 }
 
@@ -260,6 +297,33 @@ function normalizeIdempotencyKey(value) {
   const key = String(value || '').trim();
   if (key.length < 8 || key.length > 200) throw videoError('video_idempotency_key_invalid', 'A stable video idempotency key is required.');
   return key;
+}
+
+function normalizeWorkflowContext(value) {
+  if (!value) {
+    return {
+      capability: 'playground_video',
+      generationMode: 'playground_video',
+      projectId: 'playground',
+      sceneId: null,
+      shotId: null,
+      generationAttemptId: null
+    };
+  }
+  const capability = String(value.capability || '').trim();
+  const generationMode = String(value.generationMode || '').trim();
+  const projectId = String(value.projectId || '').trim();
+  if (capability !== 'cinematic' || generationMode !== 'cinematic_video' || !projectId) {
+    throw videoError('video_workflow_context_invalid', 'Video workflow context is invalid.');
+  }
+  return {
+    capability,
+    generationMode,
+    projectId,
+    sceneId: String(value.sceneId || '').trim() || null,
+    shotId: String(value.shotId || '').trim() || null,
+    generationAttemptId: String(value.generationAttemptId || '').trim() || null
+  };
 }
 
 function videoError(code, message, statusCode = 400) {

@@ -7,6 +7,7 @@ import { characterUsageService } from '../character-profiles/CharacterUsageServi
 import { adminPolicyService } from '../admin/AdminPolicyService.js';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.js';
+import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -19,7 +20,8 @@ export class CinematicApplicationService {
     characterAuthorizationService = characterUsageService,
     backofficePolicy = adminPolicyService,
     providerTaskRepository = videoProviderTaskRepository,
-    videoCapabilities = videoCapabilityRegistry
+    videoCapabilities = videoCapabilityRegistry,
+    videoGenerationService = videoGenerationApplicationService
   } = {}) {
     this.repository = repository;
     this.storyboardAssetService = storyboardAssetService;
@@ -28,10 +30,15 @@ export class CinematicApplicationService {
     this.backofficePolicy = backofficePolicy;
     this.providerTaskRepository = providerTaskRepository;
     this.videoCapabilities = videoCapabilities;
+    this.videoGenerationService = videoGenerationService;
   }
 
   listProjects(actorContext, query) {
     return this.repository.listForActor(actorContext, query);
+  }
+
+  getVideoCapabilities() {
+    return this.videoGenerationService.getCatalog();
   }
 
   async getProject(projectId, actorContext) {
@@ -276,6 +283,177 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
     }
     return buildProduceContext(project, located.scene, located.shot);
+  }
+
+  async quoteVideoAttempt(projectId, sceneId, shotId, input, actorContext) {
+    const { project, scene, shot, source } = await this.#getCurrentProduceSource(
+      projectId, sceneId, shotId, input, actorContext
+    );
+    try {
+      const quote = await this.videoGenerationService.quote(
+        buildCinematicVideoRequest(input, project, shot, source),
+        actorContext,
+        buildCinematicWorkflow(project, scene, shot, null)
+      );
+      return {
+        ...quote,
+        projectId: project.id,
+        sceneId: scene.id,
+        shotId: shot.id,
+        shotVersion: shot.version || 1,
+        sourceFingerprint: source.sourceFingerprint,
+        approvedStoryboardAssetVersionId: source.assetVersionId
+      };
+    } catch (error) {
+      throw asCinematicError(error);
+    }
+  }
+
+  async createVideoAttempt(projectId, sceneId, shotId, input, actorContext) {
+    const idempotencyKey = normalizeIdempotencyKey(input.idempotencyKey);
+    const existingProject = await this.getProject(projectId, actorContext);
+    const attemptId = deterministicCinematicAttemptId(actorContext.userId, existingProject.id, shotId, idempotencyKey);
+    const existingAttempt = existingProject.generationAttempts.find(item => item.id === attemptId);
+    if (existingAttempt?.generationJobId) {
+      const task = await this.providerTaskRepository.findForActor(existingAttempt.generationJobId, actorContext);
+      if (task) return { attemptId, task };
+    }
+    const { project, scene, shot, source } = await this.#getCurrentProduceSource(
+      projectId, sceneId, shotId,
+      existingAttempt ? { ...input, expectedVersion: existingProject.version } : input,
+      actorContext
+    );
+    await this.repository.mutateForActor(project.id, actorContext, draft => {
+      const replay = draft.generationAttempts.find(item => item.id === attemptId);
+      if (replay) return draft;
+      assertExpectedVersion(draft, input.expectedVersion);
+      const located = findShot(draft, shot.id);
+      if (!located || located.scene.id !== scene.id
+        || located.shot.approvedStoryboardSource?.sourceFingerprint !== source.sourceFingerprint) {
+        throw new CinematicError('cinematic_storyboard_source_changed', 'The approved Storyboard source changed before generation.', 409);
+      }
+      draft.generationAttempts.push({
+        id: attemptId,
+        operation: 'cinematic_draft_clip',
+        sceneId: scene.id,
+        shotId: shot.id,
+        attemptNumber: draft.generationAttempts.filter(item => item.shotId === shot.id
+          && item.operation === 'cinematic_draft_clip').length + 1,
+        idempotencyKey,
+        generationJobId: null,
+        providerTaskId: null,
+        quoteId: input.estimateId,
+        reservationId: null,
+        outputAssetIds: [],
+        approvedStoryboardAssetVersionId: source.assetVersionId,
+        sourceFingerprint: source.sourceFingerprint,
+        downstreamSourceStatus: 'current',
+        status: 'preparing',
+        reviewDecision: 'pending',
+        createdAt: new Date().toISOString()
+      });
+      draft.status = 'producing';
+      draft.version += 1;
+      return draft;
+    });
+    let task;
+    try {
+      task = await this.videoGenerationService.submit(
+        { ...buildCinematicVideoRequest(input, project, shot, source), idempotencyKey, estimateId: input.estimateId },
+        actorContext,
+        buildCinematicWorkflow(project, scene, shot, attemptId)
+      );
+    } catch (error) {
+      await this.repository.mutateForActor(project.id, actorContext, draft => {
+        const attempt = draft.generationAttempts.find(item => item.id === attemptId);
+        if (attempt) {
+          attempt.status = 'failed';
+          attempt.failureCode = error?.code || 'cinematic_video_submit_failed';
+        }
+        draft.status = 'failed_recoverable';
+        draft.version += 1;
+        return draft;
+      });
+      throw asCinematicError(error);
+    }
+    await this.repository.mutateForActor(project.id, actorContext, draft => {
+      const attempt = draft.generationAttempts.find(item => item.id === attemptId);
+      if (!attempt) throw new CinematicError('cinematic_video_attempt_not_found', 'Video Attempt not found.', 404);
+      attempt.generationJobId = task.id;
+      attempt.providerTaskId = task.providerTaskId || null;
+      attempt.reservationId = task.reservationId || null;
+      attempt.quoteId = task.estimateId || input.estimateId;
+      attempt.providerId = task.providerId;
+      attempt.modelId = task.modelId;
+      attempt.status = task.status;
+      if (task.outputAsset?.id) attempt.outputAssetIds = [task.outputAsset.id];
+      if (task.status === 'failed') draft.status = 'failed_recoverable';
+      draft.version += 1;
+      return draft;
+    });
+    return { attemptId, task };
+  }
+
+  async approveVideoAttempt(projectId, sceneId, shotId, attemptId, input, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const located = findShot(project, shotId);
+    const attempt = project.generationAttempts.find(item => item.id === attemptId && item.shotId === shotId);
+    if (!located || located.scene.id !== sceneId || !attempt) {
+      throw new CinematicError('cinematic_video_attempt_not_found', 'Video Attempt not found.', 404);
+    }
+    let task;
+    try {
+      task = await this.videoGenerationService.getAndPoll(attempt.generationJobId, actorContext);
+    } catch (error) {
+      throw asCinematicError(error);
+    }
+    if (task.status !== 'completed' || task.billingStatus !== 'captured' || !task.outputAsset) {
+      throw new CinematicError('cinematic_video_attempt_not_ready', 'The Video Attempt is not completed and settled.', 409);
+    }
+    return this.repository.mutateForActor(projectId, actorContext, draft => {
+      assertExpectedVersion(draft, input.expectedVersion);
+      const current = findShot(draft, shotId);
+      const target = draft.generationAttempts.find(item => item.id === attemptId && item.shotId === shotId);
+      if (!current || current.scene.id !== sceneId || !target) {
+        throw new CinematicError('cinematic_video_attempt_not_found', 'Video Attempt not found.', 404);
+      }
+      if (target.sourceFingerprint !== current.shot.approvedStoryboardSource?.sourceFingerprint
+        || target.downstreamSourceStatus === 'source_changed') {
+        throw new CinematicError('cinematic_video_source_stale', 'The Storyboard source changed after this Video Attempt.', 409);
+      }
+      for (const item of draft.generationAttempts) {
+        if (item.shotId === shotId && item.operation === 'cinematic_draft_clip' && item.status === 'approved') {
+          item.status = 'superseded';
+          item.reviewDecision = 'superseded';
+        }
+      }
+      target.status = 'approved';
+      target.reviewDecision = 'approved';
+      target.outputAssetIds = [task.outputAsset.id || task.outputAsset.assetId || task.id];
+      target.outputAsset = task.outputAsset;
+      target.settlementStatus = task.billingStatus;
+      current.shot.approvedVideoAttemptId = target.id;
+      current.shot.approvedVideoSourceFingerprint = target.sourceFingerprint;
+      draft.status = 'review';
+      draft.version += 1;
+      return buildProduceContext(draft, current.scene, current.shot);
+    });
+  }
+
+  async #getCurrentProduceSource(projectId, sceneId, shotId, input, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    assertExpectedVersion(project, input.expectedVersion);
+    const located = findShot(project, shotId);
+    if (!located || located.scene.id !== sceneId) {
+      throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
+    }
+    const source = located.shot.approvedStoryboardSource;
+    if (!source) throw new CinematicError('cinematic_storyboard_source_required', 'Approve a Storyboard source before generating video.', 409);
+    if (Number(input.expectedShotVersion) !== Number(located.shot.version || 1)
+      || String(input.sourceFingerprint || '') !== source.sourceFingerprint) {
+      throw new CinematicError('cinematic_storyboard_source_changed', 'The approved Storyboard source changed before generation.', 409);
+    }
+    return { project, scene: located.scene, shot: located.shot, source };
   }
 
   updateShotDirection(projectId, sceneId, shotId, input, actorContext) {
@@ -597,6 +775,50 @@ function normalizeIdempotencyKey(value) {
   return key;
 }
 
+function deterministicCinematicAttemptId(userId, projectId, shotId, idempotencyKey) {
+  const digest = crypto.createHash('sha256')
+    .update(`${userId}:${projectId}:${shotId}:${idempotencyKey}`)
+    .digest('hex')
+    .slice(0, 20);
+  return `cineattempt_${digest}`;
+}
+
+function buildCinematicWorkflow(project, scene, shot, generationAttemptId) {
+  return {
+    capability: 'cinematic',
+    generationMode: 'cinematic_video',
+    projectId: project.id,
+    sceneId: scene.id,
+    shotId: shot.id,
+    generationAttemptId
+  };
+}
+
+function buildCinematicVideoRequest(input, project, shot, source) {
+  const durationSeconds = Math.max(1, Math.round(Number(input.durationSeconds || shot.durationMs / 1000)));
+  return {
+    providerId: String(input.providerId || ''),
+    modelId: String(input.modelId || ''),
+    operation: 'image_to_video',
+    prompt: String(input.prompt || shot.prompt || '').trim(),
+    aspectRatio: String(input.aspectRatio || project.aspectRatio || '9:16'),
+    resolution: String(input.resolution || '720p'),
+    durationSeconds,
+    audioMode: String(input.audioMode || 'none'),
+    referenceImageUrl: source.imageUrl
+  };
+}
+
+function asCinematicError(error) {
+  if (error instanceof CinematicError) return error;
+  return new CinematicError(
+    error?.code || 'cinematic_video_operation_failed',
+    error?.message || 'Cinematic Video operation failed.',
+    error?.statusCode || 400,
+    error?.details
+  );
+}
+
 function markSourceChanged(project, shot, previousFingerprint) {
   for (const attempt of project.generationAttempts || []) {
     if (attempt.shotId === shot.id
@@ -638,6 +860,14 @@ function buildProduceContext(project, scene, shot) {
       id: attempt.id,
       operation: attempt.operation,
       status: attempt.status,
+      generationJobId: attempt.generationJobId || null,
+      providerTaskId: attempt.providerTaskId || null,
+      providerId: attempt.providerId || null,
+      modelId: attempt.modelId || null,
+      quoteId: attempt.quoteId || null,
+      reservationId: attempt.reservationId || null,
+      outputAsset: attempt.outputAsset || null,
+      reviewDecision: attempt.reviewDecision || 'pending',
       downstreamSourceStatus: attempt.downstreamSourceStatus || (
         attempt.sourceFingerprint === source?.sourceFingerprint ? 'current' : 'source_changed'
       )

@@ -2,11 +2,13 @@ import {
   ArrowLeft, ArrowRight, Check, Clock3, Film, Image as ImageIcon,
   Play, Plus, RotateCcw, Shirt, Sparkles, Upload, UserRound, WandSparkles
 } from 'lucide-react';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
 import { Surface } from '../../../components/ui/Surface';
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
+import { VideoMediaPlayer } from '../../../components/media/VideoMediaPlayer';
 import type { CinematicStage } from '../cinematicStages';
 import { CharacterPickerDialog, SceneDirectorDialog } from './CinematicDialogs';
 import { ContextualOperationDock } from './ContextualOperationDock';
@@ -14,8 +16,10 @@ import { StoryboardSequenceBoard, type StoryboardShotSummary } from './Storyboar
 import {
   approveCinematicStoryboardSource, reorderCinematicSceneShots, saveCinematicStoryPlan,
   saveCinematicTimeline, updateCinematicShotDirection, upsertCinematicCast,
-  upsertCinematicWardrobeLook
+  upsertCinematicWardrobeLook, approveCinematicVideoAttempt, createCinematicVideoAttempt,
+  quoteCinematicVideoAttempt, getCinematicVideoCapabilityCatalog
 } from '../api/cinematicApi';
+import { getVideoTask } from '../../generation/api/videoGenerationApi';
 import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchemas';
 
 type Props = {
@@ -43,7 +47,7 @@ export function CinematicStageContent({ activeStage, mode = 'simple', onModeChan
     {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} />}
     {activeStage === 'story-plan' && <StoryPlanStage project={project} onProjectChanged={onProjectChanged} />}
     {activeStage === 'storyboard' && <StoryboardStage project={project} onProjectRefresh={onProjectRefresh} />}
-    {activeStage === 'produce' && <ProduceStage project={project} onEditStoryboard={() => onOpenStage?.('storyboard')} />}
+    {activeStage === 'produce' && <ProduceStage project={project} onEditStoryboard={() => onOpenStage?.('storyboard')} onProjectRefresh={onProjectRefresh} />}
     {activeStage === 'finish' && <FinishStage project={project} onProjectChanged={onProjectChanged} />}
     <StageFooter activeStage={activeStage} onPrevious={onPrevious} onNext={onNext} />
   </div>;
@@ -308,28 +312,126 @@ function StoryboardStage({ project, onProjectRefresh }: { project?: CinematicPro
   </>;
 }
 
-function ProduceStage({ project, onEditStoryboard }: { project?: CinematicProject; onEditStoryboard?: () => void }) {
+function ProduceStage({ project, onEditStoryboard, onProjectRefresh }: { project?: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void }) {
   const { t } = useTranslation('cinematic');
-  const activeScene = project?.scenes[0];
-  const [selectedShot, setSelectedShot] = useState(activeScene?.shots[0]?.id || '01A');
+  if (project) return <CinematicProduceRuntime project={project} onEditStoryboard={onEditStoryboard} onProjectRefresh={onProjectRefresh} />;
+  const activeScene = undefined;
+  const [selectedShot, setSelectedShot] = useState('01A');
   const [scope, setScope] = useState<'shot' | 'set'>('shot');
   const [prompt, setPrompt] = useState(t('cinematic.produce.promptFixture'));
-  const selectedShotRecord = activeScene?.shots.find(shot => shot.id === selectedShot);
-  const orderedShots = activeScene ? activeScene.shots.map(shot => ({ id: shot.id, durationSeconds: shot.durationMs / 1000, title: shot.title, framing: shot.framing, action: shot.blocking || shot.purpose, status: shot.approvedStoryboardSource ? 'ready' : 'warning' } satisfies StoryboardShotSummary)) : storyboardShotFixtures.map(shot => ({ id: shot.id, durationSeconds: shot.durationSeconds, title: t(`cinematic.storyboard.fixture.${shot.titleKey}`), framing: t(`cinematic.storyboard.fixture.${shot.framingKey}`), action: t(`cinematic.storyboard.fixture.${shot.actionKey}`), status: shot.status } satisfies StoryboardShotSummary));
+  const orderedShots = storyboardShotFixtures.map(shot => ({ id: shot.id, durationSeconds: shot.durationSeconds, title: t(`cinematic.storyboard.fixture.${shot.titleKey}`), framing: t(`cinematic.storyboard.fixture.${shot.framingKey}`), action: t(`cinematic.storyboard.fixture.${shot.actionKey}`), status: shot.status } satisfies StoryboardShotSummary));
   return <>
     <StageHeading stage="produce" />
     <div className="cinematic-shot-workspace">
-      <SceneNavigator scenes={project?.scenes} activeSceneId={activeScene?.id} onSelectScene={() => undefined} />
+      <SceneNavigator scenes={undefined} activeSceneId={activeScene} onSelectScene={() => undefined} />
       <section className="cinematic-shot-editor">
-        <StoryboardSequenceBoard sceneId={activeScene?.id} sceneTitle={activeScene?.title || t('cinematic.produce.sequenceTitle')} sceneDurationSeconds={(activeScene?.durationMs || 12500) / 1000} shots={orderedShots} selectedShotId={selectedShot} onSelectShot={setSelectedShot} onMoveShot={() => undefined} />
+        <StoryboardSequenceBoard sceneTitle={t('cinematic.produce.sequenceTitle')} sceneDurationSeconds={12.5} shots={orderedShots} selectedShotId={selectedShot} onSelectShot={setSelectedShot} onMoveShot={() => undefined} />
         <section className="cinematic-focused-shot" aria-label={`${t('cinematic.produce.editShot')} ${selectedShot}`}>
           <header><div><span>{t('cinematic.produce.selectedShot')}</span><h3>{t('cinematic.storyboard.shot')} {selectedShot}</h3></div><strong><Clock3 aria-hidden="true" />{orderedShots.find(shot => shot.id === selectedShot)?.durationSeconds ?? 0}s</strong></header>
-          {selectedShotRecord?.approvedStoryboardSource ? <section className="cinematic-produce-source"><img src={selectedShotRecord.approvedStoryboardSource.imageUrl} alt="" /><div><strong>{t('cinematic.produce.approvedSource')}</strong><Button size="sm" variant="ghost" onClick={onEditStoryboard}>{t('cinematic.produce.editStoryboardSource')}</Button></div></section> : <CinematicResultPlaceholder type="video" />}
+          <CinematicResultPlaceholder type="video" />
           <div className="cinematic-shot-editor__form"><label><span>{t('cinematic.produce.prompt')}</span><textarea rows={6} value={prompt} onChange={event => setPrompt(event.target.value)} /></label><Button size="sm" icon={<RotateCcw aria-hidden="true" />} onClick={() => setPrompt(t('cinematic.produce.promptFixture'))}>{t('cinematic.produce.reset')}</Button></div>
           <AttemptHistory type="video" />
         </section>
       </section>
       <aside className="cinematic-sticky-generation-panel"><ContextualOperationDock media title={t('cinematic.produce.operationTitle')} description={t('cinematic.produce.operationDescription')} operation={`${t('cinematic.storyboard.shot')} ${selectedShot}`} credits={scope === 'set' ? 126 : 42} actionLabel={scope === 'set' ? t('cinematic.produce.generateSet') : t('cinematic.produce.generate')}><GenerationScopeControl scope={scope} onScopeChange={setScope} eligible={scope === 'set' ? 3 : 1} blocked={scope === 'set' ? 1 : undefined} unitCredits={42} /><div className="cinematic-sticky-engine-fields"><label><span>{t('cinematic.engine.provider')}</span><select defaultValue="veo"><option value="veo">Google Veo</option><option value="seedance">Seedance</option></select></label><label><span>{t('cinematic.engine.model')}</span><select defaultValue="veo-fast"><option value="veo-fast">Veo 3.1 Fast</option><option value="seedance-lite">Seedance Lite</option></select></label><label><span>{t('cinematic.engine.duration')}</span><select defaultValue="4"><option value="4">4s</option><option value="6">6s</option></select></label><label><span>{t('cinematic.engine.resolution')}</span><select defaultValue="720"><option value="720">720p</option><option value="1080">1080p</option></select></label></div></ContextualOperationDock></aside>
+    </div>
+  </>;
+}
+
+function CinematicProduceRuntime({ project, onEditStoryboard, onProjectRefresh }: { project: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void }) {
+  const { t } = useTranslation('cinematic');
+  const activeScene = project?.scenes[0];
+  const [selectedShot, setSelectedShot] = useState(activeScene?.shots[0]?.id || '01A');
+  const [selectedSceneId, setSelectedSceneId] = useState(activeScene?.id || '');
+  const selectedScene = project.scenes.find(scene => scene.id === selectedSceneId) || activeScene;
+  const selectedShotRecord = selectedScene?.shots.find(shot => shot.id === selectedShot) || selectedScene?.shots[0];
+  const latestAttempt = useMemo(() => findLatestVideoAttempt(project, selectedShotRecord?.id), [project, selectedShotRecord?.id]);
+  const [prompt, setPrompt] = useState(selectedShotRecord?.prompt || t('cinematic.produce.promptFixture'));
+  const [modelKey, setModelKey] = useState('');
+  const [resolution, setResolution] = useState('720p');
+  const [durationSeconds, setDurationSeconds] = useState(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
+  const [audioMode, setAudioMode] = useState<'none' | 'generated'>('none');
+  const [taskId, setTaskId] = useState<string | null>(() => stringField(latestAttempt, 'generationJobId'));
+  const [attemptId, setAttemptId] = useState<string | null>(() => stringField(latestAttempt, 'id'));
+  const catalog = useQuery({ queryKey: ['video-capabilities', 'cinematic'], queryFn: getCinematicVideoCapabilityCatalog });
+  const models = useMemo(() => (catalog.data?.models || []).filter(model => model.operations.includes('image_to_video')), [catalog.data]);
+  const selectedModel = models.find(model => `${model.providerId}:${model.modelId}` === modelKey) || models[0];
+  useEffect(() => { if (selectedModel && !modelKey) setModelKey(`${selectedModel.providerId}:${selectedModel.modelId}`); }, [modelKey, selectedModel]);
+  useEffect(() => {
+    if (!selectedModel) return;
+    if (!selectedModel.resolutions.includes(resolution)) setResolution(selectedModel.resolutions[0] || '720p');
+    if (!selectedModel.durations.includes(durationSeconds)) setDurationSeconds(selectedModel.durations[0] || 4);
+    if (!selectedModel.audioModes.includes(audioMode)) setAudioMode((selectedModel.audioModes[0] || 'none') as 'none' | 'generated');
+  }, [audioMode, durationSeconds, resolution, selectedModel]);
+  useEffect(() => {
+    setPrompt(selectedShotRecord?.prompt || t('cinematic.produce.promptFixture'));
+    setDurationSeconds(Math.max(1, Math.round((selectedShotRecord?.durationMs || 4000) / 1000)));
+    setTaskId(stringField(latestAttempt, 'generationJobId'));
+    setAttemptId(stringField(latestAttempt, 'id'));
+  }, [latestAttempt, selectedShotRecord?.id, selectedShotRecord?.prompt, selectedShotRecord?.durationMs, t]);
+  const source = selectedShotRecord?.approvedStoryboardSource;
+  const quoteInput = selectedModel && selectedShotRecord && source ? {
+    expectedVersion: project.version,
+    expectedShotVersion: selectedShotRecord.version,
+    sourceFingerprint: source.sourceFingerprint,
+    providerId: selectedModel.providerId,
+    modelId: selectedModel.modelId,
+    prompt,
+    aspectRatio: selectedModel.aspectRatios.includes(project.aspectRatio) ? project.aspectRatio : selectedModel.aspectRatios[0] || project.aspectRatio,
+    resolution,
+    durationSeconds,
+    audioMode
+  } : null;
+  const quote = useQuery({
+    queryKey: ['cinematic-video-quote', project.id, selectedScene?.id, selectedShotRecord?.id, quoteInput],
+    queryFn: () => quoteCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, quoteInput!),
+    enabled: Boolean(quoteInput && prompt.trim()),
+    staleTime: 20_000,
+    retry: false
+  });
+  const submit = useMutation({
+    mutationFn: () => createCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, {
+      ...quoteInput!, estimateId: quote.data!.estimate.estimateId,
+      idempotencyKey: `cinematic:${project.id}:${selectedShotRecord!.id}:${crypto.randomUUID()}`
+    }),
+    onSuccess: response => {
+      setAttemptId(response.attemptId);
+      setTaskId(response.task.id);
+      onProjectRefresh?.();
+    }
+  });
+  const task = useQuery({
+    queryKey: ['video-task', taskId],
+    queryFn: () => getVideoTask(taskId!),
+    enabled: Boolean(taskId),
+    refetchInterval: query => ['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required'].includes(query.state.data?.status || '') ? false : 5_000
+  });
+  const approve = useMutation({
+    mutationFn: () => approveCinematicVideoAttempt(project.id, selectedScene!.id, selectedShotRecord!.id, attemptId!, project.version),
+    onSuccess: () => onProjectRefresh?.()
+  });
+  const orderedShots = selectedScene ? selectedScene.shots.map(shot => ({ id: shot.id, durationSeconds: shot.durationMs / 1000, title: shot.title, framing: shot.framing, action: shot.blocking || shot.purpose, status: shot.approvedStoryboardSource ? 'ready' : 'warning' } satisfies StoryboardShotSummary)) : [];
+  const isRunning = Boolean(taskId && !['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required'].includes(task.data?.status || ''));
+  const operationError = submit.error || quote.error || task.error || approve.error;
+  const attemptHistory = project.generationAttempts
+    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null && 'shotId' in item && item.shotId === selectedShot)
+    .map(item => item.id === attemptId && task.data ? { ...item, status: task.data.status, outputAsset: task.data.outputAsset } : item);
+  return <>
+    <StageHeading stage="produce" />
+    <div className="cinematic-shot-workspace">
+      <SceneNavigator scenes={project.scenes} activeSceneId={selectedScene?.id} onSelectScene={sceneId => { const scene = project.scenes.find(item => item.id === sceneId); setSelectedSceneId(sceneId); if (scene?.shots[0]) setSelectedShot(scene.shots[0].id); }} />
+      <section className="cinematic-shot-editor">
+        <StoryboardSequenceBoard sceneId={selectedScene?.id} sceneTitle={selectedScene?.title || t('cinematic.produce.sequenceTitle')} sceneDurationSeconds={(selectedScene?.durationMs || 0) / 1000} shots={orderedShots} selectedShotId={selectedShot} onSelectShot={setSelectedShot} onMoveShot={() => undefined} />
+        <section className="cinematic-focused-shot" aria-label={`${t('cinematic.produce.editShot')} ${selectedShot}`}>
+          <header><div><span>{t('cinematic.produce.selectedShot')}</span><h3>{t('cinematic.storyboard.shot')} {selectedShot}</h3></div><strong><Clock3 aria-hidden="true" />{orderedShots.find(shot => shot.id === selectedShot)?.durationSeconds ?? 0}s</strong></header>
+          {task.data?.outputAsset?.publicUrl ? <section className="cinematic-generation-result" aria-label={t('cinematic.results.videoLabel')}><VideoMediaPlayer videoUrl={task.data.outputAsset.publicUrl} posterUrl={task.data.outputAsset.posterUrl} title={`${t('cinematic.storyboard.shot')} ${selectedShot}`} /></section> : isRunning ? <section className="cinematic-generation-result" aria-label={t('cinematic.results.videoLabel')}><GenerationStageState loading title={t('cinematic.produce.generating')} description={task.data?.status || t('cinematic.produce.queued')} /></section> : selectedShotRecord?.approvedStoryboardSource ? <section className="cinematic-produce-source"><img src={selectedShotRecord.approvedStoryboardSource.imageUrl} alt="" /><div><strong>{t('cinematic.produce.approvedSource')}</strong><Button size="sm" variant="ghost" onClick={onEditStoryboard}>{t('cinematic.produce.editStoryboardSource')}</Button></div></section> : <CinematicResultPlaceholder type="video" />}
+          <div className="cinematic-shot-editor__form"><label><span>{t('cinematic.produce.prompt')}</span><textarea rows={6} value={prompt} onChange={event => setPrompt(event.target.value)} /></label><Button size="sm" icon={<RotateCcw aria-hidden="true" />} onClick={() => setPrompt(t('cinematic.produce.promptFixture'))}>{t('cinematic.produce.reset')}</Button></div>
+          {task.data?.status === 'completed' && task.data.billingStatus === 'captured' && attemptId ? <Button variant="primary" disabled={approve.isPending} onClick={() => approve.mutate()}>{t('cinematic.produce.approveAttempt')}</Button> : null}
+          {operationError ? <p role="alert" className="text-sm text-red-400">{operationError.message}</p> : null}
+          <AttemptHistory type="video" attempts={attemptHistory} />
+        </section>
+      </section>
+      <aside className="cinematic-sticky-generation-panel"><ContextualOperationDock media title={t('cinematic.produce.operationTitle')} description={t('cinematic.produce.operationDescription')} operation={`${t('cinematic.storyboard.shot')} ${selectedShot}`} credits={quote.data?.estimate.estimatedCredits} actionLabel={t('cinematic.produce.generate')} disabled={!quote.data?.account.canAfford || !source || submit.isPending || isRunning} loading={quote.isFetching || submit.isPending} notice={!source ? t('cinematic.produce.sourceRequired') : quote.error?.message || t('cinematic.produce.lockedEstimate')} onAction={() => submit.mutate()}><div className="cinematic-sticky-engine-fields"><label><span>{t('cinematic.engine.provider')}</span><select value={selectedModel?.providerId || ''} onChange={event => { const model = models.find(item => item.providerId === event.target.value); if (model) setModelKey(`${model.providerId}:${model.modelId}`); }}>{[...new Set(models.map(model => model.providerId))].map(provider => <option key={provider} value={provider}>{provider}</option>)}</select></label><label><span>{t('cinematic.engine.model')}</span><select value={modelKey} onChange={event => setModelKey(event.target.value)}>{models.filter(model => model.providerId === selectedModel?.providerId).map(model => <option key={`${model.providerId}:${model.modelId}`} value={`${model.providerId}:${model.modelId}`}>{model.displayName}</option>)}</select></label><label><span>{t('cinematic.engine.duration')}</span><select value={durationSeconds} onChange={event => setDurationSeconds(Number(event.target.value))}>{selectedModel?.durations.map(value => <option key={value} value={value}>{value}s</option>)}</select></label><label><span>{t('cinematic.engine.resolution')}</span><select value={resolution} onChange={event => setResolution(event.target.value)}>{selectedModel?.resolutions.map(value => <option key={value} value={value}>{value}</option>)}</select></label></div></ContextualOperationDock></aside>
     </div>
   </>;
 }
@@ -400,6 +502,20 @@ function moveItem(items: string[], itemId: string, direction: 'earlier' | 'later
   return next;
 }
 
+function findLatestVideoAttempt(project: CinematicProject, shotId?: string) {
+  if (!shotId) return null;
+  return [...project.generationAttempts].reverse().find((item): item is Record<string, unknown> => (
+    typeof item === 'object' && item !== null
+    && 'shotId' in item && item.shotId === shotId
+    && 'operation' in item && item.operation === 'cinematic_draft_clip'
+  )) || null;
+}
+
+function stringField(record: Record<string, unknown> | null, field: string) {
+  const value = record?.[field];
+  return typeof value === 'string' && value ? value : null;
+}
+
 function FinishStage({ project, onProjectChanged }: { project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void }) {
   const { t } = useTranslation('cinematic');
   const [saveState, setSaveState] = useState<'idle' | 'saving'>('idle');
@@ -437,9 +553,10 @@ function FinishStage({ project, onProjectChanged }: { project?: CinematicProject
   </>;
 }
 
-function AttemptHistory({ type }: { type: 'image' | 'video' }) {
+function AttemptHistory({ type, attempts }: { type: 'image' | 'video'; attempts?: Record<string, unknown>[] }) {
   const { t } = useTranslation('cinematic');
-  return <section className="cinematic-attempt-history"><h3>{t('cinematic.attempts.title')}</h3><article><span>{type === 'image' ? <ImageIcon /> : <Film />}</span><div><strong>{t('cinematic.attempts.first')}</strong><small>{t('cinematic.attempts.fixture')}</small></div><span className="cinematic-status-pill is-ready">{t('cinematic.attempts.approved')}</span></article></section>;
+  const items = attempts?.length ? attempts : null;
+  return <section className="cinematic-attempt-history"><h3>{t('cinematic.attempts.title')}</h3>{items ? items.map((attempt, index) => <article key={String(attempt.id || index)}><span>{type === 'image' ? <ImageIcon /> : <Film />}</span><div><strong>{String(attempt.modelId || attempt.id || t('cinematic.attempts.first'))}</strong><small>{String(attempt.generationJobId || attempt.providerTaskId || '')}</small></div><span className={`cinematic-status-pill${attempt.status === 'approved' || attempt.status === 'completed' ? ' is-ready' : ''}`}>{String(attempt.status || 'pending')}</span></article>) : <article><span>{type === 'image' ? <ImageIcon /> : <Film />}</span><div><strong>{t('cinematic.attempts.first')}</strong><small>{t('cinematic.attempts.fixture')}</small></div><span className="cinematic-status-pill is-ready">{t('cinematic.attempts.approved')}</span></article>}</section>;
 }
 
 function SectionHeading({ title, hint, action }: { title: string; hint: string; action?: ReactNode }) { return <div className="cinematic-section-heading"><div><h3>{title}</h3><p>{hint}</p></div>{action}</div>; }

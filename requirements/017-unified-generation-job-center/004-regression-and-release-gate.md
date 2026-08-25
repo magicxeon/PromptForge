@@ -15,6 +15,8 @@
 - Image submit/status, multi-output groups, result grid, and Comparison.
 - Video quote/task/recovery.
 - Credit estimate, reservation, capture, refund, and reconciliation.
+- Startup reconciliation preserves a matching durable Video reservation,
+  refunds a missing owner, and fails closed when ownership lookup is unavailable.
 - History ownership and Recent output.
 - Playground, Studio, Scene Builder, and Fashion result surfaces.
 
@@ -29,6 +31,8 @@
 7. Refresh and confirm route pointer restoration.
 8. Restart backend during Image work and confirm recovery-required state rather
    than endless loading or duplicate dispatch.
+9. Restart backend during an accepted Video task and confirm its reservation
+   remains reserved until the durable task reaches a settlement state.
 
 Do not close while terminal work can spin forever, foreign work is visible,
 Credit behavior regresses, or restart can silently replay billable work.
@@ -46,3 +50,16 @@ Credit behavior regresses, or restart can silently replay billable work.
 - Express composition import and server syntax checks passed.
 - Manual checks 1-8 remain pending in a running browser and must pass before
   production release closure.
+
+## Validation Evidence (2026-08-24)
+
+- Startup Credit reconciliation now preserves reservations owned by matching
+  durable Video tasks and fails closed when ownership cannot be checked.
+- Completed Video plus an already-refunded reservation stops in
+  `reconciliation_required` without a second capture.
+- Server Credit, Video lifecycle, Job Center, route and Veo adapter suites:
+  33 passed.
+- Web Job Center and result-focus suites: 6 passed.
+- `npm.cmd run typecheck --workspace web` passed.
+- Manual checks 1-9 remain required; use
+  `_temp/unified-generation-job-center-closeout-test-cases-20260824-th.md`.

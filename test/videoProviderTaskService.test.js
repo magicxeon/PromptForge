@@ -77,6 +77,27 @@ test('successful provider response without usage stops in reconciliation', async
   assert.equal(cleanedOutputs.length, 1);
 });
 
+test('poster persistence failure retains partial Video lineage for maintenance repair', async t => {
+  const { directory, service } = await fixture([{
+    providerStatus: 'provider_succeeded',
+    output: { temporaryProviderUrl: 'fixture://video.mp4', mimeType: 'video/mp4' },
+    usage: { billingMetric: 'output_second', outputSeconds: 4 }
+  }]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  service.mediaPersister.persistVideoOutput = async () => {
+    throw Object.assign(new Error('poster failed'), {
+      code: 'video_poster_extraction_failed',
+      outputAsset: { assetId: 'asset_partial', publicUrl: '/outputs/partial.mp4', posterUrl: null }
+    });
+  };
+  const submitted = await service.submitResearchTask({ ...request, idempotencyKey: 'video:test:partial-poster' }, actor);
+  const terminal = await service.pollTask(submitted.id);
+  assert.equal(terminal.status, 'reconciliation_required');
+  assert.equal(terminal.providerError.code, 'video_poster_extraction_failed');
+  assert.equal(terminal.outputAsset.assetId, 'asset_partial');
+  assert.equal(terminal.providerUsage.outputSeconds, 4);
+});
+
 test('unknown provider status stops polling in reconciliation', async t => {
   const { directory, service } = await fixture([{ providerStatus: null }]);
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

@@ -350,5 +350,9 @@
   "cinematic.storyboard.approveSource": "Approve as Storyboard source",
   "cinematic.storyboard.saveDirection": "Save shot direction",
   "cinematic.produce.approvedSource": "Approved Storyboard source",
-  "cinematic.produce.editStoryboardSource": "Edit Storyboard source"
+  "cinematic.produce.editStoryboardSource": "Edit Storyboard source",
+  "cinematic.produce.generating": "Generating video attempt",
+  "cinematic.produce.approveAttempt": "Approve this video attempt",
+  "cinematic.produce.sourceRequired": "Approve a Storyboard image before generating this Shot.",
+  "cinematic.produce.lockedEstimate": "The displayed estimate is locked to this Shot, source, provider and output settings."
 }

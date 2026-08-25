@@ -1,3 +1,11 @@
+import {
+  parseEnvironmentBoolean,
+  resolveVideoProviderDebugEnabled,
+  summarizeVideoPrompt,
+  summarizeVideoProviderError,
+  writeVideoProviderDebug
+} from './videoProviderDebug.js';
+
 const DEFAULT_BASE_URL = 'https://ark.ap-southeast.bytepluses.com/api/v3';
 const DEFAULT_TIMEOUT_MS = 180000;
 const TERMINAL_FAILURES = new Set(['failed', 'error']);
@@ -13,7 +21,7 @@ export class ModelArkSeedanceProvider {
     baseUrl = process.env.MODEL_ARK_BASE_URL || DEFAULT_BASE_URL,
     timeoutMs = process.env.MODEL_ARK_API_TIMEOUT_MS || DEFAULT_TIMEOUT_MS,
     fetchImpl = globalThis.fetch,
-    debugEnabled = parseEnvironmentBoolean(process.env.MODEL_ARK_VIDEO_DEBUG),
+    debugEnabled = resolveVideoProviderDebugEnabled(process.env, 'MODEL_ARK_VIDEO_DEBUG'),
     logger = console
   } = {}) {
     this.apiKey = normalizeCredential(apiKey);
@@ -29,7 +37,7 @@ export class ModelArkSeedanceProvider {
     const response = await this.#request('/contents/generations/tasks', {
       method: 'POST',
       body: JSON.stringify(buildModelArkSeedancePayload(request))
-    }, { operation: 'submit' });
+    }, { operation: 'submit', taskId: request.id, correlationId: request.correlationId });
     const providerTaskId = firstString(response?.id, response?.task_id, response?.data?.id, response?.data?.task_id);
     if (!providerTaskId) {
       throw providerError('video_provider_operation_missing', 'ModelArk did not return a video task ID.', true, 'unknown');
@@ -45,7 +53,11 @@ export class ModelArkSeedanceProvider {
     this.#assertReady();
     const safeTaskId = encodeURIComponent(String(providerTaskId || '').trim());
     if (!safeTaskId) throw providerError('video_provider_task_id_missing', 'ModelArk video task ID is missing.', false, 'not_billable');
-    const response = await this.#request(`/contents/generations/tasks/${safeTaskId}`, { method: 'GET' }, { operation: 'poll' });
+    const response = await this.#request(`/contents/generations/tasks/${safeTaskId}`, { method: 'GET' }, {
+      operation: 'poll',
+      taskId: task?.id,
+      correlationId: task?.submittedRequest?.correlationId
+    });
     return normalizeModelArkSeedanceTask(response, { task });
   }
 
@@ -58,12 +70,14 @@ export class ModelArkSeedanceProvider {
     }
   }
 
-  async #request(pathname, init, { operation }) {
+  async #request(pathname, init, { operation, taskId = null, correlationId = null }) {
     let response;
     const endpoint = `${this.baseUrl}${pathname}`;
     const startedAt = Date.now();
     this.#debug('request', {
       operation,
+      taskId,
+      correlationId,
       endpoint,
       method: init.method || 'GET',
       timeoutMs: this.timeoutMs,
@@ -82,10 +96,11 @@ export class ModelArkSeedanceProvider {
     } catch (error) {
       this.#debug('transport_error', {
         operation,
+        taskId,
+        correlationId,
         endpoint,
         durationMs: Date.now() - startedAt,
-        errorName: firstString(error?.name) || 'Error',
-        errorCode: firstString(error?.code)
+        ...summarizeVideoProviderError(error)
       });
       throw providerError(
         'video_provider_unreachable',
@@ -99,11 +114,16 @@ export class ModelArkSeedanceProvider {
     const payload = await parseJsonResponse(response);
     this.#debug('response', {
       operation,
+      taskId,
+      correlationId,
       endpoint,
       durationMs: Date.now() - startedAt,
       statusCode: response.status,
       ok: response.ok,
       providerCode: firstString(payload?.error?.code, payload?.code),
+      providerMessage: summarizeVideoProviderError({
+        message: firstString(payload?.error?.message, payload?.message)
+      }).message,
       providerRequestId: extractProviderRequestId(response, payload),
       providerTaskId: firstString(payload?.id, payload?.task_id, payload?.data?.id, payload?.data?.task_id),
       providerStatus: firstString(payload?.status, payload?.data?.status)
@@ -113,8 +133,13 @@ export class ModelArkSeedanceProvider {
   }
 
   #debug(event, details) {
-    if (!this.debugEnabled || typeof this.logger?.info !== 'function') return;
-    this.logger.info('[ModelArkSeedance][Debug]', JSON.stringify({ event, ...compactObject(details) }));
+    writeVideoProviderDebug({
+      enabled: this.debugEnabled,
+      logger: this.logger,
+      providerId: 'modelark',
+      event,
+      details: compactObject(details)
+    });
   }
 }
 
@@ -207,9 +232,7 @@ export function resolveModelArkApiKey(env = process.env) {
     || null;
 }
 
-export function parseEnvironmentBoolean(value) {
-  return String(value || '').trim().toLowerCase() === 'true';
-}
+export { parseEnvironmentBoolean };
 
 function normalizeReferences(request) {
   const references = [];
@@ -249,7 +272,8 @@ function summarizeRequestBody(body) {
       referenceRoles: content
         .filter(item => item?.type === 'image_url')
         .map(item => firstString(item?.role) || 'first_frame'),
-      referenceCount: content.filter(item => item?.type === 'image_url').length
+      referenceCount: content.filter(item => item?.type === 'image_url').length,
+      ...summarizeVideoPrompt(content.find(item => item?.type === 'text')?.text)
     });
   } catch {
     return { requestBodyStatus: 'unreadable' };

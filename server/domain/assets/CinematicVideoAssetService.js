@@ -5,12 +5,14 @@ import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { OUTPUTS_DIR } from '../../config/paths.js';
 import { assetRepo } from '../../repositories/assets/AssetRepository.js';
+import { videoPosterService } from './VideoPosterService.js';
 
 const DEFAULT_MAX_BYTES = 500 * 1024 * 1024;
 
 export class CinematicVideoAssetService {
-  constructor({ assetRepository = assetRepo, outputsDirectory = OUTPUTS_DIR, fetchImpl = globalThis.fetch, maxBytes = DEFAULT_MAX_BYTES } = {}) {
+  constructor({ assetRepository = assetRepo, posterService = videoPosterService, outputsDirectory = OUTPUTS_DIR, fetchImpl = globalThis.fetch, maxBytes = DEFAULT_MAX_BYTES } = {}) {
     this.assetRepository = assetRepository;
+    this.posterService = posterService;
     this.outputsDirectory = outputsDirectory;
     this.fetchImpl = fetchImpl;
     this.maxBytes = maxBytes;
@@ -18,7 +20,7 @@ export class CinematicVideoAssetService {
 
   async persistVideoOutput({ task, output }) {
     const existing = await this.assetRepository.findBySourceJobIdForOwner(task.id, task.ownerUserId, 'cinematic_video_output');
-    if (existing) return toOutputAsset(existing);
+    if (existing) return toOutputAsset(await this.#ensurePoster(existing, task, output));
     const extension = extensionForMime(output?.mimeType);
     const relativeKey = path.posix.join('cinematic-video', safeSegment(task.ownerUserId), `${safeSegment(task.id)}${extension}`);
     const destination = path.resolve(this.outputsDirectory, ...relativeKey.split('/'));
@@ -58,11 +60,56 @@ export class CinematicVideoAssetService {
             : []
         }
       }, { userId: task.ownerUserId, username: task.ownerUsername, role: 'user' });
-      return toOutputAsset(asset);
+      try {
+        return toOutputAsset(await this.#ensurePoster(asset, task, output));
+      } catch (error) {
+        error.outputAsset = toOutputAsset(asset);
+        throw error;
+      }
     } catch (error) {
       await fs.rm(temporary, { force: true }).catch(() => undefined);
       throw error;
     }
+  }
+
+  async #ensurePoster(asset, task, output) {
+    const videoPath = resolveStoragePath(this.outputsDirectory, asset.storageKey);
+    const posterKey = path.posix.join(
+      'cinematic-video',
+      safeSegment(task.ownerUserId),
+      `${safeSegment(task.id)}.poster.webp`
+    );
+    const posterPath = resolveStoragePath(this.outputsDirectory, posterKey);
+    const expectedPosterUrl = `/outputs/${posterKey}`;
+    const currentPosterUrl = asset.metadata?.posterUrl || asset.thumbnailUrl || null;
+    if (await isNonEmptyFile(posterPath)) {
+      if (currentPosterUrl === expectedPosterUrl) return asset;
+      const posterStat = await fs.stat(posterPath);
+      return this.assetRepository.update(asset.id, draft => {
+        draft.thumbnailUrl = expectedPosterUrl;
+        draft.metadata = {
+          ...(draft.metadata || {}),
+          posterUrl: expectedPosterUrl,
+          posterMimeType: 'image/webp',
+          posterSizeBytes: posterStat.size
+        };
+      });
+    }
+    const poster = await this.posterService.generatePoster({
+      videoPath,
+      posterPath,
+      durationSeconds: output?.durationSeconds || asset.metadata?.durationSeconds || task.submittedRequest?.durationSeconds
+    });
+    return this.assetRepository.update(asset.id, draft => {
+      draft.thumbnailUrl = expectedPosterUrl;
+      draft.metadata = {
+        ...(draft.metadata || {}),
+        posterUrl: expectedPosterUrl,
+        posterMimeType: poster.mimeType,
+        posterSizeBytes: poster.sizeBytes,
+        posterFrameTimestamp: poster.frameTimestamp
+      };
+    });
   }
 }
 
@@ -103,8 +150,21 @@ function toOutputAsset(asset) {
     publicUrl: asset.publicUrl,
     mimeType: asset.mimeType,
     sizeBytes: asset.sizeBytes,
-    contentHash: asset.metadata?.contentHash || null
+    contentHash: asset.metadata?.contentHash || null,
+    posterUrl: asset.metadata?.posterUrl || asset.thumbnailUrl || null,
+    thumbnailUrl: asset.metadata?.posterUrl || asset.thumbnailUrl || null
   };
+}
+
+function resolveStoragePath(outputsDirectory, storageKey) {
+  const resolved = path.resolve(outputsDirectory, ...String(storageKey || '').split('/'));
+  assertWithin(resolved, outputsDirectory);
+  return resolved;
+}
+
+async function isNonEmptyFile(filePath) {
+  const stat = await fs.stat(filePath).catch(() => null);
+  return Boolean(stat?.isFile() && stat.size > 0);
 }
 
 function extensionForMime(mimeType) {

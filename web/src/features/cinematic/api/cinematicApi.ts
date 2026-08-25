@@ -4,11 +4,14 @@ import {
   cinematicProjectSchema,
   cinematicProjectListResponseSchema,
   cinematicProjectSummarySchema,
-  cinematicProduceShotContextSchema
+  cinematicProduceShotContextSchema,
+  cinematicVideoAttemptResponseSchema,
+  cinematicVideoQuoteSchema
 } from '../schemas/cinematicSchemas';
 import { apiRequest } from '../../../lib/api/apiClient';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import type { CinematicStage } from '../cinematicStages';
+import { videoCapabilityCatalogSchema } from '../../generation/schemas/videoGenerationSchemas';
 
 export const cinematicApiPaths = {
   projects: '/api/cinematic/projects',
@@ -25,6 +28,13 @@ export type CinematicProjectListResponse = z.infer<typeof cinematicProjectListRe
 
 export function listCinematicProjects() {
   return apiRequest(cinematicApiPaths.projects, { schema: cinematicProjectListResponseSchema });
+}
+
+export function getCinematicVideoCapabilityCatalog() {
+  return apiRequest('/api/cinematic/video-capabilities', {
+    schema: videoCapabilityCatalogSchema,
+    cache: 'no-store'
+  });
 }
 
 export function getCinematicProject(projectId: string) {
@@ -131,6 +141,44 @@ export function approveCinematicStoryboardSource(projectId: string, shotId: stri
 export function getCinematicProduceContext(projectId: string, sceneId: string, shotId: string) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/produce-context`, {
     schema: cinematicProduceShotContextSchema
+  });
+}
+
+export type CinematicVideoAttemptInput = {
+  expectedVersion: number;
+  expectedShotVersion: number;
+  sourceFingerprint: string;
+  providerId: string;
+  modelId: string;
+  prompt: string;
+  aspectRatio: string;
+  resolution: string;
+  durationSeconds: number;
+  audioMode: 'none' | 'generated';
+};
+
+function cinematicShotVideoPath(projectId: string, sceneId: string, shotId: string) {
+  return `${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}`;
+}
+
+export function quoteCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, input: CinematicVideoAttemptInput) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/video-quote`, {
+    method: 'POST', body: input, schema: cinematicVideoQuoteSchema
+  });
+}
+
+export function createCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, input: CinematicVideoAttemptInput & {
+  estimateId: string;
+  idempotencyKey: string;
+}) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/video-attempts`, {
+    method: 'POST', body: input, schema: cinematicVideoAttemptResponseSchema
+  });
+}
+
+export function approveCinematicVideoAttempt(projectId: string, sceneId: string, shotId: string, attemptId: string, expectedVersion: number) {
+  return apiRequest(`${cinematicShotVideoPath(projectId, sceneId, shotId)}/video-attempts/${encodeURIComponent(attemptId)}/approve`, {
+    method: 'POST', body: { expectedVersion }, schema: cinematicProduceShotContextSchema
   });
 }
 

@@ -8,7 +8,7 @@ import { CinematicProjectRepository } from '../server/repositories/cinematic/Cin
 
 const alice = { userId: 'usr_alice', username: 'user_alice', role: 'user' };
 
-async function fixture() {
+async function fixture(overrides = {}) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'cinematic-service-'));
   const repository = new CinematicProjectRepository({ projectsFile: path.join(directory, 'projects.json') });
   const storyboardAssetService = {
@@ -51,7 +51,7 @@ async function fixture() {
       assets: (input.assetIds || []).map(id => ({ id, assetType: 'generation_reference', contentHash: `hash_${id}` }))
     })
   };
-  return { directory, service: new CinematicApplicationService({ repository, storyboardAssetService, characterAuthorizationService, wardrobeAuthorityService, backofficePolicy }) };
+  return { directory, service: new CinematicApplicationService({ repository, storyboardAssetService, characterAuthorizationService, wardrobeAuthorityService, backofficePolicy, ...overrides }) };
 }
 
 const setup = {
@@ -265,6 +265,99 @@ test('Produce context blocks a Shot without an approved immutable Storyboard sou
   const context = await service.getProduceShotContext(planned.id, 'scene_a', 'shot_a', alice);
   assert.equal(context.generationEligible, false);
   assert.equal(context.blockingReason, 'cinematic_storyboard_source_required');
+});
+
+test('Cinematic video attempt uses the approved Storyboard source and can be approved only after capture', async t => {
+  const calls = [];
+  const outputAsset = { id: 'video_asset_1', publicUrl: '/outputs/cinematic/clip.mp4', posterUrl: null };
+  const videoGenerationService = {
+    async quote(request, actor, workflow) {
+      calls.push(['quote', request, actor, workflow]);
+      return { estimate: { estimateId: 'vest_cinematic', estimatedCredits: 40 }, account: { availableCredits: 100, canAfford: true } };
+    },
+    async submit(request, actor, workflow) {
+      calls.push(['submit', request, actor, workflow]);
+      return {
+        id: 'videotask_cinematic', status: 'provider_queued', providerId: request.providerId,
+        modelId: request.modelId, providerTaskId: 'provider_task_1', reservationId: 'rsv_cinematic',
+        estimateId: request.estimateId
+      };
+    },
+    async getAndPoll() {
+      return { id: 'videotask_cinematic', status: 'completed', billingStatus: 'captured', outputAsset };
+    }
+  };
+  const { directory, service } = await fixture({ videoGenerationService });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  const planned = await service.saveStoryPlan(created.id, {
+    expectedVersion: created.version,
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Slow push in.' }] }]
+  }, alice);
+  await service.approveStoryboardSource(created.id, 'shot_a', {
+    expectedVersion: planned.version, expectedShotVersion: 1,
+    jobId: 'job_storyboard_video', idempotencyKey: 'approve-video-source'
+  }, alice);
+  const approved = await service.getProject(created.id, alice);
+  const shot = approved.scenes[0].shots[0];
+  const input = {
+    expectedVersion: approved.version, expectedShotVersion: shot.version,
+    sourceFingerprint: shot.approvedStoryboardSource.sourceFingerprint,
+    providerId: 'modelark', modelId: 'seedance-test', prompt: 'Slow push in.',
+    aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
+  };
+  const quote = await service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', input, alice);
+  assert.equal(quote.sourceFingerprint, shot.approvedStoryboardSource.sourceFingerprint);
+  assert.equal(calls[0][1].operation, 'image_to_video');
+  assert.equal(calls[0][1].referenceImageUrl, shot.approvedStoryboardSource.imageUrl);
+  const submitted = await service.createVideoAttempt(created.id, 'scene_a', 'shot_a', {
+    ...input, estimateId: quote.estimate.estimateId, idempotencyKey: 'cinematic-attempt-one'
+  }, alice);
+  assert.equal(submitted.task.id, 'videotask_cinematic');
+  assert.equal(calls[1][3].generationMode, 'cinematic_video');
+  assert.equal(calls[1][3].shotId, 'shot_a');
+  const afterSubmit = await service.getProject(created.id, alice);
+  const context = await service.approveVideoAttempt(
+    created.id, 'scene_a', 'shot_a', submitted.attemptId,
+    { expectedVersion: afterSubmit.version }, alice
+  );
+  assert.equal(context.videoAttempts[0].status, 'approved');
+  const stored = await service.getProject(created.id, alice);
+  assert.equal(stored.scenes[0].shots[0].approvedVideoAttemptId, submitted.attemptId);
+  assert.equal(stored.generationAttempts.find(item => item.id === submitted.attemptId).outputAsset.publicUrl, outputAsset.publicUrl);
+});
+
+test('Cinematic video quote rejects stale Storyboard lineage before pricing', async t => {
+  let quoteCalls = 0;
+  const { directory, service } = await fixture({
+    videoGenerationService: {
+      getCatalog: () => ({ models: [] }),
+      async quote() { quoteCalls += 1; throw new Error('must not price stale source'); }
+    }
+  });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const created = await service.createProject(setup, alice);
+  const planned = await service.saveStoryPlan(created.id, {
+    expectedVersion: created.version,
+    scenes: [{ id: 'scene_a', title: 'A', shots: [{ id: 'shot_a', title: 'A', durationMs: 4000, prompt: 'Hold.' }] }]
+  }, alice);
+  await service.approveStoryboardSource(created.id, 'shot_a', {
+    expectedVersion: planned.version, expectedShotVersion: 1,
+    jobId: 'job_storyboard_stale', idempotencyKey: 'approve-stale-source'
+  }, alice);
+  const approved = await service.getProject(created.id, alice);
+  const shot = approved.scenes[0].shots[0];
+  await assert.rejects(
+    service.quoteVideoAttempt(created.id, 'scene_a', 'shot_a', {
+      expectedVersion: approved.version,
+      expectedShotVersion: shot.version,
+      sourceFingerprint: 'fingerprint_old',
+      providerId: 'modelark', modelId: 'seedance-test', prompt: 'Hold.',
+      aspectRatio: '9:16', resolution: '720p', durationSeconds: 4, audioMode: 'none'
+    }, alice),
+    error => error.code === 'cinematic_storyboard_source_changed' && error.statusCode === 409
+  );
+  assert.equal(quoteCalls, 0);
 });
 
 test('Shot direction edits stale only that Shot source while reorder preserves identity', async t => {

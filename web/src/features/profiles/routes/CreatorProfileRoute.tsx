@@ -30,7 +30,7 @@ import {
 import { characterSummarySchema, type CreatorPage } from '../schemas/profileSchemas';
 import { communityPostSchema } from '../../community/schemas/communitySchemas';
 
-const tabs = ['overview', 'works', 'characters', 'templates', 'comparisons', 'collections'] as const;
+const tabs = ['overview', 'works', 'videos', 'characters', 'templates', 'comparisons', 'collections'] as const;
 type ProfileTab = typeof tabs[number];
 type ProfileTheme = CreatorPage['profile']['profileTheme'];
 
@@ -317,6 +317,20 @@ function ProfileContent({ page, profileBase }: { page: CreatorPage; profileBase:
                     ? t('ui.action.manageCharacter')
                     : undefined}
                 />
+              ))}
+            </div>
+          </ProfileOverviewSection>
+        ) : null}
+
+        {page.overview.videos.items.length ? (
+          <ProfileOverviewSection
+            title={t('ui.creator.featuredVideos')}
+            viewAllHref={`${profileBase}/videos`}
+            viewAllLabel={t('ui.creator.viewAll')}
+          >
+            <div className="creator-profile-card-grid creator-profile-card-grid--videos">
+              {page.overview.videos.items.slice(0, 4).map(item => (
+                <MediaCard key={item.id} post={item} previewFit="cover" />
               ))}
             </div>
           </ProfileOverviewSection>

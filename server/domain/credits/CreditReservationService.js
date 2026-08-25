@@ -19,7 +19,7 @@ export class CreditReservationService {
     return this.accountRepo.saveEstimate(estimate);
   }
 
-  async estimateVideo({ userId, model, request }) {
+  async estimateVideo({ userId, model, request, generationMode = 'playground_video' }) {
     if (!userId || !model || !request) {
       throw createCreditError(CREDIT_ERROR_CODES.PRICING_UNAVAILABLE, 'Video pricing inputs are incomplete.', 400);
     }
@@ -47,7 +47,7 @@ export class CreditReservationService {
         audioMode: request.audioMode,
         referenceCount: Number(request.referenceImageCount || 0),
         outputCount: 1,
-        generationMode: 'playground_video'
+        generationMode: String(generationMode || 'playground_video')
       },
       breakdown: {
         providerCostUsd: preview.providerCostUsd,
@@ -319,7 +319,7 @@ export class CreditReservationService {
     });
   }
 
-  async reconcileStartupOrphanReservations() {
+  async reconcileStartupOrphanReservations({ shouldPreserveReservation = null } = {}) {
     try {
       const startupAt = new Date();
       const data = await this.accountRepo.readRaw();
@@ -330,6 +330,24 @@ export class CreditReservationService {
 
       for (const rsv of orphanReservations) {
         try {
+          if (typeof shouldPreserveReservation === 'function') {
+            let shouldPreserve = true;
+            try {
+              shouldPreserve = await shouldPreserveReservation({
+                userId: rsv.userId,
+                reservationId: rsv.reservationId,
+                jobId: rsv.jobId || null,
+                metadata: structuredClone(rsv.metadata || {})
+              });
+            } catch (error) {
+              console.warn(
+                `[CreditReconciliation] Reservation ownership check failed for ${rsv.reservationId}; preserving reservation:`,
+                error.message
+              );
+              continue;
+            }
+            if (shouldPreserve) continue;
+          }
           await this.accountRepo.refundReservation({
             userId: rsv.userId,
             reservationId: rsv.reservationId,

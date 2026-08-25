@@ -141,6 +141,9 @@
   "character-profiles.tabs.details": "Details",
   "character-profiles.works.description": "Public images created with this Character.",
   "character-profiles.works.allTitle": "Character creations",
+  "character-profiles.works.featuredVideos": "Featured in Videos",
+  "character-profiles.works.featuredVideosDescription": "Published Videos featuring this Character.",
+  "character-profiles.works.emptyVideos": "No published Video features yet.",
   "character-profiles.details.title": "Character details",
   "character-profiles.details.description": "Review how this Character can be used and managed."
 }

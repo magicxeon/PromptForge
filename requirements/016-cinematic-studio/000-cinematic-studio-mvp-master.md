@@ -182,6 +182,8 @@ foreign repository or provider directly.
 - `008-cinematic-admin-support-and-observability-contract.md`
 - `009-playground-unified-image-and-video-generation.md`
 - `010-community-video-publishing-and-discovery.md`
+- `011-video-library-profile-and-character-discovery.md`
+- `012-durable-video-poster-and-media-reconciliation.md`
 
 The source concept remains product research. These numbered files are the
 implementable MVP contract when the documents disagree. Requirement 004 owns
@@ -190,6 +192,10 @@ Requirement 008 owns operational visibility without taking business ownership
 from Cinematic, Generation, Credits or Assets. Requirement 009 extends the
 existing Playground with single-clip video through canonical Generation;
 Requirement 010 extends Community publication/discovery with typed video media.
+Requirement 011 makes private Video tasks and published Video posts discoverable
+through Recent, Creator Profiles and verified Character attribution.
+Requirement 012 makes a poster derivative part of durable Video completion and
+provides an auditable migration/cleanup path for existing local Video records.
 Neither extension duplicates the six-stage Cinematic production workflow.
 Playground Video Comparison is constrained to exactly two slots while existing
 Image Comparison remains unchanged at two through four slots.

@@ -40,6 +40,13 @@ const profile = {
 };
 const posts = [
   publicPost('post_image', 'image'),
+  {
+    ...publicPost('post_video', 'video'),
+    mediaType: 'video',
+    videoUrl: '/outputs/video.mp4',
+    posterUrl: '/outputs/video.webp',
+    durationSeconds: 6
+  },
   publicPost('post_template', 'template'),
   publicPost('post_comparison', 'comparison'),
   publicPost('post_collection', 'collection')
@@ -115,8 +122,10 @@ test('creator profile page returns a bounded overview and owner management conte
   assert.equal(model.profile.profileTheme, 'creative');
   assert.equal(model.counts.publicCharacters, 1);
   assert.equal(model.counts.templates, 2);
+  assert.equal(model.counts.videos, 1);
   assert.equal(model.overview.featured.items[0].id, 'post_image');
   assert.equal(model.overview.characters.items[0].id, 'character_one');
+  assert.equal(model.overview.videos.items[0].id, 'post_video');
   assert.equal(model.viewer.canManageContent, true);
   assert.equal(model.management.recordVersion, 3);
 });
@@ -127,6 +136,17 @@ test('creator profile public page excludes owner management and selects a deep-l
   assert.deepEqual(model.tabData.page.items.map(item => item.id), ['post_template']);
   assert.equal(model.viewer.canManageContent, false);
   assert.equal(model.management, null);
+});
+
+test('creator profile exposes a dedicated Video tab without changing the Works contract', async () => {
+  const service = createService();
+  const videos = await service.getPage('owner', { tab: 'videos' }, viewer);
+  const works = await service.getPage('owner', { tab: 'gallery' }, viewer);
+
+  assert.equal(videos.selectedTab, 'videos');
+  assert.deepEqual(videos.tabData.page.items.map(item => item.id), ['post_video']);
+  assert.equal(works.selectedTab, 'gallery');
+  assert.deepEqual(works.tabData.page.items.map(item => item.id), ['gallery_one']);
 });
 
 test('owner Templates tab includes setup drafts without exposing them to another viewer', async () => {

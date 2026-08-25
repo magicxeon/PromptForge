@@ -233,6 +233,36 @@ These are Preview models and are disabled from paid routing until qualification.
 - persisted metadata records SynthID/watermark provenance;
 - provider audio/safety blocks reported as non-billable must refund the
   reservation after reconciliation.
+- JavaScript adapters use the current SDK `source: { prompt, image, video }`
+  contract. They must not use deprecated top-level `prompt`, `image` or
+  `video` arguments.
+- The Gemini Developer API adapter omits Enterprise Agent Platform-only request
+  fields, including `generateAudio` and `personGeneration`. Veo 3.1 native
+  audio remains represented by Momelo's locked `audioMode: generated`
+  contract, but no explicit audio-enable field is sent to Google. Adult-person
+  authorization remains a Momelo rights and safety precondition rather than an
+  unsupported Developer API request field.
+- Durable polling reconstructs a real `GenerateVideosOperation` from the
+  persisted operation name before calling `getVideosOperation`; a plain object
+  without the SDK response transformer is not a valid recovery contract.
+
+### 6.2.1 Development diagnostics
+
+`VIDEO_PROVIDER_DEBUG=true` enables sanitized lifecycle diagnostics for every
+Video adapter. `GEMINI_VIDEO_DEBUG` and `MODEL_ARK_VIDEO_DEBUG` remain optional
+provider-specific aliases. Debug output covers request shape, provider/model,
+operation, dimensions, duration, audio, reference count, prompt length and
+fingerprint, provider operation/request ID, status, latency, provider error
+code/message, filtered-media evidence and durable download byte count.
+
+Debug output never contains credentials, raw prompt text, reference URLs,
+Base64 media or downloaded bytes. The task's public error remains sanitized;
+full safe diagnostics stay in the development console and Support trace.
+Transport failures include sanitized nested cause diagnostics (`causeCode`,
+`causeErrno`, `causeSyscall`, `causeAddress`, `causePort`, and `causeMessage`)
+when Node `fetch` exposes them. A submit transport failure must not be retried
+automatically because the provider may have accepted the request before the
+response connection failed; retry remains an explicit user or Support action.
 
 ### 6.3 Reference strategy
 

@@ -102,7 +102,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Canonical Template definitions, immutable versions, use sessions and usage events | `server/domain/templates/`, `server/repositories/templates/`, `server/data/templates/` |
 | Private Template Pose Proxy preparation, cache lifecycle and readiness | `server/domain/template-pose-proxy/`, `server/repositories/template-pose-proxy/`, `server/data/template-pose-proxy/` |
 | Shared uploaded generation reference validation and storage | `server/domain/assets/`, `server/repositories/assets/`, `server/data/assets/` |
-| Durable cinematic video Asset copy and safe Community video publication | `server/domain/assets/CinematicVideoAssetService.js`, `server/domain/community/CommunityVideoShareService.js`; Community post state remains in `server/repositories/community/` |
+| Durable cinematic video Asset copy, poster derivative and safe Community video publication | `server/domain/assets/CinematicVideoAssetService.js`, `server/domain/assets/VideoPosterService.js`, `server/domain/community/CommunityVideoShareService.js`; Community post state remains in `server/repositories/community/` |
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
 | Canonical Attribute definitions, revisions, compatibility and published releases | `server/domain/attribute-catalog/`, `server/repositories/attribute-catalog/`, `server/data/attribute-catalog/` |
 | Cinematic Project, Cast, Story, Scene, Shot, continuity and timeline orchestration | `server/domain/cinematic/`, `server/repositories/cinematic/`, `server/data/cinematic/`, `server/app/routes/cinematicRoutes.js` |

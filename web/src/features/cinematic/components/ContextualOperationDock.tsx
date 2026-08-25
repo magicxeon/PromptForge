@@ -1,4 +1,4 @@
-import { Coins, LockKeyhole, Sparkles } from 'lucide-react';
+import { Coins, LoaderCircle, LockKeyhole, Sparkles } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -7,10 +7,14 @@ type ContextualOperationDockProps = {
   title: string;
   description: string;
   operation: string;
-  credits: number;
+  credits?: number;
   actionLabel: string;
   children?: ReactNode;
   media?: boolean;
+  disabled?: boolean;
+  loading?: boolean;
+  notice?: string;
+  onAction?: () => void;
 };
 
 export function ContextualOperationDock({
@@ -20,7 +24,11 @@ export function ContextualOperationDock({
   credits,
   actionLabel,
   children,
-  media = false
+  media = false,
+  disabled = true,
+  loading = false,
+  notice,
+  onAction
 }: ContextualOperationDockProps) {
   const { t } = useTranslation('cinematic');
   return (
@@ -32,18 +40,19 @@ export function ContextualOperationDock({
       {children ? <div className="cinematic-operation-dock__controls">{children}</div> : null}
       <div className="cinematic-operation-dock__quote">
         <span><Coins aria-hidden="true" />{t('cinematic.operation.estimate')}</span>
-        <strong>{credits} {t('cinematic.cost.credits')}</strong>
+        <strong>{credits === undefined ? '-' : `${credits} ${t('cinematic.cost.credits')}`}</strong>
       </div>
       <Button
         className="w-full"
         data-testid="cinematic-operation-submit"
         variant="primary"
-        icon={<LockKeyhole aria-hidden="true" />}
-        disabled
+        icon={loading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <LockKeyhole aria-hidden="true" />}
+        disabled={disabled || loading}
+        onClick={onAction}
       >
         {actionLabel}
       </Button>
-      <p className="cinematic-operation-dock__notice">{t('cinematic.operation.previewOnly')}</p>
+      <p className="cinematic-operation-dock__notice">{notice || t('cinematic.operation.previewOnly')}</p>
     </aside>
   );
 }

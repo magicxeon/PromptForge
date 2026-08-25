@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { videoQuoteSchema, videoTaskSchema } from '../../generation/schemas/videoGenerationSchemas';
 
 export const cinematicStageSchema = z.enum([
   'setup',
@@ -135,7 +136,9 @@ export const cinematicShotSchema = z.object({
   continuityNotes: z.array(z.string()),
   storyboardStatus: z.string(),
   approvedStoryboardSource: cinematicApprovedStoryboardSourceSchema.optional(),
-  approvedStoryboardAttemptId: z.string().optional()
+  approvedStoryboardAttemptId: z.string().optional(),
+  approvedVideoAttemptId: z.string().nullable().optional(),
+  approvedVideoSourceFingerprint: z.string().nullable().optional()
 });
 
 export const cinematicSceneSchema = z.object({
@@ -213,9 +216,34 @@ export const cinematicProduceShotContextSchema = z.object({
   blockingReason: z.string().nullable(),
   videoAttempts: z.array(z.object({
     id: z.string(), operation: z.string(), status: z.string(),
+    generationJobId: z.string().nullable().optional(),
+    providerTaskId: z.string().nullable().optional(),
+    providerId: z.string().nullable().optional(),
+    modelId: z.string().nullable().optional(),
+    quoteId: z.string().nullable().optional(),
+    reservationId: z.string().nullable().optional(),
+    outputAsset: z.object({
+      publicUrl: z.string(),
+      posterUrl: z.string().nullable().optional()
+    }).passthrough().nullable().optional(),
+    reviewDecision: z.string().optional(),
     downstreamSourceStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
   })),
   timelineDependencyStatus: z.enum(['current', 'source_changed', 'source_unavailable'])
+});
+
+export const cinematicVideoQuoteSchema = videoQuoteSchema.extend({
+  projectId: z.string(),
+  sceneId: z.string(),
+  shotId: z.string(),
+  shotVersion: z.number().int().positive(),
+  sourceFingerprint: z.string(),
+  approvedStoryboardAssetVersionId: z.string()
+});
+
+export const cinematicVideoAttemptResponseSchema = z.object({
+  attemptId: z.string(),
+  task: videoTaskSchema
 });
 
 export type CinematicVideoCapability = z.infer<typeof cinematicVideoCapabilitySchema>;

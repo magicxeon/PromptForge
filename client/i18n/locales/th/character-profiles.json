@@ -141,6 +141,9 @@
   "character-profiles.tabs.details": "รายละเอียด",
   "character-profiles.works.description": "ผลงานสาธารณะที่สร้างด้วย Character นี้",
   "character-profiles.works.allTitle": "ผลงานจาก Character",
+  "character-profiles.works.featuredVideos": "ปรากฏในวิดีโอ",
+  "character-profiles.works.featuredVideosDescription": "วิดีโอที่เผยแพร่และมี Character นี้ร่วมแสดง",
+  "character-profiles.works.emptyVideos": "ยังไม่มีวิดีโอที่เผยแพร่สำหรับ Character นี้",
   "character-profiles.details.title": "รายละเอียด Character",
   "character-profiles.details.description": "ตรวจสอบสิทธิ์การใช้งานและจัดการ Character นี้"
 }

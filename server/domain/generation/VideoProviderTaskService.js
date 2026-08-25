@@ -129,6 +129,8 @@ export class VideoProviderTaskService {
       return this.repository.update(task.id, draft => {
         draft.status = 'reconciliation_required';
         draft.providerError = sanitizeError(error, 'video_media_copy_failed');
+        if (error?.outputAsset) draft.outputAsset = error.outputAsset;
+        if (response.usage) draft.providerUsage = response.usage;
         draft.completedAt = new Date().toISOString();
       });
     } finally {

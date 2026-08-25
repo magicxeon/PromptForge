@@ -138,6 +138,8 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
     }} />;
   }
   const publicWorks = works.data?.items || [];
+  const videoWorks = publicWorks.filter(post => post.postType === 'video');
+  const imageWorks = publicWorks.filter(post => post.postType !== 'video');
   const fashionAvailable = character.handoffAvailable
     && character.destinationCapabilities.includes('fashion_blueprint');
   const sceneAvailable = character.handoffAvailable
@@ -202,12 +204,22 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
         aria-labelledby={`character-tab-${activeTab}`}
       >
         {activeTab === 'overview' ? (
-          <CharacterWorks
-            title={t('character-profiles.works.title')}
-            description={t('character-profiles.works.description')}
-            items={publicWorks.slice(0, 6)}
-            emptyLabel={t('character-profiles.works.empty')}
-          />
+          <div className="character-profile-overview-sections">
+            {videoWorks.length ? (
+              <CharacterWorks
+                title={t('character-profiles.works.featuredVideos')}
+                description={t('character-profiles.works.featuredVideosDescription')}
+                items={videoWorks.slice(0, 4)}
+                emptyLabel={t('character-profiles.works.emptyVideos')}
+              />
+            ) : null}
+            <CharacterWorks
+              title={t('character-profiles.works.title')}
+              description={t('character-profiles.works.description')}
+              items={imageWorks.slice(0, 6)}
+              emptyLabel={t('character-profiles.works.empty')}
+            />
+          </div>
         ) : null}
 
         {activeTab === 'creations' ? (

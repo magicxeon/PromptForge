@@ -10,6 +10,10 @@ test('paid video catalog exposes no unqualified research models', () => {
   const testingModels = videoCapabilityRegistry.getPublicCatalog({ includeTesting: true }).models;
   assert.equal(testingModels.length, 8);
   assert.equal(testingModels.filter(model => model.providerId === 'modelark').length, 7);
+  assert.deepEqual(
+    testingModels.filter(model => model.providerId === 'gemini').map(model => model.modelId),
+    ['veo-3.1-lite-generate-preview']
+  );
   assert.ok(testingModels.filter(model => model.providerId === 'modelark')
     .every(model => model.operations.includes('text_to_video') && model.paidRoutingEnabled === false));
 });
