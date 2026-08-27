@@ -1,6 +1,6 @@
 # Admin Operations Dashboard And Shared Workspace
 
-**Status:** Requirement reconciled with current Momelo capabilities on 2026-08-25; implementation not started  
+**Status:** Safe MVP active; dashboard, searchable workspaces, Support Control Plane and production gates implemented through 2026-08-26
 **Primary role:** UX/UI Product Designer  
 **Reviewers:** Backend Platform Architect, QA And Release Engineer  
 **Skills:** `review-product-ux`, `verify-release-regressions`  
@@ -249,3 +249,53 @@ must remain unchanged when repositories move to PostgreSQL.
   visual and automated review.
 - `DASH-018-08`: PostgreSQL adapters can replace local repositories without
   changing route, use-case or component contracts.
+
+## 12. Implementation Checkpoint: 2026-08-25
+
+Implemented operational and guarded-command slices:
+
+- `AdminBackofficeService.getOverview()` now returns a backward-compatible,
+  partial-safe projection for Users, Image Generation, Video Generation,
+  Community and Audit sources;
+- `GET /api/admin/operations` composes sanitized Image history and durable Video
+  provider-task metadata without exposing prompt or reference payloads;
+- every currently implemented Admin list workspace uses server-side search and
+  bounded cursor pagination; filter state is URL-backed where the route owns
+  navigation and Cinematic project/task cursors remain independent;
+- Cinematic operation projections permit missing `sceneId` and `shotId` for
+  provider tasks created outside a Cinematic Project, while preserving nullable
+  lineage instead of inventing IDs;
+- `/admin/operations` provides URL-backed media, status, visibility and search
+  filters;
+- shared `AdminWorkspaceLayout`, `AdminMetricTile` and `AdminStatusBadge`
+  components establish the reusable Admin presentation contract;
+- Dashboard metrics, seven/fourteen/thirty-day daily outcome visualization and
+  failure rows deep-link to filtered owner workspaces;
+- failed, expired or reconciliation-required operations can be dismissed from
+  staff presentation and restored later. This stores an audited reversible
+  projection in `server/data/admin/operationPresentation.json`; it never deletes
+  Generation lifecycle, provider, media or Credit evidence;
+- `/admin/users/:userId` provides a permission-filtered customer summary with
+  links to owned Image, Video and Community activity. Admin may apply a
+  reasoned, idempotent, optimistic-concurrency-checked account status command;
+  Support remains read-only and self-status changes are forbidden;
+- server and Web regression coverage protects authorization, partial-source
+  behavior, prompt/reference redaction, Cinematic nullable lineage, paging,
+  reversible dismissal and User status command auditability.
+
+Still gated for later phases: general User profile/role editing, Support Case
+commands, financial mutations beyond the existing audited adjustment flow,
+configuration scheduling, Asset/media moderation, production identity/MFA and
+PostgreSQL cutover. These must not be represented as available controls until
+their owning requirements pass the security and commercial gates.
+
+## 13. Localization And Shell Checkpoint: 2026-08-26
+
+- Admin catalog interpolation uses the application-wide single-brace contract
+  (`{count}`, `{active}`, `{attention}`), so dashboard and pagination never
+  expose untranslated template variables.
+- The global language selector is owned by `SiteFooter` instead of the compact
+  header. The same footer control applies to Admin and customer routes and
+  continues to use the canonical locale persistence service.
+- Regression tests protect both the catalog delimiter contract and the footer
+  placement of `react-language-select`.

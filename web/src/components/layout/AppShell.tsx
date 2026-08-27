@@ -14,7 +14,6 @@ import { apiRequest } from '../../lib/api/apiClient';
 import { queryKeys } from '../../lib/api/queryKeys';
 import { useActor } from '../../lib/auth/ActorProvider';
 import { getOwnCreatorProfileLocator } from '../../lib/auth/creatorProfileLocator';
-import { changeLocale, i18n } from '../../lib/i18n/i18n';
 import { Breadcrumbs } from './Breadcrumbs';
 import { useFeaturePolicy } from '../../lib/permissions/FeaturePolicyProvider';
 import { MomeloBrand } from '../brand/MomeloBrand';
@@ -236,17 +235,6 @@ function GlobalHeader({
           <strong>{credits ?? '...'}</strong>
           <Coins aria-hidden="true" />
         </Link>
-        <HeaderSelect
-          id="react-language-select"
-          label={t('shell.languageLabel')}
-          value={resolveSupportedLocale(i18n.resolvedLanguage)}
-          onValueChange={locale => void changeLocale(locale as 'th' | 'en')}
-          className="global-header-select--language"
-          options={[
-            { value: 'th', label: 'TH' },
-            { value: 'en', label: 'EN' }
-          ]}
-        />
         <div className="global-header__account">
           <AccountMenu
             displayName={actor?.displayName || '...'}
@@ -284,10 +272,6 @@ function GlobalHeader({
 
 function readCollapsedPreference() {
   return localStorage.getItem(SIDEBAR_PREFERENCE_KEY) === 'true';
-}
-
-function resolveSupportedLocale(locale?: string): 'th' | 'en' {
-  return locale?.toLowerCase().startsWith('en') ? 'en' : 'th';
 }
 
 function isStudioLocation(pathname: string) {

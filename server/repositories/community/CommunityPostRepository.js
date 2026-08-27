@@ -105,13 +105,16 @@ export class CommunityPostRepository {
     const normalizedQuery = normalizeListQuery(query);
     const status = typeof query.status === 'string' ? query.status.trim() : '';
     const ownerUserId = typeof query.ownerUserId === 'string' ? query.ownerUserId.trim() : '';
-    const scope = JSON.stringify({ status, ownerUserId, sort: normalizedQuery.sort });
+    const search = typeof query.search === 'string' ? query.search.trim().toLowerCase() : '';
+    const scope = JSON.stringify({ status, ownerUserId, search, sort: normalizedQuery.sort });
     const cursor = normalizedQuery.cursor
       ? decodeRepositoryCursor(normalizedQuery.cursor, scope, this.cursorSecret)
       : null;
     let posts = (await this.readAll())
       .filter(post => !status || post.status === status)
       .filter(post => !ownerUserId || post.ownerUserId === ownerUserId)
+      .filter(post => !search || [post.id, post.title, post.ownerUserId, post.ownerUsername]
+        .filter(Boolean).some(value => String(value).toLowerCase().includes(search)))
       .sort((left, right) => comparePosts(left, right, normalizedQuery.sort));
 
     if (cursor) posts = posts.filter(post => comparePosts(post, cursor, normalizedQuery.sort) > 0);

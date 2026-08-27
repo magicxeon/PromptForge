@@ -16,8 +16,10 @@ export const routePaths = {
   ownedTemplates: '/me/templates',
   accountCredits: '/credits',
   admin: '/admin',
+  adminOperations: '/admin/operations',
   adminAttributes: '/admin/attributes',
   adminCinematic: '/admin/cinematic'
+  , adminControlPlane: '/admin/control-plane'
 } as const;
 
 export const routeBuilders = {
@@ -32,7 +34,8 @@ export const routeBuilders = {
   cinematicProject: (projectId: string, stage = 'setup') =>
     `/create/cinematic/${encodeURIComponent(projectId)}/${encodeURIComponent(stage)}`,
   cinematicShot: (projectId: string, shotId: string) =>
-    `/create/cinematic/${encodeURIComponent(projectId)}/shot/${encodeURIComponent(shotId)}`
+    `/create/cinematic/${encodeURIComponent(projectId)}/shot/${encodeURIComponent(shotId)}`,
+  adminUser: (userId: string) => `/admin/users/${encodeURIComponent(userId)}`
 } as const;
 
 export type NavigationRouteId =

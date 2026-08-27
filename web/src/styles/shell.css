@@ -786,11 +786,36 @@
   text-decoration: none;
 }
 
+.site-footer__preferences {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  width: 100%;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.site-footer__language {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+  color: var(--theme-text-muted);
+  font-size: 10px;
+}
+
+.site-footer__language .global-header-select {
+  width: 88px;
+  min-width: 88px;
+  min-height: 34px;
+  padding-inline: 12px 28px;
+  background: var(--theme-input);
+}
+
 .site-footer__theme {
   display: grid;
   max-width: 520px;
   gap: 9px;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .site-footer__theme-heading {

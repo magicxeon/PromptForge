@@ -1,11 +1,11 @@
 # Admin And Support Implementation Sequence, Data Durability And Rollout
 
-**Status:** Requirement ready for implementation planning  
+**Status:** Safe phases implemented; production command phases gated
 **Owner:** Support capability with Admin read models  
 **Primary role:** Backend Platform Architect  
 **Reviewers:** Commercial Financial Integrity, QA And Release Engineer  
 **Skills:** `plan-database-migration`, `review-commercial-integrity`, `verify-release-regressions`  
-**Implementation in this change:** None
+**Implementation in this change:** Phase 0, safe Phase A, local Phase B and safe Phase A2 draft foundation
 
 ## 1. Outcome
 
@@ -24,8 +24,8 @@ recovery plan. It does not replace its owner contracts.
 |---|---|---|
 | Admin read models | Partial-ready | extend `AdminBackofficeService`; do not add parallel read facades |
 | Staff identity | Development-only | current `admin`/`support` compatibility allowed only under Requirement 018-007 |
-| Support Cases | Not implemented | create `SupportApplicationService` and owning repository contract |
-| Observability/trace | Partial | extend sanitized correlation lookup and retention; no raw provider payload |
+| Support Cases | Local MVP implemented | `SupportCaseService` and repository; PostgreSQL cutover remains required for production |
+| Observability/trace | Safe read implemented | Admin composes sanitized owner metadata; durable cross-service event store remains deferred |
 | Audit | Partial local | acceptable for development gates; production high-risk work requires durable append-only storage |
 | Generation recovery | Partial | diagnose current Jobs; explicit cancel/recovery owner commands still required |
 | Credits | Partial-high local | use `CreditApplicationService`; production mutation waits for SQL ledger transactions |
@@ -39,7 +39,7 @@ recovery plan. It does not replace its owner contracts.
 | Video Assets/posters | Partial-ready | expose file/poster reconciliation and lineage through Assets owner |
 | Community video/Character attribution | Partial-ready | moderate Community post and verified attribution through owner services |
 | Attribute Catalog | Partial-ready | integrate current category release workflow and compatibility blockers |
-| Runtime configuration publication | Not implemented | follow Requirement 018-010; draft save must never mutate active frontend behavior |
+| Runtime configuration publication | Draft scaffold implemented | secret-safe validation/history exist; publish/schedule/rollback remain gated |
 
 ### 2.1 Database schema readiness
 
@@ -89,14 +89,14 @@ button without an explicit prerequisite explanation or feature exposure policy.
 
 ```text
 server/app/routes/adminRoutes.js             existing/extended read routes
-server/app/routes/supportRoutes.js           Support HTTP translation
+server/app/routes/adminRoutes.js             Admin and Support HTTP translation for the current MVP
 server/domain/admin/                         permission-aware read projections
-server/domain/support/SupportApplicationService.js
-server/domain/support/                       Case and command orchestration
+server/domain/support/SupportCaseService.js  Case lifecycle orchestration
 server/repositories/support/                 repository contract + adapters
 server/data/support/                         local development data only
 web/src/features/admin/                      Operations/Admin routes
 web/src/features/support/                    Case and Trace workflows
+web/src/features/admin/routes/AdminControlPlaneRoute.tsx  current shared staff UI
 ```
 
 Dependency direction:

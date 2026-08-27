@@ -214,7 +214,7 @@ export function registerCinematicRoutes(app, { cinematicService }) {
 
   app.get('/api/admin/cinematic/video-tasks', async (req, res) => {
     try {
-      res.json({ items: await cinematicService.listOperationalVideoTasks(req.query, req.actorContext) });
+      res.json(await cinematicService.listOperationalVideoTasks(req.query, req.actorContext));
     } catch (error) {
       sendCinematicError(res, error);
     }

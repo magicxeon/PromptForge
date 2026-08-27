@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MomeloBrand } from '../brand/MomeloBrand';
 import { FooterThemeSelector } from './FooterThemeSelector';
+import { HeaderSelect } from './HeaderSelect';
+import { changeLocale, i18n, resolveSupportedLocale } from '../../lib/i18n/i18n';
 
 const footerGroups = [
   {
@@ -44,7 +46,6 @@ export function SiteFooter() {
           <MomeloBrand />
           <p>{t('shell.footer.tagline')}</p>
           <a href="mailto:hello@momelo.app">hello@momelo.app</a>
-          <FooterThemeSelector />
         </div>
         <nav className="site-footer__navigation" aria-label={t('shell.footer.navigationLabel')}>
           {footerGroups.map(group => (
@@ -71,6 +72,23 @@ export function SiteFooter() {
             </div>
           ))}
         </nav>
+      </div>
+      <div className="site-footer__preferences">
+        <FooterThemeSelector />
+        <div className="site-footer__language">
+          <span>{t('shell.languageLabel')}</span>
+          <HeaderSelect
+            id="react-language-select"
+            label={t('shell.languageLabel')}
+            value={resolveSupportedLocale(i18n.resolvedLanguage)}
+            onValueChange={locale => void changeLocale(locale as 'th' | 'en')}
+            className="global-header-select--language"
+            options={[
+              { value: 'th', label: 'TH' },
+              { value: 'en', label: 'EN' }
+            ]}
+          />
+        </div>
       </div>
       <div className="site-footer__legal">
         <span>{t('shell.footer.copyright', { year: new Date().getFullYear() })}</span>

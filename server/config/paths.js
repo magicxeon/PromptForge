@@ -39,6 +39,9 @@ export const TEMPLATES_DATA_DIR = path.resolve(DATA_ROOT, 'templates');
 export const TEMPLATE_POSE_PROXY_DATA_DIR = path.resolve(DATA_ROOT, 'template-pose-proxy');
 export const ATTRIBUTE_CATALOG_DATA_DIR = path.resolve(DATA_ROOT, 'attribute-catalog');
 export const CINEMATIC_DATA_DIR = path.resolve(DATA_ROOT, 'cinematic');
+export const ADMIN_DATA_DIR = path.resolve(DATA_ROOT, 'admin');
+export const SUPPORT_DATA_DIR = path.resolve(DATA_ROOT, 'support');
+export const ADMIN_CONFIGURATION_DATA_DIR = path.resolve(DATA_ROOT, 'admin-configuration');
 
 export const DATA_FILES = {
   mockUsers: path.resolve(IDENTITY_DATA_DIR, 'mockUsers.json'),
@@ -76,7 +79,10 @@ export const DATA_FILES = {
   attributeCatalogReleases: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'releases.json'),
   attributeCatalogState: path.resolve(ATTRIBUTE_CATALOG_DATA_DIR, 'state.json'),
   cinematicProjects: path.resolve(CINEMATIC_DATA_DIR, 'projects.json'),
-  videoProviderTasks: path.resolve(GENERATION_DATA_DIR, 'videoProviderTasks.json')
+  videoProviderTasks: path.resolve(GENERATION_DATA_DIR, 'videoProviderTasks.json'),
+  adminOperationPresentation: path.resolve(ADMIN_DATA_DIR, 'operationPresentation.json'),
+  supportCases: path.resolve(SUPPORT_DATA_DIR, 'cases.json'),
+  adminConfigurationRevisions: path.resolve(ADMIN_CONFIGURATION_DATA_DIR, 'revisions.json')
 };
 
 export function resolveDataFile(name) {

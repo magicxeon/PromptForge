@@ -43,6 +43,22 @@ export class AdminPolicyService {
     return actor;
   }
 
+  assertCanDismissOperation(actorContext) {
+    const actor = this.assertCanAccessBackoffice(actorContext);
+    if (actor.role !== 'admin') {
+      throw new RepositoryContractError('admin_operation_dismiss_forbidden', 'Only admin can dismiss failed operations.', 403);
+    }
+    return actor;
+  }
+
+  assertCanChangeUserStatus(actorContext) {
+    const actor = this.assertCanAccessBackoffice(actorContext);
+    if (actor.role !== 'admin') {
+      throw new RepositoryContractError('admin_user_status_forbidden', 'Only admin can change user status.', 403);
+    }
+    return actor;
+  }
+
   requireReason(reason, action = 'This action') {
     const normalized = String(reason || '').trim();
     if (normalized.length < 3) {

@@ -131,4 +131,4 @@ the durable poster when available.
   passes.
 - Manual desktop/mobile, theme, keyboard, and real-media verification remains
   required before marking this requirement complete. Follow
-  `_temp/video-library-profile-discovery-test-cases-20260825-th.md`.
+  `_temp/test-case/video-library-profile-discovery-test-cases-20260825-th.md`.

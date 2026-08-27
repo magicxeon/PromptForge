@@ -564,7 +564,7 @@ export class CinematicApplicationService {
 
   listOperationalVideoTasks(query, actorContext) {
     this.backofficePolicy.assertCanAccessBackoffice(actorContext);
-    return this.providerTaskRepository.listOperational(query);
+    return this.providerTaskRepository.listOperationalPage(query);
   }
 
   getOperationalVideoCapabilities(actorContext) {

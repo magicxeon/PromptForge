@@ -41,6 +41,7 @@ describe('Momelo sidebar navigation registry', () => {
 
   it('keeps Attribute Studio under the canonical Admin route', () => {
     expect(routePaths.admin).toBe('/admin');
+    expect(routePaths.adminOperations).toBe('/admin/operations');
     expect(routePaths.adminAttributes).toBe('/admin/attributes');
   });
 

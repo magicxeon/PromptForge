@@ -47,4 +47,8 @@ export async function changeLocale(locale: 'th' | 'en') {
   document.documentElement.lang = locale;
 }
 
+export function resolveSupportedLocale(locale?: string): 'th' | 'en' {
+  return locale?.toLowerCase().startsWith('en') ? 'en' : 'th';
+}
+
 export { i18n };

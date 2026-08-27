@@ -61,12 +61,17 @@ Core identifiers remain stable opaque strings and are never array positions.
 
 ### WardrobeAssignment
 
-- Character assignment, named Look ID and Scene scope; an outfit cannot exist
-  as an unassigned Project wardrobe record;
-- mode: Character default, wardrobe preset or uploaded outfit;
-- Asset/reference IDs and authority ordering;
-- garment/accessory summary, front/back coverage, intentional change reason and
-  lock state.
+- Character assignment, reusable Character Look ID, immutable Look Version ID
+  and Scene scope; an outfit cannot exist as an unassigned Project wardrobe
+  record;
+- mode/source summary projected from the authorized Character Look Version;
+- binding-time authorization evidence, continuity lock, intentional change
+  reason and stale-dependency state;
+- no copied private garment bytes or mutable latest-Look pointer.
+
+The Character Look aggregate, its three-view Assets, approval, rights and
+version lifecycle are owned by Character Profiles under Requirement 013.
+Cinematic owns only the binding and downstream continuity effects.
 
 ### CharacterDossierVersion
 

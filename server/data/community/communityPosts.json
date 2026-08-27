@@ -1,5 +1,341 @@
 [
   {
+    "title": "รูปโปรไฟล์น้องเหมย 2",
+    "description": "ทดสอบ",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1787721385231_bacdq28kc.jpg",
+    "thumbnailUrl": "/outputs/thumbnails/job_1787721385231_bacdq28kc.webp",
+    "sourceGenerationResultId": "job_1787721385231_bacdq28kc",
+    "sourceGenerationId": "job_1787721385231_bacdq28kc",
+    "creatorProfileId": "creator_admin_demo",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-08-26T05:17:05.825Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "modelark",
+      "providerDisplayName": null,
+      "modelId": "seedream-4-0-250828",
+      "modelDisplayName": null,
+      "resolvedModelId": "seedream-4-0-250828",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.98,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "workflow",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.beauty",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.98,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-08-27T14:51:50.766Z"
+    },
+    "id": "post_1787842310766_wdo9wgpo",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "createdAt": "2026-08-27T14:51:50.766Z",
+    "updatedAt": "2026-08-27T14:51:50.766Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "title": "น้องเหมย",
+    "description": "รูปโปรไฟล์น้องเหมย",
+    "promptVisibility": "private",
+    "imageUrl": "/outputs/job_1787721618453_ohmct5c2v.png",
+    "thumbnailUrl": "/outputs/thumbnails/job_1787721618453_ohmct5c2v.webp",
+    "sourceGenerationResultId": "job_1787721618453_ohmct5c2v",
+    "sourceGenerationId": "job_1787721618453_ohmct5c2v",
+    "creatorProfileId": "creator_admin_demo",
+    "postType": "image",
+    "sourceSceneTemplateSnapshotId": null,
+    "templateId": null,
+    "templateVersionId": null,
+    "templatePricing": null,
+    "sourceComparisonSetId": null,
+    "imageAssetId": null,
+    "thumbnailAssetId": null,
+    "sourceType": "scene_template",
+    "sourceGenerationMode": "normal",
+    "faceReusePolicy": "view_only",
+    "sharedPromptSnapshot": {
+      "schemaVersion": 1,
+      "authoringMode": "guided",
+      "source": "generation_result",
+      "publicPromptText": null,
+      "createdAt": "2026-08-26T05:20:56.754Z"
+    },
+    "providerModelSnapshot": {
+      "providerId": "modelark",
+      "providerDisplayName": null,
+      "modelId": "seedream-5-0-lite-260128",
+      "modelDisplayName": null,
+      "resolvedModelId": "seedream-5-0-260128",
+      "providerConfigVersion": null
+    },
+    "workflowSnapshot": {},
+    "sceneTemplateSnapshot": null,
+    "visibility": "public",
+    "reusePolicy": "view_only",
+    "status": "published",
+    "taxonomyVersion": "2026-07-mvp-1",
+    "taxonomyAssignments": [
+      {
+        "tagId": "content_type.storytelling",
+        "dimensionId": "content_type",
+        "confidence": 0.98,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "workflow",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.fashion",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "content_type.portrait",
+        "dimensionId": "content_type",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.realistic_photography",
+        "dimensionId": "visual_style",
+        "confidence": 0.93,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.beauty",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      },
+      {
+        "tagId": "visual_style.magazine",
+        "dimensionId": "visual_style",
+        "confidence": 0.88,
+        "confidenceLevel": "high",
+        "sources": [
+          "structured",
+          "prompt"
+        ],
+        "status": "confirmed",
+        "categoryEligible": true,
+        "trendingEligible": true
+      }
+    ],
+    "officialTags": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "customTags": [],
+    "categoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "trendingCategoryCodes": [
+      "content_type.storytelling",
+      "content_type.fashion",
+      "content_type.portrait",
+      "visual_style.realistic_photography",
+      "visual_style.beauty",
+      "visual_style.magazine"
+    ],
+    "taxonomyReviewStatus": "auto_confirmed",
+    "taxonomyConfidence": 0.98,
+    "counts": {},
+    "engagementSummary": {
+      "viewCount": 0,
+      "likeCount": 0,
+      "saveCount": 0,
+      "commentCount": 0,
+      "remixSuccessCount": 0,
+      "comparisonVoteCount": 0,
+      "updatedAt": "2026-08-27T14:51:24.278Z"
+    },
+    "id": "post_1787842284279_2afmby0s",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_admin",
+    "ownerUsername": "admin_demo",
+    "createdAt": "2026-08-27T14:51:24.278Z",
+    "updatedAt": "2026-08-27T14:51:24.278Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
     "title": "อาหมวยทดสอบ 001",
     "description": "อาหมวยทดสอบ คำอธิบาย",
     "promptVisibility": "remix_only",

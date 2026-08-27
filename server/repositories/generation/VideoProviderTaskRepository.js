@@ -1,13 +1,19 @@
 import { resolveDataFile } from '../../config/paths.js';
 import { mutateJsonFile, readJsonFile } from '../json/jsonFileStore.js';
 import { createPrefixedId } from '../schemaVersioning.js';
+import { createPage, normalizeListQuery } from '../repositoryContracts.js';
+import { paginateRepositoryRecords } from '../RepositoryCursor.js';
 
 const FALLBACK = { schemaVersion: 1, tasks: [] };
 const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'expired', 'reconciliation_required']);
 
 export class VideoProviderTaskRepository {
-  constructor({ tasksFile = resolveDataFile('videoProviderTasks') } = {}) {
+  constructor({
+    tasksFile = resolveDataFile('videoProviderTasks'),
+    cursorSecret = process.env.VIDEO_TASK_CURSOR_SECRET || 'local-video-task-cursor'
+  } = {}) {
     this.tasksFile = tasksFile;
+    this.cursorSecret = cursorSecret;
   }
 
   createAccepted(input) {
@@ -74,6 +80,26 @@ export class VideoProviderTaskRepository {
       && (!needle || [task.id, task.projectId, task.sceneId, task.shotId, task.attemptId, task.providerTaskId, task.supportReference]
         .filter(Boolean).some(value => String(value).toLowerCase().includes(needle)))
     )).slice(0, Math.min(100, Math.max(1, Number(limit) || 50))).map(task => structuredClone(task)));
+  }
+
+  async listOperationalPage(query = {}) {
+    const normalizedQuery = normalizeListQuery(query, { defaultLimit: 25, maxLimit: 100 });
+    const search = String(query.search || '').trim().toLowerCase();
+    const status = String(query.status || '').trim();
+    const data = await this.#read();
+    const records = data.tasks.filter(task => (
+      (!status || task.status === status)
+      && (!search || [task.id, task.ownerUserId, task.ownerUsername, task.projectId, task.sceneId,
+        task.shotId, task.attemptId, task.providerId, task.modelId, task.providerTaskId, task.supportReference]
+        .filter(Boolean).some(value => String(value).toLowerCase().includes(search)))
+    ));
+    const page = paginateRepositoryRecords(
+      records,
+      normalizedQuery,
+      JSON.stringify({ search, status, sort: normalizedQuery.sort }),
+      this.cursorSecret
+    );
+    return createPage(page.items, page);
   }
 
   update(taskId, operation) {

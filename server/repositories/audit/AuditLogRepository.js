@@ -75,14 +75,17 @@ export class AuditLogRepository {
     const action = typeof query.action === 'string' ? query.action.trim() : '';
     const targetType = typeof query.targetType === 'string' ? query.targetType.trim() : '';
     const targetId = typeof query.targetId === 'string' ? query.targetId.trim() : '';
+    const search = typeof query.search === 'string' ? query.search.trim().toLowerCase() : '';
     const events = (await this.readRaw())
       .filter(event => !action || event.action === action)
       .filter(event => !targetType || event.targetType === targetType)
       .filter(event => !targetId || event.targetId === targetId);
+    const filteredEvents = events.filter(event => !search || [event.id, event.eventId, event.actorUserId, event.action, event.targetType, event.targetId, event.reason]
+      .filter(Boolean).some(value => String(value).toLowerCase().includes(search)));
     const page = paginateRepositoryRecords(
-      events,
+      filteredEvents,
       normalizedQuery,
-      JSON.stringify({ action, targetType, targetId, sort: normalizedQuery.sort }),
+      JSON.stringify({ action, targetType, targetId, search, sort: normalizedQuery.sort }),
       this.cursorSecret
     );
 

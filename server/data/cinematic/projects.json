@@ -1,4 +1,58 @@
 {
   "schemaVersion": 1,
-  "projects": []
+  "projects": [
+    {
+      "id": "cineproj_1787841798259_d5rmu2tx",
+      "projectId": "cineproj_1787841798259_d5rmu2tx",
+      "schemaVersion": 1,
+      "version": 4,
+      "ownerUserId": "usr_alice",
+      "ownerUsername": "user_alice",
+      "title": "Cinematic E2E - Before the Last Train",
+      "format": "short-film",
+      "platformTargets": [
+        "youtube-shorts"
+      ],
+      "aspectRatio": "9:16",
+      "durationTargetMs": 20000,
+      "activeStage": "cast",
+      "status": "draft",
+      "setup": {
+        "title": "Cinematic E2E - Before the Last Train",
+        "format": "short-film",
+        "platform": "youtube-shorts",
+        "durationSeconds": 20,
+        "storyBrief": "At an almost empty urban train platform late in the evening, a young woman\nwaits with a black phone in her hand for someone from her past. The platform\nclock and the approaching last train force a decision. A silent notification\narrives, but instead of boarding or continuing to wait, she exhales, puts the\nphone away and walks toward the warm station exit. The story moves from quiet\nuncertainty to a small but clear act of letting go. Show only the selected\nCharacter; no second person appears on screen.",
+        "creativeDirection": "Photorealistic contemporary vertical-drama cinematography. Preserve the\nselected Character's exact identity, apparent age, body proportions, hairstyle\nand approved wardrobe in every shot. Use one believable modern urban train\nplatform at blue hour: cool ambient station light, one warm practical light\nnear the exit, slightly damp concrete, restrained reflections and realistic\npublic architecture. Keep screen direction consistent: the tracks remain on\ncamera-left and the warm exit remains on camera-right. Performance is subtle\nand human, with natural blinking, breathing and small eye movements. No beauty\nfilter, fantasy styling, readable signs, logos, extra people, duplicate person,\nidentity drift, wardrobe changes or invented accessories.",
+        "genre": "drama",
+        "audienceFeeling": "moved",
+        "pacing": "balanced",
+        "endingIntent": "hopeful",
+        "mode": "simple"
+      },
+      "storySourceVersions": [
+        {
+          "id": "cinesrc_1787841798259_qelmuxv1",
+          "version": 1,
+          "storyBrief": "At an almost empty urban train platform late in the evening, a young woman\nwaits with a black phone in her hand for someone from her past. The platform\nclock and the approaching last train force a decision. A silent notification\narrives, but instead of boarding or continuing to wait, she exhales, puts the\nphone away and walks toward the warm station exit. The story moves from quiet\nuncertainty to a small but clear act of letting go. Show only the selected\nCharacter; no second person appears on screen.",
+          "creativeDirection": "Photorealistic contemporary vertical-drama cinematography. Preserve the\nselected Character's exact identity, apparent age, body proportions, hairstyle\nand approved wardrobe in every shot. Use one believable modern urban train\nplatform at blue hour: cool ambient station light, one warm practical light\nnear the exit, slightly damp concrete, restrained reflections and realistic\npublic architecture. Keep screen direction consistent: the tracks remain on\ncamera-left and the warm exit remains on camera-right. Performance is subtle\nand human, with natural blinking, breathing and small eye movements. No beauty\nfilter, fantasy styling, readable signs, logos, extra people, duplicate person,\nidentity drift, wardrobe changes or invented accessories.",
+          "status": "applied",
+          "source": "manual",
+          "createdAt": "2026-08-27T14:43:18.259Z"
+        }
+      ],
+      "activeStorySourceVersionId": "cinesrc_1787841798259_qelmuxv1",
+      "castAssignments": [],
+      "storyPlanVersions": [],
+      "scenes": [],
+      "generationAttempts": [],
+      "timelineVersions": [],
+      "commandReceipts": [],
+      "activeStoryPlanVersionId": null,
+      "activeTimelineVersionId": null,
+      "createdAt": "2026-08-27T14:43:18.259Z",
+      "updatedAt": "2026-08-27T14:54:01.588Z",
+      "archivedAt": null
+    }
+  ]
 }

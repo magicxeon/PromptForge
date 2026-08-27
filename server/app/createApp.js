@@ -69,6 +69,7 @@ import { communityVideoShareService } from '../domain/community/CommunityVideoSh
 import { generationGroupRepository } from '../repositories/generation/GenerationGroupRepository.js';
 import { GenerationJobCenterService } from '../domain/generation/GenerationJobCenterService.js';
 import { registerGenerationJobCenterRoutes } from './routes/generationJobCenterRoutes.js';
+import { AdminInvestigationService } from '../domain/admin/AdminInvestigationService.js';
 
 export function resolveRequestUsername(req, {
   allowQuery = true,
@@ -127,6 +128,7 @@ export function createApp() {
     generationService: generationApplicationService,
     legacyBundleLoader: getAttributesBundle
   });
+  const adminInvestigationService = new AdminInvestigationService({ providerRegistry });
 
   creditApplicationService.reconcileStartupOrphanReservations({
     shouldPreserveReservation: reservation =>
@@ -195,7 +197,8 @@ export function createApp() {
   registerComparisonRoutes(app, sharedDependencies);
   registerAdminRoutes(app, {
     communityFeaturePolicyService,
-    adjustmentService: creditApplicationService
+    adjustmentService: creditApplicationService,
+    investigationService: adminInvestigationService
   });
   registerAdminAttributeCatalogRoutes(app, { catalogService: attributeCatalogApplicationService });
   registerCommunityTaxonomyRoutes(app, {

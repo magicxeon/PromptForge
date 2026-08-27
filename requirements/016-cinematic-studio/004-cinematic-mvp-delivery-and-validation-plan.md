@@ -207,6 +207,34 @@ desktop/mobile and three-theme visual approval remains required before C2.
 
 Exit: restart and actor switch tests pass; no paid generation.
 
+### C2.1 - Character Look Pack and Cast readiness
+
+**Primary:** Product And Requirement Architect for contract handoff, then
+Backend Platform Architect for implementation
+**Review:** UX/UI Product Designer, Cinematic Experience Director, QA And
+Release Engineer
+**Skills:** `review-product-ux`, `design-cinematic-experience`,
+`implement-generation-workflow`, `verify-release-regressions`
+
+- implement Requirement 013 through the existing Character Profile facade;
+- correct Project title/stage presentation and remove raw localization keys;
+- make Character selection visible, accessible, face-led and server-paginated;
+- remove duplicate Add Character actions and preserve responsive Cast focus;
+- attach wardrobe sources to the selected Character only;
+- generate, review and approve immutable three-view Character Look Versions;
+- expose approved Looks from Character Profiles and reuse them across Projects;
+- pin exact Look Versions in Cinematic and propagate staleness only to
+  dependent Storyboards, clips and exports;
+- protect third-party Character rights, private garment media and public
+  sharing boundaries;
+- preserve existing Character, Scene Builder, Fashion, Generation and Credit
+  contracts through characterization and regression tests.
+
+Exit: owned and authorized third-party Characters pass the Requirement 013
+manual matrix; one approved Look is reused in a second Project; exact Credit
+settlement and actor isolation are explainable; no paid provider route is
+enabled without media qualification.
+
 ### C3 - Structured story, continuity and Storyboard vertical slice
 
 **Primary:** Cinematic Experience Director
@@ -542,8 +570,11 @@ complete.
 ### Remaining manual and qualification gates
 
 - Run the Thai C4 checklist in
-  `_temp/cinematic-c4-produce-video-closeout-20260825-th.md` with one lowest-cost
+  `_temp/test-case/cinematic-c4-produce-video-closeout-20260825-th.md` with one lowest-cost
   qualified Video model.
+- Run the complete Character-to-Storyboard-to-Video-to-Export short-drama gate
+  in `_temp/test-case/cinematic-full-story-e2e-last-train-th.md`; authoring-only
+  or per-Shot success is not sufficient evidence for full-story closure.
 - Record desktop/mobile/theme screenshots, provider task ID, Credit reserve and
   capture evidence, restart recovery and source-replacement behavior.
 - Do not mark C4 provider qualification complete from deterministic tests alone;

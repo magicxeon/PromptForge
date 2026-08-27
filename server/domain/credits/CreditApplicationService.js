@@ -65,6 +65,34 @@ export class CreditApplicationService {
     return this.ledgerRepository.findByUserId(userId, query);
   }
 
+  async getOperationalSummary({ search = '', status = '', limit = 50 } = {}) {
+    const data = await this.accountRepository.readRaw();
+    const needle = String(search).trim().toLowerCase();
+    const boundedLimit = Math.min(100, Math.max(1, Number(limit) || 50));
+    const reservations = (data.reservations || []).filter(record =>
+      (!status || record.status === status)
+      && (!needle || [record.reservationId, record.userId, record.username, record.jobId, record.groupId]
+        .filter(Boolean).some(value => String(value).toLowerCase().includes(needle)))
+    ).slice(0, boundedLimit).map(record => ({
+      reservationId: record.reservationId,
+      userId: record.userId,
+      username: record.username || null,
+      status: record.status,
+      amountCredits: Number(record.amountCredits || 0),
+      jobId: record.jobId || null,
+      groupId: record.groupId || null,
+      expiresAt: record.expiresAt || null,
+      createdAt: record.createdAt || null,
+      updatedAt: record.updatedAt || null
+    }));
+    const counts = (data.reservations || []).reduce((result, record) => {
+      const key = record.status || 'unknown';
+      result[key] = (result[key] || 0) + 1;
+      return result;
+    }, {});
+    return { generatedAt: new Date().toISOString(), counts, reservations, mutationAvailable: false };
+  }
+
   grantMockCredits({ userId, amountCredits, idempotencyKey, actorContext }) {
     return this.accountRepository.grantCredits({
       userId,

@@ -106,8 +106,10 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Cross-surface reference authority, preprocessing plans and processor orchestration | `server/domain/reference-processing/`, configured by `server/config/reference-processing-policy.json` |
 | Canonical Attribute definitions, revisions, compatibility and published releases | `server/domain/attribute-catalog/`, `server/repositories/attribute-catalog/`, `server/data/attribute-catalog/` |
 | Cinematic Project, Cast, Story, Scene, Shot, continuity and timeline orchestration | `server/domain/cinematic/`, `server/repositories/cinematic/`, `server/data/cinematic/`, `server/app/routes/cinematicRoutes.js` |
-| Cross-workflow correlation context, sanitized trace events and support trace lookup | `server/middleware/`, `server/domain/observability/`, `server/repositories/observability/`, `server/data/observability/` |
+| Cross-workflow correlation context and sanitized Admin trace composition | `server/middleware/`, `server/domain/observability/`, `server/domain/admin/AdminInvestigationService.js`; a durable observability event repository remains a production migration item |
 | Versioned Admin runtime-configuration drafts, publication schedules and active snapshots | `server/domain/admin-configuration/`, `server/repositories/admin-configuration/`, `server/data/admin-configuration/`; Credits evaluates pricing and Generation consumes provider exposure through public contracts |
+| Admin operational read models, reversible staff presentation and guarded User status commands | `server/domain/admin/`, `server/repositories/admin/`, `server/data/admin/`, `server/domain/identity/AdminIdentityService.js`; owner lifecycle evidence remains in Generation, Credits, Community and Cinematic |
+| Support Case lifecycle, links, notes and optimistic versioning | `server/domain/support/`, `server/repositories/support/`, `server/data/support/`; production adapter moves to PostgreSQL without changing the service contract |
 | Bounded process-local performance timing and slow-request measurement | `server/domain/observability/PerformanceTelemetry.js`, `server/middleware/requestPerformanceMiddleware.js` |
 | Shared atomic JSON implementation | `server/repositories/json/` |
 | Runtime JSON state | `server/data/<capability>/` |
@@ -139,7 +141,7 @@ Server placement rules:
 | Cinematic Studio routes, stage orchestration, story/Shot/timeline UI and actor draft adapters | `web/src/features/cinematic/`; shared Generation, media, Credit and theme presentation remains under its current shared owner |
 | Unified Playground image/video route orchestration and actor-scoped mode drafts | `web/src/features/playground/`; provider dispatch remains in Generation and shared media/result UI remains under existing shared owners |
 | Community typed image/video publication, feed and post presentation | `web/src/features/community/`; durable delivery remains in Assets and generation remains in Generation |
-| Admin Attribute authoring shell (UI reset pending) | `web/src/features/admin/components/AdminNavigation.tsx`, `web/src/features/admin/routes/AdminAttributesRoute.tsx`; future API/schema modules return under `web/src/features/admin/` only with the accepted mockup implementation |
+| Admin and Support operational workspace, User detail, Cinematic operations and Attribute authoring | `web/src/features/admin/`; shared presentation stays in `web/src/features/admin/components/`, API/schema boundaries stay in the feature, owner commands remain server-side capability contracts |
 | Template serialization and client contracts | `web/src/features/templates/` |
 | Reusable Template presentation and replacement controls | `web/src/components/templates/` |
 | Reusable React UI and workflow components | `web/src/components/` |

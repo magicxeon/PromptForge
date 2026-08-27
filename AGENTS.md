@@ -256,8 +256,14 @@ for performance-sensitive work.
   Resolution appears only when the active model exposes
   `capabilities.resolutions`.
 - Use React Router `Link`, `NavLink`, and navigation hooks for internal routes.
-- Keep fixed-format controls dimensionally stable and responsive. Verify no
-  overlapping or clipped text at desktop and mobile widths.
+- Design every user-visible layout for mobile, tablet, and desktop from the
+  outset. Use responsive constraints rather than assuming the desktop layout
+  will collapse safely; explicitly consider grids, navigation, sticky panels,
+  dialogs, forms, media previews, footers, and action placement at each size.
+- Keep fixed-format controls dimensionally stable and responsive. Verify that
+  content remains readable and operable with no overlap, clipping, horizontal
+  overflow, inaccessible controls, or unintended reordering at mobile, tablet,
+  and desktop widths.
 - Follow the component, UX/UI, accessibility, API, state, and release rules in
   `requirements/009-migration-to-react/SKILL.md`.
 - Before creating or substantially changing user-visible UI, read
@@ -339,8 +345,10 @@ for performance-sensitive work.
 - Read-only checks such as JSON parsing, `git diff --check`, and file inspection
   are allowed.
 - For frontend changes, verify the visible result in the in-app browser when it
-  is available. Check at least one desktop and one mobile viewport for substantial
-  layout changes.
+  is available. Check the affected layout at mobile, tablet, and desktop
+  viewports; representative targets are approximately 390px, 768px or 820px,
+  and 1440px wide. Record any viewport that could not be verified and the
+  remaining responsive risk.
 
 ## 10. Required Handoff
 

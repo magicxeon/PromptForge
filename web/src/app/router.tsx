@@ -46,8 +46,11 @@ export const router = createBrowserRouter([{
     { path: 'comparisons/:setId', lazy: lazyRoute(() => import('../features/comparisons/routes/ComparisonDetailRoute'), 'ComparisonDetailRoute') },
     { path: 'credits', lazy: lazyRoute(() => import('../features/credits/routes/CreditsRoute'), 'CreditsRoute') },
     { path: 'admin', lazy: lazyRoute(() => import('../features/admin/routes/AdminRoute'), 'AdminRoute') },
+    { path: 'admin/operations', lazy: lazyRoute(() => import('../features/admin/routes/AdminOperationsRoute'), 'AdminOperationsRoute') },
     { path: 'admin/attributes', lazy: lazyRoute(() => import('../features/admin/routes/AdminAttributesRoute'), 'AdminAttributesRoute') },
     { path: 'admin/cinematic', lazy: lazyRoute(() => import('../features/admin/routes/AdminCinematicRoute'), 'AdminCinematicRoute') },
+    { path: 'admin/control-plane', lazy: lazyRoute(() => import('../features/admin/routes/AdminControlPlaneRoute'), 'AdminControlPlaneRoute') },
+    { path: 'admin/users/:userId', lazy: lazyRoute(() => import('../features/admin/routes/AdminUserDetailRoute'), 'AdminUserDetailRoute') },
 
     { path: 'home', element: <LegacyRouteRedirect to={routePaths.explore} /> },
     { path: 'community', element: <LegacyRouteRedirect to={routePaths.explore} /> },

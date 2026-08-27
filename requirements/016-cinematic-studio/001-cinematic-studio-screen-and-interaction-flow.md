@@ -128,6 +128,11 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 
 - Wardrobe is edited only inside the selected Character dossier. There is no
   project-global or unassigned outfit upload control.
+- Reusable Look creation, three-view preparation, approval, rights and
+  versioning follow
+  `013-cinematic-character-look-pack-and-cast-readiness.md`. Cinematic starts
+  the workflow and binds an approved Look Version; it does not own a parallel
+  wardrobe library.
 - Each Character may own one or more named Looks. Every Look records
   `Character default`, `Wardrobe preset`, `Upload outfit` or approved AI
   suggestion, plus front/back references, coverage, accessories, Scene scope,
@@ -143,6 +148,9 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 
 ### Cast layout
 
+- The empty Cast workflow exposes one primary Add Character action. Two controls
+  that open the same picker are not separate workflows and must not be shown as
+  competing actions.
 - Left/main: Character dossier cards with Add Character and role/status scan.
 - Right/detail: selected Character's Role & Personality, Performance Direction,
   Relationships, Scene Commitments and Wardrobe Looks.
@@ -161,6 +169,9 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 - Character browsing, existing-asset selection, upload and manual assignment do
   not consume Credits. AI wardrobe suggestion, reference analysis or generated
   wardrobe concepts use distinct quoted operations in the contextual dock.
+- Character-picker selection is visible and accessible, card media prefers the
+  canonical/profile face, results are server-paginated, and the confirmation
+  footer remains reachable while results scroll, as defined by Requirement 013.
 
 ## 5. Stage 3 - Story Plan
 

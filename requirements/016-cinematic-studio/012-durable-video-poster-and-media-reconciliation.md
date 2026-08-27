@@ -147,5 +147,5 @@ report and command summary.
 - Automated release gate passes 29 relevant tests. A generated poster was
   decoded as WebP at 480x864. JSON parsing and `git diff --check` pass.
 - Restart the backend and complete TC-VP01/TC-VP02 in
-  `_temp/video-poster-reconciliation-test-cases-20260825-th.md` before marking
+  `_temp/test-case/video-poster-reconciliation-test-cases-20260825-th.md` before marking
   this Requirement complete.

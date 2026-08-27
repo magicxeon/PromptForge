@@ -7,6 +7,9 @@ export function AdminNavigation() {
   return (
     <nav className="mb-5 flex gap-1 overflow-x-auto border-b border-[var(--mpf-border)]" aria-label={t('admin.navigation.label')}>
       <NavLink end to={routePaths.admin} className={navigationClassName}>
+        {t('admin.navigation.dashboard')}
+      </NavLink>
+      <NavLink to={routePaths.adminOperations} className={navigationClassName}>
         {t('admin.navigation.operations')}
       </NavLink>
       <NavLink to={routePaths.adminAttributes} className={navigationClassName}>
@@ -14,6 +17,9 @@ export function AdminNavigation() {
       </NavLink>
       <NavLink to={routePaths.adminCinematic} className={navigationClassName}>
         {t('admin.navigation.cinematic')}
+      </NavLink>
+      <NavLink to={routePaths.adminControlPlane} className={navigationClassName}>
+        {t('admin.navigation.controlPlane')}
       </NavLink>
     </nav>
   );

@@ -62,4 +62,4 @@ Credit behavior regresses, or restart can silently replay billable work.
 - Web Job Center and result-focus suites: 6 passed.
 - `npm.cmd run typecheck --workspace web` passed.
 - Manual checks 1-9 remain required; use
-  `_temp/unified-generation-job-center-closeout-test-cases-20260824-th.md`.
+  `_temp/test-case/unified-generation-job-center-closeout-test-cases-20260824-th.md`.

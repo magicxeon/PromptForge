@@ -184,6 +184,7 @@ foreign repository or provider directly.
 - `010-community-video-publishing-and-discovery.md`
 - `011-video-library-profile-and-character-discovery.md`
 - `012-durable-video-poster-and-media-reconciliation.md`
+- `013-cinematic-character-look-pack-and-cast-readiness.md`
 
 The source concept remains product research. These numbered files are the
 implementable MVP contract when the documents disagree. Requirement 004 owns
@@ -196,6 +197,10 @@ Requirement 011 makes private Video tasks and published Video posts discoverable
 through Recent, Creator Profiles and verified Character attribution.
 Requirement 012 makes a poster derivative part of durable Video completion and
 provides an auditable migration/cleanup path for existing local Video records.
+Requirement 013 makes reusable Character Look Versions part of the Character
+Profile lifecycle while Cinematic owns only Project/Scene bindings and
+continuity. It also closes the Project-card and Character-picker readiness gaps
+found during the first full Cinematic test pass.
 Neither extension duplicates the six-stage Cinematic production workflow.
 Playground Video Comparison is constrained to exactly two slots while existing
 Image Comparison remains unchanged at two through four slots.
@@ -210,6 +215,7 @@ C0 contract and protected-behavior freeze
 -> C1 shared component/state/schema foundation
 -> C1.5 six-stage UX/UI prototype and usability approval
 -> C2 private Project Setup and Cast vertical slice
+-> C2.1 Character Look Pack, Cast picker and reusable wardrobe readiness
 -> C3 Story Plan, continuity and Storyboard vertical slice
 -> C4 qualified draft-video production and financial lifecycle
 -> C5 Finish, export and recovery

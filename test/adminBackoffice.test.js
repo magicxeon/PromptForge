@@ -11,6 +11,10 @@ import { CreditAdjustmentService } from '../server/domain/credits/CreditAdjustme
 import { AdminPolicyService } from '../server/domain/admin/AdminPolicyService.js';
 import { AuditService } from '../server/domain/audit/AuditService.js';
 import { AdminBackofficeService } from '../server/domain/admin/AdminBackofficeService.js';
+import { AdminOperationPresentationRepository } from '../server/repositories/admin/AdminOperationPresentationRepository.js';
+import { AdminOperationPresentationService } from '../server/domain/admin/AdminOperationPresentationService.js';
+import { MockUserRepository } from '../server/repositories/identity/MockUserRepository.js';
+import { AdminIdentityService } from '../server/domain/identity/AdminIdentityService.js';
 
 const testRoot = path.join(os.tmpdir(), `mpf-admin-${Date.now()}`);
 const admin = { userId: 'usr_admin', username: 'admin_demo', role: 'admin', isMockActor: true, requestId: 'req_admin_test' };
@@ -122,4 +126,130 @@ test('Admin backoffice returns operational summaries without prompt or reference
   assert.equal(generations.items[0].references, undefined);
   assert.equal(posts.items[0].finalPromptSnapshot, undefined);
   assert.equal(posts.items[0].sceneTemplateSnapshot, undefined);
+});
+
+
+test('Admin overview remains usable when one capability source is unavailable', async () => {
+  const backoffice = new AdminBackofficeService({
+    userRepository: { async readAll() { return [{ id: 'usr_demo', username: 'user_demo', displayName: 'Demo', role: 'user', status: 'active' }]; } },
+    accountRepository: { async getAccountByUserId() { return null; } },
+    historyRepo: { async readAll() { return [{ id: 'job_1', status: 'failed', createdAt: '2026-08-25T00:00:00.000Z' }]; } },
+    videoTaskRepository: { async listOperational() { throw new Error('video store unavailable'); } },
+    postRepository: { async listForBackoffice() { return { items: [], totalApprox: 2 }; } },
+    auditRepository: { async listForBackoffice() { return { items: [], totalApprox: 3 }; } },
+    policy: new AdminPolicyService()
+  });
+
+  const overview = await backoffice.getOverview(support);
+  assert.equal(overview.status, 'partial');
+  assert.equal(overview.sources.imageGeneration.status, 'ready');
+  assert.equal(overview.sources.imageGeneration.attentionCount, 1);
+  assert.equal(overview.sources.videoGeneration.status, 'unavailable');
+  assert.equal(overview.generationJobs.totalApprox, 1);
+  assert.equal(overview.communityPosts.totalApprox, 2);
+});
+
+test('Admin overview aggregates bounded daily Image and Video outcomes on the server', async () => {
+  const today = new Date().toISOString();
+  const backoffice = new AdminBackofficeService({
+    userRepository: { async readAll() { return []; } },
+    accountRepository: { async getAccountByUserId() { return null; } },
+    historyRepo: { async readAll() { return [
+      { id: 'job_done', status: 'completed', updatedAt: today },
+      { id: 'job_failed', status: 'failed', updatedAt: today }
+    ]; } },
+    videoTaskRepository: { async listOperational() { return [
+      { id: 'video_active', status: 'provider_processing', updatedAt: today },
+      { id: 'video_done', status: 'completed', updatedAt: today }
+    ]; } },
+    postRepository: { async listForBackoffice() { return { items: [], totalApprox: 0 }; } },
+    auditRepository: { async listForBackoffice() { return { items: [], totalApprox: 0 }; } },
+    policy: new AdminPolicyService()
+  });
+
+  const overview = await backoffice.getOverview(support, { window: '14' });
+  assert.equal(overview.analytics.windowDays, 14);
+  assert.equal(overview.analytics.daily.length, 14);
+  assert.deepEqual(overview.analytics.totals, {
+    success: 2, failed: 1, active: 1, other: 0, total: 4, successRate: 66.7
+  });
+  assert.equal(overview.sources.imageGeneration.analyticsRecords, undefined);
+});
+
+test('Admin generation operations merge safe Image and Video metadata', async () => {
+  const backoffice = new AdminBackofficeService({
+    historyRepo: { async listPage() { return { items: [{ id: 'job_image', status: 'completed', prompt: 'private', references: ['private'], updatedAt: '2026-08-24T00:00:00.000Z' }] }; } },
+    videoTaskRepository: { async listOperational() { return [{ id: 'videotask_1', status: 'failed', providerId: 'modelark', modelId: 'seedance', supportReference: 'support_1', prompt: 'private', updatedAt: '2026-08-25T00:00:00.000Z' }]; } },
+    operationPresentationRepository: { async listDismissals() { return []; } },
+    policy: new AdminPolicyService()
+  });
+
+  const page = await backoffice.listGenerationOperations({}, support);
+  assert.deepEqual(page.items.map(item => item.id), ['videotask_1', 'job_image']);
+  assert.equal(page.items[0].mediaType, 'video');
+  assert.equal(page.items[0].supportReference, 'support_1');
+  assert.equal(page.items[0].prompt, undefined);
+  assert.equal(page.items[1].references, undefined);
+  await assert.rejects(() => backoffice.listGenerationOperations({}, member), { code: 'admin_access_forbidden' });
+});
+
+test('failed operation dismissal is reversible, idempotent and audited without deleting lifecycle evidence', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'admin-operation-presentation-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const presentationRepository = new AdminOperationPresentationRepository({ presentationFile: path.join(directory, 'presentation.json') });
+  const auditRepository = new AuditLogRepository({ auditFile: path.join(directory, 'audit.json'), userRepository: users });
+  const service = new AdminOperationPresentationService({
+    historyRepo: { async getById(id) { return id === 'job_failed' ? { id, status: 'failed' } : { id, status: 'completed' }; } },
+    videoTaskRepository: { async find() { return null; } },
+    presentationRepository,
+    policy: new AdminPolicyService(),
+    audit: new AuditService({ auditRepository, ipHashSalt: 'test' })
+  });
+
+  await assert.rejects(() => service.dismiss({ operationId: 'job_failed', mediaType: 'image', reason: 'hide stale failure' }, support), { code: 'admin_operation_dismiss_forbidden' });
+  await assert.rejects(() => service.dismiss({ operationId: 'job_done', mediaType: 'image', reason: 'hide completed' }, admin), { code: 'admin_operation_not_dismissible' });
+  const first = await service.dismiss({ operationId: 'job_failed', mediaType: 'image', reason: 'hide stale failure' }, admin);
+  const replay = await service.dismiss({ operationId: 'job_failed', mediaType: 'image', reason: 'hide stale failure' }, admin);
+  assert.equal(first.duplicate, false);
+  assert.equal(replay.duplicate, true);
+  assert.equal((await presentationRepository.listDismissals()).length, 1);
+  await service.restore({ operationId: 'job_failed', reason: 'review again' }, admin);
+  assert.ok((await presentationRepository.listDismissals())[0].restoredAt);
+  const auditPage = await auditRepository.listForBackoffice({ limit: 10 });
+  assert.deepEqual(auditPage.items.map(event => event.action).sort(), ['admin.operation.dismiss', 'admin.operation.restore']);
+});
+
+test('Admin user status commands enforce authorization, optimistic state, idempotency and audit', async t => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'admin-user-status-'));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const usersFile = path.join(directory, 'users.json');
+  const auditFile = path.join(directory, 'audit.json');
+  await fs.writeFile(usersFile, JSON.stringify([
+    { id: 'usr_admin', username: 'admin_demo', displayName: 'Admin', role: 'admin', status: 'active' },
+    { id: 'usr_demo', username: 'user_demo', displayName: 'Demo', role: 'user', status: 'active' }
+  ]));
+  const userRepository = new MockUserRepository({ usersFile });
+  const auditRepository = new AuditLogRepository({ auditFile, userRepository });
+  const service = new AdminIdentityService({
+    userRepository,
+    policy: new AdminPolicyService(),
+    audit: new AuditService({ auditRepository, ipHashSalt: 'test' })
+  });
+  const input = {
+    userId: 'usr_demo', status: 'suspended', expectedStatus: 'active',
+    reason: 'Confirmed account review', idempotencyKey: 'admin-status-command-1'
+  };
+
+  await assert.rejects(() => service.changeStatus(input, support), { code: 'admin_user_status_forbidden' });
+  await assert.rejects(() => service.changeStatus({ ...input, userId: 'usr_admin' }, admin), { code: 'admin_self_status_change_forbidden' });
+  const first = await service.changeStatus(input, admin);
+  const replay = await service.changeStatus(input, admin);
+  assert.equal(first.user.status, 'suspended');
+  assert.equal(first.duplicate, false);
+  assert.equal(replay.duplicate, true);
+  await assert.rejects(() => service.changeStatus({
+    ...input, status: 'disabled', expectedStatus: 'active', idempotencyKey: 'admin-status-command-2'
+  }, admin), { code: 'admin_user_status_conflict' });
+  const auditPage = await auditRepository.listForBackoffice({ limit: 10 });
+  assert.deepEqual(auditPage.items.map(event => event.action), ['identity.suspend']);
 });

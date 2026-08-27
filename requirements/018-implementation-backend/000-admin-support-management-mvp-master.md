@@ -1,10 +1,10 @@
 # Admin And Support Management MVP Master
 
-**Status:** Reconciled with current Momelo capabilities on 2026-08-25; phased implementation ready
+**Status:** Safe Admin MVP active on 2026-08-26; production-risk commands remain gated
 **Primary role:** Product And Requirement Architect
 **Reviewers:** UX/UI Product Designer, Backend Platform Architect
 **Skills:** `review-product-ux`, `plan-database-migration`
-**Implementation in this change:** None
+**Implementation in this change:** Safe read, Support Case, trace/content investigation, feature exposure and configuration-draft foundations
 
 ## 1. Outcome
 
@@ -37,6 +37,37 @@ The repository currently has:
 
 These are foundations, not the final Support workflow. The MVP extends them;
 it does not create alternate Credit, Generation or moderation implementations.
+
+### 2.1 Safe implementation checkpoint (2026-08-26)
+
+Implemented and enabled by default for authorized `admin`/`support` actors:
+
+- one capability-exposure contract in
+  `server/domain/admin/AdminFeaturePolicyService.js`;
+- bounded Content search across Assets, Community Posts, Templates and
+  Character Profiles without raw prompt/media disclosure;
+- exact ID trace lookup with redacted metadata and related-record discovery;
+- provider configuration health that never sends a billable probe;
+- read-only Credit reservation reconciliation counts that never expose a
+  financial mutation from the readiness workspace;
+- versioned Support Cases with lifecycle transitions, notes, links,
+  optimistic concurrency and Audit events;
+- configuration draft validation/history that rejects secret-like keys;
+- one React Control Plane for readiness, Support Cases, Content, Trace and
+  configuration status.
+
+Scaffolded but disabled by default:
+
+- Generation retry/cancel/reconcile commands;
+- Content quarantine/restore commands outside existing owner moderation;
+- restricted private-media reveal;
+- Credit/refund/payment/compensation commands;
+- runtime configuration publish/schedule/rollback;
+- Asset reconciliation commands.
+
+These gates are deliberate. Setting an environment flag does not waive its
+listed production prerequisites or create an owner command that does not yet
+exist.
 
 ## 3. Scope
 

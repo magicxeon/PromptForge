@@ -1,5 +1,5 @@
 import { resolveDataFile } from '../../config/paths.js';
-import { readJsonFile } from '../json/jsonFileStore.js';
+import { mutateJsonFile, readJsonFile } from '../json/jsonFileStore.js';
 
 export class MockUserRepository {
   constructor({ usersFile = resolveDataFile('mockUsers') } = {}) {
@@ -26,6 +26,25 @@ export class MockUserRepository {
     return all.find(u => u.username === username) || null;
   }
 
+  async updateStatus(userId, { status, expectedStatus, idempotencyKey }) {
+    return mutateJsonFile(this.usersFile, [], users => {
+      if (!Array.isArray(users)) throw new TypeError('Mock users data must be an array.');
+      const user = users.find(item => item.id === userId);
+      if (!user) throw userError('admin_user_not_found', 'User not found.', 404);
+      if (user.lastAdminStatusCommand?.idempotencyKey === idempotencyKey) {
+        return { user: structuredClone(user), duplicate: true };
+      }
+      if (expectedStatus && user.status !== expectedStatus) {
+        throw userError('admin_user_status_conflict', 'User status changed in another session.', 409);
+      }
+      const previousStatus = user.status;
+      user.status = status;
+      user.updatedAt = new Date().toISOString();
+      user.lastAdminStatusCommand = { idempotencyKey, previousStatus, status, appliedAt: user.updatedAt };
+      return { user: structuredClone(user), duplicate: false, previousStatus };
+    });
+  }
+
   toActorContext(mockUser, requestId = null) {
     if (!mockUser) return null;
     return {
@@ -41,5 +60,7 @@ export class MockUserRepository {
     };
   }
 }
+
+function userError(code, message, statusCode) { return Object.assign(new Error(message), { code, statusCode }); }
 
 export const mockUserRepo = new MockUserRepository();

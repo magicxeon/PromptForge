@@ -100,7 +100,7 @@ One financial lifecycle is presented through operation-specific configuration:
 | Stage | Billable operation | Not billable |
 |---|---|---|
 | Setup | Story enhancement | writing, editing, compare, apply/discard |
-| Cast | AI wardrobe suggestion/analysis/concept generation | browse, filter, upload, existing-asset assignment |
+| Cast | AI wardrobe suggestion/analysis/concept generation and three-view Character Look attempts | browse, filter, upload, existing-asset assignment and Look approval |
 | Story Plan | generate plan, expand/rewrite one Scene | manual edit, reorder, split/merge, approve |
 | Storyboard | still generation/regeneration by Shot or selected batch | prompt editing, reset default, compare, approve |
 | Produce | motion preview, draft/final video attempt | playback, compare, approve/reject |
@@ -148,6 +148,10 @@ the ledger; continuing as a Series starts a separate Project/Series cost scope.
   accepted batch.
 - Text/Scene/Wardrobe operations without a Shot reserve one allocation per
   immutable source version and operation key.
+- Character Look generation is quoted against the exact Character Version,
+  wardrobe-source fingerprint, provider/model, output set and effective
+  reference plan. Approval creates a Character-owned Look Version and does not
+  charge again. See Requirement 013.
 - Capture only when the operation reaches the defined successful terminal
   boundary and durable result metadata exists.
 - Refund an unconsumed reservation on provider failure, cancellation before

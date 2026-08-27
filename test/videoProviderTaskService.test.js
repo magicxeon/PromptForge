@@ -98,6 +98,33 @@ test('poster persistence failure retains partial Video lineage for maintenance r
   assert.equal(terminal.providerUsage.outputSeconds, 4);
 });
 
+test('operational Video task listing supports search and cursor pagination without requiring Cinematic IDs', async t => {
+  const { directory, repository } = await fixture([]);
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  await repository.createAccepted({
+    ...request, id: 'videotask_playground_1', ownerUserId: actor.userId,
+    ownerUsername: actor.username, projectId: null, sceneId: null, shotId: null,
+    providerId: 'modelark', modelId: 'seedance-1-0-pro-fast-251015',
+    idempotencyKey: 'video:test:operational:1'
+  });
+  await repository.createAccepted({
+    ...request, id: 'videotask_playground_2', ownerUserId: actor.userId,
+    ownerUsername: actor.username, projectId: null, sceneId: null, shotId: null,
+    providerId: 'gemini', modelId: 'veo-3.1-lite-generate-preview',
+    idempotencyKey: 'video:test:operational:2'
+  });
+
+  const first = await repository.listOperationalPage({ limit: 1, search: 'playground' });
+  assert.equal(first.items.length, 1);
+  assert.equal(first.hasMore, true);
+  assert.ok(first.nextCursor);
+  const second = await repository.listOperationalPage({ limit: 1, search: 'playground', cursor: first.nextCursor });
+  assert.equal(second.items.length, 1);
+  assert.notEqual(second.items[0].id, first.items[0].id);
+  const modelark = await repository.listOperationalPage({ search: 'seedance' });
+  assert.deepEqual(modelark.items.map(item => item.id), ['videotask_playground_1']);
+});
+
 test('unknown provider status stops polling in reconciliation', async t => {
   const { directory, service } = await fixture([{ providerStatus: null }]);
   t.after(() => fs.rm(directory, { recursive: true, force: true }));
