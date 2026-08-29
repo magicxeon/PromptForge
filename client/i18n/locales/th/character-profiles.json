@@ -146,4 +146,16 @@
   "character-profiles.works.emptyVideos": "ยังไม่มีวิดีโอที่เผยแพร่สำหรับ Character นี้",
   "character-profiles.details.title": "รายละเอียด Character",
   "character-profiles.details.description": "ตรวจสอบสิทธิ์การใช้งานและจัดการ Character นี้"
+  ,"character-profiles.looks.title": "ลุค / เสื้อผ้า"
+  ,"character-profiles.looks.description": "เตรียมลุคเสื้อผ้าแบบส่วนตัวที่นำกลับมาใช้กับ Character นี้ได้ เฉพาะเวอร์ชันสามมุมที่อนุมัติแล้วเท่านั้นจึงจะใช้ในการผลิตได้"
+  ,"character-profiles.looks.create": "สร้างลุค"
+  ,"character-profiles.looks.loading": "กำลังโหลด Character Look"
+  ,"character-profiles.looks.empty": "ยังไม่มี Character Look ที่เตรียมไว้"
+  ,"character-profiles.looks.version": "เวอร์ชัน {version}"
+  ,"character-profiles.looks.ready": "พร้อมใช้ในโปรเจกต์ Cinematic"
+  ,"character-profiles.looks.needsReview": "ต้องตรวจสอบและอนุมัติภาพสามมุม"
+  ,"character-profiles.looks.status.draft": "ฉบับร่าง"
+  ,"character-profiles.looks.status.review": "กำลังตรวจสอบ"
+  ,"character-profiles.looks.status.approved": "อนุมัติแล้ว"
+  ,"character-profiles.looks.status.retired": "เลิกใช้งานแล้ว"
 }

@@ -50,6 +50,13 @@ Core identifiers remain stable opaque strings and are never array positions.
 
 ### CastAssignment
 
+Setup stores `castPlanningMode` and zero to four `storyRoleSlots`. A role slot
+contains stable ID, label, required/optional importance, dramatic function and
+relationship hint. It never stores a Character Profile ID. `CastAssignment`
+is the separate Project-owned binding through stable `storyRoleSlotId` between one slot and one pinned approved
+Character Profile Version, preserving a clean distinction between story design
+and casting.
+
 - project, Character Profile and pinned Character Version IDs;
 - role, display label and story importance;
 - project-local dossier version with dramatic function, objective, motivation,
@@ -100,6 +107,8 @@ consumed so later edits can mark only dependent work stale.
 - original Story Brief and optional Creative Direction;
 - optional enhanced premise, conflict, emotional arc, ending and candidate
   Scene structure;
+- recommended role slots and provider/model provenance when enhancement
+  proposed the Cast structure;
 - source operation/quote/Job identifiers when AI enhancement was used;
 - explicit applied/discarded status and parent source version;
 - immutable fingerprint consumed by the Story Plan version.

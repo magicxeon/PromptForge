@@ -9,6 +9,7 @@ import { ContextBackLink } from '../../../components/layout/ContextBackLink';
 import { routePaths } from '../../../app/routeRegistry/routes';
 import { CharacterFeaturedImagePicker } from '../../../components/profiles/CharacterFeaturedImagePicker';
 import { CharacterProfileHero } from '../../../components/profiles/CharacterProfileHero';
+import { CharacterLookDialog } from '../components/CharacterLookDialog';
 import { getActiveActorId } from '../../../lib/auth/actorStore';
 import { writeHandoff } from '../../../lib/persistence/handoffStorage';
 import { showToast } from '../../../components/ui/toastStore';
@@ -16,6 +17,7 @@ import {
   getCharacter,
   getCharacterWorks,
   getCharacterFeaturedImageCandidates,
+  listCharacterLooks,
   getOwnedCharacter,
   approveCharacterProfile,
   requestCharacterHandoff,
@@ -23,6 +25,7 @@ import {
   updateCharacterSharing,
   updateCharacterFeaturedImage
 } from '../api/profileApi';
+import type { CharacterLook } from '../schemas/profileSchemas';
 import { useActor } from '../../../lib/auth/ActorProvider';
 import { createCharacterHandoffNavigationState } from '../characterHandoffNavigation';
 
@@ -42,6 +45,7 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
   const queryClient = useQueryClient();
   const { t } = useTranslation('character-profiles');
   const [activeTab, setActiveTab] = useState<'overview' | 'creations' | 'details'>('overview');
+  const [lookDialogOpen, setLookDialogOpen] = useState(false);
   const ownerDetail = useQuery({
     queryKey: ['owned-character', actorId, characterId],
     queryFn: () => getOwnedCharacter(characterId),
@@ -62,6 +66,17 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
     queryKey: ['character-featured-image-candidates', actorId, characterId],
     queryFn: () => getCharacterFeaturedImageCandidates(characterId),
     enabled: Boolean(characterId && actor && character && access === 'owner' && character.isOwner)
+  });
+  const characterLooks = useQuery({
+    queryKey: ['character-looks', actorId, characterId, character?.characterProfileVersionId],
+    queryFn: () => listCharacterLooks(characterId, character?.characterProfileVersionId || ''),
+    enabled: Boolean(
+      characterId
+      && actor
+      && access === 'owner'
+      && character?.isOwner
+      && character.characterProfileVersionId
+    )
   });
   const updateMetadata = useMutation({
     mutationFn: (input: { displayName: string; personalitySummary: string }) => updateCharacterMetadata(characterId, input),
@@ -261,6 +276,27 @@ function CharacterProfilePage({ access }: { access: 'owner' | 'public' }) {
                 }}
               />
             ) : null}
+            {access === 'owner' && character.isOwner && character.characterProfileVersionId ? (
+              <>
+                <CharacterLooksPanel
+                  looks={characterLooks.data?.items || []}
+                  loading={characterLooks.isLoading}
+                  error={characterLooks.error instanceof Error ? characterLooks.error.message : null}
+                  onCreate={() => setLookDialogOpen(true)}
+                />
+                <CharacterLookDialog
+                  open={lookDialogOpen}
+                  onOpenChange={setLookDialogOpen}
+                  characterProfileId={characterId}
+                  characterProfileVersionId={character.characterProfileVersionId}
+                  onSaved={() => {
+                    void queryClient.invalidateQueries({
+                      queryKey: ['character-looks', actorId, characterId]
+                    });
+                  }}
+                />
+              </>
+            ) : null}
             {access === 'owner' && character.isOwner ? (
               <CharacterFeaturedImagePicker
                 candidates={featuredCandidates.data?.items || []}
@@ -312,6 +348,56 @@ function CharacterWorks({ title, description, items, emptyLabel }: {
 
 function DetailCard({ label, value }: { label: string; value: string }) {
   return <div className="character-profile-detail-card"><small>{label}</small><strong>{value}</strong></div>;
+}
+
+export function CharacterLooksPanel({ looks, loading, error, onCreate }: {
+  looks: CharacterLook[];
+  loading: boolean;
+  error: string | null;
+  onCreate: () => void;
+}) {
+  const { t } = useTranslation('character-profiles');
+  return (
+    <section className="character-look-panel" aria-labelledby="character-look-panel-title">
+      <header className="character-look-panel__header">
+        <div>
+          <h2 id="character-look-panel-title">{t('character-profiles.looks.title')}</h2>
+          <p>{t('character-profiles.looks.description')}</p>
+        </div>
+        <Button type="button" variant="primary" onClick={onCreate}>
+          {t('character-profiles.looks.create')}
+        </Button>
+      </header>
+      {loading ? <LoadingState label={t('character-profiles.looks.loading')} /> : null}
+      {error ? <p role="alert" className="character-look-panel__error">{error}</p> : null}
+      {!loading && !error && looks.length === 0 ? (
+        <EmptyState title={t('character-profiles.looks.empty')} />
+      ) : null}
+      {looks.length ? (
+        <div className="character-look-panel__grid">
+          {looks.map(look => (
+            <article key={look.id} className="character-look-panel__card">
+              <div>
+                <small>{t('character-profiles.looks.version', {
+                  version: look.versions.find(version => version.id === look.activeVersionId)?.versionNumber || 1
+                })}</small>
+                <h3>{look.name}</h3>
+                {look.description ? <p>{look.description}</p> : null}
+              </div>
+              <span className={`character-look-panel__status is-${look.lifecycleStatus}`}>
+                {t(`character-profiles.looks.status.${look.lifecycleStatus}`)}
+              </span>
+              <p className="character-look-panel__readiness">
+                {look.approvedVersionId
+                  ? t('character-profiles.looks.ready')
+                  : t('character-profiles.looks.needsReview')}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
 type CharacterVisibility = 'private' | 'unlisted' | 'public';

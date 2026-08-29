@@ -28,7 +28,15 @@
     },
     {
       "id": "create",
-      "patterns": ["/create/:workflow", "/create/studio/:workflow", "/studio", "/studio/:workflow"],
+      "patterns": [
+        "/create/:workflow",
+        "/create/cinematic/new",
+        "/create/studio/:workflow",
+        "/create/cinematic/:projectId/:stage",
+        "/create/cinematic/:projectId/shot/:shotId",
+        "/studio",
+        "/studio/:workflow"
+      ],
       "runtime": "react",
       "enabled": true
     },

@@ -1,7 +1,10 @@
 # Cinematic Character Look Pack And Cast Readiness
 
-**Status:** Specified; awaiting implementation instruction. The current Cast
-picker and Wardrobe mockup do not satisfy this contract
+**Status:** MVP source-readiness vertical slice implemented on 2026-08-27.
+Project/Cast picker corrections, private Character Look source drafts,
+three-view review/approval domain contracts, owner library presentation and
+immutable Cinematic binding are implemented. Customer-paid three-view Look
+generation remains qualification-gated and is not exposed
 **Owner:** Character Profiles for reusable Character identity and Look versions;
 Cinematic Studio for Project Cast assignment and Scene continuity
 **Primary role:** Product And Requirement Architect
@@ -79,6 +82,37 @@ showing the approved outfit consistently across all three views. It is a
 professional non-sexualized continuity reference, not a fashion pose,
 expression sheet or replacement identity.
 
+#### 3.2.1 Compact Character Look Sheet
+
+The canonical storage form may be one high-resolution Character Look Sheet
+rather than three duplicated source files. The provider-neutral sheet contains:
+
+- one complete neutral front view;
+- one exact side view;
+- one complete back view;
+- one canonical neutral face crop linked to the Character identity authority;
+- no more than two bounded garment-detail regions when construction cannot be
+  read from the full-body views; and
+- no text, measurements, prop catalog, decorative scene, logos, expression
+  matrix or repeated fashion poses in the machine-authority image.
+
+The three body views use the same Character, Look, scale, camera, illumination
+and neutral A-pose. A T-pose is prohibited because it can leak into Scene
+composition. Expression variants remain Scene direction, not Look authority.
+
+The Look Version stores one Sheet Asset plus a versioned normalized crop
+manifest for `front`, `side`, `back`, `face` and optional `detail` regions.
+Presentation or provider derivatives are generated from that source on demand.
+They are cacheable, replaceable derivatives and are not additional durable Look
+authorities. A legacy Version with three independent approved view Assets
+remains valid.
+
+The complete sheet is for human review and compact storage. Reference
+Processing selects only the relevant region(s) for a Scene generation request;
+it must not send the complete multi-view canvas when the selected provider can
+accept individual derived references. The approved Storyboard/Scene image then
+becomes the primary first-frame authority for Video generation.
+
 ### 3.3 Project Cast Look Binding
 
 Cinematic stores a binding, not a copied Look:
@@ -113,6 +147,19 @@ Character Look workflow without navigating away from the Project context:
 
 Closing or cancelling returns to Cast without changing the active Look.
 
+`Create Character Look` is one shared Character Profile-owned dialog with two
+entry modes:
+
+- **AI Suggestion:** create a story-aligned wardrobe proposal, obtain explicit
+  estimate/consent for any generated media, then prepare and review the compact
+  Character Look Sheet;
+- **Upload Wardrobe:** upload a full-look garment source or a complete Character
+  Look Sheet prepared outside Momelo.
+
+Both modes converge on the same Look draft, review, approval, versioning and
+Cinematic binding contracts. Cinematic does not own a second dialog, upload
+format, repository or generation path.
+
 ### 4.2 Character entry point
 
 The Character Profile owner view adds a `Looks / Wardrobe` section using the
@@ -140,9 +187,16 @@ is never required to use that Character in the owner's Project.
 - **Upload outfit:** attach owned garment images to this Character.
 - **AI wardrobe proposal:** generate or analyze a proposal, then explicitly
   apply it before Look generation.
+- **Uploaded Character Look Sheet:** attach one owner-authorized sheet that
+  already satisfies the compact layout and approve it without AI generation.
 
 Upload and selection are free. Image analysis, outfit proposal generation and
 three-view Look generation are separate quoted operations.
+
+An uploaded Character Look Sheet does not consume Credits merely to become a
+Look Version. The user reviews the sheet, confirms rights and layout coverage,
+and explicitly approves it. Automatic analysis, repair, background cleanup or
+regeneration is a separate optional quoted operation.
 
 ### 5.2 Garment completeness
 
@@ -173,6 +227,24 @@ identity_ready
 
 An unapproved attempt may be previewed but cannot become the Storyboard or
 Produce wardrobe authority.
+
+### 5.4 Sheet validation and crop manifest
+
+The upload path accepts one image Asset and records a normalized crop manifest:
+
+```text
+layoutVersion: character-look-sheet-v1
+regions.front: { x, y, width, height }
+regions.side:  { x, y, width, height }
+regions.back:  { x, y, width, height }
+regions.face:  { x, y, width, height } optional when canonical face remains separate
+```
+
+Coordinates are normalized from `0` through `1`, must stay within the image,
+and may not be empty. MVP may apply the standard `character-look-sheet-v1`
+layout automatically. A later visual crop editor may override these regions
+without changing the source Asset. Sheet review requires front, side and back
+coverage, an ownership declaration and explicit approval.
 
 ## 6. Versioning And Continuity
 
@@ -332,12 +404,14 @@ it does not write Character storage or invent a second Look aggregate.
    readiness presentation.
 6. Implement upload/existing/default Look draft creation through Assets and
    Character Profiles.
-7. Add quoted three-view Look generation through Reference Processing,
+7. Add the free single-sheet upload, crop-manifest review and explicit approval
+   path while retaining compatibility with independent three-view Assets.
+8. Add quoted three-view Look generation through Reference Processing,
    Generation and Credits.
-8. Add immutable approval/versioning, Character `Looks / Wardrobe` management
+9. Add immutable approval/versioning, Character `Looks / Wardrobe` management
    and Cinematic binding.
-9. Add stale propagation, retirement/revocation and Admin/Support projections.
-10. Run automated regression and manual responsive/theme/actor/financial media
+10. Add stale propagation, retirement/revocation and Admin/Support projections.
+11. Run automated regression and manual responsive/theme/actor/financial media
     qualification gates before enabling paid customer routing.
 
 ## 13. Acceptance Criteria
@@ -365,11 +439,17 @@ it does not write Character storage or invent a second Look aggregate.
   workflow.
 - `CLP-11`: Project titles and localized Stage labels render completely enough
   to identify the Project; raw translation keys never appear.
-- `CLP-12`: upload and assignment are free; every generated or analyzed output
+- `CLP-12`: an owner can upload one complete Character Look Sheet, review and
+  approve it without a Generation Job or Credit charge.
+- `CLP-13`: one approved Sheet Asset plus its validated crop manifest satisfies
+  Look readiness while existing independent three-view Versions remain valid.
+- `CLP-14`: AI Suggestion and Upload Wardrobe invoke the same Character
+  Profile-owned dialog and lifecycle rather than parallel Cinematic workflows.
+- `CLP-15`: upload and assignment are free; every generated or analyzed output
   follows exact quote, reservation and terminal settlement contracts.
-- `CLP-13`: private identity and garment sources never leak through Cinematic,
+- `CLP-16`: private identity and garment sources never leak through Cinematic,
   Community or another actor's Look response.
-- `CLP-14`: existing Character Profile, Scene Builder, Fashion, image
+- `CLP-17`: existing Character Profile, Scene Builder, Fashion, image
   Generation, Credits and Community tests remain green.
 
 ## 14. Manual Qualification
@@ -402,3 +482,87 @@ required before enabling customer-paid Look generation.
 
 For MVP, the canonical face plus approved three-view identity, approved Look
 Version and per-Shot Storyboard remain the minimum continuity authorities.
+
+## 16. Implementation Checkpoint - 2026-08-27
+
+### 16.1 Implemented
+
+- Project cards use valid Stage localization keys, expose the complete Project
+  title and allow two readable title lines.
+- The Cast picker uses one empty-state action, face-first authorized media,
+  amber selected state, explicit async states, bounded cursor pagination and a
+  fixed confirmation footer.
+- selected Cast assignments persist an authorized face-led `portraitUrl` and
+  preserve it across dossier-only updates.
+- Character Profiles own `CharacterLookService`, `CharacterLookRepository` and
+  `server/data/character-profiles/looks.json`.
+- an owner or authorized Character user can create an account-private,
+  source-ready Look draft from owned garment Assets without publishing or
+  consuming Credits.
+- Look review requires owned front, side and back Assets; approval creates an
+  immutable approved version and supersedes the prior approved version.
+- resolving a Look for Cinematic reauthorizes the exact pinned Character
+  Profile Version rather than inferring a newer version.
+- owner Character Details exposes one `Looks / Wardrobe` section using the same
+  Character Profile API and draft component as Cinematic Cast.
+- Cinematic binds only an approved Look Version and snapshots the approved
+  view Asset IDs/hashes. Rebinding the same Project Look invalidates only Shots
+  that name that Cinematic Look binding.
+- private Look list/read/mutation remains actor-scoped. Cinematic receives
+  authorized IDs and presentation data, not raw face or garment bytes.
+
+### 16.2 Production gates still closed
+
+- the app does not yet quote, reserve Credits or dispatch a generated
+  three-view Look attempt;
+- no provider/model is qualified yet for customer-paid Character Look
+  composition and identity/wardrobe continuity;
+- the current safe UI creates source-ready drafts. A complete review set can be
+  approved through the Character Look application contract, while generated
+  review UI remains disabled until the exact quote/reference-plan workflow is
+  implemented;
+- rename, successor-version authoring, retirement UI, Scene-specific binding,
+  revocation propagation and Admin/Support projections remain follow-up work;
+- full responsive/theme/provider visual qualification in Section 14 remains a
+  manual release gate.
+
+### 16.3 Automated evidence
+
+- `node --test test/characterLookService.test.js test/cinematicApplicationService.test.js`
+- `npm.cmd run typecheck:web`
+- `npm.cmd run test --workspace web -- src/features/profiles/routes/CharacterProfileRoute.test.tsx src/features/cinematic/components/CharacterPickerDialog.test.tsx src/features/cinematic/components/CinematicUxPrototype.test.tsx`
+
+The checkpoint is a **conditional pass**, not Requirement closure. `CLP-07`,
+`CLP-08`, `CLP-10`, `CLP-11` and the source-draft/pinning portions of
+`CLP-01`, `CLP-02`, `CLP-03`, `CLP-06`, `CLP-13`, and `CLP-14` have automated
+evidence. Paid generation, full reuse, Scene-level stale propagation and manual
+media qualification remain open.
+
+### 16.4 Cast selection persistence regression - 2026-08-29
+
+- `Use selected Character` must await the Cast mutation and close the picker
+  only after the server returns the updated Project.
+- Cast creation is serialized through the Project workspace mutation lane and
+  uses `projectVersionRef` as the current optimistic-lock authority. The Cast
+  stage must not submit a captured `project.version` while Setup or Stage
+  persistence can advance the Project version.
+- while saving, confirmation and close actions are disabled and a visible
+  saving label prevents duplicate submission.
+- failed persistence keeps the picker open and exposes the sanitized API error;
+  it must never imply that an unpersisted Character was added.
+- successful persistence updates the actor-scoped Cinematic Project query and
+  selects the new Cast Assignment immediately.
+- `CharacterPickerDialog.test.tsx` covers pending, success-close and
+  failure-stays-open behavior. The targeted Cinematic UI suite passes 20 tests.
+
+### 16.5 Cast directory version contract regression - 2026-08-29
+
+- every owner Character directory item exposes the active
+  `characterProfileVersionId` used to calculate `handoffAvailable`; detail and
+  directory responses must identify the same pinned version;
+- Cinematic offers a Character only when both `handoffAvailable` is true and a
+  non-empty `characterProfileVersionId` is present;
+- an incomplete compatibility record remains hidden instead of allowing a
+  selection that can only fail during Cast persistence;
+- lifecycle and picker regression tests cover the server summary contract and
+  the client eligibility guard.

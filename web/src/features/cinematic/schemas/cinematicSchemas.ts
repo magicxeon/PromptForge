@@ -10,6 +10,18 @@ export const cinematicStageSchema = z.enum([
   'finish'
 ]);
 
+export const cinematicStoryRoleSlotSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1).max(80),
+  importance: z.enum(['required', 'optional']),
+  storyFunction: z.string().max(240),
+  relationshipHint: z.string().max(160),
+  objective: z.string().max(240).optional(),
+  emotionalArc: z.string().max(240).optional(),
+  personalityTraits: z.array(z.string().max(80)).max(6).optional(),
+  performanceDirection: z.string().max(320).optional()
+});
+
 export const cinematicSetupDraftSchema = z.object({
   clientDraftId: z.string().min(1),
   projectName: z.string().max(120),
@@ -23,11 +35,30 @@ export const cinematicSetupDraftSchema = z.object({
   pacing: z.enum(['slow', 'balanced', 'fast']),
   endingIntent: z.enum(['resolved', 'hopeful', 'twist', 'cliffhanger']),
   mode: z.enum(['simple', 'advanced']),
+  castPlanningMode: z.enum(['ai-recommended', 'solo', 'duo', 'manual']).default('ai-recommended'),
+  storyRoleSlots: z.array(cinematicStoryRoleSlotSchema).max(4).default([]),
   activeStage: cinematicStageSchema,
   updatedAt: z.string()
 });
 
 export type CinematicSetupDraft = z.infer<typeof cinematicSetupDraftSchema>;
+
+export const cinematicStoryEnhancementSchema = z.object({
+  enhancementId: z.string().min(1),
+  enhancedStoryBrief: z.string().min(1).max(600),
+  creativeDirection: z.string().max(800),
+  premise: z.string(),
+  conflict: z.string(),
+  emotionalArc: z.string(),
+  ending: z.string(),
+  candidateScenes: z.array(z.string()).max(5),
+  recommendedRoles: z.array(cinematicStoryRoleSlotSchema).min(1).max(4),
+  warnings: z.array(z.string()),
+  provenance: z.object({ provider: z.string(), model: z.string(), responseId: z.string().nullable() }),
+  billingStatus: z.literal('qualification_no_charge')
+});
+
+export type CinematicStoryEnhancement = z.infer<typeof cinematicStoryEnhancementSchema>;
 
 export const cinematicVideoCapabilitySchema = z.object({
   providerId: z.string().min(1),
@@ -85,8 +116,10 @@ export const cinematicCastAssignmentSchema = z.object({
   id: z.string().min(1),
   characterProfileId: z.string().min(1),
   characterProfileVersionId: z.string().min(1),
+  portraitUrl: z.string().nullable().optional(),
   displayName: z.string().min(1),
   storyRole: z.string(),
+  storyRoleSlotId: z.string().nullable().optional(),
   storyImportance: z.enum(['protagonist', 'supporting']),
   objective: z.string(),
   motivation: z.string(),
@@ -96,6 +129,14 @@ export const cinematicCastAssignmentSchema = z.object({
   dialogueStyle: z.string(),
   performanceDirection: z.string(),
   identityReady: z.boolean(),
+  identityReadinessSnapshot: z.object({
+    status: z.string(),
+    ageRange: z.unknown().nullable().optional(),
+    presentationGender: z.unknown().nullable().optional(),
+    characterType: z.string().optional(),
+    outfitBehavior: z.string().optional(),
+    identityPolicyVersion: z.string().optional()
+  }).nullable().optional(),
   apparentAgeRange: z.unknown().nullable(),
   looks: z.array(z.unknown()),
   active: z.boolean(),
@@ -183,7 +224,9 @@ export const cinematicProjectSchema = z.object({
     audienceFeeling: cinematicSetupDraftSchema.shape.audienceFeeling,
     pacing: cinematicSetupDraftSchema.shape.pacing,
     endingIntent: cinematicSetupDraftSchema.shape.endingIntent,
-    mode: cinematicSetupDraftSchema.shape.mode
+    mode: cinematicSetupDraftSchema.shape.mode,
+    castPlanningMode: cinematicSetupDraftSchema.shape.castPlanningMode,
+    storyRoleSlots: cinematicSetupDraftSchema.shape.storyRoleSlots
   }),
   storySourceVersions: z.array(z.unknown()),
   activeStorySourceVersionId: z.string().min(1),

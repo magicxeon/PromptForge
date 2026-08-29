@@ -8,7 +8,7 @@ import {
   type CinematicSetupDraft
 } from '../schemas/cinematicSchemas';
 
-export const CINEMATIC_DRAFT_SCHEMA_VERSION = 2;
+export const CINEMATIC_DRAFT_SCHEMA_VERSION = 3;
 
 export function createCinematicSetupDraft(now = new Date()): CinematicSetupDraft {
   return {
@@ -24,6 +24,8 @@ export function createCinematicSetupDraft(now = new Date()): CinematicSetupDraft
     pacing: 'balanced',
     endingIntent: 'resolved',
     mode: 'simple',
+    castPlanningMode: 'ai-recommended',
+    storyRoleSlots: [],
     activeStage: 'setup',
     updatedAt: now.toISOString()
   };
@@ -52,4 +54,32 @@ export function writeCinematicSetupDraft(actorId: string, draft: CinematicSetupD
 
 export function removeCinematicSetupDraft(actorId: string) {
   removeActorScopedDraft(actorId, 'cinematic-project:new');
+}
+
+export function readCinematicSetupRecoveryDraft(actorId: string, projectId: string) {
+  const value = readActorScopedDraft<unknown>({
+    actorId,
+    feature: recoveryFeature(projectId),
+    schemaVersion: CINEMATIC_DRAFT_SCHEMA_VERSION,
+    fallback: null
+  });
+  const parsed = cinematicSetupDraftSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+export function writeCinematicSetupRecoveryDraft(actorId: string, projectId: string, draft: CinematicSetupDraft) {
+  writeActorScopedDraft({
+    actorId,
+    feature: recoveryFeature(projectId),
+    schemaVersion: CINEMATIC_DRAFT_SCHEMA_VERSION,
+    payload: cinematicSetupDraftSchema.parse(draft)
+  });
+}
+
+export function removeCinematicSetupRecoveryDraft(actorId: string, projectId: string) {
+  removeActorScopedDraft(actorId, recoveryFeature(projectId));
+}
+
+function recoveryFeature(projectId: string) {
+  return `cinematic-project:${projectId}:setup-recovery`;
 }

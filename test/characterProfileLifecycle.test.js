@@ -205,6 +205,9 @@ test('Styled Character lifecycle stays outfit-bound and Scene-only', async t => 
     consentDeclarationVersion: 'character-rights-v1'
   }, actor);
   const approved = await service.getOwnerDetail(created.id, actor);
+  const directory = await service.listOwn({}, actor);
   assert.equal(approved.status, 'approved');
   assert.equal(approved.versions[0].status, 'approved');
+  assert.equal(directory.items[0].handoffAvailable, true);
+  assert.equal(directory.items[0].characterProfileVersionId, approved.activeVersionId);
 });

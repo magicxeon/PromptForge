@@ -1,0 +1,52 @@
+[
+  {
+    "characterProfileId": "charprof_1786762030645_bi3091e5",
+    "sourceCharacterProfileVersionId": "charver_1786762030649_qd0i06j2",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "ชุดทำงาน",
+    "description": "",
+    "tags": [],
+    "idempotencyKey": "character-look:charprof_1786762030645_bi3091e5:53be8c50-b8d6-44a3-a76f-8170624360ea",
+    "lifecycleStatus": "draft",
+    "activeVersionId": "charlookver_1788008928460_3qv8lqas",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788008928460_3qv8lqas",
+        "versionNumber": 1,
+        "sourceMode": "uploaded",
+        "garmentAuthorities": {
+          "full_look": {
+            "front": "ast_1788008928405_9jz88fwz"
+          }
+        },
+        "authoritySnapshot": [
+          {
+            "id": "ast_1788008928405_9jz88fwz",
+            "assetType": "generation_reference",
+            "contentHash": null
+          }
+        ],
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "status": "source_ready",
+        "approvedViewAssets": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-29T13:08:48.455Z",
+        "updatedAt": "2026-08-29T13:08:48.455Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788008928460_8beecjok",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-29T13:08:48.455Z",
+    "updatedAt": "2026-08-29T13:08:48.455Z",
+    "deletedAt": null,
+    "metadata": {}
+  }
+]

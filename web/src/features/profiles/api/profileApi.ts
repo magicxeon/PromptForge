@@ -8,6 +8,8 @@ import {
   characterWorksSchema,
   characterFeaturedImageCandidatesSchema,
   characterFeaturedImageUpdateSchema,
+  characterLookSchema,
+  characterLooksResponseSchema,
   creatorPageSchema,
   followResponseSchema
 } from '../schemas/profileSchemas';
@@ -32,7 +34,7 @@ export function setCreatorFollow(profileId: string, active: boolean) {
 
 export function listCharacters(filters: Record<string, string>) {
   const query = new URLSearchParams(filters);
-  query.set('limit', '24');
+  if (!query.has('limit')) query.set('limit', '24');
   return apiRequest(`/api/community/characters?${query}`, { schema: characterDirectorySchema });
 }
 
@@ -48,12 +50,65 @@ export function getOwnedCharacter(characterId: string) {
   });
 }
 
-export function listOwnedCharacters(cursor?: string | null) {
-  const query = new URLSearchParams({ limit: '24' });
+export function listOwnedCharacters(cursor?: string | null, filters: Record<string, string> = {}) {
+  const query = new URLSearchParams(filters);
+  if (!query.has('limit')) query.set('limit', '24');
   if (cursor) query.set('cursor', cursor);
   return apiRequest(`/api/character-profiles?${query}`, {
     schema: characterDirectorySchema
   });
+}
+
+export function listCharacterLooks(characterProfileId: string, characterProfileVersionId: string) {
+  const query = new URLSearchParams({ characterProfileVersionId });
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks?${query}`, {
+    schema: characterLooksResponseSchema
+  });
+}
+
+export function createCharacterLookDraft(characterProfileId: string, input: {
+  characterProfileVersionId: string;
+  name: string;
+  description?: string;
+  sourceMode: 'character_default' | 'uploaded' | 'uploaded_character_sheet' | 'ai_suggestion';
+  garmentAuthorities?: Record<string, Record<string, string>>;
+  sourceSheetAssetId?: string | null;
+  idempotencyKey: string;
+}) {
+  return apiRequest(`/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks`, {
+    method: 'POST', body: input, schema: characterLookSchema
+  });
+}
+
+export function reviewCharacterLookVersion(
+  characterProfileId: string,
+  lookId: string,
+  versionId: string,
+  input: {
+    viewAssetIds?: Record<string, string>;
+    sheetAssetId?: string;
+    cropManifest?: {
+      layoutVersion: string;
+      regions: Record<string, { x: number; y: number; width: number; height: number }>;
+    };
+    rightsDeclarationAccepted?: boolean;
+  }
+) {
+  return apiRequest(
+    `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/review`,
+    { method: 'POST', body: input, schema: characterLookSchema }
+  );
+}
+
+export function approveCharacterLookVersion(
+  characterProfileId: string,
+  lookId: string,
+  versionId: string
+) {
+  return apiRequest(
+    `/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks/${encodeURIComponent(lookId)}/versions/${encodeURIComponent(versionId)}/approve`,
+    { method: 'POST', schema: characterLookSchema }
+  );
 }
 
 export function createCharacterProfile(input: {

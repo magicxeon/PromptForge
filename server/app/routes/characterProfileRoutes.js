@@ -9,6 +9,7 @@ function sendError(res, error) {
 
 export function registerCharacterProfileRoutes(app, {
   profileService,
+  lookService,
   castingExportService,
   sharingService,
   communityFeaturePolicyService
@@ -85,6 +86,50 @@ export function registerCharacterProfileRoutes(app, {
     try {
       const detail = await profileService.getOwnerDetail(req.params.id, req.actorContext);
       return res.json({ items: detail.versions });
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.get('/api/character-profiles/:id/looks', async (req, res) => {
+    try {
+      return res.json(await lookService.list(req.params.id, req.query, req.actorContext));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.post('/api/character-profiles/:id/looks', async (req, res) => {
+    try {
+      return res.status(201).json(await lookService.createDraft(req.params.id, req.body, req.actorContext));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.post('/api/character-profiles/:id/looks/:lookId/versions/:versionId/review', async (req, res) => {
+    try {
+      return res.json(await lookService.attachReview(
+        req.params.id, req.params.lookId, req.params.versionId, req.body, req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.post('/api/character-profiles/:id/looks/:lookId/versions/:versionId/approve', async (req, res) => {
+    try {
+      return res.json(await lookService.approve(
+        req.params.id, req.params.lookId, req.params.versionId, req.actorContext
+      ));
+    } catch (error) {
+      return sendError(res, error);
+    }
+  });
+
+  app.post('/api/character-profiles/:id/looks/:lookId/retire', async (req, res) => {
+    try {
+      return res.json(await lookService.retire(req.params.id, req.params.lookId, req.actorContext));
     } catch (error) {
       return sendError(res, error);
     }

@@ -99,6 +99,48 @@ export const characterFeaturedImageUpdateSchema = z.object({
   featuredWorkPostId: z.string().nullable()
 });
 
+export const characterLookVersionSchema = z.object({
+  id: z.string(),
+  versionNumber: z.number(),
+  sourceMode: z.enum(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']),
+  sourceSheetAssetId: z.string().nullable().optional(),
+  garmentAuthorities: z.record(z.string(), z.record(z.string(), z.string())).default({}),
+  canonicalFaceAssetId: z.string().nullable(),
+  status: z.enum(['source_ready', 'review', 'approved', 'superseded', 'retired']),
+  approvedViewAssets: z.record(z.string(), z.unknown()).nullable(),
+  approvedSheetAsset: z.object({ assetId: z.string(), contentHash: z.string().nullable() }).nullable().optional(),
+  cropManifest: z.object({
+    layoutVersion: z.string(),
+    regions: z.record(z.string(), z.object({
+      x: z.number(), y: z.number(), width: z.number(), height: z.number()
+    }))
+  }).nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  approvedAt: z.string().nullable()
+}).passthrough();
+
+export const characterLookSchema = z.object({
+  id: z.string(),
+  characterProfileId: z.string(),
+  sourceCharacterProfileVersionId: z.string(),
+  name: z.string(),
+  description: z.string().default(''),
+  tags: z.array(z.string()).default([]),
+  official: z.boolean(),
+  visibility: z.string(),
+  lifecycleStatus: z.enum(['draft', 'review', 'approved', 'retired']),
+  activeVersionId: z.string(),
+  approvedVersionId: z.string().nullable(),
+  versions: z.array(characterLookVersionSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  retiredAt: z.string().nullable()
+}).passthrough();
+
+export const characterLooksResponseSchema = z.object({ items: z.array(characterLookSchema) });
+export type CharacterLook = z.infer<typeof characterLookSchema>;
+
 const profileSchema = z.object({
   id: z.string(),
   handle: z.string(),

@@ -27,6 +27,7 @@ async function fixture(overrides = {}) {
     validateGenerationContext: async context => ({
       ...context,
       displayNameSnapshot: context.characterProfileId,
+      authorizedCharacterFaceReferenceUrl: `/api/character-profiles/${context.characterProfileId}/face`,
       identityPack: {
         status: 'identity_pack_ready', ageRange: { min: 20, max: 29 },
         presentationGender: 'female', characterType: 'reusable_model',
@@ -87,7 +88,8 @@ test('CinematicApplicationService pins Cast versions and keeps one protagonist',
     characterProfileId: 'charprof_a',
     characterProfileVersionId: 'charver_a',
     displayName: 'Mira',
-    storyImportance: 'protagonist'
+    storyImportance: 'protagonist',
+    storyRoleSlotId: 'role_lead'
   }, alice);
   const second = await service.upsertCastAssignment(project.id, {
     expectedVersion: 2,
@@ -100,6 +102,81 @@ test('CinematicApplicationService pins Cast versions and keeps one protagonist',
   assert.equal(second.castAssignments.filter(item => item.storyImportance === 'protagonist').length, 1);
   assert.equal(second.castAssignments.find(item => item.displayName === 'Noah').storyImportance, 'protagonist');
   assert.equal(first.castAssignments[0].characterProfileVersionId, 'charver_a');
+  assert.equal(first.castAssignments[0].storyRoleSlotId, 'role_lead');
+  assert.equal(first.castAssignments[0].portraitUrl, '/api/character-profiles/charprof_a/face');
+  assert.equal(first.castAssignments[0].identityReady, true);
+});
+
+test('CinematicApplicationService reconciles legacy false readiness from its authorized identity snapshot', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_legacy_ready',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    storyRoleSlotId: 'role_lead'
+  }, alice);
+  await service.repository.mutateForActor(project.id, alice, draft => {
+    draft.castAssignments[0].identityReady = false;
+    return draft;
+  });
+
+  const reconciled = await service.getProject(project.id, alice);
+  assert.equal(cast.castAssignments[0].identityReady, true);
+  assert.equal(reconciled.castAssignments[0].identityReady, true);
+});
+
+test('CinematicApplicationService removes only an unused Project Cast Assignment', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({
+    ...setup,
+    castPlanningMode: 'solo',
+    storyRoleSlots: [{ id: 'role_lead', label: 'Lead', importance: 'required', storyFunction: '', relationshipHint: '' }]
+  }, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Mira',
+    storyRole: 'Lead',
+    storyRoleSlotId: 'role_lead'
+  }, alice);
+  const removed = await service.removeCastAssignment(project.id, 'cast_mira', { expectedVersion: cast.version }, alice);
+  assert.equal(removed.castAssignments.length, 0);
+  assert.equal(removed.setup.storyRoleSlots.length, 1);
+  assert.equal(removed.setup.storyRoleSlots[0].id, 'role_lead');
+});
+
+test('CinematicApplicationService blocks Cast removal when Story Plan work references it', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Mira'
+  }, alice);
+  const planned = await service.saveStoryPlan(project.id, {
+    expectedVersion: cast.version,
+    approved: true,
+    scenes: [{
+      id: 'scene_station', title: 'Station', castAssignmentIds: ['cast_mira'],
+      shots: [{ id: 'shot_arrival', title: 'Arrival', durationMs: 2000, castAssignmentIds: ['cast_mira'] }]
+    }]
+  }, alice);
+  await assert.rejects(
+    service.removeCastAssignment(project.id, 'cast_mira', { expectedVersion: planned.version }, alice),
+    error => error.code === 'cinematic_cast_assignment_in_use'
+      && error.statusCode === 409
+      && error.details.sceneIds.includes('scene_station')
+      && error.details.shotIds.includes('shot_arrival')
+  );
 });
 
 test('Setup story edits create an immutable applied Story Source version', async t => {
@@ -117,6 +194,37 @@ test('Setup story edits create an immutable applied Story Source version', async
   assert.equal(updated.storySourceVersions.length, 2);
   assert.equal(updated.storySourceVersions.find(item => item.id === originalSourceId).status, 'superseded');
   assert.equal(updated.storySourceVersions.at(-1).status, 'applied');
+});
+
+test('Setup persists bounded story role slots separately from Cast bindings', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({
+    ...setup,
+    castPlanningMode: 'duo',
+    storyRoleSlots: [
+      {
+        id: 'role_lead', label: 'Lead', importance: 'required', storyFunction: 'Makes the choice', relationshipHint: '',
+        objective: 'Leave before the train arrives', emotionalArc: 'Guarded to hopeful',
+        personalityTraits: ['restrained', 'observant'], performanceDirection: 'Show the decision through breath and gaze.'
+      },
+      { id: 'role_friend', label: 'Friend', importance: 'optional', storyFunction: 'Reveals the truth', relationshipHint: 'Old friend' }
+    ]
+  }, alice);
+  assert.equal(project.setup.storyRoleSlots.length, 2);
+  assert.equal(project.setup.storyRoleSlots[1].importance, 'optional');
+  assert.equal(project.setup.storyRoleSlots[0].objective, 'Leave before the train arrives');
+  assert.deepEqual(project.setup.storyRoleSlots[0].personalityTraits, ['restrained', 'observant']);
+  assert.deepEqual(project.castAssignments, []);
+});
+
+test('Story enhancement delegates through the Generation text boundary', async t => {
+  const storyEnhancementService = { enhance: async input => ({ enhancementId: 'cineenh_1', enhancedStoryBrief: `${input.storyBrief} Enhanced` }) };
+  const { directory, service } = await fixture({ storyEnhancementService });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const result = await service.enhanceStory(setup, alice);
+  assert.equal(result.enhancementId, 'cineenh_1');
+  assert.match(result.enhancedStoryBrief, /Enhanced$/);
 });
 
 test('Wardrobe Looks remain owned by a Cast Assignment and preserve authority snapshots', async t => {
@@ -154,6 +262,46 @@ test('Wardrobe Looks remain owned by a Cast Assignment and preserve authority sn
   }, alice);
   assert.equal(dossierUpdated.castAssignments[0].objective, 'Recover the letter');
   assert.equal(dossierUpdated.castAssignments[0].looks.length, 1);
+  assert.equal(dossierUpdated.castAssignments[0].portraitUrl, '/api/character-profiles/charprof_a/face');
+});
+
+test('Cinematic Cast binds an immutable approved Character Look version', async t => {
+  const lookService = {
+    resolveApprovedVersion: async () => ({
+      look: { id: 'charlook_arrival', name: 'Arrival Look' },
+      version: {
+        id: 'charlookver_arrival_1',
+        approvedViewAssets: {
+          front: { assetId: 'ast_front', contentHash: 'hash_front' },
+          side: { assetId: 'ast_side', contentHash: 'hash_side' },
+          back: { assetId: 'ast_back', contentHash: 'hash_back' }
+        }
+      }
+    })
+  };
+  const { directory, service } = await fixture({ lookService });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Mira'
+  }, alice);
+  const bound = await service.upsertWardrobeLook(project.id, 'cast_mira', {
+    expectedVersion: cast.version,
+    lookId: 'cinelook_arrival',
+    name: 'Arrival Look',
+    mode: 'character_look',
+    characterLookId: 'charlook_arrival',
+    characterLookVersionId: 'charlookver_arrival_1',
+    coverage: 'multi_view'
+  }, alice);
+  const look = bound.castAssignments[0].looks[0];
+  assert.equal(look.characterLookId, 'charlook_arrival');
+  assert.equal(look.characterLookVersionId, 'charlookver_arrival_1');
+  assert.deepEqual(look.assetIds, ['ast_front', 'ast_side', 'ast_back']);
 });
 
 test('CinematicApplicationService validates Setup and pinned Character requirements', async t => {

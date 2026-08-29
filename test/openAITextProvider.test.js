@@ -75,3 +75,46 @@ test('OpenAI text provider localizes Attribute labels with a strict locale schem
   assert.deepEqual(result.translations, { th: 'เสื้อโค้ตเอดิทอเรียล' });
   assert.equal(result.responseId, 'resp_locale');
 });
+
+
+test('OpenAI text provider requests a bounded Cinematic story and role plan', async () => {
+  let request = null;
+  const provider = new OpenAITextProvider('test-key', {
+    endpoint: 'https://example.test/responses',
+    fetchImpl: async (_url, options) => {
+      request = JSON.parse(options.body);
+      return {
+        ok: true,
+        headers: { get: () => 'req_cinematic' },
+        json: async () => ({
+          id: 'resp_cinematic',
+          output_text: JSON.stringify({
+            enhancedStoryBrief: 'Two people make a final choice before the train leaves.',
+            creativeDirection: 'Restrained visual drama.',
+            premise: 'A last meeting', conflict: 'Time is running out',
+            emotionalArc: 'Guarded to hopeful', ending: 'They board together',
+            candidateScenes: ['Empty platform', 'Train arrival'],
+            recommendedRoles: [{
+              label: 'Lead', importance: 'required', storyFunction: 'Makes the decision', relationshipHint: 'Former partner',
+              objective: 'Choose whether to leave', emotionalArc: 'Guarded to hopeful',
+              personalityTraits: ['observant', 'restrained'], performanceDirection: 'Keep tension in the eyes and breath.'
+            }],
+            warnings: []
+          })
+        })
+      };
+    }
+  });
+
+  const result = await provider.enhanceCinematicStory({
+    story: { storyBrief: 'Two people meet at a station.', durationSeconds: 30 },
+    model: 'gpt-5.6-luna', reasoningEffort: 'low', maxOutputTokens: 1_200, timeoutMs: 1_000
+  });
+
+  assert.equal(request.store, false);
+  assert.equal(request.text.format.name, 'momelo_cinematic_story_enhancement');
+  assert.equal(request.text.format.schema.properties.recommendedRoles.maxItems, 4);
+  assert.equal(request.text.format.schema.properties.recommendedRoles.items.properties.personalityTraits.maxItems, 6);
+  assert.match(request.instructions, /off-screen notification sender/);
+  assert.equal(result.recommendedRoles[0].label, 'Lead');
+});

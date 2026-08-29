@@ -1,5 +1,5 @@
-import { Clapperboard, Plus, Save, Sparkles } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Clapperboard, Plus } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -12,14 +12,19 @@ import { useFeaturePolicy } from '../../../lib/permissions/FeaturePolicyProvider
 import { CinematicStageRail } from '../components/CinematicStageRail';
 import { cinematicStages } from '../cinematicStages';
 import { CinematicStageContent } from '../components/CinematicStageContent';
+import { CinematicWorkspaceHeader } from '../components/CinematicWorkspaceHeader';
+import { CinematicSetupForm } from '../components/CinematicSetupForm';
 import { ProjectCostSummary } from '../components/ProjectCostSummary';
 import { StoryEnhanceDialog } from '../components/CinematicDialogs';
 import { cinematicStageSchema } from '../schemas/cinematicSchemas';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import {
   createCinematicSetupDraft,
+  readCinematicSetupRecoveryDraft,
   readCinematicSetupDraft,
+  removeCinematicSetupRecoveryDraft,
   removeCinematicSetupDraft,
+  writeCinematicSetupRecoveryDraft,
   writeCinematicSetupDraft
 } from '../state/cinematicDraftStorage';
 import {
@@ -27,7 +32,9 @@ import {
   getCinematicProject,
   listCinematicProjects,
   updateCinematicSetup,
-  updateCinematicStage
+  updateCinematicStage,
+  upsertCinematicCast,
+  removeCinematicCast
 } from '../api/cinematicApi';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
 
@@ -92,7 +99,7 @@ function CinematicProjectList({ actorId }: { actorId: string }) {
       {projects.data?.items.length ? <div className="cinematic-project-grid">
         {projects.data.items.map(project => <Link key={project.projectId} to={routeBuilders.cinematicProject(project.projectId, project.activeStage)} className="cinematic-project-card">
           <Clapperboard aria-hidden="true" />
-          <div><strong>{project.title}</strong><span>{t(`cinematic.stage.${project.activeStage}.title`)}</span></div>
+          <div><strong title={project.title}>{project.title}</strong><span>{t(`cinematic.stages.${project.activeStage}`)}</span></div>
           <small>{project.durationSeconds}s</small>
         </Link>)}
       </div> : null}
@@ -123,13 +130,16 @@ function CinematicWorkspace({
   const { t } = useTranslation('cinematic');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const initialDraft = useMemo(() => project ? projectToDraft(project) : readCinematicSetupDraft(actorId), [actorId, project]);
+  const initialDraft = useMemo(() => resolveInitialDraft(actorId, project), [actorId, project]);
   const [draft, setDraft] = useState<CinematicSetupDraft>(initialDraft);
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'offline' | 'failed'>('idle');
+  const [saveError, setSaveError] = useState<Error | null>(null);
+  const [online, setOnline] = useState(() => typeof navigator === 'undefined' || navigator.onLine);
   const [enhanceOpen, setEnhanceOpen] = useState(false);
+  const [enhancePurpose, setEnhancePurpose] = useState<'story' | 'roles'>('story');
   const projectVersionRef = useRef(project?.version ?? 0);
   const mutationChainRef = useRef<Promise<void>>(Promise.resolve());
-  const lastSavedSetupRef = useRef(project ? serializeSetup(initialDraft) : '');
+  const lastSavedSetupRef = useRef(project ? serializeSetup(projectToDraft(project)) : '');
   const requestedStageResult = cinematicStageSchema.safeParse(requestedStage);
   const activeStage = requestedStageResult.success ? requestedStageResult.data : draft.activeStage;
 
@@ -143,19 +153,47 @@ function CinematicWorkspace({
   });
 
   useEffect(() => {
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
     if (project) return;
     setSaveState('saving');
     const timer = window.setTimeout(() => {
-      writeCinematicSetupDraft(actorId, draft);
-      setSaveState('saved');
+      try {
+        writeCinematicSetupDraft(actorId, draft);
+        setSaveError(null);
+        setSaveState(online ? 'saved' : 'offline');
+      } catch (reason) {
+        setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.status.saveFailed')));
+        setSaveState('failed');
+      }
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [actorId, draft, project]);
+  }, [actorId, draft, online, project, t]);
 
   useEffect(() => {
     if (!project) return;
     const serialized = serializeSetup(draft);
     if (serialized === lastSavedSetupRef.current) return;
+    if (!online) {
+      try {
+        writeCinematicSetupRecoveryDraft(actorId, project.id, draft);
+        setSaveError(null);
+        setSaveState('offline');
+      } catch (reason) {
+        setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.status.saveFailed')));
+        setSaveState('failed');
+      }
+      return;
+    }
     setSaveState('saving');
     const timer = window.setTimeout(async () => {
       try {
@@ -165,15 +203,17 @@ function CinematicWorkspace({
         projectVersionRef.current = saved.version;
         lastSavedSetupRef.current = serialized;
         queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+        removeCinematicSetupRecoveryDraft(actorId, project.id);
+        setSaveError(null);
         setSaveState('saved');
-      } catch {
-        setSaveState('idle');
+      } catch (reason) {
+        writeCinematicSetupRecoveryDraft(actorId, project.id, draft);
+        setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.status.saveFailed')));
+        setSaveState('failed');
       }
     }, 600);
     return () => window.clearTimeout(timer);
-  }, [actorId, draft, project, queryClient]);
-
-  const storyLength = useMemo(() => draft.storyBrief.length, [draft.storyBrief]);
+  }, [actorId, draft, online, project, queryClient, t]);
 
   function enqueueProjectMutation(operation: () => Promise<CinematicProject>) {
     const result = mutationChainRef.current.then(operation, operation);
@@ -183,6 +223,55 @@ function CinematicWorkspace({
 
   function update<K extends keyof CinematicSetupDraft>(key: K, value: CinematicSetupDraft[K]) {
     setDraft(current => ({ ...current, [key]: value, updatedAt: new Date().toISOString() }));
+  }
+
+  function changeCastPlanningMode(mode: CinematicSetupDraft['castPlanningMode']) {
+    const roles = mode === 'solo'
+      ? [createRoleSlot('lead', t('cinematic.cast.lead'))]
+      : mode === 'duo'
+        ? [createRoleSlot('lead', t('cinematic.cast.lead')), createRoleSlot('second', t('cinematic.setup.secondCharacter'))]
+        : mode === 'manual' ? (draft.storyRoleSlots.length ? draft.storyRoleSlots : [createRoleSlot('manual-1', t('cinematic.cast.lead'))]) : [];
+    setDraft(current => ({ ...current, castPlanningMode: mode, storyRoleSlots: roles, updatedAt: new Date().toISOString() }));
+    if (mode === 'ai-recommended' && draft.storyBrief.trim()) {
+      setEnhancePurpose('roles');
+      setEnhanceOpen(true);
+    }
+  }
+
+  function setManualRoleCount(count: number) {
+    const boundedCount = Math.max(1, Math.min(4, count));
+    setDraft(current => {
+      const roles = current.storyRoleSlots.slice(0, boundedCount);
+      while (roles.length < boundedCount) {
+        const number = roles.length + 1;
+        roles.push(createRoleSlot(`manual-${number}`, number === 1 ? t('cinematic.cast.lead') : `${t('cinematic.setup.role')} ${number}`));
+      }
+      return { ...current, castPlanningMode: 'manual', storyRoleSlots: roles, updatedAt: new Date().toISOString() };
+    });
+  }
+
+  function addRoleSlot() {
+    setDraft(current => ({
+      ...current,
+      storyRoleSlots: [...current.storyRoleSlots, createRoleSlot(`custom-${current.storyRoleSlots.length + 1}`, `${t('cinematic.setup.role')} ${current.storyRoleSlots.length + 1}`)],
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
+  function updateRoleSlot(index: number, patch: Partial<CinematicSetupDraft['storyRoleSlots'][number]>) {
+    setDraft(current => ({
+      ...current,
+      storyRoleSlots: current.storyRoleSlots.map((role, roleIndex) => roleIndex === index ? { ...role, ...patch } : role),
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
+  function removeRoleSlot(index: number) {
+    setDraft(current => ({
+      ...current,
+      storyRoleSlots: current.storyRoleSlots.filter((_, roleIndex) => roleIndex !== index),
+      updatedAt: new Date().toISOString()
+    }));
   }
 
   async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
@@ -217,71 +306,63 @@ function CinematicWorkspace({
     else createProject.mutate(draft);
   }
 
+  async function saveDraftNow() {
+    setSaveState('saving');
+    setSaveError(null);
+    try {
+      if (!project) {
+        writeCinematicSetupDraft(actorId, draft);
+        setSaveState(online ? 'saved' : 'offline');
+        return;
+      } else {
+        if (!online) {
+          writeCinematicSetupRecoveryDraft(actorId, project.id, draft);
+          setSaveState('offline');
+          return;
+        }
+        const serialized = serializeSetup(draft);
+        if (serialized !== lastSavedSetupRef.current) {
+          const saved = await enqueueProjectMutation(() => updateCinematicSetup(project.id, draft, projectVersionRef.current));
+          projectVersionRef.current = saved.version;
+          lastSavedSetupRef.current = serialized;
+          queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+          removeCinematicSetupRecoveryDraft(actorId, project.id);
+        }
+      }
+      setSaveState('saved');
+    } catch (reason) {
+      setSaveState('failed');
+      setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.status.saveFailed')));
+    }
+  }
+
   return (
     <main className="grid gap-4" data-testid="cinematic-workspace">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="m-0 text-xs font-semibold text-[var(--theme-primary)]">{t('cinematic.eyebrow')}</p>
-          <h1 className="m-0 text-2xl">{draft.projectName || t('cinematic.setup.untitled')}</h1>
-        </div>
-        <span className="inline-flex items-center gap-2 text-xs text-[var(--theme-text-muted)]" role="status" aria-live="polite">
-          <Save className="size-4" aria-hidden="true" />
-          {t(`cinematic.save.${saveState}`)}
-        </span>
-      </header>
+      <CinematicWorkspaceHeader
+        projectTitle={draft.projectName || t('cinematic.setup.untitled')}
+        saveState={saveState}
+      />
       <Surface className="cinematic-workspace-surface p-4">
         <CinematicStageRail activeStage={activeStage} onStageChange={setActiveStage} />
         <div className="cinematic-workspace-layout">
           <div className="min-w-0">
           {activeStage === 'setup' ? (
-          <form className="cinematic-setup-form" onSubmit={event => event.preventDefault()}>
-            <header className="cinematic-stage-heading">
-              <div><p>{t('cinematic.setup.eyebrow')}</p><h2>{t('cinematic.setup.title')}</h2></div>
-              <span className="cinematic-prototype-badge">{t('cinematic.prototype.badge')}</span>
-            </header>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('cinematic.setup.projectName')}>
-                <input value={draft.projectName} maxLength={120} onChange={event => update('projectName', event.target.value)} />
-              </Field>
-              <Field label={t('cinematic.setup.format')}>
-                <select value={draft.format} disabled><option value="short-film">{t('cinematic.setup.shortFilm')}</option></select>
-              </Field>
-              <Field label={t('cinematic.setup.platform')}>
-                <select value={draft.platform} onChange={event => update('platform', event.target.value as CinematicSetupDraft['platform'])}>
-                  {['tiktok', 'youtube-shorts', 'reels', 'multi-platform'].map(value => <option key={value} value={value}>{t(`cinematic.platform.${value}`)}</option>)}
-                </select>
-              </Field>
-              <Field label={t('cinematic.setup.duration')}>
-                <select value={draft.durationSeconds} onChange={event => update('durationSeconds', Number(event.target.value) as CinematicSetupDraft['durationSeconds'])}>
-                  {[20, 30, 45, 60].map(value => <option key={value} value={value}>{value} {t('cinematic.units.seconds')}</option>)}
-                </select>
-              </Field>
-            </div>
-            <Field label={t('cinematic.setup.storyBrief')} hint={`${storyLength}/600`}>
-              <textarea rows={5} maxLength={600} value={draft.storyBrief} onChange={event => update('storyBrief', event.target.value)} />
-            </Field>
-            <div className="cinematic-creative-direction">
-              <Field label={t('cinematic.setup.creativeDirection')} hint={`${draft.creativeDirection.length}/800`}>
-                <textarea rows={4} maxLength={800} value={draft.creativeDirection} onChange={event => update('creativeDirection', event.target.value)} placeholder={t('cinematic.setup.creativeDirectionPlaceholder')} />
-              </Field>
-              <Button type="button" icon={<Sparkles aria-hidden="true" />} onClick={() => setEnhanceOpen(true)}>{t('cinematic.setup.enhanceStory')}</Button>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <SelectField label={t('cinematic.setup.genre')} value={draft.genre} values={['drama', 'romance', 'comedy', 'thriller', 'fashion']} onChange={value => update('genre', value as CinematicSetupDraft['genre'])} translationPrefix="cinematic.genre" />
-              <SelectField label={t('cinematic.setup.feeling')} value={draft.audienceFeeling} values={['moved', 'excited', 'curious', 'uplifted', 'surprised']} onChange={value => update('audienceFeeling', value as CinematicSetupDraft['audienceFeeling'])} translationPrefix="cinematic.feeling" />
-              <SelectField label={t('cinematic.setup.pacing')} value={draft.pacing} values={['slow', 'balanced', 'fast']} onChange={value => update('pacing', value as CinematicSetupDraft['pacing'])} translationPrefix="cinematic.pacing" />
-              <SelectField label={t('cinematic.setup.ending')} value={draft.endingIntent} values={['resolved', 'hopeful', 'twist', 'cliffhanger']} onChange={value => update('endingIntent', value as CinematicSetupDraft['endingIntent'])} translationPrefix="cinematic.ending" />
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--theme-border)] pt-4">
-              <div className="inline-flex rounded-[var(--mpf-radius-sm)] border border-[var(--theme-border)] p-1">
-                {(['simple', 'advanced'] as const).map(mode => (
-                  <Button key={mode} type="button" size="sm" variant={draft.mode === mode ? 'primary' : 'ghost'} onClick={() => update('mode', mode)}>{t(`cinematic.mode.${mode}`)}</Button>
-                ))}
-              </div>
-              <Button type="button" variant="primary" disabled={createProject.isPending || !draft.projectName.trim() || !draft.storyBrief.trim()} onClick={continueFromSetup}>{t('cinematic.actions.continueToCast')}</Button>
-            </div>
-            {createProject.isError ? <StatusNotice tone="error" title={t('cinematic.status.saveFailed')}>{createProject.error.message}</StatusNotice> : null}
-          </form>
+          <CinematicSetupForm
+            draft={draft}
+            saveState={saveState}
+            saveError={saveError || (createProject.isError ? createProject.error : null)}
+            pending={createProject.isPending}
+            onUpdate={update}
+            onPlanningModeChange={changeCastPlanningMode}
+            onAddRole={addRoleSlot}
+            onUpdateRole={updateRoleSlot}
+            onRemoveRole={removeRoleSlot}
+            onEnhance={() => { setEnhancePurpose('story'); setEnhanceOpen(true); }}
+            onAnalyzeRoles={() => { setEnhancePurpose('roles'); setEnhanceOpen(true); }}
+            onManualRoleCountChange={setManualRoleCount}
+            onSave={() => void saveDraftNow()}
+            onContinue={continueFromSetup}
+          />
           ) : (
             <CinematicStageContent
               activeStage={activeStage}
@@ -295,6 +376,32 @@ function CinematicWorkspace({
                 projectVersionRef.current = saved.version;
                 queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
               }}
+              onAddCastCharacter={input => enqueueProjectMutation(async () => {
+                if (!project) throw new Error(t('cinematic.status.saveFailed'));
+                const saved = await upsertCinematicCast(project.id, input.assignmentId, {
+                  expectedVersion: projectVersionRef.current,
+                  characterProfileId: input.characterProfileId,
+                  characterProfileVersionId: input.characterProfileVersionId,
+                  displayName: input.displayName,
+                  storyImportance: input.storyImportance,
+                  storyRole: input.storyRole,
+                  storyRoleSlotId: input.storyRoleSlotId,
+                  objective: input.objective,
+                  personalityTraits: input.personalityTraits,
+                  emotionalBaseline: input.emotionalBaseline,
+                  performanceDirection: input.performanceDirection
+                });
+                projectVersionRef.current = saved.version;
+                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+                return saved;
+              })}
+              onRemoveCastCharacter={assignmentId => enqueueProjectMutation(async () => {
+                if (!project) throw new Error(t('cinematic.status.saveFailed'));
+                const saved = await removeCinematicCast(project.id, assignmentId, projectVersionRef.current);
+                projectVersionRef.current = saved.version;
+                queryClient.setQueryData(['cinematic-project', actorId, saved.id], saved);
+                return saved;
+              })}
               onProjectRefresh={() => {
                 if (project) void queryClient.invalidateQueries({ queryKey: ['cinematic-project', actorId, project.id] });
               }}
@@ -304,9 +411,32 @@ function CinematicWorkspace({
         </div>
         <ProjectCostSummary />
       </Surface>
-      <StoryEnhanceDialog open={enhanceOpen} onOpenChange={setEnhanceOpen} />
+      <StoryEnhanceDialog open={enhanceOpen} onOpenChange={setEnhanceOpen} draft={draft} purpose={enhancePurpose} onApply={enhancement => {
+        setDraft(current => ({
+          ...current,
+          storyBrief: enhancePurpose === 'story' ? enhancement.enhancedStoryBrief : current.storyBrief,
+          creativeDirection: enhancePurpose === 'story' ? (enhancement.creativeDirection || current.creativeDirection) : current.creativeDirection,
+          castPlanningMode: 'ai-recommended',
+          storyRoleSlots: enhancement.recommendedRoles,
+          updatedAt: new Date().toISOString()
+        }));
+      }} />
     </main>
   );
+}
+
+function createRoleSlot(suffix: string, label: string): CinematicSetupDraft['storyRoleSlots'][number] {
+  return {
+    id: `role_${suffix}_${Date.now().toString(36)}`,
+    label,
+    importance: 'required',
+    storyFunction: '',
+    relationshipHint: '',
+    objective: '',
+    emotionalArc: '',
+    personalityTraits: [],
+    performanceDirection: ''
+  };
 }
 
 function projectToDraft(project: CinematicProject): CinematicSetupDraft {
@@ -323,9 +453,20 @@ function projectToDraft(project: CinematicProject): CinematicSetupDraft {
     pacing: project.setup.pacing,
     endingIntent: project.setup.endingIntent,
     mode: project.setup.mode,
+    castPlanningMode: project.setup.castPlanningMode,
+    storyRoleSlots: project.setup.storyRoleSlots,
     activeStage: project.activeStage,
     updatedAt: project.updatedAt
   };
+}
+
+function resolveInitialDraft(actorId: string, project?: CinematicProject) {
+  if (!project) return readCinematicSetupDraft(actorId);
+  const serverDraft = projectToDraft(project);
+  const recoveryDraft = readCinematicSetupRecoveryDraft(actorId, project.id);
+  return recoveryDraft && Date.parse(recoveryDraft.updatedAt) > Date.parse(project.updatedAt)
+    ? recoveryDraft
+    : serverDraft;
 }
 
 function serializeSetup(draft: CinematicSetupDraft) {
@@ -339,20 +480,8 @@ function serializeSetup(draft: CinematicSetupDraft) {
     audienceFeeling: draft.audienceFeeling,
     pacing: draft.pacing,
     endingIntent: draft.endingIntent,
-    mode: draft.mode
+    mode: draft.mode,
+    castPlanningMode: draft.castPlanningMode,
+    storyRoleSlots: draft.storyRoleSlots
   });
-}
-
-function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
-  return (
-    <label className="grid gap-1 text-xs font-semibold text-[var(--theme-text-muted)]">
-      <span className="flex justify-between gap-3"><span>{label}</span>{hint ? <small>{hint}</small> : null}</span>
-      {children}
-    </label>
-  );
-}
-
-function SelectField({ label, value, values, onChange, translationPrefix }: { label: string; value: string; values: string[]; onChange: (value: string) => void; translationPrefix: string }) {
-  const { t } = useTranslation('cinematic');
-  return <Field label={label}><select value={value} onChange={event => onChange(event.target.value)}>{values.map(item => <option key={item} value={item}>{t(`${translationPrefix}.${item}`)}</option>)}</select></Field>;
 }

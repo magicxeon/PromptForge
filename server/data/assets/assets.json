@@ -1,5 +1,30 @@
 [
   {
+    "assetType": "generation_reference",
+    "storageProvider": "local",
+    "storageKey": "references/usr_alice/1788008928400-31983532f9d5.webp",
+    "publicUrl": "/outputs/references/usr_alice/1788008928400-31983532f9d5.webp",
+    "thumbnailUrl": null,
+    "mimeType": "image/webp",
+    "sizeBytes": 19780,
+    "width": 450,
+    "height": 450,
+    "sourceJobId": null,
+    "metadata": {
+      "role": "outfit_front",
+      "sourceMode": "character-look"
+    },
+    "id": "ast_1788008928405_9jz88fwz",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-29T13:08:48.405Z",
+    "updatedAt": "2026-08-29T13:08:48.405Z",
+    "deletedAt": null
+  },
+  {
     "assetType": "cinematic_video_output",
     "storageProvider": "local",
     "storageKey": "cinematic-video/usr_admin/videotask_fdcef1d069bff65af2c6.mp4",

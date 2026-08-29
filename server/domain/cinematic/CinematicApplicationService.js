@@ -4,10 +4,12 @@ import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { cinematicStoryboardAssetService } from '../assets/CinematicStoryboardAssetService.js';
 import { cinematicWardrobeAuthorityService } from '../assets/CinematicWardrobeAuthorityService.js';
 import { characterUsageService } from '../character-profiles/CharacterUsageService.js';
+import { characterLookService } from '../character-profiles/CharacterLookService.js';
 import { adminPolicyService } from '../admin/AdminPolicyService.js';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.js';
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
+import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -18,19 +20,23 @@ export class CinematicApplicationService {
     storyboardAssetService = cinematicStoryboardAssetService,
     wardrobeAuthorityService = cinematicWardrobeAuthorityService,
     characterAuthorizationService = characterUsageService,
+    lookService = characterLookService,
     backofficePolicy = adminPolicyService,
     providerTaskRepository = videoProviderTaskRepository,
     videoCapabilities = videoCapabilityRegistry,
-    videoGenerationService = videoGenerationApplicationService
+    videoGenerationService = videoGenerationApplicationService,
+    storyEnhancementService = cinematicStoryEnhancementService
   } = {}) {
     this.repository = repository;
     this.storyboardAssetService = storyboardAssetService;
     this.wardrobeAuthorityService = wardrobeAuthorityService;
     this.characterAuthorizationService = characterAuthorizationService;
+    this.lookService = lookService;
     this.backofficePolicy = backofficePolicy;
     this.providerTaskRepository = providerTaskRepository;
     this.videoCapabilities = videoCapabilities;
     this.videoGenerationService = videoGenerationService;
+    this.storyEnhancementService = storyEnhancementService;
   }
 
   listProjects(actorContext, query) {
@@ -44,11 +50,16 @@ export class CinematicApplicationService {
   async getProject(projectId, actorContext) {
     const project = await this.repository.findForActor(projectId, actorContext);
     if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
-    return project;
+    return reconcileCastIdentityReadiness(project);
   }
 
   createProject(input, actorContext) {
     return this.repository.create(normalizeSetup(input), actorContext);
+  }
+
+  enhanceStory(input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    return this.storyEnhancementService.enhance(input);
   }
 
   updateSetup(projectId, input, actorContext) {
@@ -131,8 +142,70 @@ export class CinematicApplicationService {
     });
   }
 
+  removeCastAssignment(projectId, assignmentId, input, actorContext) {
+    const normalizedAssignmentId = String(assignmentId || '').trim();
+    if (!normalizedAssignmentId) {
+      throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+    }
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      assertExpectedVersion(project, input?.expectedVersion);
+      assertEditable(project);
+      const index = project.castAssignments.findIndex(item => item.id === normalizedAssignmentId);
+      if (index < 0) {
+        throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+      }
+      const assignment = project.castAssignments[index];
+      const sceneIds = [];
+      const shotIds = [];
+      const lookIds = new Set(assignment.looks.map(look => look.id));
+      for (const scene of project.scenes) {
+        const sceneUsesAssignment = scene.castAssignmentIds?.includes(normalizedAssignmentId);
+        if (sceneUsesAssignment) sceneIds.push(scene.id);
+        for (const shot of scene.shots) {
+          if (shot.castAssignmentIds?.includes(normalizedAssignmentId)
+            || shot.wardrobeLookIds?.some(lookId => lookIds.has(lookId))) {
+            shotIds.push(shot.id);
+          }
+        }
+      }
+      if (sceneIds.length || shotIds.length) {
+        throw new CinematicError(
+          'cinematic_cast_assignment_in_use',
+          'This Cast Assignment is used by the Story Plan and cannot be removed yet.',
+          409,
+          { sceneIds: [...new Set(sceneIds)], shotIds: [...new Set(shotIds)] }
+        );
+      }
+      project.castAssignments.splice(index, 1);
+      project.version += 1;
+      return project;
+    });
+  }
+
   async upsertWardrobeLook(projectId, assignmentId, input, actorContext) {
-    const authority = await this.wardrobeAuthorityService.authorizeLook(input, actorContext);
+    let resolvedCharacterLook = null;
+    let authority;
+    if (input.mode === 'character_look') {
+      const project = await this.repository.findForActor(projectId, actorContext);
+      const assignment = project?.castAssignments.find(item => item.id === assignmentId && item.active !== false);
+      if (!assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+      resolvedCharacterLook = await this.lookService.resolveApprovedVersion(
+        assignment.characterProfileId,
+        String(input.characterLookId || '').trim(),
+        String(input.characterLookVersionId || '').trim(),
+        actorContext
+      );
+      const approvedAssets = Object.values(resolvedCharacterLook.version.approvedViewAssets || {});
+      const uniqueApprovedAssets = [...new Map(
+        approvedAssets.map(item => [item.assetId, item])
+      ).values()];
+      authority = {
+        mode: 'character_look',
+        assets: uniqueApprovedAssets.map(item => ({ id: item.assetId, contentHash: item.contentHash || null }))
+      };
+    } else {
+      authority = await this.wardrobeAuthorityService.authorizeLook(input, actorContext);
+    }
     return this.repository.mutateForActor(projectId, actorContext, project => {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
@@ -148,6 +221,8 @@ export class CinematicApplicationService {
         version: Number((assignment.looks.find(item => item.id === lookId)?.version || 0) + 1),
         name: bounded(input.name, 100, 'Primary Look'),
         mode: authority.mode,
+        characterLookId: resolvedCharacterLook?.look.id || null,
+        characterLookVersionId: resolvedCharacterLook?.version.id || null,
         assetIds: authority.assets.map(asset => asset.id),
         authoritySnapshot: authority.assets,
         garmentSummary: bounded(input.garmentSummary, 500, ''),
@@ -602,6 +677,7 @@ function normalizeSetup(input = {}) {
   if (!storyBrief || storyBrief.length > 600) throw new CinematicError('cinematic_story_brief_invalid', 'Story brief is required and must not exceed 600 characters.');
   if (creativeDirection.length > 800) throw new CinematicError('cinematic_creative_direction_invalid', 'Creative direction must not exceed 800 characters.');
   if (!DURATIONS.has(durationSeconds)) throw new CinematicError('cinematic_duration_invalid', 'Duration must be 20, 30, 45 or 60 seconds.');
+  const castPlanningMode = pick(input.castPlanningMode, ['ai-recommended', 'solo', 'duo', 'manual'], 'ai-recommended');
   return {
     title,
     format: 'short-film',
@@ -613,15 +689,46 @@ function normalizeSetup(input = {}) {
     audienceFeeling: pick(input.audienceFeeling, ['moved', 'excited', 'curious', 'uplifted', 'surprised'], 'moved'),
     pacing: pick(input.pacing, ['slow', 'balanced', 'fast'], 'balanced'),
     endingIntent: pick(input.endingIntent, ['resolved', 'hopeful', 'twist', 'cliffhanger'], 'resolved'),
-    mode: pick(input.mode, ['simple', 'advanced'], 'simple')
+    mode: pick(input.mode, ['simple', 'advanced'], 'simple'),
+    castPlanningMode,
+    storyRoleSlots: normalizeStoryRoleSlots(input.storyRoleSlots, castPlanningMode)
+  };
+}
+
+function normalizeStoryRoleSlots(value, mode) {
+  const supplied = Array.isArray(value) ? value.slice(0, 4) : [];
+  const normalized = supplied.map((role, index) => ({
+    id: String(role?.id || `role_${index + 1}`).trim().slice(0, 80),
+    label: String(role?.label || `Role ${index + 1}`).trim().slice(0, 80),
+    importance: role?.importance === 'optional' ? 'optional' : 'required',
+    storyFunction: String(role?.storyFunction || '').trim().slice(0, 240),
+    relationshipHint: String(role?.relationshipHint || '').trim().slice(0, 160),
+    objective: String(role?.objective || '').trim().slice(0, 240),
+    emotionalArc: String(role?.emotionalArc || '').trim().slice(0, 240),
+    personalityTraits: (Array.isArray(role?.personalityTraits) ? role.personalityTraits : []).slice(0, 6).map(value => String(value).trim().slice(0, 80)).filter(Boolean),
+    performanceDirection: String(role?.performanceDirection || '').trim().slice(0, 320)
+  })).filter(role => role.id && role.label);
+  if (normalized.length) return normalized;
+  if (mode === 'solo') return [emptyStoryRole('role_lead', 'Lead')];
+  if (mode === 'duo') return [
+    emptyStoryRole('role_lead', 'Lead'),
+    emptyStoryRole('role_second', 'Second Character')
+  ];
+  return [];
+}
+
+function emptyStoryRole(id, label) {
+  return {
+    id, label, importance: 'required', storyFunction: '', relationshipHint: '',
+    objective: '', emotionalArc: '', personalityTraits: [], performanceDirection: ''
   };
 }
 
 function preserveOmittedCastFields(normalized, existing, input) {
   for (const field of [
     'objective', 'motivation', 'pressure', 'personalityTraits', 'emotionalBaseline',
-    'dialogueStyle', 'performanceDirection', 'identityReady', 'apparentAgeRange',
-    'looks', 'active'
+    'dialogueStyle', 'performanceDirection', 'apparentAgeRange', 'portraitUrl',
+    'looks', 'active', 'storyRoleSlotId'
   ]) {
     if (!Object.hasOwn(input, field)) normalized[field] = structuredClone(existing[field]);
   }
@@ -638,8 +745,12 @@ function normalizeCast(input = {}, authorizedCharacter = null) {
     id,
     characterProfileId,
     characterProfileVersionId,
+    portraitUrl: authorizedCharacter?.authorizedCharacterFaceReferenceUrl
+      || authorizedCharacter?.authorizedCharacterFrontReferenceUrl
+      || null,
     displayName: String(input.displayName || authorizedCharacter?.displayNameSnapshot || '').trim() || 'Character',
     storyRole: String(input.storyRole || '').trim() || 'Supporting',
+    storyRoleSlotId: String(input.storyRoleSlotId || '').trim() || null,
     storyImportance: pick(input.storyImportance, ['protagonist', 'supporting'], 'supporting'),
     objective: String(input.objective || '').trim(),
     motivation: String(input.motivation || '').trim(),
@@ -648,7 +759,7 @@ function normalizeCast(input = {}, authorizedCharacter = null) {
     emotionalBaseline: String(input.emotionalBaseline || '').trim(),
     dialogueStyle: String(input.dialogueStyle || '').trim(),
     performanceDirection: String(input.performanceDirection || '').trim(),
-    identityReady: input.identityReady === true,
+    identityReady: authorizedCharacter?.identityPack?.status === 'identity_pack_ready',
     apparentAgeRange: input.apparentAgeRange || null,
     identityReadinessSnapshot: authorizedCharacter?.identityPack ? {
       status: authorizedCharacter.identityPack.status,
@@ -667,6 +778,16 @@ function normalizeCast(input = {}, authorizedCharacter = null) {
     active: input.active !== false,
     updatedAt: new Date().toISOString()
   };
+}
+
+function reconcileCastIdentityReadiness(project) {
+  const normalized = structuredClone(project);
+  for (const assignment of normalized.castAssignments || []) {
+    if (assignment.identityReadinessSnapshot?.status === 'identity_pack_ready') {
+      assignment.identityReady = true;
+    }
+  }
+  return normalized;
 }
 
 function normalizeStoryPlan(input = {}, project) {

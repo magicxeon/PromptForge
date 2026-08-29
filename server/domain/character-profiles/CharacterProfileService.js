@@ -131,6 +131,7 @@ export class CharacterProfileService {
           ownerUsername: profile.ownerUsernameSnapshot || profile.ownerUsername || actor.username,
           reuseStatus: profile.status === 'approved' ? 'available' : 'unavailable',
           handoffAvailable: profile.status === 'approved' && version?.status === 'approved',
+          characterProfileVersionId: version?.id || '',
           characterType: normalizeCharacterType(profile.characterType),
           destinationCapabilities: normalizeCharacterType(profile.characterType) === CHARACTER_TYPE.STYLED_CHARACTER
             ? ['scene_builder']

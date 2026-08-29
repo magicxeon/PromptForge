@@ -49,6 +49,7 @@ import { registerCharacterProfileRoutes } from './routes/characterProfileRoutes.
 import { characterProfileService } from '../domain/character-profiles/CharacterProfileService.js';
 import { characterCastingExportService } from '../domain/character-profiles/CharacterCastingExportService.js';
 import { characterProfileSharingService } from '../domain/character-profiles/CharacterProfileSharingService.js';
+import { characterLookService } from '../domain/character-profiles/CharacterLookService.js';
 import { resolveFrontendRoute } from './frontendRouteOwnership.js';
 import { registerFashionBlueprintRoutes } from './routes/fashionBlueprintRoutes.js';
 import { registerReferenceRoutes } from './routes/referenceRoutes.js';
@@ -228,6 +229,7 @@ export function createApp() {
   });
   registerCharacterProfileRoutes(app, {
     profileService: characterProfileService,
+    lookService: characterLookService,
     castingExportService: characterCastingExportService,
     sharingService: characterProfileSharingService,
     communityFeaturePolicyService

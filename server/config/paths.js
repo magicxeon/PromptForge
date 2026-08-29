@@ -67,6 +67,7 @@ export const DATA_FILES = {
   sceneTemplateSnapshots: path.resolve(SCENE_TEMPLATES_DATA_DIR, 'sceneTemplateSnapshots.json'),
   characterProfiles: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'profiles.json'),
   characterProfileVersions: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'versions.json'),
+  characterLooks: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'looks.json'),
   characterUsageEvents: path.resolve(CHARACTER_PROFILES_DATA_DIR, 'usageEvents.json'),
   fashionBlueprintQuotes: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'quotes.json'),
   fashionBlueprintRuns: path.resolve(FASHION_BLUEPRINT_DATA_DIR, 'runs.json'),

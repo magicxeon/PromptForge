@@ -9,6 +9,8 @@ const routes = [
   '/create/studio/character',
   '/create/studio/scene',
   '/create/playground',
+  '/create/cinematic',
+  '/create/cinematic/new',
   '/library/recent',
   '/library/collections',
   '/comparisons',

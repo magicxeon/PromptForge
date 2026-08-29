@@ -66,6 +66,13 @@ sequenceDiagram
 Cinematic does not call a provider, mutate Queue state, calculate model price or
 write a Credit ledger directly.
 
+The current development qualification path may execute
+`cinematic_story_enhancement` through Generation's text-provider boundary with
+`billingStatus=qualification_no_charge`. It must be separately env-gated and
+must not display, reserve or capture a made-up Credit amount. Paid launch still
+requires the canonical Credits text-operation quote and durable settlement
+flow described below.
+
 The implementation extends `CreditApplicationService` and its existing pricing
 policy/version contracts with video operation metrics. It must not create a
 `CinematicCreditService`, client-side formula or Cinematic balance store.

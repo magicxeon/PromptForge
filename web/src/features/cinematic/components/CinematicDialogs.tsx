@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Camera, Check, Search, UserRound } from 'lucide-react';
+import { Camera, Check, ChevronLeft, ChevronRight, Search, UserRound } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
@@ -9,34 +9,82 @@ import { DialogHeader } from './ProjectCostSummary';
 import { listCharacters, listOwnedCharacters } from '../../profiles/api/profileApi';
 import type { z } from 'zod';
 import { characterSummarySchema } from '../../profiles/schemas/profileSchemas';
+import { enhanceCinematicStory } from '../api/cinematicApi';
+import type { CinematicSetupDraft, CinematicStoryEnhancement } from '../schemas/cinematicSchemas';
 
 type OpenDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function StoryEnhanceDialog({ open, onOpenChange }: OpenDialogProps) {
+export function StoryEnhanceDialog({ open, onOpenChange, draft, purpose = 'story', onApply }: OpenDialogProps & {
+  draft: CinematicSetupDraft;
+  purpose?: 'story' | 'roles';
+  onApply: (enhancement: CinematicStoryEnhancement) => void;
+}) {
   const { t } = useTranslation('cinematic');
+  const [result, setResult] = useState<CinematicStoryEnhancement | null>(null);
+  const [editedBrief, setEditedBrief] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    setResult(null);
+    setEditedBrief('');
+    setError(null);
+  }, [open, draft.storyBrief]);
+
+  async function generate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const enhancement = await enhanceCinematicStory(draft);
+      setResult(enhancement);
+      setEditedBrief(enhancement.enhancedStoryBrief);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : t('cinematic.enhance.failed'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function apply() {
+    if (!result || !editedBrief.trim()) return;
+    onApply({ ...result, enhancedStoryBrief: editedBrief.trim() });
+    onOpenChange(false);
+  }
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="cinematic-dialog__overlay" />
         <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide">
-          <DialogHeader title={t('cinematic.enhance.title')} description={t('cinematic.enhance.description')} />
+          <DialogHeader title={t(purpose === 'roles' ? 'cinematic.enhance.roleTitle' : 'cinematic.enhance.title')} description={t(purpose === 'roles' ? 'cinematic.enhance.roleDescription' : 'cinematic.enhance.description')} />
           <div className="cinematic-compare-grid">
-            <article><span>{t('cinematic.enhance.original')}</span><p>{t('cinematic.enhance.originalCopy')}</p></article>
-            <article className="is-enhanced"><span>{t('cinematic.enhance.preview')}</span><p>{t('cinematic.enhance.previewCopy')}</p></article>
+            <article><span>{t('cinematic.enhance.original')}</span><p>{draft.storyBrief}</p></article>
+            <article className="is-enhanced"><span>{t('cinematic.enhance.preview')}</span>{result
+              ? <textarea aria-label={t('cinematic.enhance.preview')} maxLength={600} rows={7} value={editedBrief} onChange={event => setEditedBrief(event.target.value)} />
+              : <p>{t('cinematic.enhance.previewEmpty')}</p>}</article>
           </div>
+          {result ? <section className="cinematic-enhancement-details">
+            <div><strong>{t('cinematic.enhance.conflict')}</strong><p>{result.conflict}</p></div>
+            <div><strong>{t('cinematic.enhance.arc')}</strong><p>{result.emotionalArc}</p></div>
+            <div className="is-wide"><strong>{t('cinematic.enhance.recommendedCast')}</strong><ul>{result.recommendedRoles.map(role => <li key={role.id}><b>{role.label}</b> · {t(`cinematic.roleImportance.${role.importance}`)} — {role.storyFunction}</li>)}</ul></div>
+          </section> : null}
+          {error ? <p role="alert" className="text-sm text-red-400">{error}</p> : null}
           <ContextualOperationDock
             title={t('cinematic.enhance.operationTitle')}
             description={t('cinematic.enhance.operationDescription')}
             operation={t('cinematic.enhance.operation')}
-            credits={3}
+            notice={t('cinematic.enhance.qualificationNotice')}
             actionLabel={t('cinematic.enhance.generate')}
+            disabled={!draft.storyBrief.trim() || loading}
+            loading={loading}
+            onAction={() => void generate()}
           />
           <div className="cinematic-dialog__footer">
             <Dialog.Close asChild><Button>{t('cinematic.actions.cancel')}</Button></Dialog.Close>
-            <Button variant="primary" disabled icon={<Check aria-hidden="true" />}>{t('cinematic.enhance.apply')}</Button>
+            <Button variant="primary" disabled={!result || !editedBrief.trim()} icon={<Check aria-hidden="true" />} onClick={apply}>{t('cinematic.enhance.apply')}</Button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
@@ -44,63 +92,101 @@ export function StoryEnhanceDialog({ open, onOpenChange }: OpenDialogProps) {
   );
 }
 
-const characterFixtures = [
-  { id: 'mira', name: 'Mira Chen', gender: 'female', age: '20-29', ethnicity: 'east-asian', scope: 'mine' },
-  { id: 'noah', name: 'Noah Lin', gender: 'male', age: '20-29', ethnicity: 'east-asian', scope: 'mine' },
-  { id: 'amara', name: 'Amara Reed', gender: 'female', age: '30-39', ethnicity: 'mixed', scope: 'community' },
-  { id: 'theo', name: 'Theo Martin', gender: 'male', age: '30-39', ethnicity: 'european', scope: 'community' }
-] as const;
-
 export type CharacterCandidate = z.infer<typeof characterSummarySchema> & { scope?: 'mine' | 'community' };
+type CharacterCandidatePage = {
+  items: CharacterCandidate[];
+  ownedCursor: string | null;
+  communityCursor: string | null;
+  hasMore: boolean;
+};
 
-export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDialogProps & { onSelect?: (character: CharacterCandidate) => void }) {
+export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDialogProps & { onSelect?: (character: CharacterCandidate) => void | Promise<void> }) {
   const { t } = useTranslation('cinematic');
   const [query, setQuery] = useState('');
   const [gender, setGender] = useState('all');
   const [age, setAge] = useState('all');
   const [ethnicity, setEthnicity] = useState('all');
   const [scope, setScope] = useState('all');
-  const [selectedId, setSelectedId] = useState('');
-  const [loadedCandidates, setLoadedCandidates] = useState<CharacterCandidate[] | null>(null);
+  const [selected, setSelected] = useState<CharacterCandidate | null>(null);
+  const [pages, setPages] = useState<CharacterCandidatePage[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    Promise.all([listOwnedCharacters(), listCharacters({ reusePolicy: 'public_reusable' })])
-      .then(([owned, community]) => {
+    setSelected(null);
+    setPages([]);
+    setPageIndex(0);
+    setLoadError(false);
+    setSubmitError(null);
+    setSubmitting(false);
+    setLoading(true);
+    loadCharacterCandidatePage(null, null)
+      .then(page => {
         if (cancelled) return;
-        const unique = new Map<string, CharacterCandidate>();
-        owned.items.filter(item => item.handoffAvailable).forEach(item => unique.set(item.id, { ...item, scope: 'mine' }));
-        community.items.filter(item => item.handoffAvailable).forEach(item => {
-          if (!unique.has(item.id)) unique.set(item.id, { ...item, scope: 'community' });
-        });
-        setLoadedCandidates([...unique.values()]);
+        setPages([page]);
       })
-      .catch(() => { if (!cancelled) setLoadedCandidates([]); });
+      .catch(() => { if (!cancelled) setLoadError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [open]);
-  const ethnicityOptions = useMemo(() => [...new Set((loadedCandidates || [])
+  const activePage = pages[pageIndex] || emptyCharacterPage();
+  const ethnicityOptions = useMemo(() => [...new Set(activePage.items
     .map(item => item.identityFacets?.ethnicity)
     .filter((value): value is string => Boolean(value)))]
-    .sort((left, right) => left.localeCompare(right)), [loadedCandidates]);
-  const candidates = useMemo(() => (loadedCandidates || characterFixtures).filter(item => {
-    const name = 'displayName' in item ? item.displayName : item.name;
-    const facets = 'identityFacets' in item ? item.identityFacets : undefined;
-    const fixtureGender = 'gender' in item ? item.gender : null;
-    const fixtureAge = 'age' in item ? item.age : null;
-    const fixtureEthnicity = 'ethnicity' in item ? item.ethnicity : null;
-    return name.toLowerCase().includes(query.toLowerCase())
-    && (gender === 'all' || (facets?.presentationGender || fixtureGender) === gender)
-    && (age === 'all' || (fixtureAge ? fixtureAge === age : overlapsAgeBucket(facets?.ageRange, age)))
-    && (ethnicity === 'all' || (facets?.ethnicity || fixtureEthnicity) === ethnicity)
+    .sort((left, right) => left.localeCompare(right)), [activePage.items]);
+  const candidates = useMemo(() => activePage.items.filter(item => {
+    const facets = item.identityFacets;
+    return item.displayName.toLowerCase().includes(query.toLowerCase())
+    && (gender === 'all' || facets?.presentationGender === gender)
+    && (age === 'all' || overlapsAgeBucket(facets?.ageRange, age))
+    && (ethnicity === 'all' || facets?.ethnicity === ethnicity)
     && (scope === 'all' || item.scope === scope)
-  }), [age, ethnicity, gender, loadedCandidates, query, scope]);
+  }), [activePage.items, age, ethnicity, gender, query, scope]);
+
+  async function showNextPage() {
+    if (pages[pageIndex + 1]) {
+      setPageIndex(index => index + 1);
+      return;
+    }
+    if (!activePage.hasMore || loading) return;
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const page = await loadCharacterCandidatePage(activePage.ownedCursor, activePage.communityCursor);
+      setPages(current => [...current, page]);
+      setPageIndex(index => index + 1);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function confirmSelection() {
+    if (!selected || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await onSelect?.(selected);
+      onOpenChange(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="cinematic-dialog__overlay" />
-        <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide">
-          <DialogHeader title={t('cinematic.picker.title')} description={t('cinematic.picker.description')} />
+        <Dialog.Content className="cinematic-dialog__content cinematic-dialog__content--wide cinematic-dialog__character-picker-shell">
+          <div className="cinematic-dialog__character-picker-header">
+            <DialogHeader title={t('cinematic.picker.title')} description={t('cinematic.picker.description')} />
           <div className="cinematic-picker-filters">
             <label className="cinematic-search-field"><Search aria-hidden="true" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={t('cinematic.picker.search')} /></label>
             <select aria-label={t('cinematic.picker.gender')} value={gender} onChange={event => setGender(event.target.value)}>
@@ -110,16 +196,31 @@ export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDial
             <select aria-label={t('cinematic.picker.ethnicity')} value={ethnicity} onChange={event => setEthnicity(event.target.value)}><option value="all">{t('cinematic.picker.allEthnicities')}</option>{ethnicityOptions.map(value => <option value={value} key={value}>{formatFacetLabel(value)}</option>)}</select>
             <select aria-label={t('cinematic.picker.scope')} value={scope} onChange={event => setScope(event.target.value)}><option value="all">{t('cinematic.picker.allSources')}</option><option value="mine">{t('cinematic.picker.mine')}</option><option value="community">{t('cinematic.picker.community')}</option></select>
           </div>
-          <div className="cinematic-character-results">
+          </div>
+          <div className="cinematic-dialog__character-picker-body">
+          {loading && !pages.length ? <p className="cinematic-picker-state" role="status">{t('cinematic.picker.loading')}</p> : null}
+          {loadError ? <p className="cinematic-picker-state" role="alert">{t('cinematic.picker.loadFailed')}</p> : null}
+          {!loading && !loadError && candidates.length === 0 ? <p className="cinematic-picker-state">{t('cinematic.picker.empty')}</p> : null}
+          <div className="cinematic-character-results" role="listbox" aria-label={t('cinematic.picker.results')}>
             {candidates.map(item => {
-              const name = 'displayName' in item ? item.displayName : item.name;
-              const detail = 'age' in item ? `${item.age} · ${item.ethnicity}` : item.personalitySummary;
               const mediaUrl = characterCandidateMediaUrl(item);
               const fallback = <span className="cinematic-character-results__fallback"><UserRound aria-hidden="true" /></span>;
-              return <button type="button" className={selectedId === item.id ? 'is-selected' : ''} key={item.id} onClick={() => setSelectedId(item.id)}><span className="cinematic-character-results__media">{mediaUrl ? <AuthenticatedMediaImage src={mediaUrl} alt="" fallback={fallback} /> : fallback}</span><strong>{name}</strong><small>{detail}</small></button>;
+              const isSelected = selected?.id === item.id;
+              return <button type="button" role="option" aria-selected={isSelected} className={isSelected ? 'is-selected' : ''} key={item.id} onClick={() => setSelected(item)}><span className="cinematic-character-results__media">{mediaUrl ? <AuthenticatedMediaImage src={mediaUrl} alt="" fallback={fallback} /> : fallback}{isSelected ? <span className="cinematic-character-results__check"><Check aria-hidden="true" /></span> : null}</span><strong>{item.displayName}</strong><small>{item.personalitySummary}</small></button>;
             })}
           </div>
-          <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close><Button variant="primary" disabled={!selectedId || !loadedCandidates} onClick={() => { const selected = loadedCandidates?.find(item => item.id === selectedId); if (selected) { onSelect?.(selected); onOpenChange(false); } }}>{t('cinematic.picker.use')}</Button></div>
+          </div>
+          <div className="cinematic-dialog__footer cinematic-dialog__character-picker-footer">
+            <div className="cinematic-picker-pagination" aria-label={t('cinematic.picker.pagination')}>
+              <Button size="sm" icon={<ChevronLeft aria-hidden="true" />} disabled={pageIndex === 0 || loading} onClick={() => setPageIndex(index => Math.max(0, index - 1))}>{t('cinematic.picker.previous')}</Button>
+              <span>{t('cinematic.picker.page', { page: pageIndex + 1 })}</span>
+              <Button size="sm" icon={<ChevronRight aria-hidden="true" />} disabled={(!activePage.hasMore && !pages[pageIndex + 1]) || loading} onClick={() => void showNextPage()}>{t('cinematic.picker.next')}</Button>
+            </div>
+            <div className="cinematic-character-picker-submit">
+              {submitError ? <p role="alert">{submitError}</p> : null}
+              <div><Dialog.Close asChild><Button type="button" disabled={submitting}>{t('cinematic.actions.close')}</Button></Dialog.Close><Button type="button" variant="primary" disabled={!selected || submitting} onClick={() => void confirmSelection()}>{submitting ? t('cinematic.save.saving') : t('cinematic.picker.use')}</Button></div>
+            </div>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
@@ -127,11 +228,37 @@ export function CharacterPickerDialog({ open, onOpenChange, onSelect }: OpenDial
 }
 
 export function characterCandidateMediaUrl(item: Partial<CharacterCandidate>) {
-  return item.thumbnailUrl
-    || item.faceThumbnailUrl
+  return item.faceThumbnailUrl
     || item.displayImageUrl
+    || item.thumbnailUrl
     || item.imageUrl
     || null;
+}
+
+async function loadCharacterCandidatePage(ownedCursor: string | null, communityCursor: string | null): Promise<CharacterCandidatePage> {
+  const [owned, community] = await Promise.all([
+    listOwnedCharacters(ownedCursor, { limit: '12' }),
+    listCharacters({ reusePolicy: 'public_reusable', limit: '12', ...(communityCursor ? { cursor: communityCursor } : {}) })
+  ]);
+  const unique = new Map<string, CharacterCandidate>();
+  owned.items.filter(isCastReadyCharacter).forEach(item => unique.set(item.id, { ...item, scope: 'mine' }));
+  community.items.filter(isCastReadyCharacter).forEach(item => {
+    if (!unique.has(item.id)) unique.set(item.id, { ...item, scope: 'community' });
+  });
+  return {
+    items: [...unique.values()],
+    ownedCursor: owned.nextCursor || null,
+    communityCursor: community.nextCursor || null,
+    hasMore: owned.hasMore || community.hasMore
+  };
+}
+
+function isCastReadyCharacter(item: CharacterCandidate) {
+  return item.handoffAvailable && Boolean(item.characterProfileVersionId);
+}
+
+function emptyCharacterPage(): CharacterCandidatePage {
+  return { items: [], ownedCursor: null, communityCursor: null, hasMore: false };
 }
 
 export function overlapsAgeBucket(

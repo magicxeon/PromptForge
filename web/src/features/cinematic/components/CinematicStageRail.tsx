@@ -1,4 +1,5 @@
-import { Check, Circle } from 'lucide-react';
+import { Check, ChevronDown, Circle } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../../lib/utils/cn';
 import { cinematicStages, type CinematicStage } from '../cinematicStages';
@@ -12,31 +13,34 @@ export function CinematicStageRail({
 }) {
   const { t } = useTranslation('cinematic');
   const activeIndex = cinematicStages.indexOf(activeStage);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav aria-label={t('cinematic.stages.label')} className="border-b border-[var(--theme-border)] pb-3">
-      <ol className="m-0 grid list-none grid-cols-2 gap-2 p-0 sm:grid-cols-3 xl:grid-cols-6">
+    <nav aria-label={t('cinematic.stages.label')} className={`cinematic-stage-navigation${mobileOpen ? ' is-mobile-open' : ''}`}>
+      <button
+        type="button"
+        className="cinematic-stage-navigation__mobile-trigger"
+        aria-expanded={mobileOpen}
+        aria-controls="cinematic-stage-list"
+        onClick={() => setMobileOpen(open => !open)}
+      >
+        <span>{t('cinematic.stages.mobileSummary', { current: activeIndex + 1, total: cinematicStages.length, stage: t(`cinematic.stages.${activeStage}`) })}</span>
+        <span>{t('cinematic.stages.viewStages')} <ChevronDown aria-hidden="true" /></span>
+      </button>
+      <ol id="cinematic-stage-list" className="cinematic-stage-navigation__list">
         {cinematicStages.map((stage, index) => {
           const complete = index < activeIndex;
           const active = stage === activeStage;
           return (
             <li
               key={stage}
-              className={cn(
-                'min-w-0 border-b-2',
-                active && 'border-[var(--theme-primary)] text-[var(--theme-text)]',
-                !active && 'border-transparent'
-              )}
+              className={cn('cinematic-stage-navigation__item', active && 'is-active')}
             >
               <button
                 type="button"
                 aria-current={active ? 'step' : undefined}
-                className={cn(
-                  'flex min-h-12 w-full items-center gap-2 bg-transparent px-2 py-2 text-left text-xs text-[var(--theme-text-muted)]',
-                  active && 'text-[var(--theme-text)]',
-                  onStageChange && 'cursor-pointer hover:text-[var(--theme-text)]'
-                )}
-                onClick={() => onStageChange?.(stage)}
+                className={cn('cinematic-stage-navigation__stage', active && 'is-active')}
+                onClick={() => { onStageChange?.(stage); setMobileOpen(false); }}
                 disabled={!onStageChange}
               >
                 {complete

@@ -21,6 +21,56 @@ const SYSTEM_INSTRUCTION = [
   'Return only the requested structured result.'
 ].join(' ');
 
+const CINEMATIC_STORY_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['enhancedStoryBrief', 'creativeDirection', 'premise', 'conflict', 'emotionalArc', 'ending', 'candidateScenes', 'recommendedRoles', 'warnings'],
+  properties: {
+    enhancedStoryBrief: { type: 'string' },
+    creativeDirection: { type: 'string' },
+    premise: { type: 'string' },
+    conflict: { type: 'string' },
+    emotionalArc: { type: 'string' },
+    ending: { type: 'string' },
+    candidateScenes: { type: 'array', maxItems: 5, items: { type: 'string' } },
+    recommendedRoles: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 4,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: [
+          'label', 'importance', 'storyFunction', 'relationshipHint', 'objective',
+          'emotionalArc', 'personalityTraits', 'performanceDirection'
+        ],
+        properties: {
+          label: { type: 'string' },
+          importance: { type: 'string', enum: ['required', 'optional'] },
+          storyFunction: { type: 'string' },
+          relationshipHint: { type: 'string' },
+          objective: { type: 'string' },
+          emotionalArc: { type: 'string' },
+          personalityTraits: { type: 'array', maxItems: 6, items: { type: 'string' } },
+          performanceDirection: { type: 'string' }
+        }
+      }
+    },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
+
+const CINEMATIC_STORY_INSTRUCTION = [
+  'You are Momelo Cinematic Story Director for short-form professional video.',
+  'Convert the supplied brief into one coherent, production-ready story direction that fits the exact duration, platform, genre, pacing, audience feeling and ending intent.',
+  'Preserve the user premise and do not invent branded products, copyrighted characters, graphic content or unnecessary cast.',
+  'Recommend only the smallest on-screen cast needed, between one and four roles. Roles are story slots, never named real actors.',
+  'Create a role only for a visibly present person who needs a stable Character identity. Never create roles for an off-screen notification sender, an unreadable message source, a disembodied voice, a mentioned person, background crowd, or implied memory unless that person visibly appears in the film.',
+  'For every role, provide a practical objective, concise emotional arc, up to six playable personality traits, and restrained performance direction that can seed the Cast dossier.',
+  'The enhancedStoryBrief must be concise and at most 600 characters. creativeDirection must be at most 800 characters.',
+  'Candidate scenes must be filmable and ordered. Return only the requested structured result.'
+].join(' ');
+
 export class OpenAITextProvider {
   constructor(apiKey, {
     fetchImpl = globalThis.fetch,
@@ -91,6 +141,22 @@ export class OpenAITextProvider {
       responseId: payload?.id || null,
       usage: payload?.usage || null
     };
+  }
+
+  async enhanceCinematicStory({ story, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: CINEMATIC_STORY_INSTRUCTION,
+      input: story,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_story_enhancement',
+      schema: CINEMATIC_STORY_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_story_enhancement'
+    });
+    const result = parseJsonOutput(payload, 'cinematic_story_enhancement');
+    return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
   }
 
   async requestStructured({

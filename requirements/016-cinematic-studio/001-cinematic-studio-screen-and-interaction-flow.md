@@ -82,6 +82,10 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 - Story brief, maximum 600 characters for MVP.
 - Optional Creative Direction text area after genre and story intent.
 - Genre, audience feeling, pacing and ending intent.
+- Cast planning mode: AI recommendation, solo, duo or manual role slots. Setup
+  owns story roles only; actual reusable Characters are selected in Cast.
+- Each role slot has a stable ID, label, required/optional importance, dramatic
+  function and relationship hint. MVP supports at most four slots.
 - Simple/Advanced mode. Simple is default.
 
 ### Story enhancement
@@ -90,10 +94,15 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 - The result opens in a compare preview with Original and Enhanced versions;
   the user chooses `Apply`, `Edit before apply` or `Discard`.
 - Enhancement returns structured premise, conflict, emotional arc, ending and
-  candidate Scenes suitable for Story Plan input, not only polished prose.
+  candidate Scenes suitable for Story Plan input, plus the smallest viable set
+  of required/optional Cast role slots, not only polished prose.
 - The operation dock shows text model/routing mode, input summary, quote,
   balance impact and consent before submission. No video Engine panel appears.
 - Manual writing, editing, applying or discarding text never consumes Credits.
+- During provider qualification, live enhancement is explicitly marked
+  `qualification_no_charge`. Customer-paid routing must remain unavailable
+  until Credits owns a durable text quote/reservation/capture/refund contract;
+  the UI must never display a fabricated fixed Credit amount.
 
 ### Interaction
 
@@ -107,7 +116,9 @@ with adapters. Copying JSX from an image surface into Cinematic is not reuse.
 
 ### Cast
 
-- Add 1-3 Characters and assign one unique protagonist.
+- Bind approved Characters to the Setup role slots and assign one unique
+  protagonist. Required slots block planning until assigned; optional slots do
+  not. Projects without a role plan retain free-form Cast compatibility.
 - Each Character owns one expandable Project dossier. The card summary shows
   canonical portrait, name, story role, personality tags, current wardrobe
   look, Scene count, apparent age and identity-pack readiness.

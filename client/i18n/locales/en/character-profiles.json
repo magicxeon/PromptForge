@@ -146,4 +146,16 @@
   "character-profiles.works.emptyVideos": "No published Video features yet.",
   "character-profiles.details.title": "Character details",
   "character-profiles.details.description": "Review how this Character can be used and managed."
+  ,"character-profiles.looks.title": "Looks / Wardrobe"
+  ,"character-profiles.looks.description": "Prepare private reusable wardrobe Looks for this Character. Only approved three-view versions can be used in production."
+  ,"character-profiles.looks.create": "Create Look"
+  ,"character-profiles.looks.loading": "Loading Character Looks"
+  ,"character-profiles.looks.empty": "No Character Looks have been prepared yet."
+  ,"character-profiles.looks.version": "Version {version}"
+  ,"character-profiles.looks.ready": "Ready for Cinematic projects"
+  ,"character-profiles.looks.needsReview": "Three-view review and approval required"
+  ,"character-profiles.looks.status.draft": "Draft"
+  ,"character-profiles.looks.status.review": "In review"
+  ,"character-profiles.looks.status.approved": "Approved"
+  ,"character-profiles.looks.status.retired": "Retired"
 }

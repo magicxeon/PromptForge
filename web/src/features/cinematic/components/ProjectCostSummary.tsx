@@ -11,23 +11,25 @@ export type ProjectCostReadModel = {
   groups: Array<{ key: string; spentCredits: number; reservedCredits: number }>;
 };
 
-export function ProjectCostSummary({ summary }: { summary?: ProjectCostReadModel }) {
+export function ProjectCostSummary({ summary, variant = 'summary' }: { summary?: ProjectCostReadModel; variant?: 'summary' | 'trigger' }) {
   const { t } = useTranslation('cinematic');
   const unavailable = '--';
   return (
     <Dialog.Root>
-      <div className="cinematic-project-cost" data-testid="cinematic-project-cost">
-        <div className="cinematic-project-cost__title">
-          <Coins aria-hidden="true" />
-          <div><strong>{t('cinematic.cost.title')}</strong><small>{t('cinematic.cost.hint')}</small></div>
-        </div>
-        <CostMetric label={t('cinematic.cost.spent')} value={summary ? String(summary.spentCredits) : unavailable} />
-        <CostMetric label={t('cinematic.cost.processing')} value={summary ? String(summary.processingCredits) : unavailable} tone="warning" />
-        <CostMetric label={t('cinematic.cost.next')} value={summary?.nextEstimateCredits != null ? String(summary.nextEstimateCredits) : unavailable} />
-        <CostMetric label={t('cinematic.cost.refunded')} value={summary ? String(summary.refundedCredits) : unavailable} tone="success" />
+      <div className={`cinematic-project-cost cinematic-project-cost--${variant}`} data-testid="cinematic-project-cost">
+        {variant === 'summary' ? <>
+          <div className="cinematic-project-cost__title">
+            <Coins aria-hidden="true" />
+            <div><strong>{t('cinematic.cost.title')}</strong><small>{t('cinematic.cost.hint')}</small></div>
+          </div>
+          <CostMetric label={t('cinematic.cost.spent')} value={summary ? String(summary.spentCredits) : unavailable} />
+          <CostMetric label={t('cinematic.cost.processing')} value={summary ? String(summary.processingCredits) : unavailable} tone="warning" />
+          <CostMetric label={t('cinematic.cost.next')} value={summary?.nextEstimateCredits != null ? String(summary.nextEstimateCredits) : unavailable} />
+          <CostMetric label={t('cinematic.cost.refunded')} value={summary ? String(summary.refundedCredits) : unavailable} tone="success" />
+        </> : null}
         <Dialog.Trigger asChild>
-          <Button size="sm" variant="ghost" icon={<ChevronUp aria-hidden="true" />}>
-            {t('cinematic.cost.details')}
+          <Button size="sm" variant="ghost" icon={variant === 'trigger' ? <Coins aria-hidden="true" /> : <ChevronUp aria-hidden="true" />}>
+            {variant === 'trigger' ? t('cinematic.cost.title') : t('cinematic.cost.details')}
           </Button>
         </Dialog.Trigger>
       </div>
@@ -43,7 +45,7 @@ export function ProjectCostSummary({ summary }: { summary?: ProjectCostReadModel
                 <small>{group.reservedCredits ? `${group.reservedCredits} ${t('cinematic.cost.reserved')}` : t('cinematic.cost.settled')}</small>
               </div>
             ))}
-            {!summary ? <p>{t('cinematic.cost.hint')}</p> : null}
+            {!summary ? <p>{t('cinematic.cost.noMedia')}</p> : null}
           </div>
           <div className="cinematic-dialog__footer"><Dialog.Close asChild><Button>{t('cinematic.actions.close')}</Button></Dialog.Close></div>
         </Dialog.Content>

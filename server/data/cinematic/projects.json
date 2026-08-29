@@ -5,7 +5,7 @@
       "id": "cineproj_1787841798259_d5rmu2tx",
       "projectId": "cineproj_1787841798259_d5rmu2tx",
       "schemaVersion": 1,
-      "version": 4,
+      "version": 70,
       "ownerUserId": "usr_alice",
       "ownerUsername": "user_alice",
       "title": "Cinematic E2E - Before the Last Train",
@@ -22,13 +22,33 @@
         "format": "short-film",
         "platform": "youtube-shorts",
         "durationSeconds": 20,
-        "storyBrief": "At an almost empty urban train platform late in the evening, a young woman\nwaits with a black phone in her hand for someone from her past. The platform\nclock and the approaching last train force a decision. A silent notification\narrives, but instead of boarding or continuing to wait, she exhales, puts the\nphone away and walks toward the warm station exit. The story moves from quiet\nuncertainty to a small but clear act of letting go. Show only the selected\nCharacter; no second person appears on screen.",
-        "creativeDirection": "Photorealistic contemporary vertical-drama cinematography. Preserve the\nselected Character's exact identity, apparent age, body proportions, hairstyle\nand approved wardrobe in every shot. Use one believable modern urban train\nplatform at blue hour: cool ambient station light, one warm practical light\nnear the exit, slightly damp concrete, restrained reflections and realistic\npublic architecture. Keep screen direction consistent: the tracks remain on\ncamera-left and the warm exit remains on camera-right. Performance is subtle\nand human, with natural blinking, breathing and small eye movements. No beauty\nfilter, fantasy styling, readable signs, logos, extra people, duplicate person,\nidentity drift, wardrobe changes or invented accessories.",
+        "storyBrief": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+        "creativeDirection": "Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter.",
         "genre": "drama",
         "audienceFeeling": "moved",
         "pacing": "balanced",
         "endingIntent": "hopeful",
-        "mode": "simple"
+        "mode": "simple",
+        "castPlanningMode": "ai-recommended",
+        "storyRoleSlots": [
+          {
+            "id": "role_young-woman_2af2",
+            "label": "Young Woman",
+            "importance": "required",
+            "storyFunction": "Carries the entire visible emotional decision and provides continuity from uncertainty to hope.",
+            "relationshipHint": "Alone; the phone and train function as unseen emotional pressures, not characters.",
+            "objective": "Decide whether to remain tied to the past or leave the platform and move forward.",
+            "emotionalArc": "Tense and watchful; briefly destabilized; quietly resolute and lighter.",
+            "personalityTraits": [
+              "observant",
+              "private",
+              "resilient",
+              "introspective",
+              "self-controlled"
+            ],
+            "performanceDirection": "Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile."
+          }
+        ]
       },
       "storySourceVersions": [
         {
@@ -36,13 +56,72 @@
           "version": 1,
           "storyBrief": "At an almost empty urban train platform late in the evening, a young woman\nwaits with a black phone in her hand for someone from her past. The platform\nclock and the approaching last train force a decision. A silent notification\narrives, but instead of boarding or continuing to wait, she exhales, puts the\nphone away and walks toward the warm station exit. The story moves from quiet\nuncertainty to a small but clear act of letting go. Show only the selected\nCharacter; no second person appears on screen.",
           "creativeDirection": "Photorealistic contemporary vertical-drama cinematography. Preserve the\nselected Character's exact identity, apparent age, body proportions, hairstyle\nand approved wardrobe in every shot. Use one believable modern urban train\nplatform at blue hour: cool ambient station light, one warm practical light\nnear the exit, slightly damp concrete, restrained reflections and realistic\npublic architecture. Keep screen direction consistent: the tracks remain on\ncamera-left and the warm exit remains on camera-right. Performance is subtle\nand human, with natural blinking, breathing and small eye movements. No beauty\nfilter, fantasy styling, readable signs, logos, extra people, duplicate person,\nidentity drift, wardrobe changes or invented accessories.",
-          "status": "applied",
+          "status": "superseded",
           "source": "manual",
           "createdAt": "2026-08-27T14:43:18.259Z"
+        },
+        {
+          "id": "cinesrc_1787976392361_sctwhhld",
+          "version": 2,
+          "parentVersionId": "cinesrc_1787841798259_qelmuxv1",
+          "storyBrief": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "creativeDirection": "Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter.",
+          "status": "applied",
+          "source": "manual",
+          "createdAt": "2026-08-29T04:06:32.361Z"
         }
       ],
-      "activeStorySourceVersionId": "cinesrc_1787841798259_qelmuxv1",
-      "castAssignments": [],
+      "activeStorySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+      "castAssignments": [
+        {
+          "id": "cinecast_charprof_1786762030645_bi3091e5",
+          "characterProfileId": "charprof_1786762030645_bi3091e5",
+          "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+          "portraitUrl": "/outputs/character-profiles/charprof_1786762030645_bi3091e5/charver_1786762030649_qd0i06j2/face.webp",
+          "displayName": "เหมยลี่",
+          "storyRole": "Young Woman",
+          "storyRoleSlotId": "role_young-woman_2af2",
+          "storyImportance": "protagonist",
+          "objective": "Decide whether to remain tied to the past or leave the platform and move forward.",
+          "motivation": "",
+          "pressure": "",
+          "personalityTraits": [
+            "observant",
+            "private",
+            "resilient",
+            "introspective",
+            "self-controlled"
+          ],
+          "emotionalBaseline": "Tense and watchful; briefly destabilized; quietly resolute and lighter.",
+          "dialogueStyle": "",
+          "performanceDirection": "Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile.",
+          "identityReady": true,
+          "apparentAgeRange": null,
+          "identityReadinessSnapshot": {
+            "status": "identity_pack_ready",
+            "ageRange": {
+              "attributeId": "character.004_e20",
+              "minimum": 20,
+              "maximum": 23
+            },
+            "presentationGender": {
+              "attributeId": "character.001",
+              "value": "female"
+            },
+            "characterType": "reusable_model",
+            "outfitBehavior": "replaceable",
+            "identityPolicyVersion": "character-identity-pack-v2"
+          },
+          "reuseAuthorization": {
+            "ownerUserId": "usr_alice",
+            "ownerUsername": "user_alice",
+            "validatedAt": "2026-08-29T16:19:30.875Z"
+          },
+          "looks": [],
+          "active": true,
+          "updatedAt": "2026-08-29T16:19:30.875Z"
+        }
+      ],
       "storyPlanVersions": [],
       "scenes": [],
       "generationAttempts": [],
@@ -51,7 +130,7 @@
       "activeStoryPlanVersionId": null,
       "activeTimelineVersionId": null,
       "createdAt": "2026-08-27T14:43:18.259Z",
-      "updatedAt": "2026-08-27T14:54:01.588Z",
+      "updatedAt": "2026-08-29T16:19:30.875Z",
       "archivedAt": null
     }
   ]

@@ -59,6 +59,7 @@ export function AppShell() {
   const createTarget = location.pathname.startsWith('/comparisons') || location.pathname === routePaths.exploreComparisons
     ? `${routePaths.createPlayground}?compare=1`
     : routePaths.createPlayground;
+  const routePolicy = getAppShellRoutePolicy(location.pathname);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -100,6 +101,7 @@ export function AppShell() {
         onSwitchActor={switchActor}
         menuTriggerRef={mobileTrigger}
         onOpenMenu={() => setMobileOpen(true)}
+        showCreate={routePolicy.showCreate}
       />
       <div className="app-shell__workspace">
         {mobileOpen ? (
@@ -145,7 +147,7 @@ export function AppShell() {
             {location.pathname !== routePaths.explore ? <Breadcrumbs /> : null}
             <Outlet />
           </div>
-          <AppFooter />
+          {routePolicy.showFooter ? <AppFooter /> : null}
         </div>
       </div>
     </div>
@@ -161,7 +163,8 @@ function GlobalHeader({
   profileHandle,
   onSwitchActor,
   menuTriggerRef,
-  onOpenMenu
+  onOpenMenu,
+  showCreate
 }: {
   createTarget: string;
   actor: ReturnType<typeof useActor>['actor'];
@@ -172,6 +175,7 @@ function GlobalHeader({
   onSwitchActor: (actorId: string) => Promise<void>;
   menuTriggerRef: React.RefObject<HTMLButtonElement | null>;
   onOpenMenu: () => void;
+  showCreate: boolean;
 }) {
   const { t } = useTranslation(['shell', 'credits', 'community']);
   const navigate = useNavigate();
@@ -219,10 +223,12 @@ function GlobalHeader({
             })}
           />
         </form>
-        <Link to={createTarget} className="global-header__create">
-          <Sparkles aria-hidden="true" />
-          <span>{t('shell.navigation.create')}</span>
-        </Link>
+        {showCreate ? (
+          <Link to={createTarget} className="global-header__create">
+            <Sparkles aria-hidden="true" />
+            <span>{t('shell.navigation.create')}</span>
+          </Link>
+        ) : null}
         <GenerationJobCenterIndicator />
         <Link
           to="/credits"
@@ -276,4 +282,14 @@ function readCollapsedPreference() {
 
 function isStudioLocation(pathname: string) {
   return pathname.startsWith('/create/studio/');
+}
+
+export function getAppShellRoutePolicy(pathname: string) {
+  const cinematicWorkspace = pathname === routePaths.createCinematic
+    || pathname === routePaths.createCinematicNew
+    || pathname.startsWith(`${routePaths.createCinematic}/`);
+  return {
+    showCreate: !cinematicWorkspace,
+    showFooter: true
+  } as const;
 }

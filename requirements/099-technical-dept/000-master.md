@@ -96,7 +96,7 @@ This section is the source of truth referenced by the repository-level `AGENTS.m
 | Generation Group persistence and child status aggregation | `server/repositories/generation/GenerationGroupRepository.js`, `server/data/generation/groups.json` |
 | Guarded video capability catalog, durable provider-task lifecycle and actor task reads | `server/domain/generation/VideoCapabilityRegistry.js`, `server/domain/generation/VideoProviderTaskService.js`, `server/repositories/generation/VideoProviderTaskRepository.js`, `server/app/routes/videoGenerationRoutes.js` |
 | Persistence interfaces and adapters | `server/repositories/<capability>/` |
-| Character Profile lifecycle, casting, sharing and usage | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/` |
+| Character Profile lifecycle, casting, sharing, usage and reusable private Character Look versions | `server/domain/character-profiles/`, `server/repositories/character-profiles/`, `server/data/character-profiles/`; Look state is owned by `CharacterLookService.js`, `CharacterLookRepository.js` and `looks.json`, while Cinematic stores only pinned authorized bindings |
 | Fashion Blueprint planning, quotes, runs and assets | `server/domain/fashion-blueprint/`, `server/repositories/fashion-blueprint/`, `server/data/fashion-blueprint/` |
 | Cinematic Project, Story Plan, Scene, Shot, continuity and timeline orchestration | `server/domain/cinematic/`, `server/repositories/cinematic/`, `server/data/cinematic/`; provider tasks remain in Generation and financial state remains in Credits |
 | Canonical Template definitions, immutable versions, use sessions and usage events | `server/domain/templates/`, `server/repositories/templates/`, `server/data/templates/` |
@@ -138,6 +138,7 @@ Server placement rules:
 | React bootstrap and app providers | `web/src/main.tsx`, `web/src/app/` |
 | React navigation metadata | `web/src/app/routeRegistry/` |
 | React routes and feature orchestration | `web/src/features/<feature>/` |
+| Character Profile and reusable Character Look owner UI/application boundary | `web/src/features/profiles/`; the shared source-draft dialog belongs in `web/src/features/profiles/components/` and may be invoked by Cinematic without creating Cinematic-owned Look persistence |
 | Cinematic Studio routes, stage orchestration, story/Shot/timeline UI and actor draft adapters | `web/src/features/cinematic/`; shared Generation, media, Credit and theme presentation remains under its current shared owner |
 | Unified Playground image/video route orchestration and actor-scoped mode drafts | `web/src/features/playground/`; provider dispatch remains in Generation and shared media/result UI remains under existing shared owners |
 | Community typed image/video publication, feed and post presentation | `web/src/features/community/`; durable delivery remains in Assets and generation remains in Generation |

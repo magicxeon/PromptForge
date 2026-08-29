@@ -6,7 +6,8 @@ import {
   cinematicProjectSummarySchema,
   cinematicProduceShotContextSchema,
   cinematicVideoAttemptResponseSchema,
-  cinematicVideoQuoteSchema
+  cinematicVideoQuoteSchema,
+  cinematicStoryEnhancementSchema
 } from '../schemas/cinematicSchemas';
 import { apiRequest } from '../../../lib/api/apiClient';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
@@ -57,6 +58,14 @@ export function updateCinematicSetup(projectId: string, draft: CinematicSetupDra
   });
 }
 
+export function enhanceCinematicStory(draft: CinematicSetupDraft) {
+  return apiRequest('/api/cinematic/story-enhancements', {
+    method: 'POST',
+    body: draft,
+    schema: cinematicStoryEnhancementSchema
+  });
+}
+
 export function updateCinematicStage(projectId: string, stage: CinematicStage, expectedVersion: number) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/stage`, {
     method: 'PUT',
@@ -72,6 +81,7 @@ export function upsertCinematicCast(projectId: string, assignmentId: string, inp
   displayName: string;
   storyImportance: 'protagonist' | 'supporting';
   storyRole?: string;
+  storyRoleSlotId?: string | null;
   objective?: string;
   motivation?: string;
   pressure?: string;
@@ -85,10 +95,18 @@ export function upsertCinematicCast(projectId: string, assignmentId: string, inp
   });
 }
 
+export function removeCinematicCast(projectId: string, assignmentId: string, expectedVersion: number) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(assignmentId)}`, {
+    method: 'DELETE', body: { expectedVersion }, schema: cinematicProjectSchema
+  });
+}
+
 export function upsertCinematicWardrobeLook(projectId: string, assignmentId: string, lookId: string, input: {
   expectedVersion: number;
   name: string;
-  mode: 'character_default' | 'uploaded';
+  mode: 'character_default' | 'uploaded' | 'character_look';
+  characterLookId?: string;
+  characterLookVersionId?: string;
   assetIds?: string[];
   garmentSummary?: string;
   accessorySummary?: string;

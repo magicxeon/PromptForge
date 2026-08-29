@@ -1,26 +1,32 @@
 import {
   ArrowLeft, ArrowRight, Check, Clock3, Film, Image as ImageIcon,
-  Play, Plus, RotateCcw, Shirt, Sparkles, Upload, UserRound, WandSparkles
+  Play, Plus, RotateCcw, Shirt, Sparkles, Trash2, Upload, UserRound, WandSparkles
 } from 'lucide-react';
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../../components/ui/Button';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Surface } from '../../../components/ui/Surface';
 import { GenerationStageState } from '../../../components/generation/GenerationStageState';
 import { VideoMediaPlayer } from '../../../components/media/VideoMediaPlayer';
+import { AuthenticatedMediaImage } from '../../../components/media/AuthenticatedMediaImage';
 import type { CinematicStage } from '../cinematicStages';
-import { CharacterPickerDialog, SceneDirectorDialog } from './CinematicDialogs';
+import { CharacterPickerDialog, SceneDirectorDialog, type CharacterCandidate } from './CinematicDialogs';
+import { CharacterLookDialog, type CharacterLookDialogMode } from '../../profiles/components/CharacterLookDialog';
+import { CinematicControlLevel } from './CinematicControlLevel';
 import { ContextualOperationDock } from './ContextualOperationDock';
 import { StoryboardSequenceBoard, type StoryboardShotSummary } from './StoryboardSequenceBoard';
 import {
   approveCinematicStoryboardSource, reorderCinematicSceneShots, saveCinematicStoryPlan,
-  saveCinematicTimeline, updateCinematicShotDirection, upsertCinematicCast,
+  saveCinematicTimeline, updateCinematicShotDirection, upsertCinematicCast, removeCinematicCast,
   upsertCinematicWardrobeLook, approveCinematicVideoAttempt, createCinematicVideoAttempt,
   quoteCinematicVideoAttempt, getCinematicVideoCapabilityCatalog
 } from '../api/cinematicApi';
 import { getVideoTask } from '../../generation/api/videoGenerationApi';
 import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchemas';
+import { listCharacterLooks } from '../../profiles/api/profileApi';
+import type { CharacterLook } from '../../profiles/schemas/profileSchemas';
 
 type Props = {
   activeStage: CinematicStage;
@@ -30,6 +36,20 @@ type Props = {
   onNext: () => void;
   project?: CinematicProject;
   onProjectChanged?: (project: CinematicProject) => void;
+  onAddCastCharacter?: (input: {
+    assignmentId: string;
+    characterProfileId: string;
+    characterProfileVersionId: string;
+    displayName: string;
+    storyImportance: 'protagonist' | 'supporting';
+    storyRole: string;
+    storyRoleSlotId?: string | null;
+    objective: string;
+    personalityTraits: string[];
+    emotionalBaseline: string;
+    performanceDirection: string;
+  }) => Promise<CinematicProject>;
+  onRemoveCastCharacter?: (assignmentId: string) => Promise<CinematicProject>;
   onProjectRefresh?: () => void;
   onOpenStage?: (stage: CinematicStage) => void;
 };
@@ -42,27 +62,38 @@ const storyboardShotFixtures = [
   { id: '01D', durationSeconds: 3.5, titleKey: 'trainReveal', framingKey: 'wideReveal', actionKey: 'revealAction', status: 'draft' }
 ] as const;
 
-export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onPrevious, onNext, project, onProjectChanged, onProjectRefresh, onOpenStage }: Props) {
+export function CinematicStageContent({ activeStage, mode = 'simple', onModeChange, onPrevious, onNext, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter, onProjectRefresh, onOpenStage }: Props) {
+  const castBlocked = activeStage === 'cast' && hasUnassignedRequiredRoles(project);
   return <div className="cinematic-stage-content" data-testid={`cinematic-stage-${activeStage}`}>
-    {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} />}
+    {activeStage === 'cast' && <CastStage mode={mode} onModeChange={onModeChange} project={project} onProjectChanged={onProjectChanged} onAddCastCharacter={onAddCastCharacter} onRemoveCastCharacter={onRemoveCastCharacter} />}
     {activeStage === 'story-plan' && <StoryPlanStage project={project} onProjectChanged={onProjectChanged} />}
     {activeStage === 'storyboard' && <StoryboardStage project={project} onProjectRefresh={onProjectRefresh} />}
     {activeStage === 'produce' && <ProduceStage project={project} onEditStoryboard={() => onOpenStage?.('storyboard')} onProjectRefresh={onProjectRefresh} />}
     {activeStage === 'finish' && <FinishStage project={project} onProjectChanged={onProjectChanged} />}
-    <StageFooter activeStage={activeStage} onPrevious={onPrevious} onNext={onNext} />
+    <StageFooter activeStage={activeStage} onPrevious={onPrevious} onNext={onNext} nextDisabled={castBlocked} />
   </div>;
 }
 
-function StageHeading({ stage }: { stage: CinematicStage }) {
+function StageHeading({ stage, action }: { stage: CinematicStage; action?: ReactNode }) {
   const { t } = useTranslation('cinematic');
-  return <header className="cinematic-stage-heading"><div><p>{t(`cinematic.stage.${stage}.eyebrow`)}</p><h2>{t(`cinematic.stage.${stage}.title`)}</h2></div><span className="cinematic-prototype-badge">{t('cinematic.prototype.badge')}</span></header>;
+  return <header className={`cinematic-stage-heading${action ? ' cinematic-stage-heading--with-control' : ''}`}><div><p>{t(`cinematic.stage.${stage}.eyebrow`)}</p><h2>{t(`cinematic.stage.${stage}.title`)}</h2>{stage === 'cast' ? <small>{t('cinematic.stage.cast.description')}</small> : null}</div>{action || (stage !== 'cast' ? <span className="cinematic-prototype-badge">{t('cinematic.prototype.badge')}</span> : null)}</header>;
 }
 
-function CastStage({ mode, onModeChange, project, onProjectChanged }: { mode: 'simple' | 'advanced'; onModeChange?: (mode: 'simple' | 'advanced') => void; project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void }) {
+function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCharacter, onRemoveCastCharacter }: { mode: 'simple' | 'advanced'; onModeChange?: (mode: 'simple' | 'advanced') => void; project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void; onAddCastCharacter?: Props['onAddCastCharacter']; onRemoveCastCharacter?: Props['onRemoveCastCharacter'] }) {
   const { t } = useTranslation('cinematic');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [pendingRoleId, setPendingRoleId] = useState<string | null>(null);
+  const [lookDialogOpen, setLookDialogOpen] = useState(false);
+  const [lookDialogMode, setLookDialogMode] = useState<CharacterLookDialogMode>('upload');
+  const [characterLooks, setCharacterLooks] = useState<CharacterLook[]>([]);
+  const [activeDetailTab, setActiveDetailTab] = useState<'direction' | 'wardrobe' | 'continuity'>('direction');
+  const [dossierSaveState, setDossierSaveState] = useState<'idle' | 'dirty' | 'saving' | 'saved' | 'failed'>('idle');
+  const [removingCharacter, setRemovingCharacter] = useState(false);
+  const dossierSaveTimer = useRef<number | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState(project?.castAssignments[0]?.id || 'mira');
   const selectedAssignment = project?.castAssignments.find(item => item.id === selectedCharacter);
+  const selectedCharacterProfileId = selectedAssignment?.characterProfileId;
+  const selectedCharacterProfileVersionId = selectedAssignment?.characterProfileVersionId;
   const selectedRole = selectedAssignment?.storyImportance === 'protagonist' ? 'lead' : 'supporting';
   const selectedObjective = selectedAssignment?.objective
     || (selectedCharacter === 'mira' ? t('cinematic.cast.miraObjective') : t('cinematic.cast.noahObjective'));
@@ -75,39 +106,121 @@ function CastStage({ mode, onModeChange, project, onProjectChanged }: { mode: 's
     ? String(selectedAssignment.looks[0].name)
     : selectedAssignment ? t('cinematic.cast.characterWardrobe')
       : selectedCharacter === 'mira' ? t('cinematic.cast.lookArrival') : t('cinematic.cast.lookPlatform');
+  const hasBoundLook = !project || Boolean(selectedAssignment?.looks.length);
   const [castError, setCastError] = useState<string | null>(null);
-  async function addCharacter(character: { id: string; displayName: string; characterProfileVersionId: string }) {
-    if (!project || !character.characterProfileVersionId) return;
+  const roleSlots = project?.setup?.storyRoleSlots || [];
+  const assignmentForRole = (role: (typeof roleSlots)[number]) => project?.castAssignments.find(assignment => (
+    assignment.storyRoleSlotId === role.id
+    || (!assignment.storyRoleSlotId && assignment.storyRole.trim().toLowerCase() === role.label.trim().toLowerCase())
+  ));
+  const isRoleAssigned = (role: (typeof roleSlots)[number]) => Boolean(assignmentForRole(role));
+  const isRoleReady = (role: (typeof roleSlots)[number]) => Boolean(assignmentForRole(role)?.identityReady);
+  const nextUnfilledRole = roleSlots.find(role => !isRoleAssigned(role));
+  const requiredRoleCount = roleSlots.filter(role => role.importance === 'required').length;
+  const assignedRequiredRoleCount = roleSlots.filter(role => (
+    role.importance === 'required' && isRoleAssigned(role)
+  )).length;
+  const preparedRequiredRoleCount = roleSlots.filter(role => (
+    role.importance === 'required' && isRoleReady(role)
+  )).length;
+  const orderedRoleSlots = [...roleSlots].sort((left, right) => {
+    const rank = (role: (typeof roleSlots)[number]) => {
+      const assigned = Boolean(assignmentForRole(role));
+      if (role.importance === 'required') return assigned ? 1 : 0;
+      return assigned ? 3 : 2;
+    };
+    return rank(left) - rank(right);
+  });
+  const planningSource = project?.setup?.castPlanningMode === 'ai-recommended'
+    ? t('cinematic.cast.recommendedRoles')
+    : t('cinematic.cast.plannedRoles');
+  const requiredCastAssigned = requiredRoleCount === assignedRequiredRoleCount;
+  const requiredCastReady = requiredRoleCount === preparedRequiredRoleCount;
+  const assignedRolesNeedingPreparation = assignedRequiredRoleCount - preparedRequiredRoleCount;
+  useEffect(() => {
+    if (!project?.castAssignments.length) return;
+    if (!project.castAssignments.some(item => item.id === selectedCharacter)) {
+      setSelectedCharacter(project.castAssignments[0]!.id);
+    }
+  }, [project?.castAssignments, selectedCharacter]);
+  useEffect(() => () => {
+    if (dossierSaveTimer.current != null) window.clearTimeout(dossierSaveTimer.current);
+  }, []);
+  useEffect(() => {
+    if (!selectedCharacterProfileId || !selectedCharacterProfileVersionId) {
+      setCharacterLooks([]);
+      return;
+    }
+    let cancelled = false;
+    listCharacterLooks(selectedCharacterProfileId, selectedCharacterProfileVersionId)
+      .then(response => { if (!cancelled) setCharacterLooks(response.items); })
+      .catch(() => { if (!cancelled) setCharacterLooks([]); });
+    return () => { cancelled = true; };
+  }, [selectedCharacterProfileId, selectedCharacterProfileVersionId]);
+  async function addCharacter(character: CharacterCandidate) {
+    if (!project || !character.characterProfileVersionId) {
+      throw new Error(t('cinematic.status.saveFailed'));
+    }
     setCastError(null);
+    const assignmentId = `cinecast_${character.id}`;
+    const plannedRole = roleSlots.find(role => role.id === pendingRoleId) || nextUnfilledRole;
+    const storyImportance = project.castAssignments.length ? 'supporting' : 'protagonist';
+    const roleDirection = castDirectionFromRole(plannedRole);
+    const input = {
+      assignmentId,
+      characterProfileId: character.id,
+      characterProfileVersionId: character.characterProfileVersionId,
+      displayName: character.displayName,
+      storyImportance,
+      storyRole: plannedRole?.label || (storyImportance === 'protagonist' ? 'Lead' : 'Supporting'),
+      storyRoleSlotId: plannedRole?.id || null,
+      ...roleDirection
+    } as const;
     try {
-      const saved = await upsertCinematicCast(project.id, `cinecast_${character.id}`, {
-        expectedVersion: project.version,
-        characterProfileId: character.id,
-        characterProfileVersionId: character.characterProfileVersionId,
-        displayName: character.displayName,
-        storyImportance: project.castAssignments.length ? 'supporting' : 'protagonist',
-        storyRole: project.castAssignments.length ? 'Supporting' : 'Lead'
-      });
-      setSelectedCharacter(`cinecast_${character.id}`);
-      onProjectChanged?.(saved);
+      const saved = onAddCastCharacter
+        ? await onAddCastCharacter(input)
+        : await upsertCinematicCast(project.id, assignmentId, { expectedVersion: project.version, ...input });
+      setSelectedCharacter(assignmentId);
+      setPendingRoleId(null);
+      if (!onAddCastCharacter) onProjectChanged?.(saved);
     } catch (error) {
       setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+      throw error;
     }
   }
-  async function saveDossier(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function removeSelectedCharacter() {
     if (!project || !selectedAssignment) return;
-    const values = new FormData(event.currentTarget);
     setCastError(null);
+    setRemovingCharacter(true);
+    try {
+      const saved = onRemoveCastCharacter
+        ? await onRemoveCastCharacter(selectedAssignment.id)
+        : await removeCinematicCast(project.id, selectedAssignment.id, project.version);
+      const nextAssignment = saved.castAssignments.find(item => item.id !== selectedAssignment.id);
+      setSelectedCharacter(nextAssignment?.id || '');
+      if (!onRemoveCastCharacter) onProjectChanged?.(saved);
+    } catch (error) {
+      setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+    } finally {
+      setRemovingCharacter(false);
+    }
+  }
+  async function persistDossier(form: HTMLFormElement) {
+    if (!project || !selectedAssignment) return;
+    const values = new FormData(form);
+    setCastError(null);
+    setDossierSaveState('saving');
     try {
       const saved = await upsertCinematicCast(project.id, selectedAssignment.id, {
         expectedVersion: project.version,
         characterProfileId: selectedAssignment.characterProfileId,
         characterProfileVersionId: selectedAssignment.characterProfileVersionId,
         displayName: selectedAssignment.displayName,
+        storyRoleSlotId: selectedAssignment.storyRoleSlotId,
         storyImportance: values.get('storyImportance') === 'lead' ? 'protagonist' : 'supporting',
-        storyRole: values.get('storyImportance') === 'lead' ? 'Lead' : 'Supporting',
+        storyRole: selectedAssignment.storyRole,
         objective: String(values.get('objective') || ''),
+        motivation: String(values.get('motivation') || ''),
         pressure: String(values.get('pressure') || ''),
         personalityTraits: String(values.get('personalityTraits') || '').split(',').map(value => value.trim()).filter(Boolean),
         emotionalBaseline: String(values.get('emotionalBaseline') || ''),
@@ -115,9 +228,26 @@ function CastStage({ mode, onModeChange, project, onProjectChanged }: { mode: 's
         performanceDirection: String(values.get('performanceDirection') || '')
       });
       onProjectChanged?.(saved);
+      setDossierSaveState('saved');
     } catch (error) {
       setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+      setDossierSaveState('failed');
     }
+  }
+  function saveDossier(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (dossierSaveTimer.current != null) window.clearTimeout(dossierSaveTimer.current);
+    void persistDossier(event.currentTarget);
+  }
+  function scheduleDossierSave(event: FormEvent<HTMLFormElement>) {
+    if (!project || !selectedAssignment) return;
+    const form = event.currentTarget;
+    setDossierSaveState('dirty');
+    if (dossierSaveTimer.current != null) window.clearTimeout(dossierSaveTimer.current);
+    dossierSaveTimer.current = window.setTimeout(() => {
+      dossierSaveTimer.current = null;
+      void persistDossier(form);
+    }, 800);
   }
   async function addCharacterWardrobeLook() {
     if (!project || !selectedAssignment) return;
@@ -139,50 +269,126 @@ function CastStage({ mode, onModeChange, project, onProjectChanged }: { mode: 's
       setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
     }
   }
+  async function bindCharacterLook(look: CharacterLook) {
+    if (!project || !selectedAssignment || !look.approvedVersionId) return;
+    setCastError(null);
+    try {
+      const saved = await upsertCinematicWardrobeLook(
+        project.id,
+        selectedAssignment.id,
+        `cinelook_${look.id}`,
+        {
+          expectedVersion: project.version,
+          name: look.name,
+          mode: 'character_look',
+          characterLookId: look.id,
+          characterLookVersionId: look.approvedVersionId,
+          coverage: 'multi_view',
+          locked: true
+        }
+      );
+      onProjectChanged?.(saved);
+    } catch (error) {
+      setCastError(error instanceof Error ? error.message : t('cinematic.status.saveFailed'));
+    }
+  }
   return <>
-    <StageHeading stage="cast" />
-    <div className="cinematic-mode-row" aria-label={t('cinematic.mode.label')}>
-      <span>{t('cinematic.mode.control')}</span>
-      <div>{(['simple', 'advanced'] as const).map(item => <Button key={item} size="sm" variant={mode === item ? 'primary' : 'ghost'} onClick={() => onModeChange?.(item)}>{t(`cinematic.mode.${item}`)}</Button>)}</div>
-      <small>{t(`cinematic.mode.${mode}Hint`)}</small>
-    </div>
+    <StageHeading
+      stage="cast"
+      action={<CinematicControlLevel mode={mode} label={t('cinematic.mode.control')} helpText={t(`cinematic.mode.${mode}Hint`)} onChange={item => onModeChange?.(item)} />}
+    />
+    {roleSlots.length ? <section className="cinematic-role-readiness" aria-labelledby="cinematic-role-readiness-title">
+      <header>
+        <div><h3 id="cinematic-role-readiness-title">{planningSource}</h3><p>{t('cinematic.cast.rolePlanSummary', { count: roleSlots.length, source: t(`cinematic.castPlanningMode.${project?.setup?.castPlanningMode || 'manual'}`) })}</p></div>
+        <div className="cinematic-role-readiness__progress"><strong>{assignedRequiredRoleCount} {t('cinematic.cast.of')} {requiredRoleCount} {t('cinematic.cast.requiredAssigned')}</strong><span aria-hidden="true"><i style={{ width: `${requiredRoleCount ? (assignedRequiredRoleCount / requiredRoleCount) * 100 : 100}%` }} /></span><b className={requiredCastReady ? 'is-ready' : ''}>{requiredCastReady
+          ? t('cinematic.cast.requiredCastReady')
+          : requiredCastAssigned
+            ? t('cinematic.cast.rolesNeedPreparation', { count: assignedRolesNeedingPreparation })
+            : t('cinematic.cast.rolesNeedCharacter', { count: requiredRoleCount - assignedRequiredRoleCount })}</b></div>
+      </header>
+      <div className="cinematic-role-readiness__list">
+        {orderedRoleSlots.map(role => {
+          const assignment = assignmentForRole(role);
+          const assignmentReady = Boolean(assignment?.identityReady);
+          return <article key={role.id} className={assignment ? (assignmentReady ? 'is-assigned' : 'is-needs-preparation') : 'is-unassigned'}>
+            <CharacterPortrait portraitUrl={cinematicCastPortraitUrl(assignment)} tone="cyan" />
+            <div><span>{role.label} <small>{t(`cinematic.roleImportance.${role.importance}`)}</small></span><strong>{assignment?.displayName || t('cinematic.cast.needsCharacter')}</strong><p>{assignment && !assignmentReady ? t('cinematic.cast.needsPreparation') : (role.storyFunction || t('cinematic.cast.roleFunctionMissing'))}</p></div>
+            <Button size="sm" variant={assignment ? 'ghost' : 'primary'} onClick={() => { setPendingRoleId(role.id); setPickerOpen(true); }}>{assignment ? t('cinematic.cast.changeCharacter') : t('cinematic.cast.chooseForRole')}</Button>
+          </article>;
+        })}
+      </div>
+    </section> : <p className="cinematic-cast-plan-notice">{t('cinematic.cast.noRolePlan')}</p>}
     <div className="cinematic-character-workspace">
-      <section className="cinematic-work-panel">
-        <SectionHeading title={t('cinematic.cast.characters')} hint={t('cinematic.cast.charactersHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} onClick={() => setPickerOpen(true)}>{t('cinematic.cast.addCharacter')}</Button>} />
+      <section className="cinematic-work-panel cinematic-project-cast-panel">
+        <SectionHeading title={t('cinematic.cast.projectCast')} hint={t('cinematic.cast.castSummaryHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={Boolean(roleSlots.length) && !nextUnfilledRole} title={Boolean(roleSlots.length) && !nextUnfilledRole ? t('cinematic.cast.allRolesAssigned') : undefined} onClick={() => { setPendingRoleId(nextUnfilledRole?.id || null); setPickerOpen(true); }}>{t('cinematic.cast.addCharacter')}</Button>} />
+        <div className="cinematic-project-cast-summary" aria-label={t('cinematic.cast.castSummary')}>
+          <span><strong>{project?.castAssignments.length || 0}</strong><small>{t('cinematic.cast.charactersInProject')}</small></span>
+          <span><strong>{roleSlots.length}</strong><small>{t('cinematic.cast.plannedRoles')}</small></span>
+        </div>
         <div className="cinematic-character-dossier-list">
-          {project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} name={assignment.displayName} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes="0" tone="cyan" />)}
+          {orderedRoleSlots.map(role => {
+            const assignment = assignmentForRole(role);
+            return assignment
+              ? <CastCard key={role.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={role.label} required={role.importance === 'required'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? String((assignment.looks[0] as { name?: string })?.name || t('cinematic.cast.characterWardrobe')) : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />
+              : <button key={role.id} type="button" className="cinematic-unassigned-cast-card" onClick={() => { setPendingRoleId(role.id); setPickerOpen(true); }}><CharacterPortrait tone="cyan" /><span><strong>{role.label}</strong><small>{t(`cinematic.roleImportance.${role.importance}`)}</small><b>{t('cinematic.cast.noCharacterAssigned')}</b><em>{role.storyFunction}</em></span></button>;
+          })}
+          {!roleSlots.length && project?.castAssignments.map(assignment => <CastCard key={assignment.id} active={selectedCharacter === assignment.id} onSelect={() => setSelectedCharacter(assignment.id)} role={assignment.storyRole} required={assignment.storyImportance === 'protagonist'} name={assignment.displayName} portraitUrl={cinematicCastPortraitUrl(assignment)} identityReady={assignment.identityReady} personality={assignment.personalityTraits.join(' / ') || assignment.objective || t('cinematic.cast.identityReady')} look={assignment.looks.length ? t('cinematic.cast.lookArrival') : t('cinematic.cast.characterWardrobe')} scenes={project?.scenes.length ? String(project.scenes.length) : null} tone="cyan" />)}
           {!project ? <><CastCard active={selectedCharacter === 'mira'} onSelect={() => setSelectedCharacter('mira')} role={t('cinematic.cast.lead')} name="Mira Chen" personality={t('cinematic.cast.miraTraits')} look={t('cinematic.cast.lookArrival')} scenes="3" tone="cyan" /><CastCard active={selectedCharacter === 'noah'} onSelect={() => setSelectedCharacter('noah')} role={t('cinematic.cast.supporting')} name="Noah Lin" personality={t('cinematic.cast.noahTraits')} look={t('cinematic.cast.lookPlatform')} scenes="2" tone="amber" /></> : null}
-          {project && project.castAssignments.length === 0 ? <p>{t('cinematic.cast.charactersHint')}</p> : null}
         </div>
       </section>
       {(!project || selectedAssignment) ? <aside key={selectedCharacter} className="cinematic-character-dossier">
-        <header className="cinematic-dossier-header"><div className={`cinematic-cast-card__portrait is-${selectedCharacter === 'noah' ? 'amber' : 'cyan'}`}><UserRound aria-hidden="true" /></div><div><span>{t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p><Check aria-hidden="true" />{t('cinematic.cast.identityReady')}</p></div></header>
-        <form onSubmit={event => void saveDossier(event)}>
-        <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.rolePersonality')} hint={t('cinematic.cast.rolePersonalityHint')} /><div className="cinematic-dossier-fields"><label><span>{t('cinematic.cast.storyRole')}</span><select name="storyImportance" defaultValue={selectedRole}><option value="lead">{t('cinematic.cast.lead')}</option><option value="supporting">{t('cinematic.cast.supporting')}</option></select></label><label><span>{t('cinematic.cast.emotionalBaseline')}</span><select name="emotionalBaseline" defaultValue={selectedAssignment?.emotionalBaseline || 'guarded'}><option value="guarded">{t('cinematic.cast.guarded')}</option><option value="open">{t('cinematic.cast.open')}</option></select></label><label className="is-wide"><span>{t('cinematic.cast.objective')}</span><textarea name="objective" rows={2} defaultValue={selectedObjective} /></label><label className="is-wide"><span>{t('cinematic.cast.personality')}</span><input name="personalityTraits" defaultValue={selectedTraits} /></label>{mode === 'advanced' && <><label className="is-wide"><span>{t('cinematic.cast.pressure')}</span><textarea name="pressure" rows={2} defaultValue={selectedAssignment?.pressure || t('cinematic.cast.pressureValue')} /></label><label><span>{t('cinematic.cast.relationship')}</span><input defaultValue={t('cinematic.cast.relationshipValue')} /></label><label><span>{t('cinematic.cast.dialogueStyle')}</span><input name="dialogueStyle" defaultValue={selectedAssignment?.dialogueStyle || t('cinematic.cast.dialogueStyleValue')} /></label></>}</div></section>
-        <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.performanceDirection')} hint={t('cinematic.cast.performanceDirectionHint')} /><textarea name="performanceDirection" rows={3} defaultValue={selectedPerformance} /><Button type="submit" size="sm" disabled={!selectedAssignment}>{t('cinematic.cast.saveDossier')}</Button></section>
-        </form>
-        <section className="cinematic-dossier-section">
-          <SectionHeading title={t('cinematic.cast.wardrobeLooks')} hint={t('cinematic.cast.wardrobeOwnedHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={!selectedAssignment} onClick={() => void addCharacterWardrobeLook()}>{t('cinematic.cast.addLook')}</Button>} />
-          <article className="cinematic-look-card"><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.primaryLook')}</span><h4>{selectedLookName}</h4><p>{t('cinematic.cast.sceneScope')}</p></div><span className="cinematic-status-pill is-ready">{t('cinematic.cast.locked')}</span></article>
+        <header className="cinematic-dossier-header"><CharacterPortrait portraitUrl={cinematicCastPortraitUrl(selectedAssignment)} tone={selectedCharacter === 'noah' ? 'amber' : 'cyan'} /><div><span>{selectedAssignment?.storyRole || t('cinematic.cast.selectedCharacter')}</span><h3>{selectedAssignment?.displayName || (selectedCharacter === 'mira' ? 'Mira Chen' : 'Noah Lin')}</h3><p className={selectedAssignment && !selectedAssignment.identityReady ? 'is-needs-preparation' : ''}>{selectedAssignment && !selectedAssignment.identityReady ? <Clock3 aria-hidden="true" /> : <Check aria-hidden="true" />}{t(selectedAssignment && !selectedAssignment.identityReady ? 'cinematic.cast.needsPreparation' : 'cinematic.cast.identityReady')}</p><small>{selectedAssignment?.characterProfileVersionId ? t('cinematic.cast.profileVersionPinned') : t('cinematic.cast.projectOnlyChanges')}</small></div><div className="cinematic-dossier-header__status"><strong className={`is-${dossierSaveState}`}>{t(`cinematic.save.${dossierSaveState}`)}</strong><small>{t('cinematic.cast.projectOnlyChanges')}</small>{selectedAssignment ? <ConfirmDialog trigger={<Button size="sm" variant="ghost" icon={<Trash2 aria-hidden="true" />} disabled={removingCharacter}>{t('cinematic.cast.removeAssignment')}</Button>} title={t('cinematic.cast.removeTitle')} description={t('cinematic.cast.removeDescription', { name: selectedAssignment.displayName })} confirmLabel={t('cinematic.cast.removeConfirm')} destructive pending={removingCharacter} onConfirm={() => void removeSelectedCharacter()} /> : null}</div></header>
+        <div className="cinematic-character-tabs" role="tablist" aria-label={t('cinematic.cast.characterDetails')}>
+          {(['direction', 'wardrobe', 'continuity'] as const).map(tab => <button key={tab} type="button" role="tab" aria-selected={activeDetailTab === tab} className={activeDetailTab === tab ? 'is-active' : ''} onClick={() => setActiveDetailTab(tab)}>{t(`cinematic.cast.tab.${tab}`)}</button>)}
+        </div>
+        {activeDetailTab === 'direction' ? <form onSubmit={saveDossier} onChange={scheduleDossierSave}>
+        <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.rolePersonality')} hint={t('cinematic.cast.rolePersonalityHint')} /><div className="cinematic-dossier-fields"><label><span>{t('cinematic.cast.storyRole')}</span><input readOnly value={selectedAssignment?.storyRole || (selectedRole === 'lead' ? t('cinematic.cast.lead') : t('cinematic.cast.supporting'))} /><input type="hidden" name="storyImportance" value={selectedRole} /></label><label><span>{t('cinematic.cast.emotionalBaseline')}</span><select name="emotionalBaseline" defaultValue={selectedAssignment?.emotionalBaseline || 'guarded'}><option value="guarded">{t('cinematic.cast.guarded')}</option><option value="open">{t('cinematic.cast.open')}</option></select></label><label className="is-wide"><span>{t('cinematic.cast.objective')}</span><textarea name="objective" rows={2} defaultValue={selectedObjective} /></label><label className="is-wide"><span>{t('cinematic.cast.personality')}</span><input name="personalityTraits" defaultValue={selectedTraits} /></label>{mode === 'advanced' && <><label className="is-wide"><span>{t('cinematic.cast.motivation')}</span><textarea name="motivation" rows={2} defaultValue={selectedAssignment?.motivation || ''} /></label><label className="is-wide"><span>{t('cinematic.cast.pressure')}</span><textarea name="pressure" rows={2} defaultValue={selectedAssignment?.pressure || t('cinematic.cast.pressureValue')} /></label><label className="is-wide"><span>{t('cinematic.cast.dialogueStyle')}</span><input name="dialogueStyle" defaultValue={selectedAssignment?.dialogueStyle || t('cinematic.cast.dialogueStyleValue')} /></label></>}</div></section>
+        <section className="cinematic-dossier-section"><SectionHeading title={t('cinematic.cast.performanceDirection')} hint={t('cinematic.cast.performanceDirectionHint')} /><textarea name="performanceDirection" rows={3} defaultValue={selectedPerformance} />{dossierSaveState === 'failed' ? <Button type="submit" size="sm" disabled={!selectedAssignment}>{t('cinematic.cast.saveDossier')}</Button> : null}</section>
+        </form> : null}
+        {activeDetailTab === 'wardrobe' ? <section className="cinematic-dossier-section">
+          <SectionHeading title={t('cinematic.cast.wardrobeLooks')} hint={t('cinematic.cast.wardrobeOwnedHint')} action={<Button size="sm" icon={<Plus aria-hidden="true" />} disabled={!selectedAssignment} onClick={() => { setLookDialogMode('upload'); setLookDialogOpen(true); }}>{t('cinematic.cast.addLook')}</Button>} />
+          <article className="cinematic-look-card"><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.primaryLook')}</span><h4>{hasBoundLook ? selectedLookName : t('cinematic.cast.noPrimaryLook')}</h4><p>{hasBoundLook ? t('cinematic.cast.sceneScope') : t('cinematic.cast.chooseLookHint')}</p></div><span className={`cinematic-status-pill${hasBoundLook ? ' is-ready' : ''}`}>{hasBoundLook ? t('cinematic.cast.locked') : t('cinematic.cast.lookNotReady')}</span></article>
+          {characterLooks.map(look => <article className="cinematic-look-card" key={look.id}><div className="cinematic-look-card__preview"><Shirt aria-hidden="true" /></div><div><span>{t('cinematic.cast.characterLook')}</span><h4>{look.name}</h4><p>{t(`cinematic.lookStatus.${look.lifecycleStatus}`)}</p></div><Button size="sm" disabled={!look.approvedVersionId} onClick={() => void bindCharacterLook(look)}>{look.approvedVersionId ? t('cinematic.cast.useLook') : t('cinematic.cast.prepareLook')}</Button></article>)}
           <div className="cinematic-wardrobe-options">
-            <button type="button" className="is-active"><Shirt aria-hidden="true" /><strong>{t('cinematic.cast.characterWardrobe')}</strong><small>{t('cinematic.cast.characterWardrobeHint')}</small></button>
-            <button type="button" disabled><Upload aria-hidden="true" /><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></button>
-            <button type="button" disabled><Sparkles aria-hidden="true" /><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></button>
+            <button type="button" className="is-active" onClick={() => void addCharacterWardrobeLook()}><Shirt aria-hidden="true" /><strong>{t('cinematic.cast.characterWardrobe')}</strong><small>{t('cinematic.cast.characterWardrobeHint')}</small></button>
+            <button type="button" disabled={!selectedAssignment} onClick={() => { setLookDialogMode('upload'); setLookDialogOpen(true); }}><Upload aria-hidden="true" /><strong>{t('cinematic.cast.uploadWardrobe')}</strong><small>{t('cinematic.cast.uploadForCharacter')}</small></button>
+            <button type="button" disabled={!selectedAssignment} onClick={() => { setLookDialogMode('ai'); setLookDialogOpen(true); }}><Sparkles aria-hidden="true" /><strong>{t('cinematic.cast.aiWardrobe')}</strong><small>{t('cinematic.cast.aiWardrobeHint')}</small></button>
           </div>
-          <label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>
-          {mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" />{t('cinematic.cast.allowSceneChanges')}</label>}
-        </section>
-        <ContextualOperationDock title={t('cinematic.cast.wardrobeOperationTitle')} description={t('cinematic.cast.wardrobeOperationDescription')} operation={t('cinematic.cast.wardrobeOperation')} credits={4} actionLabel={t('cinematic.cast.generateWardrobe')} />
-      </aside> : <aside className="cinematic-character-dossier cinematic-character-dossier--empty"><UserRound aria-hidden="true" /><h3>{t('cinematic.cast.addCharacter')}</h3><p>{t('cinematic.cast.charactersHint')}</p><Button icon={<Plus aria-hidden="true" />} onClick={() => setPickerOpen(true)}>{t('cinematic.cast.addCharacter')}</Button></aside>}
+        </section> : null}
+        {activeDetailTab === 'continuity' ? <section className="cinematic-dossier-section cinematic-continuity-panel"><SectionHeading title={t('cinematic.cast.continuity')} hint={t('cinematic.cast.continuityHint')} /><ul><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.identityVersionReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.faceAuthorityReady')}</li><li className="is-ready"><Check aria-hidden="true" />{t('cinematic.cast.reuseRightsReady')}</li><li><Clock3 aria-hidden="true" />{selectedAssignment?.looks.length ? t('cinematic.cast.lookBound') : t('cinematic.cast.lookPreparationOptional')}</li><li><Clock3 aria-hidden="true" />{project?.scenes.length ? t('cinematic.cast.sceneContinuityReady') : t('cinematic.cast.scenesNotPlanned')}</li></ul><label className="cinematic-check-row"><input type="checkbox" defaultChecked />{t('cinematic.cast.lockWardrobe')}</label>{mode === 'advanced' && <label className="cinematic-check-row"><input type="checkbox" disabled={!project?.scenes.length} />{t('cinematic.cast.allowSceneChanges')}</label>}</section> : null}
+      </aside> : <aside className="cinematic-character-dossier cinematic-character-dossier--empty"><UserRound aria-hidden="true" /><h3>{t('cinematic.cast.addCharacter')}</h3><p>{t('cinematic.cast.charactersHint')}</p></aside>}
     </div>
     {castError ? <p role="alert" className="text-sm text-red-400">{castError}</p> : null}
-    <CharacterPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} onSelect={character => void addCharacter(character)} />
+    <CharacterPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} onSelect={addCharacter} />
+    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={setLookDialogOpen} initialMode={lookDialogMode} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} onSaved={look => setCharacterLooks(current => [look, ...current.filter(item => item.id !== look.id)])} /> : null}
   </>;
 }
 
-function CastCard({ role, name, personality, look, scenes, tone, active, onSelect }: { role: string; name: string; personality: string; look: string; scenes: string; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
+export function castDirectionFromRole(role?: CinematicProject['setup']['storyRoleSlots'][number]) {
+  return {
+    objective: role?.objective || '',
+    personalityTraits: role?.personalityTraits || [],
+    emotionalBaseline: role?.emotionalArc || '',
+    performanceDirection: role?.performanceDirection || ''
+  };
+}
+
+function CastCard({ role, required = false, name, portraitUrl, identityReady = true, personality, look, scenes, tone, active, onSelect }: { role: string; required?: boolean; name: string; portraitUrl?: string | null; identityReady?: boolean; personality: string; look: string; scenes: string | null; tone: 'cyan' | 'amber'; active: boolean; onSelect: () => void }) {
   const { t } = useTranslation('cinematic');
-  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}`} onClick={onSelect}><div className={`cinematic-cast-card__portrait is-${tone}`}><UserRound aria-hidden="true" /></div><div className="cinematic-cast-card__body"><span>{role}</span><h4>{name}</h4><small>{personality}</small><p><Check aria-hidden="true" /> {t('cinematic.cast.identityReady')}</p><div className="cinematic-card-facts"><span>{look}</span><span>{scenes} {t('cinematic.cast.scenes')}</span></div></div></button>;
+  return <button type="button" className={`cinematic-cast-card${active ? ' is-active' : ''}${identityReady ? '' : ' is-needs-preparation'}`} onClick={onSelect}><CharacterPortrait portraitUrl={portraitUrl} tone={tone} /><div className="cinematic-cast-card__body"><span>{role}{required ? <b>{t('cinematic.roleImportance.required')}</b> : null}</span><h4>{name}</h4><small>{personality}</small><p>{identityReady ? <Check aria-hidden="true" /> : <Clock3 aria-hidden="true" />} {t(identityReady ? 'cinematic.cast.identityReady' : 'cinematic.cast.needsPreparation')}</p><div className="cinematic-card-facts"><span>{look}</span><span>{scenes ? `${scenes} ${t('cinematic.cast.scenes')}` : t('cinematic.cast.scenesNotPlanned')}</span></div></div></button>;
+}
+
+function CharacterPortrait({ portraitUrl, tone }: { portraitUrl?: string | null; tone: 'cyan' | 'amber' }) {
+  const fallback = <span className="cinematic-cast-card__portrait-fallback"><UserRound aria-hidden="true" /></span>;
+  return <span className={`cinematic-cast-card__portrait is-${tone}`}>{portraitUrl ? <AuthenticatedMediaImage src={portraitUrl} alt="" fallback={fallback} /> : fallback}</span>;
+}
+
+export function cinematicCastPortraitUrl(assignment: Pick<CinematicProject['castAssignments'][number], 'characterProfileId' | 'portraitUrl'> | null | undefined) {
+  if (!assignment) return null;
+  const profileId = String(assignment.characterProfileId || '').trim();
+  return profileId
+    ? `/api/community/character-profiles/${encodeURIComponent(profileId)}/featured-image`
+    : assignment.portraitUrl || null;
 }
 
 function StoryPlanStage({ project, onProjectChanged }: { project?: CinematicProject; onProjectChanged?: (project: CinematicProject) => void }) {
@@ -314,11 +520,11 @@ function StoryboardStage({ project, onProjectRefresh }: { project?: CinematicPro
 
 function ProduceStage({ project, onEditStoryboard, onProjectRefresh }: { project?: CinematicProject; onEditStoryboard?: () => void; onProjectRefresh?: () => void }) {
   const { t } = useTranslation('cinematic');
-  if (project) return <CinematicProduceRuntime project={project} onEditStoryboard={onEditStoryboard} onProjectRefresh={onProjectRefresh} />;
-  const activeScene = undefined;
   const [selectedShot, setSelectedShot] = useState('01A');
   const [scope, setScope] = useState<'shot' | 'set'>('shot');
   const [prompt, setPrompt] = useState(t('cinematic.produce.promptFixture'));
+  if (project) return <CinematicProduceRuntime project={project} onEditStoryboard={onEditStoryboard} onProjectRefresh={onProjectRefresh} />;
+  const activeScene = undefined;
   const orderedShots = storyboardShotFixtures.map(shot => ({ id: shot.id, durationSeconds: shot.durationSeconds, title: t(`cinematic.storyboard.fixture.${shot.titleKey}`), framing: t(`cinematic.storyboard.fixture.${shot.framingKey}`), action: t(`cinematic.storyboard.fixture.${shot.actionKey}`), status: shot.status } satisfies StoryboardShotSummary));
   return <>
     <StageHeading stage="produce" />
@@ -561,7 +767,19 @@ function AttemptHistory({ type, attempts }: { type: 'image' | 'video'; attempts?
 
 function SectionHeading({ title, hint, action }: { title: string; hint: string; action?: ReactNode }) { return <div className="cinematic-section-heading"><div><h3>{title}</h3><p>{hint}</p></div>{action}</div>; }
 function LabeledValue({ icon, label, value }: { icon?: ReactNode; label: string; value: string }) { return <div className="cinematic-labeled-value">{icon && <span>{icon}</span>}<div><small>{label}</small><strong>{value}</strong></div></div>; }
-function StageFooter({ activeStage, onPrevious, onNext }: Pick<Props, 'activeStage' | 'onPrevious' | 'onNext'>) {
+function StageFooter({ activeStage, onPrevious, onNext, nextDisabled = false }: Pick<Props, 'activeStage' | 'onPrevious' | 'onNext'> & { nextDisabled?: boolean }) {
   const { t } = useTranslation('cinematic');
-  return <Surface className="cinematic-stage-footer"><div><strong>{t('cinematic.prototype.title')}</strong><p>{t('cinematic.prototype.description')}</p></div><div><Button icon={<ArrowLeft />} onClick={onPrevious}>{t('cinematic.actions.back')}</Button><Button variant="primary" icon={<ArrowRight />} onClick={onNext} disabled={activeStage === 'finish'}>{t('cinematic.actions.next')}</Button></div></Surface>;
+  const castStage = activeStage === 'cast';
+  return <Surface className="cinematic-stage-footer"><div><strong>{castStage ? t(nextDisabled ? 'cinematic.cast.castIncomplete' : 'cinematic.cast.requiredCastReady') : t('cinematic.prototype.title')}</strong><p>{castStage ? t(nextDisabled ? 'cinematic.cast.requiredRolesBlocking' : 'cinematic.cast.readyToContinue') : t('cinematic.prototype.description')}</p></div><div><Button icon={<ArrowLeft />} onClick={onPrevious}>{castStage ? t('cinematic.cast.backToSetup') : t('cinematic.actions.back')}</Button><Button variant="primary" icon={<ArrowRight />} onClick={onNext} disabled={activeStage === 'finish' || nextDisabled}>{castStage ? t('cinematic.cast.continueToStoryPlan') : t('cinematic.actions.next')}</Button></div></Surface>;
+}
+
+function hasUnassignedRequiredRoles(project?: CinematicProject) {
+  if (!project?.setup?.storyRoleSlots?.length) return false;
+  return project.setup.storyRoleSlots.some(role => (
+    role.importance === 'required'
+    && !project.castAssignments.some(assignment => assignment.identityReady && (
+      assignment.storyRoleSlotId === role.id
+      || (!assignment.storyRoleSlotId && assignment.storyRole.trim().toLowerCase() === role.label.trim().toLowerCase())
+    ))
+  ));
 }

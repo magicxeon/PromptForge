@@ -33,6 +33,15 @@ export function registerCinematicRoutes(app, { cinematicService }) {
     }
   });
 
+  app.post('/api/cinematic/story-enhancements', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.enhanceStory(req.body, req.actorContext));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.get('/api/cinematic/projects/:projectId', async (req, res) => {
     try {
       res.json(await cinematicService.getProject(req.params.projectId, req.actorContext));
@@ -68,6 +77,19 @@ export function registerCinematicRoutes(app, { cinematicService }) {
         ...req.body,
         assignmentId: req.params.assignmentId
       }, req.actorContext));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
+  app.delete('/api/cinematic/projects/:projectId/cast/:assignmentId', async (req, res) => {
+    try {
+      res.json(await cinematicService.removeCastAssignment(
+        req.params.projectId,
+        req.params.assignmentId,
+        req.body,
+        req.actorContext
+      ));
     } catch (error) {
       sendCinematicError(res, error);
     }

@@ -104,6 +104,7 @@ Community module must not call image providers directly and must not mutate cred
 | Community-10 | Local Mock User and Actor Switcher | Application shell, local JSON repositories |
 | Community-11 | Credit Deduction and Provider Routing Foundation | Provider registry, generation queue, business credit policy |
 | Community-12 | Engagement Events, Comments and Ranking Windows | Community-03, Community-04, Community-07, Actor Context |
+| Community-13 | Prompt Recipe Sharing and Playground Handoff | Community-04, Community-05, Playground actor-scoped drafts |
 
 Numbering preserves the existing document history. For implementation,
 Community-12 contracts/repositories/services must be completed before enabling
@@ -178,6 +179,8 @@ Included:
 - Share generated image with prompt snapshot.
 - Share a curated private Collection as an immutable public Community snapshot.
 - Share Scene Builder templates with prompt, selections and replaceable reference slot mapping.
+- Share a Prompt Recipe without requiring an Image Post or reusable Template,
+  then import it into Playground as an editable non-generating draft.
 - Local mock user switching for internal testing until real auth is implemented.
 - Credit estimate, reservation and deduction foundation for real AI generation.
 - Prompt visibility controls.

@@ -30,4 +30,10 @@ describe('ProjectCostSummary', () => {
     expect(screen.getByText('4')).toBeVisible();
     expect(screen.getByText('1')).toBeVisible();
   });
+
+  it('renders a compact drawer trigger without duplicating the ledger metrics', () => {
+    render(<I18nextProvider i18n={testI18n}><ProjectCostSummary variant="trigger" /></I18nextProvider>);
+    expect(screen.getByRole('button')).toBeVisible();
+    expect(screen.queryAllByText('--')).toHaveLength(0);
+  });
 });

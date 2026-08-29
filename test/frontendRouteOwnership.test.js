@@ -21,6 +21,8 @@ test('frontend route ownership recognizes canonical and parameterized routes', (
   assert.equal(resolveFrontendRoute('/create/scenes').routeId, 'create');
   assert.equal(resolveFrontendRoute('/create/fashion').routeId, 'create');
   assert.equal(resolveFrontendRoute('/create/studio/face').routeId, 'create');
+  assert.equal(resolveFrontendRoute('/create/cinematic/cineproj_123/cast').routeId, 'create');
+  assert.equal(resolveFrontendRoute('/create/cinematic/cineproj_123/shot/shot_456').routeId, 'create');
   assert.equal(resolveFrontendRoute('/studio/scene').routeId, 'create');
   assert.equal(resolveFrontendRoute('/playground').routeId, 'playground');
   assert.equal(resolveFrontendRoute('/history/job_123').routeId, 'history');
