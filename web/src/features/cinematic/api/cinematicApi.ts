@@ -8,12 +8,20 @@ import {
   cinematicVideoAttemptResponseSchema,
   cinematicVideoQuoteSchema,
   cinematicStoryEnhancementSchema,
-  cinematicWardrobeSuggestionSchema
+  cinematicWardrobeSuggestionSchema,
+  cinematicStoryPlanProposalSchema,
+  cinematicSceneDirectionProposalSchema,
+  cinematicStoryboardGenerationContextSchema,
+  cinematicStoryboardBatchResponseSchema
 } from '../schemas/cinematicSchemas';
 import { apiRequest } from '../../../lib/api/apiClient';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
 import type { CinematicStage } from '../cinematicStages';
 import { videoCapabilityCatalogSchema } from '../../generation/schemas/videoGenerationSchemas';
+import {
+  generationPayload,
+  type GenerationRequestDraft
+} from '../../generation/api/generationApi';
 
 export const cinematicApiPaths = {
   projects: '/api/cinematic/projects',
@@ -136,6 +144,7 @@ export function archiveCinematicProject(projectId: string, expectedVersion: numb
 }
 
 export type StoryPlanInput = {
+  contractVersion?: 'story-plan-v2';
   expectedVersion: number;
   objective?: string;
   logline?: string;
@@ -153,6 +162,21 @@ export function saveCinematicStoryPlan(projectId: string, input: StoryPlanInput)
   });
 }
 
+export function generateCinematicStoryPlan(projectId: string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/story-plan/proposals`, {
+    method: 'POST', schema: cinematicStoryPlanProposalSchema, cache: 'no-store'
+  });
+}
+
+export function generateCinematicSceneDirection(projectId: string, sceneId: string, input: {
+  expectedVersion: number;
+  direction?: string;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/direction-proposals`, {
+    method: 'POST', body: input, schema: cinematicSceneDirectionProposalSchema, cache: 'no-store'
+  });
+}
+
 export function approveCinematicStoryboardSource(projectId: string, shotId: string, input: {
   expectedVersion: number;
   expectedShotVersion: number;
@@ -161,6 +185,46 @@ export function approveCinematicStoryboardSource(projectId: string, shotId: stri
 }) {
   return apiRequest(`${cinematicApiPaths.project(projectId)}/shots/${encodeURIComponent(shotId)}/storyboard-source`, {
     method: 'PUT', body: input, schema: cinematicProduceShotContextSchema
+  });
+}
+
+export function getCinematicStoryboardGenerationContext(projectId: string, sceneId: string, shotId: string) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/scenes/${encodeURIComponent(sceneId)}/shots/${encodeURIComponent(shotId)}/storyboard-generation-context`, {
+    schema: cinematicStoryboardGenerationContextSchema,
+    cache: 'no-store'
+  });
+}
+
+export function submitCinematicStoryboardBatch(projectId: string, input: {
+  expectedVersion: number;
+  idempotencyKey: string;
+  operations: Array<{
+    operationId: string;
+    sceneId: string;
+    shotId: string;
+    expectedShotVersion: number;
+    estimateId: string;
+    draft: GenerationRequestDraft;
+  }>;
+}) {
+  return apiRequest(`${cinematicApiPaths.project(projectId)}/storyboard-generation-batches`, {
+    method: 'POST',
+    body: {
+      expectedVersion: input.expectedVersion,
+      idempotencyKey: input.idempotencyKey,
+      operations: input.operations.map(operation => ({
+        operationId: operation.operationId,
+        sceneId: operation.sceneId,
+        shotId: operation.shotId,
+        expectedShotVersion: operation.expectedShotVersion,
+        estimateId: operation.estimateId,
+        generationRequest: generationPayload(operation.draft, {
+          estimateId: operation.estimateId,
+          requestId: `${input.idempotencyKey}:${operation.operationId}`
+        })
+      }))
+    },
+    schema: cinematicStoryboardBatchResponseSchema
   });
 }
 

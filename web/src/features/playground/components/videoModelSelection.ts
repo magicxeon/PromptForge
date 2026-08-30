@@ -8,3 +8,12 @@ export function filterVideoModelsForOperation(
 ) {
   return models.filter(model => model.operations.includes(operation));
 }
+
+export function canQuoteVideoModel(model: VideoModelCapability | null | undefined) {
+  return Boolean(model
+    && model.pricingStatus !== 'unavailable'
+    && model.durations.length
+    && model.resolutions.length
+    && model.aspectRatios.length
+    && model.audioModes.length);
+}

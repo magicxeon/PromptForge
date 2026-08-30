@@ -45,6 +45,19 @@ This checkpoint validates information architecture only. It does not prove
 provider capability, pricing, Queue behavior, durable Project state, Credit
 reservation or media output.
 
+### C1.6 Story Plan to Storyboard delivery extensions
+
+The current Story Plan-to-Storyboard redesign and functional Image Generation
+work is split into dependency-ordered requirements:
+
+- `enhance-ux-ui/005-story-plan-scene-cast-and-look-authority.md`;
+- `enhance-ux-ui/006-storyboard-scene-group-and-shot-board.md`;
+- `enhance-ux-ui/007-storyboard-image-generation-and-continuity.md`.
+
+These extensions retain `Beat -> Scene -> Shot`, reuse canonical Generation,
+Credits, References and Assets owners, and gate durable Auto Generate until the
+single-Shot path is qualified.
+
 ### 2.1 Launch scope
 
 - Single vertical short film, 20, 30, 45 or 60 seconds.
@@ -178,6 +191,7 @@ foreign repository or provider directly.
 - `004-cinematic-mvp-delivery-and-validation-plan.md`
 - `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`
 - `../020-generation-providers/video/002-video-generation-provider-contract.md`
+- `../020-generation-providers/video/003-gemini-omni-flash-interactions-provider.md`
 - `007-cinematic-shared-component-state-and-project-structure.md`
 - `008-cinematic-admin-support-and-observability-contract.md`
 - `009-playground-unified-image-and-video-generation.md`
@@ -201,6 +215,9 @@ Requirement 013 makes reusable Character Look Versions part of the Character
 Profile lifecycle while Cinematic owns only Project/Scene bindings and
 continuity. It also closes the Project-card and Character-picker readiness gaps
 found during the first full Cinematic test pass.
+The Gemini Omni Flash requirement adds a disabled, unpriced Interactions API
+candidate for Playground and Cinematic Shot evaluation. It does not change the
+existing Veo/Seedance routes, UI defaults or paid-launch gates.
 Neither extension duplicates the six-stage Cinematic production workflow.
 Playground Video Comparison is constrained to exactly two slots while existing
 Image Comparison remains unchanged at two through four slots.

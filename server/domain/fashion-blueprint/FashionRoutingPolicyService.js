@@ -95,10 +95,18 @@ export class FashionRoutingPolicyService {
     const providers = catalog.providers
       .map(provider => {
         const models = provider.models
-          .filter(model => eligibleByKey.has(`${provider.id}:${model.id}`))
+          .filter(model => (
+            eligibleByKey.has(`${provider.id}:${model.id}`)
+            || (provider.catalogVisible === true && model.paidRoutingEnabled === false)
+          ))
           .map(model => ({
             ...model,
-            fashionQualification: eligibleByKey.get(`${provider.id}:${model.id}`)
+            fashionQualification: eligibleByKey.get(`${provider.id}:${model.id}`) || null,
+            paidRoutingEnabled: model.paidRoutingEnabled !== false
+              && eligibleByKey.has(`${provider.id}:${model.id}`),
+            unavailableReason: eligibleByKey.has(`${provider.id}:${model.id}`)
+              ? model.unavailableReason || null
+              : 'fashion_operation_unqualified'
           }));
         if (!models.length) return null;
         return {

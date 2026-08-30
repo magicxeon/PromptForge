@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": "cinematic-video-2026-08-18-v3",
+  "catalogVersion": "cinematic-video-2026-08-30-v5",
   "models": [
     {
       "providerId": "gemini", "modelId": "veo-3.1-lite-generate-preview", "displayName": "Veo 3.1 Lite",
@@ -28,6 +28,17 @@
       "billingMetric": "output_second", "ratesByResolutionUsd": { "720p": 0.40, "1080p": 0.40, "4K": 0.60 },
       "providerRateVersion": "google-veo-2026-08-17", "pricingStatus": "research_only",
       "qualificationStatus": "unqualified", "paidRoutingEnabled": false
+    },
+    {
+      "providerId": "gemini", "modelId": "gemini-omni-flash-preview", "displayName": "Gemini Omni Flash (Preview)",
+      "operations": ["text_to_video", "image_to_video", "character_to_video"],
+      "candidateOperations": ["text_to_video", "image_to_video", "character_to_video", "cinematic_motion_preview", "cinematic_draft_clip", "cinematic_final_clip"],
+      "durations": [4, 6, 8, 10], "resolutions": ["720p"], "aspectRatios": ["9:16", "16:9"], "audioModes": ["generated"],
+      "referenceImageLimit": 1, "supportsFirstFrame": true, "supportsLastFrame": false,
+      "billingMetric": "output_second", "ratesByResolutionUsd": { "720p": 0.10 },
+      "providerRateVersion": "google-omni-standard-2026-08-30", "pricingStatus": "research_only",
+      "qualificationStatus": "internal_testing", "paidRoutingEnabled": false, "testingRoutingEnabled": true,
+      "providerApi": "interactions"
     },
     {
       "providerId": "modelark", "modelId": "seedance-1-0-pro-250528", "displayName": "Seedance 1.0 Pro",

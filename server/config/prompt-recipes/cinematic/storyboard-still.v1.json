@@ -1,0 +1,13 @@
+{
+  "id": "cinematic-storyboard-still",
+  "version": 1,
+  "enabled": true,
+  "instructions": [
+    "Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image.",
+    "Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request.",
+    "Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching.",
+    "Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment.",
+    "Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look.",
+    "Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it."
+  ]
+}

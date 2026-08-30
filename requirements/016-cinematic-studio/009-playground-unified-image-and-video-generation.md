@@ -478,9 +478,23 @@ operation. In the initial qualification gate, Seedance is selectable for
 Prompt only and appears as unavailable for uploaded-image or Character modes
 until deterministic person/reference eligibility checks exist.
 
-Provider adaptation follows Requirements 016-005 and 016-006. The Playground
-submits a provider-neutral execution packet to Generation; provider-specific
-payload translation remains in `server/providers/`.
+Provider adaptation follows
+`../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`
+and
+`../020-generation-providers/video/002-video-generation-provider-contract.md`.
+The Playground submits a provider-neutral execution packet to Generation;
+provider-specific payload translation remains in `server/providers/`.
+
+Gemini Omni Flash follows
+`../020-generation-providers/video/003-gemini-omni-flash-interactions-provider.md`.
+It is an unqualified, unpriced Interactions API candidate and must not appear in
+Playground merely because `GEMINI_API_KEY` exists. When later qualified, Prompt
+only, Start from image and Use Character map to explicit server-owned Omni
+operations through the existing Video form, Engine & Target Output, quote,
+result, Recent, Comparison and Job Center contracts. The integration must not
+change Image mode, Veo/Seedance visibility, layout, result focus, actor drafts
+or historical output behavior. Uploaded-video editing remains outside the
+initial Playground exposure.
 
 ## 7. Canonical Workflow And API Contract
 
@@ -557,7 +571,8 @@ terminal stop condition.
   authoritative price.
 - Quote acceptance creates an immutable consent snapshot and reservation.
 - Successful billable usage is captured from the provider's authoritative
-  usage unit under Requirement 016-005.
+  usage unit under
+  `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`.
 - Definitive non-billable failure releases/refunds the reservation exactly
   once. Unknown outcome remains held only under a bounded policy and enters
   reconciliation.
@@ -708,6 +723,8 @@ still making operational cache and polling behavior tunable.
    Video Comparison.
 12. Integrate share handoff from Requirement 016-010.
 13. Run commercial, restart, responsive and release gates before public launch.
+14. Evaluate Gemini Omni Flash through its disabled Interactions API contract;
+    do not expose it until exact operation qualification and pricing gates pass.
 
 ## 12. Acceptance And Regression Gates
 
@@ -753,12 +770,16 @@ still making operational cache and polling behavior tunable.
   model has `testingRoutingEnabled=true`. Veo Fast and Standard remain absent
   while unqualified, even though they exist in the research catalog; UI code
   must never broaden this server-owned qualification to offer a costly model.
+- `PGV-24`: Gemini Omni Flash remains absent while unqualified or unpriced;
+  later catalog exposure uses existing Video components and does not alter
+  Image, Veo, Seedance, Comparison, focus, Recent or actor-isolation behavior.
 
 ## 13. Launch Blockers
 
 Public enablement remains blocked until:
 
-- at least one exact Playground video operation passes Requirement 016-006;
+- at least one exact Playground video operation passes
+  `../020-generation-providers/video/002-video-generation-provider-contract.md`;
 - at least two semantically comparable qualified video operations exist before
   Video Comparison is enabled;
 - active rate cards are approved through Requirement 018-010;

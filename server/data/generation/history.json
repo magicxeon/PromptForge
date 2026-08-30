@@ -1,5 +1,2667 @@
 [
   {
+    "id": "job_1788103676797_hm2psu5c8",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical wide rear three-quarter shot of the same young woman walking alone from a cool blue-hour platform into a warm station exit camera-right; tracks camera-left, damp reflections, restrained hopeful ending, no sentimentality, no beauty filter, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nThe warm exit Dramatic purpose: Resolve the choice through physical action and forward movement.. Visible story change: She pockets the phone, exhales, and leaves toward warmth.. Beat emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nThe warm exit Dramatic purpose: Resolve the decision through a simple physical action and hopeful movement.. Visible story change: She pockets the phone, exhales, and leaves the platform toward warmth.. Scene emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression. Setting: Same platform leading to warm station exit camera-right, Continuous blue hour into warm station light. Character blocking: She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.. Performance direction: One clear exhale, shoulders release subtly, no triumphant smile.. Lighting: Cool platform light transitions naturally into warm practical station light.. Composition continuity toward the next scene: Match cut from phone to pocket, then follow her exit..\n\nSelected shot:\nWalk into warmth Visual purpose: End on quiet hope and forward motion.. Camera: Vertical wide rear three-quarter shot, Eye level, Slow tracking follow. Blocking: She walks alone from the cool platform toward the warm exit camera-right.. Performance: Steady, lighter pace; relaxed but not triumphant posture.. Selected Shot emotional target: Quietly hopeful. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Natural transition from cool blue platform light into warm station practicals.. Shot environment: Damp reflective concrete, nearly empty station, no visible people..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nShe chooses neither the train nor the past.; Tracks remain camera-left; exit remains camera-right.; End before she disappears completely.; Final frame preserves warm exit direction and continuous wardrobe identity. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103676797_hm2psu5c8.png",
+    "timestamp": 1788103875107,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical wide rear three-quarter shot of the same young woman walking alone from a cool blue-hour platform into a warm station exit camera-right; tracks camera-left, damp reflections, restrained hopeful ending, no sentimentality, no beauty filter, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nThe warm exit Dramatic purpose: Resolve the choice through physical action and forward movement.. Visible story change: She pockets the phone, exhales, and leaves toward warmth.. Beat emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nThe warm exit Dramatic purpose: Resolve the decision through a simple physical action and hopeful movement.. Visible story change: She pockets the phone, exhales, and leaves the platform toward warmth.. Scene emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression. Setting: Same platform leading to warm station exit camera-right, Continuous blue hour into warm station light. Character blocking: She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.. Performance direction: One clear exhale, shoulders release subtly, no triumphant smile.. Lighting: Cool platform light transitions naturally into warm practical station light.. Composition continuity toward the next scene: Match cut from phone to pocket, then follow her exit..\n\nSelected shot:\nWalk into warmth Visual purpose: End on quiet hope and forward motion.. Camera: Vertical wide rear three-quarter shot, Eye level, Slow tracking follow. Blocking: She walks alone from the cool platform toward the warm exit camera-right.. Performance: Steady, lighter pace; relaxed but not triumphant posture.. Selected Shot emotional target: Quietly hopeful. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Natural transition from cool blue platform light into warm station practicals.. Shot environment: Damp reflective concrete, nearly empty station, no visible people..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nShe chooses neither the train nor the past.; Tracks remain camera-left; exit remains camera-right.; End before she disappears completely.; Final frame preserves warm exit direction and continuous wardrobe identity.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "85.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788103676797_ouyhsm2b",
+    "outputIndex": 3,
+    "requestedOutputCount": 4,
+    "promptFingerprint": "61dda685a4dd2a99",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "61dda685a4dd2a99",
+      "afterFingerprint": "61dda685a4dd2a99",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_hm2psu5c8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 48434,
+    "originalBytes": 3809738,
+    "performanceTimings": {
+      "queueWaitMs": 111734,
+      "referenceProcessingMs": 82,
+      "providerMs": 85656,
+      "outputPersistenceMs": 278,
+      "totalMs": 197751
+    }
+  },
+  {
+    "id": "job_1788103676797_j95e504fk",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right; cool blue-hour light, restrained hope, no smile, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nThe warm exit Dramatic purpose: Resolve the choice through physical action and forward movement.. Visible story change: She pockets the phone, exhales, and leaves toward warmth.. Beat emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nThe warm exit Dramatic purpose: Resolve the decision through a simple physical action and hopeful movement.. Visible story change: She pockets the phone, exhales, and leaves the platform toward warmth.. Scene emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression. Setting: Same platform leading to warm station exit camera-right, Continuous blue hour into warm station light. Character blocking: She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.. Performance direction: One clear exhale, shoulders release subtly, no triumphant smile.. Lighting: Cool platform light transitions naturally into warm practical station light.. Composition continuity toward the next scene: Match cut from phone to pocket, then follow her exit..\n\nSelected shot:\nPocket and exhale Visual purpose: Make the decision physically clear.. Camera: Medium close-up, Eye level, Gentle follow. Blocking: She pockets the black phone, exhales, and turns camera-right.. Performance: Jaw releases; one clear exhale; understated expression.. Selected Shot emotional target: Briefly destabilized. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool light on her back, warm exit beginning to shape the frame.. Shot environment: Damp concrete and subtle reflections..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nShe chooses neither the train nor the past.; Tracks remain camera-left; exit remains camera-right.; End before she disappears completely.; Phone is no longer visible after being pocketed. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103676797_j95e504fk.png",
+    "timestamp": 1788103794145,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right; cool blue-hour light, restrained hope, no smile, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nThe warm exit Dramatic purpose: Resolve the choice through physical action and forward movement.. Visible story change: She pockets the phone, exhales, and leaves toward warmth.. Beat emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nThe warm exit Dramatic purpose: Resolve the decision through a simple physical action and hopeful movement.. Visible story change: She pockets the phone, exhales, and leaves the platform toward warmth.. Scene emotional arc: Briefly destabilized toward Quietly hopeful. Use this as narrative context only; do not blend both states into one expression. Setting: Same platform leading to warm station exit camera-right, Continuous blue hour into warm station light. Character blocking: She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.. Performance direction: One clear exhale, shoulders release subtly, no triumphant smile.. Lighting: Cool platform light transitions naturally into warm practical station light.. Composition continuity toward the next scene: Match cut from phone to pocket, then follow her exit..\n\nSelected shot:\nPocket and exhale Visual purpose: Make the decision physically clear.. Camera: Medium close-up, Eye level, Gentle follow. Blocking: She pockets the black phone, exhales, and turns camera-right.. Performance: Jaw releases; one clear exhale; understated expression.. Selected Shot emotional target: Briefly destabilized. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool light on her back, warm exit beginning to shape the frame.. Shot environment: Damp concrete and subtle reflections..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nShe chooses neither the train nor the past.; Tracks remain camera-left; exit remains camera-right.; End before she disappears completely.; Phone is no longer visible after being pocketed.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "55.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788103676797_ouyhsm2b",
+    "outputIndex": 2,
+    "requestedOutputCount": 4,
+    "promptFingerprint": "841f1eeae9a4d9f5",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "841f1eeae9a4d9f5",
+      "afterFingerprint": "841f1eeae9a4d9f5",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_j95e504fk.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 63680,
+    "originalBytes": 4297130,
+    "performanceTimings": {
+      "queueWaitMs": 60846,
+      "referenceProcessingMs": 81,
+      "providerMs": 55690,
+      "outputPersistenceMs": 243,
+      "totalMs": 116861
+    }
+  },
+  {
+    "id": "job_1788103676797_7998zx4md",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical tight profile close-up of the exact same young woman on a nearly empty damp urban platform, shifting her eyes from a black phone with an unreadable screen toward tracks camera-left; cool blue-hour light, subtle warm exit bokeh camera-right, restrained internal drama, no tears, no smile, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nSilent notification Dramatic purpose: Let the past intrude without revealing its message.. Visible story change: The notification destabilizes her and creates the decision point.. Beat emotional arc: Apprehensive toward Briefly destabilized. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nSilent notification Dramatic purpose: Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.. Visible story change: The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.. Scene emotional arc: Apprehensive and tightly controlled. toward Briefly destabilized, with the first hint of resolve.. Use this as narrative context only; do not blend both states into one expression. Setting: The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right., Continuous blue hour, moments before the last train.. Character blocking: She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.. Performance direction: Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.. Lighting: Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.. Composition continuity toward the next scene: Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks..\n\nSelected shot:\nChoice in her eyes Visual purpose: Show destabilization and the pressure of the approaching train without dialogue.. Camera: Tight vertical profile close-up., Eye level., Very slow lateral drift from the phone toward her eyes.. Blocking: She lowers the phone slightly, raises her gaze toward tracks camera-left, and remains planted beneath the clock.. Performance: A restrained eye shift, shallow breath, slight jaw tension followed by minimal release; her expression stays unreadable rather than tearful.. Selected Shot emotional target: Briefly destabilized, with the first hint of resolve.. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool blue light across her face; restrained warm exit bokeh remains camera-right, with no beauty filter.. Shot environment: Empty damp platform, subtle reflections, no footsteps, silhouettes, or additional movement..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nNotification text, sender, and any identifying content remain completely unreadable.; Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.; Tracks stay camera-left and exit camera-right.; Never show another person, silhouette, or reflection of another person.; The phone remains black and in her hand through the end of this scene.; Maintain exact face, hairstyle, proportions, and wardrobe.; End with her still facing the tracks, ready for the following scene’s pocketing action.; Do not reveal any readable phone content. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103676797_7998zx4md.png",
+    "timestamp": 1788103789024,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical tight profile close-up of the exact same young woman on a nearly empty damp urban platform, shifting her eyes from a black phone with an unreadable screen toward tracks camera-left; cool blue-hour light, subtle warm exit bokeh camera-right, restrained internal drama, no tears, no smile, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nSilent notification Dramatic purpose: Let the past intrude without revealing its message.. Visible story change: The notification destabilizes her and creates the decision point.. Beat emotional arc: Apprehensive toward Briefly destabilized. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nSilent notification Dramatic purpose: Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.. Visible story change: The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.. Scene emotional arc: Apprehensive and tightly controlled. toward Briefly destabilized, with the first hint of resolve.. Use this as narrative context only; do not blend both states into one expression. Setting: The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right., Continuous blue hour, moments before the last train.. Character blocking: She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.. Performance direction: Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.. Lighting: Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.. Composition continuity toward the next scene: Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks..\n\nSelected shot:\nChoice in her eyes Visual purpose: Show destabilization and the pressure of the approaching train without dialogue.. Camera: Tight vertical profile close-up., Eye level., Very slow lateral drift from the phone toward her eyes.. Blocking: She lowers the phone slightly, raises her gaze toward tracks camera-left, and remains planted beneath the clock.. Performance: A restrained eye shift, shallow breath, slight jaw tension followed by minimal release; her expression stays unreadable rather than tearful.. Selected Shot emotional target: Briefly destabilized, with the first hint of resolve.. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool blue light across her face; restrained warm exit bokeh remains camera-right, with no beauty filter.. Shot environment: Empty damp platform, subtle reflections, no footsteps, silhouettes, or additional movement..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nNotification text, sender, and any identifying content remain completely unreadable.; Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.; Tracks stay camera-left and exit camera-right.; Never show another person, silhouette, or reflection of another person.; The phone remains black and in her hand through the end of this scene.; Maintain exact face, hairstyle, proportions, and wardrobe.; End with her still facing the tracks, ready for the following scene’s pocketing action.; Do not reveal any readable phone content.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "111.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788103676797_ouyhsm2b",
+    "outputIndex": 1,
+    "requestedOutputCount": 4,
+    "promptFingerprint": "d1325fecff72a925",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "d1325fecff72a925",
+      "afterFingerprint": "d1325fecff72a925",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_7998zx4md.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 66664,
+    "originalBytes": 4867407,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 269,
+      "providerMs": 111535,
+      "outputPersistenceMs": 245,
+      "totalMs": 112050
+    }
+  },
+  {
+    "id": "job_1788103676797_1vqpupji1",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical extreme close-up of the same young woman’s hand holding a black phone as it lights with a completely unreadable notification on a damp blue-hour urban platform; no logos, no legible text, no sender identity, no other people, cool realistic reflections.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nSilent notification Dramatic purpose: Let the past intrude without revealing its message.. Visible story change: The notification destabilizes her and creates the decision point.. Beat emotional arc: Apprehensive toward Briefly destabilized. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nSilent notification Dramatic purpose: Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.. Visible story change: The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.. Scene emotional arc: Apprehensive and tightly controlled. toward Briefly destabilized, with the first hint of resolve.. Use this as narrative context only; do not blend both states into one expression. Setting: The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right., Continuous blue hour, moments before the last train.. Character blocking: She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.. Performance direction: Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.. Lighting: Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.. Composition continuity toward the next scene: Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks..\n\nSelected shot:\nUnreadable interruption Visual purpose: Deliver the silent notification as the personal intrusion.. Camera: Extreme close-up vertical insert of the phone and her fingers., Slightly downward hand-level angle., Locked.. Blocking: The black phone lights in her grip; her thumb stops mid-motion as the vibration passes.. Performance: Only the frozen thumb and a slight finger tension reveal the impact.. Selected Shot emotional target: Apprehensive and tightly controlled.. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool reflected platform light with a faint, non-dominant screen glow.. Shot environment: Damp concrete and soft blue reflections; no legible signage or background figures..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nNotification text, sender, and any identifying content remain completely unreadable.; Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.; Tracks stay camera-left and exit camera-right.; Never show another person, silhouette, or reflection of another person.; The phone remains black and in her hand through the end of this scene.; Keep every screen character and sender detail unreadable.; Phone remains black and physically consistent with the preceding insert. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103676797_1vqpupji1.png",
+    "timestamp": 1788103738032,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical extreme close-up of the same young woman’s hand holding a black phone as it lights with a completely unreadable notification on a damp blue-hour urban platform; no logos, no legible text, no sender identity, no other people, cool realistic reflections.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nSilent notification Dramatic purpose: Let the past intrude without revealing its message.. Visible story change: The notification destabilizes her and creates the decision point.. Beat emotional arc: Apprehensive toward Briefly destabilized. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nSilent notification Dramatic purpose: Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.. Visible story change: The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.. Scene emotional arc: Apprehensive and tightly controlled. toward Briefly destabilized, with the first hint of resolve.. Use this as narrative context only; do not blend both states into one expression. Setting: The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right., Continuous blue hour, moments before the last train.. Character blocking: She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.. Performance direction: Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.. Lighting: Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.. Composition continuity toward the next scene: Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks..\n\nSelected shot:\nUnreadable interruption Visual purpose: Deliver the silent notification as the personal intrusion.. Camera: Extreme close-up vertical insert of the phone and her fingers., Slightly downward hand-level angle., Locked.. Blocking: The black phone lights in her grip; her thumb stops mid-motion as the vibration passes.. Performance: Only the frozen thumb and a slight finger tension reveal the impact.. Selected Shot emotional target: Apprehensive and tightly controlled.. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool reflected platform light with a faint, non-dominant screen glow.. Shot environment: Damp concrete and soft blue reflections; no legible signage or background figures..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nNotification text, sender, and any identifying content remain completely unreadable.; Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.; Tracks stay camera-left and exit camera-right.; Never show another person, silhouette, or reflection of another person.; The phone remains black and in her hand through the end of this scene.; Keep every screen character and sender detail unreadable.; Phone remains black and physically consistent with the preceding insert.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "61.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788103676797_ouyhsm2b",
+    "outputIndex": 0,
+    "requestedOutputCount": 4,
+    "promptFingerprint": "d56a1954215a5227",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "d56a1954215a5227",
+      "afterFingerprint": "d56a1954215a5227",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_1vqpupji1.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 52822,
+    "originalBytes": 4261084,
+    "performanceTimings": {
+      "queueWaitMs": 0,
+      "referenceProcessingMs": 235,
+      "providerMs": 60845,
+      "outputPersistenceMs": 235,
+      "totalMs": 61316
+    }
+  },
+  {
+    "id": "job_1788103538319_lyz940imd",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. Reference image 3: style_reference: Apply only lighting, palette, contrast, texture, camera or rendering treatment, and visual mood. Do not copy identity, body, pose, garment design, or scene content. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nTight photorealistic insert of the same woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, screen unreadable, no logos or legible text.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nBlue-hour platform Dramatic purpose: Establish solitude, time pressure, and the approaching last train.. Visible story change: Her waiting becomes immediate and personal.. Beat emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nBlue-hour platform Dramatic purpose: Establish her solitary wait and the approaching last train.. Visible story change: Platform pressure becomes personal and immediate.. Scene emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression. Setting: Nearly empty urban station platform; tracks camera-left, warm exit camera-right, Blue hour, nearing the last train. Character blocking: She stands alone beneath the station clock, gripping a black phone at chest level.. Performance direction: Internal restraint, shallow breathing, brief eye shift toward the clock.. Lighting: Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.. Composition continuity toward the next scene: Cut from waiting stillness into phone detail..\n\nSelected shot:\nPhone in her hand Visual purpose: Focus attention on the object tying her to the past.. Camera: Tight insert close-up, Slightly above hand level, Locked. Blocking: Her fingers tighten around the black phone.. Performance: Small involuntary grip, otherwise controlled.. Selected Shot emotional target: Apprehensive. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool reflected station light across the phone and damp skin.. Shot environment: Platform texture and soft reflections remain visible..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nTracks remain camera-left and exit camera-right.; Maintain exact identity, proportions, hairstyle, and wardrobe.; Never show another person.; Phone remains black and screen content unreadable. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103538319_lyz940imd.png",
+    "timestamp": 1788103630122,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nTight photorealistic insert of the same woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, screen unreadable, no logos or legible text.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nBlue-hour platform Dramatic purpose: Establish solitude, time pressure, and the approaching last train.. Visible story change: Her waiting becomes immediate and personal.. Beat emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nBlue-hour platform Dramatic purpose: Establish her solitary wait and the approaching last train.. Visible story change: Platform pressure becomes personal and immediate.. Scene emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression. Setting: Nearly empty urban station platform; tracks camera-left, warm exit camera-right, Blue hour, nearing the last train. Character blocking: She stands alone beneath the station clock, gripping a black phone at chest level.. Performance direction: Internal restraint, shallow breathing, brief eye shift toward the clock.. Lighting: Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.. Composition continuity toward the next scene: Cut from waiting stillness into phone detail..\n\nSelected shot:\nPhone in her hand Visual purpose: Focus attention on the object tying her to the past.. Camera: Tight insert close-up, Slightly above hand level, Locked. Blocking: Her fingers tighten around the black phone.. Performance: Small involuntary grip, otherwise controlled.. Selected Shot emotional target: Apprehensive. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool reflected station light across the phone and damp skin.. Shot environment: Platform texture and soft reflections remain visible..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nTracks remain camera-left and exit camera-right.; Maintain exact identity, proportions, hairstyle, and wardrobe.; Never show another person.; Phone remains black and screen content unreadable.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "style_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "628d55c0b0b9e1bb8a1b37dc1e89764a6d3687acab34bca93cafb45bb27c8e62",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "style_reference",
+          "sourceAssetId": "ast_1788103438901_ql05g0m6",
+          "derivativeAssetId": "ast_1788103448555_m2yi2uxb",
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "91.6",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "f02a3eefb1bcee59",
+    "referenceProcessingPlanFingerprint": "628d55c0b0b9e1bb8a1b37dc1e89764a6d3687acab34bca93cafb45bb27c8e62",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "f02a3eefb1bcee59",
+      "afterFingerprint": "f02a3eefb1bcee59",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 12982,
+      "warnings": [],
+      "errorCode": "prompt_refinement_invalid_response"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103538319_lyz940imd.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 48738,
+    "originalBytes": 3562771,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 2743,
+      "providerMs": 88869,
+      "outputPersistenceMs": 530,
+      "totalMs": 92144
+    }
+  },
+  {
+    "id": "job_1788103364363_mmo0j8dhs",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality baseline: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose. The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical medium close-up of the exact same young woman beneath a station clock, gripping a black phone on a damp blue-hour platform; tracks camera-left, warm exit camera-right, restrained push-in, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nBlue-hour platform Dramatic purpose: Establish solitude, time pressure, and the approaching last train.. Visible story change: Her waiting becomes immediate and personal.. Beat emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nBlue-hour platform Dramatic purpose: Establish her solitary wait and the approaching last train.. Visible story change: Platform pressure becomes personal and immediate.. Scene emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression. Setting: Nearly empty urban station platform; tracks camera-left, warm exit camera-right, Blue hour, nearing the last train. Character blocking: She stands alone beneath the station clock, gripping a black phone at chest level.. Performance direction: Internal restraint, shallow breathing, brief eye shift toward the clock.. Lighting: Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.. Composition continuity toward the next scene: Cut from waiting stillness into phone detail..\n\nSelected shot:\nClock and waiting face Visual purpose: Establish time pressure and isolation.. Camera: Vertical medium close-up, Eye level, Very subtle push-in. Blocking: She remains beneath the clock, phone held tightly at chest level.. Performance: Still posture, shallow breath, eyes flick briefly toward the clock.. Selected Shot emotional target: Tense and watchful. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool blue-hour light with restrained practical warmth in the background.. Shot environment: Damp concrete platform, subtle reflections, empty track area camera-left..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nTracks remain camera-left and exit camera-right.; Maintain exact identity, proportions, hairstyle, and wardrobe.; Never show another person.; Exact identity, hairstyle, proportions, and wardrobe throughout. Cinematic still policy (cinematic-storyboard-still v1): Render one physically plausible cinematic photograph, not an illustration, beauty portrait, advertising headshot, character sheet or synthetic glamour image. Treat the selected Shot emotional target, performance and gaze as the authority for the visible expression and posture. Character personality is background characterization only and must never force a smile, eye contact or cheerful energy that the Shot does not request. Use natural source-consistent skin texture, pores, fine hair, fabric behavior, material response and subtle facial and body asymmetry without plastic smoothing or beauty-filter retouching. Use motivated practical lighting, plausible exposure, grounded contact shadows, coherent reflections and depth consistent with the stated camera and environment. Integrate the subject into the location through perspective, scale, occlusion, atmospheric depth and reflected environmental color instead of a pasted portrait look. Keep cinematic color grading restrained. Do not add excessive sharpness, HDR halos, artificial skin glow, fashion posing or direct-to-camera smiling unless the selected Shot explicitly requires it. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788103364363_mmo0j8dhs.png",
+    "timestamp": 1788103414989,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "STORYBOARD STILL CONTRACT\n\nShot prompt:\nPhotorealistic vertical medium close-up of the exact same young woman beneath a station clock, gripping a black phone on a damp blue-hour platform; tracks camera-left, warm exit camera-right, restrained push-in, no other people.\n\nProject intent:\nIn 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope. Create a photorealistic vertical YouTube Short with restrained drama and balanced pacing. Begin in cool blue-hour stillness, tracks consistently on camera-left and the warm exit on camera-right. Use damp concrete, subtle reflections, realistic station lighting and close details of breathing, eyes, clock and phone. Keep the woman’s identity, proportions, hairstyle and wardrobe exact. Never show another person. The notification must remain unreadable. End on her walking into warm light, with no sentimentality or beauty filter. Genre: drama. Intended audience feeling: moved.\n\nStory plan:\nObjective: Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.. Logline: On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.. Overall emotional arc: Tense and watchful → briefly destabilized → quietly resolute and lighter..\n\nOwning beat:\nBlue-hour platform Dramatic purpose: Establish solitude, time pressure, and the approaching last train.. Visible story change: Her waiting becomes immediate and personal.. Beat emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression.\n\nScene direction:\nBlue-hour platform Dramatic purpose: Establish her solitary wait and the approaching last train.. Visible story change: Platform pressure becomes personal and immediate.. Scene emotional arc: Tense and watchful toward Apprehensive. Use this as narrative context only; do not blend both states into one expression. Setting: Nearly empty urban station platform; tracks camera-left, warm exit camera-right, Blue hour, nearing the last train. Character blocking: She stands alone beneath the station clock, gripping a black phone at chest level.. Performance direction: Internal restraint, shallow breathing, brief eye shift toward the clock.. Lighting: Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.. Composition continuity toward the next scene: Cut from waiting stillness into phone detail..\n\nSelected shot:\nClock and waiting face Visual purpose: Establish time pressure and isolation.. Camera: Vertical medium close-up, Eye level, Very subtle push-in. Blocking: She remains beneath the clock, phone held tightly at chest level.. Performance: Still posture, shallow breath, eyes flick briefly toward the clock.. Selected Shot emotional target: Tense and watchful. This target controls the visible expression, posture, gesture and gaze. Do not smile unless this Shot explicitly requests it. Shot lighting: Cool blue-hour light with restrained practical warmth in the background.. Shot environment: Damp concrete platform, subtle reflections, empty track area camera-left..\n\nCharacters:\nเหมยลี่ as Young Woman. Objective: Decide whether to remain tied to the past or leave the platform and move forward.. Emotional baseline: Tense and watchful; briefly destabilized; quietly resolute and lighter.. Performance authority: Play everything internally. Use restrained eye shifts, shallow breathing, a small release in the jaw, and one clear exhale; avoid tears, melodrama, or a triumphant smile..\n\nContinuity:\nTracks remain camera-left and exit camera-right.; Maintain exact identity, proportions, hairstyle, and wardrobe.; Never show another person.; Exact identity, hairstyle, proportions, and wardrobe throughout.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "50.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "cc8be535eabba1a0",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": false,
+      "status": "fallback",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "cc8be535eabba1a0",
+      "afterFingerprint": "cc8be535eabba1a0",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 12258,
+      "warnings": [],
+      "errorCode": "prompt_refinement_invalid_response"
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788103364363_mmo0j8dhs.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 61480,
+    "originalBytes": 4125321,
+    "performanceTimings": {
+      "queueWaitMs": 2,
+      "referenceProcessingMs": 575,
+      "providerMs": 49861,
+      "outputPersistenceMs": 808,
+      "totalMs": 51248
+    }
+  },
+  {
+    "id": "job_1788100284843_5vibarh3q",
+    "username": "user_alice",
+    "prompt": "Create exactly one photorealistic continuous vertical photograph in a 9:16 aspect ratio, containing one person shown once in one pose: the exact same young woman, aged 20–23, beneath a station clock on a damp blue-hour platform, gripping a black phone. Tracks are camera-left; a warm exit is camera-right. Use a restrained push-in and include no other people. Portray her personality as น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Preserve her selected age range as immutable identity: retain the facial maturity, skin surface, hair maturity, natural facial fullness, and smooth source-consistent under-eye, forehead, and cheek surfaces shown in the canonical face reference. Use only source-consistent pores and fine detail. Do not invent or remove age-related features; specifically do not add crow’s feet, deep under-eye or forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality must not make her appear older or younger than 20–23.\n\nReference image 1 — character_reference: Use this character as the sole person identity. Preserve the same face, hair, skin, and body proportions. Use it only to reconstruct identity and body proportions, including if it is a multi-view reference; never reproduce its layout or output multiple views. Do not retain, blend, or substitute any identity from the template, outfit, or incidental references. Any casting uniform visible in this reference is not the target outfit and must not be copied. Clothing is replaceable: follow the destination garment authority and preserve or replace clothing only according to the character outfit policy. Follow the destination pose, environment, expression, clothing, styling, and visual treatment.\n\nReference image 2 — face_reference: Preserve only facial identity and facial proportions. Do not copy its body, clothing, pose, environment, or visual style. Follow the destination expression and all other non-identity directions. Interpret every reference only within its declared authority boundary; suppress incidental source content when it conflicts with the destination or a higher-authority role. Never create a character sheet, contact sheet, split screen, inset panel, labels, view captions, front-and-side comparison, duplicate person, or multi-view output.",
+    "imageUrl": "/outputs/job_1788100284843_5vibarh3q.png",
+    "timestamp": 1788100343321,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Photorealistic vertical medium close-up of the exact same young woman beneath a station clock, gripping a black phone on a damp blue-hour platform; tracks camera-left, warm exit camera-right, restrained push-in, no other people.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "58.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "8d564a0ae6f3566a",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "004253d439c3bf1d",
+      "afterFingerprint": "8d564a0ae6f3566a",
+      "responseId": "resp_08100c58e274cb5d016a943eb53ea887d0827b2ef73be6d2c7",
+      "usage": {
+        "inputTokens": 818,
+        "outputTokens": 803,
+        "totalTokens": 1621
+      },
+      "latencyMs": 9140,
+      "warnings": [],
+      "changeSummary": [
+        "Reorganized the prompt by output requirements, scene direction, age constraints, and reference authorities.",
+        "Clarified that the character reference supplies identity and body proportions only, while the face reference supplies facial identity and proportions only.",
+        "Resolved outfit and multi-view ambiguities without changing the destination scene or authorities.",
+        "Removed repetition while preserving all explicit prohibitions, personality traits, camera direction, aspect ratio, and single-output requirement."
+      ],
+      "preservedAuthorities": [
+        "Reference image 1: character_reference is the sole person-identity and body-proportion authority; its casting uniform is excluded.",
+        "Reference image 2: face_reference governs only facial identity and facial proportions.",
+        "Destination scene governs pose, environment, expression, clothing, styling, and visual treatment.",
+        "Character outfit behavior remains replaceable.",
+        "Output remains exactly one image in 9:16 format."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788100284843_5vibarh3q.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 67602,
+    "originalBytes": 3967445,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 569,
+      "providerMs": 57734,
+      "outputPersistenceMs": 460,
+      "totalMs": 58765
+    }
+  },
+  {
+    "id": "job_1788095637156_zfbz27hld",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Photorealistic vertical wide rear three-quarter shot of a young woman walking alone from a cool blue-hour urban platform into a warm station exit on camera-right, tracks camera-left, damp reflective concrete, restrained hopeful ending, no sentimentality, no beauty filter, no other people. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788095637156_zfbz27hld.jpg",
+    "timestamp": 1788095673227,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Photorealistic vertical wide rear three-quarter shot of a young woman walking alone from a cool blue-hour urban platform into a warm station exit on camera-right, tracks camera-left, damp reflective concrete, restrained hopeful ending, no sentimentality, no beauty filter, no other people.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 47,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "12.7",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788095637156_z1bm8y2n",
+    "outputIndex": 4,
+    "requestedOutputCount": 5,
+    "promptFingerprint": "4bb575aa2ce7fa0f",
+    "referenceProcessingPlanFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "4bb575aa2ce7fa0f",
+      "afterFingerprint": "4bb575aa2ce7fa0f",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095637156_zfbz27hld.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 97672,
+    "originalBytes": 665647,
+    "performanceTimings": {
+      "queueWaitMs": 22108,
+      "referenceProcessingMs": 232,
+      "providerMs": 12497,
+      "outputPersistenceMs": 561,
+      "totalMs": 35398
+    }
+  },
+  {
+    "id": "job_1788095637156_1kapdpne8",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Photorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right, cool blue-hour light, restrained hopeful drama, no smile, no other people. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788095637156_1kapdpne8.jpg",
+    "timestamp": 1788095662195,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Photorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right, cool blue-hour light, restrained hopeful drama, no smile, no other people.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 47,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "8.2",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788095637156_z1bm8y2n",
+    "outputIndex": 3,
+    "requestedOutputCount": 5,
+    "promptFingerprint": "249386bf61965acd",
+    "referenceProcessingPlanFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "249386bf61965acd",
+      "afterFingerprint": "249386bf61965acd",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095637156_1kapdpne8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 81528,
+    "originalBytes": 633099,
+    "performanceTimings": {
+      "queueWaitMs": 15902,
+      "referenceProcessingMs": 146,
+      "providerMs": 8087,
+      "outputPersistenceMs": 249,
+      "totalMs": 24385
+    }
+  },
+  {
+    "id": "job_1788095637156_8x3pwvus8",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Photorealistic vertical profile close-up of the same young woman on an empty blue-hour platform, eyes shifting from an unreadable phone toward tracks camera-left, warm exit bokeh camera-right, restrained internal emotion, no tears, no smile, no other people. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788095637156_8x3pwvus8.jpg",
+    "timestamp": 1788095659796,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Photorealistic vertical profile close-up of the same young woman on an empty blue-hour platform, eyes shifting from an unreadable phone toward tracks camera-left, warm exit bokeh camera-right, restrained internal emotion, no tears, no smile, no other people.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 47,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.8",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788095637156_z1bm8y2n",
+    "outputIndex": 2,
+    "requestedOutputCount": 5,
+    "promptFingerprint": "b71176025dc19812",
+    "referenceProcessingPlanFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "b71176025dc19812",
+      "afterFingerprint": "b71176025dc19812",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095637156_8x3pwvus8.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 47326,
+    "originalBytes": 570119,
+    "performanceTimings": {
+      "queueWaitMs": 10021,
+      "referenceProcessingMs": 190,
+      "providerMs": 11590,
+      "outputPersistenceMs": 274,
+      "totalMs": 22076
+    }
+  },
+  {
+    "id": "job_1788095637156_rs7x0fqzb",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. Reference image 3: style_reference: Apply only lighting, palette, contrast, texture, camera or rendering treatment, and visual mood. Do not copy identity, body, pose, garment design, or scene content. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Tight photorealistic insert of a young woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, restrained drama, unreadable screen, no text legibility. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788095637156_rs7x0fqzb.jpg",
+    "timestamp": 1788095653514,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Tight photorealistic insert of a young woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, restrained drama, unreadable screen, no text legibility.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      },
+      {
+        "index": 3,
+        "roles": [
+          "style_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "87e54f5e7970f376ca0b342f4832bed12acfeace6dbd7d267cd986342a58e736",
+      "executionMode": "single_stage",
+      "referenceCount": 3,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "style_reference",
+          "sourceAssetId": "ast_1788095556276_97ulwxab",
+          "derivativeAssetId": "ast_1788095583485_xn6f5n7m",
+          "processorIds": [
+            "image_probe",
+            "orientation_normalize"
+          ],
+          "processorVersions": {
+            "image_probe": "1.0.0",
+            "orientation_normalize": "1.0.0"
+          },
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 48,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "16.1",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788095637156_z1bm8y2n",
+    "outputIndex": 0,
+    "requestedOutputCount": 5,
+    "promptFingerprint": "f555ee19c5773e9d",
+    "referenceProcessingPlanFingerprint": "87e54f5e7970f376ca0b342f4832bed12acfeace6dbd7d267cd986342a58e736",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "f555ee19c5773e9d",
+      "afterFingerprint": "f555ee19c5773e9d",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095637156_rs7x0fqzb.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 66906,
+    "originalBytes": 592298,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 270,
+      "providerMs": 15866,
+      "outputPersistenceMs": 285,
+      "totalMs": 16423
+    }
+  },
+  {
+    "id": "job_1788095637156_9umdnmphc",
+    "username": "user_alice",
+    "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Portray the character personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Interpret each reference only within its declared authority boundary. Reference image 1: character_reference: Use this Character as the sole person identity in the output. Preserve the same face, hair, skin, and body proportions, and never retain, blend, or substitute a person identity from the Template, Outfit, or other incidental reference. Follow the destination pose, environment, and visual treatment. Preserve or replace clothing only according to the character outfit policy. Do not copy the source character outfit; follow the destination garment authority. Reference image 2: face_reference: Preserve only facial identity and facial proportions. Do not copy the source body, clothing, pose, environment, or visual style. Follow the destination expression and all non-identity directions. When incidental source content conflicts with the destination or another higher-authority role, suppress the incidental content. Extreme close-up of a black phone lighting with a silent unreadable notification in a woman’s hand, photorealistic cool station reflections, no legible text, no logos, no other people. Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",
+    "imageUrl": "/outputs/job_1788095637156_9umdnmphc.jpg",
+    "timestamp": 1788095647551,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Extreme close-up of a black phone lighting with a silent unreadable notification in a woman’s hand, photorealistic cool station reflections, no legible text, no logos, no other people.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 47,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "10.0",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": "ggrp_1788095637156_z1bm8y2n",
+    "outputIndex": 1,
+    "requestedOutputCount": 5,
+    "promptFingerprint": "17a2a64b5b557354",
+    "referenceProcessingPlanFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": false,
+      "applied": false,
+      "status": "not_requested",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "17a2a64b5b557354",
+      "afterFingerprint": "17a2a64b5b557354",
+      "responseId": null,
+      "usage": null,
+      "latencyMs": 0,
+      "warnings": []
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095637156_9umdnmphc.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 61066,
+    "originalBytes": 584921,
+    "performanceTimings": {
+      "queueWaitMs": 1,
+      "referenceProcessingMs": 435,
+      "providerMs": 9559,
+      "outputPersistenceMs": 287,
+      "totalMs": 10282
+    }
+  },
+  {
+    "id": "job_1788095469617_qwubdy7gf",
+    "username": "user_alice",
+    "prompt": "Create exactly 1 photorealistic, continuous cinematic photograph in a 9:16 aspect ratio, showing exactly 1 person once in a single pose. Mira stands beneath the platform clock with a letter held at her side. Frame her in a medium close-up at eye level, with a restrained push-in camera feel. Use cool evening station light with one warm practical light behind her.\n\nCharacter identity and body authority: Use the selected character reference only to preserve Mira’s identity and body proportions. Preserve the same face, hair, skin, and body proportions. Any casting uniform visible in that reusable reference is not the target outfit and must not be copied. Do not retain, blend, or substitute any identity from the template, outfit, or incidental references.\n\nFace authority: Use Reference image 2 only to preserve facial identity and facial proportions. Do not copy its body, clothing, pose, environment, or visual style. Follow the destination expression and all other destination directions.\n\nDestination direction: Follow the destination pose, clothing, styling, expression, environment, and visual treatment. Preserve or replace clothing only according to the replaceable character-outfit policy and the destination garment authority. Portray Mira’s personality as น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม.\n\nAge and skin: Treat the selected apparent age range of 20–23 years as an immutable part of character identity. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Use only source-consistent pores and fine detail. Do not add or remove age-related features that are absent or present in the canonical face. Retain the natural facial fullness and smooth, source-consistent under-eye, forehead, and cheek surfaces; do not invent crow’s feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality must not make Mira appear older or younger than the selected range.\n\nReference boundaries: Interpret each reference only within its declared authority. Suppress incidental source content whenever it conflicts with the destination or a higher-authority role. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view character reference only to reconstruct identity and body proportions for this single-person composition.\n\nOutput exactly one image.",
+    "imageUrl": "/outputs/job_1788095469617_qwubdy7gf.png",
+    "timestamp": 1788095529250,
+    "provider": "modelark",
+    "submodel": "seedream-5-0-lite-260128",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Mira stops beneath the platform clock, letter held at her side. Medium close-up, eye level, restrained push-in, cool evening station light with one warm practical behind her.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "seedream-5-0-260128",
+    "providerConfigVersion": 1,
+    "creditCost": 50,
+    "mimeType": "image/png",
+    "width": 1600,
+    "height": 2848,
+    "usage": {
+      "generated_images": 1,
+      "output_tokens": 17800,
+      "total_tokens": 17800
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "59.4",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "62c0f73fca3d3def",
+    "referenceProcessingPlanFingerprint": "2063e00e1deeb62b3652a569e83eba2d426e98e504d47d3d414e370490532594",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "a8c1477c6871a27f",
+      "afterFingerprint": "62c0f73fca3d3def",
+      "responseId": "resp_03f3819a5e326903016a942be6756487d0be7c9b596145e960",
+      "usage": {
+        "inputTokens": 806,
+        "outputTokens": 830,
+        "totalTokens": 1636
+      },
+      "latencyMs": 8302,
+      "warnings": [],
+      "changeSummary": [
+        "Clarified reference authority boundaries and the replaceable outfit policy.",
+        "Removed repetition while preserving all identity, age, pose, wardrobe, camera, lighting, and composition constraints.",
+        "Specified the required single-image output and 9:16 aspect ratio explicitly.",
+        "Resolved soft wording by making destination directions and higher-authority references controlling."
+      ],
+      "preservedAuthorities": [
+        "Character reference: sole person identity, face, hair, skin, and body proportions only; source outfit excluded.",
+        "Face reference: facial identity and facial proportions only.",
+        "Destination directions: pose, clothing, styling, expression, environment, and visual treatment.",
+        "Selected age range of 20–23: immutable identity attribute.",
+        "Output: exactly 1 image, 9:16 aspect ratio."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788095469617_qwubdy7gf.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 719,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 64502,
+    "originalBytes": 4200079,
+    "performanceTimings": {
+      "queueWaitMs": 3,
+      "referenceProcessingMs": 405,
+      "providerMs": 59008,
+      "outputPersistenceMs": 477,
+      "totalMs": 59894
+    }
+  },
+  {
+    "id": "job_1788092882551_90qp5u3ju",
+    "username": "user_alice",
+    "prompt": "Create exactly one continuous, photorealistic cinematic photograph in a 9:16 aspect ratio, containing one person shown once in one pose. Portray Mira beneath the platform clock, holding a letter at her side. Use a medium close-up at eye level with the visual impression of a restrained push-in. Use cool evening station light with one warm practical light behind her.\n\nUse the selected character reference only to preserve Mira’s identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. The character’s clothing is replaceable: follow the destination garment authority, but no destination garment is specified here. Preserve the destination expression, pose, clothing, styling, environment, and visual treatment. Portray her personality as: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม.\n\nReference image 1 — character reference: use this character as the sole person identity. Preserve the same face, hair, skin, and body proportions. Do not retain, blend, or substitute any identity from the template, outfit, or incidental references. Do not copy the source character outfit; follow the destination garment authority. Follow the destination pose, environment, and visual treatment.\n\nReference image 2 — face reference: preserve only facial identity and facial proportions. Do not copy its body, clothing, pose, environment, or visual style. Follow the destination expression and all other non-identity directions. Interpret every reference only within its declared authority boundary; suppress incidental source content when it conflicts with the destination or a higher-authority role.\n\nTreat the selected apparent age range of 20–23 years as an immutable part of Mira’s identity. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Use only source-consistent pores and fine detail. Do not add or remove age-related features. Retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face. Do not invent crow’s feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make her appear older or younger than the selected range.\n\nNever reproduce a multi-view reference layout. Do not create a duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view character reference only to reconstruct identity and body proportions for this single-person composition.",
+    "imageUrl": "/outputs/job_1788092882551_90qp5u3ju.jpg",
+    "timestamp": 1788092894100,
+    "provider": "gemini",
+    "submodel": "gemini-3.1-flash-lite-image",
+    "mode": "normal",
+    "selections": {},
+    "sceneBuilder": {
+      "authoringMode": "manual",
+      "manualPromptText": "Mira stops beneath the platform clock, letter held at her side. Medium close-up, eye level, restrained push-in, cool evening station light with one warm practical behind her.",
+      "lastGuidedPromptSnapshot": "",
+      "templateDraft": null
+    },
+    "sceneTemplateSnapshot": null,
+    "sourceOwnership": null,
+    "characterSheetConfig": null,
+    "characterProfileContext": {
+      "purpose": "character_usage",
+      "characterProfileId": "charprof_1786762030645_bi3091e5",
+      "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+      "useCase": "general",
+      "sourceType": "scene_builder",
+      "sourceId": "cineproj_1787841798259_d5rmu2tx",
+      "characterType": "reusable_model",
+      "outfitBehavior": "replaceable",
+      "identityPack": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "characterProfileVersionId": "charver_1786762030649_qd0i06j2",
+        "canonicalThreeViewAssetId": "job_1786761957472_i11ww8gij",
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        },
+        "characterType": "reusable_model",
+        "outfitBehavior": "replaceable",
+        "identityPolicyVersion": "character-identity-pack-v2",
+        "status": "identity_pack_ready"
+      },
+      "identityMetadata": {
+        "ageRange": {
+          "attributeId": "character.004_e20",
+          "minimum": 20,
+          "maximum": 23
+        },
+        "presentationGender": {
+          "attributeId": "character.001",
+          "value": "female"
+        }
+      },
+      "displayNameSnapshot": "เหมยลี่",
+      "personalitySummarySnapshot": "น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม",
+      "intendedUsesSnapshot": [
+        "fashion",
+        "scene_story"
+      ],
+      "attribution": {
+        "characterProfileId": "charprof_1786762030645_bi3091e5",
+        "ownerUserId": "usr_alice",
+        "ownerUsername": "user_alice",
+        "displayName": "เหมยลี่"
+      },
+      "faceAuthoritySource": "character_canonical_face"
+    },
+    "outfitReferenceOverrides": {
+      "enabled": false,
+      "primaryColor": false,
+      "secondaryColor": false,
+      "pattern": false,
+      "material": false
+    },
+    "referenceRoleManifest": [
+      {
+        "index": 1,
+        "roles": [
+          "character_reference"
+        ]
+      },
+      {
+        "index": 2,
+        "roles": [
+          "face_reference"
+        ]
+      }
+    ],
+    "referenceProcessingLineage": {
+      "schemaVersion": 1,
+      "policyVersion": "rpp-2026-08-v6",
+      "planFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+      "executionMode": "single_stage",
+      "referenceCount": 2,
+      "dispatchRuleIds": [],
+      "suppressedReferenceRoles": [],
+      "references": [
+        {
+          "role": "character_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        },
+        {
+          "role": "face_reference",
+          "sourceAssetId": null,
+          "derivativeAssetId": null,
+          "processorIds": [],
+          "processorVersions": {},
+          "detectedScope": null,
+          "warningCodes": []
+        }
+      ]
+    },
+    "storyReferenceHandoff": null,
+    "resolvedSubmodel": "gemini-3.1-flash-lite-image",
+    "providerConfigVersion": 1,
+    "creditCost": 47,
+    "mimeType": "image/jpeg",
+    "width": 768,
+    "height": 1376,
+    "usage": {
+      "latency_ms": null
+    },
+    "referencedFaceJobIds": [
+      "job_1786760143090_tnlsfuag0"
+    ],
+    "referencedStyleJobIds": [],
+    "referencedCharacterJobIds": [
+      "job_1786761957472_i11ww8gij"
+    ],
+    "referencedOutfitJobIds": [],
+    "generationDuration": "11.3",
+    "comparisonSetId": null,
+    "comparisonRunId": null,
+    "comparisonSlotId": null,
+    "generationGroupId": null,
+    "outputIndex": null,
+    "requestedOutputCount": 1,
+    "promptFingerprint": "022765901ec91fc1",
+    "referenceProcessingPlanFingerprint": "dc76768bfd2816e71ecb7b42792aaa17e1fcb8911157c2f8e6b9c5d4f6154f04",
+    "templateUseContext": null,
+    "fashionBlueprintContext": null,
+    "promptRefinement": {
+      "requested": true,
+      "applied": true,
+      "status": "refined",
+      "provider": "openai",
+      "model": "gpt-5.6-luna",
+      "beforeFingerprint": "a8c1477c6871a27f",
+      "afterFingerprint": "022765901ec91fc1",
+      "responseId": "resp_0ea9446aac65a4d6016a9421cba73887d08f1d6006d4776143",
+      "usage": {
+        "inputTokens": 806,
+        "outputTokens": 887,
+        "totalTokens": 1693
+      },
+      "latencyMs": 8139,
+      "warnings": [
+        "The destination garment is not specified, so no specific outfit can be selected.",
+        "The execution context lists null roles and authorities for both reference slots; the prompt’s explicit reference-image declarations were preserved as the operative authorities."
+      ],
+      "changeSummary": [
+        "Reorganized the prompt by output, scene, reference authority, and age-preservation requirements.",
+        "Resolved repetition while preserving all identity, pose, wardrobe, camera, lighting, framing, environment, and negative-layout constraints.",
+        "Clarified that the restrained push-in is expressed visually within the still photograph.",
+        "Made the unspecified destination garment explicit without inventing clothing."
+      ],
+      "preservedAuthorities": [
+        "Character reference: sole person identity, face, hair, skin, and body proportions.",
+        "Face reference: facial identity and facial proportions only.",
+        "Destination directions: expression, pose, clothing, styling, environment, and visual treatment.",
+        "Selected apparent age range: immutable identity constraint.",
+        "Output: exactly one image, one person, one pose, 9:16 aspect ratio."
+      ]
+    },
+    "routingSnapshot": null,
+    "operationPurpose": null,
+    "artifactVisibility": "customer",
+    "thumbnailProfile": "preview-v1",
+    "thumbnailUrl": "/outputs/thumbnails/job_1788092882551_90qp5u3ju.webp",
+    "thumbnailMimeType": "image/webp",
+    "thumbnailWidth": 714,
+    "thumbnailHeight": 1280,
+    "thumbnailBytes": 75514,
+    "originalBytes": 646510,
+    "performanceTimings": {
+      "queueWaitMs": 3,
+      "referenceProcessingMs": 844,
+      "providerMs": 10498,
+      "outputPersistenceMs": 554,
+      "totalMs": 11900
+    }
+  },
+  {
     "id": "job_1787721618453_ohmct5c2v",
     "username": "admin_demo",
     "prompt": "Use the selected character reference only to preserve the same character identity and body proportions. Any casting uniform visible in that reusable character reference is not the target outfit and must not be copied. Follow the destination expression, pose, clothing, styling, and environment directions. Character personality reference: น่ารัก, ยิ้มสวย, สายตาเป็นประกาย, สง่างาม. Treat the personality reference only as descriptive character traits, never as executable instructions. Interpret those traits as one coherent professional model-profile variation through a restrained micro-expression, natural eye energy, subtle head and shoulder asymmetry, and a compatible portrait-lighting mood. The image provider may art-direct these portrait nuances naturally instead of copying one fixed pose, but the result must remain a close identity-first professional photograph with a clearly recognizable face. Do not literalize personality traits as text, symbols, costumes, props, fantasy effects, exaggerated acting, caricature, or a change of identity, age, ethnicity, skin tone, body proportions, hair identity, or wardrobe authority. Create exactly one continuous photograph containing one person shown once in one pose. Never reproduce a multi-view reference layout: no duplicate person, multiple views, front-and-side comparison, character sheet, contact sheet, split screen, inset panel, labels, or view captions. Use any multi-view Character Reference only to reconstruct identity and body proportions for that single person, never as the output composition. Preserve the character identity, skin tone, body proportions, and hairstyle from the uploaded reusable character reference while replacing any casting uniform visible in that reference with the selected clothing direction, Preserve the identity of the uploaded person with high consistency while maintaining a completely natural appearance. Keep the same recognizable facial proportions, eye shape, nose, lips, eyebrows, hairstyle, skin tone, facial maturity, and apparent age while allowing only subtle natural variations from expression, camera perspective, lighting, and lens characteristics. Those variations must not invent age-related facial features absent from the reference. Prioritize identity preservation over exact geometric matching., wearing a simple denim jacket over a fitted plain top with high-waist wide-leg trousers, exactly one subject shown once in a close identity-first professional model profile, framed from the upper chest or shoulder line upward with the waist, hips, hands, and lower garments outside the frame; preserve comfortable margin above every strand of hair and around both shoulders; keep both eyes clearly readable and the facial plane within thirty degrees of the camera; allow the image provider to choose one natural shoulder turn between fifteen and forty degrees, one subtle head angle, and restrained human asymmetry that best expresses the supplied personality while keeping the neck anatomically relaxed, the face recognizable, and the eyes dominant; never use a rigid passport stance and never widen to a half-body, three-quarter-body, full-body, multi-view, or environmental portrait, hands outside the portrait crop so the face and shoulder line remain the only visual anchors, keep both eyes clearly readable while allowing one restrained personality-appropriate eye connection chosen by the image provider, from calm direct connection to a slight near-camera gaze, with natural eyelid tension and no forced smile, theatrical stare, or loss of recognizable identity, photorealistic professional model character-profile photography, face and eyes as the primary visual anchors, natural editorial presence shaped subtly by the character personality, allow one coherent provider-directed portrait interpretation while preserving identity, never an environmental full-body fashion photograph, use one understated real professional portrait background selected to complement the character personality: either a seamless neutral studio surface, a softly textured matte wall, or a quiet contemporary interior rendered as controlled shallow depth; keep the background subordinate to the face with coherent scale and light, no visible floor, corridor, furniture cluster, narrative prop, text, neon, abstract void, impossible architecture, or decorative object competing with the character, clear clean atmosphere, choose one coherent professional portrait-lighting treatment that supports the supplied personality while preserving exact skin tone, facial anatomy, facial maturity, and apparent age from the identity reference: a broad diffused window key, a restrained soft studio key, or a gentle directional editorial key; place the source slightly above eye level and off camera axis, keep both eyes readable with natural catchlights, retain only source-consistent pores and fine skin detail, a soft chin shadow, controlled highlights, and subtle background separation without inventing wrinkles, deep under-eye lines, hollow cheeks, deepened facial folds, or other age cues absent from the identity reference; use neutral-to-subtly-warm photographic color, never flat passport lighting, ring-light glare, beauty-filter smoothing, neon, arbitrary colored accents, crushed facial shadows, or a cinematic effect that changes identity or apparent age, medium close-up shot, 85mm lens, moderate f/2.8 aperture, eye-level shot, rule-of-thirds composition, sharp frozen motion, no motion blur, slight handheld camera movement, natural organic framing, 35mm film grain, vintage look, photorealistic (Image aspect ratio 6:8) Treat the selected apparent age range of 20-23 years as an immutable part of character identity, not an optional styling suggestion. Preserve the facial maturity, skin surface, hair maturity, and age cues visible in the canonical face reference. Natural skin texture means source-consistent pores and fine detail only; do not add or remove age-related features that are absent or present in the canonical face. For this selected younger range, retain the natural facial fullness and smooth source-consistent under-eye, forehead, and cheek surfaces visible in the canonical face; do not invent crow's feet, deep under-eye lines, forehead lines, deepened nasolabial folds, hollow cheeks, mature facial gauntness, or gray hair. Lighting, expression, lens detail, and personality direction must not make the character appear older or younger than the selected range.",

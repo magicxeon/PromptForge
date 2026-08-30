@@ -125,7 +125,7 @@ export class CinematicProjectRepository {
       if (index === -1) {
         throw new RepositoryContractError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
       }
-      const draft = structuredClone(data.projects[index]);
+      const draft = normalizeLegacyProject(structuredClone(data.projects[index]));
       const result = await operation(draft);
       draft.updatedAt = new Date().toISOString();
       data.projects[index] = draft;
@@ -136,8 +136,14 @@ export class CinematicProjectRepository {
   async #read() {
     const data = await readJsonFile(this.projectsFile, FALLBACK);
     assertStore(data);
+    data.projects.forEach(normalizeLegacyProject);
     return data;
   }
+}
+
+function normalizeLegacyProject(project) {
+  if (project?.status === 'storyboarding') project.status = 'planned';
+  return project;
 }
 
 function assertStore(data) {

@@ -7,6 +7,7 @@ import { VideoProviderTaskService } from './VideoProviderTaskService.js';
 import { videoProviderTaskRepository } from '../../repositories/generation/VideoProviderTaskRepository.js';
 import { cinematicVideoAssetService } from '../assets/CinematicVideoAssetService.js';
 import { GeminiVeoProvider } from '../../providers/GeminiVeoProvider.js';
+import { GeminiOmniProvider } from '../../providers/GeminiOmniProvider.js';
 import { ModelArkSeedanceProvider } from '../../providers/ModelArkSeedanceProvider.js';
 import { VideoProviderAdapterRegistry } from '../../providers/VideoProviderAdapterRegistry.js';
 
@@ -34,6 +35,9 @@ export class VideoGenerationApplicationService {
         adapters: {
           gemini: new GeminiVeoProvider(),
           modelark: new ModelArkSeedanceProvider()
+        },
+        modelAdapters: {
+          'gemini/gemini-omni-flash-preview': new GeminiOmniProvider()
         }
       });
       this.providerTaskService = new VideoProviderTaskService({

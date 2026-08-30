@@ -30,7 +30,7 @@ import {
 } from '../../generation/api/videoGenerationApi';
 import type { VideoTask } from '../../generation/schemas/videoGenerationSchemas';
 import { focusResultRegionAfterLayout } from './resultRegionFocus';
-import { filterVideoModelsForOperation } from './videoModelSelection';
+import { canQuoteVideoModel, filterVideoModelsForOperation } from './videoModelSelection';
 
 const VIDEO_DRAFT_FEATURE = 'playground-video';
 const VIDEO_DRAFT_VERSION = 2;
@@ -101,6 +101,7 @@ export function PlaygroundVideoExperience() {
       || null,
     [availableModels, draft.providerModelKey]
   );
+  const selectedModelCanQuote = canQuoteVideoModel(selectedModel);
   const sourceReady = draft.operation === 'text_to_video'
     || (draft.operation === 'image_to_video' && Boolean(draft.referenceImageUrl))
     || (draft.operation === 'character_to_video' && Boolean(draft.character?.characterProfileVersionId));
@@ -122,7 +123,7 @@ export function PlaygroundVideoExperience() {
   const quote = useQuery({
     queryKey: ['video-quote', actor?.userId, generationInput],
     queryFn: () => quoteVideoGeneration(generationInput!),
-    enabled: Boolean(generationInput?.prompt && sourceReady),
+    enabled: Boolean(generationInput?.prompt && sourceReady && selectedModelCanQuote),
     retry: false,
     staleTime: 30_000
   });
@@ -222,10 +223,12 @@ export function PlaygroundVideoExperience() {
     }
   }
 
-  const comparisonEnabled = capabilities.data?.comparison.enabled === true && availableModels.length >= 2;
+  const comparisonEnabled = capabilities.data?.comparison.enabled === true
+    && availableModels.filter(canQuoteVideoModel).length >= 2;
   const generationReady = Boolean(
     generationInput?.prompt
     && sourceReady
+    && selectedModelCanQuote
     && quote.data?.account.canAfford
     && !submit.isPending
   );

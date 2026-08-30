@@ -37,6 +37,7 @@ import {
   removeCinematicCast
 } from '../api/cinematicApi';
 import type { CinematicProject } from '../schemas/cinematicSchemas';
+import { updateCinematicStageWithRecovery } from './cinematicStageNavigation';
 
 export function CinematicStudioRoute() {
   const { t } = useTranslation('cinematic');
@@ -164,6 +165,10 @@ function CinematicWorkspace({
   }, []);
 
   useEffect(() => {
+    if (project) projectVersionRef.current = Math.max(projectVersionRef.current, project.version);
+  }, [project?.version]);
+
+  useEffect(() => {
     if (project) return;
     setSaveState('saving');
     const timer = window.setTimeout(() => {
@@ -275,23 +280,29 @@ function CinematicWorkspace({
   }
 
   async function setActiveStage(nextStage: CinematicSetupDraft['activeStage']) {
-    update('activeStage', nextStage);
     if (!project) return;
+    setSaveState('saving');
+    setSaveError(null);
     try {
       const saved = await enqueueProjectMutation(async () => {
         const serialized = serializeSetup(draft);
-        if (serialized !== lastSavedSetupRef.current) {
+        const hasSetupChanges = serialized !== lastSavedSetupRef.current;
+        if (hasSetupChanges) {
           const setupSaved = await updateCinematicSetup(project.id, draft, projectVersionRef.current);
           projectVersionRef.current = setupSaved.version;
           lastSavedSetupRef.current = serialized;
+          return updateCinematicStage(project.id, nextStage, projectVersionRef.current);
         }
-        return updateCinematicStage(project.id, nextStage, projectVersionRef.current);
+        return updateCinematicStageWithRecovery(project.id, nextStage, projectVersionRef.current);
       });
       projectVersionRef.current = saved.version;
       queryClient.setQueryData(['cinematic-project', actorId, project.id], saved);
+      setDraft(current => ({ ...current, activeStage: nextStage, updatedAt: saved.updatedAt }));
+      setSaveState('saved');
       navigate(routeBuilders.cinematicProject(project.id, nextStage));
-    } catch {
-      setSaveState('idle');
+    } catch (reason) {
+      setSaveState('failed');
+      setSaveError(reason instanceof Error ? reason : new Error(t('cinematic.status.saveFailed')));
     }
   }
 

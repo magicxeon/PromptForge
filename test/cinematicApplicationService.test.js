@@ -342,6 +342,193 @@ test('CinematicApplicationService saves stable Scene and Shot structure with rec
   assert.equal(planned.activeStoryPlanVersionId, planned.storyPlanVersions[0].id);
 });
 
+test('Story Plan v2 keeps draft separate from approval and validates target duration', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({ ...setup, durationSeconds: 20 }, alice);
+  const beat = {
+    id: 'beat_choice', title: 'Choice', type: 'decision',
+    purpose: 'Force the protagonist to decide', storyChange: 'She chooses to leave the platform'
+  };
+  const scene = {
+    id: 'scene_choice', beatId: 'beat_choice', title: 'Choice',
+    purpose: 'Show the final decision', storyChange: 'Waiting becomes forward motion',
+    shots: [{ id: 'shot_choice', title: 'Walk away', purpose: 'Reveal the choice through action', durationMs: 20_000 }]
+  };
+  const draft = await service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: project.version,
+    approved: false, beats: [beat], scenes: [scene]
+  }, alice);
+  assert.equal(draft.activeStoryPlanVersionId, null);
+  assert.equal(draft.storyPlanVersions.at(-1).status, 'draft');
+  const approved = await service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: draft.version,
+    approved: true, beats: [beat], scenes: [scene]
+  }, alice);
+  assert.equal(approved.storyPlanVersions.at(-1).status, 'approved');
+  assert.equal(approved.activeStoryPlanVersionId, approved.storyPlanVersions.at(-1).id);
+
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: approved.version,
+    approved: true, beats: [{ ...beat, purpose: '' }], scenes: [scene]
+  }, alice), error => error.code === 'cinematic_story_plan_details_incomplete');
+
+  await assert.rejects(service.saveStoryPlan(project.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: approved.version,
+    approved: true, beats: [beat],
+    scenes: [{ ...scene, shots: [{ id: 'shot_short', title: 'Too short', purpose: 'Hold the decision', durationMs: 4_000 }] }]
+  }, alice), error => error.code === 'cinematic_story_plan_duration_mismatch');
+});
+
+test('Story Plan v2 rejects Cast and Look references outside Scene authority', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject({ ...setup, durationSeconds: 20 }, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version,
+    assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a',
+    characterProfileVersionId: 'charver_a',
+    displayName: 'Mira'
+  }, alice);
+  const withLook = await service.upsertWardrobeLook(project.id, 'cast_mira', {
+    expectedVersion: cast.version,
+    lookId: 'look_arrival',
+    name: 'Arrival Look',
+    mode: 'uploaded',
+    assetIds: ['asset_front']
+  }, alice);
+  const beat = {
+    id: 'beat_choice', title: 'Choice', type: 'decision',
+    purpose: 'Force a decision', storyChange: 'Waiting becomes forward motion',
+    sceneIds: ['scene_choice']
+  };
+  const scene = {
+    id: 'scene_choice', beatId: beat.id, title: 'Choice',
+    purpose: 'Show the decision', storyChange: 'Mira walks away', durationMs: 20_000,
+    castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'],
+    shots: [{
+      id: 'shot_choice', title: 'Walk away', purpose: 'Reveal the choice', durationMs: 20_000,
+      castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_unknown']
+    }]
+  };
+
+  await assert.rejects(service.saveStoryPlan(withLook.id, {
+    contractVersion: 'story-plan-v2', expectedVersion: withLook.version,
+    approved: true, beats: [beat], scenes: [scene]
+  }, alice), error => error.code === 'cinematic_story_plan_cast_authority_invalid');
+});
+
+test('Storyboard generation context resolves only actor-owned Look and prior approved Shot references', async t => {
+  const assetRepository = {
+    findByIdForOwner: async (assetId, ownerUserId) => ownerUserId === alice.userId
+      ? { id: assetId, ownerUserId, status: 'active', publicUrl: `/outputs/${assetId}.webp` }
+      : null
+  };
+  const { directory, service } = await fixture({ assetRepository });
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const cast = await service.upsertCastAssignment(project.id, {
+    expectedVersion: project.version, assignmentId: 'cast_mira',
+    characterProfileId: 'charprof_a', characterProfileVersionId: 'charver_a', displayName: 'Mira'
+  }, alice);
+  const withLook = await service.upsertWardrobeLook(project.id, 'cast_mira', {
+    expectedVersion: cast.version, lookId: 'look_arrival', name: 'Arrival Look',
+    mode: 'uploaded', assetIds: ['asset_front'], locked: true
+  }, alice);
+  const planned = await service.saveStoryPlan(project.id, {
+    expectedVersion: withLook.version,
+    scenes: [{
+      id: 'scene_a', title: 'Scene A', castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'],
+      shots: [
+        { id: 'shot_a', title: 'A', durationMs: 2000, castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'] },
+        { id: 'shot_b', title: 'B', durationMs: 2000, castAssignmentIds: ['cast_mira'], wardrobeLookIds: ['look_arrival'] }
+      ]
+    }]
+  }, alice);
+  await service.approveStoryboardSource(project.id, 'shot_a', {
+    expectedVersion: planned.version, expectedShotVersion: 1,
+    jobId: 'job_storyboard_a1', idempotencyKey: 'approve-context-a1'
+  }, alice);
+  const current = await service.getProject(project.id, alice);
+  const context = await service.getStoryboardGenerationContext(project.id, 'scene_a', 'shot_b', alice);
+  assert.equal(context.projectVersion, current.version);
+  assert.equal(context.characterProfileContext.characterProfileId, 'charprof_a');
+  assert.equal(context.references.outfit_front, '/outputs/asset_front.webp');
+  assert.equal(context.references.style_reference, '/outputs/job_storyboard_a1.jpg');
+  assert.equal(context.continuitySource.shotId, 'shot_a');
+  assert.equal(context.generationEligible, true);
+});
+
+test('Storyboard batch registers resumable Shot attempts before approval and reuses the attempt on approval', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const planned = await service.saveStoryPlan(project.id, {
+    expectedVersion: project.version,
+    approved: true,
+    scenes: [{
+      id: 'scene_batch', title: 'Batch Scene', shots: [
+        { id: 'shot_batch_a', title: 'A', durationMs: 2000 },
+        { id: 'shot_batch_b', title: 'B', durationMs: 2000 }
+      ]
+    }]
+  }, alice);
+  const registered = await service.registerStoryboardBatchAttempts(project.id, {
+    batchId: 'ggrp_storyboard_batch',
+    expectedVersion: planned.version,
+    children: [
+      { jobId: 'job_batch_a', sceneId: 'scene_batch', shotId: 'shot_batch_a', expectedShotVersion: 1, estimateId: 'est_a' },
+      { jobId: 'job_batch_b', sceneId: 'scene_batch', shotId: 'shot_batch_b', expectedShotVersion: 1, estimateId: 'est_b' }
+    ]
+  }, alice);
+  assert.equal(registered.generationAttempts.length, 2);
+  assert.deepEqual(registered.generationAttempts.map(item => item.generationJobId), ['job_batch_a', 'job_batch_b']);
+  assert.equal(registered.scenes[0].shots[0].storyboardStatus, 'generating');
+  assert.equal(registered.status, 'planned');
+
+  const replay = await service.registerStoryboardBatchAttempts(project.id, {
+    batchId: 'ggrp_storyboard_batch',
+    expectedVersion: planned.version,
+    children: [
+      { jobId: 'job_batch_a', sceneId: 'scene_batch', shotId: 'shot_batch_a', expectedShotVersion: 1 },
+      { jobId: 'job_batch_b', sceneId: 'scene_batch', shotId: 'shot_batch_b', expectedShotVersion: 1 }
+    ]
+  }, alice);
+  assert.equal(replay.generationAttempts.length, 2);
+
+  const firstApproval = await service.approveStoryboardSource(project.id, 'shot_batch_a', {
+    expectedVersion: registered.version,
+    expectedShotVersion: 1,
+    jobId: 'job_batch_a',
+    idempotencyKey: 'approve-batch-a'
+  }, alice);
+  const approved = await service.getProject(project.id, alice);
+  assert.equal(approved.generationAttempts.length, 2);
+  assert.equal(approved.generationAttempts.find(item => item.generationJobId === 'job_batch_a').status, 'approved');
+  assert.equal(approved.status, 'planned');
+
+  await service.approveStoryboardSource(project.id, 'shot_batch_b', {
+    expectedVersion: firstApproval.projectVersion, expectedShotVersion: 1,
+    jobId: 'job_batch_b', idempotencyKey: 'approve-batch-b'
+  }, alice);
+  const ready = await service.getProject(project.id, alice);
+  assert.equal(ready.status, 'storyboard_ready');
+});
+
+test('Cinematic repository maps legacy storyboarding status to planned', async t => {
+  const { directory, service } = await fixture();
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const project = await service.createProject(setup, alice);
+  const projectsFile = path.join(directory, 'projects.json');
+  const data = JSON.parse(await fs.readFile(projectsFile, 'utf8'));
+  data.projects[0].status = 'storyboarding';
+  await fs.writeFile(projectsFile, JSON.stringify(data, null, 2));
+
+  const recovered = await service.getProject(project.id, alice);
+  assert.equal(recovered.status, 'planned');
+});
+
 test('Storyboard source approval is idempotent and replacement stales only dependent work', async t => {
   const { directory, service } = await fixture();
   t.after(() => fs.rm(directory, { recursive: true, force: true }));

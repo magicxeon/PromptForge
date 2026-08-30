@@ -174,6 +174,7 @@ function baseItem(input) {
 function resumeHrefForImage(surface, mode) {
   if (surface === 'playground') return '/create/playground';
   if (surface === 'fashion') return '/create/fashion';
+  if (surface === 'cinematic') return '/create/cinematic';
   if (mode === 'face') return '/create/studio/face';
   if (mode === 'character-sheet') return '/create/studio/character';
   return '/create/studio/scene';

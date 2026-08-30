@@ -13,7 +13,10 @@ import {
   EngineTargetPanel,
   type EngineValue
 } from './EngineTargetPanel';
-import { createDefaultComparisonSlots } from './engineTargetPanelHelpers';
+import {
+  createDefaultComparisonSlots,
+  imageModelUnavailableReason
+} from './engineTargetPanelHelpers';
 import { GenerationResultSurface } from './GenerationResultSurface';
 import {
   estimateComparison,
@@ -81,7 +84,7 @@ import {
 } from '../../features/generation/job-center/generationRoutePointer';
 
 type GenerationExperienceProps = {
-  surface: 'playground' | 'studio' | 'fashion';
+  surface: 'playground' | 'studio' | 'fashion' | 'cinematic';
   generationMode: 'playground' | 'headshot' | 'scene' | 'character-sheet' | 'fashion';
   initialPrompt?: string;
   prompt?: string;
@@ -119,6 +122,10 @@ type GenerationExperienceProps = {
   studioModeSelector?: ReactNode;
   studioQueueExtra?: ReactNode;
   studioConfigActions?: ReactNode;
+  fixedAspectRatio?: string | null;
+  persistenceScope?: string;
+  referencesReadOnly?: boolean;
+  resumeJobId?: string | null;
 };
 
 export function GenerationExperience({
@@ -156,7 +163,11 @@ export function GenerationExperience({
   studioBuilder,
   studioModeSelector,
   studioQueueExtra,
-  studioConfigActions
+  studioConfigActions,
+  fixedAspectRatio: requestedFixedAspectRatio = null,
+  persistenceScope = '',
+  referencesReadOnly = false,
+  resumeJobId = null
 }: GenerationExperienceProps) {
   const queryClient = useQueryClient();
   const { actor, mockSwitcherEnabled } = useActor();
@@ -204,11 +215,11 @@ export function GenerationExperience({
   const completedGroupJobsRef = useRef(new Set<string>());
   const [outputCountPreferenceActorId, setOutputCountPreferenceActorId] = useState<string | null>(null);
   const actorId = actor?.userId || 'loading';
-  const routePointerFeature = generationRoutePointerFeature(surface, generationMode);
-  const fixedAspectRatio = generationMode === 'character-sheet'
+  const routePointerFeature = generationRoutePointerFeature(surface, generationMode, persistenceScope);
+  const fixedAspectRatio = requestedFixedAspectRatio || (generationMode === 'character-sheet'
     && characterType === 'reusable_model'
     ? '1:1'
-    : null;
+    : null);
 
   const catalog = useQuery({ queryKey: ['provider-catalog'], queryFn: getProviderCatalog, staleTime: 5 * 60_000 });
   const creditAccount = useQuery({
@@ -221,7 +232,7 @@ export function GenerationExperience({
     const pointer = actor?.userId
       ? readGenerationRoutePointer(actor.userId, routePointerFeature)
       : null;
-    setJobId(pointer?.jobId || null);
+    setJobId(resumeJobId || pointer?.jobId || null);
     setGenerationGroupId(pointer?.generationGroupId || null);
     setComparisonSetId(pointer?.comparisonSetId || null);
     setRoutePointerActorId(actor?.userId || null);
@@ -239,7 +250,7 @@ export function GenerationExperience({
     setReferenceScopes({});
     completedJobRef.current = null;
     completedGroupJobsRef.current.clear();
-  }, [actor?.userId, routePointerFeature]);
+  }, [actor?.userId, resumeJobId, routePointerFeature]);
 
   useEffect(() => {
     if (!actor?.userId || routePointerActorId !== actor.userId) return;
@@ -385,7 +396,21 @@ export function GenerationExperience({
     return () => window.clearTimeout(timer);
   }, [draft]);
 
-  const canEstimate = Boolean(debouncedDraft?.provider && debouncedDraft.submodel);
+  const requiredReferenceCount = Object.values(references).filter(Boolean).length
+    + (characterProfileContext?.purpose === 'character_usage' ? 1 : 0);
+  const selectedCatalogModel = catalog.data?.providers
+    .find(item => item.id === engine.provider)?.models
+    .find(item => item.id === engine.model);
+  const modelAvailabilityReason = imageModelUnavailableReason(
+    selectedCatalogModel,
+    requiredReferenceCount,
+    fixedAspectRatio || engine.aspectRatio
+  );
+  const canEstimate = Boolean(
+    debouncedDraft?.provider
+    && debouncedDraft.submodel
+    && !modelAvailabilityReason
+  );
   const estimateKey = debouncedDraft ? createEstimateKey(debouncedDraft) : null;
   const singleEstimate = useQuery({
     queryKey: ['generation-estimate', actor?.userId || 'loading', estimateKey],
@@ -604,7 +629,10 @@ export function GenerationExperience({
 
   if (catalog.isLoading) return <LoadingState label={t('playground.engine.loading')} />;
   if (catalog.isError || !catalog.data) return <ErrorState title={t('playground.engine.unavailable')} description={catalog.error?.message} onRetry={() => void catalog.refetch()} />;
-  const model = catalog.data.providers.find(item => item.id === engine.provider)?.models.find(item => item.id === engine.model);
+  const model = selectedCatalogModel;
+  const effectiveBlockedReason = blockedReason || (modelAvailabilityReason
+    ? t(`playground.engine.unavailable.${modelAvailabilityReason}`)
+    : null);
   const estimate = comparison ? comparisonEstimate.data?.estimatedTotalCredit : singleEstimate.data?.estimate.estimatedCredits;
   const availableCredits = comparison
     ? creditAccount.data?.account.availableCredits
@@ -764,6 +792,7 @@ export function GenerationExperience({
         setReferenceScopes(current => ({ ...current, [role]: scope }));
       }}
       onChange={setReferences}
+      readOnly={referencesReadOnly}
     />
   );
   const engineRegion = showEngine ? (
@@ -780,6 +809,7 @@ export function GenerationExperience({
       promptRefinementAvailable={promptRefinementAvailable}
       promptRefinementEnabled={promptRefinementEnabled}
       fixedAspectRatio={fixedAspectRatio}
+      requiredReferenceCount={requiredReferenceCount}
       onChange={setEngine}
       onComparisonChange={setComparison}
       onSlotsChange={setComparisonSlots}
@@ -812,7 +842,7 @@ export function GenerationExperience({
         className="studio-generate-button btn-neon-yellow-glow"
         size="lg"
         icon={<Sparkles className="size-5" />}
-        disabled={!prompt.trim() || pending || Boolean(blockedReason)}
+        disabled={!prompt.trim() || pending || Boolean(effectiveBlockedReason)}
         onClick={submitGenerationRequest}
       >
         <span>{pending
@@ -845,7 +875,7 @@ export function GenerationExperience({
             variant="primary"
             size="lg"
             icon={<Sparkles className="size-5" />}
-            disabled={!prompt.trim() || pending || Boolean(blockedReason)}
+            disabled={!prompt.trim() || pending || Boolean(effectiveBlockedReason)}
             onClick={submitGenerationRequest}
           >
             {pending
@@ -878,10 +908,10 @@ export function GenerationExperience({
           </StatusNotice>
         )
         : null}
-      {blockedReason
+      {effectiveBlockedReason
         ? blockedNotice || (
           <StatusNotice tone="warning" title={tUi('ui.status.warning')}>
-            {blockedReason}
+            {effectiveBlockedReason}
           </StatusNotice>
         )
         : null}

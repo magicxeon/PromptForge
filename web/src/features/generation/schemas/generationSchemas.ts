@@ -17,7 +17,12 @@ export const providerModelSchema = z.object({
   defaults: z.object({
     resolution: z.string().optional(),
     imageSize: z.string().optional()
-  }).passthrough().optional()
+  }).passthrough().optional(),
+  estimatedCredits: z.number().nullable().optional(),
+  pricingStatus: z.string().optional(),
+  qualificationStatus: z.string().optional(),
+  paidRoutingEnabled: z.boolean().optional(),
+  unavailableReason: z.string().nullable().optional()
 }).passthrough();
 
 export const providerSchema = z.object({

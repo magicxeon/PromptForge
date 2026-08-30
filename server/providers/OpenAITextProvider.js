@@ -105,6 +105,98 @@ const CINEMATIC_WARDROBE_SCHEMA = Object.freeze({
   }
 });
 
+const CINEMATIC_STORY_PLAN_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: ['objective', 'logline', 'emotionalArc', 'beats', 'scenes', 'warnings'],
+  properties: {
+    objective: { type: 'string' },
+    logline: { type: 'string' },
+    emotionalArc: { type: 'string' },
+    beats: {
+      type: 'array', minItems: 1, maxItems: 12,
+      items: {
+        type: 'object', additionalProperties: false,
+        required: ['key', 'type', 'title', 'purpose', 'storyChange', 'emotionalStart', 'emotionalEnd', 'targetDurationSeconds'],
+        properties: {
+          key: { type: 'string' }, type: { type: 'string' }, title: { type: 'string' },
+          purpose: { type: 'string' }, storyChange: { type: 'string' },
+          emotionalStart: { type: 'string' }, emotionalEnd: { type: 'string' },
+          targetDurationSeconds: { type: 'number' }
+        }
+      }
+    },
+    scenes: {
+      type: 'array', minItems: 1, maxItems: 24,
+      items: {
+        type: 'object', additionalProperties: false,
+        required: [
+          'beatKey', 'title', 'purpose', 'storyChange', 'location', 'time',
+          'emotionalStart', 'emotionalEnd', 'transitionIntent',
+          'castAssignmentIds', 'wardrobeLookIds', 'blocking', 'lighting',
+          'performance', 'audioIntent', 'continuityNotes', 'shots'
+        ],
+        properties: {
+          beatKey: { type: 'string' }, title: { type: 'string' }, purpose: { type: 'string' },
+          storyChange: { type: 'string' }, location: { type: 'string' }, time: { type: 'string' },
+          emotionalStart: { type: 'string' }, emotionalEnd: { type: 'string' },
+          transitionIntent: { type: 'string' },
+          castAssignmentIds: { type: 'array', maxItems: 6, items: { type: 'string' } },
+          wardrobeLookIds: { type: 'array', maxItems: 12, items: { type: 'string' } },
+          blocking: { type: 'string' }, lighting: { type: 'string' },
+          performance: { type: 'string' }, audioIntent: { type: 'string' },
+          continuityNotes: { type: 'array', maxItems: 12, items: { type: 'string' } },
+          shots: {
+            type: 'array', minItems: 1, maxItems: 20,
+            items: {
+              type: 'object', additionalProperties: false,
+              required: [
+                'title', 'purpose', 'durationSeconds', 'framing', 'cameraAngle',
+                'cameraMovement', 'blocking', 'performance', 'lighting',
+                'environment', 'audioIntent', 'prompt', 'castAssignmentIds',
+                'wardrobeLookIds', 'continuityNotes'
+              ],
+              properties: {
+                title: { type: 'string' }, purpose: { type: 'string' }, durationSeconds: { type: 'number' },
+                framing: { type: 'string' }, cameraAngle: { type: 'string' }, cameraMovement: { type: 'string' },
+                blocking: { type: 'string' }, performance: { type: 'string' }, lighting: { type: 'string' },
+                environment: { type: 'string' }, audioIntent: { type: 'string' }, prompt: { type: 'string' },
+                castAssignmentIds: { type: 'array', maxItems: 6, items: { type: 'string' } },
+                wardrobeLookIds: { type: 'array', maxItems: 12, items: { type: 'string' } },
+                continuityNotes: { type: 'array', maxItems: 12, items: { type: 'string' } }
+              }
+            }
+          }
+        }
+      }
+    },
+    warnings: { type: 'array', maxItems: 20, items: { type: 'string' } }
+  }
+});
+
+const CINEMATIC_SCENE_DIRECTION_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: [
+    'title', 'purpose', 'storyChange', 'location', 'time', 'emotionalStart',
+    'emotionalEnd', 'transitionIntent', 'castAssignmentIds', 'wardrobeLookIds',
+    'blocking', 'lighting', 'performance', 'audioIntent', 'continuityNotes',
+    'shots', 'warnings'
+  ],
+  properties: {
+    title: { type: 'string' }, purpose: { type: 'string' }, storyChange: { type: 'string' },
+    location: { type: 'string' }, time: { type: 'string' }, emotionalStart: { type: 'string' },
+    emotionalEnd: { type: 'string' }, transitionIntent: { type: 'string' },
+    castAssignmentIds: { type: 'array', maxItems: 6, items: { type: 'string' } },
+    wardrobeLookIds: { type: 'array', maxItems: 12, items: { type: 'string' } },
+    blocking: { type: 'string' }, lighting: { type: 'string' }, performance: { type: 'string' },
+    audioIntent: { type: 'string' },
+    continuityNotes: { type: 'array', maxItems: 12, items: { type: 'string' } },
+    shots: CINEMATIC_STORY_PLAN_SCHEMA.properties.scenes.items.properties.shots,
+    warnings: { type: 'array', maxItems: 12, items: { type: 'string' } }
+  }
+});
+
 export class OpenAITextProvider {
   constructor(apiKey, {
     fetchImpl = globalThis.fetch,
@@ -206,6 +298,38 @@ export class OpenAITextProvider {
       errorPrefix: 'cinematic_wardrobe_suggestion'
     });
     const result = parseJsonOutput(payload, 'cinematic_wardrobe_suggestion');
+    return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async generateCinematicStoryPlan({ context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: recipe.instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_story_plan',
+      schema: CINEMATIC_STORY_PLAN_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_story_plan'
+    });
+    const result = parseJsonOutput(payload, 'cinematic_story_plan');
+    return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async generateCinematicSceneDirection({ context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: recipe.instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_scene_direction',
+      schema: CINEMATIC_SCENE_DIRECTION_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_scene_direction'
+    });
+    const result = parseJsonOutput(payload, 'cinematic_scene_direction');
     return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
   }
 

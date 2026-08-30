@@ -41,5 +41,14 @@ describe('generation route pointer', () => {
     });
     expect(readGenerationRoutePointer('usr_alice', feature).jobId).toBeNull();
   });
-});
 
+  it('isolates Cinematic image jobs by Project and Shot scope', () => {
+    const shotA = generationRoutePointerFeature('cinematic', 'scene', 'project_1:shot_a');
+    const shotB = generationRoutePointerFeature('cinematic', 'scene', 'project_1:shot_b');
+    writeGenerationRoutePointer('usr_alice', shotA, {
+      jobId: 'job_a', generationGroupId: null, comparisonSetId: null
+    });
+    expect(readGenerationRoutePointer('usr_alice', shotA).jobId).toBe('job_a');
+    expect(readGenerationRoutePointer('usr_alice', shotB).jobId).toBeNull();
+  });
+});

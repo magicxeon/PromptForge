@@ -22,7 +22,7 @@ export class VideoProviderTaskService {
 
   async submitTask(request, actorContext, { allowResearch = false, allowTesting = false } = {}) {
     const model = this.capabilityRegistry.validateRequest(request, { allowResearch, allowTesting });
-    const adapter = this.#resolveAdapter(model.providerId);
+    const adapter = this.#resolveAdapter(model.providerId, model.modelId);
     const submittedFingerprint = fingerprintRequest(request);
     const accepted = await this.repository.createAccepted({
       id: request.id,
@@ -72,7 +72,7 @@ export class VideoProviderTaskService {
     if (!task) throw taskError('video_task_not_found', 'Video provider task not found.', 404);
     if (isTerminal(task.status)) return task;
     if (!task.providerTaskId) throw taskError('video_provider_task_id_missing', 'Provider task ID is missing.', 409);
-    const adapter = this.#resolveAdapter(task.providerId);
+    const adapter = this.#resolveAdapter(task.providerId, task.modelId);
     const response = await adapter.poll(task.providerTaskId, { task });
     const nextStatus = PROVIDER_TO_TASK[response.providerStatus];
     if (!nextStatus) {
@@ -138,8 +138,8 @@ export class VideoProviderTaskService {
     }
   }
 
-  #resolveAdapter(providerId) {
-    if (this.adapterRegistry) return this.adapterRegistry.resolve(providerId);
+  #resolveAdapter(providerId, modelId) {
+    if (this.adapterRegistry) return this.adapterRegistry.resolve(providerId, modelId);
     if (this.adapter) return this.adapter;
     throw taskError('video_provider_adapter_unavailable', 'Video provider adapter is unavailable.', 503);
   }

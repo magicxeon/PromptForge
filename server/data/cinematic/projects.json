@@ -5,7 +5,7 @@
       "id": "cineproj_1787841798259_d5rmu2tx",
       "projectId": "cineproj_1787841798259_d5rmu2tx",
       "schemaVersion": 1,
-      "version": 76,
+      "version": 133,
       "ownerUserId": "usr_alice",
       "ownerUsername": "user_alice",
       "title": "Cinematic E2E - Before the Last Train",
@@ -16,7 +16,7 @@
       "aspectRatio": "9:16",
       "durationTargetMs": 20000,
       "activeStage": "cast",
-      "status": "draft",
+      "status": "storyboard_ready",
       "setup": {
         "title": "Cinematic E2E - Before the Last Train",
         "format": "short-film",
@@ -115,22 +115,1415 @@
           "reuseAuthorization": {
             "ownerUserId": "usr_alice",
             "ownerUsername": "user_alice",
-            "validatedAt": "2026-08-30T02:25:11.786Z"
+            "validatedAt": "2026-08-30T06:28:06.375Z"
           },
-          "looks": [],
+          "looks": [
+            {
+              "id": "cinelook_default_cinecast_charprof_1786762030645_bi3091e5",
+              "version": 2,
+              "name": "Character wardrobe",
+              "mode": "character_default",
+              "characterLookId": null,
+              "characterLookVersionId": null,
+              "assetIds": [],
+              "authoritySnapshot": [],
+              "garmentSummary": "",
+              "accessorySummary": "",
+              "coverage": "front",
+              "sceneIds": [],
+              "locked": true,
+              "updatedAt": "2026-08-30T16:00:00.503Z"
+            }
+          ],
           "active": true,
-          "updatedAt": "2026-08-30T02:25:11.786Z"
+          "updatedAt": "2026-08-30T16:00:00.503Z"
         }
       ],
-      "storyPlanVersions": [],
-      "scenes": [],
-      "generationAttempts": [],
+      "storyPlanVersions": [
+        {
+          "id": "cineplan_1788071360335_q2uvto5j",
+          "version": 1,
+          "parentVersionId": null,
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "logline": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "beats": [
+            {
+              "id": "arrival",
+              "title": "Arrival",
+              "description": "Mira enters the quiet station carrying an unopened letter."
+            },
+            {
+              "id": "recognition",
+              "title": "Recognition",
+              "description": "A familiar reflection makes her stop and look again."
+            },
+            {
+              "id": "choice",
+              "title": "Choice",
+              "description": "She chooses to wait instead of leaving."
+            },
+            {
+              "id": "reveal",
+              "title": "Reveal",
+              "description": "Noah appears as the last train approaches."
+            },
+            {
+              "id": "resolution",
+              "title": "Resolution",
+              "description": "The letter stays closed as they walk away together."
+            }
+          ],
+          "emotionalArc": "",
+          "sceneIds": [
+            "cinescene_1788071360334_54u8gr89"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 4,
+          "warnings": [],
+          "source": "manual",
+          "status": "superseded",
+          "createdAt": "2026-08-30T06:29:20.335Z"
+        },
+        {
+          "id": "cineplan_1788071366159_e56aslk6",
+          "version": 2,
+          "parentVersionId": "cineplan_1788071360335_q2uvto5j",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "logline": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "beats": [
+            {
+              "id": "arrival",
+              "title": "Arrival",
+              "description": "Mira enters the quiet station carrying an unopened letter."
+            },
+            {
+              "id": "recognition",
+              "title": "Recognition",
+              "description": "A familiar reflection makes her stop and look again."
+            },
+            {
+              "id": "choice",
+              "title": "Choice",
+              "description": "She chooses to wait instead of leaving."
+            },
+            {
+              "id": "reveal",
+              "title": "Reveal",
+              "description": "Noah appears as the last train approaches."
+            },
+            {
+              "id": "resolution",
+              "title": "Resolution",
+              "description": "The letter stays closed as they walk away together."
+            }
+          ],
+          "emotionalArc": "",
+          "sceneIds": [
+            "cinescene_1788071360334_54u8gr89"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 4,
+          "warnings": [],
+          "source": "manual",
+          "status": "superseded",
+          "createdAt": "2026-08-30T06:29:26.159Z"
+        },
+        {
+          "id": "cineplan_1788071422303_u2jj5lgj",
+          "version": 3,
+          "parentVersionId": "cineplan_1788071366159_e56aslk6",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "logline": "In 20 seconds, a young woman waits alone on a nearly empty urban platform, gripping a black phone as the clock nears the last train. A silent, unreadable notification arrives. She chooses neither the train nor the past: she pockets the phone, exhales, and walks toward the warm station exit. Cool uncertainty gives way to quiet hope.",
+          "beats": [
+            {
+              "id": "arrival",
+              "title": "Arrival",
+              "description": "Mira enters the quiet station carrying an unopened letter."
+            },
+            {
+              "id": "recognition",
+              "title": "Recognition",
+              "description": "A familiar reflection makes her stop and look again."
+            },
+            {
+              "id": "choice",
+              "title": "Choice",
+              "description": "She chooses to wait instead of leaving."
+            },
+            {
+              "id": "reveal",
+              "title": "Reveal",
+              "description": "Noah appears as the last train approaches."
+            },
+            {
+              "id": "resolution",
+              "title": "Resolution",
+              "description": "The letter stays closed as they walk away together."
+            }
+          ],
+          "emotionalArc": "",
+          "sceneIds": [
+            "cinescene_1788071360334_54u8gr89"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 4,
+          "warnings": [],
+          "source": "manual",
+          "status": "superseded",
+          "createdAt": "2026-08-30T06:30:22.303Z"
+        },
+        {
+          "id": "cineplan_1788083494850_t194l6fb",
+          "version": 4,
+          "parentVersionId": "cineplan_1788071422303_u2jj5lgj",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Show a young woman choosing quiet forward movement over the past as the last train approaches.",
+          "logline": "On a nearly empty blue-hour platform, an unreadable phone notification unsettles a waiting woman before she pockets the phone and walks toward warm light.",
+          "beats": [
+            {
+              "id": "cinebeat_1788083491478_1fdhkin8",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "Waiting at the edge",
+              "purpose": "Establish the solitary platform, last-train pressure, and her attachment to the black phone.",
+              "storyChange": "Her waiting becomes emotionally charged as time runs short.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Increasingly apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788083491478_rcxs5vba"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083491478_9fkltdpj",
+              "orderKey": 2,
+              "type": "turn",
+              "title": "The unreadable arrival",
+              "purpose": "A silent notification interrupts her focus without revealing its content.",
+              "storyChange": "The past reaches her, forcing an immediate internal choice.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083491478_potq0716"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083491478_r6nrn40r",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "Toward warm light",
+              "purpose": "She rejects both the train and the pull of the past, then leaves the platform.",
+              "storyChange": "She pockets the phone and walks toward the warm station exit.",
+              "emotionalStart": "Destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083491478_iv6zh3jw"
+              ]
+            }
+          ],
+          "emotionalArc": "Cool uncertainty becomes brief destabilization, then quiet resolve and hope.",
+          "sceneIds": [
+            "cinescene_1788083491478_rcxs5vba",
+            "cinescene_1788083491478_potq0716",
+            "cinescene_1788083491478_iv6zh3jw"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-08-30T09:51:34.850Z"
+        },
+        {
+          "id": "cineplan_1788083592672_vpewrvo6",
+          "version": 5,
+          "parentVersionId": "cineplan_1788071422303_u2jj5lgj",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Create a 20-second photorealistic vertical short in which a young woman leaves the past behind and walks toward quiet hope.",
+          "logline": "As the last train nears, an unreadable notification briefly pulls a solitary woman backward—then she pockets her phone and walks into warm light.",
+          "beats": [
+            {
+              "id": "cinebeat_1788083530066_3qvavngd",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "The Wait",
+              "purpose": "Establish isolation, time pressure, and the emotional weight of the phone.",
+              "storyChange": "Her solitary waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788083530066_od8n91et"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083530066_z082opfj",
+              "orderKey": 2,
+              "type": "inciting_decision",
+              "title": "Silent Notification",
+              "purpose": "Introduce the past without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates a choice.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083530066_gelyv542"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083530066_sedgaq18",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The Warm Exit",
+              "purpose": "Resolve the decision through physical action.",
+              "storyChange": "She pockets the phone and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083530066_wu3e9eap"
+              ]
+            }
+          ],
+          "emotionalArc": "Cool uncertainty becomes brief destabilization, then quiet resolve and hope.",
+          "sceneIds": [
+            "cinescene_1788083530066_od8n91et",
+            "cinescene_1788083530066_gelyv542",
+            "cinescene_1788083530066_wu3e9eap"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-08-30T09:53:12.672Z"
+        },
+        {
+          "id": "cineplan_1788083601122_z1ap2y79",
+          "version": 6,
+          "parentVersionId": "cineplan_1788071422303_u2jj5lgj",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Create a 20-second photorealistic vertical short in which a young woman leaves the past behind and walks toward quiet hope.",
+          "logline": "As the last train nears, an unreadable notification briefly pulls a solitary woman backward—then she pockets her phone and walks into warm light.",
+          "beats": [
+            {
+              "id": "cinebeat_1788083530066_3qvavngd",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "The Wait",
+              "purpose": "Establish isolation, time pressure, and the emotional weight of the phone.",
+              "storyChange": "Her solitary waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788083530066_od8n91et"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083530066_z082opfj",
+              "orderKey": 2,
+              "type": "inciting_decision",
+              "title": "Silent Notification",
+              "purpose": "Introduce the past without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates a choice.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083530066_gelyv542"
+              ]
+            },
+            {
+              "id": "cinebeat_1788083530066_sedgaq18",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The Warm Exit",
+              "purpose": "Resolve the decision through physical action.",
+              "storyChange": "She pockets the phone and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788083530066_wu3e9eap"
+              ]
+            }
+          ],
+          "emotionalArc": "Cool uncertainty becomes brief destabilization, then quiet resolve and hope.",
+          "sceneIds": [
+            "cinescene_1788083530066_od8n91et",
+            "cinescene_1788083530066_gelyv542",
+            "cinescene_1788083530066_wu3e9eap"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "superseded",
+          "createdAt": "2026-08-30T09:53:21.122Z"
+        },
+        {
+          "id": "cineplan_1788097370530_zdlodl2q",
+          "version": 7,
+          "parentVersionId": "cineplan_1788083601122_z1ap2y79",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.",
+          "logline": "On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.",
+          "beats": [
+            {
+              "id": "cinebeat_1788097357901_7csx6009",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "Blue-hour platform",
+              "purpose": "Establish solitude, time pressure, and the approaching last train.",
+              "storyChange": "Her waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788097357902_crh21ki1"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357901_m2qsi98s",
+              "orderKey": 2,
+              "type": "inciting incident",
+              "title": "Silent notification",
+              "purpose": "Let the past intrude without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates the decision point.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_c6zh5xzy"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357902_tc0ziosg",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The warm exit",
+              "purpose": "Resolve the choice through physical action and forward movement.",
+              "storyChange": "She pockets the phone, exhales, and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_4a78ycqk"
+              ]
+            }
+          ],
+          "emotionalArc": "Tense and watchful → briefly destabilized → quietly resolute and lighter.",
+          "sceneIds": [
+            "cinescene_1788097357902_crh21ki1",
+            "cinescene_1788097357902_c6zh5xzy",
+            "cinescene_1788097357902_4a78ycqk"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [
+            "No supplied wardrobe look IDs were provided; wardrobe continuity is preserved textually.",
+            "Notification content must remain unreadable throughout.",
+            "Total shot duration is exactly 20 seconds."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-08-30T13:42:50.530Z"
+        },
+        {
+          "id": "cineplan_1788097403045_4i7bxaf8",
+          "version": 8,
+          "parentVersionId": "cineplan_1788083601122_z1ap2y79",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.",
+          "logline": "On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.",
+          "beats": [
+            {
+              "id": "cinebeat_1788097357901_7csx6009",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "Blue-hour platform",
+              "purpose": "Establish solitude, time pressure, and the approaching last train.",
+              "storyChange": "Her waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788097357902_crh21ki1"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357901_m2qsi98s",
+              "orderKey": 2,
+              "type": "inciting incident",
+              "title": "Silent notification",
+              "purpose": "Let the past intrude without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates the decision point.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_c6zh5xzy"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357902_tc0ziosg",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The warm exit",
+              "purpose": "Resolve the choice through physical action and forward movement.",
+              "storyChange": "She pockets the phone, exhales, and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_4a78ycqk"
+              ]
+            }
+          ],
+          "emotionalArc": "Tense and watchful → briefly destabilized → quietly resolute and lighter.",
+          "sceneIds": [
+            "cinescene_1788097357902_crh21ki1",
+            "cinescene_1788097357902_c6zh5xzy",
+            "cinescene_1788097357902_4a78ycqk"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [
+            "No supplied wardrobe look IDs were provided; wardrobe continuity is preserved textually.",
+            "Notification content must remain unreadable throughout.",
+            "Total shot duration is exactly 20 seconds."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "draft",
+          "createdAt": "2026-08-30T13:43:23.045Z"
+        },
+        {
+          "id": "cineplan_1788100161714_tflqk9c3",
+          "version": 9,
+          "parentVersionId": "cineplan_1788083601122_z1ap2y79",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.",
+          "logline": "On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.",
+          "beats": [
+            {
+              "id": "cinebeat_1788097357901_7csx6009",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "Blue-hour platform",
+              "purpose": "Establish solitude, time pressure, and the approaching last train.",
+              "storyChange": "Her waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788097357902_crh21ki1"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357901_m2qsi98s",
+              "orderKey": 2,
+              "type": "inciting incident",
+              "title": "Silent notification",
+              "purpose": "Let the past intrude without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates the decision point.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_c6zh5xzy"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357902_tc0ziosg",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The warm exit",
+              "purpose": "Resolve the choice through physical action and forward movement.",
+              "storyChange": "She pockets the phone, exhales, and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_4a78ycqk"
+              ]
+            }
+          ],
+          "emotionalArc": "Tense and watchful → briefly destabilized → quietly resolute and lighter.",
+          "sceneIds": [
+            "cinescene_1788097357902_crh21ki1",
+            "cinescene_1788097357902_c6zh5xzy",
+            "cinescene_1788097357902_4a78ycqk"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [
+            "No supplied wardrobe look IDs were provided; wardrobe continuity is preserved textually.",
+            "Notification content must remain unreadable throughout.",
+            "Total shot duration is exactly 20 seconds."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "superseded",
+          "createdAt": "2026-08-30T14:29:21.713Z"
+        },
+        {
+          "id": "cineplan_1788102152109_bgtnvz1i",
+          "version": 10,
+          "parentVersionId": "cineplan_1788100161714_tflqk9c3",
+          "storySourceVersionId": "cinesrc_1787976392361_sctwhhld",
+          "objective": "Show a young woman choosing to leave the past behind and walk toward quiet hope before the last train.",
+          "logline": "On an empty blue-hour platform, an unreadable notification unsettles a waiting woman—but she pockets her phone, exhales, and walks toward the warm exit.",
+          "beats": [
+            {
+              "id": "cinebeat_1788097357901_7csx6009",
+              "orderKey": 1,
+              "type": "setup",
+              "title": "Blue-hour platform",
+              "purpose": "Establish solitude, time pressure, and the approaching last train.",
+              "storyChange": "Her waiting becomes immediate and personal.",
+              "emotionalStart": "Tense and watchful",
+              "emotionalEnd": "Apprehensive",
+              "targetDurationMs": 6000,
+              "sceneIds": [
+                "cinescene_1788097357902_crh21ki1"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357901_m2qsi98s",
+              "orderKey": 2,
+              "type": "inciting incident",
+              "title": "Silent notification",
+              "purpose": "Let the past intrude without revealing its message.",
+              "storyChange": "The notification destabilizes her and creates the decision point.",
+              "emotionalStart": "Apprehensive",
+              "emotionalEnd": "Briefly destabilized",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_c6zh5xzy"
+              ]
+            },
+            {
+              "id": "cinebeat_1788097357902_tc0ziosg",
+              "orderKey": 3,
+              "type": "resolution",
+              "title": "The warm exit",
+              "purpose": "Resolve the choice through physical action and forward movement.",
+              "storyChange": "She pockets the phone, exhales, and leaves toward warmth.",
+              "emotionalStart": "Briefly destabilized",
+              "emotionalEnd": "Quietly hopeful",
+              "targetDurationMs": 7000,
+              "sceneIds": [
+                "cinescene_1788097357902_4a78ycqk"
+              ]
+            }
+          ],
+          "emotionalArc": "Tense and watchful → briefly destabilized → quietly resolute and lighter.",
+          "sceneIds": [
+            "cinescene_1788097357902_crh21ki1",
+            "cinescene_1788097357902_c6zh5xzy",
+            "cinescene_1788097357902_4a78ycqk"
+          ],
+          "estimatedDurationMs": 20000,
+          "estimatedShotCount": 6,
+          "warnings": [
+            "No supplied wardrobe look IDs were provided; wardrobe continuity is preserved textually.",
+            "Notification content must remain unreadable throughout.",
+            "Total shot duration is exactly 20 seconds."
+          ],
+          "contractVersion": "story-plan-v2",
+          "source": "generated",
+          "status": "approved",
+          "createdAt": "2026-08-30T15:02:32.109Z"
+        }
+      ],
+      "scenes": [
+        {
+          "id": "cinescene_1788097357902_crh21ki1",
+          "version": 1,
+          "orderKey": 1,
+          "beatId": "cinebeat_1788097357901_7csx6009",
+          "title": "Blue-hour platform",
+          "purpose": "Establish her solitary wait and the approaching last train.",
+          "storyChange": "Platform pressure becomes personal and immediate.",
+          "location": "Nearly empty urban station platform; tracks camera-left, warm exit camera-right",
+          "time": "Blue hour, nearing the last train",
+          "emotionalStart": "Tense and watchful",
+          "emotionalEnd": "Apprehensive",
+          "transitionIntent": "Cut from waiting stillness into phone detail.",
+          "castAssignmentIds": [
+            "cinecast_charprof_1786762030645_bi3091e5"
+          ],
+          "wardrobeLookIds": [],
+          "blocking": "She stands alone beneath the station clock, gripping a black phone at chest level.",
+          "lighting": "Cool blue-hour station light, damp-concrete reflections, warm exit camera-right.",
+          "performance": "Internal restraint, shallow breathing, brief eye shift toward the clock.",
+          "audioIntent": "Low station hum and distant rail ambience; no dialogue.",
+          "continuityNotes": [
+            "Tracks remain camera-left and exit camera-right.",
+            "Maintain exact identity, proportions, hairstyle, and wardrobe.",
+            "Never show another person."
+          ],
+          "shots": [
+            {
+              "id": "cineshot_1788097357902_vqssy46q",
+              "version": 2,
+              "orderKey": 1,
+              "title": "Clock and waiting face",
+              "purpose": "Establish time pressure and isolation.",
+              "durationMs": 3000,
+              "framing": "Vertical medium close-up",
+              "cameraAngle": "Eye level",
+              "cameraMovement": "Very subtle push-in",
+              "lensIntent": "",
+              "blocking": "She remains beneath the clock, phone held tightly at chest level.",
+              "performance": "Still posture, shallow breath, eyes flick briefly toward the clock.",
+              "gaze": "",
+              "lighting": "Cool blue-hour light with restrained practical warmth in the background.",
+              "environment": "Damp concrete platform, subtle reflections, empty track area camera-left.",
+              "audioIntent": "Station hum and faint distant train vibration.",
+              "prompt": "Photorealistic vertical medium close-up of the exact same young woman beneath a station clock, gripping a black phone on a damp blue-hour platform; tracks camera-left, warm exit camera-right, restrained push-in, no other people.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Exact identity, hairstyle, proportions, and wardrobe throughout."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788103438901_ql05g0m6",
+                "assetVersionId": "ast_1788103438901_ql05g0m6",
+                "sourceJobId": "job_1788103364363_mmo0j8dhs",
+                "imageUrl": "/outputs/job_1788103364363_mmo0j8dhs.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103364363_mmo0j8dhs.webp",
+                "contentHash": "e0f993557cb7208c51c13fe50b43af886360963430d1dac001238fce464e7309",
+                "sourceFingerprint": "a6c6faa59c2b5528b58a75076f733fbbb1c1c3cfaa0ff00487fa4dad6f763c57",
+                "approvedAt": "2026-08-30T15:23:58.901Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103438913_6sqg0rha"
+            },
+            {
+              "id": "cineshot_1788097357902_365kf1l8",
+              "version": 2,
+              "orderKey": 2,
+              "title": "Phone in her hand",
+              "purpose": "Focus attention on the object tying her to the past.",
+              "durationMs": 3000,
+              "framing": "Tight insert close-up",
+              "cameraAngle": "Slightly above hand level",
+              "cameraMovement": "Locked",
+              "lensIntent": "",
+              "blocking": "Her fingers tighten around the black phone.",
+              "performance": "Small involuntary grip, otherwise controlled.",
+              "gaze": "",
+              "lighting": "Cool reflected station light across the phone and damp skin.",
+              "environment": "Platform texture and soft reflections remain visible.",
+              "audioIntent": "Muted rail ambience; no notification yet.",
+              "prompt": "Tight photorealistic insert of the same woman’s hand gripping a black phone on a damp station platform, cool blue-hour reflections, screen unreadable, no logos or legible text.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Phone remains black and screen content unreadable."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788103658655_jp4tsn6j",
+                "assetVersionId": "ast_1788103658655_jp4tsn6j",
+                "sourceJobId": "job_1788103538319_lyz940imd",
+                "imageUrl": "/outputs/job_1788103538319_lyz940imd.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103538319_lyz940imd.webp",
+                "contentHash": "b31ac50aded1a00a27e18a8106fc9430805704d5d8ca2b546408ec71e4c9e816",
+                "sourceFingerprint": "ec67e87a9f4e7a33a98f5a4749413fd643f74179bafdb237caeb88de48583958",
+                "approvedAt": "2026-08-30T15:27:38.655Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103658671_bhnlx8s4"
+            }
+          ],
+          "shotOrder": [
+            "cineshot_1788097357902_vqssy46q",
+            "cineshot_1788097357902_365kf1l8"
+          ],
+          "durationMs": 6000
+        },
+        {
+          "id": "cinescene_1788097357902_c6zh5xzy",
+          "version": 1,
+          "orderKey": 2,
+          "beatId": "cinebeat_1788097357901_m2qsi98s",
+          "title": "Silent notification",
+          "purpose": "Let the past intrude through a silent phone alert, destabilizing her without revealing its meaning.",
+          "storyChange": "The unreadable notification turns waiting into an immediate personal decision, setting up her choice to leave.",
+          "location": "The same nearly empty urban platform beneath the station clock; tracks remain camera-left and warm exit camera-right.",
+          "time": "Continuous blue hour, moments before the last train.",
+          "emotionalStart": "Apprehensive and tightly controlled.",
+          "emotionalEnd": "Briefly destabilized, with the first hint of resolve.",
+          "transitionIntent": "Hard cut from the preceding phone insert to the screen lighting, then drift to her eyes as the arriving train draws her attention toward the tracks.",
+          "castAssignmentIds": [
+            "cinecast_charprof_1786762030645_bi3091e5"
+          ],
+          "wardrobeLookIds": [],
+          "blocking": "She holds the black phone at chest level. It vibrates once and lights. Her thumb freezes; she looks down, then slowly toward the tracks camera-left without stepping forward.",
+          "lighting": "Cool blue station light shapes her face and damp surroundings; a faint, natural phone glow touches her fingers. Keep the warm exit subtly present camera-right.",
+          "performance": "Play the impact internally: one restrained flinch in the thumb, shallow breath, a small tightening of the jaw, then a controlled eye shift toward the train. No tears, dialogue, or melodrama.",
+          "audioIntent": "A single muted vibration interrupts the low station hum. Distant train movement grows slightly, then holds beneath her silence.",
+          "continuityNotes": [
+            "Notification text, sender, and any identifying content remain completely unreadable.",
+            "Preserve the exact identity, proportions, hairstyle, and wardrobe from adjacent scenes.",
+            "Tracks stay camera-left and exit camera-right.",
+            "Never show another person, silhouette, or reflection of another person.",
+            "The phone remains black and in her hand through the end of this scene."
+          ],
+          "shots": [
+            {
+              "id": "cineshot_1788097357902_a2e1bkto",
+              "version": 2,
+              "orderKey": 1,
+              "title": "Unreadable interruption",
+              "purpose": "Deliver the silent notification as the personal intrusion.",
+              "durationMs": 3000,
+              "framing": "Extreme close-up vertical insert of the phone and her fingers.",
+              "cameraAngle": "Slightly downward hand-level angle.",
+              "cameraMovement": "Locked.",
+              "lensIntent": "",
+              "blocking": "The black phone lights in her grip; her thumb stops mid-motion as the vibration passes.",
+              "performance": "Only the frozen thumb and a slight finger tension reveal the impact.",
+              "gaze": "",
+              "lighting": "Cool reflected platform light with a faint, non-dominant screen glow.",
+              "environment": "Damp concrete and soft blue reflections; no legible signage or background figures.",
+              "audioIntent": "One muted vibration, with the station hum continuing underneath.",
+              "prompt": "Photorealistic vertical extreme close-up of the same young woman’s hand holding a black phone as it lights with a completely unreadable notification on a damp blue-hour urban platform; no logos, no legible text, no sender identity, no other people, cool realistic reflections.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Keep every screen character and sender detail unreadable.",
+                "Phone remains black and physically consistent with the preceding insert."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788105044356_7a6wnwwp",
+                "assetVersionId": "ast_1788105044356_7a6wnwwp",
+                "sourceJobId": "job_1788103676797_1vqpupji1",
+                "imageUrl": "/outputs/job_1788103676797_1vqpupji1.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_1vqpupji1.webp",
+                "contentHash": "f5cfc5e729f5b989ed616c7947cbf8044f402a654e03cebc8b8b16eaf766c386",
+                "sourceFingerprint": "d9c398b1afdd99d5ab7378bfe407838ff885a82ed4b3aa87b9ef4872b1ae6c17",
+                "approvedAt": "2026-08-30T15:50:44.356Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103676803_p4kjl8yv"
+            },
+            {
+              "id": "cineshot_1788097357902_m3vn9nxs",
+              "version": 2,
+              "orderKey": 2,
+              "title": "Choice in her eyes",
+              "purpose": "Show destabilization and the pressure of the approaching train without dialogue.",
+              "durationMs": 4000,
+              "framing": "Tight vertical profile close-up.",
+              "cameraAngle": "Eye level.",
+              "cameraMovement": "Very slow lateral drift from the phone toward her eyes.",
+              "lensIntent": "",
+              "blocking": "She lowers the phone slightly, raises her gaze toward tracks camera-left, and remains planted beneath the clock.",
+              "performance": "A restrained eye shift, shallow breath, slight jaw tension followed by minimal release; her expression stays unreadable rather than tearful.",
+              "gaze": "",
+              "lighting": "Cool blue light across her face; restrained warm exit bokeh remains camera-right, with no beauty filter.",
+              "environment": "Empty damp platform, subtle reflections, no footsteps, silhouettes, or additional movement.",
+              "audioIntent": "Distant train rumble and low station hum; no dialogue and no notification sound beyond the earlier vibration.",
+              "prompt": "Photorealistic vertical tight profile close-up of the exact same young woman on a nearly empty damp urban platform, shifting her eyes from a black phone with an unreadable screen toward tracks camera-left; cool blue-hour light, subtle warm exit bokeh camera-right, restrained internal drama, no tears, no smile, no other people.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Maintain exact face, hairstyle, proportions, and wardrobe.",
+                "End with her still facing the tracks, ready for the following scene’s pocketing action.",
+                "Do not reveal any readable phone content."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788105053938_ozx95yow",
+                "assetVersionId": "ast_1788105053938_ozx95yow",
+                "sourceJobId": "job_1788103676797_7998zx4md",
+                "imageUrl": "/outputs/job_1788103676797_7998zx4md.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_7998zx4md.webp",
+                "contentHash": "56212154be811d46aec0392c6f024ca9ffd5938bc9d53ceb92ae32f50a558656",
+                "sourceFingerprint": "045b2e2b5ed35188e2ed851c7c1aa403dcd327afc0745c8e56c06bbf28a76b4c",
+                "approvedAt": "2026-08-30T15:50:53.938Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103676803_aaajgeeb"
+            }
+          ],
+          "shotOrder": [
+            "cineshot_1788097357902_a2e1bkto",
+            "cineshot_1788097357902_m3vn9nxs"
+          ],
+          "durationMs": 7000
+        },
+        {
+          "id": "cinescene_1788097357902_4a78ycqk",
+          "version": 1,
+          "orderKey": 3,
+          "beatId": "cinebeat_1788097357902_tc0ziosg",
+          "title": "The warm exit",
+          "purpose": "Resolve the decision through a simple physical action and hopeful movement.",
+          "storyChange": "She pockets the phone, exhales, and leaves the platform toward warmth.",
+          "location": "Same platform leading to warm station exit camera-right",
+          "time": "Continuous blue hour into warm station light",
+          "emotionalStart": "Briefly destabilized",
+          "emotionalEnd": "Quietly hopeful",
+          "transitionIntent": "Match cut from phone to pocket, then follow her exit.",
+          "castAssignmentIds": [
+            "cinecast_charprof_1786762030645_bi3091e5"
+          ],
+          "wardrobeLookIds": [],
+          "blocking": "She pockets the phone, exhales once, turns away from the tracks, and walks camera-right.",
+          "lighting": "Cool platform light transitions naturally into warm practical station light.",
+          "performance": "One clear exhale, shoulders release subtly, no triumphant smile.",
+          "audioIntent": "Exhale foregrounded; train recedes; soft footsteps toward exit.",
+          "continuityNotes": [
+            "She chooses neither the train nor the past.",
+            "Tracks remain camera-left; exit remains camera-right.",
+            "End before she disappears completely."
+          ],
+          "shots": [
+            {
+              "id": "cineshot_1788097357902_o78pk0o8",
+              "version": 2,
+              "orderKey": 1,
+              "title": "Pocket and exhale",
+              "purpose": "Make the decision physically clear.",
+              "durationMs": 3000,
+              "framing": "Medium close-up",
+              "cameraAngle": "Eye level",
+              "cameraMovement": "Gentle follow",
+              "lensIntent": "",
+              "blocking": "She pockets the black phone, exhales, and turns camera-right.",
+              "performance": "Jaw releases; one clear exhale; understated expression.",
+              "gaze": "",
+              "lighting": "Cool light on her back, warm exit beginning to shape the frame.",
+              "environment": "Damp concrete and subtle reflections.",
+              "audioIntent": "Clear exhale over receding train ambience.",
+              "prompt": "Photorealistic vertical medium close-up of the same young woman pocketing a black phone and exhaling on a damp urban platform, turning toward the warm exit camera-right; cool blue-hour light, restrained hope, no smile, no other people.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Phone is no longer visible after being pocketed."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788105061159_57vi2zmx",
+                "assetVersionId": "ast_1788105061159_57vi2zmx",
+                "sourceJobId": "job_1788103676797_j95e504fk",
+                "imageUrl": "/outputs/job_1788103676797_j95e504fk.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_j95e504fk.webp",
+                "contentHash": "d81b9481a6f23474e81ac7dd4c9ca970c7ac75de00bbfe37619906079e686501",
+                "sourceFingerprint": "966280a020b87013e767bea3028c83628dac9eee12ce8da5a5d9a452147cd6b5",
+                "approvedAt": "2026-08-30T15:51:01.159Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103676803_uqazjkfw"
+            },
+            {
+              "id": "cineshot_1788097357902_r2456ibg",
+              "version": 2,
+              "orderKey": 2,
+              "title": "Walk into warmth",
+              "purpose": "End on quiet hope and forward motion.",
+              "durationMs": 4000,
+              "framing": "Vertical wide rear three-quarter shot",
+              "cameraAngle": "Eye level",
+              "cameraMovement": "Slow tracking follow",
+              "lensIntent": "",
+              "blocking": "She walks alone from the cool platform toward the warm exit camera-right.",
+              "performance": "Steady, lighter pace; relaxed but not triumphant posture.",
+              "gaze": "",
+              "lighting": "Natural transition from cool blue platform light into warm station practicals.",
+              "environment": "Damp reflective concrete, nearly empty station, no visible people.",
+              "audioIntent": "Soft footsteps, station hum, train fading behind her.",
+              "prompt": "Photorealistic vertical wide rear three-quarter shot of the same young woman walking alone from a cool blue-hour platform into a warm station exit camera-right; tracks camera-left, damp reflections, restrained hopeful ending, no sentimentality, no beauty filter, no other people.",
+              "castAssignmentIds": [
+                "cinecast_charprof_1786762030645_bi3091e5"
+              ],
+              "wardrobeLookIds": [],
+              "continuityNotes": [
+                "Final frame preserves warm exit direction and continuous wardrobe identity."
+              ],
+              "storyboardStatus": "approved",
+              "approvedStoryboardSource": {
+                "assetId": "ast_1788105067960_xb4cuhd7",
+                "assetVersionId": "ast_1788105067960_xb4cuhd7",
+                "sourceJobId": "job_1788103676797_hm2psu5c8",
+                "imageUrl": "/outputs/job_1788103676797_hm2psu5c8.png",
+                "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_hm2psu5c8.webp",
+                "contentHash": "274348cc4f1bc30540ddd7a32f87ccc9221cabb50e3265b2680d58dddb34db7b",
+                "sourceFingerprint": "74b85387575967df1ec5eea65a7e1f181644ac3141400a479b50404b91b2f23f",
+                "approvedAt": "2026-08-30T15:51:07.959Z"
+              },
+              "approvedStoryboardAttemptId": "cineattempt_1788103676803_zb5d5mr7"
+            }
+          ],
+          "shotOrder": [
+            "cineshot_1788097357902_o78pk0o8",
+            "cineshot_1788097357902_r2456ibg"
+          ],
+          "durationMs": 7000
+        }
+      ],
+      "generationAttempts": [
+        {
+          "id": "cineattempt_1788093126342_608gc0na",
+          "operation": "cinematic_storyboard_still",
+          "sceneId": "cinescene_1788083530066_od8n91et",
+          "shotId": "cineshot_1788083530066_adrfknyt",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788092882551_90qp5u3ju",
+          "outputAssetIds": [
+            "ast_1788093126332_85a113ze"
+          ],
+          "approvedStoryboardAssetVersionId": "ast_1788093126332_85a113ze",
+          "sourceFingerprint": "f745465eb0c2451403b7a4132ed04b338d037036dd125398cbbe9fef745c4a38",
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T12:32:06.343Z"
+        },
+        {
+          "id": "cineattempt_1788095556289_o9gsxg1l",
+          "operation": "cinematic_storyboard_still",
+          "sceneId": "cinescene_1788083530066_od8n91et",
+          "shotId": "cineshot_1788083530066_adrfknyt",
+          "attemptNumber": 2,
+          "parentAttemptId": "cineattempt_1788093126342_608gc0na",
+          "generationJobId": "job_1788095469617_qwubdy7gf",
+          "outputAssetIds": [
+            "ast_1788095556276_97ulwxab"
+          ],
+          "approvedStoryboardAssetVersionId": "ast_1788095556276_97ulwxab",
+          "sourceFingerprint": "8a2a2d735d78988fbd168fd965acc5c46b6d0d6d78c0153ee0b32fdf721c763c",
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T13:12:36.289Z"
+        },
+        {
+          "id": "cineattempt_1788096855162_4pgwbuc5",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788095637156_z1bm8y2n",
+          "sceneId": "cinescene_1788083530066_od8n91et",
+          "shotId": "cineshot_1788083530066_z1yt2qop",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788095637156_rs7x0fqzb",
+          "quoteId": null,
+          "outputAssetIds": [],
+          "status": "completed",
+          "reviewDecision": "pending",
+          "createdAt": "2026-08-30T13:13:57.156Z"
+        },
+        {
+          "id": "cineattempt_1788096855162_oyapf3ig",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788095637156_z1bm8y2n",
+          "sceneId": "cinescene_1788083530066_gelyv542",
+          "shotId": "cineshot_1788083530066_ofqvrxl2",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788095637156_9umdnmphc",
+          "quoteId": null,
+          "outputAssetIds": [],
+          "status": "completed",
+          "reviewDecision": "pending",
+          "createdAt": "2026-08-30T13:13:57.156Z"
+        },
+        {
+          "id": "cineattempt_1788096855162_52dpj5be",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788095637156_z1bm8y2n",
+          "sceneId": "cinescene_1788083530066_gelyv542",
+          "shotId": "cineshot_1788083530066_jaw60ao2",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788095637156_8x3pwvus8",
+          "quoteId": null,
+          "outputAssetIds": [],
+          "status": "completed",
+          "reviewDecision": "pending",
+          "createdAt": "2026-08-30T13:13:57.156Z"
+        },
+        {
+          "id": "cineattempt_1788096855162_toc1gwxp",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788095637156_z1bm8y2n",
+          "sceneId": "cinescene_1788083530066_wu3e9eap",
+          "shotId": "cineshot_1788083530066_xnihm6al",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788095637156_1kapdpne8",
+          "quoteId": null,
+          "outputAssetIds": [],
+          "status": "completed",
+          "reviewDecision": "pending",
+          "createdAt": "2026-08-30T13:13:57.156Z"
+        },
+        {
+          "id": "cineattempt_1788096855162_6j2zzx7m",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788095637156_z1bm8y2n",
+          "sceneId": "cinescene_1788083530066_wu3e9eap",
+          "shotId": "cineshot_1788083530066_aj3t0bsr",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788095637156_zfbz27hld",
+          "quoteId": null,
+          "outputAssetIds": [],
+          "status": "completed",
+          "reviewDecision": "pending",
+          "createdAt": "2026-08-30T13:13:57.156Z"
+        },
+        {
+          "id": "cineattempt_1788103438913_6sqg0rha",
+          "operation": "cinematic_storyboard_still",
+          "sceneId": "cinescene_1788097357902_crh21ki1",
+          "shotId": "cineshot_1788097357902_vqssy46q",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103364363_mmo0j8dhs",
+          "outputAssetIds": [
+            "ast_1788103438901_ql05g0m6"
+          ],
+          "approvedStoryboardAssetVersionId": "ast_1788103438901_ql05g0m6",
+          "sourceFingerprint": "a6c6faa59c2b5528b58a75076f733fbbb1c1c3cfaa0ff00487fa4dad6f763c57",
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:23:58.913Z"
+        },
+        {
+          "id": "cineattempt_1788103658671_bhnlx8s4",
+          "operation": "cinematic_storyboard_still",
+          "sceneId": "cinescene_1788097357902_crh21ki1",
+          "shotId": "cineshot_1788097357902_365kf1l8",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103538319_lyz940imd",
+          "outputAssetIds": [
+            "ast_1788103658655_jp4tsn6j"
+          ],
+          "approvedStoryboardAssetVersionId": "ast_1788103658655_jp4tsn6j",
+          "sourceFingerprint": "ec67e87a9f4e7a33a98f5a4749413fd643f74179bafdb237caeb88de48583958",
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:27:38.671Z"
+        },
+        {
+          "id": "cineattempt_1788103676803_p4kjl8yv",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788103676797_ouyhsm2b",
+          "sceneId": "cinescene_1788097357902_c6zh5xzy",
+          "shotId": "cineshot_1788097357902_a2e1bkto",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103676797_1vqpupji1",
+          "quoteId": "est_1788103673717_byzshtn",
+          "outputAssetIds": [
+            "ast_1788105044356_7a6wnwwp"
+          ],
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:27:56.802Z",
+          "approvedStoryboardAssetVersionId": "ast_1788105044356_7a6wnwwp",
+          "sourceFingerprint": "d9c398b1afdd99d5ab7378bfe407838ff885a82ed4b3aa87b9ef4872b1ae6c17",
+          "reviewedAt": "2026-08-30T15:50:44.365Z"
+        },
+        {
+          "id": "cineattempt_1788103676803_aaajgeeb",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788103676797_ouyhsm2b",
+          "sceneId": "cinescene_1788097357902_c6zh5xzy",
+          "shotId": "cineshot_1788097357902_m3vn9nxs",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103676797_7998zx4md",
+          "quoteId": "est_1788103673715_y95k293",
+          "outputAssetIds": [
+            "ast_1788105053938_ozx95yow"
+          ],
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:27:56.802Z",
+          "approvedStoryboardAssetVersionId": "ast_1788105053938_ozx95yow",
+          "sourceFingerprint": "045b2e2b5ed35188e2ed851c7c1aa403dcd327afc0745c8e56c06bbf28a76b4c",
+          "reviewedAt": "2026-08-30T15:50:53.946Z"
+        },
+        {
+          "id": "cineattempt_1788103676803_uqazjkfw",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788103676797_ouyhsm2b",
+          "sceneId": "cinescene_1788097357902_4a78ycqk",
+          "shotId": "cineshot_1788097357902_o78pk0o8",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103676797_j95e504fk",
+          "quoteId": "est_1788103673712_uicce1a",
+          "outputAssetIds": [
+            "ast_1788105061159_57vi2zmx"
+          ],
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:27:56.802Z",
+          "approvedStoryboardAssetVersionId": "ast_1788105061159_57vi2zmx",
+          "sourceFingerprint": "966280a020b87013e767bea3028c83628dac9eee12ce8da5a5d9a452147cd6b5",
+          "reviewedAt": "2026-08-30T15:51:01.169Z"
+        },
+        {
+          "id": "cineattempt_1788103676803_zb5d5mr7",
+          "operation": "cinematic_storyboard_still",
+          "batchId": "ggrp_1788103676797_ouyhsm2b",
+          "sceneId": "cinescene_1788097357902_4a78ycqk",
+          "shotId": "cineshot_1788097357902_r2456ibg",
+          "attemptNumber": 1,
+          "parentAttemptId": null,
+          "generationJobId": "job_1788103676797_hm2psu5c8",
+          "quoteId": "est_1788103673719_za8ufck",
+          "outputAssetIds": [
+            "ast_1788105067960_xb4cuhd7"
+          ],
+          "status": "approved",
+          "reviewDecision": "approved",
+          "createdAt": "2026-08-30T15:27:56.802Z",
+          "approvedStoryboardAssetVersionId": "ast_1788105067960_xb4cuhd7",
+          "sourceFingerprint": "74b85387575967df1ec5eea65a7e1f181644ac3141400a479b50404b91b2f23f",
+          "reviewedAt": "2026-08-30T15:51:07.972Z"
+        }
+      ],
       "timelineVersions": [],
-      "commandReceipts": [],
-      "activeStoryPlanVersionId": null,
+      "commandReceipts": [
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788083530066_adrfknyt:job_1788092882551_90qp5u3ju",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 104,
+            "sceneId": "cinescene_1788083530066_od8n91et",
+            "shotId": "cineshot_1788083530066_adrfknyt",
+            "shotVersion": 3,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788093126332_85a113ze",
+              "assetVersionId": "ast_1788093126332_85a113ze",
+              "sourceJobId": "job_1788092882551_90qp5u3ju",
+              "imageUrl": "/outputs/job_1788092882551_90qp5u3ju.jpg",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788092882551_90qp5u3ju.webp",
+              "contentHash": "3dbcb2b9ad53f69372d9f7974f155c94986cc89d7a051b874167bd69808f90cb",
+              "sourceFingerprint": "f745465eb0c2451403b7a4132ed04b338d037036dd125398cbbe9fef745c4a38",
+              "approvedAt": "2026-08-30T12:32:06.331Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T12:32:06.343Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788083530066_adrfknyt:job_1788095469617_qwubdy7gf",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 105,
+            "sceneId": "cinescene_1788083530066_od8n91et",
+            "shotId": "cineshot_1788083530066_adrfknyt",
+            "shotVersion": 4,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788095556276_97ulwxab",
+              "assetVersionId": "ast_1788095556276_97ulwxab",
+              "sourceJobId": "job_1788095469617_qwubdy7gf",
+              "imageUrl": "/outputs/job_1788095469617_qwubdy7gf.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788095469617_qwubdy7gf.webp",
+              "contentHash": "db1037a3ceced0bf7f93b26539bca9b02f4ae3d0bb3d426a26c260a386a08361",
+              "sourceFingerprint": "8a2a2d735d78988fbd168fd965acc5c46b6d0d6d78c0153ee0b32fdf721c763c",
+              "approvedAt": "2026-08-30T13:12:36.275Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T13:12:36.289Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_vqssy46q:job_1788103364363_mmo0j8dhs",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 119,
+            "sceneId": "cinescene_1788097357902_crh21ki1",
+            "shotId": "cineshot_1788097357902_vqssy46q",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788103438901_ql05g0m6",
+              "assetVersionId": "ast_1788103438901_ql05g0m6",
+              "sourceJobId": "job_1788103364363_mmo0j8dhs",
+              "imageUrl": "/outputs/job_1788103364363_mmo0j8dhs.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103364363_mmo0j8dhs.webp",
+              "contentHash": "e0f993557cb7208c51c13fe50b43af886360963430d1dac001238fce464e7309",
+              "sourceFingerprint": "a6c6faa59c2b5528b58a75076f733fbbb1c1c3cfaa0ff00487fa4dad6f763c57",
+              "approvedAt": "2026-08-30T15:23:58.901Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:23:58.913Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_365kf1l8:job_1788103538319_lyz940imd",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 120,
+            "sceneId": "cinescene_1788097357902_crh21ki1",
+            "shotId": "cineshot_1788097357902_365kf1l8",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788103658655_jp4tsn6j",
+              "assetVersionId": "ast_1788103658655_jp4tsn6j",
+              "sourceJobId": "job_1788103538319_lyz940imd",
+              "imageUrl": "/outputs/job_1788103538319_lyz940imd.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103538319_lyz940imd.webp",
+              "contentHash": "b31ac50aded1a00a27e18a8106fc9430805704d5d8ca2b546408ec71e4c9e816",
+              "sourceFingerprint": "ec67e87a9f4e7a33a98f5a4749413fd643f74179bafdb237caeb88de48583958",
+              "approvedAt": "2026-08-30T15:27:38.655Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:27:38.671Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_a2e1bkto:job_1788103676797_1vqpupji1",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 124,
+            "sceneId": "cinescene_1788097357902_c6zh5xzy",
+            "shotId": "cineshot_1788097357902_a2e1bkto",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788105044356_7a6wnwwp",
+              "assetVersionId": "ast_1788105044356_7a6wnwwp",
+              "sourceJobId": "job_1788103676797_1vqpupji1",
+              "imageUrl": "/outputs/job_1788103676797_1vqpupji1.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_1vqpupji1.webp",
+              "contentHash": "f5cfc5e729f5b989ed616c7947cbf8044f402a654e03cebc8b8b16eaf766c386",
+              "sourceFingerprint": "d9c398b1afdd99d5ab7378bfe407838ff885a82ed4b3aa87b9ef4872b1ae6c17",
+              "approvedAt": "2026-08-30T15:50:44.356Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:50:44.365Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_m3vn9nxs:job_1788103676797_7998zx4md",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 125,
+            "sceneId": "cinescene_1788097357902_c6zh5xzy",
+            "shotId": "cineshot_1788097357902_m3vn9nxs",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788105053938_ozx95yow",
+              "assetVersionId": "ast_1788105053938_ozx95yow",
+              "sourceJobId": "job_1788103676797_7998zx4md",
+              "imageUrl": "/outputs/job_1788103676797_7998zx4md.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_7998zx4md.webp",
+              "contentHash": "56212154be811d46aec0392c6f024ca9ffd5938bc9d53ceb92ae32f50a558656",
+              "sourceFingerprint": "045b2e2b5ed35188e2ed851c7c1aa403dcd327afc0745c8e56c06bbf28a76b4c",
+              "approvedAt": "2026-08-30T15:50:53.938Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:50:53.946Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_o78pk0o8:job_1788103676797_j95e504fk",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 126,
+            "sceneId": "cinescene_1788097357902_4a78ycqk",
+            "shotId": "cineshot_1788097357902_o78pk0o8",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788105061159_57vi2zmx",
+              "assetVersionId": "ast_1788105061159_57vi2zmx",
+              "sourceJobId": "job_1788103676797_j95e504fk",
+              "imageUrl": "/outputs/job_1788103676797_j95e504fk.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_j95e504fk.webp",
+              "contentHash": "d81b9481a6f23474e81ac7dd4c9ca970c7ac75de00bbfe37619906079e686501",
+              "sourceFingerprint": "966280a020b87013e767bea3028c83628dac9eee12ce8da5a5d9a452147cd6b5",
+              "approvedAt": "2026-08-30T15:51:01.159Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:51:01.170Z"
+        },
+        {
+          "idempotencyKey": "storyboard:cineproj_1787841798259_d5rmu2tx:cineshot_1788097357902_r2456ibg:job_1788103676797_hm2psu5c8",
+          "operation": "approve_storyboard_source",
+          "result": {
+            "projectId": "cineproj_1787841798259_d5rmu2tx",
+            "projectVersion": 127,
+            "sceneId": "cinescene_1788097357902_4a78ycqk",
+            "shotId": "cineshot_1788097357902_r2456ibg",
+            "shotVersion": 2,
+            "approvedStoryboardSource": {
+              "assetId": "ast_1788105067960_xb4cuhd7",
+              "assetVersionId": "ast_1788105067960_xb4cuhd7",
+              "sourceJobId": "job_1788103676797_hm2psu5c8",
+              "imageUrl": "/outputs/job_1788103676797_hm2psu5c8.png",
+              "thumbnailUrl": "/outputs/thumbnails/job_1788103676797_hm2psu5c8.webp",
+              "contentHash": "274348cc4f1bc30540ddd7a32f87ccc9221cabb50e3265b2680d58dddb34db7b",
+              "sourceFingerprint": "74b85387575967df1ec5eea65a7e1f181644ac3141400a479b50404b91b2f23f",
+              "approvedAt": "2026-08-30T15:51:07.959Z"
+            },
+            "generationEligible": true,
+            "blockingReason": null,
+            "videoAttempts": [],
+            "timelineDependencyStatus": "current"
+          },
+          "createdAt": "2026-08-30T15:51:07.972Z"
+        }
+      ],
+      "activeStoryPlanVersionId": "cineplan_1788102152109_bgtnvz1i",
       "activeTimelineVersionId": null,
       "createdAt": "2026-08-27T14:43:18.259Z",
-      "updatedAt": "2026-08-30T02:25:11.786Z",
+      "updatedAt": "2026-08-30T16:00:00.503Z",
       "archivedAt": null
     }
   ]

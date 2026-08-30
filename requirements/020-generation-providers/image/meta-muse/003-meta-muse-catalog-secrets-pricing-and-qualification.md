@@ -43,11 +43,13 @@ explicitly. Do not claim unsupported ratios merely to satisfy a UI default.
 Use explicit operational states rather than one ambiguous `enabled` switch:
 
 1. `configured`: secret exists and adapter can instantiate;
-2. `internal`: available to approved development actors only;
-3. `qualified_general`: passed general image workflow rubric;
-4. `priced`: published Credit pricing exists;
-5. `customer_paid`: eligible for public paid routing;
-6. `qualified_fashion`: separately approved for Fashion operations.
+2. `catalog_visible`: discoverable through shared image selectors with an
+   explicit unavailable reason when it cannot be submitted;
+3. `internal`: available to approved development actors only;
+4. `qualified_general`: passed general image workflow rubric;
+5. `priced`: published Credit pricing exists;
+6. `customer_paid`: eligible for public paid routing;
+7. `qualified_fashion`: separately approved for Fashion operations.
 
 If current configuration cannot express these states, document and implement a
 small server-owned exposure projection. Do not hard-code actor gating in React.
@@ -64,6 +66,9 @@ Therefore:
   capability with provider/model, cost basis, currency, FX snapshot, margin,
   reference/output adjustments, effective time, and evidence date;
 - UI reads estimated Credits only from the existing estimate response.
+- Catalog visibility must not fabricate a one-Credit fallback. The public model
+  projection carries pricing, qualification and paid-routing state so shared
+  controls can explain why selection or Generate is unavailable.
 
 Changing pricing later must use draft/publish/effective-time controls owned by
 the commercial/admin requirements; it must not mutate historical snapshots.
@@ -110,4 +115,3 @@ or raw prompt is exposed.
 - Meta Muse cannot become customer-paid by adding an API key alone.
 - Pricing evidence and qualification are independent required gates.
 - Existing models, prices, defaults, and historical estimates are unchanged.
-

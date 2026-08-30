@@ -130,6 +130,75 @@ test('Generation Group status aggregates partial completion and enforces actor o
   }), null);
 });
 
+test('heterogeneous Generation batch records child Jobs before canonical submission', async () => {
+  let nextJob = 0;
+  const groups = new Map();
+  const submissions = [];
+  const registrations = [];
+  const repository = {
+    findByRequest: async (actorUserId, requestId) => [...groups.values()].find(group =>
+      group.actorUserId === actorUserId && group.requestId === requestId
+    ) || null,
+    findById: async id => groups.get(id) || null,
+    create: async group => {
+      groups.set(group.id, structuredClone(group));
+      return group;
+    },
+    update: async (id, patch) => {
+      const updated = { ...groups.get(id), ...structuredClone(patch) };
+      groups.set(id, updated);
+      return updated;
+    },
+    recordChildStatus: async (id, childStatus) => {
+      const group = groups.get(id);
+      group.children = group.children.map(child =>
+        child.jobId === childStatus.jobId ? { ...child, ...childStatus } : child
+      );
+      groups.set(id, group);
+      return group;
+    }
+  };
+  const service = new GenerationApplicationService({
+    providerRegistry: {},
+    queueManager: { createJobId: () => `job_batch_${++nextJob}` },
+    templateCoreService: {},
+    generationGroupRepository: repository
+  });
+  service.submit = async input => {
+    const persisted = [...groups.values()][0];
+    assert.ok(persisted, 'batch must be persisted before child submission');
+    assert.ok(persisted.childJobIds.includes(input.internalJobId));
+    assert.ok(registrations.length > 0, 'batch bindings must be registered before child submission');
+    submissions.push(input);
+    return { jobId: input.internalJobId, status: 'queued' };
+  };
+  const input = {
+    operations: [
+      { operationId: 'shot_1', sceneId: 'scene_1', shotId: 'shot_1', expectedShotVersion: 3, estimateId: 'est_1', body: { prompt: 'one' } },
+      { operationId: 'shot_2', sceneId: 'scene_1', shotId: 'shot_2', expectedShotVersion: 4, estimateId: 'est_2', body: { prompt: 'two' } }
+    ],
+    actorContext: { userId: 'usr_1', username: 'owner' },
+    userRole: 'user',
+    requestId: 'batch_request_1',
+    generationSurface: 'cinematic',
+    generationMode: 'scene',
+    metadata: { projectId: 'cineproj_1' },
+    beforeEnqueue: async binding => registrations.push(binding)
+  };
+
+  const first = await service.submitBatch(input);
+  const replay = await service.submitBatch(input);
+
+  assert.equal(first.batchId, replay.batchId);
+  assert.equal(first.requestedOutputCount, 2);
+  assert.equal(submissions.length, 2);
+  assert.equal(registrations.length, 2, 'idempotent replay revalidates the persisted bindings');
+  assert.deepEqual(registrations[0].children.map(child => child.expectedShotVersion), [3, 4]);
+  assert.deepEqual(submissions.map(item => item.internalJobId), ['job_batch_1', 'job_batch_2']);
+  assert.deepEqual(submissions.map(item => item.internalGroupContext.outputIndex), [0, 1]);
+  assert.deepEqual(submissions.map(item => item.body.estimateId), ['est_1', 'est_2']);
+});
+
 test('Generation output count accepts only integers from one through four', () => {
   for (const outputCount of [1, 2, 3, 4]) {
     assert.doesNotThrow(() => assertSupportedOutputCount({ outputCount }));

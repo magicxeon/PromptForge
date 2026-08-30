@@ -18,8 +18,8 @@ const EMPTY: GenerationRoutePointer = {
   updatedAt: ''
 };
 
-export function generationRoutePointerFeature(surface: string, generationMode: string) {
-  return `generation-route-pointer:${surface}:${generationMode}`;
+export function generationRoutePointerFeature(surface: string, generationMode: string, scope = '') {
+  return `generation-route-pointer:${surface}:${generationMode}${scope ? `:${scope}` : ''}`;
 }
 
 export function readGenerationRoutePointer(actorId: string, feature: string) {
@@ -42,4 +42,3 @@ export function writeGenerationRoutePointer(
     payload: { ...pointer, updatedAt: new Date().toISOString() }
   });
 }
-

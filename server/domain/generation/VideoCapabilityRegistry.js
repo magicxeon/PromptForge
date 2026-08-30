@@ -61,7 +61,9 @@ export class VideoCapabilityRegistry {
     if (!model.audioModes.includes(input.audioMode)) throw unsupported('audioMode', input.audioMode);
     const referenceCount = Number(input.referenceImageCount || 0);
     if (referenceCount > model.referenceImageLimit) throw unsupported('referenceImageCount', referenceCount);
-    if (model.providerId === 'gemini' && (input.resolution !== '720p' || referenceCount > 0) && Number(input.durationSeconds) !== 8) {
+    if (model.providerId === 'gemini' && model.modelId.startsWith('veo-')
+      && (input.resolution !== '720p' || referenceCount > 0)
+      && Number(input.durationSeconds) !== 8) {
       throw new VideoCapabilityError('video_parameter_combination_unsupported', 'This Veo resolution or reference mode requires an 8-second output.');
     }
     return structuredClone(model);

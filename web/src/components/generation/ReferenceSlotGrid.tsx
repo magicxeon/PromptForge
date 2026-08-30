@@ -41,7 +41,8 @@ export function ReferenceSlotGrid({
   scopes = {},
   uploadReference,
   onScopeChange,
-  onChange
+  onChange,
+  readOnly = false
 }: {
   value: Partial<Record<GenerationReferenceRole, string>>;
   maxReferences: number;
@@ -56,6 +57,7 @@ export function ReferenceSlotGrid({
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
   onScopeChange?: (role: GenerationReferenceRole, scope: string) => void;
   onChange: (value: Partial<Record<GenerationReferenceRole, string>>) => void;
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation('playground');
   const location = useLocation();
@@ -91,6 +93,7 @@ export function ReferenceSlotGrid({
             uploadReference={uploadReference}
             onScopeChange={scope => onScopeChange?.(definition.role, scope)}
             onChange={next => onChange({ ...value, [definition.role]: next || undefined })}
+            readOnly={readOnly}
           />
         ))}
       </div>
@@ -114,7 +117,8 @@ function ReferenceSlot({
   scope,
   uploadReference,
   onScopeChange,
-  onChange
+  onChange,
+  readOnly
 }: {
   role: GenerationReferenceRole;
   label: string;
@@ -127,6 +131,7 @@ function ReferenceSlot({
   uploadReference?: (dataUrl: string, role: GenerationReferenceRole) => Promise<string>;
   onScopeChange: (scope: string) => void;
   onChange: (value: string | null) => void;
+  readOnly: boolean;
 }) {
   const { t } = useTranslation('playground');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -144,13 +149,14 @@ function ReferenceSlot({
   }, [value]);
   useEffect(() => {
     if (
-      value
+      !readOnly
+      && value
       && (role === 'outfit_front' || role === 'outfit_back')
       && !scope
     ) {
       onScopeChange('full_look');
     }
-  }, [onScopeChange, role, scope, value]);
+  }, [onScopeChange, readOnly, role, scope, value]);
   async function receive(file?: File) {
     setError('');
     if (!file) return;
@@ -197,17 +203,17 @@ function ReferenceSlot({
         {value ? (
           <small className="reference-slot__source">{sourceLabel}</small>
         ) : null}
-        {value && (role === 'outfit_front' || role === 'outfit_back') ? (
+        {!readOnly && value && (role === 'outfit_front' || role === 'outfit_back') ? (
           <ReferenceScopeSelector
             value={scope || 'full_look'}
             onChange={onScopeChange}
           />
         ) : null}
-        <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
+        {!readOnly ? <div className="reference-slot__actions mt-auto flex gap-2 pt-3">
           <Button size="sm" disabled={disabled || uploading} icon={<ImagePlus className="size-4" />} onClick={() => inputRef.current?.click()}>{uploading ? t('playground.reference.uploading') : t(value ? 'playground.reference.replace' : 'playground.reference.browse')}</Button>
           {value ? <Button size="icon" variant="ghost" disabled={uploading} title={t('playground.reference.remove')} icon={<X className="size-4" />} onClick={() => onChange(null)} /> : null}
-        </div>
-        <input ref={inputRef} type="file" accept="image/*" hidden aria-label={label} onChange={event => receive(event.target.files?.[0])} data-reference-role={role} />
+        </div> : null}
+        {!readOnly ? <input ref={inputRef} type="file" accept="image/*" hidden aria-label={label} onChange={event => receive(event.target.files?.[0])} data-reference-role={role} /> : null}
         {error ? <span className="mt-2 text-xs text-red-300">{error}</span> : null}
       </div>
     </article>

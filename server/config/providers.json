@@ -232,6 +232,38 @@
           "pricingReference": { "snapshotDate": "2026-07-13", "usdPerImageBelowOrEqual2360000Pixels": 0.045, "usdPerImageAbove2360000Pixels": 0.09 }
         }
       ]
+    },
+    {
+      "id": "meta-muse",
+      "adapter": "meta-muse",
+      "enabled": false,
+      "catalogVisible": true,
+      "displayName": { "en": "Meta Muse", "th": "Meta Muse" },
+      "apiKeyEnv": "META_MUSE_API_KEY",
+      "apiKeyEnvAliases": ["META_MUSE_API-KEY"],
+      "baseUrlEnv": "META_MUSE_BASE_URL",
+      "displayOrder": 50,
+      "defaultModel": "muse-image-1.0",
+      "models": [
+        {
+          "id": "muse-image-1.0",
+          "enabled": true,
+          "displayName": { "en": "Muse Image 1.0", "th": "Muse Image 1.0" },
+          "displayOrder": 10,
+          "capabilities": {
+            "imageGeneration": true,
+            "imageEdit": false,
+            "imageReferences": false,
+            "maxReferenceImages": 0,
+            "streaming": false,
+            "batchOutput": false
+          },
+          "defaults": { "responseFormat": "b64_json" },
+          "pricingStatus": "unavailable",
+          "qualificationStatus": "unqualified",
+          "paidRoutingEnabled": false
+        }
+      ]
     }
   ]
 }

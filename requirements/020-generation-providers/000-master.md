@@ -58,6 +58,7 @@ entry points.
 
 - [Video Provider Pricing And Credit Model](video/001-video-provider-pricing-and-credit-model.md)
 - [Video Generation Provider Contract](video/002-video-generation-provider-contract.md)
+- [Gemini Omni Flash Interactions Video Provider](video/003-gemini-omni-flash-interactions-provider.md)
 
 ### Text Providers
 
@@ -152,4 +153,3 @@ change APIs, alter model exposure, or authorize provider implementation.
 - Financial, security, reference, and operation qualification gates remain
   explicit.
 - All moved-document references resolve and no old canonical path remains.
-

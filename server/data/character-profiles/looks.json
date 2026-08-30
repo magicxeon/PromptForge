@@ -4,6 +4,207 @@
     "sourceCharacterProfileVersionId": "charver_1786762030649_qd0i06j2",
     "sourceCharacterOwnerUserId": "usr_alice",
     "official": true,
+    "name": "Blue-Hour Resolve",
+    "description": "Minimal, urban, slightly tailored — clothes read as practical and private. Keep silhouettes clean to emphasize restrained performance and pocket/action. Fabrics matte to avoid distracting reflections under station lighting.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Blue-Hour Resolve",
+      "wardrobeDirection": "Minimal, urban, slightly tailored — clothes read as practical and private. Keep silhouettes clean to emphasize restrained performance and pocket/action. Fabrics matte to avoid distracting reflections under station lighting.",
+      "garments": {
+        "upper": "Fitted black lightweight merino turtleneck (long sleeve, no logos)",
+        "lower": "Charcoal mid-rise tapered trousers in cotton-twill (ankle length)",
+        "outerwear": "Charcoal mid-thigh single-breasted wool-blend coat with concealed buttons and straight hem (pocket on right hip)",
+        "footwear": "Black leather ankle boots, low stable heel (1–2 inches), minimal detailing",
+        "accessories": [
+          "Plain slim black case phone (prop already specified)",
+          "Small unadorned silver stud earrings (one pair)",
+          "Thin matte-black leather wrist strap watch or band (optional; keep face off-camera)"
+        ]
+      },
+      "palette": [
+        "cool black",
+        "charcoal gray",
+        "deep navy (subtle undertone)",
+        "muted amber (scene lighting accent)"
+      ],
+      "materials": [
+        "merino wool (upper)",
+        "cotton-twill (lower)",
+        "wool-blend (coat)",
+        "matte leather (boots, watch strap)",
+        "matte plastic (phone case)"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "cinescene_1788097357902_crh21ki1",
+        "cinescene_1788097357902_c6zh5xzy",
+        "cinescene_1788097357902_4a78ycqk"
+      ],
+      "rationale": "A compact, neutral outfit preserves the character's private, resilient presence and reads clearly in cool blue-hour lighting. The mid-thigh coat gives a decisive motion anchor for the pocketing action and exit walk; tapered trousers and low-heel boots support natural, quiet movement without calling attention. Matte fabrics prevent hot highlights on close-ups of face, clock and phone.",
+      "movementConstraints": [
+        "Coat pockets must be reachable for a single, clean phone-pocketing action (test right-hip pocket depth).",
+        "Tapered ankle trousers should allow a full stride; avoid overly constrictive waistbands.",
+        "Boot heel must be low and stable to enable controlled, quiet walking toward exit."
+      ],
+      "continuityNotes": [
+        "Always pocket phone into the same coat pocket (right hip) and maintain the same phone orientation in hand for every take.",
+        "Keep earrings and watch presence consistent across shots; if the watch face is visible, lock it at the same time for clock continuity or keep face off-camera.",
+        "Coat buttoning: leave coat open for all shots to preserve consistent silhouette and visibility of turtleneck.",
+        "Maintain same trouser hem length and boot scuff level for intercut close-ups and long shots."
+      ],
+      "warnings": [
+        "Avoid shiny or satin fabrics — they produce specular highlights under station lights and reflections that conflict with the photorealistic brief.",
+        "Long coats with trailing hems can catch wind or create continuity drift between takes; keep hem straight and minimal.",
+        "Dark matte garments can lose detail in shadow; ensure lighting separates coat from background to prevent silhouette merge."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_0b09911eeeedfd85016a945386a2c487d09d28291f49ac3b52",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1786762030645_bi3091e5:e122a731-5985-420f-b3ba-d495ffd4d9a5",
+    "lifecycleStatus": "draft",
+    "activeVersionId": "charlookver_1788105669489_niffl0up",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788105669489_niffl0up",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "status": "source_ready",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-30T16:01:09.488Z",
+        "updatedAt": "2026-08-30T16:01:09.488Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788105669489_uuoc4ws8",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-30T16:01:09.488Z",
+    "updatedAt": "2026-08-30T16:01:09.488Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "characterProfileId": "charprof_1786762030645_bi3091e5",
+    "sourceCharacterProfileVersionId": "charver_1786762030649_qd0i06j2",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
+    "name": "Blue-Hour Platform: Quiet Resolve",
+    "description": "Understated, modern urban: garments read neutral and practical at 9:16 close scale, with cool midtones on camera-left and a single warm accent toward the exit on camera-right. Keep silhouette slim and unadorned so facial micro-expressions remain focal. All pieces must be plain, matte, and consistent across cuts for continuity.",
+    "tags": [],
+    "suggestionSnapshot": {
+      "lookName": "Blue-Hour Platform: Quiet Resolve",
+      "wardrobeDirection": "Understated, modern urban: garments read neutral and practical at 9:16 close scale, with cool midtones on camera-left and a single warm accent toward the exit on camera-right. Keep silhouette slim and unadorned so facial micro-expressions remain focal. All pieces must be plain, matte, and consistent across cuts for continuity.",
+      "garments": {
+        "upper": "Charcoal lightweight knit crewneck (close-fitting, long sleeves, no logos, matte finish).",
+        "lower": "High-rise straight-leg black denim trousers (clean hem, minimal texture).",
+        "outerwear": "Mid-thigh charcoal single-breasted wool-blend coat with simple concealed buttons (unstructured shoulders, easy to remove/replace between takes).",
+        "footwear": "Matte black low-heel leather ankle boots (slip-resistant soles for safety on damp concrete).",
+        "accessories": [
+          "Slim black compact shoulder bag (worn crossbody or on shoulder; small enough to tuck phone into quickly)",
+          "Plain black hair tie (if needed to secure existing hairstyle between takes)"
+        ]
+      },
+      "palette": [
+        "charcoal",
+        "black",
+        "deep slate blue (subtle in knit texture)",
+        "warm amber (for small reflected rim from exit light)"
+      ],
+      "materials": [
+        "matte knit (upper)",
+        "denim (lower)",
+        "wool-blend (outerwear)",
+        "leather (footwear and bag)"
+      ],
+      "sceneScope": "scene_specific",
+      "recommendedSceneIds": [
+        "platform_last_train"
+      ],
+      "rationale": "Neutral dark layers hold detail in close-ups without distracting from facial acting. The mid-thigh coat gives a clean vertical line for full-body walk shots and can be removed or draped for subtle continuity changes (pocketing the phone). A small warm reflection from the coat/bag edges reads the shift toward the exit light without altering her baseline cool palette.",
+      "movementConstraints": [
+        "Coat should be unstructured to allow easy arm movement for bringing phone to ear/pocket and for the final walk without flapping.",
+        "Boots must have good grip—platform is damp; ensure soles are tested for slip resistance.",
+        "Bag strap length fixed between takes to keep pocketing motion consistent."
+      ],
+      "continuityNotes": [
+        "Maintain exact placement of hair tie and bag strap each shot; mark positions on costume to preserve pocketing action and silhouette.",
+        "Keep coat buttoning state consistent: decide 'open' or 'closed' for all takes and stick to it.",
+        "Phone always black and matte; when pocketed, same pocket used across shots."
+      ],
+      "warnings": [
+        "Glossy or reflective trims will create stray highlights under station lighting—avoid.",
+        "Bulky layers can obscure subtle breathing/jaw movement in close-ups—do not add scarves or collars.",
+        "Any visible branding or patterned lining will break the understated mood and continuity—remove labels."
+      ],
+      "provenance": {
+        "provider": "openai",
+        "model": "gpt-5-mini",
+        "responseId": "resp_085998eab3da256c016a93cd7f52f487d094f6ecbbaa6b88d3",
+        "recipeId": "cinematic-wardrobe-suggestion",
+        "recipeVersion": 1,
+        "recipeFingerprint": "ae6857ea2cdaef9f"
+      },
+      "billingStatus": "qualification_no_charge"
+    },
+    "idempotencyKey": "character-look:charprof_1786762030645_bi3091e5:7103a02d-3746-4a03-8935-4247bdd64b84",
+    "lifecycleStatus": "draft",
+    "activeVersionId": "charlookver_1788071313656_zolx8db5",
+    "approvedVersionId": null,
+    "versions": [
+      {
+        "id": "charlookver_1788071313656_zolx8db5",
+        "versionNumber": 1,
+        "sourceMode": "ai_suggestion",
+        "garmentAuthorities": {},
+        "sourceSheetAssetId": null,
+        "authoritySnapshot": [],
+        "canonicalFaceAssetId": "job_1786760143090_tnlsfuag0",
+        "status": "source_ready",
+        "approvedViewAssets": null,
+        "approvedSheetAsset": null,
+        "cropManifest": null,
+        "generationLineage": null,
+        "ownerUserId": "usr_alice",
+        "createdAt": "2026-08-30T06:28:33.655Z",
+        "updatedAt": "2026-08-30T06:28:33.655Z",
+        "approvedAt": null
+      }
+    ],
+    "id": "charlook_1788071313656_qzqz0dyb",
+    "schemaVersion": 1,
+    "ownerUserId": "usr_alice",
+    "ownerUsername": "user_alice",
+    "visibility": "private",
+    "status": "active",
+    "createdAt": "2026-08-30T06:28:33.655Z",
+    "updatedAt": "2026-08-30T06:28:33.655Z",
+    "deletedAt": null,
+    "metadata": {}
+  },
+  {
+    "characterProfileId": "charprof_1786762030645_bi3091e5",
+    "sourceCharacterProfileVersionId": "charver_1786762030649_qd0i06j2",
+    "sourceCharacterOwnerUserId": "usr_alice",
+    "official": true,
     "name": "ชุดทำงาน",
     "description": "",
     "tags": [],

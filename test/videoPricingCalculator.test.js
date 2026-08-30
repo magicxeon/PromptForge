@@ -24,6 +24,16 @@ test('Veo pricing scales by output seconds, resolution and count', () => {
   assert.equal(doubled.estimatedCredits, 2150);
 });
 
+test('Gemini Omni uses the official effective 720p output-second rate', () => {
+  const model = videoCapabilityRegistry.resolve('gemini', 'gemini-omni-flash-preview');
+  const quote = calculateVideoPricingPreview(model, {
+    aspectRatio: '9:16', resolution: '720p', durationSeconds: 8, outputCount: 1
+  }, policy);
+  assert.equal(quote.providerCostUsd, 0.8);
+  assert.equal(quote.estimatedCredits, 1075);
+  assert.equal(quote.providerRateVersion, 'google-omni-standard-2026-08-30');
+});
+
 test('Seedance token pricing includes target pixels, fps and input video duration', () => {
   const model = videoCapabilityRegistry.resolve('modelark', 'dreamina-seedance-2-0-mini-260615');
   const withoutVideo = calculateVideoPricingPreview(model, {

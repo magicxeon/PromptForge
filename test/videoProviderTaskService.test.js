@@ -153,6 +153,9 @@ test('persisted tasks resolve their own provider adapter for submission and poll
     adapters: {
       gemini: scriptedAdapter('gemini', calls),
       modelark: scriptedAdapter('modelark', calls)
+    },
+    modelAdapters: {
+      'gemini/gemini-omni-flash-preview': scriptedAdapter('gemini-omni', calls)
     }
   });
   const capabilityRegistry = {
@@ -167,13 +170,22 @@ test('persisted tasks resolve their own provider adapter for submission and poll
     modelId: 'dreamina-seedance-2-5-260628',
     idempotencyKey: 'video:registry:modelark'
   }, actor);
+  const omni = await service.submitResearchTask({
+    ...request,
+    id: 'videotask_omni',
+    modelId: 'gemini-omni-flash-preview',
+    idempotencyKey: 'video:registry:omni'
+  }, actor);
   await service.pollTask(gemini.id);
   await service.pollTask(modelark.id);
+  await service.pollTask(omni.id);
   assert.deepEqual(calls, [
     'gemini:submit',
     'modelark:submit',
+    'gemini-omni:submit',
     'gemini:poll',
-    'modelark:poll'
+    'modelark:poll',
+    'gemini-omni:poll'
   ]);
 });
 

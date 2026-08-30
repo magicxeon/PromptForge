@@ -261,7 +261,10 @@ export function createApp() {
     templatePoseProxyService
   });
   registerTemplateRoutes(app, { templateCoreService, templatePoseProxyService });
-  registerCinematicRoutes(app, { cinematicService: cinematicApplicationService });
+  registerCinematicRoutes(app, {
+    cinematicService: cinematicApplicationService,
+    generationApplicationService
+  });
   registerVideoGenerationRoutes(app, {
     videoGenerationService: videoGenerationApplicationService,
     communityFeaturePolicyService

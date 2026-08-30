@@ -115,7 +115,7 @@ export function ComparisonConfigurator({
                     }}
                   >
                     {catalog.providers.map(item => (
-                      <option key={item.id} value={item.id}>
+                      <option key={item.id} value={item.id} disabled={item.models.every(model => model.paidRoutingEnabled === false)}>
                         {localized(item.displayName)}
                       </option>
                     ))}
@@ -127,7 +127,7 @@ export function ComparisonConfigurator({
                     onChange={event => patch(index, { model: event.target.value })}
                   >
                     {provider?.models.map(item => (
-                      <option key={item.id} value={item.id}>
+                      <option key={item.id} value={item.id} disabled={item.paidRoutingEnabled === false}>
                         {localized(item.displayName)}
                       </option>
                     ))}

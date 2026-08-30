@@ -24,6 +24,7 @@ import {
 } from './referenceRolePolicy.js';
 import { faceReferenceHandoffService } from './FaceReferenceHandoffService.js';
 import { normalizeCustomAttributeSelections } from './customAttributeInputPolicy.js';
+import { loadPromptRecipe } from '../../config/prompt-recipes/loadPromptRecipe.js';
 
 const CHARACTER_SHEET_IDENTITY_GROUPS = new Set(['Character', 'Face', 'Hair', 'Skin']);
 export const ADDITIONAL_DIRECTION_MAX_LENGTH = 300;
@@ -85,6 +86,14 @@ function compileCharacterPersonalityDirective(context) {
     : '';
   if (!personality) return '';
 
+  if (context.generationSurface === 'cinematic' && context.generationMode === 'scene') {
+    return [
+      `Character personality baseline: ${personality}.`,
+      'Treat these traits as background characterization, not as an instruction for the current facial expression, gaze or pose.',
+      'The selected Shot emotional target, performance and gaze have higher authority; do not infer a smile or direct eye contact unless that Shot explicitly requests it.'
+    ].join(' ');
+  }
+
   const isSoftCharacterPortrait = context.selections?.['Pose Intent']?.id
     === 'pose.fashion.soft-character-portrait';
   if (!isSoftCharacterPortrait) {
@@ -98,6 +107,13 @@ function compileCharacterPersonalityDirective(context) {
     'The image provider may art-direct these portrait nuances naturally instead of copying one fixed pose, but the result must remain a close identity-first professional photograph with a clearly recognizable face.',
     'Do not literalize personality traits as text, symbols, costumes, props, fantasy effects, exaggerated acting, caricature, or a change of identity, age, ethnicity, skin tone, body proportions, hair identity, or wardrobe authority.'
   ].join(' ');
+}
+
+function compileCinematicStillDirective(context) {
+  if (context.generationSurface !== 'cinematic' || context.generationMode !== 'scene') return '';
+  const recipe = loadPromptRecipe('cinematic/storyboard-still.v1.json');
+  if (recipe.enabled === false) return '';
+  return `Cinematic still policy (${recipe.id} v${recipe.version}): ${recipe.instruction}`;
 }
 
 export function normalizeGenerationContext(payload = {}, actorContext = null) {
@@ -144,7 +160,8 @@ export function normalizeGenerationContext(payload = {}, actorContext = null) {
   const allowOutfit = (mode === 'character-sheet' && !reusableCharacterSheet)
     || hasTemplateOutfit
     || payload.generationSurface === 'playground'
-    || payload.generationSurface === 'fashion';
+    || payload.generationSurface === 'fashion'
+    || payload.generationSurface === 'cinematic';
   if (allowOutfit && hasOutfitBack && !hasOutfitFront) {
     const error = new Error('Outfit Front is required when an Outfit Back reference is supplied.');
     error.statusCode = 400;
@@ -359,13 +376,14 @@ export function compilePromptFromGenerationContext(context) {
         ...characterReferenceDirective,
         compileCharacterPersonalityDirective(context),
         directedPrompt,
+        compileCinematicStillDirective(context),
         compileCharacterAgeRangeDirective(context.characterProfileContext)
       ].filter(Boolean).join(' ')
       : characterReferenceDirective.length
-        ? [...characterReferenceDirective, directedPrompt].filter(Boolean).join(' ')
+        ? [...characterReferenceDirective, directedPrompt, compileCinematicStillDirective(context)].filter(Boolean).join(' ')
       : reusableCharacterSheet && context.userRole === 'admin' && adminPromptOverride
         ? `${castingDirective}, ${directedPrompt}`
-        : directedPrompt;
+        : [directedPrompt, compileCinematicStillDirective(context)].filter(Boolean).join(' ');
 }
 
 export function createQueueOptions(context, {

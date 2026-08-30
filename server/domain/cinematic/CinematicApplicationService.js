@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { cinematicProjectRepository } from '../../repositories/cinematic/CinematicProjectRepository.js';
+import { assetRepo } from '../../repositories/assets/AssetRepository.js';
 import { createPrefixedId } from '../../repositories/schemaVersioning.js';
 import { cinematicStoryboardAssetService } from '../assets/CinematicStoryboardAssetService.js';
 import { cinematicWardrobeAuthorityService } from '../assets/CinematicWardrobeAuthorityService.js';
@@ -11,6 +12,7 @@ import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.j
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
 import { cinematicWardrobeSuggestionService } from '../generation/CinematicWardrobeSuggestionService.js';
+import { cinematicStoryPlanService } from '../generation/CinematicStoryPlanService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -27,7 +29,9 @@ export class CinematicApplicationService {
     videoCapabilities = videoCapabilityRegistry,
     videoGenerationService = videoGenerationApplicationService,
     storyEnhancementService = cinematicStoryEnhancementService,
-    wardrobeSuggestionService = cinematicWardrobeSuggestionService
+    wardrobeSuggestionService = cinematicWardrobeSuggestionService,
+    storyPlanService = cinematicStoryPlanService,
+    assetRepository = assetRepo
   } = {}) {
     this.repository = repository;
     this.storyboardAssetService = storyboardAssetService;
@@ -40,6 +44,8 @@ export class CinematicApplicationService {
     this.videoGenerationService = videoGenerationService;
     this.storyEnhancementService = storyEnhancementService;
     this.wardrobeSuggestionService = wardrobeSuggestionService;
+    this.storyPlanService = storyPlanService;
+    this.assetRepository = assetRepository;
   }
 
   listProjects(actorContext, query) {
@@ -83,6 +89,23 @@ export class CinematicApplicationService {
       assignment,
       scenes: project.scenes
     });
+  }
+
+  async generateStoryPlan(projectId, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertStoryPlanInputReady(project);
+    return this.storyPlanService.generatePlan(project);
+  }
+
+  async generateSceneDirection(projectId, sceneId, input, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    assertExpectedVersion(project, input?.expectedVersion);
+    assertStoryPlanInputReady(project);
+    return this.storyPlanService.generateScene(project, sceneId, input?.direction);
   }
 
   updateSetup(projectId, input, actorContext) {
@@ -279,6 +302,9 @@ export class CinematicApplicationService {
       assertExpectedVersion(project, input.expectedVersion);
       assertEditable(project);
       const plan = normalizeStoryPlan(input, project);
+      if (input.approved === true && input.contractVersion === 'story-plan-v2') {
+        assertStoryPlanApprovalReady(plan, project);
+      }
       const now = new Date().toISOString();
       const planVersion = {
         id: createPrefixedId('cineplan'),
@@ -293,6 +319,7 @@ export class CinematicApplicationService {
         estimatedDurationMs: plan.scenes.reduce((sum, scene) => sum + scene.durationMs, 0),
         estimatedShotCount: plan.scenes.reduce((sum, scene) => sum + scene.shots.length, 0),
         warnings: plan.warnings,
+        contractVersion: input.contractVersion === 'story-plan-v2' ? 'story-plan-v2' : 'legacy',
         source: input.source === 'generated' ? 'generated' : 'manual',
         status: input.approved === false ? 'draft' : 'approved',
         createdAt: now
@@ -335,24 +362,38 @@ export class CinematicApplicationService {
         });
       }
       const previous = shot.approvedStoryboardSource || null;
-      const attempt = {
-        id: createPrefixedId('cineattempt'),
-        operation: 'cinematic_storyboard_still',
-        sceneId: scene.id,
-        shotId: shot.id,
-        attemptNumber: project.generationAttempts.filter(item => (
-          item.shotId === shot.id && item.operation === 'cinematic_storyboard_still'
-        )).length + 1,
-        parentAttemptId: shot.approvedStoryboardAttemptId || null,
-        generationJobId: approvedAsset.sourceJobId,
-        outputAssetIds: [approvedAsset.assetId],
-        approvedStoryboardAssetVersionId: approvedAsset.assetVersionId,
-        sourceFingerprint: approvedAsset.sourceFingerprint,
-        status: 'approved',
-        reviewDecision: 'approved',
-        createdAt: new Date().toISOString()
-      };
-      project.generationAttempts.push(attempt);
+      let attempt = project.generationAttempts.find(item => (
+        item.operation === 'cinematic_storyboard_still'
+        && item.shotId === shot.id
+        && item.generationJobId === approvedAsset.sourceJobId
+      ));
+      if (attempt) {
+        attempt.outputAssetIds = [approvedAsset.assetId];
+        attempt.approvedStoryboardAssetVersionId = approvedAsset.assetVersionId;
+        attempt.sourceFingerprint = approvedAsset.sourceFingerprint;
+        attempt.status = 'approved';
+        attempt.reviewDecision = 'approved';
+        attempt.reviewedAt = new Date().toISOString();
+      } else {
+        attempt = {
+          id: createPrefixedId('cineattempt'),
+          operation: 'cinematic_storyboard_still',
+          sceneId: scene.id,
+          shotId: shot.id,
+          attemptNumber: project.generationAttempts.filter(item => (
+            item.shotId === shot.id && item.operation === 'cinematic_storyboard_still'
+          )).length + 1,
+          parentAttemptId: shot.approvedStoryboardAttemptId || null,
+          generationJobId: approvedAsset.sourceJobId,
+          outputAssetIds: [approvedAsset.assetId],
+          approvedStoryboardAssetVersionId: approvedAsset.assetVersionId,
+          sourceFingerprint: approvedAsset.sourceFingerprint,
+          status: 'approved',
+          reviewDecision: 'approved',
+          createdAt: new Date().toISOString()
+        };
+        project.generationAttempts.push(attempt);
+      }
       shot.approvedStoryboardSource = approvedAsset;
       shot.approvedStoryboardAttemptId = attempt.id;
       shot.storyboardStatus = 'approved';
@@ -360,7 +401,7 @@ export class CinematicApplicationService {
       if (previous && previous.sourceFingerprint !== approvedAsset.sourceFingerprint) {
         markSourceChanged(project, shot, previous.sourceFingerprint);
       }
-      project.status = 'storyboard_ready';
+      project.status = allStoryboardShotsApproved(project) ? 'storyboard_ready' : 'planned';
       project.version += 1;
       const result = buildProduceContext(project, scene, shot);
       project.commandReceipts.push({
@@ -381,6 +422,156 @@ export class CinematicApplicationService {
       throw new CinematicError('cinematic_shot_not_found', 'Produce Shot not found.', 404);
     }
     return buildProduceContext(project, located.scene, located.shot);
+  }
+
+  async getStoryboardGenerationContext(projectId, sceneId, shotId, actorContext) {
+    const project = await this.getProject(projectId, actorContext);
+    const located = findShot(project, shotId);
+    if (!located || located.scene.id !== sceneId) {
+      throw new CinematicError('cinematic_shot_not_found', 'Storyboard Shot not found.', 404);
+    }
+    const { scene, shot } = located;
+    const castIds = shot.castAssignmentIds?.length ? shot.castAssignmentIds : scene.castAssignmentIds;
+    const assignments = castIds.flatMap(assignmentId => {
+      const assignment = project.castAssignments.find(item => item.id === assignmentId && item.active !== false);
+      return assignment ? [assignment] : [];
+    });
+    const selectedLookIds = new Set(shot.wardrobeLookIds?.length ? shot.wardrobeLookIds : scene.wardrobeLookIds);
+    const selectedLooks = assignments.flatMap(assignment => (assignment.looks || [])
+      .filter(look => selectedLookIds.has(look.id))
+      .map(look => ({ ...look, assignmentId: assignment.id })));
+    const assetIds = [...new Set(selectedLooks.flatMap(look => look.assetIds || []))].slice(0, 2);
+    const wardrobeUrls = [];
+    for (const assetId of assetIds) {
+      const asset = await this.assetRepository.findByIdForOwner(assetId, project.ownerUserId);
+      if (asset?.status !== 'deleted' && asset?.publicUrl) wardrobeUrls.push(asset.publicUrl);
+    }
+    const orderedShots = scene.shotOrder
+      .map(id => scene.shots.find(item => item.id === id))
+      .filter(Boolean);
+    const shotIndex = orderedShots.findIndex(item => item.id === shot.id);
+    const previousSource = shotIndex > 0 ? orderedShots[shotIndex - 1]?.approvedStoryboardSource || null : null;
+    const primary = assignments[0] || null;
+    const missingLookReference = selectedLooks.some(look => (look.assetIds || []).length > 0)
+      && wardrobeUrls.length === 0;
+    return {
+      schemaVersion: 1,
+      projectId: project.id,
+      projectVersion: project.version,
+      sceneId: scene.id,
+      shotId: shot.id,
+      shotVersion: shot.version,
+      characterProfileContext: primary ? {
+        purpose: 'character_usage',
+        characterProfileId: primary.characterProfileId,
+        characterProfileVersionId: primary.characterProfileVersionId,
+        useCase: 'cinematic',
+        sourceType: 'scene_builder',
+        sourceId: project.id
+      } : null,
+      references: {
+        outfit_front: wardrobeUrls[0] || null,
+        outfit_back: wardrobeUrls[1] || null,
+        style_reference: previousSource?.imageUrl || null
+      },
+      cast: assignments.map(assignment => ({
+        assignmentId: assignment.id,
+        displayName: assignment.displayName,
+        storyRole: assignment.storyRole,
+        identityReady: assignment.identityReady === true
+      })),
+      looks: selectedLooks.map(look => ({
+        lookId: look.id,
+        assignmentId: look.assignmentId,
+        name: look.name,
+        locked: look.locked === true
+      })),
+      continuitySource: previousSource ? {
+        shotId: orderedShots[shotIndex - 1].id,
+        sourceFingerprint: previousSource.sourceFingerprint
+      } : null,
+      generationEligible: assignments.length <= 1
+        && assignments.every(assignment => assignment.identityReady === true)
+        && selectedLooks.every(look => look.locked === true)
+        && !missingLookReference,
+      blockingReason: assignments.length > 1
+        ? 'cinematic_storyboard_multi_character_unqualified'
+        : assignments.some(assignment => assignment.identityReady !== true)
+          ? 'cinematic_storyboard_character_not_ready'
+          : selectedLooks.some(look => look.locked !== true)
+            ? 'cinematic_storyboard_look_not_ready'
+            : missingLookReference
+              ? 'cinematic_storyboard_look_asset_unavailable'
+            : null
+    };
+  }
+
+  async registerStoryboardBatchAttempts(projectId, input, actorContext) {
+    const batchId = String(input.batchId || '').trim();
+    const children = Array.isArray(input.children) ? input.children : [];
+    if (!batchId || !children.length) {
+      throw new CinematicError(
+        'cinematic_storyboard_batch_binding_invalid',
+        'Storyboard batch bindings require a batch ID and child Jobs.',
+        400
+      );
+    }
+    return this.repository.mutateForActor(projectId, actorContext, project => {
+      project.generationAttempts ||= [];
+      const existing = project.generationAttempts.filter(attempt => attempt.batchId === batchId);
+      if (existing.length === children.length) return project;
+      assertExpectedVersion(project, input.expectedVersion);
+      assertEditable(project);
+      const now = new Date().toISOString();
+      for (const child of children) {
+        if (project.generationAttempts.some(attempt => attempt.generationJobId === child.jobId)) continue;
+        const located = findShot(project, child.shotId);
+        if (!located || located.scene.id !== child.sceneId) {
+          throw new CinematicError(
+            'cinematic_shot_not_found',
+            'A Storyboard batch Shot no longer exists.',
+            404
+          );
+        }
+        const { scene, shot } = located;
+        if (Number(child.expectedShotVersion) !== Number(shot.version || 1)) {
+          throw new CinematicError(
+            'cinematic_shot_version_conflict',
+            'A Storyboard Shot changed before the batch was registered.',
+            409,
+            { currentShotVersion: shot.version || 1 }
+          );
+        }
+        if (shot.approvedStoryboardSource) {
+          throw new CinematicError(
+            'cinematic_storyboard_source_already_approved',
+            'An approved Storyboard source already exists for this Shot.',
+            409
+          );
+        }
+        project.generationAttempts.push({
+          id: createPrefixedId('cineattempt'),
+          operation: 'cinematic_storyboard_still',
+          batchId,
+          sceneId: scene.id,
+          shotId: shot.id,
+          attemptNumber: project.generationAttempts.filter(item => (
+            item.shotId === shot.id && item.operation === 'cinematic_storyboard_still'
+          )).length + 1,
+          parentAttemptId: shot.approvedStoryboardAttemptId || null,
+          generationJobId: child.jobId,
+          quoteId: child.estimateId || null,
+          outputAssetIds: [],
+          status: 'queued',
+          reviewDecision: 'pending',
+          createdAt: now
+        });
+        shot.storyboardStatus = 'generating';
+      }
+      project.status = 'planned';
+      project.version += 1;
+      return project;
+    });
   }
 
   async quoteVideoAttempt(projectId, sceneId, shotId, input, actorContext) {
@@ -819,6 +1010,15 @@ function normalizeStoryPlan(input = {}, project) {
     throw new CinematicError('cinematic_story_plan_invalid', 'A Story Plan requires between 1 and 24 Scenes.');
   }
   const existingScenes = new Map((project.scenes || []).map(scene => [scene.id, scene]));
+  const beats = normalizeStoryBeats(input.beats);
+  if (!beats.length) {
+    beats.push({
+      id: createPrefixedId('cinebeat'), orderKey: 1, type: 'development',
+      title: 'Story', purpose: '', storyChange: '', emotionalStart: '', emotionalEnd: '',
+      targetDurationMs: 0, sceneIds: []
+    });
+  }
+  const beatIds = new Set(beats.map(beat => beat.id));
   const usedSceneIds = new Set();
   const usedShotIds = new Set();
   const scenes = scenesInput.map((sceneInput, sceneIndex) => {
@@ -868,27 +1068,183 @@ function normalizeStoryPlan(input = {}, project) {
       id: sceneId,
       version: Number(existingScene?.version || 1),
       orderKey: sceneIndex + 1,
+      beatId: bounded(sceneInput.beatId, 100, beats[0]?.id || ''),
       title: bounded(sceneInput.title, 120, `Scene ${sceneIndex + 1}`),
       purpose: bounded(sceneInput.purpose, 800, ''),
+      storyChange: bounded(sceneInput.storyChange, 800, ''),
       location: bounded(sceneInput.location, 300, ''),
       time: bounded(sceneInput.time, 120, ''),
       emotionalStart: bounded(sceneInput.emotionalStart, 240, ''),
       emotionalEnd: bounded(sceneInput.emotionalEnd, 240, ''),
       transitionIntent: bounded(sceneInput.transitionIntent, 160, 'cut'),
       castAssignmentIds: normalizeStringList(sceneInput.castAssignmentIds, 6),
+      wardrobeLookIds: normalizeStringList(sceneInput.wardrobeLookIds, 12),
+      blocking: bounded(sceneInput.blocking, 500, ''),
+      lighting: bounded(sceneInput.lighting, 500, ''),
+      performance: bounded(sceneInput.performance, 500, ''),
+      audioIntent: bounded(sceneInput.audioIntent, 500, ''),
+      continuityNotes: normalizeStringList(sceneInput.continuityNotes, 20),
       shots,
       shotOrder: shots.map(shot => shot.id),
       durationMs: shots.reduce((sum, shot) => sum + shot.durationMs, 0)
     };
   });
+  for (const beat of beats) {
+    beat.sceneIds = scenes.filter(scene => scene.beatId === beat.id).map(scene => scene.id);
+    beat.targetDurationMs = beat.sceneIds.reduce(
+      (sum, sceneId) => sum + (scenes.find(scene => scene.id === sceneId)?.durationMs || 0), 0
+    );
+  }
+  if (beats.length && scenes.some(scene => !beatIds.has(scene.beatId))) {
+    throw new CinematicError('cinematic_story_plan_invalid', 'Every Scene must reference a valid Beat.');
+  }
   return {
     objective: bounded(input.objective, 1000, ''),
     logline: bounded(input.logline, 500, ''),
-    beats: Array.isArray(input.beats) ? structuredClone(input.beats).slice(0, 24) : [],
+    beats,
     emotionalArc: bounded(input.emotionalArc, 1000, ''),
     warnings: normalizeStringList(input.warnings, 20),
     scenes
   };
+}
+
+function normalizeStoryBeats(value) {
+  const usedIds = new Set();
+  return (Array.isArray(value) ? value : []).slice(0, 24).map((beat, index) => {
+    const id = bounded(beat?.id, 100, '') || createPrefixedId('cinebeat');
+    if (usedIds.has(id)) throw new CinematicError('cinematic_story_plan_invalid', 'Beat IDs must be unique.');
+    usedIds.add(id);
+    return {
+      id,
+      orderKey: index + 1,
+      type: bounded(beat?.type, 60, 'development'),
+      title: bounded(beat?.title, 120, `Beat ${index + 1}`),
+      purpose: bounded(beat?.purpose ?? beat?.description, 500, ''),
+      storyChange: bounded(beat?.storyChange, 500, ''),
+      emotionalStart: bounded(beat?.emotionalStart, 240, ''),
+      emotionalEnd: bounded(beat?.emotionalEnd, 240, ''),
+      targetDurationMs: Math.max(0, Math.round(Number(beat?.targetDurationMs) || 0)),
+      sceneIds: normalizeStringList(beat?.sceneIds, 24)
+    };
+  });
+}
+
+function assertStoryPlanInputReady(project) {
+  if (!project.activeStorySourceVersionId || !String(project.setup?.storyBrief || '').trim()) {
+    throw new CinematicError('cinematic_story_source_required', 'Complete the Story source before generating a Story Plan.', 409);
+  }
+  const required = (project.setup?.storyRoleSlots || []).filter(role => role.importance === 'required');
+  const assigned = new Set((project.castAssignments || [])
+    .filter(item => item.active !== false && item.storyRoleSlotId)
+    .map(item => item.storyRoleSlotId));
+  const missingRoleIds = required.filter(role => !assigned.has(role.id)).map(role => role.id);
+  if (missingRoleIds.length) {
+    throw new CinematicError(
+      'cinematic_required_cast_incomplete',
+      'Assign a Character to every required story role before generating a Story Plan.',
+      409,
+      { missingRoleIds }
+    );
+  }
+}
+
+function assertStoryPlanApprovalReady(plan, project) {
+  assertStoryPlanInputReady(project);
+  if (!plan.beats.length) {
+    throw new CinematicError('cinematic_story_plan_beats_required', 'At least one Story Beat is required before approval.', 409);
+  }
+  const linkedSceneIds = new Set(plan.beats.flatMap(beat => beat.sceneIds));
+  const unlinkedSceneIds = plan.scenes.filter(scene => !linkedSceneIds.has(scene.id)).map(scene => scene.id);
+  const emptyBeatIds = plan.beats.filter(beat => !beat.sceneIds.length).map(beat => beat.id);
+  if (unlinkedSceneIds.length || emptyBeatIds.length) {
+    throw new CinematicError(
+      'cinematic_story_plan_links_incomplete',
+      'Every Beat and Scene must be linked before Story Plan approval.',
+      409,
+      { unlinkedSceneIds, emptyBeatIds }
+    );
+  }
+  const incompleteBeatIds = plan.beats
+    .filter(beat => !beat.title || !beat.purpose || !beat.storyChange)
+    .map(beat => beat.id);
+  const incompleteSceneIds = plan.scenes
+    .filter(scene => !scene.title || !scene.purpose || !scene.storyChange)
+    .map(scene => scene.id);
+  const incompleteShotIds = plan.scenes.flatMap(scene => scene.shots
+    .filter(shot => !shot.title || !shot.purpose)
+    .map(shot => shot.id));
+  if (incompleteBeatIds.length || incompleteSceneIds.length || incompleteShotIds.length) {
+    throw new CinematicError(
+      'cinematic_story_plan_details_incomplete',
+      'Every Beat, Scene and Shot requires its core Story Plan details before approval.',
+      409,
+      { incompleteBeatIds, incompleteSceneIds, incompleteShotIds }
+    );
+  }
+  assertStoryPlanCastAndLookAuthority(plan, project);
+  const plannedDurationMs = plan.scenes.reduce((sum, scene) => sum + scene.durationMs, 0);
+  if (Math.abs(plannedDurationMs - project.durationTargetMs) > 1000) {
+    throw new CinematicError(
+      'cinematic_story_plan_duration_mismatch',
+      'Story Plan duration must be within one second of the Project target.',
+      409,
+      { plannedDurationMs, targetDurationMs: project.durationTargetMs }
+    );
+  }
+}
+
+function assertStoryPlanCastAndLookAuthority(plan, project) {
+  const assignments = new Map((project.castAssignments || [])
+    .filter(assignment => assignment.active !== false)
+    .map(assignment => [assignment.id, assignment]));
+  const lookOwners = new Map();
+  for (const assignment of assignments.values()) {
+    for (const look of assignment.looks || []) {
+      if (look?.id) lookOwners.set(look.id, assignment.id);
+    }
+  }
+  const invalidSceneCastIds = [];
+  const unreadySceneCastIds = [];
+  const invalidSceneLookIds = [];
+  const unreadySceneLookIds = [];
+  const invalidShotCastIds = [];
+  const invalidShotLookIds = [];
+  for (const scene of plan.scenes) {
+    const sceneCast = new Set(scene.castAssignmentIds || []);
+    for (const assignmentId of sceneCast) {
+      if (!assignments.has(assignmentId)) invalidSceneCastIds.push(`${scene.id}:${assignmentId}`);
+      else if (assignments.get(assignmentId)?.identityReady !== true) unreadySceneCastIds.push(`${scene.id}:${assignmentId}`);
+    }
+    for (const lookId of scene.wardrobeLookIds || []) {
+      const ownerId = lookOwners.get(lookId);
+      if (!ownerId || !sceneCast.has(ownerId)) invalidSceneLookIds.push(`${scene.id}:${lookId}`);
+      else if (assignments.get(ownerId)?.looks?.find(look => look.id === lookId)?.locked !== true) {
+        unreadySceneLookIds.push(`${scene.id}:${lookId}`);
+      }
+    }
+    for (const shot of scene.shots || []) {
+      const shotCast = new Set(shot.castAssignmentIds || []);
+      for (const assignmentId of shotCast) {
+        if (!assignments.has(assignmentId) || !sceneCast.has(assignmentId)) {
+          invalidShotCastIds.push(`${shot.id}:${assignmentId}`);
+        }
+      }
+      for (const lookId of shot.wardrobeLookIds || []) {
+        const ownerId = lookOwners.get(lookId);
+        if (!ownerId || !shotCast.has(ownerId) || !(scene.wardrobeLookIds || []).includes(lookId)) {
+          invalidShotLookIds.push(`${shot.id}:${lookId}`);
+        }
+      }
+    }
+  }
+  if (invalidSceneCastIds.length || unreadySceneCastIds.length || invalidSceneLookIds.length || unreadySceneLookIds.length || invalidShotCastIds.length || invalidShotLookIds.length) {
+    throw new CinematicError(
+      'cinematic_story_plan_cast_authority_invalid',
+      'Scene and Shot Cast or Wardrobe references must belong to this Project and follow Scene authority.',
+      409,
+      { invalidSceneCastIds, unreadySceneCastIds, invalidSceneLookIds, unreadySceneLookIds, invalidShotCastIds, invalidShotLookIds }
+    );
+  }
 }
 
 function normalizeDurationMs(value) {
@@ -911,6 +1267,11 @@ function findShot(project, shotId) {
     if (shot) return { scene, shot };
   }
   return null;
+}
+
+function allStoryboardShotsApproved(project) {
+  const shots = (project.scenes || []).flatMap(scene => scene.shots || []);
+  return shots.length > 0 && shots.every(shot => Boolean(shot.approvedStoryboardSource));
 }
 
 function normalizeIdempotencyKey(value) {

@@ -1,6 +1,7 @@
 # 002 - Meta Muse Provider Adapter And Normalization
 
-Status: Proposed  
+Status: Hidden Base64 adapter scaffold implemented; live response evidence and
+URL normalization remain blocked
 Depends on: Requirement 001 evidence gate
 
 ## 1. Purpose
@@ -107,4 +108,3 @@ Mock transport; automated tests must not call Meta or spend money.
 - Error behavior is deterministic and Credit settlement remains owned by the
   existing Generation lifecycle.
 - Existing provider adapters and tests are unchanged in behavior.
-

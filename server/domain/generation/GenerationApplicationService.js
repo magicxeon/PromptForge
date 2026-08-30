@@ -58,7 +58,15 @@ export class GenerationApplicationService {
     }
   }
 
-  async submit({ body, actorContext, userRole, requestId }) {
+  async submit({
+    body,
+    actorContext,
+    userRole,
+    requestId,
+    internalJobId = null,
+    internalGroupContext = null,
+    internalReservationMetadata = null
+  }) {
     const finish = this.telemetry.start('generation.submit', { requestId });
     const payerUserId = actorContext?.userId;
     const payerUsername = actorContext?.username;
@@ -136,7 +144,8 @@ export class GenerationApplicationService {
           templateVersionId: templateExecution?.version.id || null,
           templateUseSessionId: templateExecution?.session.id || null,
           sourceCommunityPostId:
-            templateExecution?.session.sourceCommunityPostId || null
+            templateExecution?.session.sourceCommunityPostId || null,
+          ...(internalReservationMetadata || {})
         },
         beforeEnqueue: templateExecution
           ? jobId => this.templateCoreService.attachGeneration(
@@ -147,9 +156,15 @@ export class GenerationApplicationService {
           : null,
         queueOptionOverrides: {
           templateUseContext: createTemplateUseContext(templateExecution),
-          promptRefinement: promptExecution.metadata
+          promptRefinement: promptExecution.metadata,
+          ...(internalGroupContext ? {
+            generationGroupId: internalGroupContext.groupId,
+            outputIndex: internalGroupContext.outputIndex,
+            requestedOutputCount: internalGroupContext.requestedOutputCount
+          } : {})
         },
-        promptRefinementAudit: promptExecution.audit
+        promptRefinementAudit: promptExecution.audit,
+        jobId: internalJobId
       };
       const result = context.outputCount > 1
         ? await this.submitPreparedGroup(operation)
@@ -160,6 +175,151 @@ export class GenerationApplicationService {
       finish('error');
       throw error;
     }
+  }
+
+  async submitBatch({
+    operations,
+    actorContext,
+    userRole,
+    requestId,
+    generationSurface = null,
+    generationMode = null,
+    metadata = null,
+    beforeEnqueue = null
+  }) {
+    const payerUserId = actorContext?.userId;
+    const payerUsername = actorContext?.username;
+    if (!payerUserId || !payerUsername) {
+      const error = new Error('Generation requires an authenticated actor context.');
+      error.statusCode = 401;
+      error.code = 'actor_required';
+      throw error;
+    }
+    if (!requestId || !Array.isArray(operations) || !operations.length) {
+      const error = new Error('A non-empty Generation batch and request ID are required.');
+      error.statusCode = 400;
+      error.code = 'generation_batch_invalid';
+      throw error;
+    }
+    const existing = await this.generationGroupRepository.findByRequest(payerUserId, requestId);
+    if (existing) {
+      if (beforeEnqueue) {
+        await beforeEnqueue({
+          groupId: existing.id,
+          children: structuredClone(existing.children || [])
+        });
+      }
+      return batchSubmissionResult(existing);
+    }
+
+    const groupId = `ggrp_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const children = operations.map((operation, outputIndex) => ({
+      outputIndex,
+      operationId: operation.operationId || `operation_${outputIndex + 1}`,
+      sceneId: operation.sceneId || null,
+      shotId: operation.shotId || null,
+      expectedShotVersion: operation.expectedShotVersion || null,
+      estimateId: operation.estimateId || operation.body?.estimateId || null,
+      jobId: this.queueManager.createJobId(),
+      status: 'planned',
+      result: null,
+      error: null
+    }));
+    const now = new Date().toISOString();
+    await this.generationGroupRepository.create({
+      schemaVersion: 2,
+      id: groupId,
+      groupType: 'heterogeneous_batch',
+      actorUserId: payerUserId,
+      actorUsername: payerUsername,
+      requestId,
+      estimateId: null,
+      requestedOutputCount: children.length,
+      generationSurface,
+      generationMode,
+      metadata: metadata ? structuredClone(metadata) : null,
+      status: 'queued',
+      childJobIds: children.map(child => child.jobId),
+      children,
+      enqueueFailures: [],
+      completedCount: 0,
+      failedCount: 0,
+      createdAt: now,
+      updatedAt: now,
+      completedAt: null
+    });
+
+    if (beforeEnqueue) {
+      try {
+        await beforeEnqueue({ groupId, children: structuredClone(children) });
+      } catch (error) {
+        for (const child of children) {
+          await this.generationGroupRepository.recordChildStatus(groupId, {
+            jobId: child.jobId,
+            status: 'failed',
+            result: null,
+            error: {
+              code: error.code || 'generation_batch_registration_failed',
+              message: error.message || 'The batch could not be registered before enqueue.'
+            }
+          });
+        }
+        throw error;
+      }
+    }
+
+    const enqueueFailures = [];
+    for (const [outputIndex, operation] of operations.entries()) {
+      const child = children[outputIndex];
+      try {
+        await this.submit({
+          body: {
+            ...(operation.body || {}),
+            outputCount: 1,
+            estimateId: operation.estimateId || operation.body?.estimateId,
+            requestId: `${requestId}:child:${outputIndex}`
+          },
+          actorContext,
+          userRole,
+          requestId: `${requestId}:child:${outputIndex}`,
+          internalJobId: child.jobId,
+          internalGroupContext: {
+            groupId,
+            outputIndex,
+            requestedOutputCount: children.length
+          },
+          internalReservationMetadata: {
+            batchId: groupId,
+            operationId: child.operationId,
+            sceneId: child.sceneId,
+            shotId: child.shotId
+          }
+        });
+      } catch (error) {
+        const failure = {
+          jobId: child.jobId,
+          outputIndex,
+          operationId: child.operationId,
+          sceneId: child.sceneId,
+          shotId: child.shotId,
+          error: {
+            code: error.code || 'generation_enqueue_failed',
+            message: error.message || 'This batch operation could not be queued.'
+          }
+        };
+        enqueueFailures.push(failure);
+        await this.generationGroupRepository.recordChildStatus(groupId, {
+          ...failure,
+          status: 'failed',
+          result: null
+        });
+      }
+    }
+    if (enqueueFailures.length) {
+      await this.generationGroupRepository.update(groupId, { enqueueFailures });
+    }
+    const group = await this.generationGroupRepository.findById(groupId);
+    return batchSubmissionResult(group);
   }
 
   async compilePromptForExecution(context, { requestId = null } = {}) {
@@ -188,9 +348,10 @@ export class GenerationApplicationService {
     reservationMetadata = {},
     beforeEnqueue = null,
     queueOptionOverrides = {},
-    promptRefinementAudit = null
+    promptRefinementAudit = null,
+    jobId: preparedJobId = null
   }) {
-    const jobId = this.queueManager.createJobId();
+    const jobId = preparedJobId || this.queueManager.createJobId();
     const reservationResult = await this.creditService.validateAndReserveForRequest({
       userId: payerUserId,
       estimateId,
@@ -637,6 +798,26 @@ function createGenerationRequestPayload(body, userRole, templateExecution) {
         ? [templateExecution.baselineReference.sourceGenerationId]
         : [],
     userRole
+  };
+}
+
+function batchSubmissionResult(group) {
+  const children = Array.isArray(group?.children) ? group.children : [];
+  return {
+    batchId: group?.id || null,
+    groupId: group?.id || null,
+    status: group?.status || 'queued',
+    requestedOutputCount: Number(group?.requestedOutputCount || children.length),
+    acceptedCount: children.filter(child => child.status !== 'failed').length,
+    failedCount: children.filter(child => child.status === 'failed').length,
+    children: children.map(child => ({
+      operationId: child.operationId || null,
+      sceneId: child.sceneId || null,
+      shotId: child.shotId || null,
+      jobId: child.jobId,
+      status: child.status || 'queued',
+      error: child.error || null
+    }))
   };
 }
 

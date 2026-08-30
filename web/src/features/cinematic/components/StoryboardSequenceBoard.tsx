@@ -1,13 +1,19 @@
-import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock3, GripVertical, Image as ImageIcon, LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useGenerationJob } from '../../generation/hooks/useGenerationJob';
 
 export type StoryboardShotSummary = {
   id: string;
+  sequenceLabel?: string;
   durationSeconds: number;
   title: string;
   framing: string;
   action: string;
-  status: 'ready' | 'draft' | 'warning';
+  status: 'ready' | 'draft' | 'warning' | 'queued' | 'review' | 'failed';
+  imageUrl?: string | null;
+  generationJobId?: string | null;
+  castNames?: string[];
+  lookNames?: string[];
 };
 
 type StoryboardSequenceBoardProps = {
@@ -44,11 +50,68 @@ export function StoryboardSequenceBoard({
         </div>
       </header>
       <div className="cinematic-storyboard-board__grid">
-        {shots.map((shot, index) => (
+        {shots.map((shot, index) => <StoryboardShotCard
+          key={shot.id}
+          shot={shot}
+          index={index}
+          selected={selectedShotId === shot.id}
+          last={index === shots.length - 1}
+          onSelectShot={onSelectShot}
+          onMoveShot={onMoveShot}
+        />)}
+      </div>
+    </section>
+  );
+}
+
+function StoryboardShotCard({ shot, index, selected, last, onSelectShot, onMoveShot }: {
+  shot: StoryboardShotSummary;
+  index: number;
+  selected: boolean;
+  last: boolean;
+  onSelectShot: (shotId: string) => void;
+  onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
+}) {
+  if (shot.generationJobId) {
+    return <TrackedStoryboardShotCard shot={shot} index={index} selected={selected} last={last}
+      onSelectShot={onSelectShot} onMoveShot={onMoveShot} />;
+  }
+  return <StoryboardShotCardContent shot={shot} index={index} selected={selected} last={last}
+    onSelectShot={onSelectShot} onMoveShot={onMoveShot} />;
+}
+
+function TrackedStoryboardShotCard(props: Parameters<typeof StoryboardShotCardContent>[0]) {
+  const job = useGenerationJob(props.shot.generationJobId || null);
+  return <StoryboardShotCardContent {...props} generatedImageUrl={job.data?.result?.imageUrl || null}
+    generationStatus={job.data?.status || 'queued'} />;
+}
+
+function StoryboardShotCardContent({ shot, index, selected, last, onSelectShot, onMoveShot,
+  generatedImageUrl = null, generationStatus = null }: {
+  shot: StoryboardShotSummary;
+  index: number;
+  selected: boolean;
+  last: boolean;
+  onSelectShot: (shotId: string) => void;
+  onMoveShot: (shotId: string, direction: 'earlier' | 'later') => void;
+  generatedImageUrl?: string | null;
+  generationStatus?: string | null;
+}) {
+  const { t } = useTranslation('cinematic');
+  const imageUrl = shot.imageUrl || generatedImageUrl;
+  const status = shot.status === 'ready'
+    ? 'ready'
+    : generationStatus === 'completed' && generatedImageUrl
+      ? 'review'
+      : generationStatus === 'failed'
+        ? 'failed'
+        : shot.generationJobId
+          ? 'queued'
+          : shot.status;
+  return (
           <article
             id={`storyboard-shot-${shot.id}`}
-            key={shot.id}
-            className={`cinematic-storyboard-card${selectedShotId === shot.id ? ' is-selected' : ''}`}
+            className={`cinematic-storyboard-card${selected ? ' is-selected' : ''}`}
             draggable
             data-shot-id={shot.id}
           >
@@ -58,28 +121,32 @@ export function StoryboardSequenceBoard({
               aria-label={`${t('cinematic.storyboard.editShot')} ${shot.id}`}
               onClick={() => onSelectShot(shot.id)}
             >
-              <ImageIcon aria-hidden="true" />
-              <span>{t('cinematic.storyboard.previewEmpty')}</span>
+              {imageUrl
+                ? <img src={imageUrl} alt="" />
+                : shot.generationJobId && status === 'queued'
+                  ? <><LoaderCircle className="animate-spin" aria-hidden="true" /><span>{t('cinematic.storyboard.status.queued')}</span></>
+                  : <><ImageIcon aria-hidden="true" /><span>{t('cinematic.storyboard.previewEmpty')}</span></>}
             </button>
             <div className="cinematic-storyboard-card__body">
               <header>
                 <span className="cinematic-storyboard-card__handle" title={t('cinematic.storyboard.dragToReorder')}><GripVertical aria-hidden="true" /></span>
-                <div><strong>{t('cinematic.storyboard.shot')} {shot.id}</strong><small>{shot.title}</small></div>
+                <div><strong>{shot.sequenceLabel || `${t('cinematic.storyboard.shot')} ${shot.id}`}</strong><small>{shot.title}</small></div>
                 <span className="cinematic-storyboard-card__duration"><Clock3 aria-hidden="true" />{formatSeconds(shot.durationSeconds)}</span>
               </header>
               <dl><div><dt>{t('cinematic.storyboard.framing')}</dt><dd>{shot.framing}</dd></div><div><dt>{t('cinematic.storyboard.action')}</dt><dd>{shot.action}</dd></div></dl>
+              {(shot.castNames?.length || shot.lookNames?.length) ? <div className="cinematic-storyboard-card__authority">
+                {shot.castNames?.length ? <span>{shot.castNames.join(', ')}</span> : null}
+                {shot.lookNames?.length ? <small>{shot.lookNames.join(', ')}</small> : null}
+              </div> : null}
               <footer>
-                <span className={`cinematic-status-pill is-${shot.status}`}>{t(`cinematic.storyboard.status.${shot.status}`)}</span>
+                <span className={`cinematic-status-pill is-${status}`}>{t(`cinematic.storyboard.status.${status}`)}</span>
                 <div>
                   <button type="button" disabled={index === 0} aria-label={`${t('cinematic.storyboard.moveEarlier')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'earlier')}><ArrowLeft aria-hidden="true" /></button>
-                  <button type="button" disabled={index === shots.length - 1} aria-label={`${t('cinematic.storyboard.moveLater')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'later')}><ArrowRight aria-hidden="true" /></button>
+                  <button type="button" disabled={last} aria-label={`${t('cinematic.storyboard.moveLater')} ${shot.id}`} onClick={() => onMoveShot(shot.id, 'later')}><ArrowRight aria-hidden="true" /></button>
                 </div>
               </footer>
             </div>
           </article>
-        ))}
-      </div>
-    </section>
   );
 }
 

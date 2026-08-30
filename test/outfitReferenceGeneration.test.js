@@ -23,6 +23,18 @@ test('Front reference is canonical even when the client flag is stale', () => {
   assert.equal(context.referenceCount, 1);
 });
 
+test('Cinematic Scene generation accepts an owned wardrobe reference contract', () => {
+  const context = normalizeGenerationContext({
+    ...basePayload,
+    mode: 'normal',
+    characterType: null,
+    generationMode: 'scene',
+    generationSurface: 'cinematic'
+  });
+  assert.equal(context.imageReferences.outfitReference, true);
+  assert.equal(context.referenceCount, 1);
+});
+
 test('Back-only outfit reference is rejected', () => {
   assert.throws(
     () => normalizeGenerationContext({

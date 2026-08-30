@@ -1,12 +1,13 @@
 # 004 - Meta Muse Playground And Studio Exposure
 
-Status: Proposed  
+Status: Catalog-visible unavailable state implemented; paid exposure blocked
 Depends on: Requirements 001-003 and general image qualification
 
 ## 1. Purpose
 
-Expose Meta Muse in Playground and Studio through existing shared provider and
-Generation components, with no Meta-specific screen or duplicate workflow.
+Expose Meta Muse consistently in Playground, Studio, Fashion Studio and
+Cinematic Storyboard through existing shared provider and Generation
+components, with no Meta-specific screen or duplicate workflow.
 
 ## 2. Shared UI Contract
 
@@ -17,8 +18,9 @@ The provider/model appears through `/api/providers` and the existing:
 - comparison configurator;
 - estimate, Generate, progress, result, modal, History, and Job Center flows.
 
-Do not add hard-coded Meta Muse options to Playground or Studio. Once the
-catalog exposure policy returns the model, both surfaces receive it.
+Do not add hard-coded Meta Muse options to a feature. Once the catalog exposure
+policy returns the model, all image surfaces receive the same provider record.
+Operation-specific selectors may disable it with a localized reason.
 
 ## 3. Capability-Driven Controls
 
@@ -73,8 +75,24 @@ responsive layout must match existing shared components.
 
 ## 8. Acceptance Criteria
 
-- Meta Muse can be enabled once and appears consistently in both surfaces.
+- Meta Muse can be made catalog-visible once and appears consistently in every
+  shared image-generation surface.
 - No new provider-specific React component or API route is introduced.
 - Unsupported settings cannot reach provider dispatch.
 - Existing Playground and Studio behavior remains unchanged for other models.
 
+## 9. Implementation record (2026-08-30)
+
+- [x] Added a server-owned catalogVisible state separate from provider dispatch
+  enabled.
+- [x] Shared provider projection exposes pricing, qualification, paid-routing
+  and stable unavailability reason.
+- [x] Shared Engine selectors show Meta Muse when its configured secret exists,
+  but disable it before estimate/submit while it remains unreleased.
+- [x] Playground, Studio and Cinematic consume the same projection.
+- [x] Fashion Advanced keeps its operation qualification gate and shows the
+  catalog-visible model as unavailable instead of routing it.
+- [x] Comparison cannot select an unreleased model.
+- [x] No Meta-specific React request or Credit workflow was added.
+- [ ] Publish verified pricing and pass general/Fashion qualification before
+  changing enabled or paidRoutingEnabled.

@@ -6,6 +6,7 @@ import type { ProviderCatalog } from '../../features/generation/schemas/generati
 import type { ComparisonSlotInput } from '../../features/generation/api/generationApi';
 import { ComparisonConfigurator } from '../comparisons/ComparisonConfigurator';
 import { EngineTargetPanelFrame } from './EngineTargetPanelFrame';
+import { imageModelUnavailableReason } from './engineTargetPanelHelpers';
 
 const ratioLabels: Record<string, string> = {
   '6:8': '6:8 Portrait',
@@ -37,6 +38,7 @@ export function EngineTargetPanel({
   promptRefinementAvailable = false,
   promptRefinementEnabled = false,
   fixedAspectRatio = null,
+  requiredReferenceCount = 0,
   onChange,
   onComparisonChange,
   onSlotsChange,
@@ -55,6 +57,7 @@ export function EngineTargetPanel({
   promptRefinementAvailable?: boolean;
   promptRefinementEnabled?: boolean;
   fixedAspectRatio?: string | null;
+  requiredReferenceCount?: number;
   onChange: (value: EngineValue) => void;
   onComparisonChange: (active: boolean) => void;
   onSlotsChange: (slots: ComparisonSlotInput[]) => void;
@@ -68,6 +71,11 @@ export function EngineTargetPanel({
   const ratios = fixedAspectRatio ? [fixedAspectRatio] : availableRatios;
   const resolutions = model?.capabilities.resolutions || [];
   const dimensions = dimensionsForRatio(value.aspectRatio);
+  const selectedModelUnavailableReason = imageModelUnavailableReason(
+    model,
+    requiredReferenceCount,
+    fixedAspectRatio || value.aspectRatio
+  );
 
   function setProvider(providerId: string) {
     const next = catalog.providers.find(item => item.id === providerId);
@@ -95,11 +103,12 @@ export function EngineTargetPanel({
       <div className="engine-target-panel__controls">
         {!comparison ? (
           <div className="engine-target-panel__model-grid">
-            <Field label={t('playground.engine.provider')}><select value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select></Field>
+            <Field label={t('playground.engine.provider')}><select value={value.provider} onChange={event => setProvider(event.target.value)}>{catalog.providers.map(item => <option key={item.id} value={item.id} disabled={item.models.every(candidate => Boolean(imageModelUnavailableReason(candidate, requiredReferenceCount, fixedAspectRatio || value.aspectRatio)))}>{localized(item.displayName)}</option>)}</select></Field>
             <Field label={t('playground.engine.model')}><select value={value.model} onChange={event => {
               const next = provider?.models.find(item => item.id === event.target.value);
               onChange({ ...value, model: event.target.value, resolution: next?.capabilities.resolutions?.[0] || next?.defaults?.resolution || null });
-            }}>{provider?.models.map(item => <option key={item.id} value={item.id}>{localized(item.displayName)}</option>)}</select>
+            }}>{provider?.models.map(item => <option key={item.id} value={item.id} disabled={Boolean(imageModelUnavailableReason(item, requiredReferenceCount, fixedAspectRatio || value.aspectRatio))}>{localized(item.displayName)}</option>)}</select>
+              {selectedModelUnavailableReason ? <small className="engine-target-panel__model-meta is-warning">{t(`playground.engine.unavailable.${selectedModelUnavailableReason}`)}</small> : null}
               {/* <small className="engine-target-panel__model-meta">
                 {model?.capabilities.maxReferenceImages || 0} {t('playground.comparison.referencesShort')}
               </small> */}
@@ -191,6 +200,7 @@ export function EngineTargetPanel({
     </EngineTargetPanelFrame>
   );
 }
+
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return <label className="grid gap-1 text-sm text-[var(--mpf-text-muted)]"><span>{label}</span>{children}</label>;

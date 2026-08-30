@@ -33,7 +33,7 @@ export type GenerationRequestDraft = {
   imageResolution: string | null;
   outputCount: number;
   generationMode: 'playground' | 'headshot' | 'scene' | 'character-sheet' | 'fashion';
-  generationSurface: 'playground' | 'studio' | 'fashion';
+  generationSurface: 'playground' | 'studio' | 'fashion' | 'cinematic';
   references: Partial<Record<GenerationReferenceRole, string>>;
   selections?: Record<string, unknown>;
   customColors?: StudioCustomColors;

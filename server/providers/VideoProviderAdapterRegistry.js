@@ -1,6 +1,7 @@
 export class VideoProviderAdapterRegistry {
-  constructor({ adapters = {} } = {}) {
+  constructor({ adapters = {}, modelAdapters = {} } = {}) {
     this.adapters = new Map(Object.entries(adapters));
+    this.modelAdapters = new Map(Object.entries(modelAdapters));
   }
 
   register(providerId, adapter) {
@@ -12,8 +13,17 @@ export class VideoProviderAdapterRegistry {
     return this;
   }
 
-  resolve(providerId) {
+  registerModel(providerId, modelId, adapter) {
+    const key = modelAdapterKey(providerId, modelId);
+    assertAdapter(adapter, key);
+    this.modelAdapters.set(key, adapter);
+    return this;
+  }
+
+  resolve(providerId, modelId = null) {
     const id = normalizeProviderId(providerId);
+    const modelAdapter = modelId ? this.modelAdapters.get(modelAdapterKey(id, modelId)) : null;
+    if (modelAdapter) return modelAdapter;
     const adapter = this.adapters.get(id);
     if (!adapter) {
       throw providerRegistryError(
@@ -23,6 +33,19 @@ export class VideoProviderAdapterRegistry {
     }
     return adapter;
   }
+}
+
+function assertAdapter(adapter, id) {
+  if (!adapter || typeof adapter.submit !== 'function' || typeof adapter.poll !== 'function') {
+    throw new TypeError(`Video provider adapter "${id}" must implement submit() and poll().`);
+  }
+}
+
+function modelAdapterKey(providerId, modelId) {
+  const provider = normalizeProviderId(providerId);
+  const model = String(modelId || '').trim();
+  if (!model) throw providerRegistryError('video_model_id_missing', 'Video model ID is required.');
+  return `${provider}/${model}`;
 }
 
 function normalizeProviderId(value) {

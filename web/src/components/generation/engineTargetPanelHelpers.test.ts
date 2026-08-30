@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { ProviderCatalog } from '../../features/generation/schemas/generationSchemas';
-import { createDefaultComparisonSlots } from './engineTargetPanelHelpers';
+import {
+  createDefaultComparisonSlots,
+  imageModelUnavailableReason
+} from './engineTargetPanelHelpers';
 
 describe('comparison slot defaults', () => {
   it('starts with two base slots when two models are available', () => {
@@ -51,5 +54,33 @@ describe('comparison slot defaults', () => {
       provider: 'provider-a',
       model: 'model-b'
     });
+  });
+});
+
+describe('image model availability', () => {
+  it('keeps catalog-visible unreleased models unavailable and preserves reference requirements', () => {
+    const base = {
+      id: 'model-a',
+      displayName: 'Model A',
+      capabilities: {
+        imageGeneration: true,
+        imageEdit: false,
+        aspectRatios: ['9:16'],
+        resolutions: [],
+        imageReferences: false,
+        maxReferenceImages: 0,
+        streaming: false
+      },
+      defaults: {}
+    };
+    expect(imageModelUnavailableReason({
+      ...base,
+      paidRoutingEnabled: false,
+      unavailableReason: 'provider_not_released'
+    }, 0, '9:16')).toBe('provider_not_released');
+    expect(imageModelUnavailableReason({
+      ...base,
+      paidRoutingEnabled: true
+    }, 1, '9:16')).toBe('references_unsupported');
   });
 });

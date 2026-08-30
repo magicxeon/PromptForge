@@ -50,6 +50,10 @@ export function VideoEngineTargetPanel({
   const { t: tUi } = useTranslation('react-ui');
   const providers = [...new Set(catalogModels.map(model => model.providerId))];
   const providerModels = models.filter(model => model.providerId === selectedModel.providerId);
+  const outputContractAvailable = selectedModel.pricingStatus !== 'unavailable'
+    && selectedModel.durations.length > 0
+    && selectedModel.resolutions.length > 0
+    && selectedModel.audioModes.length > 0;
 
   return (
     <EngineTargetPanelFrame
@@ -105,7 +109,7 @@ export function VideoEngineTargetPanel({
             </select>
           </Field>
         </div>
-        <div className="engine-target-panel__output-grid">
+        {outputContractAvailable ? <div className="engine-target-panel__output-grid">
           <Field label={t('playground.engine.resolution')}>
             <select value={resolution} onChange={event => onResolutionChange(event.target.value)}>
               {selectedModel.resolutions.map(value => <option key={value} value={value}>{value.toUpperCase()}</option>)}
@@ -137,11 +141,15 @@ export function VideoEngineTargetPanel({
               ))}
             </div>
           </div>
-        </div>
+        </div> : (
+          <p className="engine-target-panel__video-notice" role="status">
+            {t('playground.video.catalogOnlyNotice')}
+          </p>
+        )}
         {selectedModel.testingRoutingEnabled && !selectedModel.paidRoutingEnabled ? (
           <p className="engine-target-panel__video-notice">{t('playground.video.internalTestingNotice')}</p>
         ) : null}
-        <div className="engine-target-panel__video-quote">
+        {outputContractAvailable ? <div className="engine-target-panel__video-quote">
           <span>{t('playground.video.creditEstimate')}</span>
           <strong>{quoteLoading
             ? t('playground.estimate.loading')
@@ -150,7 +158,7 @@ export function VideoEngineTargetPanel({
               : '-'}</strong>
           {canAfford === false ? <small>{t('playground.estimate.insufficient')}</small> : null}
           {quoteError ? <small>{quoteError}</small> : null}
-        </div>
+        </div> : null}
       </div>
     </EngineTargetPanelFrame>
   );

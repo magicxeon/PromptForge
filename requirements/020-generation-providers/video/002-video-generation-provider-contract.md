@@ -41,10 +41,20 @@ live Veo/Seedance adapter is promoted to general paid routing.
   only models owned by the currently selected provider. A Gemini Veo model must
   never appear inside the BytePlus Seedance model list.
 
+### 0.2 Gemini Omni Flash extension (2026-08-30)
+
+Gemini Omni Flash is specified separately in
+`003-gemini-omni-flash-interactions-provider.md`. It uses the Gemini
+Interactions API rather than Veo's `generateVideos` operation, but must
+normalize through this same provider-independent Generation, Asset, Credit and
+durable task lifecycle. It remains unqualified and unpriced; this extension
+does not authorize internal or customer-paid exposure.
+
 ## 1. Outcome
 
-Momelo shall support Google Veo and BytePlus Seedance through one
-provider-independent video operation contract while preserving each provider's
+Momelo shall support Google Veo, Gemini Omni Flash and BytePlus Seedance
+through one provider-independent video operation contract while preserving
+each provider's
 real capability, asynchronous lifecycle, reference restrictions and billing
 evidence. Cinematic Studio chooses a quality tier and creative intent; the
 Generation capability resolves a qualified provider/model and owns dispatch.
@@ -162,7 +172,8 @@ VideoGenerationRequest
 
 Authority slots contain approved Asset/Version identifiers, never unrestricted
 client URLs or durable Base64. `outputCount` is `1` for the initial provider
-set because both Veo 3.1 and Seedance tasks produce one target video per task.
+set because Veo 3.1, Omni Flash and Seedance tasks produce one target video per
+task.
 
 ## 5. Capability Registry
 

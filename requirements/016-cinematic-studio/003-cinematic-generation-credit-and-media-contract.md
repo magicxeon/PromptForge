@@ -14,7 +14,8 @@ Provider-specific rate cards, parameterized video Credit formulas and adapter
 constraints are owned by:
 
 - `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`;
-- `../020-generation-providers/video/002-video-generation-provider-contract.md`.
+- `../020-generation-providers/video/002-video-generation-provider-contract.md`;
+- `../020-generation-providers/video/003-gemini-omni-flash-interactions-provider.md`.
 
 When those documents are more specific about video billing or provider
 capability, they extend this provider-independent contract without changing its
@@ -214,6 +215,10 @@ authority combinations block before Credit reservation.
 - Cinematic compiles structured story/shot/continuity input into a provider-
   independent execution request.
 - Provider adapters translate that request without changing authority.
+- Gemini Omni follow-up editing creates a new immutable Shot attempt. Its
+  `previous_interaction_id` is provider metadata and never replaces the
+  approved Storyboard Asset Version, Shot attempt chain or continuity version
+  as Cinematic authority.
 - Raw private prompts are excluded from standard logs.
 - Prompt/schema/reference-policy versions and safe fingerprints are retained for
   diagnosis.

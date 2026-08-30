@@ -1,6 +1,7 @@
 # Meta Muse Image Provider - Master Requirement
 
-Status: Proposed - requirement set only  
+Status: Adapter scaffold implemented; catalog visibility requested while live
+qualification, pricing and paid dispatch remain blocked
 Last updated: 2026-08-30  
 Primary role: Backend Platform Architect  
 Reviewers: Product Requirement Architect, QA Release Engineer  
@@ -22,6 +23,23 @@ Initial provider identity:
 - create endpoint candidate: `POST https://api.meta.ai/v1/images/generations`
 - confirmed input from supplied cURL: `model`, `prompt`, and `n: 1`
 - requested destinations: Playground, Studio, and Fashion Studio
+
+### 1.1 Implementation checkpoint - 2026-08-30
+
+- `MetaMuseProvider` sends only `model`, `prompt`, and `n: 1`.
+- Provider Registry accepts `META_MUSE_API_KEY` and the supplied
+  `META_MUSE_API-KEY` compatibility alias.
+- The provider/model may be visible in the shared catalog when configured so
+  every image-generation surface can disclose its availability consistently.
+  Visibility is not paid-routing approval: unqualified/unpriced operations and
+  requests containing unsupported references remain disabled with a reason.
+- References, edits, batch output and unverified controls fail before transport.
+- Mocked adapter, secret-alias, hidden-catalog and existing-provider regression
+  tests pass without a live Meta request or provider spend.
+
+This checkpoint completes only the hidden scaffold. It does not satisfy the
+authenticated documentation, live response, pricing, qualification, Fashion,
+or customer-release gates below.
 
 ## 2. Source Of Truth And Evidence Status
 
@@ -54,8 +72,8 @@ batch limits from another provider.
 1. Existing provider records and ordering remain unchanged except for adding
    Meta Muse at a new stable display order.
 2. Existing default provider/model remain unchanged.
-3. Meta Muse is disabled or internal-only until API contract, pricing, and
-   qualification gates pass.
+3. Meta Muse may be catalog-visible for development validation, but Generate
+   remains blocked until API contract, pricing, and qualification gates pass.
 4. Playground and Studio must not add bespoke model selectors or request code.
 5. Fashion Studio must not consume the general public catalog as proof of
    Fashion qualification.
@@ -133,4 +151,3 @@ configuration, but it must not be exposed before its preceding gates pass.
 - Credits cannot be reserved without published pricing and a locked estimate.
 - Provider failures settle jobs and Credits through existing terminal contracts.
 - Existing provider tests and user workflows remain green.
-

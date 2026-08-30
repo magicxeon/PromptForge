@@ -51,12 +51,15 @@ export class ProviderRegistry {
 
   getPublicCatalog() {
     const providers = this.config.providers
-      .filter(provider => provider.enabled !== false && this.isProviderAvailable(provider))
+      .filter(provider => (
+        provider.catalogVisible === true || provider.enabled !== false
+      ) && Boolean(getConfiguredSecret(this.environment, provider)))
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
       .map(provider => ({
         id: provider.id,
         displayName: provider.displayName,
         defaultModel: provider.defaultModel,
+        catalogVisible: provider.catalogVisible === true,
         models: provider.models
           .filter(model => model.enabled !== false)
           .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
@@ -65,7 +68,20 @@ export class ProviderRegistry {
             displayName: model.displayName,
             capabilities: model.capabilities,
             defaults: model.defaults || {},
-            estimatedCredits: Number(model.creditCost || 1)
+            estimatedCredits: Number.isFinite(Number(model.creditCost))
+              ? Number(model.creditCost)
+              : null,
+            pricingStatus: model.pricingStatus || 'priced',
+            qualificationStatus: model.qualificationStatus || 'qualified',
+            paidRoutingEnabled: provider.enabled !== false
+              && model.paidRoutingEnabled !== false,
+            unavailableReason: provider.enabled === false
+              ? 'provider_not_released'
+              : model.pricingStatus === 'unavailable'
+                ? 'pricing_unavailable'
+                : model.qualificationStatus === 'unqualified'
+                  ? 'model_unqualified'
+                  : null
           }))
       }))
       .filter(provider => provider.models.length > 0);
