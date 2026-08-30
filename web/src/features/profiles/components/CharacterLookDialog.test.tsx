@@ -3,7 +3,7 @@ import i18next from 'i18next';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import type { ReactNode } from 'react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CharacterLookDialog } from './CharacterLookDialog';
+import { CharacterLookDialog, type CharacterLookSuggestion } from './CharacterLookDialog';
 
 const api = vi.hoisted(() => ({
   upload: vi.fn(),
@@ -105,6 +105,129 @@ describe('CharacterLookDialog', () => {
     expect(api.upload).not.toHaveBeenCalled();
     expect(api.review).not.toHaveBeenCalled();
     expect(api.approve).not.toHaveBeenCalled();
+  });
+
+  it('uploads one Full Look authority and preserves the source-ready draft workflow', async () => {
+    api.upload.mockResolvedValueOnce({ referenceId: 'asset_full' });
+    renderDialog(<CharacterLookDialog open onOpenChange={vi.fn()} characterProfileId="char_1" characterProfileVersionId="charver_1" onSaved={vi.fn()} />);
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Complete station look' } });
+    const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
+    fireEvent.change(fileInput as HTMLInputElement, { target: { files: [new File(['look'], 'look.png', { type: 'image/png' })] } });
+    const saveButton = screen.getByRole('button', { name: /save$/i });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    fireEvent.submit(saveButton.closest('form') as HTMLFormElement);
+
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith('char_1', expect.objectContaining({
+      sourceMode: 'uploaded',
+      garmentAuthorities: { full_look: { front: 'asset_full' } }
+    })));
+    expect(api.review).not.toHaveBeenCalled();
+  });
+
+  it('requires upper and lower references for Separate Pieces and keeps optional roles', async () => {
+    api.upload.mockResolvedValueOnce({ referenceId: 'asset_upper' }).mockResolvedValueOnce({ referenceId: 'asset_lower' });
+    renderDialog(<CharacterLookDialog open onOpenChange={vi.fn()} characterProfileId="char_1" characterProfileVersionId="charver_1" onSaved={vi.fn()} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Separate station look' } });
+    fireEvent.click(screen.getByRole('radio', { name: /separatePieces/i }));
+    const fileInputs = [...document.querySelectorAll<HTMLInputElement>('input[type="file"]')];
+    fireEvent.change(fileInputs[0]!, { target: { files: [new File(['upper'], 'upper.png', { type: 'image/png' })] } });
+    expect(screen.getByRole('button', { name: /save$/i })).toBeDisabled();
+    fireEvent.change(fileInputs[1]!, { target: { files: [new File(['lower'], 'lower.png', { type: 'image/png' })] } });
+    const saveButton = screen.getByRole('button', { name: /save$/i });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    fireEvent.submit(saveButton.closest('form') as HTMLFormElement);
+
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith('char_1', expect.objectContaining({
+      garmentAuthorities: { upper: { front: 'asset_upper' }, lower: { front: 'asset_lower' } }
+    })));
+  });
+
+  it('requests a project-aware AI suggestion and persists its recipe provenance', async () => {
+    const suggestion = {
+      lookName: 'AI station look', wardrobeDirection: 'A practical navy coat.',
+      garments: { upper: 'knit', lower: 'trousers', outerwear: 'coat', footwear: 'boots', accessories: [] },
+      palette: ['navy'], materials: ['wool'], sceneScope: 'film_wide' as const, recommendedSceneIds: [],
+      rationale: 'Supports continuity.', movementConstraints: [], continuityNotes: [], warnings: [],
+      provenance: { recipeId: 'wardrobe', recipeVersion: 1 }, billingStatus: 'qualification_no_charge' as const
+    };
+    renderDialog(<CharacterLookDialog open initialMode="ai" onOpenChange={vi.fn()} characterProfileId="char_1" characterProfileVersionId="charver_1" requestAiSuggestion={vi.fn().mockResolvedValue(suggestion)} onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /generateSuggestion/i }));
+    await waitFor(() => expect(screen.getByDisplayValue('AI station look')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: /saveAiDirection/i }));
+    await waitFor(() => expect(api.create).toHaveBeenCalledWith('char_1', expect.objectContaining({
+      description: 'A practical navy coat.', suggestionSnapshot: suggestion
+    })));
+    expect(api.upload).not.toHaveBeenCalled();
+  });
+
+  it('shows analysis progress and blocks duplicate requests', async () => {
+    let resolveSuggestion!: (value: CharacterLookSuggestion) => void;
+    const requestAiSuggestion = vi.fn(() => new Promise<CharacterLookSuggestion>(resolve => {
+      resolveSuggestion = resolve;
+    }));
+    renderDialog(<CharacterLookDialog
+      open
+      initialMode="ai"
+      onOpenChange={vi.fn()}
+      characterProfileId="char_1"
+      characterProfileVersionId="charver_1"
+      requestAiSuggestion={requestAiSuggestion}
+      onSaved={vi.fn()}
+    />);
+
+    fireEvent.click(screen.getByRole('button', { name: /generateSuggestion/i }));
+    const progressButton = screen.getByRole('button', { name: /analyzingSuggestion/i });
+    expect(progressButton).toBeDisabled();
+    fireEvent.click(progressButton);
+    expect(requestAiSuggestion).toHaveBeenCalledTimes(1);
+
+    resolveSuggestion({
+      lookName: 'Ready Look',
+      wardrobeDirection: 'A movement-safe tailored Look.',
+      garments: { upper: 'shirt', lower: 'trousers', outerwear: '', footwear: 'shoes', accessories: [] },
+      palette: [], materials: [], sceneScope: 'film_wide', recommendedSceneIds: [],
+      rationale: '', movementConstraints: [], continuityNotes: [], warnings: [],
+      provenance: { recipeId: 'wardrobe', recipeVersion: 1 },
+      billingStatus: 'qualification_no_charge'
+    });
+    await waitFor(() => expect(screen.getByRole('button', { name: /regenerateSuggestion/i })).toBeEnabled());
+  });
+
+  it('preserves edited direction and offers retry when story analysis fails', async () => {
+    const suggestion = {
+      lookName: 'Recovered station look', wardrobeDirection: 'A practical charcoal travel coat.',
+      garments: { upper: 'knit', lower: 'trousers', outerwear: 'coat', footwear: 'boots', accessories: [] },
+      palette: ['charcoal'], materials: ['wool'], sceneScope: 'film_wide' as const, recommendedSceneIds: [],
+      rationale: 'Supports movement.', movementConstraints: [], continuityNotes: [], warnings: [],
+      provenance: { recipeId: 'wardrobe', recipeVersion: 1 }, billingStatus: 'qualification_no_charge' as const
+    };
+    const requestAiSuggestion = vi.fn()
+      .mockRejectedValueOnce(new Error('Analysis is temporarily unavailable.'))
+      .mockResolvedValueOnce(suggestion);
+    renderDialog(<CharacterLookDialog
+      open
+      initialMode="ai"
+      onOpenChange={vi.fn()}
+      characterProfileId="char_1"
+      characterProfileVersionId="charver_1"
+      requestAiSuggestion={requestAiSuggestion}
+      onSaved={vi.fn()}
+    />);
+
+    const [nameInput, directionInput] = screen.getAllByRole('textbox');
+    fireEvent.change(nameInput!, { target: { value: 'My retained Look' } });
+    fireEvent.change(directionInput!, { target: { value: 'Keep this manual direction.' } });
+    fireEvent.click(screen.getByRole('button', { name: /generateSuggestion/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Analysis is temporarily unavailable.');
+    expect(nameInput).toHaveValue('My retained Look');
+    expect(directionInput).toHaveValue('Keep this manual direction.');
+
+    fireEvent.click(screen.getByRole('button', { name: /retrySuggestion/i }));
+    await waitFor(() => expect(nameInput).toHaveValue('Recovered station look'));
+    expect(directionInput).toHaveValue('A practical charcoal travel coat.');
+    expect(requestAiSuggestion).toHaveBeenCalledTimes(2);
   });
 });
 

@@ -176,8 +176,8 @@ foreign repository or provider directly.
 - `002-cinematic-project-story-shot-and-continuity-contract.md`
 - `003-cinematic-generation-credit-and-media-contract.md`
 - `004-cinematic-mvp-delivery-and-validation-plan.md`
-- `005-video-provider-pricing-and-credit-model.md`
-- `006-video-generation-provider-contract.md`
+- `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`
+- `../020-generation-providers/video/002-video-generation-provider-contract.md`
 - `007-cinematic-shared-component-state-and-project-structure.md`
 - `008-cinematic-admin-support-and-observability-contract.md`
 - `009-playground-unified-image-and-video-generation.md`
@@ -252,7 +252,7 @@ and shared Generation shell before C2 vertical slices.
 ## 9. Launch Decisions And Evidence Still Required
 
 - Final promotion decisions from the Veo/Seedance qualification matrix in
-  `006-video-generation-provider-contract.md`; candidate capability and pricing
+  `../020-generation-providers/video/002-video-generation-provider-contract.md`; candidate capability and pricing
   contracts are now documented, but no candidate is launch-qualified yet.
 - Exact export presets and maximum retained draft duration.
 - Commercial prices, refund policy and Series-lite feature flag.

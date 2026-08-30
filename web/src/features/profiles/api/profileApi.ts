@@ -73,6 +73,7 @@ export function createCharacterLookDraft(characterProfileId: string, input: {
   sourceMode: 'character_default' | 'uploaded' | 'uploaded_character_sheet' | 'ai_suggestion';
   garmentAuthorities?: Record<string, Record<string, string>>;
   sourceSheetAssetId?: string | null;
+  suggestionSnapshot?: Record<string, unknown> | null;
   idempotencyKey: string;
 }) {
   return apiRequest(`/api/character-profiles/${encodeURIComponent(characterProfileId)}/looks`, {

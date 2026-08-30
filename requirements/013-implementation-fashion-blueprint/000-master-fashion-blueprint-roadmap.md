@@ -130,7 +130,7 @@ pipeline.
 | `006-processing-results-history-and-download.md` | Queue, progress, review and output |
 | `007-component-reuse-and-module-architecture.md` | File ownership and reuse boundaries |
 | `008-fashion-blueprint-qa-and-release-gates.md` | E2E, safety and rollout |
-| `009-fashion-model-qualification-and-routing-optimization.md` | Completed MVP fidelity gate, Gemini Pose Proxy cache, fixed qualified routing and provider strategy baseline |
+| `../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md` | Completed MVP fidelity gate, Gemini Pose Proxy cache, fixed qualified routing and provider strategy baseline |
 | `010-professional-scene-builder-guided-experience.md` | **Complete for local MVP:** simplified Scene controls, professional recipes, accordion progression, Credit presentation and Scene-to-Fashion-ready handoff; commercial follow-ups moved to Requirement 014 |
 | `011-fashion-blueprint-ux-review-and-production-results-experience.md` | Expert UX review, Review grouping, shared queue/progress, production results and recent Fashion work |
 | `012-platform-correlation-tracing-and-credit-recovery.md` | Cross-platform workflow correlation, provider tracing and safe support credit recovery |
@@ -365,7 +365,7 @@ reference count and quote consistency before accepting the plan.
 11. Complete `008` automated/manual QA, then enable public entry flags in the
     rollout order.
 12. Qualify optional Luna prompt refinement from
-    `014-luna-ai-prompt-refinement-provider.md`; deterministic generation remains
+    `../020-generation-providers/text/001-luna-ai-prompt-refinement-provider.md`; deterministic generation remains
     the release fallback and must pass independently.
 ```
 

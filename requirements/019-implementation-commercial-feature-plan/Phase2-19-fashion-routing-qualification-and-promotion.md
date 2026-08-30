@@ -2,7 +2,7 @@
 
 **Status:** Proposed - Req 009 commercial follow-up  
 **Source baseline:**
-`../013-implementation-fashion-blueprint/009-fashion-model-qualification-and-routing-optimization.md`  
+`../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`
 **Dependencies:** Fashion Blueprint MVP qualification gate, Reference Processing,
 Template Pose Proxy, credit quote integrity, durable jobs and support tracing
 

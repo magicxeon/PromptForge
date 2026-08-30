@@ -5,7 +5,7 @@
       "id": "cineproj_1787841798259_d5rmu2tx",
       "projectId": "cineproj_1787841798259_d5rmu2tx",
       "schemaVersion": 1,
-      "version": 70,
+      "version": 76,
       "ownerUserId": "usr_alice",
       "ownerUsername": "user_alice",
       "title": "Cinematic E2E - Before the Last Train",
@@ -115,11 +115,11 @@
           "reuseAuthorization": {
             "ownerUserId": "usr_alice",
             "ownerUsername": "user_alice",
-            "validatedAt": "2026-08-29T16:19:30.875Z"
+            "validatedAt": "2026-08-30T02:25:11.786Z"
           },
           "looks": [],
           "active": true,
-          "updatedAt": "2026-08-29T16:19:30.875Z"
+          "updatedAt": "2026-08-30T02:25:11.786Z"
         }
       ],
       "storyPlanVersions": [],
@@ -130,7 +130,7 @@
       "activeStoryPlanVersionId": null,
       "activeTimelineVersionId": null,
       "createdAt": "2026-08-27T14:43:18.259Z",
-      "updatedAt": "2026-08-29T16:19:30.875Z",
+      "updatedAt": "2026-08-30T02:25:11.786Z",
       "archivedAt": null
     }
   ]

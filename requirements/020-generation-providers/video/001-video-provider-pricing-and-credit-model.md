@@ -32,7 +32,7 @@ This requirement provides:
 
 The figures below are planning baselines, not an instruction to expose a model
 to customers. A model must pass the qualification gate in
-`006-video-generation-provider-contract.md` before its price becomes selectable.
+`002-video-generation-provider-contract.md` before its price becomes selectable.
 
 ## 2. Authoritative Sources
 
@@ -49,7 +49,7 @@ The server-owned rate card must record `sourceUrl`, `sourcePublishedAt` or
 accepted quote.
 
 Admin activation, expiry preview and operational inspection follow
-`008-cinematic-admin-support-and-observability-contract.md` and the shared
+`../../016-cinematic-studio/008-cinematic-admin-support-and-observability-contract.md` and the shared
 Admin/Support contracts in Requirement 017. Draft, manual/scheduled publish,
 rollback and active snapshot behavior are owned specifically by
 `requirements/018-implementation-backend/010-versioned-runtime-configuration-and-video-rate-cards.md`.

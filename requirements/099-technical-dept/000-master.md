@@ -189,6 +189,7 @@ Client placement rules:
 | Automated tests and fixtures | `test/` and `test/fixtures/` |
 | Business and implementation requirements | `requirements/<phase-or-domain>/` |
 | Professional agent routing, cross-project Product/QA roles and artifact map | `requirements/015-professional-agent-orchestration/` |
+| External image, video and text provider contracts, pricing evidence and qualification | `requirements/020-generation-providers/` |
 | Domain professional role charters | Owning requirement under `requirements/<domain>/roles/` |
 | Repository-wide discoverable Codex Skills | `.agents/skills/<skill-name>/` |
 | Directory-scoped agent instruction deltas | Nearest justified `AGENTS.md` below the repository root |

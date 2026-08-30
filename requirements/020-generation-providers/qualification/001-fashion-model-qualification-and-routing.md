@@ -1,10 +1,10 @@
 # Fashion Model Qualification And Routing Optimization
 
-**Parent:** `000-master-fashion-blueprint-roadmap.md`
+**Parent product workflow:** `../../013-implementation-fashion-blueprint/000-master-fashion-blueprint-roadmap.md`
 **Status:** MVP baseline implemented; commercial qualification follow-up moved to Phase2-19
 **Benchmark period:** 2026-08-01 through 2026-08-03
-**Future local-processing option:** `013-template-pose-proxy-and-dummy-cache.md`
-**Commercial follow-up:** `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`
+**Future local-processing option:** `../../013-implementation-fashion-blueprint/013-template-pose-proxy-and-dummy-cache.md`
+**Commercial follow-up:** `../../019-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`
 
 ## Provider Qualification Skills
 
@@ -12,10 +12,10 @@ Qualification must use the provider-specific skill matching the tested route:
 
 | Provider | Required skill |
 |---|---|
-| OpenAI GPT Image | `skills/qualify-openai-fashion-images/SKILL.md` |
-| Google Gemini Nano Banana | `skills/qualify-gemini-fashion-images/SKILL.md` |
-| xAI Grok Imagine | `skills/qualify-grok-fashion-images/SKILL.md` |
-| BytePlus ModelArk Seedream | `skills/qualify-seedream-fashion-images/SKILL.md` |
+| OpenAI GPT Image | `../../013-implementation-fashion-blueprint/skills/qualify-openai-fashion-images/SKILL.md` |
+| Google Gemini Nano Banana | `../../013-implementation-fashion-blueprint/skills/qualify-gemini-fashion-images/SKILL.md` |
+| xAI Grok Imagine | `../../013-implementation-fashion-blueprint/skills/qualify-grok-fashion-images/SKILL.md` |
+| BytePlus ModelArk Seedream | `../../013-implementation-fashion-blueprint/skills/qualify-seedream-fashion-images/SKILL.md` |
 
 Each skill translates the same canonical authority contract into a
 provider-specific benchmark strategy. Skills do not override Reference
@@ -23,7 +23,7 @@ Processing policy, pricing, provider capabilities or the acceptance thresholds
 in this requirement.
 
 When official documentation changes, update the owning skill's
-`references/source-notes.md`, record the verification date and re-run affected
+`<provider-skill>/references/source-notes.md`, record the verification date and re-run affected
 qualification fixtures before changing Simple routing.
 
 ## 1. Purpose

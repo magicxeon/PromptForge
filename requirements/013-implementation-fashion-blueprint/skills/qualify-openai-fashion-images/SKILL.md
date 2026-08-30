@@ -7,7 +7,7 @@ description: Qualify and tune OpenAI GPT Image models for Momelo Fashion Bluepri
 
 ## Read First
 
-1. `../../009-fashion-model-qualification-and-routing-optimization.md`
+1. `../../../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`
 2. `../../../011-reference-processing-pipeline/001-config-driven-reference-authority-and-preprocessing.md`
 3. `references/source-notes.md`
 4. Current OpenAI provider adapter, public provider catalog and pricing policy
@@ -124,4 +124,3 @@ qualification recommendation
 known limitations
 required config/test changes
 ```
-

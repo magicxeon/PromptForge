@@ -10,6 +10,7 @@ import { videoProviderTaskRepository } from '../../repositories/generation/Video
 import { videoCapabilityRegistry } from '../generation/VideoCapabilityRegistry.js';
 import { videoGenerationApplicationService } from '../generation/VideoGenerationApplicationService.js';
 import { cinematicStoryEnhancementService } from '../generation/CinematicStoryEnhancementService.js';
+import { cinematicWardrobeSuggestionService } from '../generation/CinematicWardrobeSuggestionService.js';
 
 const STAGES = ['setup', 'cast', 'story-plan', 'storyboard', 'produce', 'finish'];
 const DURATIONS = new Set([20, 30, 45, 60]);
@@ -25,7 +26,8 @@ export class CinematicApplicationService {
     providerTaskRepository = videoProviderTaskRepository,
     videoCapabilities = videoCapabilityRegistry,
     videoGenerationService = videoGenerationApplicationService,
-    storyEnhancementService = cinematicStoryEnhancementService
+    storyEnhancementService = cinematicStoryEnhancementService,
+    wardrobeSuggestionService = cinematicWardrobeSuggestionService
   } = {}) {
     this.repository = repository;
     this.storyboardAssetService = storyboardAssetService;
@@ -37,6 +39,7 @@ export class CinematicApplicationService {
     this.videoCapabilities = videoCapabilities;
     this.videoGenerationService = videoGenerationService;
     this.storyEnhancementService = storyEnhancementService;
+    this.wardrobeSuggestionService = wardrobeSuggestionService;
   }
 
   listProjects(actorContext, query) {
@@ -60,6 +63,26 @@ export class CinematicApplicationService {
   enhanceStory(input, actorContext) {
     if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
     return this.storyEnhancementService.enhance(input);
+  }
+
+  async suggestWardrobe(projectId, assignmentId, actorContext) {
+    if (!actorContext?.userId) throw new CinematicError('actor_context_required', 'Actor context is required.', 401);
+    const project = await this.repository.findForActor(projectId, actorContext);
+    if (!project) throw new CinematicError('cinematic_project_not_found', 'Cinematic Project not found.', 404);
+    const assignment = project.castAssignments.find(item => item.id === assignmentId && item.active !== false);
+    if (!assignment) throw new CinematicError('cinematic_cast_assignment_not_found', 'Cast Assignment not found.', 404);
+    return this.wardrobeSuggestionService.suggest({
+      project: {
+        title: project.title,
+        durationSeconds: project.durationTargetMs / 1000,
+        aspectRatio: project.aspectRatio,
+        platform: project.setup?.platform,
+        storyBrief: project.setup?.storyBrief,
+        creativeDirection: project.setup?.creativeDirection
+      },
+      assignment,
+      scenes: project.scenes
+    });
   }
 
   updateSetup(projectId, input, actorContext) {

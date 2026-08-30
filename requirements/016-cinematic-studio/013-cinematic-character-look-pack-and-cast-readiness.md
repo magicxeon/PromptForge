@@ -4,7 +4,10 @@
 Project/Cast picker corrections, private Character Look source drafts,
 three-view review/approval domain contracts, owner library presentation and
 immutable Cinematic binding are implemented. Customer-paid three-view Look
-generation remains qualification-gated and is not exposed
+generation remains qualification-gated and is not exposed.
+The explicit story-aware wardrobe analysis action, progress, retry and
+editable-result states were implemented on 2026-08-30 through the shared
+Character Look dialog and server text-provider boundary.
 **Owner:** Character Profiles for reusable Character identity and Look versions;
 Cinematic Studio for Project Cast assignment and Scene continuity
 **Primary role:** Product And Requirement Architect
@@ -180,6 +183,15 @@ is never required to use that Character in the owner's Project.
 
 ## 5. Look Sources And Validation
 
+### 5.0 Scoped UI preservation
+
+Character Look work extends the existing Character Profile-owned Look dialog
+and Look lifecycle. It must not redesign or remove the Cinematic Cast heading,
+Control Level, role-readiness strip, Project Cast list, dossier tabs, stage
+footer, Setup actions, Project Cost Summary, navigation, or application shell.
+Those adjacent contracts require regression coverage whenever this dialog or
+its Cast integration changes.
+
 ### 5.1 Supported sources
 
 - **Character default:** use an already approved default Look Version.
@@ -192,6 +204,83 @@ is never required to use that Character in the owner's Project.
 
 Upload and selection are free. Image analysis, outfit proposal generation and
 three-view Look generation are separate quoted operations.
+
+The upload form exposes exactly these source patterns:
+
+- **Full Look:** one required owned image representing the complete outfit.
+- **Separate Pieces:** required upper and lower garment images, with optional
+  outerwear, footwear and accessory images.
+- **Uploaded Character Look Sheet:** one complete owner-authorized sheet with
+  front, exact side, back and optional canonical-face regions.
+
+Do not represent Separate Pieces as one file plus a garment-role dropdown.
+Each supported piece has a stable labelled upload slot so completeness is
+visible before Save.
+
+### 5.1.1 Global Prompt Recipe configuration
+
+Prompt patterns are global runtime configuration reused by every Cinematic
+Project. They are not stored as project-authored prompts. Canonical recipes
+live under:
+
+```text
+server/config/prompt-recipes/cinematic/
+```
+
+Each recipe has a stable recipe ID, semantic version, enabled state, system
+instruction, strict output schema and bounded runtime input contract. Runtime
+results record recipe ID, version and fingerprint. A Cinematic Project keeps
+its own story and Cast context; the accepted private Character Look draft keeps
+the structured suggestion and recipe provenance. Changing the global recipe
+affects new operations but does not rewrite historical evidence.
+
+React components never contain the canonical AI instruction or output schema.
+Provider adaptation remains behind the server text-provider boundary.
+
+### 5.1.2 AI wardrobe suggestion interaction
+
+When Cinematic Project context is available, AI Suggestion reads the persisted
+Story Brief, Creative Direction, role dossier, Character identity metadata and
+existing Scene summaries. The user explicitly requests analysis. The result
+must present:
+
+- Look name and concise wardrobe direction;
+- upper, lower, outerwear, footwear and bounded accessory suggestions;
+- palette and material intent;
+- role/scene rationale;
+- movement constraints and continuity notes;
+- film-wide or Scene-scoped recommendation;
+- warnings when Story Plan is not yet available.
+
+The user may edit the accepted direction before saving a private Look draft.
+Suggestion does not create media, approve a Look, publish it or silently bind
+it to a Project. During qualification it reports
+`qualification_no_charge`; a future paid release must use the canonical
+Credits quote -> lock -> submit contract before exposing a Credit amount.
+
+The shared Create Character Look dialog must expose one explicit
+`Analyze story and suggest wardrobe` action before the editable Look fields
+when it is opened from Cinematic Cast in AI Suggestion mode. Selecting the AI
+Suggestion source alone never starts an AI request. The action delegates through
+the Cinematic API and application service to the shared server text-provider
+boundary; React must not call `GeminiProvider`, `OpenAITextProvider`, or any
+other provider directly.
+
+Interaction states are part of the contract:
+
+- ready: show the Analyze action and explain which persisted Project context is
+  used;
+- loading: disable duplicate analysis and show an accessible progress icon;
+- success: populate Look name and Wardrobe direction, display the structured
+  summary and offer `Regenerate suggestion`;
+- error: retain every user-edited field, show the returned safe error and offer
+  `Try analysis again`;
+- Character Profile without Cinematic Story context: retain manual AI-direction
+  authoring and explain that story analysis is available from Cinematic Cast.
+
+Analysis never saves the Look automatically. The user reviews or edits the
+result and explicitly selects `Save AI direction`. Character Look Sheet media
+preparation remains a later, separately quoted and confirmed operation.
 
 An uploaded Character Look Sheet does not consume Credits merely to become a
 Look Version. The user reviews the sheet, confirms rights and layout coverage,
@@ -451,6 +540,9 @@ it does not write Character storage or invent a second Look aggregate.
   Community or another actor's Look response.
 - `CLP-17`: existing Character Profile, Scene Builder, Fashion, image
   Generation, Credits and Community tests remain green.
+- `CLP-18`: opening AI Suggestion from a persisted Cinematic Cast Assignment
+  always exposes the explicit Analyze action; loading, success and retry states
+  are visible, duplicate requests are blocked and failures preserve user input.
 
 ## 14. Manual Qualification
 

@@ -169,6 +169,18 @@ describe('Cinematic UX prototype', () => {
     expect(screen.getByRole('button', { name: 'cinematic.cast.continueToStoryPlan' })).toBeDisabled();
   });
 
+  it('exposes explicit story analysis when AI Wardrobe opens from a committed Cast Assignment', () => {
+    const project = castProjectFixture();
+    render(<I18nextProvider i18n={testI18n}><CinematicStageContent activeStage="cast" project={project} onPrevious={vi.fn()} onNext={vi.fn()} /></I18nextProvider>);
+
+    fireEvent.click(screen.getByRole('tab', { name: 'cinematic.cast.tab.wardrobe' }));
+    fireEvent.click(screen.getByRole('button', { name: /cinematic\.cast\.aiWardrobe / }));
+
+    expect(screen.getByRole('dialog', { name: 'cinematic.lookDraft.title' })).toBeVisible();
+    expect(screen.getByText('cinematic.lookDraft.analysisTitle')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'cinematic.lookDraft.generateSuggestion' })).toBeVisible();
+  });
+
   it('does not describe an assigned Character as ready while identity preparation is incomplete', () => {
     const project = castProjectFixture();
     project.castAssignments[0]!.identityReady = false;

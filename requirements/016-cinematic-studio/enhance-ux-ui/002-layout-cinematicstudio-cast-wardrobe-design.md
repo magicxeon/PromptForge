@@ -472,21 +472,61 @@ Open the Create Character Look dialog described in section 10. Saving creates a
 private, free, `source_ready` draft. On success, return to this tab, place the
 new draft first, and show `Draft saved — preparation is still required`.
 
+The shared dialog preserves the surrounding Cast workspace and supports three
+explicit source patterns:
+
+- `Full Look`: one required image containing the complete coordinated outfit;
+- `Separate Pieces`: required upper and lower garment images, with optional
+  outerwear, footwear and accessory images;
+- `Complete Character Look Sheet`: one user-owned sheet containing the approved
+  front, exact-side, back and canonical-face regions.
+
+Changing this dialog must not redesign, remove or reposition the Cast heading,
+role-readiness surface, dossier tabs, Stage actions, Project Cost summary,
+navigation or any other established sibling UI. Existing shared components are
+extended through props and callbacks rather than copied into a Cinematic-only
+fork.
+
 ### 7.5 AI wardrobe suggestion
 
-Do not use the large gold prototype operation dock.
+Use the same Create Character Look dialog with `AI Suggestion` selected. The
+server resolves the current Project, Cast Assignment and active Story source,
+then applies the versioned global recipe under
+`server/config/prompt-recipes/cinematic/`. The Project remains the source of
+story and Cast context; the accepted private Character Look draft stores the
+structured suggestion and recipe provenance. Neither record owns or duplicates
+the global prompt pattern.
 
-Render one restrained disabled option at the end of the Look library:
+The suggestion includes Look name, complete wardrobe direction, garment-piece
+breakdown, palette, materials, movement constraints, continuity notes, Scene
+scope, rationale and warnings. The user may edit the proposed name and wardrobe
+direction before saving a private Character Look draft.
+
+For initial qualification this text analysis reports
+`qualification_no_charge`. It never silently generates media. Character Look
+Sheet preparation remains a separate exact quote → lock → submit operation.
+No fabricated Credit amount or paid operation appears before that workflow is
+connected.
+
+The Cinematic variant places an analysis surface before `Look name`:
 
 ```text
-AI wardrobe suggestion
-Generate a story-aligned wardrobe concept.
-Coming later
+Story-aware wardrobe analysis
+Uses the saved Story, selected role, performance direction and available Scenes.
+[Analyze story and suggest wardrobe]
 ```
 
-No Credit amount, gradient CTA, or paid action appears until the canonical
-quote → lock → submit workflow is connected. When connected, quote every
-billable operation separately.
+Choosing the `AI Suggestion` segment does not run analysis. The user presses the
+button explicitly. While running, the shared action shows progress and prevents
+duplicate requests. Success fills the editable fields and changes the action to
+`Regenerate suggestion`. Failure preserves existing edits, presents a safe
+inline error and changes the action to `Try analysis again`.
+
+The UI invokes the shared Cinematic API callback supplied to the Character
+Profile-owned dialog. Provider selection, Prompt Recipe loading and structured
+output validation remain server-owned through
+`CinematicWardrobeSuggestionService` and the shared text-provider boundary.
+No client component imports or calls a provider adapter.
 
 ---
 
@@ -620,6 +660,11 @@ The AI Suggestion mode collects story/role-aligned direction and presents its
 operation readiness honestly. It must not fabricate an estimate, dispatch a
 provider or claim that a Character Look exists until the canonical Generation
 and Credit operation is qualified.
+
+When opened from Cinematic Cast, AI Suggestion must visibly include the explicit
+story-analysis action before the Look fields. When opened from Character Profile
+without a Project, the same dialog keeps manual Wardrobe direction available and
+shows a context note instead of a non-functional analysis control.
 
 Upload tiles show:
 
@@ -922,7 +967,9 @@ free text in analytics payloads. Use IDs, source, status, count, and duration.
 15. Approved and draft Looks cannot be confused visually or semantically.
 16. Saving an uploaded Look creates a free private source draft and does not
     generate, approve, publish, or charge.
-17. AI wardrobe suggestion is disabled and shows no fabricated Credit amount.
+17. AI wardrobe suggestion analyzes the canonical Project and Cast context
+    through a versioned global Prompt Recipe, returns an editable structured
+    proposal, and shows no fabricated Credit amount.
 18. Character chooser preserves filters and selection across server pagination.
 19. Dialog persistence completes before closing; failure retains context.
 20. Removed/replaced Setup roles trigger impact review rather than silent
@@ -943,12 +990,17 @@ free text in analytics payloads. Use IDs, source, status, count, and duration.
     reference still depends on the Cast Assignment.
 29. Upload Wardrobe and AI Suggestion open the same Character Look dialog with
     the appropriate mode selected.
-30. A complete uploaded Character Look Sheet uses one durable source Asset and
+30. Full Look requires one image; Separate Pieces requires upper and lower
+    images and accepts optional outerwear, footwear and accessory images.
+31. Changes to Character Look authoring preserve every unrelated Cast, Setup,
+    navigation, Stage action, Project Cost and responsive behavior, with
+    regression coverage for the preserved contracts.
+32. A complete uploaded Character Look Sheet uses one durable source Asset and
     one validated crop manifest; it does not require three duplicate uploads.
-31. A user-uploaded complete Sheet can be reviewed and approved without a
+33. A user-uploaded complete Sheet can be reviewed and approved without a
     Generation Job or Credit charge.
-32. Existing three-Asset approved Look Versions remain selectable and bindable.
-33. The complete multi-view sheet is not sent as the default Video reference;
+34. Existing three-Asset approved Look Versions remain selectable and bindable.
+35. The complete multi-view sheet is not sent as the default Video reference;
     approved Scene media remains the Video first-frame authority.
 
 ---

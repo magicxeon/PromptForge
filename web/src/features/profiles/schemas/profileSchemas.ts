@@ -135,7 +135,8 @@ export const characterLookSchema = z.object({
   versions: z.array(characterLookVersionSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
-  retiredAt: z.string().nullable()
+  retiredAt: z.string().nullable(),
+  suggestionSnapshot: z.record(z.string(), z.unknown()).nullable().optional()
 }).passthrough();
 
 export const characterLooksResponseSchema = z.object({ items: z.array(characterLookSchema) });

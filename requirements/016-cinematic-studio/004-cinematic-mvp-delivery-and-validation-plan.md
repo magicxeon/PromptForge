@@ -33,8 +33,8 @@ for missing tests or ownership in an earlier one.
 - Approve six-stage UX, operation names, IDs, state machines and owner map.
 - Freeze the versioned Veo/Seedance capability candidates, rate-card sources
   and disabled-by-default launch state from
-  `005-video-provider-pricing-and-credit-model.md` and
-  `006-video-generation-provider-contract.md`.
+  `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md` and
+  `../020-generation-providers/video/002-video-generation-provider-contract.md`.
 - Confirm video provider qualification inputs, face/reference eligibility,
   asynchronous recovery and output/storage constraints.
 - Confirm commercial pricing, estimate-versus-actual reconciliation and refund

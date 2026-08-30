@@ -60,6 +60,30 @@ export const cinematicStoryEnhancementSchema = z.object({
 
 export type CinematicStoryEnhancement = z.infer<typeof cinematicStoryEnhancementSchema>;
 
+export const cinematicWardrobeSuggestionSchema = z.object({
+  lookName: z.string().min(1).max(100),
+  wardrobeDirection: z.string().min(1).max(1200),
+  garments: z.object({
+    upper: z.string(), lower: z.string(), outerwear: z.string(), footwear: z.string(),
+    accessories: z.array(z.string())
+  }),
+  palette: z.array(z.string()),
+  materials: z.array(z.string()),
+  sceneScope: z.enum(['film_wide', 'scene_specific']),
+  recommendedSceneIds: z.array(z.string()),
+  rationale: z.string(),
+  movementConstraints: z.array(z.string()),
+  continuityNotes: z.array(z.string()),
+  warnings: z.array(z.string()),
+  provenance: z.object({
+    provider: z.string(), model: z.string(), responseId: z.string().nullable(),
+    recipeId: z.string(), recipeVersion: z.number().int(), recipeFingerprint: z.string()
+  }),
+  billingStatus: z.literal('qualification_no_charge')
+});
+
+export type CinematicWardrobeSuggestion = z.infer<typeof cinematicWardrobeSuggestionSchema>;
+
 export const cinematicVideoCapabilitySchema = z.object({
   providerId: z.string().min(1),
   modelId: z.string().min(1),

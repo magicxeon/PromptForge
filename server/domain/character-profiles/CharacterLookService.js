@@ -3,7 +3,7 @@ import { assertActorContext, RepositoryContractError } from '../../repositories/
 import { cinematicWardrobeAuthorityService } from '../assets/CinematicWardrobeAuthorityService.js';
 import { characterUsageService } from './CharacterUsageService.js';
 
-const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'footwear', 'accessory']);
+const GARMENT_ROLES = new Set(['full_look', 'upper', 'lower', 'outerwear', 'footwear', 'accessory']);
 const SOURCE_MODES = new Set(['character_default', 'uploaded', 'uploaded_character_sheet', 'ai_suggestion']);
 
 export class CharacterLookService {
@@ -56,13 +56,16 @@ export class CharacterLookService {
       sourceCharacterOwnerUserId: authorization.attribution.ownerUserId,
       official: authorization.attribution.ownerUserId === actor.userId,
       name: bounded(input.name, 100, 'Untitled Look'),
-      description: bounded(input.description, 500, ''),
+      description: bounded(input.description, 1200, ''),
       tags: normalizeTags(input.tags),
       sourceMode,
       garmentAuthorities,
       sourceSheetAssetId: sourceSheetAssetId || null,
       authoritySnapshot: authority.assets,
       canonicalFaceAssetId: authorization.identityPack.canonicalFaceAssetId,
+      suggestionSnapshot: sourceMode === 'ai_suggestion'
+        ? normalizeSuggestionSnapshot(input.suggestionSnapshot)
+        : null,
       idempotencyKey: input.idempotencyKey
     }, actor);
     return toProjection(record);
@@ -220,6 +223,11 @@ function normalizeTags(value) {
   return [...new Set((Array.isArray(value) ? value : []).map(item => bounded(item, 40, '')).filter(Boolean))].slice(0, 12);
 }
 
+function normalizeSuggestionSnapshot(value) {
+  if (!value || typeof value !== 'object') return null;
+  return structuredClone(value);
+}
+
 function bounded(value, maximum, fallback) {
   const normalized = String(value || '').trim();
   return normalized ? normalized.slice(0, maximum) : fallback;
@@ -241,7 +249,8 @@ function toProjection(record) {
     versions: record.versions,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
-    retiredAt: record.retiredAt || null
+    retiredAt: record.retiredAt || null,
+    suggestionSnapshot: record.suggestionSnapshot || null
   });
 }
 

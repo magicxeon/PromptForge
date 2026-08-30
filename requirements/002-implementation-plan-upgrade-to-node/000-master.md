@@ -35,7 +35,7 @@ This master document tracks the implementation checklist for upgrading **ModelPr
   - Integrate dynamic provider submodel selectors (DALL-E 2/3, Imagen 2/3).
   - Create a dedicated generated image viewport card with pulse loaders.
   - Add status-oriented professional footer.
-- [ ] **Step 5: Modular Providers & SSE Image Streaming** (`005-modular-generation-providers.md`)
+- [ ] **Step 5: Modular Providers & SSE Image Streaming** (`../020-generation-providers/architecture/001-modular-image-provider-contract.md`)
   - Implement Provider Strategy pattern on backend (OpenAI, Gemini, others).
   - Integrate OpenAI `gpt-image-*` models via `/v1/images/generations`.
   - Implement progressive SSE streaming proxy for real-time viewport drawing.
@@ -92,7 +92,7 @@ This master document tracks the implementation checklist for upgrading **ModelPr
 
 ## 3. Later Requirement Addendum
 
-- [ ] **Step 23: BytePlus ModelArk Seedream Provider** (`023-byteplus-modelark-seedream-provider.md`)
+- [ ] **Step 23: BytePlus ModelArk Seedream Provider** (`../020-generation-providers/image/003-byteplus-modelark-seedream-provider.md`)
   - Add BytePlus ModelArk Seedream through the config-driven provider registry.
   - Support `MODEL_ARK_API`, region/base URL configuration, and server-side bearer authentication.
   - Map text-to-image and reference-image workflows to ModelArk `/api/v3/images/generations`.

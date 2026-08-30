@@ -49,6 +49,7 @@ export class CharacterLookRepository {
         name: input.name,
         description: input.description || '',
         tags: input.tags || [],
+        suggestionSnapshot: structuredClone(input.suggestionSnapshot || null),
         idempotencyKey: idempotencyKey || null,
         lifecycleStatus: 'draft',
         activeVersionId: version.id,

@@ -7,7 +7,7 @@ description: Qualify and tune BytePlus ModelArk Seedream image models for Momelo
 
 ## Read First
 
-1. `../../009-fashion-model-qualification-and-routing-optimization.md`
+1. `../../../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`
 2. `../../../011-reference-processing-pipeline/001-config-driven-reference-authority-and-preprocessing.md`
 3. `references/source-notes.md`
 4. Current ModelArk provider adapter, public provider catalog and pricing policy
@@ -101,4 +101,3 @@ prompt word count
 indexed role mapping
 returned image count and dimensions
 ```
-

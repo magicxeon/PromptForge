@@ -96,7 +96,7 @@ product and shot metadata remains in the Fashion Blueprint contract.
 
 Fashion-compatible Template versions may also resolve private identity-neutral
 Pose Proxy artifacts defined by
-`009-fashion-model-qualification-and-routing-optimization.md`.
+`../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`.
 These artifacts preserve pose and scene authority without exposing the preview
 person as identity input. They are execution lineage, not public Template media.
 

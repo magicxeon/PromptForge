@@ -1,7 +1,7 @@
 # Professional Guided Scene Builder Experience
 
 **Parent:** `000-master-fashion-blueprint-roadmap.md`  
-**Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `009-fashion-model-qualification-and-routing-optimization.md`, `../011-reference-processing-pipeline`, `../008-implement-adjusment-ui/014-global-route-inventory-and-target-information-architecture.md`, `../014-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`  
+**Related:** `../009-migration-to-react/013-guided-generation-prompt-parity-and-mode-contract.md`, `002-character-pose-and-environment-selection.md`, `../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`, `../011-reference-processing-pipeline`, `../008-implement-adjusment-ui/014-global-route-inventory-and-target-information-architecture.md`, `../019-implementation-commercial-feature-plan/Phase2-19-fashion-routing-qualification-and-promotion.md`
 **Required skill:** `skills/design-professional-scene-prompts/SKILL.md`  
 **Status:** Complete for the local MVP (2026-08-15); commercial qualification,
 durability and support follow-ups are transferred to Requirement 014
@@ -1487,7 +1487,7 @@ quality.
 ### 21.8 Optional Luna AI Prompt Director MVP
 
 Requirement
-`014-luna-ai-prompt-refinement-provider.md` activates the first controlled
+`../020-generation-providers/text/001-luna-ai-prompt-refinement-provider.md` activates the first controlled
 Prompt Director using `gpt-5.6-luna`. The deterministic pipeline must still
 produce a valid production prompt without an AI rewrite call.
 

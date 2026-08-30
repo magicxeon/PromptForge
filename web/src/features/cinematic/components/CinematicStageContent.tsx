@@ -21,7 +21,7 @@ import {
   approveCinematicStoryboardSource, reorderCinematicSceneShots, saveCinematicStoryPlan,
   saveCinematicTimeline, updateCinematicShotDirection, upsertCinematicCast, removeCinematicCast,
   upsertCinematicWardrobeLook, approveCinematicVideoAttempt, createCinematicVideoAttempt,
-  quoteCinematicVideoAttempt, getCinematicVideoCapabilityCatalog
+  quoteCinematicVideoAttempt, getCinematicVideoCapabilityCatalog, suggestCinematicWardrobe
 } from '../api/cinematicApi';
 import { getVideoTask } from '../../generation/api/videoGenerationApi';
 import type { CinematicProject, CinematicScene } from '../schemas/cinematicSchemas';
@@ -360,7 +360,7 @@ function CastStage({ mode, onModeChange, project, onProjectChanged, onAddCastCha
     </div>
     {castError ? <p role="alert" className="text-sm text-red-400">{castError}</p> : null}
     <CharacterPickerDialog open={pickerOpen} onOpenChange={setPickerOpen} onSelect={addCharacter} />
-    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={setLookDialogOpen} initialMode={lookDialogMode} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} onSaved={look => setCharacterLooks(current => [look, ...current.filter(item => item.id !== look.id)])} /> : null}
+    {selectedAssignment ? <CharacterLookDialog open={lookDialogOpen} onOpenChange={setLookDialogOpen} initialMode={lookDialogMode} characterProfileId={selectedAssignment.characterProfileId} characterProfileVersionId={selectedAssignment.characterProfileVersionId} requestAiSuggestion={project ? () => suggestCinematicWardrobe(project.id, selectedAssignment.id) : undefined} onSaved={look => setCharacterLooks(current => [look, ...current.filter(item => item.id !== look.id)])} /> : null}
   </>;
 }
 

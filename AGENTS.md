@@ -270,6 +270,27 @@ for performance-sensitive work.
   `requirements/Knowledge/ui-design-system-and-visual-language.md` and the
   visual reference named by the owning requirement.
 
+### 4.1 Scoped UI Preservation Gate
+
+For every screen or shared-component change:
+
+1. Name the exact section, interaction, and responsive states owned by the
+   request before editing.
+2. Preserve all sibling sections, established actions, loading/error states,
+   sticky summaries, navigation, and responsive behavior unless an explicit
+   acceptance criterion changes them.
+3. Extend an existing component when its ownership and contract match. Create
+   a new component only when the new responsibility is cohesive and cannot be
+   expressed safely through the existing public contract.
+4. Do not use a nearby redesign as permission to move, remove, restyle, or
+   replace unrelated working UI. Requirement reconciliation must identify each
+   intentional removal or relocation explicitly.
+5. Add regression assertions for both the requested behavior and adjacent
+   behavior that has previously regressed. A changed section is not complete
+   merely because its new state renders.
+6. Review the scoped diff before handoff and revert only agent-authored,
+   out-of-scope UI churn. Never revert unrelated user changes.
+
 ## 5. State, Identity, and Ownership
 
 - Feature state belongs to its React route/store and versioned persistence

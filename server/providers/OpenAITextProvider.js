@@ -71,6 +71,40 @@ const CINEMATIC_STORY_INSTRUCTION = [
   'Candidate scenes must be filmable and ordered. Return only the requested structured result.'
 ].join(' ');
 
+const CINEMATIC_WARDROBE_SCHEMA = Object.freeze({
+  type: 'object',
+  additionalProperties: false,
+  required: [
+    'lookName', 'wardrobeDirection', 'garments', 'palette', 'materials',
+    'sceneScope', 'recommendedSceneIds', 'rationale', 'movementConstraints',
+    'continuityNotes', 'warnings'
+  ],
+  properties: {
+    lookName: { type: 'string' },
+    wardrobeDirection: { type: 'string' },
+    garments: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['upper', 'lower', 'outerwear', 'footwear', 'accessories'],
+      properties: {
+        upper: { type: 'string' },
+        lower: { type: 'string' },
+        outerwear: { type: 'string' },
+        footwear: { type: 'string' },
+        accessories: { type: 'array', maxItems: 6, items: { type: 'string' } }
+      }
+    },
+    palette: { type: 'array', maxItems: 6, items: { type: 'string' } },
+    materials: { type: 'array', maxItems: 8, items: { type: 'string' } },
+    sceneScope: { type: 'string', enum: ['film_wide', 'scene_specific'] },
+    recommendedSceneIds: { type: 'array', maxItems: 12, items: { type: 'string' } },
+    rationale: { type: 'string' },
+    movementConstraints: { type: 'array', maxItems: 8, items: { type: 'string' } },
+    continuityNotes: { type: 'array', maxItems: 8, items: { type: 'string' } },
+    warnings: { type: 'array', maxItems: 8, items: { type: 'string' } }
+  }
+});
+
 export class OpenAITextProvider {
   constructor(apiKey, {
     fetchImpl = globalThis.fetch,
@@ -156,6 +190,22 @@ export class OpenAITextProvider {
       errorPrefix: 'cinematic_story_enhancement'
     });
     const result = parseJsonOutput(payload, 'cinematic_story_enhancement');
+    return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
+  }
+
+  async suggestCinematicWardrobe({ context, recipe, model, reasoningEffort, maxOutputTokens, timeoutMs }) {
+    const payload = await this.requestStructured({
+      model,
+      instructions: recipe.instruction,
+      input: context,
+      reasoningEffort,
+      schemaName: 'momelo_cinematic_wardrobe_suggestion',
+      schema: CINEMATIC_WARDROBE_SCHEMA,
+      maxOutputTokens,
+      timeoutMs,
+      errorPrefix: 'cinematic_wardrobe_suggestion'
+    });
+    const result = parseJsonOutput(payload, 'cinematic_wardrobe_suggestion');
     return { ...result, responseId: payload?.id || null, usage: payload?.usage || null };
   }
 

@@ -192,9 +192,14 @@ test('AI wardrobe direction is stored as a non-approved proposal without Assets'
     characterProfileVersionId: 'charver_a',
     name: 'AI Station Direction',
     description: 'A restrained commuter look suitable for a damp night platform.',
-    sourceMode: 'ai_suggestion'
+    sourceMode: 'ai_suggestion',
+    suggestionSnapshot: {
+      wardrobeDirection: 'A restrained commuter look suitable for a damp night platform.',
+      provenance: { recipeId: 'cinematic-wardrobe-suggestion', recipeVersion: 1 }
+    }
   }, alice);
   assert.equal(created.versions[0].sourceMode, 'ai_suggestion');
   assert.equal(created.versions[0].status, 'source_ready');
   assert.equal(created.approvedVersionId, null);
+  assert.equal(created.suggestionSnapshot.provenance.recipeVersion, 1);
 });

@@ -7,7 +7,8 @@ import {
   cinematicProduceShotContextSchema,
   cinematicVideoAttemptResponseSchema,
   cinematicVideoQuoteSchema,
-  cinematicStoryEnhancementSchema
+  cinematicStoryEnhancementSchema,
+  cinematicWardrobeSuggestionSchema
 } from '../schemas/cinematicSchemas';
 import { apiRequest } from '../../../lib/api/apiClient';
 import type { CinematicSetupDraft } from '../schemas/cinematicSchemas';
@@ -64,6 +65,13 @@ export function enhanceCinematicStory(draft: CinematicSetupDraft) {
     body: draft,
     schema: cinematicStoryEnhancementSchema
   });
+}
+
+export function suggestCinematicWardrobe(projectId: string, assignmentId: string) {
+  return apiRequest(
+    `${cinematicApiPaths.project(projectId)}/cast/${encodeURIComponent(assignmentId)}/wardrobe-suggestion`,
+    { method: 'POST', schema: cinematicWardrobeSuggestionSchema }
+  );
 }
 
 export function updateCinematicStage(projectId: string, stage: CinematicStage, expectedVersion: number) {

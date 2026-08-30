@@ -13,12 +13,31 @@ import type { CharacterLook } from '../schemas/profileSchemas';
 
 export type CharacterLookDialogMode = 'ai' | 'upload';
 
+export type CharacterLookSuggestion = {
+  lookName: string;
+  wardrobeDirection: string;
+  garments: { upper: string; lower: string; outerwear: string; footwear: string; accessories: string[] };
+  palette: string[];
+  materials: string[];
+  sceneScope: 'film_wide' | 'scene_specific';
+  recommendedSceneIds: string[];
+  rationale: string;
+  movementConstraints: string[];
+  continuityNotes: string[];
+  warnings: string[];
+  provenance: Record<string, unknown>;
+  billingStatus: 'qualification_no_charge';
+};
+
+type GarmentRole = 'upper' | 'lower' | 'outerwear' | 'footwear' | 'accessory';
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   characterProfileId: string;
   characterProfileVersionId: string;
   initialMode?: CharacterLookDialogMode;
+  requestAiSuggestion?: () => Promise<CharacterLookSuggestion>;
   onSaved: (look: CharacterLook) => void;
 };
 
@@ -38,17 +57,22 @@ export function CharacterLookDialog({
   characterProfileId,
   characterProfileVersionId,
   initialMode = 'upload',
+  requestAiSuggestion,
   onSaved
 }: Props) {
   const { t } = useTranslation('cinematic');
   const [mode, setMode] = useState<CharacterLookDialogMode>(initialMode);
   const [uploadKind, setUploadKind] = useState<'garment' | 'sheet'>('garment');
+  const [garmentSourceMode, setGarmentSourceMode] = useState<'full_look' | 'separate'>('full_look');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [garmentRole, setGarmentRole] = useState('full_look');
   const [sourceFile, setSourceFile] = useState<File | null>(null);
+  const [pieceFiles, setPieceFiles] = useState<Partial<Record<GarmentRole, File>>>({});
   const [rightsAccepted, setRightsAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestionFailed, setSuggestionFailed] = useState(false);
+  const [suggestion, setSuggestion] = useState<CharacterLookSuggestion | null>(null);
   const [error, setError] = useState<string | null>(null);
   const previewUrl = useMemo(() => sourceFile ? URL.createObjectURL(sourceFile) : null, [sourceFile]);
 
@@ -60,20 +84,47 @@ export function CharacterLookDialog({
     if (!open) return;
     setMode(initialMode);
     setUploadKind('garment');
+    setGarmentSourceMode('full_look');
     setName('');
     setDescription('');
-    setGarmentRole('full_look');
     setSourceFile(null);
+    setPieceFiles({});
     setRightsAccepted(false);
     setError(null);
+    setSuggestionFailed(false);
+    setSuggestion(null);
   }, [initialMode, open]);
 
   const canSave = Boolean(
     name.trim()
     && !saving
-    && (mode === 'ai' ? description.trim() : sourceFile)
+    && (mode === 'ai'
+      ? description.trim()
+      : uploadKind === 'sheet'
+        ? sourceFile
+        : garmentSourceMode === 'full_look'
+          ? sourceFile
+          : pieceFiles.upper && pieceFiles.lower)
     && (mode !== 'upload' || uploadKind !== 'sheet' || rightsAccepted)
   );
+
+  async function requestSuggestion() {
+    if (!requestAiSuggestion || suggesting) return;
+    setSuggesting(true);
+    setSuggestionFailed(false);
+    setError(null);
+    try {
+      const next = await requestAiSuggestion();
+      setSuggestion(next);
+      setName(next.lookName);
+      setDescription(next.wardrobeDirection);
+    } catch (reason) {
+      setSuggestionFailed(true);
+      setError(reason instanceof Error ? reason.message : t('cinematic.status.saveFailed'));
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,16 +139,34 @@ export function CharacterLookDialog({
           name: name.trim(),
           description: description.trim(),
           sourceMode: 'ai_suggestion',
+          suggestionSnapshot: suggestion ? structuredClone(suggestion) as unknown as Record<string, unknown> : null,
           idempotencyKey
         });
         finish(proposal);
         return;
       }
 
+      if (uploadKind === 'garment' && garmentSourceMode === 'separate') {
+        const uploaded = await Promise.all((Object.entries(pieceFiles) as [GarmentRole, File][]).map(async ([role, file]) => [
+          role,
+          await uploadGenerationReference(await readFileAsDataUrl(file), 'outfit_front', `character-look-${role}`)
+        ] as const));
+        const garmentAuthorities = Object.fromEntries(uploaded.map(([role, source]) => [role, { front: source.referenceId }]));
+        finish(await createCharacterLookDraft(characterProfileId, {
+          characterProfileVersionId,
+          name: name.trim(),
+          description: description.trim() || undefined,
+          sourceMode: 'uploaded',
+          garmentAuthorities,
+          idempotencyKey
+        }));
+        return;
+      }
+
       const source = await uploadGenerationReference(
         await readFileAsDataUrl(sourceFile as File),
         'outfit_front',
-        uploadKind === 'sheet' ? 'character-look-sheet' : 'character-look'
+        uploadKind === 'sheet' ? 'character-look-sheet' : 'character-look-full-look'
       );
       const draft = await createCharacterLookDraft(characterProfileId, {
         characterProfileVersionId,
@@ -106,7 +175,7 @@ export function CharacterLookDialog({
         sourceMode: uploadKind === 'sheet' ? 'uploaded_character_sheet' : 'uploaded',
         ...(uploadKind === 'sheet'
           ? { sourceSheetAssetId: source.referenceId }
-          : { garmentAuthorities: { [garmentRole]: { front: source.referenceId } } }),
+          : { garmentAuthorities: { full_look: { front: source.referenceId } } }),
         idempotencyKey
       });
       if (uploadKind === 'garment') {
@@ -150,23 +219,45 @@ export function CharacterLookDialog({
           <button type="button" role="radio" aria-checked={mode === 'upload'} className={mode === 'upload' ? 'is-active' : ''} onClick={() => { setMode('upload'); setError(null); }}><Upload aria-hidden="true" />{t('cinematic.lookDraft.uploadWardrobe')}</button>
         </div>
         <form className="character-look-draft-form" onSubmit={event => void save(event)}>
-          <label><span>{t('cinematic.lookDraft.name')}</span><input value={name} maxLength={100} onChange={event => setName(event.target.value)} required /></label>
           {mode === 'ai' ? <>
-            <label><span>{t('cinematic.lookDraft.aiDirection')}</span><textarea value={description} maxLength={500} rows={5} onChange={event => setDescription(event.target.value)} required placeholder={t('cinematic.lookDraft.aiDirectionPlaceholder')} /></label>
+            <section className="character-look-analysis" aria-busy={suggesting}>
+              <div>
+                <strong>{t('cinematic.lookDraft.analysisTitle')}</strong>
+                <p>{t(requestAiSuggestion ? 'cinematic.lookDraft.analysisHint' : 'cinematic.lookDraft.analysisUnavailableHint')}</p>
+              </div>
+              {requestAiSuggestion ? <Button
+                type="button"
+                variant="secondary"
+                disabled={suggesting || saving}
+                icon={suggesting ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}
+                onClick={() => void requestSuggestion()}
+              >{t(suggesting
+                ? 'cinematic.lookDraft.analyzingSuggestion'
+                : suggestionFailed
+                  ? 'cinematic.lookDraft.retrySuggestion'
+                  : suggestion
+                    ? 'cinematic.lookDraft.regenerateSuggestion'
+                    : 'cinematic.lookDraft.generateSuggestion')}</Button> : null}
+            </section>
+            <label><span>{t('cinematic.lookDraft.name')}</span><input value={name} maxLength={100} onChange={event => setName(event.target.value)} required /></label>
+            <label><span>{t('cinematic.lookDraft.aiDirection')}</span><textarea value={description} maxLength={1200} rows={6} onChange={event => setDescription(event.target.value)} required placeholder={t('cinematic.lookDraft.aiDirectionPlaceholder')} /></label>
+            {suggestion ? <section className="character-look-suggestion-summary"><strong>{t('cinematic.lookDraft.suggestionSummary')}</strong><p>{suggestion.rationale}</p><dl><div><dt>{t('cinematic.lookDraft.palette')}</dt><dd>{suggestion.palette.join(', ') || '—'}</dd></div><div><dt>{t('cinematic.lookDraft.materials')}</dt><dd>{suggestion.materials.join(', ') || '—'}</dd></div></dl>{suggestion.warnings.length ? <ul>{suggestion.warnings.map(item => <li key={item}>{item}</li>)}</ul> : null}</section> : null}
             <p className="character-look-draft-form__notice">{t('cinematic.lookDraft.aiNotice')}</p>
           </> : <>
+            <label><span>{t('cinematic.lookDraft.name')}</span><input value={name} maxLength={100} onChange={event => setName(event.target.value)} required /></label>
             <div className="character-look-upload-kind" role="radiogroup" aria-label={t('cinematic.lookDraft.uploadKind')}>
-              <button type="button" role="radio" aria-checked={uploadKind === 'garment'} className={uploadKind === 'garment' ? 'is-active' : ''} onClick={() => { setUploadKind('garment'); setSourceFile(null); }}><Shirt aria-hidden="true" /><span><strong>{t('cinematic.lookDraft.garmentSource')}</strong><small>{t('cinematic.lookDraft.garmentSourceHint')}</small></span></button>
-              <button type="button" role="radio" aria-checked={uploadKind === 'sheet'} className={uploadKind === 'sheet' ? 'is-active' : ''} onClick={() => { setUploadKind('sheet'); setSourceFile(null); }}><ImageIcon aria-hidden="true" /><span><strong>{t('cinematic.lookDraft.completeSheet')}</strong><small>{t('cinematic.lookDraft.completeSheetHint')}</small></span></button>
+              <button type="button" role="radio" aria-checked={uploadKind === 'garment'} className={uploadKind === 'garment' ? 'is-active' : ''} onClick={() => { setUploadKind('garment'); setSourceFile(null); setPieceFiles({}); }}><Shirt aria-hidden="true" /><span><strong>{t('cinematic.lookDraft.garmentSource')}</strong><small>{t('cinematic.lookDraft.garmentSourceHint')}</small></span></button>
+              <button type="button" role="radio" aria-checked={uploadKind === 'sheet'} className={uploadKind === 'sheet' ? 'is-active' : ''} onClick={() => { setUploadKind('sheet'); setSourceFile(null); setPieceFiles({}); }}><ImageIcon aria-hidden="true" /><span><strong>{t('cinematic.lookDraft.completeSheet')}</strong><small>{t('cinematic.lookDraft.completeSheetHint')}</small></span></button>
             </div>
-            {uploadKind === 'garment' ? <label><span>{t('cinematic.lookDraft.role')}</span><select value={garmentRole} onChange={event => setGarmentRole(event.target.value)}><option value="full_look">{t('cinematic.lookDraft.fullLook')}</option><option value="upper">{t('cinematic.lookDraft.upper')}</option><option value="lower">{t('cinematic.lookDraft.lower')}</option></select></label> : null}
-            <label className={`character-look-upload${uploadKind === 'sheet' ? ' is-sheet' : ''}`}>
-              {uploadKind === 'sheet' ? <ImageIcon aria-hidden="true" /> : <Shirt aria-hidden="true" />}
-              <span>{t(uploadKind === 'sheet' ? 'cinematic.lookDraft.sheetFile' : 'cinematic.lookDraft.garmentFile')}</span>
-              <input type="file" accept="image/*" onChange={event => setSourceFile(event.target.files?.[0] || null)} required />
-              <small>{sourceFile?.name || t('cinematic.lookDraft.frontRequired')}</small>
-              {previewUrl ? <img src={previewUrl} alt={t('cinematic.lookDraft.previewAlt')} /> : null}
-            </label>
+            {uploadKind === 'garment' ? <>
+              <div className="character-look-garment-mode" role="radiogroup" aria-label={t('cinematic.lookDraft.garmentMode')}>
+                <button type="button" role="radio" aria-checked={garmentSourceMode === 'full_look'} className={garmentSourceMode === 'full_look' ? 'is-active' : ''} onClick={() => { setGarmentSourceMode('full_look'); setSourceFile(null); setPieceFiles({}); }}>{t('cinematic.lookDraft.fullLook')}</button>
+                <button type="button" role="radio" aria-checked={garmentSourceMode === 'separate'} className={garmentSourceMode === 'separate' ? 'is-active' : ''} onClick={() => { setGarmentSourceMode('separate'); setSourceFile(null); setPieceFiles({}); }}>{t('cinematic.lookDraft.separatePieces')}</button>
+              </div>
+              {garmentSourceMode === 'full_look' ? <label className="character-look-upload"><Shirt aria-hidden="true" /><span>{t('cinematic.lookDraft.fullLookFile')}</span><input type="file" accept="image/*" onChange={event => setSourceFile(event.target.files?.[0] || null)} required /><small>{sourceFile?.name || t('cinematic.lookDraft.frontRequired')}</small>{previewUrl ? <img src={previewUrl} alt={t('cinematic.lookDraft.previewAlt')} /> : null}</label> : <div className="character-look-file-grid">
+                {(['upper', 'lower', 'outerwear', 'footwear', 'accessory'] as GarmentRole[]).map(role => <label key={role} className="character-look-upload"><Shirt aria-hidden="true" /><span>{t(`cinematic.lookDraft.${role}`)}{['upper', 'lower'].includes(role) ? ' *' : ` (${t('cinematic.lookDraft.optional')})`}</span><input type="file" accept="image/*" required={['upper', 'lower'].includes(role)} onChange={event => setPieceFiles(current => ({ ...current, [role]: event.target.files?.[0] || undefined }))} /><small>{pieceFiles[role]?.name || t(['upper', 'lower'].includes(role) ? 'cinematic.lookDraft.frontRequired' : 'cinematic.lookDraft.optional')}</small></label>)}
+              </div>}
+            </> : <label className="character-look-upload is-sheet"><ImageIcon aria-hidden="true" /><span>{t('cinematic.lookDraft.sheetFile')}</span><input type="file" accept="image/*" onChange={event => setSourceFile(event.target.files?.[0] || null)} required /><small>{sourceFile?.name || t('cinematic.lookDraft.frontRequired')}</small>{previewUrl ? <img src={previewUrl} alt={t('cinematic.lookDraft.previewAlt')} /> : null}</label>}
             {uploadKind === 'sheet' ? <label className="character-look-rights-row"><input type="checkbox" checked={rightsAccepted} onChange={event => setRightsAccepted(event.target.checked)} /><span>{t('cinematic.lookDraft.sheetRights')}</span></label> : null}
             <p className="character-look-draft-form__notice">{t(uploadKind === 'sheet' ? 'cinematic.lookDraft.sheetNotice' : 'cinematic.lookDraft.notice')}</p>
           </>}

@@ -42,6 +42,19 @@ export function registerCinematicRoutes(app, { cinematicService }) {
     }
   });
 
+  app.post('/api/cinematic/projects/:projectId/cast/:assignmentId/wardrobe-suggestion', async (req, res) => {
+    try {
+      res.set('Cache-Control', 'private, no-store');
+      res.json(await cinematicService.suggestWardrobe(
+        req.params.projectId,
+        req.params.assignmentId,
+        req.actorContext
+      ));
+    } catch (error) {
+      sendCinematicError(res, error);
+    }
+  });
+
   app.get('/api/cinematic/projects/:projectId', async (req, res) => {
     try {
       res.json(await cinematicService.getProject(req.params.projectId, req.actorContext));

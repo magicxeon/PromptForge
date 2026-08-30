@@ -1,6 +1,6 @@
 # Future Local Pose Proxy Processing
 
-**Parent MVP contract:** `009-fashion-model-qualification-and-routing-optimization.md`  
+**Parent MVP contract:** `../020-generation-providers/qualification/001-fashion-model-qualification-and-routing.md`
 **Related:** `../011-reference-processing-pipeline`  
 **Status:** Deferred technical option; not required for MVP
 

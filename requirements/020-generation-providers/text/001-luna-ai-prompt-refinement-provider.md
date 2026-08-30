@@ -5,7 +5,7 @@
 **Provider adapter:** `server/providers/OpenAITextProvider.js`
 **Initial model:** `gpt-5.6-luna`
 **Related requirement:**
-`010-professional-scene-builder-guided-experience.md`
+`../../013-implementation-fashion-blueprint/010-professional-scene-builder-guided-experience.md`
 
 ## 1. Objective
 

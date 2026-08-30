@@ -13,8 +13,8 @@ integration.
 Provider-specific rate cards, parameterized video Credit formulas and adapter
 constraints are owned by:
 
-- `005-video-provider-pricing-and-credit-model.md`;
-- `006-video-generation-provider-contract.md`.
+- `../020-generation-providers/video/001-video-provider-pricing-and-credit-model.md`;
+- `../020-generation-providers/video/002-video-generation-provider-contract.md`.
 
 When those documents are more specific about video billing or provider
 capability, they extend this provider-independent contract without changing its
